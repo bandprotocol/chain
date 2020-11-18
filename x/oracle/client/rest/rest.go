@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/gorilla/mux"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/client/common/proof"
+	"github.com/bandprotocol/chain/x/oracle/client/common/proof"
 )
 
 const (

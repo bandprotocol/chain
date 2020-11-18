@@ -1,8 +1,8 @@
 package oracle
 
 import (
-	"github.com/bandprotocol/bandchain/chain/x/oracle/keeper"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/keeper"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 const (

@@ -22,11 +22,11 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	bandapp "github.com/bandprotocol/bandchain/chain/app"
-	"github.com/bandprotocol/bandchain/chain/pkg/filecache"
-	"github.com/bandprotocol/bandchain/chain/x/oracle"
-	me "github.com/bandprotocol/bandchain/chain/x/oracle/keeper"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	bandapp "github.com/bandprotocol/chain/app"
+	"github.com/bandprotocol/chain/pkg/filecache"
+	"github.com/bandprotocol/chain/x/oracle"
+	me "github.com/bandprotocol/chain/x/oracle/keeper"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // Account is a data structure to store key of test account.

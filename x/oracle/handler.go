@@ -3,8 +3,8 @@ package oracle
 import (
 	"fmt"
 
-	"github.com/bandprotocol/bandchain/chain/pkg/gzip"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/pkg/gzip"
+	"github.com/bandprotocol/chain/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
-	"github.com/bandprotocol/bandchain/chain/hooks/common"
+	"github.com/bandprotocol/chain/hooks/common"
 )
 
 // handleMsgSend implements emitter handler for MsgSend.

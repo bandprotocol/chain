@@ -10,8 +10,8 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/bandprotocol/bandchain/chain/hooks/common"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 type processingResult struct {

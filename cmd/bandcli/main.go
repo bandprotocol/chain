@@ -22,8 +22,8 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/bandchain/chain/app"
-	bandclient "github.com/bandprotocol/bandchain/chain/client"
+	"github.com/bandprotocol/chain/app"
+	bandclient "github.com/bandprotocol/chain/client"
 )
 
 const flagCosmosHDPath = "cosmos-hd-path"

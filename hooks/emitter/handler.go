@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/bandchain/chain/hooks/common"
-	"github.com/bandprotocol/bandchain/chain/x/oracle"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/x/oracle"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 func parseEvents(events sdk.StringEvents) common.EvMap {
