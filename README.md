@@ -5,6 +5,14 @@ BandChain blockchain reference implementation.
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/bandprotocol/chain)](https://pkg.go.dev/github.com/bandprotocol/chain)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bandprotocol/chain)](https://goreportcard.com/report/github.com/bandprotocol/chain)
 
+## Building the source
+
+Building bandd requires Go (version 1.13.5 or later) and gcc. You can install them using your favourite package manager. Once the dependencies are installed, run
+
+```shell
+make install
+```
+
 ## Running a Validator Node
 
 [📚 Guide to Becoming a Validator](https://medium.com/bandprotocol/bandchain-wenchang-testnet-2-how-to-join-as-a-validator-76bc4180ddd7)
