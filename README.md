@@ -15,7 +15,7 @@ make install
 
 ## Running a Validator Node
 
-[📚 Guide to Becoming a Validator](https://medium.com/bandprotocol/bandchain-wenchang-testnet-2-how-to-join-as-a-validator-76bc4180ddd7)
+[📚 Guide to Becoming a Validator](https://medium.com/bandprotocol/bandchain-guanyu-testnet-3-successful-upgrade-how-to-join-as-a-validator-2766ca6717d4)
 
 ## License & Contributing
 
