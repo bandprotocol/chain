@@ -1,4 +1,4 @@
-name: Chain Workflow
+name: Tests
 on: push
 
 jobs:
