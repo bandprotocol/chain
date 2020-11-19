@@ -1,4 +1,4 @@
-## chain
+## BandChain - Decentralized Data Delivery Network
 
 BandChain blockchain reference implementation.
 
