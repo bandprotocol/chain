@@ -15,6 +15,7 @@ import (
 	"github.com/tendermint/iavl"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/bandprotocol/chain/pkg/obi"
 	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
@@ -198,42 +199,12 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			return
 		}
 
-		proof := resp.Response.GetProof()
-		if proof == nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, "Proof not found")
+		iavlProof, multiStoreProof, err := extractProofs(resp, &ctx)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		ops := proof.GetOps()
-		if ops == nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, "proof ops not found")
-			return
-		}
-
-		// Extract iavl proof and multi store proof
-		var iavlProof iavl.ValueOp
-		var multiStoreProof rootmulti.MultiStoreProofOp
-		for _, op := range ops {
-			opType := op.GetType()
-			if opType == "iavl:v" {
-				err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
-				if err != nil {
-					rest.WriteErrorResponse(w, http.StatusInternalServerError,
-						fmt.Sprintf("iavl: %s", err.Error()),
-					)
-					return
-				}
-			} else if opType == "multistore" {
-				mp, err := rootmulti.MultiStoreProofOpDecoder(op)
-				multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
-				if err != nil {
-					rest.WriteErrorResponse(w, http.StatusInternalServerError,
-						fmt.Sprintf("multiStore: %s", err.Error()),
-					)
-					return
-				}
-			}
-		}
 		if iavlProof.Proof == nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
 			return
@@ -245,7 +216,7 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			return
 		}
 		blockRelay := BlockRelayProof{
-			MultiStoreProof:        GetMultiStoreProof(multiStoreProof),
+			MultiStoreProof:        GetMultiStoreProof(*multiStoreProof),
 			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.Codec, commit.Header),
 			Signatures:             signatures,
 		}
@@ -262,7 +233,7 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			RequestPacket:  rs.Req,
 			ResponsePacket: rs.Res,
 			Version:        uint64(eventHeight),
-			MerklePaths:    GetIAVLMerklePaths(&iavlProof),
+			MerklePaths:    GetIAVLMerklePaths(iavlProof),
 		}
 
 		// Calculate byte for proofbytes
@@ -514,46 +485,17 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 			return
 		}
 
-		proof := resp.Response.GetProof()
-		if proof == nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, "Proof not found")
+		iavlProof, multiStoreProof, err := extractProofs(resp, &ctx)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		ops := proof.GetOps()
-		if ops == nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, "proof ops not found")
-			return
-		}
-
-		// Extract iavl proof and multi store proof
-		var iavlProof iavl.ValueOp
-		var multiStoreProof rootmulti.MultiStoreProofOp
-		for _, op := range ops {
-			opType := op.GetType()
-			if opType == "iavl:v" {
-				err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
-				if err != nil {
-					rest.WriteErrorResponse(w, http.StatusInternalServerError,
-						fmt.Sprintf("iavl: %s", err.Error()),
-					)
-					return
-				}
-			} else if opType == "multistore" {
-				mp, err := rootmulti.MultiStoreProofOpDecoder(op)
-				multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
-				if err != nil {
-					rest.WriteErrorResponse(w, http.StatusInternalServerError,
-						fmt.Sprintf("multiStore: %s", err.Error()),
-					)
-					return
-				}
-			}
-		}
 		if iavlProof.Proof == nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
 			return
 		}
+
 		eventHeight := iavlProof.Proof.Leaves[0].Version
 
 		// Produce block relay proof
@@ -563,7 +505,7 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 			return
 		}
 		blockRelay := BlockRelayProof{
-			MultiStoreProof:        GetMultiStoreProof(multiStoreProof),
+			MultiStoreProof:        GetMultiStoreProof(*multiStoreProof),
 			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.Codec, commit.Header),
 			Signatures:             signatures,
 		}
@@ -576,7 +518,7 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 		requestsCountProof := RequestsCountProof{
 			Count:       uint64(rs),
 			Version:     uint64(eventHeight),
-			MerklePaths: GetIAVLMerklePaths(&iavlProof),
+			MerklePaths: GetIAVLMerklePaths(iavlProof),
 		}
 
 		// Calculate byte for proofbytes
@@ -614,4 +556,40 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 			EVMProofBytes: evmProofBytes,
 		})
 	}
+}
+
+func extractProofs(resp *ctypes.ResultABCIQuery, ctx *context.CLIContext) (*iavl.ValueOp, *rootmulti.MultiStoreProofOp, error) {
+	proof := resp.Response.GetProof()
+	if proof == nil {
+		return nil, nil, fmt.Errorf("Proof not found")
+	}
+
+	ops := proof.GetOps()
+	if ops == nil {
+		return nil, nil, fmt.Errorf("Proof ops not found")
+	}
+
+	// Extract iavl proof and multi store proof
+	var iavlProof iavl.ValueOp
+	var multiStoreProof rootmulti.MultiStoreProofOp
+	for _, op := range ops {
+
+		opType := op.GetType()
+
+		if opType == "iavl:v" {
+			err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
+			if err != nil {
+				return nil, nil, fmt.Errorf("iavl: %s", err.Error())
+			}
+		} else if opType == "multistore" {
+			mp, err := rootmulti.MultiStoreProofOpDecoder(op)
+
+			multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
+			if err != nil {
+				return nil, nil, fmt.Errorf("multiStore: %s", err.Error())
+			}
+		}
+	}
+
+	return &iavlProof, &multiStoreProof, nil
 }
