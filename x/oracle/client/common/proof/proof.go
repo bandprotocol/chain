@@ -22,8 +22,9 @@ import (
 )
 
 var (
-	relayArguments  abi.Arguments
-	verifyArguments abi.Arguments
+	relayArguments       abi.Arguments
+	verifyArguments      abi.Arguments
+	verifyCountArguments abi.Arguments
 )
 
 const (
@@ -36,6 +37,10 @@ func init() {
 		panic(err)
 	}
 	err = json.Unmarshal(verifyFormat, &verifyArguments)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(verifyCountFormat, &verifyCountArguments)
 	if err != nil {
 		panic(err)
 	}
@@ -80,6 +85,25 @@ func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	)
 }
 
+type RequestsCountProof struct {
+	Count       uint64           `json:"count"`
+	Version     uint64           `json:"version"`
+	MerklePaths []IAVLMerklePath `json:"merklePaths"`
+}
+
+func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
+	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
+	for i, path := range o.MerklePaths {
+		parsePaths[i] = path.encodeToEthFormat()
+	}
+	return verifyCountArguments.Pack(
+		big.NewInt(int64(blockHeight)),
+		big.NewInt(int64(o.Count)),
+		big.NewInt(int64(o.Version)),
+		parsePaths,
+	)
+}
+
 type JsonProof struct {
 	BlockHeight     uint64          `json:"blockHeight"`
 	OracleDataProof OracleDataProof `json:"oracleDataProof"`
@@ -92,6 +116,12 @@ type JsonMultiProof struct {
 	BlockRelayProof      BlockRelayProof   `json:"blockRelayProof"`
 }
 
+type JsonRequestsCountProof struct {
+	BlockHeight     uint64             `json:"blockHeigh"`
+	CountProof      RequestsCountProof `json:"countProof"`
+	BlockRelayProof BlockRelayProof    `json:"blockRelayProof"`
+}
+
 type Proof struct {
 	JsonProof     JsonProof        `json:"jsonProof"`
 	EVMProofBytes tmbytes.HexBytes `json:"evmProofBytes"`
@@ -100,6 +130,11 @@ type Proof struct {
 type MultiProof struct {
 	JsonProof     JsonMultiProof   `json:"jsonProof"`
 	EVMProofBytes tmbytes.HexBytes `json:"evmProofBytes"`
+}
+
+type CountProof struct {
+	JsonProof     JsonRequestsCountProof `json:"jsonProof"`
+	EVMProofBytes tmbytes.HexBytes       `json:"evmProofBytes"`
 }
 
 func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc {
@@ -113,6 +148,7 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			height = nil
 		}
 
+		// Parse Request ID
 		vars := mux.Vars(r)
 		intRequestID, err := strconv.ParseUint(vars[RequestIDTag], 10, 64)
 		if err != nil {
@@ -120,6 +156,8 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			return
 		}
 		requestID := types.RequestID(intRequestID)
+
+		// Get Request and proof
 		bz, _, err := ctx.Query(fmt.Sprintf("custom/%s/%s/%d", route, types.QueryRequests, requestID))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -172,6 +210,7 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			return
 		}
 
+		// Extract iavl proof and multi store proof
 		var iavlProof iavl.ValueOp
 		var multiStoreProof rootmulti.MultiStoreProofOp
 		for _, op := range ops {
@@ -442,6 +481,135 @@ func GetMutiProofHandlerFn(cliCtx context.CLIContext, route string) http.Handler
 				BlockHeight:          uint64(commit.Height),
 				OracleDataMultiProof: oracleDataList,
 				BlockRelayProof:      blockRelay,
+			},
+			EVMProofBytes: evmProofBytes,
+		})
+	}
+}
+
+func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		if !ok {
+			return
+		}
+		height := &ctx.Height
+		if ctx.Height == 0 {
+			height = nil
+		}
+
+		commit, err := ctx.Client.Commit(height)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		resp, err := ctx.Client.ABCIQueryWithOptions(
+			"/store/oracle/key",
+			types.RequestCountStoreKey,
+			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		proof := resp.Response.GetProof()
+		if proof == nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, "Proof not found")
+			return
+		}
+
+		ops := proof.GetOps()
+		if ops == nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, "proof ops not found")
+			return
+		}
+
+		// Extract iavl proof and multi store proof
+		var iavlProof iavl.ValueOp
+		var multiStoreProof rootmulti.MultiStoreProofOp
+		for _, op := range ops {
+			opType := op.GetType()
+			if opType == "iavl:v" {
+				err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
+				if err != nil {
+					rest.WriteErrorResponse(w, http.StatusInternalServerError,
+						fmt.Sprintf("iavl: %s", err.Error()),
+					)
+					return
+				}
+			} else if opType == "multistore" {
+				mp, err := rootmulti.MultiStoreProofOpDecoder(op)
+				multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
+				if err != nil {
+					rest.WriteErrorResponse(w, http.StatusInternalServerError,
+						fmt.Sprintf("multiStore: %s", err.Error()),
+					)
+					return
+				}
+			}
+		}
+		if iavlProof.Proof == nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
+			return
+		}
+		eventHeight := iavlProof.Proof.Leaves[0].Version
+
+		// Produce block relay proof
+		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		blockRelay := BlockRelayProof{
+			MultiStoreProof:        GetMultiStoreProof(multiStoreProof),
+			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.Codec, commit.Header),
+			Signatures:             signatures,
+		}
+
+		// Parse requests count
+		resValue := resp.Response.GetValue()
+		var rs int64
+		obi.MustDecode(resValue, &rs)
+
+		requestsCountProof := RequestsCountProof{
+			Count:       uint64(rs),
+			Version:     uint64(eventHeight),
+			MerklePaths: GetIAVLMerklePaths(&iavlProof),
+		}
+
+		// Calculate byte for proofbytes
+		var relayAndVerifyCountArguments abi.Arguments
+		format := `[{"type":"bytes"},{"type":"bytes"}]`
+		err = json.Unmarshal([]byte(format), &relayAndVerifyCountArguments)
+		if err != nil {
+			panic(err)
+		}
+
+		blockRelayBytes, err := blockRelay.encodeToEthData()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		requestsCountBytes, err := requestsCountProof.encodeToEthData(uint64(commit.Height))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		evmProofBytes, err := relayAndVerifyCountArguments.Pack(blockRelayBytes, requestsCountBytes)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, ctx, CountProof{
+			JsonProof: JsonRequestsCountProof{
+				BlockHeight:     uint64(commit.Height),
+				CountProof:      requestsCountProof,
+				BlockRelayProof: blockRelay,
 			},
 			EVMProofBytes: evmProofBytes,
 		})
