@@ -15,7 +15,6 @@ import (
 	"github.com/tendermint/iavl"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/bandprotocol/chain/pkg/obi"
 	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
@@ -189,17 +188,11 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			return
 		}
 
-		resp, err := ctx.Client.ABCIQueryWithOptions(
-			"/store/oracle/key",
+		value, iavlProof, multiStoreProof, err := getProofsByKey(
+			ctx,
 			types.ResultStoreKey(requestID),
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
 		)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		iavlProof, multiStoreProof, err := extractProofs(resp, &ctx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -220,14 +213,13 @@ func GetProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc
 			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.Codec, commit.Header),
 			Signatures:             signatures,
 		}
-		resValue := resp.Response.GetValue()
 
 		type result struct {
 			Req types.OracleRequestPacketData
 			Res types.OracleResponsePacketData
 		}
 		var rs result
-		obi.MustDecode(resValue, &rs)
+		obi.MustDecode(value, &rs)
 
 		oracleData := OracleDataProof{
 			RequestPacket:  rs.Req,
@@ -475,17 +467,11 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 			return
 		}
 
-		resp, err := ctx.Client.ABCIQueryWithOptions(
-			"/store/oracle/key",
+		value, iavlProof, multiStoreProof, err := getProofsByKey(
+			ctx,
 			types.RequestCountStoreKey,
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
 		)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		iavlProof, multiStoreProof, err := extractProofs(resp, &ctx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -511,9 +497,8 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 		}
 
 		// Parse requests count
-		resValue := resp.Response.GetValue()
 		var rs int64
-		obi.MustDecode(resValue, &rs)
+		ctx.Codec.MustUnmarshalBinaryLengthPrefixed(value, &rs)
 
 		requestsCountProof := RequestsCountProof{
 			Count:       uint64(rs),
@@ -558,15 +543,24 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 	}
 }
 
-func extractProofs(resp *ctypes.ResultABCIQuery, ctx *context.CLIContext) (*iavl.ValueOp, *rootmulti.MultiStoreProofOp, error) {
+func getProofsByKey(ctx context.CLIContext, key []byte, queryOptions rpcclient.ABCIQueryOptions) ([]byte, *iavl.ValueOp, *rootmulti.MultiStoreProofOp, error) {
+	resp, err := ctx.Client.ABCIQueryWithOptions(
+		"/store/oracle/key",
+		key,
+		queryOptions,
+	)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
 	proof := resp.Response.GetProof()
 	if proof == nil {
-		return nil, nil, fmt.Errorf("Proof not found")
+		return nil, nil, nil, fmt.Errorf("Proof not found")
 	}
 
 	ops := proof.GetOps()
 	if ops == nil {
-		return nil, nil, fmt.Errorf("Proof ops not found")
+		return nil, nil, nil, fmt.Errorf("Proof ops not found")
 	}
 
 	// Extract iavl proof and multi store proof
@@ -579,17 +573,17 @@ func extractProofs(resp *ctypes.ResultABCIQuery, ctx *context.CLIContext) (*iavl
 		if opType == "iavl:v" {
 			err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
 			if err != nil {
-				return nil, nil, fmt.Errorf("iavl: %s", err.Error())
+				return nil, nil, nil, fmt.Errorf("iavl: %s", err.Error())
 			}
 		} else if opType == "multistore" {
 			mp, err := rootmulti.MultiStoreProofOpDecoder(op)
 
 			multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
 			if err != nil {
-				return nil, nil, fmt.Errorf("multiStore: %s", err.Error())
+				return nil, nil, nil, fmt.Errorf("multiStore: %s", err.Error())
 			}
 		}
 	}
 
-	return &iavlProof, &multiStoreProof, nil
+	return resp.Response.GetValue(), &iavlProof, &multiStoreProof, nil
 }
