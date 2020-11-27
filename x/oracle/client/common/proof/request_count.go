@@ -107,7 +107,7 @@ func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) htt
 
 		rest.PostProcessResponse(w, ctx, CountProof{
 			JsonProof: JsonRequestsCountProof{
-				BlockHeight:     uint64(commit.Height),
+				BlockHeight:     uint64(commit.Height - 1),
 				CountProof:      requestsCountProof,
 				BlockRelayProof: blockRelay,
 			},
