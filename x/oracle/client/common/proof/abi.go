@@ -236,3 +236,55 @@ var verifyFormat = []byte(`
   }
 ]
 `)
+
+var verifyCountFormat = []byte(`
+[
+  {
+    "internalType": "uint256",
+    "name": "_blockHeight",
+    "type": "uint256"
+  },
+  {
+    "internalType": "uint256",
+    "name": "_count",
+    "type": "uint256"
+  },
+  {
+    "internalType": "uint256",
+    "name": "_version",
+    "type": "uint256"
+  },
+  {
+    "components": [
+      {
+        "internalType": "bool",
+        "name": "isDataOnRight",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint8",
+        "name": "subtreeHeight",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeVersion",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "siblingHash",
+        "type": "bytes32"
+      }
+    ],
+    "internalType": "struct IAVLMerklePath.Data[]",
+    "name": "_merklePaths",
+    "type": "tuple[]"
+  }
+]
+`)
