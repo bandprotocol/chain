@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	gogotypes "github.com/gogo/protobuf/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -88,7 +89,11 @@ func (k Keeper) AddPendingRequest(ctx sdk.Context, id types.RequestID) {
 
 // SetPendingResolveList saves the list of pending request that will be resolved at end block.
 func (k Keeper) SetPendingResolveList(ctx sdk.Context, ids []types.RequestID) {
-	bz := k.cdc.MustMarshalBinaryBare(ids)
+	intVs := make([]gogotypes.Int64Value, len(ids))
+	for idx, id := range ids {
+		intVs[idx] = gogotypes.Int64Value{Value: int64(id)}
+	}
+	bz := k.cdc.MustMarshalBinaryBare(intVs)
 	if bz == nil {
 		bz = []byte{}
 	}

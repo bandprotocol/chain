@@ -14,10 +14,10 @@ const (
 )
 
 var (
-	NewKeeper     = keeper.NewKeeper
-	NewQuerier    = keeper.NewQuerier
-	ModuleCdc     = types.ModuleCdc
-	RegisterCodec = types.RegisterCodec
+	NewKeeper                = keeper.NewKeeper
+	NewQuerier               = keeper.NewQuerier
+	ModuleCdc                = types.ModuleCdc
+	RegisterLegacyAminoCodec = types.RegisterLegacyAminoCodec
 )
 
 type (

@@ -13,7 +13,7 @@ import (
 	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -113,12 +113,15 @@ func getGenesisOracleScripts() []types.OracleScript {
 }
 
 func createValidatorTx(chainID string, acc Account, moniker string, selfDelegation sdk.Coin) authtypes.StdTx {
-	msg := staking.NewMsgCreateValidator(
+	msg, err := stakingtypes.NewMsgCreateValidator(
 		acc.ValAddress, acc.PubKey, selfDelegation,
-		staking.NewDescription(moniker, "", "", "", ""),
-		staking.NewCommissionRates(sdk.MustNewDecFromStr("0.125"), sdk.MustNewDecFromStr("0.3"), sdk.MustNewDecFromStr("0.01")),
+		stakingtypes.NewDescription(moniker, "", "", "", ""),
+		stakingtypes.NewCommissionRates(sdk.MustNewDecFromStr("0.125"), sdk.MustNewDecFromStr("0.3"), sdk.MustNewDecFromStr("0.01")),
 		sdk.NewInt(1),
 	)
+	if err != nil {
+		panic(err)
+	}
 	txMsg := authtypes.StdSignMsg{
 		ChainID:       chainID,
 		AccountNumber: 0,

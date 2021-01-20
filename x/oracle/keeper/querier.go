@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/staking/exported"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -143,7 +143,7 @@ func queryReporters(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 func queryActiveValidators(ctx sdk.Context, k Keeper) ([]byte, error) {
 	vals := []types.QueryActiveValidatorResult{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
-		func(idx int64, val exported.ValidatorI) (stop bool) {
+		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
 				vals = append(vals, types.QueryActiveValidatorResult{
 					Address: val.GetOperator(),

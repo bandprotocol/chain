@@ -43,7 +43,7 @@ func (msg MsgRequestData) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgRequestData) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgReportData - "oracle" (sdk.Msg interface).
@@ -83,7 +83,7 @@ func (msg MsgReportData) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgReportData) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgCreateDataSource - "oracle" (sdk.Msg interface).
@@ -125,7 +125,7 @@ func (msg MsgCreateDataSource) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgCreateDataSource) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgEditDataSource - "oracle" (sdk.Msg interface).
@@ -164,7 +164,7 @@ func (msg MsgEditDataSource) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgEditDataSource) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgCreateOracleScript - "oracle" (sdk.Msg interface).
@@ -212,7 +212,7 @@ func (msg MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgCreateOracleScript) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgEditOracleScript - "oracle" (sdk.Msg interface).
@@ -257,7 +257,7 @@ func (msg MsgEditOracleScript) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgEditOracleScript) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgActivate - "oracle" (sdk.Msg interface).
@@ -281,7 +281,7 @@ func (msg MsgActivate) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgActivate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgAddReporter - "oracle" (sdk.Msg interface).
@@ -311,7 +311,7 @@ func (msg MsgAddReporter) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgAddReporter) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }
 
 // Route returns the route of MsgRemoveReporter - "oracle" (sdk.Msg interface).
@@ -341,5 +341,5 @@ func (msg MsgRemoveReporter) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgRemoveReporter) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+	return sdk.MustSortJSON(amino.MustMarshalJSON(msg))
 }

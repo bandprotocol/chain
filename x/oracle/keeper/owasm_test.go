@@ -82,7 +82,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress}, 1,
@@ -127,13 +127,13 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxAskCount, 5)
 	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
 	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Alice.Address)
-	err = k.PrepareRequest(ctx, &m)
+	err = k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "insufficent available validators: 3 < 4")
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err = k.PrepareRequest(ctx, &m)
+	err = k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 }
 
@@ -143,9 +143,9 @@ func TestPrepareRequestBaseRequestFeePanic(t *testing.T) {
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 0)
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
-	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, &m) })
+	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m) })
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(200000))
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 }
 
@@ -155,38 +155,38 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
 	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
-	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, &m) })
+	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m) })
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 }
 
 func TestPrepareRequestEmptyCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true) // Send nil while oracle script expects calldata
 	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "bad wasm execution: runtime error while executing the Wasm script")
 }
 
 func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "oracle script not found: id: 999")
 }
 
 func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "bad wasm execution: OEI action to invoke is not available")
 }
 
 func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "empty raw requests")
 }
 
@@ -196,7 +196,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "data source not found: id: 99")
 }
 
@@ -207,33 +207,33 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "bad wasm execution: too many external data requests")
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
-	err = k.PrepareRequest(ctx, &m)
+	err = k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 }
 
 func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err = k.PrepareRequest(ctx, &m)
+	err = k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "bad wasm execution: out-of-gas while executing the wasm script")
 }
 
 func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err := k.PrepareRequest(ctx, &m)
+	err := k.PrepareRequest(ctx, m)
 	require.NoError(t, err)
 	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	err = k.PrepareRequest(ctx, &m)
+	err = k.PrepareRequest(ctx, m)
 	require.EqualError(t, err, "bad wasm execution: span to write is too small")
 }
 

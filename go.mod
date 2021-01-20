@@ -4,16 +4,17 @@ go 1.13
 
 require (
 	github.com/bandprotocol/go-owasm v0.0.0-20201118130444-22dfa8f13cb5
-	github.com/cosmos/cosmos-sdk v0.39.1
-	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
-	github.com/ethereum/go-ethereum v1.9.19
+	github.com/cosmos/cosmos-sdk v0.40.0
+	github.com/cosmos/gaia/v3 v3.0.0
+	github.com/cosmos/go-bip39 v1.0.0
+	github.com/ethereum/go-ethereum v1.9.25
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-gorp/gorp v2.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/levigross/grequests v0.0.0-20190908174114-253788527a1a
@@ -24,15 +25,16 @@ require (
 	github.com/poy/onpar v1.0.1 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
 	github.com/segmentio/kafka-go v0.3.7
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
-	github.com/tendermint/go-amino v0.15.1
+	github.com/syndtr/goleveldb v1.0.1-0.20200815110645-5c35d600f0ca
+	github.com/tendermint/go-amino v0.16.0
 	github.com/tendermint/iavl v0.14.0
-	github.com/tendermint/tendermint v0.33.8
-	github.com/tendermint/tm-db v0.5.1
+	github.com/tendermint/tendermint v0.34.1
+	github.com/tendermint/tm-db v0.6.3
 	github.com/ziutek/mymysql v1.5.4 // indirect
+	google.golang.org/protobuf v1.25.0
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.1

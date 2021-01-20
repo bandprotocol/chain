@@ -14,23 +14,23 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgCreateDataSource:
+		case *MsgCreateDataSource:
 			return handleMsgCreateDataSource(ctx, k, msg)
-		case MsgEditDataSource:
+		case *MsgEditDataSource:
 			return handleMsgEditDataSource(ctx, k, msg)
-		case MsgCreateOracleScript:
+		case *MsgCreateOracleScript:
 			return handleMsgCreateOracleScript(ctx, k, msg)
-		case MsgEditOracleScript:
+		case *MsgEditOracleScript:
 			return handleMsgEditOracleScript(ctx, k, msg)
-		case MsgRequestData:
+		case *MsgRequestData:
 			return handleMsgRequestData(ctx, k, msg)
-		case MsgReportData:
+		case *MsgReportData:
 			return handleMsgReportData(ctx, k, msg)
-		case MsgActivate:
+		case *MsgActivate:
 			return handleMsgActivate(ctx, k, msg)
-		case MsgAddReporter:
+		case *MsgAddReporter:
 			return handleMsgAddReporter(ctx, k, msg)
-		case MsgRemoveReporter:
+		case *MsgRemoveReporter:
 			return handleMsgRemoveReporter(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", ModuleName, msg)
@@ -38,7 +38,7 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 }
 
-func handleMsgCreateDataSource(ctx sdk.Context, k Keeper, m MsgCreateDataSource) (*sdk.Result, error) {
+func handleMsgCreateDataSource(ctx sdk.Context, k Keeper, m *MsgCreateDataSource) (*sdk.Result, error) {
 	if gzip.IsGzipped(m.Executable) {
 		var err error
 		m.Executable, err = gzip.Uncompress(m.Executable, types.MaxExecutableSize)
@@ -53,10 +53,10 @@ func handleMsgCreateDataSource(ctx sdk.Context, k Keeper, m MsgCreateDataSource)
 		types.EventTypeCreateDataSource,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgEditDataSource(ctx sdk.Context, k Keeper, m MsgEditDataSource) (*sdk.Result, error) {
+func handleMsgEditDataSource(ctx sdk.Context, k Keeper, m *MsgEditDataSource) (*sdk.Result, error) {
 	dataSource, err := k.GetDataSource(ctx, m.DataSourceID)
 	if err != nil {
 		return nil, err
@@ -78,10 +78,10 @@ func handleMsgEditDataSource(ctx sdk.Context, k Keeper, m MsgEditDataSource) (*s
 		types.EventTypeEditDataSource,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", m.DataSourceID)),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgCreateOracleScript(ctx sdk.Context, k Keeper, m MsgCreateOracleScript) (*sdk.Result, error) {
+func handleMsgCreateOracleScript(ctx sdk.Context, k Keeper, m *MsgCreateOracleScript) (*sdk.Result, error) {
 	if gzip.IsGzipped(m.Code) {
 		var err error
 		m.Code, err = gzip.Uncompress(m.Code, types.MaxWasmCodeSize)
@@ -100,10 +100,10 @@ func handleMsgCreateOracleScript(ctx sdk.Context, k Keeper, m MsgCreateOracleScr
 		types.EventTypeCreateOracleScript,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgEditOracleScript(ctx sdk.Context, k Keeper, m MsgEditOracleScript) (*sdk.Result, error) {
+func handleMsgEditOracleScript(ctx sdk.Context, k Keeper, m *MsgEditOracleScript) (*sdk.Result, error) {
 	oracleScript, err := k.GetOracleScript(ctx, m.OracleScriptID)
 	if err != nil {
 		return nil, err
@@ -128,18 +128,18 @@ func handleMsgEditOracleScript(ctx sdk.Context, k Keeper, m MsgEditOracleScript)
 		types.EventTypeEditOracleScript,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", m.OracleScriptID)),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgRequestData(ctx sdk.Context, k Keeper, m MsgRequestData) (*sdk.Result, error) {
-	err := k.PrepareRequest(ctx, &m)
+func handleMsgRequestData(ctx sdk.Context, k Keeper, m *MsgRequestData) (*sdk.Result, error) {
+	err := k.PrepareRequest(ctx, m)
 	if err != nil {
 		return nil, err
 	}
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgReportData(ctx sdk.Context, k Keeper, m MsgReportData) (*sdk.Result, error) {
+func handleMsgReportData(ctx sdk.Context, k Keeper, m *MsgReportData) (*sdk.Result, error) {
 	if !k.IsReporter(ctx, m.Validator, m.Reporter) {
 		return nil, types.ErrReporterNotAuthorized
 	}
@@ -161,10 +161,10 @@ func handleMsgReportData(ctx sdk.Context, k Keeper, m MsgReportData) (*sdk.Resul
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", m.RequestID)),
 		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgActivate(ctx sdk.Context, k Keeper, m MsgActivate) (*sdk.Result, error) {
+func handleMsgActivate(ctx sdk.Context, k Keeper, m *MsgActivate) (*sdk.Result, error) {
 	err := k.Activate(ctx, m.Validator)
 	if err != nil {
 		return nil, err
@@ -173,10 +173,10 @@ func handleMsgActivate(ctx sdk.Context, k Keeper, m MsgActivate) (*sdk.Result, e
 		types.EventTypeActivate,
 		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgAddReporter(ctx sdk.Context, k Keeper, m MsgAddReporter) (*sdk.Result, error) {
+func handleMsgAddReporter(ctx sdk.Context, k Keeper, m *MsgAddReporter) (*sdk.Result, error) {
 	err := k.AddReporter(ctx, m.Validator, m.Reporter)
 	if err != nil {
 		return nil, err
@@ -186,10 +186,10 @@ func handleMsgAddReporter(ctx sdk.Context, k Keeper, m MsgAddReporter) (*sdk.Res
 		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
 		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter.String()),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }
 
-func handleMsgRemoveReporter(ctx sdk.Context, k Keeper, m MsgRemoveReporter) (*sdk.Result, error) {
+func handleMsgRemoveReporter(ctx sdk.Context, k Keeper, m *MsgRemoveReporter) (*sdk.Result, error) {
 	err := k.RemoveReporter(ctx, m.Validator, m.Reporter)
 	if err != nil {
 		return nil, err
@@ -199,5 +199,5 @@ func handleMsgRemoveReporter(ctx sdk.Context, k Keeper, m MsgRemoveReporter) (*s
 		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
 		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter.String()),
 	))
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().Events().ToABCIEvents()}, nil
 }

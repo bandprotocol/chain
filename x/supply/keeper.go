@@ -1,12 +1,14 @@
 package supply
 
+// TODO: revisit name
+
 import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/supply"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -19,24 +21,24 @@ import (
 // cannot be initialized when the struct is created. Rather, SetDistrKeeper
 // is expected to be called to set `distrKeeper`.
 type WrappedSupplyKeeper struct {
-	supply.Keeper
-
-	distrKeeper *distr.Keeper
+	bankkeeper.Keeper
+	distrKeeper *distrkeeper.Keeper
 }
 
 // WrapSupplyKeeperBurnToCommunityPool creates a new instance of WrappedSupplyKeeper
 // with its distrKeeper member set to nil.
-func WrapSupplyKeeperBurnToCommunityPool(sk supply.Keeper) WrappedSupplyKeeper {
-	return WrappedSupplyKeeper{sk, nil}
+func WrapSupplyKeeperBurnToCommunityPool(bk bankkeeper.Keeper) WrappedSupplyKeeper {
+	return WrappedSupplyKeeper{bk, nil}
 }
 
 // SetDistrKeeper sets distr module keeper for this WrappedSupplyKeeper instance.
-func (k *WrappedSupplyKeeper) SetDistrKeeper(distrKeeper *distr.Keeper) {
+func (k *WrappedSupplyKeeper) SetDistrKeeper(distrKeeper *distrkeeper.Keeper) {
 	k.distrKeeper = distrKeeper
 }
 
 // Logger returns a module-specific logger.
 func (k WrappedSupplyKeeper) Logger(ctx sdk.Context) log.Logger {
+	// TODO: revisit
 	return ctx.Logger().With("module", fmt.Sprint("x/wrappedSupply"))
 }
 
@@ -45,29 +47,30 @@ func (k WrappedSupplyKeeper) Logger(ctx sdk.Context) log.Logger {
 func (k WrappedSupplyKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
 	// If distrKeeper is not set OR we want to burn coins in distr itself, we will
 	// just use the original BurnCoins function.
-	if k.distrKeeper == nil || moduleName == distr.ModuleName {
-		return k.Keeper.BurnCoins(ctx, moduleName, amt)
+	if k.distrKeeper == nil || moduleName == distrtypes.ModuleName {
+		return k.BurnCoins(ctx, moduleName, amt)
 	}
 
-	// Create the account if it doesn't yet exist.
-	acc := k.GetModuleAccount(ctx, moduleName)
-	if acc == nil {
-		panic(sdkerrors.Wrapf(
-			sdkerrors.ErrUnknownAddress,
-			"module account %s does not exist", moduleName,
-		))
-	}
+	// TODO: revisit
+	// // Create the account if it doesn't yet exist.
+	// acc := k.GetModuleAccount(ctx, moduleName)
+	// if acc == nil {
+	// 	panic(sdkerrors.Wrapf(
+	// 		sdkerrors.ErrUnknownAddress,
+	// 		"module account %s does not exist", moduleName,
+	// 	))
+	// }
 
-	if !acc.HasPermission(supply.Burner) {
-		panic(sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized,
-			"module account %s does not have permissions to burn tokens",
-			moduleName,
-		))
-	}
+	// if !acc.HasPermission(supply.Burner) {
+	// 	panic(sdkerrors.Wrapf(
+	// 		sdkerrors.ErrUnauthorized,
+	// 		"module account %s does not have permissions to burn tokens",
+	// 		moduleName,
+	// 	))
+	// }
 
 	// Instead of burning coins, we send them to the community pool.
-	k.SendCoinsFromModuleToModule(ctx, moduleName, distr.ModuleName, amt)
+	k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
 	feePool := k.distrKeeper.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
 	k.distrKeeper.SetFeePool(ctx, feePool)

@@ -32,7 +32,7 @@ type QueryResult struct {
 func QueryOK(result interface{}) ([]byte, error) {
 	return json.MarshalIndent(QueryResult{
 		Status: http.StatusOK,
-		Result: codec.MustMarshalJSONIndent(ModuleCdc, result),
+		Result: codec.MustMarshalJSONIndent(amino, result),
 	}, "", "  ")
 }
 
@@ -40,7 +40,7 @@ func QueryOK(result interface{}) ([]byte, error) {
 func QueryBadRequest(result interface{}) ([]byte, error) {
 	return json.MarshalIndent(QueryResult{
 		Status: http.StatusBadRequest,
-		Result: codec.MustMarshalJSONIndent(ModuleCdc, result),
+		Result: codec.MustMarshalJSONIndent(amino, result),
 	}, "", "  ")
 }
 
@@ -48,7 +48,7 @@ func QueryBadRequest(result interface{}) ([]byte, error) {
 func QueryNotFound(result interface{}) ([]byte, error) {
 	return json.MarshalIndent(QueryResult{
 		Status: http.StatusNotFound,
-		Result: codec.MustMarshalJSONIndent(ModuleCdc, result),
+		Result: codec.MustMarshalJSONIndent(amino, result),
 	}, "", "  ")
 }
 

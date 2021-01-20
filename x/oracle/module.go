@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -27,17 +28,17 @@ type AppModuleBasic struct{}
 func (AppModuleBasic) Name() string { return ModuleName }
 
 // RegisterCodec registers codec encoders and decoders for oracle messages (SDK AppModuleBasic interface).
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) { RegisterLegacyAminoCodec(cdc) }
 
 // DefaultGenesis returns the default genesis state as raw bytes.
-func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+	return ModuleCdc.LegacyAmino.MustMarshalJSON(DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the oracle module.
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var data GenesisState
-	return ModuleCdc.UnmarshalJSON(bz, &data)
+	return ModuleCdc.LegacyAmino.UnmarshalJSON(bz, &data)
 }
 
 // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
@@ -46,13 +47,13 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 }
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
-func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(StoreKey, cdc)
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetTxCmd()
 }
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(StoreKey, cdc)
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 // AppModule represents the AppModule for this module.
@@ -96,14 +97,14 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 }
 
 // InitGenesis performs genesis initialization for the oracle module.
-func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	cdc.MustUnmarshalJSON(data, &genesisState)
 	return InitGenesis(ctx, am.keeper, genesisState)
 }
 
 // ExportGenesis returns the current state as genesis raw bytes.
-func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
-	return ModuleCdc.MustMarshalJSON(gs)
+	return cdc.MustMarshalJSON(gs)
 }

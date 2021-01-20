@@ -31,7 +31,7 @@ const (
 )
 
 // GetTxCmd returns the transaction commands for this module
-func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(storeKey string) *cobra.Command {
 	oracleCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "oracle transaction subcommands",

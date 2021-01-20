@@ -11,8 +11,8 @@ func NewMsgRequestData(
 	MinCount uint64,
 	ClientID string,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgRequestData {
-	return MsgRequestData{
+) *MsgRequestData {
+	return &MsgRequestData{
 		OracleScriptID: OracleScriptID,
 		Calldata:       Calldata,
 		AskCount:       AskCount,
@@ -27,8 +27,8 @@ func NewMsgReportData(
 	RawReports []RawReport,
 	Validator github_com_cosmos_cosmos_sdk_types.ValAddress,
 	Reporter github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgReportData {
-	return MsgReportData{
+) *MsgReportData {
+	return &MsgReportData{
 		RequestID:  RequestID,
 		RawReports: RawReports,
 		Validator:  Validator,
@@ -42,8 +42,8 @@ func NewMsgCreateDataSource(
 	Description string,
 	Executable []byte,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgCreateDataSource {
-	return MsgCreateDataSource{
+) *MsgCreateDataSource {
+	return &MsgCreateDataSource{
 		Owner:       Owner,
 		Name:        Name,
 		Description: Description,
@@ -59,8 +59,8 @@ func NewMsgEditDataSource(
 	Description string,
 	Executable []byte,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgEditDataSource {
-	return MsgEditDataSource{
+) *MsgEditDataSource {
+	return &MsgEditDataSource{
 		DataSourceID: DataSourceID,
 		Owner:        Owner,
 		Name:         Name,
@@ -78,8 +78,8 @@ func NewMsgCreateOracleScript(
 	Schema string,
 	SourceCodeURL string,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgCreateOracleScript {
-	return MsgCreateOracleScript{
+) *MsgCreateOracleScript {
+	return &MsgCreateOracleScript{
 		Owner:         Owner,
 		Name:          Name,
 		Description:   Description,
@@ -99,8 +99,8 @@ func NewMsgEditOracleScript(
 	Schema string,
 	SourceCodeURL string,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgEditOracleScript {
-	return MsgEditOracleScript{
+) *MsgEditOracleScript {
+	return &MsgEditOracleScript{
 		OracleScriptID: OracleScriptID,
 		Owner:          Owner,
 		Name:           Name,
@@ -114,8 +114,8 @@ func NewMsgEditOracleScript(
 
 func NewMsgActivate(
 	Validator github_com_cosmos_cosmos_sdk_types.ValAddress,
-) MsgActivate {
-	return MsgActivate{
+) *MsgActivate {
+	return &MsgActivate{
 		Validator: Validator,
 	}
 }
@@ -123,8 +123,8 @@ func NewMsgActivate(
 func NewMsgAddReporter(
 	Validator github_com_cosmos_cosmos_sdk_types.ValAddress,
 	Reporter github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgAddReporter {
-	return MsgAddReporter{
+) *MsgAddReporter {
+	return &MsgAddReporter{
 		Validator: Validator,
 		Reporter:  Reporter,
 	}
@@ -133,8 +133,8 @@ func NewMsgAddReporter(
 func NewMsgRemoveReporter(
 	Validator github_com_cosmos_cosmos_sdk_types.ValAddress,
 	Reporter github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgRemoveReporter {
-	return MsgRemoveReporter{
+) *MsgRemoveReporter {
+	return &MsgRemoveReporter{
 		Validator: Validator,
 		Reporter:  Reporter,
 	}

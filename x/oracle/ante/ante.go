@@ -59,8 +59,8 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper oracle.Keep
 			isRepOnlyBlock := ctx.BlockHeight() == nextRepOnlyBlock
 			isValidReportTx := true
 			for _, msg := range tx.GetMsgs() {
-				rep, ok := msg.(oracle.MsgReportData)
-				if !ok || !checkValidReportMsg(ctx, oracleKeeper, rep) {
+				rep, ok := msg.(*oracle.MsgReportData)
+				if !ok || !checkValidReportMsg(ctx, oracleKeeper, *rep) {
 					isValidReportTx = false
 					break
 				}

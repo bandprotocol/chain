@@ -2,17 +2,13 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// ModuleCdc is the codec for the module.
-var ModuleCdc = codec.New()
-
-func init() {
-	RegisterCodec(ModuleCdc)
-}
-
 // RegisterCodec registers the module's concrete types on the codec.
-func RegisterCodec(cdc *codec.Codec) {
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgRequestData{}, "oracle/Request", nil)
 	cdc.RegisterConcrete(MsgReportData{}, "oracle/Report", nil)
 	cdc.RegisterConcrete(MsgCreateDataSource{}, "oracle/CreateDataSource", nil)
@@ -24,4 +20,32 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgRemoveReporter{}, "oracle/RemoveReporter", nil)
 	cdc.RegisterConcrete(OracleRequestPacketData{}, "oracle/OracleRequestPacketData", nil)
 	cdc.RegisterConcrete(OracleResponsePacketData{}, "oracle/OracleResponsePacketData", nil)
+}
+
+func RegisterInterfaces(registry types.InterfaceRegistry) {
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&MsgRequestData{},
+		&MsgReportData{},
+		&MsgCreateDataSource{},
+		&MsgEditDataSource{},
+		&MsgCreateOracleScript{},
+		&MsgEditOracleScript{},
+		&MsgActivate{},
+		&MsgAddReporter{},
+		&MsgAddReporter{},
+		&MsgRemoveReporter{},
+		&OracleRequestPacketData{},
+		&OracleResponsePacketData{},
+	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
+}
+
+var amino = codec.NewLegacyAmino()
+var ModuleCdc = codec.NewAminoCodec(amino)
+
+func init() {
+	RegisterLegacyAminoCodec(amino)
+	amino.Seal()
 }

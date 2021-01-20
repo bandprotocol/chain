@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/kv"
 
 	"github.com/bandprotocol/chain/x/oracle"
 	"github.com/bandprotocol/chain/x/oracle/testapp"
@@ -87,7 +86,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime.Unix(), 1581589795,
 		types.ResolveStatus_Success, []byte("beeb"),
 	)
-	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []kv.Pair{
+	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
 		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
 		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
 		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
@@ -138,23 +137,23 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,
-		Attributes: []kv.Pair{
+		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
 			{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
-		Attributes: []kv.Pair{
+		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validator3.ValAddress.String())},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
-		Attributes: []kv.Pair{
+		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validator1.ValAddress.String())},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
-		Attributes: []kv.Pair{
+		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validator2.ValAddress.String())},
 		},
 	}}
