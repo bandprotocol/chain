@@ -18,7 +18,7 @@ func NewMsgRequestData(
 		AskCount:       AskCount,
 		MinCount:       MinCount,
 		ClientID:       ClientID,
-		Sender:         Sender,
+		Sender:         Sender.String(),
 	}
 }
 
@@ -31,8 +31,8 @@ func NewMsgReportData(
 	return MsgReportData{
 		RequestID:  RequestID,
 		RawReports: RawReports,
-		Validator:  Validator,
-		Reporter:   Reporter,
+		Validator:  Validator.String(),
+		Reporter:   Reporter.String(),
 	}
 }
 
@@ -44,11 +44,11 @@ func NewMsgCreateDataSource(
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
 ) MsgCreateDataSource {
 	return MsgCreateDataSource{
-		Owner:       Owner,
+		Owner:       Owner.String(),
 		Name:        Name,
 		Description: Description,
 		Executable:  Executable,
-		Sender:      Sender,
+		Sender:      Sender.String(),
 	}
 }
 
@@ -62,11 +62,11 @@ func NewMsgEditDataSource(
 ) MsgEditDataSource {
 	return MsgEditDataSource{
 		DataSourceID: DataSourceID,
-		Owner:        Owner,
+		Owner:        Owner.String(),
 		Name:         Name,
 		Description:  Description,
 		Executable:   Executable,
-		Sender:       Sender,
+		Sender:       Sender.String(),
 	}
 }
 
@@ -80,13 +80,13 @@ func NewMsgCreateOracleScript(
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
 ) MsgCreateOracleScript {
 	return MsgCreateOracleScript{
-		Owner:         Owner,
+		Owner:         Owner.String(),
 		Name:          Name,
 		Description:   Description,
 		Code:          Code,
 		Schema:        Schema,
 		SourceCodeURL: SourceCodeURL,
-		Sender:        Sender,
+		Sender:        Sender.String(),
 	}
 }
 
@@ -102,13 +102,13 @@ func NewMsgEditOracleScript(
 ) MsgEditOracleScript {
 	return MsgEditOracleScript{
 		OracleScriptID: OracleScriptID,
-		Owner:          Owner,
+		Owner:          Owner.String(),
 		Name:           Name,
 		Description:    Description,
 		Code:           Code,
 		Schema:         Schema,
 		SourceCodeURL:  SourceCodeURL,
-		Sender:         Sender,
+		Sender:         Sender.String(),
 	}
 }
 
@@ -116,7 +116,7 @@ func NewMsgActivate(
 	Validator github_com_cosmos_cosmos_sdk_types.ValAddress,
 ) MsgActivate {
 	return MsgActivate{
-		Validator: Validator,
+		Validator: Validator.String(),
 	}
 }
 
@@ -125,8 +125,8 @@ func NewMsgAddReporter(
 	Reporter github_com_cosmos_cosmos_sdk_types.AccAddress,
 ) MsgAddReporter {
 	return MsgAddReporter{
-		Validator: Validator,
-		Reporter:  Reporter,
+		Validator: Validator.String(),
+		Reporter:  Reporter.String(),
 	}
 }
 
@@ -135,8 +135,8 @@ func NewMsgRemoveReporter(
 	Reporter github_com_cosmos_cosmos_sdk_types.AccAddress,
 ) MsgRemoveReporter {
 	return MsgRemoveReporter{
-		Validator: Validator,
-		Reporter:  Reporter,
+		Validator: Validator.String(),
+		Reporter:  Reporter.String(),
 	}
 }
 
@@ -147,7 +147,7 @@ func NewDataSource(
 	Filename string,
 ) DataSource {
 	return DataSource{
-		Owner:       Owner,
+		Owner:       Owner.String(),
 		Name:        Name,
 		Description: Description,
 		Filename:    Filename,
@@ -163,7 +163,7 @@ func NewOracleScript(
 	SourceCodeURL string,
 ) OracleScript {
 	return OracleScript{
-		Owner:         Owner,
+		Owner:         Owner.String(),
 		Name:          Name,
 		Description:   Description,
 		Filename:      Filename,
@@ -206,13 +206,17 @@ func NewRequest(
 	ClientID string,
 	RawRequests []RawRequest,
 ) Request {
+	requestedVals := make([]string, len(RequestedValidators))
+	for idx, reqVal := range RequestedValidators {
+		requestedVals[idx] = reqVal.String()
+	}
 	return Request{
 		OracleScriptID:      OracleScriptID,
 		Calldata:            Calldata,
-		RequestedValidators: RequestedValidators,
+		RequestedValidators: requestedVals,
 		MinCount:            MinCount,
 		RequestHeight:       RequestHeight,
-		RequestTime:         RequestTime,
+		RequestTime:         uint64(RequestTime.UnixNano()),
 		ClientID:            ClientID,
 		RawRequests:         RawRequests,
 	}
@@ -224,7 +228,7 @@ func NewReport(
 	RawReports []RawReport,
 ) Report {
 	return Report{
-		Validator:       Validator,
+		Validator:       Validator.String(),
 		InBeforeResolve: InBeforeResolve,
 		RawReports:      RawReports,
 	}

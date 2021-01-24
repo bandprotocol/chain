@@ -1,0 +1,164 @@
+syntax = "proto3";
+package bc.bandchain.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "bc/bandchain/v1/oracle.proto";
+
+
+// MsgRequestData is a message for sending a data oracle request.
+message MsgRequestData {
+  option (gogoproto.equal) = true;
+  // OracleScriptID is the identifier of the oracle script to call.
+  int64 oracle_script_id = 1 [
+    (gogoproto.customname) = "OracleScriptID",
+    (gogoproto.casttype) = "OracleScriptID"
+  ];
+  // Calldata is the OBI encoded call parameters to the oracle script.
+  bytes calldata = 2;
+  // AskCount is the number of validators to perform the oracle task.
+  uint64 ask_count = 3;
+  // MinCount is the minimum number of validators sufficient to resolve the
+  // tasks.
+  uint64 min_count = 4;
+  // ClientID is the client-provided unique identifier to tracking the request.
+  string client_id = 5 [ (gogoproto.customname) = "ClientID" ];
+  // Sender is the sender of this message.
+  string sender = 6;
+}
+
+// MsgReportData is a message for reporting to a data request by a validator.
+message MsgReportData {
+  option (gogoproto.equal) = true;
+  // RequestID is the identifier of the request to report to.
+  int64 request_id = 1 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // RawReports is the list of report information for each of the request's
+  // external ID.
+  repeated RawReport raw_reports = 2 [ (gogoproto.nullable) = false ];
+  // Validator is the address of the validator that owns this report.
+  string validator = 3;
+  // Reporter is the message signer who submits this report transaction for the
+  // validator.
+  string reporter = 4;
+}
+
+// MsgCreateDataSource is a message for creating a new data source.
+message MsgCreateDataSource {
+  option (gogoproto.equal) = true;
+  // Owner is the address who is allowed to make further changes to the data
+  // source.
+  string owner = 1;
+  // Name is the name of this data source (optional).
+  string name = 2;
+  // Description is the description of this data source (optional).
+  string description = 3;
+  // Executable is the executable script or binary to be run by validators upon
+  // execution.
+  bytes executable = 4;
+  // Sender is the signer of this message.
+  string sender = 5;
+}
+
+// MsgEditDataSource is a message for editing an existing data source.
+message MsgEditDataSource {
+  option (gogoproto.equal) = true;
+  // DataSourceID is the unique identifier of the data source to be edited.
+  int64 data_source_id = 1 [
+    (gogoproto.customname) = "DataSourceID",
+    (gogoproto.casttype) = "DataSourceID"
+  ];
+  // Owner is the new address who is allowed to make further changes to the data
+  // source.
+  string owner = 2;
+  // Name is the name of this data source (optional).
+  string name = 3;
+  // Description is the description of this data source (optional).
+  string description = 4;
+  // Executable is the executable script or binary to be run by validators upon
+  // execution.
+  bytes executable = 5;
+  // Sender is the signer of this message. Must be the current data source's
+  // owner.
+  string sender = 6;
+}
+
+// MsgCreateOracleScript is a message for creating an oracle script.
+message MsgCreateOracleScript {
+  option (gogoproto.equal) = true;
+  // Owner is the address who is allowed to make further changes to the oracle
+  // script.
+  string owner = 1;
+  // Name is the name of this oracle script (optional).
+  string name = 2;
+  // Description is the description of this oracle script (optional).
+  string description = 3;
+  // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
+  bytes code = 4;
+  // Schema is the OBI schema of this oracle script (optional).
+  string schema = 5;
+  // SourceCodeURL is the absolute URI to the script's source code (optional).
+  string source_code_url = 6 [ (gogoproto.customname) = "SourceCodeURL" ];
+  // Sender is the signer of this message.
+  string sender = 7;
+}
+
+// MsgEditOracleScript is a message for editing an existing oracle script.
+message MsgEditOracleScript {
+  option (gogoproto.equal) = true;
+  // OracleScriptID is the unique identifier of the oracle script to be edited.
+  int64 oracle_script_id = 1 [
+    (gogoproto.customname) = "OracleScriptID",
+    (gogoproto.casttype) = "OracleScriptID"
+  ];
+  // Owner is new the address who is allowed to make further changes to the
+  // oracle script.
+  string owner = 2;
+  // Name is the name of this oracle script (optional).
+  string name = 3;
+  // Description is the description of this oracle script (optional).
+  string description = 4;
+  // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
+  bytes code = 5;
+  // Schema is the OBI schema of this oracle script (optional).
+  string schema = 6;
+  // SourceCodeURL is the absolute URI to the script's source code (optional).
+  string source_code_url = 7 [ (gogoproto.customname) = "SourceCodeURL" ];
+  // Sender is the signer of this message. Must be the current oracle script's
+  // owner.
+  string sender = 8;
+}
+
+// MsgEditOracleScript is a message for activating a validator to become an
+// oracle provider.
+message MsgActivate {
+  option (gogoproto.equal) = true;
+  // Validator is the signer of this message and the validator to be activated.
+  string validator = 1;
+}
+
+// MsgAddReporter is a message for adding a new reporter for a validator.
+message MsgAddReporter {
+  option (gogoproto.equal) = true;
+  // Validator is the validator that wishes to add a new reporter. This is the
+  // signer.
+  string validator = 1;
+  // Reporter is the address to be added as a reporter to the validator.
+  string reporter = 2;
+}
+
+// MsgAddReporter is a message for removing an existing reporter from a
+// validator.
+message MsgRemoveReporter {
+  option (gogoproto.equal) = true;
+  // Validator is the validator that wishes to remove an existing reporter. This
+  // is the signer.
+  string validator = 1;
+  // Reporter is the address to be removed from being the validators' reporter.
+  string reporter = 2;
+}

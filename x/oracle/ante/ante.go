@@ -25,7 +25,9 @@ func init() {
 }
 
 func checkValidReportMsg(ctx sdk.Context, oracleKeeper oracle.Keeper, rep oracle.MsgReportData) bool {
-	if !oracleKeeper.IsReporter(ctx, rep.Validator, rep.Reporter) {
+	validator, _ := sdk.ValAddressFromBech32(rep.Validator)
+	reporter, _ := sdk.AccAddressFromBech32(rep.Reporter)
+	if !oracleKeeper.IsReporter(ctx, validator, reporter) {
 		return false
 	}
 	if rep.RequestID <= oracleKeeper.GetRequestLastExpired(ctx) {
@@ -36,7 +38,14 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper oracle.Keeper, rep oracle
 	if err != nil {
 		return false
 	}
-	if !keeper.ContainsVal(req.RequestedValidators, rep.Validator) {
+
+	reqVals := make([]sdk.ValAddress, len(req.RequestedValidators))
+	for idx, reqVal := range req.RequestedValidators {
+		val, _ := sdk.ValAddressFromBech32(reqVal)
+		reqVals[idx] = val
+	}
+
+	if !keeper.ContainsVal(reqVals, validator) {
 		return false
 	}
 	if len(rep.RawReports) != len(req.RawRequests) {
@@ -65,7 +74,7 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper oracle.Keep
 					break
 				}
 				if !isRepOnlyBlock {
-					key := fmt.Sprintf("%s:%d", rep.Validator.String(), rep.RequestID)
+					key := fmt.Sprintf("%s:%d", rep.Validator, rep.RequestID)
 					val, ok := repTxCount.Get(key)
 					nextVal := 1
 					if ok {

@@ -14,7 +14,8 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 
 // SetDataReport saves the report to the storage without performing validation.
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
-	key := types.ReportsOfValidatorPrefixKey(rid, rep.Validator)
+	val, _ := sdk.ValAddressFromBech32(rep.Validator)
+	key := types.ReportsOfValidatorPrefixKey(rid, val)
 	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(rep))
 }
 
@@ -25,13 +26,25 @@ func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 	if err != nil {
 		return err
 	}
-	if !ContainsVal(req.RequestedValidators, rep.Validator) {
-		return sdkerrors.Wrapf(
-			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, rep.Validator.String())
+	val, err := sdk.ValAddressFromBech32(rep.Validator)
+	if err != nil {
+		return err
 	}
-	if k.HasReport(ctx, rid, rep.Validator) {
+	reqVals := make([]sdk.ValAddress, len(req.RequestedValidators))
+	for idx, reqVal := range req.RequestedValidators {
+		v, err := sdk.ValAddressFromBech32(reqVal)
+		if err != nil {
+			return err
+		}
+		reqVals[idx] = v
+	}
+	if !ContainsVal(reqVals, val) {
 		return sdkerrors.Wrapf(
-			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, rep.Validator.String())
+			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, rep.Validator)
+	}
+	if k.HasReport(ctx, rid, val) {
+		return sdkerrors.Wrapf(
+			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, rep.Validator)
 	}
 	if len(rep.RawReports) != len(req.RawRequests) {
 		return types.ErrInvalidReportSize

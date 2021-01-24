@@ -20,6 +20,8 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 	valPowers := []uint64{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val exported.ValidatorI) (stop bool) {
+			x := k.GetValidatorStatus(ctx, val.GetOperator())
+			fmt.Println(x)
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
 				valOperators = append(valOperators, val.GetOperator())
 				valPowers = append(valPowers, val.GetTokens().Uint64())
@@ -93,7 +95,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 	)
 	for _, val := range req.RequestedValidators {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val.String()))
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
 	}
 	ctx.EventManager().EmitEvent(event)
 	// Emit an event for each of the raw data requests.

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package bc.bandchain.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+import "bc/bandchain/v1/oracle.proto";
+
+message GenesisState {
+  Params params = 1 ;
+  repeated DataSource data_sources = 2;
+  repeated OracleScript oracle_scripts = 3;
+}

@@ -3,9 +3,6 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -25,10 +22,6 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/hooks/emitter"
-	"github.com/bandprotocol/chain/hooks/price"
-	"github.com/bandprotocol/chain/hooks/request"
-	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 const (
@@ -107,30 +100,30 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		baseapp.SetInterBlockCache(cache),
 	)
 
-	// Add hooks based on flag
-	if viper.IsSet(flagWithEmitter) {
-		bandApp.AddHook(emitter.NewHook(
-			bandApp.Codec(), bandApp.AccountKeeper, bandApp.BankKeeper, bandApp.SupplyKeeper,
-			bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
-			bandApp.OracleKeeper, viper.GetString(flagWithEmitter), viper.GetBool(flagEnableFastSync)))
-	}
-	if viper.IsSet(flagWithRequestSearch) {
-		bandApp.AddHook(request.NewHook(
-			bandApp.Codec(), bandApp.OracleKeeper,
-			viper.GetString(flagWithRequestSearch)))
-	}
-	if viper.IsSet(flagWithPricer) {
-		rawOids := strings.Split(viper.GetString(flagWithPricer), ",")
-		oids := make([]types.OracleScriptID, len(rawOids))
-		for idx, rawOid := range rawOids {
-			oid, err := strconv.ParseInt(rawOid, 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			oids[idx] = types.OracleScriptID(oid)
-		}
-		bandApp.AddHook(price.NewHook(bandApp.Codec(), bandApp.OracleKeeper, oids, filepath.Join(viper.GetString(cli.HomeFlag), "prices")))
-	}
+	// // Add hooks based on flag
+	// if viper.IsSet(flagWithEmitter) {
+	// 	bandApp.AddHook(emitter.NewHook(
+	// 		bandApp.Codec(), bandApp.AccountKeeper, bandApp.BankKeeper, bandApp.SupplyKeeper,
+	// 		bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
+	// 		bandApp.OracleKeeper, viper.GetString(flagWithEmitter), viper.GetBool(flagEnableFastSync)))
+	// }
+	// if viper.IsSet(flagWithRequestSearch) {
+	// 	bandApp.AddHook(request.NewHook(
+	// 		bandApp.Codec(), bandApp.OracleKeeper,
+	// 		viper.GetString(flagWithRequestSearch)))
+	// }
+	// if viper.IsSet(flagWithPricer) {
+	// 	rawOids := strings.Split(viper.GetString(flagWithPricer), ",")
+	// 	oids := make([]types.OracleScriptID, len(rawOids))
+	// 	for idx, rawOid := range rawOids {
+	// 		oid, err := strconv.ParseInt(rawOid, 10, 64)
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+	// 		oids[idx] = types.OracleScriptID(oid)
+	// 	}
+	// 	bandApp.AddHook(price.NewHook(bandApp.Codec(), bandApp.OracleKeeper, oids, filepath.Join(viper.GetString(cli.HomeFlag), "prices")))
+	// }
 	return bandApp
 }
 

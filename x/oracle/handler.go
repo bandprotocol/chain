@@ -46,8 +46,12 @@ func handleMsgCreateDataSource(ctx sdk.Context, k Keeper, m MsgCreateDataSource)
 			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
 		}
 	}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
 	id := k.AddDataSource(ctx, types.NewDataSource(
-		m.Owner, m.Name, m.Description, k.AddExecutableFile(m.Executable),
+		owner, m.Name, m.Description, k.AddExecutableFile(m.Executable),
 	))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeCreateDataSource,
@@ -61,7 +65,15 @@ func handleMsgEditDataSource(ctx sdk.Context, k Keeper, m MsgEditDataSource) (*s
 	if err != nil {
 		return nil, err
 	}
-	if !dataSource.Owner.Equals(m.Sender) {
+	owner, err := sdk.AccAddressFromBech32(dataSource.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	if !owner.Equals(sender) {
 		return nil, types.ErrEditorNotAuthorized
 	}
 	if gzip.IsGzipped(m.Executable) {
@@ -72,7 +84,7 @@ func handleMsgEditDataSource(ctx sdk.Context, k Keeper, m MsgEditDataSource) (*s
 	}
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, m.DataSourceID, types.NewDataSource(
-		m.Owner, m.Name, m.Description, k.AddExecutableFile(m.Executable),
+		owner, m.Name, m.Description, k.AddExecutableFile(m.Executable),
 	))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeEditDataSource,
@@ -89,12 +101,16 @@ func handleMsgCreateOracleScript(ctx sdk.Context, k Keeper, m MsgCreateOracleScr
 			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
 		}
 	}
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
 	filename, err := k.AddOracleScriptFile(m.Code)
 	if err != nil {
 		return nil, err
 	}
 	id := k.AddOracleScript(ctx, types.NewOracleScript(
-		m.Owner, m.Name, m.Description, filename, m.Schema, m.SourceCodeURL,
+		owner, m.Name, m.Description, filename, m.Schema, m.SourceCodeURL,
 	))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeCreateOracleScript,
@@ -108,7 +124,15 @@ func handleMsgEditOracleScript(ctx sdk.Context, k Keeper, m MsgEditOracleScript)
 	if err != nil {
 		return nil, err
 	}
-	if !oracleScript.Owner.Equals(m.Sender) {
+	owner, err := sdk.AccAddressFromBech32(oracleScript.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	sender, err := sdk.AccAddressFromBech32(oracleScript.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	if !owner.Equals(sender) {
 		return nil, types.ErrEditorNotAuthorized
 	}
 	if gzip.IsGzipped(m.Code) {
@@ -122,7 +146,7 @@ func handleMsgEditOracleScript(ctx sdk.Context, k Keeper, m MsgEditOracleScript)
 		return nil, err
 	}
 	k.MustEditOracleScript(ctx, m.OracleScriptID, types.NewOracleScript(
-		m.Owner, m.Name, m.Description, filename, m.Schema, m.SourceCodeURL,
+		owner, m.Name, m.Description, filename, m.Schema, m.SourceCodeURL,
 	))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeEditOracleScript,
@@ -140,13 +164,21 @@ func handleMsgRequestData(ctx sdk.Context, k Keeper, m MsgRequestData) (*sdk.Res
 }
 
 func handleMsgReportData(ctx sdk.Context, k Keeper, m MsgReportData) (*sdk.Result, error) {
-	if !k.IsReporter(ctx, m.Validator, m.Reporter) {
+	validator, err := sdk.ValAddressFromBech32(m.Validator)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	reporter, err := sdk.AccAddressFromBech32(m.Reporter)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	if !k.IsReporter(ctx, validator, reporter) {
 		return nil, types.ErrReporterNotAuthorized
 	}
 	if m.RequestID <= k.GetRequestLastExpired(ctx) {
 		return nil, types.ErrRequestAlreadyExpired
 	}
-	err := k.AddReport(ctx, m.RequestID, types.NewReport(m.Validator, !k.HasResult(ctx, m.RequestID), m.RawReports))
+	err = k.AddReport(ctx, m.RequestID, types.NewReport(validator, !k.HasResult(ctx, m.RequestID), m.RawReports))
 	if err != nil {
 		return nil, err
 	}
@@ -159,45 +191,65 @@ func handleMsgReportData(ctx sdk.Context, k Keeper, m MsgReportData) (*sdk.Resul
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeReport,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", m.RequestID)),
-		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
+		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator),
 	))
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
 func handleMsgActivate(ctx sdk.Context, k Keeper, m MsgActivate) (*sdk.Result, error) {
-	err := k.Activate(ctx, m.Validator)
+	validator, err := sdk.ValAddressFromBech32(m.Validator)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	err = k.Activate(ctx, validator)
 	if err != nil {
 		return nil, err
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeActivate,
-		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
+		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator),
 	))
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
 func handleMsgAddReporter(ctx sdk.Context, k Keeper, m MsgAddReporter) (*sdk.Result, error) {
-	err := k.AddReporter(ctx, m.Validator, m.Reporter)
+	validator, err := sdk.ValAddressFromBech32(m.Validator)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	reporter, err := sdk.AccAddressFromBech32(m.Reporter)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	err = k.AddReporter(ctx, validator, reporter)
 	if err != nil {
 		return nil, err
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeAddReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
-		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter.String()),
+		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator),
+		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter),
 	))
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
 
 func handleMsgRemoveReporter(ctx sdk.Context, k Keeper, m MsgRemoveReporter) (*sdk.Result, error) {
-	err := k.RemoveReporter(ctx, m.Validator, m.Reporter)
+	validator, err := sdk.ValAddressFromBech32(m.Validator)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	reporter, err := sdk.AccAddressFromBech32(m.Reporter)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+	}
+	err = k.RemoveReporter(ctx, validator, reporter)
 	if err != nil {
 		return nil, err
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeRemoveReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator.String()),
-		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter.String()),
+		sdk.NewAttribute(types.AttributeKeyValidator, m.Validator),
+		sdk.NewAttribute(types.AttributeKeyReporter, m.Reporter),
 	))
 	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
 }
