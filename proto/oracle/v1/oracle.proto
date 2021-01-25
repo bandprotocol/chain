@@ -1,12 +1,11 @@
 syntax = "proto3";
-package bc.bandchain.v1;
+package oracle.v1;
 
 option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
-
 
 // DataSource is the data structure for storing data sources in the storage.
 message DataSource {
