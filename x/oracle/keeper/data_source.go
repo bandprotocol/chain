@@ -36,8 +36,8 @@ func (k Keeper) MustGetDataSource(ctx sdk.Context, id types.DataSourceID) types.
 
 // SetDataSource saves the given data source to the storage without performing validation.
 func (k Keeper) SetDataSource(ctx sdk.Context, id types.DataSourceID, dataSource types.DataSource) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(dataSource))
+	// store := ctx.KVStore(k.storeKey)
+	// store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(dataSource))
 }
 
 // AddDataSource adds the given data source to the storage.

@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/gorilla/mux"
@@ -82,7 +83,6 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	bandappparams "github.com/bandprotocol/chain/app/params"
-	rpc "github.com/bandprotocol/chain/client"
 
 	"github.com/bandprotocol/chain/x/oracle"
 	bandante "github.com/bandprotocol/chain/x/oracle/ante"
@@ -299,7 +299,9 @@ func NewBandApp(
 		&stakingKeeper, govRouter,
 	)
 
-	app.OracleKeeper = oraclekeeper.NewKeeper(cdc, keys[oracle.StoreKey], filepath.Join(viper.GetString(cli.HomeFlag), "files"), auth.FeeCollectorName, oracleSubspace, app.SupplyKeeper, &stakingKeeper, app.DistrKeeper)
+	app.OracleKeeper = oraclekeeper.NewKeeper(
+		appCodec, keys[oracletypes.StoreKey], filepath.Join(viper.GetString(cli.HomeFlag), "files"),
+		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.GetSubspace(oracletypes.ModuleName))
 
 	// TODO: create static IBC router, add transfer route, then set and seal it
 

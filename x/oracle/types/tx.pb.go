@@ -5,11 +5,16 @@ package types
 
 import (
 	bytes "bytes"
+	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/codec/types"
 	_ "github.com/gogo/protobuf/gogoproto"
+	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -118,6 +123,43 @@ func (m *MsgRequestData) GetSender() string {
 	return ""
 }
 
+// MsgRequestDataResponse
+type MsgRequestDataResponse struct {
+}
+
+func (m *MsgRequestDataResponse) Reset()         { *m = MsgRequestDataResponse{} }
+func (m *MsgRequestDataResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRequestDataResponse) ProtoMessage()    {}
+func (*MsgRequestDataResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{1}
+}
+func (m *MsgRequestDataResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRequestDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRequestDataResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRequestDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRequestDataResponse.Merge(m, src)
+}
+func (m *MsgRequestDataResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRequestDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRequestDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRequestDataResponse proto.InternalMessageInfo
+
 // MsgReportData is a message for reporting to a data request by a validator.
 type MsgReportData struct {
 	// RequestID is the identifier of the request to report to.
@@ -136,7 +178,7 @@ func (m *MsgReportData) Reset()         { *m = MsgReportData{} }
 func (m *MsgReportData) String() string { return proto.CompactTextString(m) }
 func (*MsgReportData) ProtoMessage()    {}
 func (*MsgReportData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{1}
+	return fileDescriptor_31571edce0094a5d, []int{2}
 }
 func (m *MsgReportData) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -193,18 +235,55 @@ func (m *MsgReportData) GetReporter() string {
 	return ""
 }
 
+// MsgReportDataResponse
+type MsgReportDataResponse struct {
+}
+
+func (m *MsgReportDataResponse) Reset()         { *m = MsgReportDataResponse{} }
+func (m *MsgReportDataResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgReportDataResponse) ProtoMessage()    {}
+func (*MsgReportDataResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{3}
+}
+func (m *MsgReportDataResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgReportDataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgReportDataResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgReportDataResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgReportDataResponse.Merge(m, src)
+}
+func (m *MsgReportDataResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgReportDataResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgReportDataResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgReportDataResponse proto.InternalMessageInfo
+
 // MsgCreateDataSource is a message for creating a new data source.
 type MsgCreateDataSource struct {
-	// Owner is the address who is allowed to make further changes to the data
-	// source.
-	Owner string `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Name is the name of this data source (optional).
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Description is the description of this data source (optional).
-	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	// Executable is the executable script or binary to be run by validators upon
 	// execution.
-	Executable []byte `protobuf:"bytes,4,opt,name=executable,proto3" json:"executable,omitempty"`
+	Executable []byte `protobuf:"bytes,3,opt,name=executable,proto3" json:"executable,omitempty"`
+	// Owner is the address who is allowed to make further changes to the data
+	// source.
+	Owner string `protobuf:"bytes,4,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message.
 	Sender string `protobuf:"bytes,5,opt,name=sender,proto3" json:"sender,omitempty"`
 }
@@ -213,7 +292,7 @@ func (m *MsgCreateDataSource) Reset()         { *m = MsgCreateDataSource{} }
 func (m *MsgCreateDataSource) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateDataSource) ProtoMessage()    {}
 func (*MsgCreateDataSource) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{2}
+	return fileDescriptor_31571edce0094a5d, []int{4}
 }
 func (m *MsgCreateDataSource) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -242,13 +321,6 @@ func (m *MsgCreateDataSource) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateDataSource proto.InternalMessageInfo
 
-func (m *MsgCreateDataSource) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *MsgCreateDataSource) GetName() string {
 	if m != nil {
 		return m.Name
@@ -270,6 +342,13 @@ func (m *MsgCreateDataSource) GetExecutable() []byte {
 	return nil
 }
 
+func (m *MsgCreateDataSource) GetOwner() string {
+	if m != nil {
+		return m.Owner
+	}
+	return ""
+}
+
 func (m *MsgCreateDataSource) GetSender() string {
 	if m != nil {
 		return m.Sender
@@ -277,20 +356,57 @@ func (m *MsgCreateDataSource) GetSender() string {
 	return ""
 }
 
+// MsgCreateDataSourceResponse
+type MsgCreateDataSourceResponse struct {
+}
+
+func (m *MsgCreateDataSourceResponse) Reset()         { *m = MsgCreateDataSourceResponse{} }
+func (m *MsgCreateDataSourceResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCreateDataSourceResponse) ProtoMessage()    {}
+func (*MsgCreateDataSourceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{5}
+}
+func (m *MsgCreateDataSourceResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCreateDataSourceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCreateDataSourceResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCreateDataSourceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreateDataSourceResponse.Merge(m, src)
+}
+func (m *MsgCreateDataSourceResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCreateDataSourceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreateDataSourceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCreateDataSourceResponse proto.InternalMessageInfo
+
 // MsgEditDataSource is a message for editing an existing data source.
 type MsgEditDataSource struct {
 	// DataSourceID is the unique identifier of the data source to be edited.
 	DataSourceID DataSourceID `protobuf:"varint,1,opt,name=data_source_id,json=dataSourceId,proto3,casttype=DataSourceID" json:"data_source_id,omitempty"`
-	// Owner is the new address who is allowed to make further changes to the data
-	// source.
-	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Name is the name of this data source (optional).
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Description is the description of this data source (optional).
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Executable is the executable script or binary to be run by validators upon
 	// execution.
-	Executable []byte `protobuf:"bytes,5,opt,name=executable,proto3" json:"executable,omitempty"`
+	Executable []byte `protobuf:"bytes,4,opt,name=executable,proto3" json:"executable,omitempty"`
+	// Owner is the new address who is allowed to make further changes to the data
+	// source.
+	Owner string `protobuf:"bytes,5,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message. Must be the current data source's
 	// owner.
 	Sender string `protobuf:"bytes,6,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -300,7 +416,7 @@ func (m *MsgEditDataSource) Reset()         { *m = MsgEditDataSource{} }
 func (m *MsgEditDataSource) String() string { return proto.CompactTextString(m) }
 func (*MsgEditDataSource) ProtoMessage()    {}
 func (*MsgEditDataSource) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{3}
+	return fileDescriptor_31571edce0094a5d, []int{6}
 }
 func (m *MsgEditDataSource) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -336,13 +452,6 @@ func (m *MsgEditDataSource) GetDataSourceID() DataSourceID {
 	return 0
 }
 
-func (m *MsgEditDataSource) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *MsgEditDataSource) GetName() string {
 	if m != nil {
 		return m.Name
@@ -364,6 +473,13 @@ func (m *MsgEditDataSource) GetExecutable() []byte {
 	return nil
 }
 
+func (m *MsgEditDataSource) GetOwner() string {
+	if m != nil {
+		return m.Owner
+	}
+	return ""
+}
+
 func (m *MsgEditDataSource) GetSender() string {
 	if m != nil {
 		return m.Sender
@@ -371,21 +487,58 @@ func (m *MsgEditDataSource) GetSender() string {
 	return ""
 }
 
+// MsgEditDataSourceResponse
+type MsgEditDataSourceResponse struct {
+}
+
+func (m *MsgEditDataSourceResponse) Reset()         { *m = MsgEditDataSourceResponse{} }
+func (m *MsgEditDataSourceResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgEditDataSourceResponse) ProtoMessage()    {}
+func (*MsgEditDataSourceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{7}
+}
+func (m *MsgEditDataSourceResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgEditDataSourceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgEditDataSourceResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgEditDataSourceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgEditDataSourceResponse.Merge(m, src)
+}
+func (m *MsgEditDataSourceResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgEditDataSourceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgEditDataSourceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgEditDataSourceResponse proto.InternalMessageInfo
+
 // MsgCreateOracleScript is a message for creating an oracle script.
 type MsgCreateOracleScript struct {
+	// Name is the name of this oracle script (optional).
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Description is the description of this oracle script (optional).
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// Schema is the OBI schema of this oracle script (optional).
+	Schema string `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
+	// SourceCodeURL is the absolute URI to the script's source code (optional).
+	SourceCodeURL string `protobuf:"bytes,4,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
+	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
+	Code []byte `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
 	// Owner is the address who is allowed to make further changes to the oracle
 	// script.
-	Owner string `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Name is the name of this oracle script (optional).
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script (optional).
-	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
-	Code []byte `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
-	// Schema is the OBI schema of this oracle script (optional).
-	Schema string `protobuf:"bytes,5,opt,name=schema,proto3" json:"schema,omitempty"`
-	// SourceCodeURL is the absolute URI to the script's source code (optional).
-	SourceCodeURL string `protobuf:"bytes,6,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
+	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message.
 	Sender string `protobuf:"bytes,7,opt,name=sender,proto3" json:"sender,omitempty"`
 }
@@ -394,7 +547,7 @@ func (m *MsgCreateOracleScript) Reset()         { *m = MsgCreateOracleScript{} }
 func (m *MsgCreateOracleScript) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateOracleScript) ProtoMessage()    {}
 func (*MsgCreateOracleScript) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{4}
+	return fileDescriptor_31571edce0094a5d, []int{8}
 }
 func (m *MsgCreateOracleScript) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -423,13 +576,6 @@ func (m *MsgCreateOracleScript) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateOracleScript proto.InternalMessageInfo
 
-func (m *MsgCreateOracleScript) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *MsgCreateOracleScript) GetName() string {
 	if m != nil {
 		return m.Name
@@ -442,13 +588,6 @@ func (m *MsgCreateOracleScript) GetDescription() string {
 		return m.Description
 	}
 	return ""
-}
-
-func (m *MsgCreateOracleScript) GetCode() []byte {
-	if m != nil {
-		return m.Code
-	}
-	return nil
 }
 
 func (m *MsgCreateOracleScript) GetSchema() string {
@@ -465,6 +604,20 @@ func (m *MsgCreateOracleScript) GetSourceCodeURL() string {
 	return ""
 }
 
+func (m *MsgCreateOracleScript) GetCode() []byte {
+	if m != nil {
+		return m.Code
+	}
+	return nil
+}
+
+func (m *MsgCreateOracleScript) GetOwner() string {
+	if m != nil {
+		return m.Owner
+	}
+	return ""
+}
+
 func (m *MsgCreateOracleScript) GetSender() string {
 	if m != nil {
 		return m.Sender
@@ -472,23 +625,60 @@ func (m *MsgCreateOracleScript) GetSender() string {
 	return ""
 }
 
+// MsgCreateOracleScriptResponse
+type MsgCreateOracleScriptResponse struct {
+}
+
+func (m *MsgCreateOracleScriptResponse) Reset()         { *m = MsgCreateOracleScriptResponse{} }
+func (m *MsgCreateOracleScriptResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgCreateOracleScriptResponse) ProtoMessage()    {}
+func (*MsgCreateOracleScriptResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{9}
+}
+func (m *MsgCreateOracleScriptResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgCreateOracleScriptResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgCreateOracleScriptResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgCreateOracleScriptResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgCreateOracleScriptResponse.Merge(m, src)
+}
+func (m *MsgCreateOracleScriptResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgCreateOracleScriptResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgCreateOracleScriptResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgCreateOracleScriptResponse proto.InternalMessageInfo
+
 // MsgEditOracleScript is a message for editing an existing oracle script.
 type MsgEditOracleScript struct {
 	// OracleScriptID is the unique identifier of the oracle script to be edited.
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
+	// Name is the name of this oracle script (optional).
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Description is the description of this oracle script (optional).
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	// Schema is the OBI schema of this oracle script (optional).
+	Schema string `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
+	// SourceCodeURL is the absolute URI to the script's source code (optional).
+	SourceCodeURL string `protobuf:"bytes,5,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
+	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
+	Code []byte `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`
 	// Owner is new the address who is allowed to make further changes to the
 	// oracle script.
-	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Name is the name of this oracle script (optional).
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script (optional).
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
-	Code []byte `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
-	// Schema is the OBI schema of this oracle script (optional).
-	Schema string `protobuf:"bytes,6,opt,name=schema,proto3" json:"schema,omitempty"`
-	// SourceCodeURL is the absolute URI to the script's source code (optional).
-	SourceCodeURL string `protobuf:"bytes,7,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
+	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message. Must be the current oracle script's
 	// owner.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -498,7 +688,7 @@ func (m *MsgEditOracleScript) Reset()         { *m = MsgEditOracleScript{} }
 func (m *MsgEditOracleScript) String() string { return proto.CompactTextString(m) }
 func (*MsgEditOracleScript) ProtoMessage()    {}
 func (*MsgEditOracleScript) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{5}
+	return fileDescriptor_31571edce0094a5d, []int{10}
 }
 func (m *MsgEditOracleScript) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -534,13 +724,6 @@ func (m *MsgEditOracleScript) GetOracleScriptID() OracleScriptID {
 	return 0
 }
 
-func (m *MsgEditOracleScript) GetOwner() string {
-	if m != nil {
-		return m.Owner
-	}
-	return ""
-}
-
 func (m *MsgEditOracleScript) GetName() string {
 	if m != nil {
 		return m.Name
@@ -553,13 +736,6 @@ func (m *MsgEditOracleScript) GetDescription() string {
 		return m.Description
 	}
 	return ""
-}
-
-func (m *MsgEditOracleScript) GetCode() []byte {
-	if m != nil {
-		return m.Code
-	}
-	return nil
 }
 
 func (m *MsgEditOracleScript) GetSchema() string {
@@ -576,12 +752,63 @@ func (m *MsgEditOracleScript) GetSourceCodeURL() string {
 	return ""
 }
 
+func (m *MsgEditOracleScript) GetCode() []byte {
+	if m != nil {
+		return m.Code
+	}
+	return nil
+}
+
+func (m *MsgEditOracleScript) GetOwner() string {
+	if m != nil {
+		return m.Owner
+	}
+	return ""
+}
+
 func (m *MsgEditOracleScript) GetSender() string {
 	if m != nil {
 		return m.Sender
 	}
 	return ""
 }
+
+// MsgEditOracleScriptResponse
+type MsgEditOracleScriptResponse struct {
+}
+
+func (m *MsgEditOracleScriptResponse) Reset()         { *m = MsgEditOracleScriptResponse{} }
+func (m *MsgEditOracleScriptResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgEditOracleScriptResponse) ProtoMessage()    {}
+func (*MsgEditOracleScriptResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{11}
+}
+func (m *MsgEditOracleScriptResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgEditOracleScriptResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgEditOracleScriptResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgEditOracleScriptResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgEditOracleScriptResponse.Merge(m, src)
+}
+func (m *MsgEditOracleScriptResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgEditOracleScriptResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgEditOracleScriptResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgEditOracleScriptResponse proto.InternalMessageInfo
 
 // MsgEditOracleScript is a message for activating a validator to become an
 // oracle provider.
@@ -594,7 +821,7 @@ func (m *MsgActivate) Reset()         { *m = MsgActivate{} }
 func (m *MsgActivate) String() string { return proto.CompactTextString(m) }
 func (*MsgActivate) ProtoMessage()    {}
 func (*MsgActivate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{6}
+	return fileDescriptor_31571edce0094a5d, []int{12}
 }
 func (m *MsgActivate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -630,6 +857,43 @@ func (m *MsgActivate) GetValidator() string {
 	return ""
 }
 
+// MsgActivateResponse
+type MsgActivateResponse struct {
+}
+
+func (m *MsgActivateResponse) Reset()         { *m = MsgActivateResponse{} }
+func (m *MsgActivateResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgActivateResponse) ProtoMessage()    {}
+func (*MsgActivateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{13}
+}
+func (m *MsgActivateResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgActivateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgActivateResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgActivateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgActivateResponse.Merge(m, src)
+}
+func (m *MsgActivateResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgActivateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgActivateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgActivateResponse proto.InternalMessageInfo
+
 // MsgAddReporter is a message for adding a new reporter for a validator.
 type MsgAddReporter struct {
 	// Validator is the validator that wishes to add a new reporter. This is the
@@ -643,7 +907,7 @@ func (m *MsgAddReporter) Reset()         { *m = MsgAddReporter{} }
 func (m *MsgAddReporter) String() string { return proto.CompactTextString(m) }
 func (*MsgAddReporter) ProtoMessage()    {}
 func (*MsgAddReporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{7}
+	return fileDescriptor_31571edce0094a5d, []int{14}
 }
 func (m *MsgAddReporter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -686,6 +950,43 @@ func (m *MsgAddReporter) GetReporter() string {
 	return ""
 }
 
+// MsgAddReporterResponse
+type MsgAddReporterResponse struct {
+}
+
+func (m *MsgAddReporterResponse) Reset()         { *m = MsgAddReporterResponse{} }
+func (m *MsgAddReporterResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgAddReporterResponse) ProtoMessage()    {}
+func (*MsgAddReporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{15}
+}
+func (m *MsgAddReporterResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgAddReporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgAddReporterResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgAddReporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgAddReporterResponse.Merge(m, src)
+}
+func (m *MsgAddReporterResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgAddReporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgAddReporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgAddReporterResponse proto.InternalMessageInfo
+
 // MsgAddReporter is a message for removing an existing reporter from a
 // validator.
 type MsgRemoveReporter struct {
@@ -700,7 +1001,7 @@ func (m *MsgRemoveReporter) Reset()         { *m = MsgRemoveReporter{} }
 func (m *MsgRemoveReporter) String() string { return proto.CompactTextString(m) }
 func (*MsgRemoveReporter) ProtoMessage()    {}
 func (*MsgRemoveReporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{8}
+	return fileDescriptor_31571edce0094a5d, []int{16}
 }
 func (m *MsgRemoveReporter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -743,68 +1044,128 @@ func (m *MsgRemoveReporter) GetReporter() string {
 	return ""
 }
 
+// MsgRemoveReporterResponse
+type MsgRemoveReporterResponse struct {
+}
+
+func (m *MsgRemoveReporterResponse) Reset()         { *m = MsgRemoveReporterResponse{} }
+func (m *MsgRemoveReporterResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRemoveReporterResponse) ProtoMessage()    {}
+func (*MsgRemoveReporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31571edce0094a5d, []int{17}
+}
+func (m *MsgRemoveReporterResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRemoveReporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRemoveReporterResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRemoveReporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRemoveReporterResponse.Merge(m, src)
+}
+func (m *MsgRemoveReporterResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRemoveReporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRemoveReporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRemoveReporterResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgRequestData)(nil), "oracle.v1.MsgRequestData")
+	proto.RegisterType((*MsgRequestDataResponse)(nil), "oracle.v1.MsgRequestDataResponse")
 	proto.RegisterType((*MsgReportData)(nil), "oracle.v1.MsgReportData")
+	proto.RegisterType((*MsgReportDataResponse)(nil), "oracle.v1.MsgReportDataResponse")
 	proto.RegisterType((*MsgCreateDataSource)(nil), "oracle.v1.MsgCreateDataSource")
+	proto.RegisterType((*MsgCreateDataSourceResponse)(nil), "oracle.v1.MsgCreateDataSourceResponse")
 	proto.RegisterType((*MsgEditDataSource)(nil), "oracle.v1.MsgEditDataSource")
+	proto.RegisterType((*MsgEditDataSourceResponse)(nil), "oracle.v1.MsgEditDataSourceResponse")
 	proto.RegisterType((*MsgCreateOracleScript)(nil), "oracle.v1.MsgCreateOracleScript")
+	proto.RegisterType((*MsgCreateOracleScriptResponse)(nil), "oracle.v1.MsgCreateOracleScriptResponse")
 	proto.RegisterType((*MsgEditOracleScript)(nil), "oracle.v1.MsgEditOracleScript")
+	proto.RegisterType((*MsgEditOracleScriptResponse)(nil), "oracle.v1.MsgEditOracleScriptResponse")
 	proto.RegisterType((*MsgActivate)(nil), "oracle.v1.MsgActivate")
+	proto.RegisterType((*MsgActivateResponse)(nil), "oracle.v1.MsgActivateResponse")
 	proto.RegisterType((*MsgAddReporter)(nil), "oracle.v1.MsgAddReporter")
+	proto.RegisterType((*MsgAddReporterResponse)(nil), "oracle.v1.MsgAddReporterResponse")
 	proto.RegisterType((*MsgRemoveReporter)(nil), "oracle.v1.MsgRemoveReporter")
+	proto.RegisterType((*MsgRemoveReporterResponse)(nil), "oracle.v1.MsgRemoveReporterResponse")
 }
 
 func init() { proto.RegisterFile("oracle/v1/tx.proto", fileDescriptor_31571edce0094a5d) }
 
 var fileDescriptor_31571edce0094a5d = []byte{
-	// 730 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0xcd, 0x6e, 0x13, 0x3b,
-	0x14, 0x8e, 0xf3, 0xd7, 0x8c, 0x93, 0xe6, 0xde, 0xfa, 0xf6, 0x56, 0xb9, 0xb9, 0x28, 0x13, 0x55,
-	0x2c, 0x82, 0x84, 0x32, 0x2a, 0xac, 0x0a, 0xab, 0x26, 0xa5, 0x52, 0x24, 0x02, 0xc8, 0x15, 0x1b,
-	0x36, 0x91, 0x33, 0x36, 0xd3, 0x51, 0x67, 0xc6, 0xc1, 0x76, 0xd2, 0xf6, 0x2d, 0x78, 0x03, 0x78,
-	0x0a, 0x5e, 0x81, 0x2e, 0xbb, 0x64, 0x15, 0xa1, 0xa9, 0x90, 0xfa, 0x0c, 0x6c, 0x40, 0xe3, 0x99,
-	0x66, 0x92, 0x12, 0x5a, 0x21, 0x65, 0xe7, 0xef, 0x7c, 0x67, 0xec, 0xf3, 0x7d, 0xc7, 0xc7, 0x03,
-	0x11, 0x17, 0xc4, 0xf6, 0x98, 0x35, 0xd9, 0xb1, 0xd4, 0x69, 0x7b, 0x24, 0xb8, 0xe2, 0xc8, 0x88,
-	0x63, 0xed, 0xc9, 0x4e, 0x7d, 0xd3, 0xe1, 0x0e, 0xd7, 0x51, 0x2b, 0x5a, 0xc5, 0x09, 0x75, 0xd3,
-	0xe1, 0xdc, 0xf1, 0x98, 0xa5, 0xd1, 0x70, 0xfc, 0xd6, 0x52, 0xae, 0xcf, 0xa4, 0x22, 0xfe, 0x28,
-	0x49, 0xf8, 0xef, 0x66, 0x02, 0x09, 0xce, 0x12, 0x6a, 0x2b, 0x3d, 0x30, 0x39, 0x46, 0xc7, 0xb7,
-	0x7f, 0x00, 0x58, 0xed, 0x4b, 0x07, 0xb3, 0x77, 0x63, 0x26, 0xd5, 0x3e, 0x51, 0x04, 0xbd, 0x80,
-	0x7f, 0xc7, 0x29, 0x03, 0x69, 0x0b, 0x77, 0xa4, 0x06, 0x2e, 0xad, 0x81, 0x26, 0x68, 0xe5, 0x3a,
-	0xf7, 0xc3, 0xa9, 0x59, 0x7d, 0xa9, 0xb9, 0x43, 0x4d, 0xf5, 0xf6, 0xbf, 0xff, 0x12, 0xc1, 0x55,
-	0x3e, 0x8f, 0x29, 0xaa, 0xc3, 0x92, 0x4d, 0x3c, 0x8f, 0x12, 0x45, 0x6a, 0xd9, 0x26, 0x68, 0x55,
-	0xf0, 0x0c, 0xa3, 0xff, 0xa1, 0x41, 0xe4, 0xf1, 0xc0, 0xe6, 0xe3, 0x40, 0xd5, 0x72, 0x4d, 0xd0,
-	0xca, 0xe3, 0x12, 0x91, 0xc7, 0xdd, 0x08, 0x47, 0xa4, 0xef, 0x06, 0x09, 0x99, 0x8f, 0x49, 0xdf,
-	0x0d, 0x62, 0xf2, 0x01, 0x34, 0x6c, 0xcf, 0x65, 0x81, 0x2e, 0xaf, 0xd0, 0x04, 0x2d, 0xa3, 0x53,
-	0x09, 0xa7, 0x66, 0xa9, 0xab, 0x83, 0xbd, 0x7d, 0x5c, 0x8a, 0xe9, 0x1e, 0x45, 0x5b, 0xb0, 0x28,
-	0x59, 0x40, 0x99, 0xa8, 0x15, 0xa3, 0x3c, 0x9c, 0xa0, 0x27, 0xf9, 0xab, 0x8f, 0x26, 0xd8, 0xfe,
-	0x0c, 0xe0, 0xba, 0x76, 0x60, 0xc4, 0x45, 0x6c, 0xc0, 0x2e, 0x84, 0x22, 0xf6, 0x23, 0x95, 0x5e,
-	0x0f, 0xa7, 0xa6, 0x91, 0xb8, 0xa4, 0x55, 0xa7, 0x00, 0x1b, 0x49, 0x76, 0x8f, 0xa2, 0xa7, 0xb0,
-	0x2c, 0xc8, 0xc9, 0x40, 0xe8, 0xcd, 0x64, 0x2d, 0xdb, 0xcc, 0xb5, 0xca, 0x8f, 0x36, 0xdb, 0xb3,
-	0xce, 0xb6, 0x31, 0x39, 0x89, 0x4f, 0xea, 0xe4, 0xcf, 0xa7, 0x66, 0x06, 0x43, 0x71, 0x1d, 0x90,
-	0xe8, 0x1e, 0x34, 0x26, 0xc4, 0x73, 0x29, 0x51, 0x5c, 0x68, 0x33, 0x0c, 0x9c, 0x06, 0x22, 0x1b,
-	0xe3, 0x6d, 0x99, 0xd0, 0x66, 0x18, 0x78, 0x86, 0x13, 0x25, 0x1f, 0x00, 0xfc, 0xa7, 0x2f, 0x9d,
-	0xae, 0x60, 0x44, 0xb1, 0x48, 0xc9, 0x21, 0x1f, 0x0b, 0x9b, 0xa1, 0x4d, 0x58, 0xe0, 0x27, 0x01,
-	0x13, 0x5a, 0x8a, 0x81, 0x63, 0x80, 0x10, 0xcc, 0x07, 0xc4, 0x67, 0xba, 0x25, 0x06, 0xd6, 0x6b,
-	0xd4, 0x84, 0x65, 0xca, 0xe2, 0xae, 0xbb, 0x3c, 0x48, 0x6a, 0x98, 0x0f, 0xa1, 0x06, 0x84, 0xec,
-	0x94, 0xd9, 0x63, 0x45, 0x86, 0x1e, 0xd3, 0x75, 0x54, 0xf0, 0x5c, 0x64, 0xce, 0xeb, 0xc2, 0x12,
-	0xaf, 0xbf, 0x01, 0xb8, 0xd1, 0x97, 0xce, 0x33, 0xea, 0xaa, 0xb9, 0xfa, 0x0e, 0x60, 0x35, 0xba,
-	0x0c, 0x03, 0xa9, 0x61, 0xea, 0x79, 0x33, 0x9c, 0x9a, 0x95, 0x34, 0x4f, 0xdb, 0xbe, 0x80, 0x71,
-	0x85, 0xa6, 0x88, 0xa6, 0x3a, 0xb3, 0xcb, 0x74, 0xe6, 0x7e, 0xaf, 0x33, 0x7f, 0x97, 0xce, 0xc2,
-	0x2d, 0x3a, 0x97, 0xdd, 0xa9, 0x2b, 0x00, 0xff, 0x9d, 0x75, 0x62, 0x7e, 0x3c, 0x56, 0xda, 0x0b,
-	0x04, 0xf3, 0x36, 0xa7, 0xd7, 0x5d, 0xd0, 0x6b, 0x5d, 0x97, 0x7d, 0xc4, 0x7c, 0x32, 0xf3, 0x5f,
-	0x23, 0xb4, 0x0b, 0xff, 0x4a, 0xec, 0x8d, 0xd2, 0x06, 0x63, 0xe1, 0xc5, 0x85, 0x77, 0x36, 0xc2,
-	0xa9, 0xb9, 0x1e, 0x5b, 0xd8, 0xe5, 0x94, 0xbd, 0xc6, 0xcf, 0xf1, 0xba, 0x4c, 0xa1, 0xf0, 0xe6,
-	0xa4, 0xae, 0x2d, 0x91, 0xfa, 0x29, 0xab, 0x2f, 0x5d, 0xd4, 0xd2, 0x05, 0xa1, 0xab, 0x7e, 0x45,
-	0x56, 0xd9, 0xdc, 0x6b, 0xe3, 0x0a, 0x4b, 0x8d, 0x2b, 0xde, 0x65, 0xdc, 0xda, 0x1f, 0x1b, 0x57,
-	0x5a, 0x62, 0xdc, 0x0e, 0x2c, 0xf7, 0xa5, 0xb3, 0x67, 0x2b, 0x77, 0x42, 0x14, 0x5b, 0x1c, 0x7e,
-	0x70, 0x63, 0xf8, 0x93, 0x4f, 0x5e, 0xe9, 0xb7, 0x7a, 0x8f, 0x52, 0x9c, 0x0c, 0xfe, 0xed, 0x5f,
-	0x2d, 0x3c, 0x19, 0xd9, 0xa5, 0x4f, 0xc6, 0xa1, 0x9e, 0x47, 0xcc, 0x7c, 0x3e, 0x61, 0xab, 0xda,
-	0xb4, 0x73, 0x70, 0x1e, 0x36, 0xc0, 0x45, 0xd8, 0x00, 0x5f, 0xc3, 0x06, 0x78, 0x7f, 0xd9, 0xc8,
-	0x5c, 0x5c, 0x36, 0x32, 0x5f, 0x2e, 0x1b, 0x99, 0x37, 0x0f, 0x1d, 0x57, 0x1d, 0x8d, 0x87, 0x6d,
-	0x9b, 0xfb, 0xd6, 0x90, 0x04, 0x54, 0xff, 0x83, 0x6c, 0xee, 0x59, 0xf6, 0x11, 0x71, 0x03, 0xeb,
-	0x34, 0xf9, 0x37, 0x59, 0xea, 0x6c, 0xc4, 0xe4, 0xb0, 0xa8, 0xe9, 0xc7, 0x3f, 0x03, 0x00, 0x00,
-	0xff, 0xff, 0xb7, 0x13, 0xad, 0xe2, 0x2d, 0x07, 0x00, 0x00,
+	// 951 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xcd, 0x6e, 0xdb, 0x46,
+	0x10, 0x36, 0xf5, 0x17, 0x71, 0x24, 0xab, 0x09, 0xeb, 0xb8, 0x32, 0x9d, 0x90, 0xac, 0x11, 0x04,
+	0x2a, 0x50, 0x88, 0x70, 0x7a, 0x4a, 0x7b, 0x8a, 0xec, 0x06, 0x35, 0x52, 0xb5, 0xc5, 0xba, 0xbd,
+	0xe4, 0xa2, 0xae, 0xc8, 0x2d, 0x4d, 0x84, 0xe2, 0xaa, 0x5c, 0x4a, 0x76, 0xde, 0xa2, 0x6f, 0xd0,
+	0x3e, 0x45, 0x5f, 0xa1, 0x39, 0xe6, 0xd8, 0x93, 0x50, 0xc8, 0x28, 0x90, 0x7b, 0x6f, 0xbd, 0xb4,
+	0xe0, 0x92, 0x5a, 0xfe, 0x88, 0x92, 0x91, 0x20, 0x37, 0xce, 0x7c, 0xb3, 0xb3, 0x33, 0xdf, 0xfc,
+	0x2c, 0x41, 0xa1, 0x01, 0xb6, 0x3c, 0x62, 0xce, 0x8f, 0xcd, 0xf0, 0xaa, 0x3f, 0x0d, 0x68, 0x48,
+	0x15, 0x39, 0xd6, 0xf5, 0xe7, 0xc7, 0xea, 0x9e, 0x43, 0x1d, 0xca, 0xb5, 0x66, 0xf4, 0x15, 0x1b,
+	0xa8, 0xba, 0x43, 0xa9, 0xe3, 0x11, 0x93, 0x4b, 0xe3, 0xd9, 0x4f, 0x66, 0xe8, 0x4e, 0x08, 0x0b,
+	0xf1, 0x64, 0x9a, 0x18, 0x1c, 0x14, 0x0d, 0xb0, 0xff, 0x32, 0x81, 0xf6, 0xd3, 0x0b, 0x93, 0x6b,
+	0xb8, 0xfe, 0xe8, 0x3f, 0x09, 0x3a, 0x43, 0xe6, 0x20, 0xf2, 0xf3, 0x8c, 0xb0, 0xf0, 0x14, 0x87,
+	0x58, 0xf9, 0x06, 0x6e, 0xc7, 0x26, 0x23, 0x66, 0x05, 0xee, 0x34, 0x1c, 0xb9, 0x76, 0x57, 0x32,
+	0xa4, 0x5e, 0x75, 0xf0, 0x60, 0xb9, 0xd0, 0x3b, 0xdf, 0x72, 0xec, 0x9c, 0x43, 0x67, 0xa7, 0xff,
+	0xae, 0x69, 0x50, 0x87, 0x66, 0x65, 0x5b, 0x51, 0xa1, 0x69, 0x61, 0xcf, 0xb3, 0x71, 0x88, 0xbb,
+	0x15, 0x43, 0xea, 0xb5, 0x91, 0x90, 0x95, 0x43, 0x90, 0x31, 0x7b, 0x31, 0xb2, 0xe8, 0xcc, 0x0f,
+	0xbb, 0x55, 0x43, 0xea, 0xd5, 0x50, 0x13, 0xb3, 0x17, 0x27, 0x91, 0x1c, 0x81, 0x13, 0xd7, 0x4f,
+	0xc0, 0x5a, 0x0c, 0x4e, 0x5c, 0x3f, 0x06, 0x3f, 0x01, 0xd9, 0xf2, 0x5c, 0xe2, 0xf3, 0xf0, 0xea,
+	0x86, 0xd4, 0x93, 0x07, 0xed, 0xe5, 0x42, 0x6f, 0x9e, 0x70, 0xe5, 0xd9, 0x29, 0x6a, 0xc6, 0xf0,
+	0x99, 0xad, 0xec, 0x43, 0x83, 0x11, 0xdf, 0x26, 0x41, 0xb7, 0x11, 0xd9, 0xa1, 0x44, 0xfa, 0xbc,
+	0xf6, 0xe6, 0x37, 0x5d, 0x3a, 0xea, 0xc2, 0x7e, 0x9e, 0x00, 0x44, 0xd8, 0x94, 0xfa, 0x8c, 0x1c,
+	0xfd, 0x21, 0xc1, 0x2e, 0x87, 0xa6, 0x34, 0x88, 0xa9, 0x79, 0x0c, 0x10, 0xc4, 0x86, 0x29, 0x29,
+	0xea, 0x72, 0xa1, 0xcb, 0xc9, 0x71, 0xce, 0x47, 0x2a, 0x20, 0x39, 0xb1, 0x3e, 0xb3, 0x95, 0x2f,
+	0xa0, 0x15, 0xe0, 0xcb, 0x51, 0xc0, 0x9d, 0xb1, 0x6e, 0xc5, 0xa8, 0xf6, 0x5a, 0x8f, 0xf6, 0xfa,
+	0xa2, 0xe6, 0x7d, 0x84, 0x2f, 0xe3, 0x9b, 0x06, 0xb5, 0x57, 0x0b, 0x7d, 0x07, 0x41, 0xb0, 0x52,
+	0x30, 0xe5, 0x1e, 0xc8, 0x73, 0xec, 0xb9, 0x36, 0x0e, 0x69, 0xc0, 0x69, 0x92, 0x51, 0xaa, 0x88,
+	0x08, 0x8e, 0xdd, 0x92, 0x80, 0xd3, 0x24, 0x23, 0x21, 0x27, 0x39, 0x7e, 0x04, 0x77, 0x73, 0x89,
+	0x88, 0x14, 0x7f, 0x95, 0xe0, 0xc3, 0x21, 0x73, 0x4e, 0x02, 0x82, 0x43, 0x12, 0x21, 0xe7, 0x74,
+	0x16, 0x58, 0x44, 0x51, 0xa0, 0xe6, 0xe3, 0x09, 0xe1, 0x29, 0xca, 0x88, 0x7f, 0x2b, 0x06, 0xb4,
+	0x6c, 0x12, 0xb7, 0x84, 0x4b, 0x7d, 0x5e, 0x4a, 0x19, 0x65, 0x55, 0x8a, 0x06, 0x40, 0xae, 0x88,
+	0x35, 0x0b, 0xf1, 0xd8, 0x23, 0x3c, 0xce, 0x36, 0xca, 0x68, 0x94, 0x3d, 0xa8, 0xd3, 0x4b, 0x5f,
+	0x44, 0x19, 0x0b, 0x99, 0xf2, 0xd4, 0x4b, 0xca, 0x73, 0x1f, 0x0e, 0x4b, 0x02, 0x14, 0x09, 0xfc,
+	0x2d, 0xc1, 0x9d, 0x21, 0x73, 0xbe, 0xb4, 0xdd, 0x30, 0x13, 0xfe, 0x53, 0xe8, 0x44, 0xed, 0x35,
+	0x62, 0x5c, 0x4c, 0x6b, 0x65, 0x2c, 0x17, 0x7a, 0x3b, 0xb5, 0xe3, 0xe5, 0xca, 0xc9, 0xa8, 0x6d,
+	0xa7, 0x92, 0x2d, 0x68, 0xa8, 0x6c, 0xa6, 0xa1, 0x7a, 0x13, 0x0d, 0xb5, 0xcd, 0x34, 0xd4, 0xcb,
+	0x69, 0x28, 0xeb, 0xd2, 0x43, 0x38, 0x58, 0x4b, 0x53, 0x90, 0xf0, 0x46, 0xe2, 0xf5, 0x8d, 0x49,
+	0xca, 0x4e, 0xe3, 0x3b, 0xd6, 0x31, 0x0a, 0xc5, 0xba, 0x20, 0x13, 0x9c, 0x64, 0x97, 0x48, 0xca,
+	0x63, 0xf8, 0x20, 0x61, 0xd4, 0xa2, 0x36, 0x19, 0xcd, 0x02, 0x2f, 0xae, 0xe4, 0xe0, 0xce, 0x72,
+	0xa1, 0xef, 0xc6, 0x41, 0x9d, 0x50, 0x9b, 0xfc, 0x80, 0xbe, 0x46, 0xbb, 0x2c, 0x15, 0x03, 0x2f,
+	0x0a, 0x24, 0x3a, 0xc3, 0x53, 0x6e, 0x23, 0xfe, 0x9d, 0xf2, 0xd0, 0x28, 0xe7, 0xe1, 0x56, 0x09,
+	0x0f, 0x3a, 0xdc, 0x2f, 0xcd, 0x54, 0x70, 0xf1, 0x7b, 0x85, 0x77, 0x74, 0xc4, 0x54, 0x8e, 0x89,
+	0xf7, 0xbd, 0xd5, 0xde, 0xad, 0x35, 0x52, 0x66, 0x6b, 0x37, 0x31, 0x5b, 0x7f, 0x4b, 0x66, 0x1b,
+	0x65, 0xcc, 0xde, 0x2a, 0x67, 0xb6, 0xb9, 0x71, 0xd0, 0x8a, 0xbc, 0x09, 0x5e, 0x8f, 0xa1, 0x35,
+	0x64, 0xce, 0x13, 0x2b, 0x74, 0xe7, 0x38, 0x24, 0xf9, 0x8d, 0x24, 0x15, 0x36, 0x52, 0xe2, 0xf1,
+	0x2e, 0xaf, 0xc4, 0xea, 0x88, 0xf0, 0xf4, 0x1d, 0x7f, 0x71, 0x9e, 0xd8, 0x36, 0x4a, 0x96, 0xd4,
+	0x76, 0x67, 0xb9, 0xf5, 0x56, 0x29, 0x5d, 0x6f, 0xf1, 0x0a, 0xcf, 0x78, 0x14, 0x77, 0x9d, 0xf3,
+	0xed, 0x80, 0xc8, 0x84, 0xce, 0xc9, 0x7b, 0xbb, 0x2e, 0x9e, 0xc5, 0xbc, 0xd3, 0xd5, 0x8d, 0x8f,
+	0xfe, 0xa9, 0x43, 0x75, 0xc8, 0x1c, 0xe5, 0x19, 0xb4, 0xb2, 0x8f, 0xea, 0x41, 0x66, 0xd3, 0xe7,
+	0x9f, 0x1b, 0xf5, 0xe3, 0x8d, 0xd0, 0xca, 0xa9, 0xf2, 0x15, 0x40, 0xe6, 0x15, 0xea, 0x16, 0x0f,
+	0xac, 0x10, 0xd5, 0xd8, 0x84, 0x08, 0x4f, 0xcf, 0xe1, 0xf6, 0xda, 0xb2, 0xd7, 0xf2, 0xa7, 0x8a,
+	0xb8, 0xfa, 0x70, 0x3b, 0x2e, 0x7c, 0x7f, 0x0f, 0x9d, 0xc2, 0x1e, 0xbe, 0x97, 0x3f, 0x99, 0x47,
+	0xd5, 0x07, 0xdb, 0x50, 0xe1, 0xf5, 0x47, 0x50, 0x4a, 0x16, 0x9b, 0x51, 0x16, 0x53, 0xd6, 0x42,
+	0xed, 0xdd, 0x64, 0x91, 0xe5, 0x64, 0x6d, 0x5d, 0x68, 0xeb, 0xb1, 0xe5, 0xbc, 0x3f, 0xdc, 0x8e,
+	0x0b, 0xdf, 0x03, 0x68, 0x8a, 0x99, 0xd9, 0xcf, 0x9f, 0x59, 0xe9, 0x55, 0xad, 0x5c, 0x2f, 0x7c,
+	0x3c, 0x83, 0x56, 0x76, 0x5a, 0x0a, 0xad, 0x94, 0x81, 0x8a, 0xad, 0x54, 0x32, 0x11, 0x51, 0x91,
+	0x8a, 0xe3, 0x50, 0x6c, 0x9a, 0x2c, 0x5a, 0x2c, 0x52, 0x79, 0xd7, 0x0f, 0x9e, 0xbe, 0x5a, 0x6a,
+	0xd2, 0xeb, 0xa5, 0x26, 0xfd, 0xb5, 0xd4, 0xa4, 0x5f, 0xae, 0xb5, 0x9d, 0xd7, 0xd7, 0xda, 0xce,
+	0x9f, 0xd7, 0xda, 0xce, 0xf3, 0x4f, 0x1d, 0x37, 0xbc, 0x98, 0x8d, 0xfb, 0x16, 0x9d, 0x98, 0x63,
+	0xec, 0xdb, 0xfc, 0xb7, 0xd3, 0xa2, 0x9e, 0x69, 0x5d, 0x60, 0xd7, 0x37, 0xaf, 0x92, 0xdf, 0x51,
+	0x33, 0x7c, 0x39, 0x25, 0x6c, 0xdc, 0xe0, 0xf0, 0x67, 0xff, 0x07, 0x00, 0x00, 0xff, 0xff, 0x17,
+	0x79, 0xb2, 0xce, 0x20, 0x0b, 0x00, 0x00,
 }
 
 func (this *MsgRequestData) Equal(that interface{}) bool {
@@ -903,9 +1264,6 @@ func (this *MsgCreateDataSource) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Owner != that1.Owner {
-		return false
-	}
 	if this.Name != that1.Name {
 		return false
 	}
@@ -913,6 +1271,9 @@ func (this *MsgCreateDataSource) Equal(that interface{}) bool {
 		return false
 	}
 	if !bytes.Equal(this.Executable, that1.Executable) {
+		return false
+	}
+	if this.Owner != that1.Owner {
 		return false
 	}
 	if this.Sender != that1.Sender {
@@ -942,9 +1303,6 @@ func (this *MsgEditDataSource) Equal(that interface{}) bool {
 	if this.DataSourceID != that1.DataSourceID {
 		return false
 	}
-	if this.Owner != that1.Owner {
-		return false
-	}
 	if this.Name != that1.Name {
 		return false
 	}
@@ -952,6 +1310,9 @@ func (this *MsgEditDataSource) Equal(that interface{}) bool {
 		return false
 	}
 	if !bytes.Equal(this.Executable, that1.Executable) {
+		return false
+	}
+	if this.Owner != that1.Owner {
 		return false
 	}
 	if this.Sender != that1.Sender {
@@ -978,22 +1339,22 @@ func (this *MsgCreateOracleScript) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Owner != that1.Owner {
-		return false
-	}
 	if this.Name != that1.Name {
 		return false
 	}
 	if this.Description != that1.Description {
 		return false
 	}
-	if !bytes.Equal(this.Code, that1.Code) {
-		return false
-	}
 	if this.Schema != that1.Schema {
 		return false
 	}
 	if this.SourceCodeURL != that1.SourceCodeURL {
+		return false
+	}
+	if !bytes.Equal(this.Code, that1.Code) {
+		return false
+	}
+	if this.Owner != that1.Owner {
 		return false
 	}
 	if this.Sender != that1.Sender {
@@ -1023,22 +1384,22 @@ func (this *MsgEditOracleScript) Equal(that interface{}) bool {
 	if this.OracleScriptID != that1.OracleScriptID {
 		return false
 	}
-	if this.Owner != that1.Owner {
-		return false
-	}
 	if this.Name != that1.Name {
 		return false
 	}
 	if this.Description != that1.Description {
 		return false
 	}
-	if !bytes.Equal(this.Code, that1.Code) {
-		return false
-	}
 	if this.Schema != that1.Schema {
 		return false
 	}
 	if this.SourceCodeURL != that1.SourceCodeURL {
+		return false
+	}
+	if !bytes.Equal(this.Code, that1.Code) {
+		return false
+	}
+	if this.Owner != that1.Owner {
 		return false
 	}
 	if this.Sender != that1.Sender {
@@ -1124,6 +1485,393 @@ func (this *MsgRemoveReporter) Equal(that interface{}) bool {
 	}
 	return true
 }
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// MsgClient is the client API for Msg service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type MsgClient interface {
+	// RequestData defines a method for requesting a new request.
+	RequestData(ctx context.Context, in *MsgRequestData, opts ...grpc.CallOption) (*MsgRequestDataResponse, error)
+	// ReportData defines a method for reporting a data to resolving the request.
+	ReportData(ctx context.Context, in *MsgReportData, opts ...grpc.CallOption) (*MsgReportDataResponse, error)
+	// CreateDataSource defines a method for creating a new data source.
+	CreateDataSource(ctx context.Context, in *MsgCreateDataSource, opts ...grpc.CallOption) (*MsgCreateDataSourceResponse, error)
+	// EditDataSource defines a method for editing an existing data source.
+	EditDataSource(ctx context.Context, in *MsgEditDataSource, opts ...grpc.CallOption) (*MsgEditDataSourceResponse, error)
+	// CreateOracleScript defines a method for creating a new oracle script.
+	CreateOracleScript(ctx context.Context, in *MsgCreateOracleScript, opts ...grpc.CallOption) (*MsgCreateOracleScriptResponse, error)
+	// EditOracleScript defines a method for editing an existing oracle script.
+	EditOracleScript(ctx context.Context, in *MsgEditOracleScript, opts ...grpc.CallOption) (*MsgEditOracleScriptResponse, error)
+	// Activate defines a method for applying to be an oracle validator.
+	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
+	// AddReporter defines a method for adding a new reporter for a validator.
+	AddReporter(ctx context.Context, in *MsgAddReporter, opts ...grpc.CallOption) (*MsgAddReporterResponse, error)
+	// RemoveReporter defines a method for TODO
+	RemoveReporter(ctx context.Context, in *MsgRemoveReporter, opts ...grpc.CallOption) (*MsgRemoveReporterResponse, error)
+}
+
+type msgClient struct {
+	cc grpc1.ClientConn
+}
+
+func NewMsgClient(cc grpc1.ClientConn) MsgClient {
+	return &msgClient{cc}
+}
+
+func (c *msgClient) RequestData(ctx context.Context, in *MsgRequestData, opts ...grpc.CallOption) (*MsgRequestDataResponse, error) {
+	out := new(MsgRequestDataResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/RequestData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) ReportData(ctx context.Context, in *MsgReportData, opts ...grpc.CallOption) (*MsgReportDataResponse, error) {
+	out := new(MsgReportDataResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/ReportData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) CreateDataSource(ctx context.Context, in *MsgCreateDataSource, opts ...grpc.CallOption) (*MsgCreateDataSourceResponse, error) {
+	out := new(MsgCreateDataSourceResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/CreateDataSource", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) EditDataSource(ctx context.Context, in *MsgEditDataSource, opts ...grpc.CallOption) (*MsgEditDataSourceResponse, error) {
+	out := new(MsgEditDataSourceResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/EditDataSource", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) CreateOracleScript(ctx context.Context, in *MsgCreateOracleScript, opts ...grpc.CallOption) (*MsgCreateOracleScriptResponse, error) {
+	out := new(MsgCreateOracleScriptResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/CreateOracleScript", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) EditOracleScript(ctx context.Context, in *MsgEditOracleScript, opts ...grpc.CallOption) (*MsgEditOracleScriptResponse, error) {
+	out := new(MsgEditOracleScriptResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/EditOracleScript", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error) {
+	out := new(MsgActivateResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/Activate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) AddReporter(ctx context.Context, in *MsgAddReporter, opts ...grpc.CallOption) (*MsgAddReporterResponse, error) {
+	out := new(MsgAddReporterResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/AddReporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) RemoveReporter(ctx context.Context, in *MsgRemoveReporter, opts ...grpc.CallOption) (*MsgRemoveReporterResponse, error) {
+	out := new(MsgRemoveReporterResponse)
+	err := c.cc.Invoke(ctx, "/oracle.v1.Msg/RemoveReporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MsgServer is the server API for Msg service.
+type MsgServer interface {
+	// RequestData defines a method for requesting a new request.
+	RequestData(context.Context, *MsgRequestData) (*MsgRequestDataResponse, error)
+	// ReportData defines a method for reporting a data to resolving the request.
+	ReportData(context.Context, *MsgReportData) (*MsgReportDataResponse, error)
+	// CreateDataSource defines a method for creating a new data source.
+	CreateDataSource(context.Context, *MsgCreateDataSource) (*MsgCreateDataSourceResponse, error)
+	// EditDataSource defines a method for editing an existing data source.
+	EditDataSource(context.Context, *MsgEditDataSource) (*MsgEditDataSourceResponse, error)
+	// CreateOracleScript defines a method for creating a new oracle script.
+	CreateOracleScript(context.Context, *MsgCreateOracleScript) (*MsgCreateOracleScriptResponse, error)
+	// EditOracleScript defines a method for editing an existing oracle script.
+	EditOracleScript(context.Context, *MsgEditOracleScript) (*MsgEditOracleScriptResponse, error)
+	// Activate defines a method for applying to be an oracle validator.
+	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
+	// AddReporter defines a method for adding a new reporter for a validator.
+	AddReporter(context.Context, *MsgAddReporter) (*MsgAddReporterResponse, error)
+	// RemoveReporter defines a method for TODO
+	RemoveReporter(context.Context, *MsgRemoveReporter) (*MsgRemoveReporterResponse, error)
+}
+
+// UnimplementedMsgServer can be embedded to have forward compatible implementations.
+type UnimplementedMsgServer struct {
+}
+
+func (*UnimplementedMsgServer) RequestData(ctx context.Context, req *MsgRequestData) (*MsgRequestDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestData not implemented")
+}
+func (*UnimplementedMsgServer) ReportData(ctx context.Context, req *MsgReportData) (*MsgReportDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReportData not implemented")
+}
+func (*UnimplementedMsgServer) CreateDataSource(ctx context.Context, req *MsgCreateDataSource) (*MsgCreateDataSourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDataSource not implemented")
+}
+func (*UnimplementedMsgServer) EditDataSource(ctx context.Context, req *MsgEditDataSource) (*MsgEditDataSourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditDataSource not implemented")
+}
+func (*UnimplementedMsgServer) CreateOracleScript(ctx context.Context, req *MsgCreateOracleScript) (*MsgCreateOracleScriptResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOracleScript not implemented")
+}
+func (*UnimplementedMsgServer) EditOracleScript(ctx context.Context, req *MsgEditOracleScript) (*MsgEditOracleScriptResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditOracleScript not implemented")
+}
+func (*UnimplementedMsgServer) Activate(ctx context.Context, req *MsgActivate) (*MsgActivateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
+}
+func (*UnimplementedMsgServer) AddReporter(ctx context.Context, req *MsgAddReporter) (*MsgAddReporterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddReporter not implemented")
+}
+func (*UnimplementedMsgServer) RemoveReporter(ctx context.Context, req *MsgRemoveReporter) (*MsgRemoveReporterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveReporter not implemented")
+}
+
+func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
+	s.RegisterService(&_Msg_serviceDesc, srv)
+}
+
+func _Msg_RequestData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRequestData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).RequestData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/RequestData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).RequestData(ctx, req.(*MsgRequestData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ReportData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgReportData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ReportData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/ReportData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ReportData(ctx, req.(*MsgReportData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_CreateDataSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCreateDataSource)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).CreateDataSource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/CreateDataSource",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).CreateDataSource(ctx, req.(*MsgCreateDataSource))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_EditDataSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgEditDataSource)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).EditDataSource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/EditDataSource",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).EditDataSource(ctx, req.(*MsgEditDataSource))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_CreateOracleScript_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgCreateOracleScript)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).CreateOracleScript(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/CreateOracleScript",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).CreateOracleScript(ctx, req.(*MsgCreateOracleScript))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_EditOracleScript_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgEditOracleScript)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).EditOracleScript(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/EditOracleScript",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).EditOracleScript(ctx, req.(*MsgEditOracleScript))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_Activate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgActivate)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).Activate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/Activate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).Activate(ctx, req.(*MsgActivate))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_AddReporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgAddReporter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).AddReporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/AddReporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).AddReporter(ctx, req.(*MsgAddReporter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_RemoveReporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRemoveReporter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).RemoveReporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/oracle.v1.Msg/RemoveReporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).RemoveReporter(ctx, req.(*MsgRemoveReporter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Msg_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "oracle.v1.Msg",
+	HandlerType: (*MsgServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RequestData",
+			Handler:    _Msg_RequestData_Handler,
+		},
+		{
+			MethodName: "ReportData",
+			Handler:    _Msg_ReportData_Handler,
+		},
+		{
+			MethodName: "CreateDataSource",
+			Handler:    _Msg_CreateDataSource_Handler,
+		},
+		{
+			MethodName: "EditDataSource",
+			Handler:    _Msg_EditDataSource_Handler,
+		},
+		{
+			MethodName: "CreateOracleScript",
+			Handler:    _Msg_CreateOracleScript_Handler,
+		},
+		{
+			MethodName: "EditOracleScript",
+			Handler:    _Msg_EditOracleScript_Handler,
+		},
+		{
+			MethodName: "Activate",
+			Handler:    _Msg_Activate_Handler,
+		},
+		{
+			MethodName: "AddReporter",
+			Handler:    _Msg_AddReporter_Handler,
+		},
+		{
+			MethodName: "RemoveReporter",
+			Handler:    _Msg_RemoveReporter_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "oracle/v1/tx.proto",
+}
+
 func (m *MsgRequestData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1183,6 +1931,29 @@ func (m *MsgRequestData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgRequestDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRequestDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRequestDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func (m *MsgReportData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1239,6 +2010,29 @@ func (m *MsgReportData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgReportDataResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgReportDataResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgReportDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func (m *MsgCreateDataSource) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1266,34 +2060,57 @@ func (m *MsgCreateDataSource) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x2a
 	}
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if len(m.Executable) > 0 {
 		i -= len(m.Executable)
 		copy(dAtA[i:], m.Executable)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Executable)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
 		copy(dAtA[i:], m.Description)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Description)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if len(m.Name) > 0 {
 		i -= len(m.Name)
 		copy(dAtA[i:], m.Name)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
 		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
-		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCreateDataSourceResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCreateDataSourceResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCreateDataSourceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1324,31 +2141,31 @@ func (m *MsgEditDataSource) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x32
 	}
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
+		i--
+		dAtA[i] = 0x2a
+	}
 	if len(m.Executable) > 0 {
 		i -= len(m.Executable)
 		copy(dAtA[i:], m.Executable)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Executable)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
 		copy(dAtA[i:], m.Description)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Description)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.Name) > 0 {
 		i -= len(m.Name)
 		copy(dAtA[i:], m.Name)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1357,6 +2174,29 @@ func (m *MsgEditDataSource) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x8
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgEditDataSourceResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgEditDataSourceResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgEditDataSourceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1387,48 +2227,71 @@ func (m *MsgCreateOracleScript) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x3a
 	}
-	if len(m.SourceCodeURL) > 0 {
-		i -= len(m.SourceCodeURL)
-		copy(dAtA[i:], m.SourceCodeURL)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceCodeURL)))
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
 		i--
 		dAtA[i] = 0x32
-	}
-	if len(m.Schema) > 0 {
-		i -= len(m.Schema)
-		copy(dAtA[i:], m.Schema)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Schema)))
-		i--
-		dAtA[i] = 0x2a
 	}
 	if len(m.Code) > 0 {
 		i -= len(m.Code)
 		copy(dAtA[i:], m.Code)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Code)))
 		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.SourceCodeURL) > 0 {
+		i -= len(m.SourceCodeURL)
+		copy(dAtA[i:], m.SourceCodeURL)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceCodeURL)))
+		i--
 		dAtA[i] = 0x22
+	}
+	if len(m.Schema) > 0 {
+		i -= len(m.Schema)
+		copy(dAtA[i:], m.Schema)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Schema)))
+		i--
+		dAtA[i] = 0x1a
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
 		copy(dAtA[i:], m.Description)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Description)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if len(m.Name) > 0 {
 		i -= len(m.Name)
 		copy(dAtA[i:], m.Name)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
 		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
-		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgCreateOracleScriptResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgCreateOracleScriptResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgCreateOracleScriptResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1459,45 +2322,45 @@ func (m *MsgEditOracleScript) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x42
 	}
-	if len(m.SourceCodeURL) > 0 {
-		i -= len(m.SourceCodeURL)
-		copy(dAtA[i:], m.SourceCodeURL)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceCodeURL)))
+	if len(m.Owner) > 0 {
+		i -= len(m.Owner)
+		copy(dAtA[i:], m.Owner)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
 		i--
 		dAtA[i] = 0x3a
-	}
-	if len(m.Schema) > 0 {
-		i -= len(m.Schema)
-		copy(dAtA[i:], m.Schema)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Schema)))
-		i--
-		dAtA[i] = 0x32
 	}
 	if len(m.Code) > 0 {
 		i -= len(m.Code)
 		copy(dAtA[i:], m.Code)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Code)))
 		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.SourceCodeURL) > 0 {
+		i -= len(m.SourceCodeURL)
+		copy(dAtA[i:], m.SourceCodeURL)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.SourceCodeURL)))
+		i--
 		dAtA[i] = 0x2a
+	}
+	if len(m.Schema) > 0 {
+		i -= len(m.Schema)
+		copy(dAtA[i:], m.Schema)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Schema)))
+		i--
+		dAtA[i] = 0x22
 	}
 	if len(m.Description) > 0 {
 		i -= len(m.Description)
 		copy(dAtA[i:], m.Description)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Description)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.Name) > 0 {
 		i -= len(m.Name)
 		copy(dAtA[i:], m.Name)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Name)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.Owner) > 0 {
-		i -= len(m.Owner)
-		copy(dAtA[i:], m.Owner)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Owner)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1506,6 +2369,29 @@ func (m *MsgEditOracleScript) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x8
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgEditOracleScriptResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgEditOracleScriptResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgEditOracleScriptResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1536,6 +2422,29 @@ func (m *MsgActivate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgActivateResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgActivateResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgActivateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1576,6 +2485,29 @@ func (m *MsgAddReporter) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgAddReporterResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgAddReporterResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgAddReporterResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func (m *MsgRemoveReporter) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1610,6 +2542,29 @@ func (m *MsgRemoveReporter) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0xa
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRemoveReporterResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRemoveReporterResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRemoveReporterResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	return len(dAtA) - i, nil
 }
 
@@ -1654,6 +2609,15 @@ func (m *MsgRequestData) Size() (n int) {
 	return n
 }
 
+func (m *MsgRequestDataResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func (m *MsgReportData) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1680,16 +2644,21 @@ func (m *MsgReportData) Size() (n int) {
 	return n
 }
 
+func (m *MsgReportDataResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func (m *MsgCreateDataSource) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.Name)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
@@ -1702,10 +2671,23 @@ func (m *MsgCreateDataSource) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
 	l = len(m.Sender)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgCreateDataSourceResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -1718,10 +2700,6 @@ func (m *MsgEditDataSource) Size() (n int) {
 	if m.DataSourceID != 0 {
 		n += 1 + sovTx(uint64(m.DataSourceID))
 	}
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.Name)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
@@ -1734,10 +2712,23 @@ func (m *MsgEditDataSource) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
 	l = len(m.Sender)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgEditDataSourceResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -1747,19 +2738,11 @@ func (m *MsgCreateOracleScript) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.Name)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
 	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.Code)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
@@ -1771,10 +2754,27 @@ func (m *MsgCreateOracleScript) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	l = len(m.Code)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
 	l = len(m.Sender)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgCreateOracleScriptResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -1787,19 +2787,11 @@ func (m *MsgEditOracleScript) Size() (n int) {
 	if m.OracleScriptID != 0 {
 		n += 1 + sovTx(uint64(m.OracleScriptID))
 	}
-	l = len(m.Owner)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.Name)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
 	l = len(m.Description)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.Code)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
@@ -1811,10 +2803,27 @@ func (m *MsgEditOracleScript) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	l = len(m.Code)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Owner)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
 	l = len(m.Sender)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgEditOracleScriptResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -1828,6 +2837,15 @@ func (m *MsgActivate) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgActivateResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -1848,6 +2866,15 @@ func (m *MsgAddReporter) Size() (n int) {
 	return n
 }
 
+func (m *MsgAddReporterResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func (m *MsgRemoveReporter) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1862,6 +2889,15 @@ func (m *MsgRemoveReporter) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	return n
+}
+
+func (m *MsgRemoveReporterResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	return n
 }
 
@@ -2061,10 +3097,57 @@ func (m *MsgRequestData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRequestDataResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRequestDataResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRequestDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -2231,10 +3314,57 @@ func (m *MsgReportData) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgReportDataResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgReportDataResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgReportDataResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -2280,38 +3410,6 @@ func (m *MsgCreateDataSource) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
 			var stringLen uint64
@@ -2342,7 +3440,7 @@ func (m *MsgCreateDataSource) Unmarshal(dAtA []byte) error {
 			}
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -2374,7 +3472,7 @@ func (m *MsgCreateDataSource) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Executable", wireType)
 			}
@@ -2407,6 +3505,38 @@ func (m *MsgCreateDataSource) Unmarshal(dAtA []byte) error {
 			if m.Executable == nil {
 				m.Executable = []byte{}
 			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
@@ -2446,10 +3576,57 @@ func (m *MsgCreateDataSource) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCreateDataSourceResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCreateDataSourceResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCreateDataSourceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -2514,38 +3691,6 @@ func (m *MsgEditDataSource) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
 			var stringLen uint64
@@ -2576,7 +3721,7 @@ func (m *MsgEditDataSource) Unmarshal(dAtA []byte) error {
 			}
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -2608,7 +3753,7 @@ func (m *MsgEditDataSource) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Executable", wireType)
 			}
@@ -2641,6 +3786,38 @@ func (m *MsgEditDataSource) Unmarshal(dAtA []byte) error {
 			if m.Executable == nil {
 				m.Executable = []byte{}
 			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
@@ -2680,10 +3857,57 @@ func (m *MsgEditDataSource) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgEditDataSourceResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgEditDataSourceResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgEditDataSourceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -2729,38 +3953,6 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
 			var stringLen uint64
@@ -2791,7 +3983,7 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 			}
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -2823,7 +4015,71 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schema", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Schema = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceCodeURL", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceCodeURL = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Code", wireType)
 			}
@@ -2857,41 +4113,9 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 				m.Code = []byte{}
 			}
 			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Schema", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Schema = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SourceCodeURL", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2919,7 +4143,7 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SourceCodeURL = string(dAtA[iNdEx:postIndex])
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
@@ -2959,10 +4183,57 @@ func (m *MsgCreateOracleScript) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgCreateOracleScriptResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgCreateOracleScriptResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgCreateOracleScriptResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -3027,38 +4298,6 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Owner = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
 			}
 			var stringLen uint64
@@ -3089,7 +4328,7 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 			}
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
 			}
@@ -3121,7 +4360,71 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 			}
 			m.Description = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schema", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Schema = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceCodeURL", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceCodeURL = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Code", wireType)
 			}
@@ -3155,41 +4458,9 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 				m.Code = []byte{}
 			}
 			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Schema", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Schema = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 7:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SourceCodeURL", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Owner", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3217,7 +4488,7 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SourceCodeURL = string(dAtA[iNdEx:postIndex])
+			m.Owner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 8:
 			if wireType != 2 {
@@ -3257,10 +4528,57 @@ func (m *MsgEditOracleScript) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgEditOracleScriptResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgEditOracleScriptResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgEditOracleScriptResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -3342,10 +4660,57 @@ func (m *MsgActivate) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgActivateResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgActivateResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgActivateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -3459,10 +4824,57 @@ func (m *MsgAddReporter) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgAddReporterResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgAddReporterResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgAddReporterResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {
@@ -3576,10 +4988,57 @@ func (m *MsgRemoveReporter) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
-			if (iNdEx + skippy) < 0 {
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRemoveReporterResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRemoveReporterResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRemoveReporterResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthTx
 			}
 			if (iNdEx + skippy) > l {

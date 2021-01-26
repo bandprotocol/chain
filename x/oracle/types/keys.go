@@ -7,9 +7,17 @@ import (
 const (
 	// ModuleName is the name of the module.
 	ModuleName = "oracle"
+
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
-	// Default PortID that oracle module binds to.
+
+	// QuerierRoute is the querier route for the oracle module
+	QuerierRoute = ModuleName
+
+	// RouterKey is the msg router key for the oracle module
+	RouterKey = ModuleName
+
+	// PortID is the default port id that oracle module binds to.
 	PortID = ModuleName
 )
 
@@ -62,7 +70,7 @@ func DataSourceStoreKey(dataSourceID DataSourceID) []byte {
 	return append(DataSourceStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(dataSourceID))...)
 }
 
-// DataSourceStoreKey returns the key to retrieve a specific oracle script from the store.
+// OracleScriptStoreKey returns the key to retrieve a specific oracle script from the store.
 func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 	return append(OracleScriptStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(oracleScriptID))...)
 }

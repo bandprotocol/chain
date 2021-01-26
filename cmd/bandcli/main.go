@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // import (
 // 	"fmt"
 // 	"os"
@@ -174,3 +176,7 @@ package main
 // 	}
 // 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
 // }
+
+func main() {
+	fmt.Println("Deprecated!!")
+}
