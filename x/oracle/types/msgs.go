@@ -18,7 +18,11 @@ func (msg MsgRequestData) Type() string { return "request" }
 
 // ValidateBasic checks whether the given MsgRequestData instance (sdk.Msg interface).
 func (msg MsgRequestData) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Sender); err != nil {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
 	if len(msg.Calldata) > MaxDataSize {
@@ -38,7 +42,8 @@ func (msg MsgRequestData) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgRequestData (sdk.Msg interface).
 func (msg MsgRequestData) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -54,10 +59,18 @@ func (msg MsgReportData) Type() string { return "report" }
 
 // ValidateBasic checks whether the given MsgReportData instance (sdk.Msg interface).
 func (msg MsgReportData) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Validator); err != nil {
+	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
+	if err != nil {
+		return err
+	}
+	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(valAddr); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Reporter); err != nil {
+	if err := sdk.VerifyAddressFormat(repAddr); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "reporter: %s", msg.Reporter)
 	}
 	if len(msg.RawReports) == 0 {
@@ -78,7 +91,8 @@ func (msg MsgReportData) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgReportData (sdk.Msg interface).
 func (msg MsgReportData) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Reporter}
+	reporter, _ := sdk.AccAddressFromBech32(msg.Reporter)
+	return []sdk.AccAddress{reporter}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -94,10 +108,18 @@ func (msg MsgCreateDataSource) Type() string { return "create_data_source" }
 
 // ValidateBasic checks whether the given MsgCreateDataSource instance (sdk.Msg interface).
 func (msg MsgCreateDataSource) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Owner); err != nil {
+	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return err
+	}
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Sender); err != nil {
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
@@ -120,7 +142,8 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgCreateDataSource (sdk.Msg interface).
 func (msg MsgCreateDataSource) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -136,10 +159,18 @@ func (msg MsgEditDataSource) Type() string { return "edit_data_source" }
 
 // ValidateBasic checks whether the given MsgEditDataSource instance (sdk.Msg interface).
 func (msg MsgEditDataSource) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Owner); err != nil {
+	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return err
+	}
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Sender); err != nil {
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
@@ -159,7 +190,8 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgEditDataSource (sdk.Msg interface).
 func (msg MsgEditDataSource) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -175,10 +207,18 @@ func (msg MsgCreateOracleScript) Type() string { return "create_oracle_script" }
 
 // ValidateBasic checks whether the given MsgCreateOracleScript instance (sdk.Msg interface).
 func (msg MsgCreateOracleScript) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Owner); err != nil {
+	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return err
+	}
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Sender); err != nil {
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
@@ -207,7 +247,8 @@ func (msg MsgCreateOracleScript) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgCreateOracleScript (sdk.Msg interface).
 func (msg MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -223,10 +264,18 @@ func (msg MsgEditOracleScript) Type() string { return "edit_oracle_script" }
 
 // ValidateBasic checks whether the given MsgEditOracleScript instance (sdk.Msg interface).
 func (msg MsgEditOracleScript) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Owner); err != nil {
+	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return err
+	}
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Sender); err != nil {
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
@@ -252,7 +301,8 @@ func (msg MsgEditOracleScript) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgEditOracleScript (sdk.Msg interface).
 func (msg MsgEditOracleScript) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -268,7 +318,11 @@ func (msg MsgActivate) Type() string { return "activate" }
 
 // ValidateBasic checks whether the given MsgActivate instance (sdk.Msg interface).
 func (msg MsgActivate) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Validator); err != nil {
+	val, err := sdk.ValAddressFromBech32(msg.Validator)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(val); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
 	}
 	return nil
@@ -276,7 +330,8 @@ func (msg MsgActivate) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgActivate (sdk.Msg interface).
 func (msg MsgActivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Validator)}
+	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	return []sdk.AccAddress{sdk.AccAddress(val)}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -292,13 +347,21 @@ func (msg MsgAddReporter) Type() string { return "add_reporter" }
 
 // ValidateBasic checks whether the given MsgAddReporter instance (sdk.Msg interface).
 func (msg MsgAddReporter) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Validator); err != nil {
+	val, err := sdk.ValAddressFromBech32(msg.Validator)
+	if err != nil {
+		return err
+	}
+	rep, err := sdk.AccAddressFromBech32(msg.Reporter)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(val); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Reporter); err != nil {
+	if err := sdk.VerifyAddressFormat(rep); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "reporter: %s", msg.Reporter)
 	}
-	if sdk.ValAddress(msg.Reporter).Equals(msg.Validator) {
+	if sdk.ValAddress(rep).Equals(val) {
 		return ErrSelfReferenceAsReporter
 	}
 	return nil
@@ -306,7 +369,8 @@ func (msg MsgAddReporter) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgAddReporter (sdk.Msg interface).
 func (msg MsgAddReporter) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Validator)}
+	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	return []sdk.AccAddress{sdk.AccAddress(val)}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
@@ -322,13 +386,21 @@ func (msg MsgRemoveReporter) Type() string { return "remove_reporter" }
 
 // ValidateBasic checks whether the given MsgRemoveReporter instance (sdk.Msg interface).
 func (msg MsgRemoveReporter) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat(msg.Validator); err != nil {
+	val, err := sdk.ValAddressFromBech32(msg.Validator)
+	if err != nil {
+		return err
+	}
+	rep, err := sdk.AccAddressFromBech32(msg.Reporter)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(val); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
 	}
-	if err := sdk.VerifyAddressFormat(msg.Reporter); err != nil {
+	if err := sdk.VerifyAddressFormat(rep); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "reporter: %s", msg.Reporter)
 	}
-	if sdk.ValAddress(msg.Reporter).Equals(msg.Validator) {
+	if sdk.ValAddress(rep).Equals(val) {
 		return ErrSelfReferenceAsReporter
 	}
 	return nil
@@ -336,7 +408,8 @@ func (msg MsgRemoveReporter) ValidateBasic() error {
 
 // GetSigners returns the required signers for the given MsgRemoveReporter (sdk.Msg interface).
 func (msg MsgRemoveReporter) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.AccAddress(msg.Validator)}
+	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	return []sdk.AccAddress{sdk.AccAddress(val)}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).

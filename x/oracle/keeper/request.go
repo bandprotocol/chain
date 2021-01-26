@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -70,8 +72,9 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		}
 		// Deactivate all validators that do not report to this request.
 		for _, val := range req.RequestedValidators {
-			if !k.HasReport(ctx, currentReqID, val) {
-				k.MissReport(ctx, val, req.RequestTime)
+			v, _ := sdk.ValAddressFromBech32(val)
+			if !k.HasReport(ctx, currentReqID, v) {
+				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
 			}
 		}
 		// Set last expired request ID to be this current request.

@@ -93,7 +93,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 	)
 	for _, val := range req.RequestedValidators {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val.String()))
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
 	}
 	ctx.EventManager().EmitEvent(event)
 	// Emit an event for each of the raw data requests.

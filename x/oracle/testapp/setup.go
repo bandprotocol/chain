@@ -185,6 +185,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
 	app := NewSimApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, abci.Header{})
+	gg := app.OracleKeeper.Activate(ctx, Validator1.ValAddress)
 	if autoActivate {
 		app.OracleKeeper.Activate(ctx, Validator1.ValAddress)
 		app.OracleKeeper.Activate(ctx, Validator2.ValAddress)

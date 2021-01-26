@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/x/oracle/testapp"
@@ -66,9 +67,11 @@ func TestAddEditOracleScriptBasic(t *testing.T) {
 	require.Equal(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.NotEqual(t, oracleScript2, k.MustGetOracleScript(ctx, id))
 	// Edits the oracle script. We should get the updated oracle script.
+	owner, err := sdk.AccAddressFromBech32(oracleScript2.Owner)
+	require.Error(t, err)
 	require.NotPanics(t, func() {
 		k.MustEditOracleScript(ctx, id, types.NewOracleScript(
-			oracleScript2.Owner, oracleScript2.Name, oracleScript2.Description, oracleScript2.Filename,
+			owner, oracleScript2.Name, oracleScript2.Description, oracleScript2.Filename,
 			oracleScript2.Schema, oracleScript2.SourceCodeURL,
 		))
 	})

@@ -1,0 +1,112 @@
+syntax = "proto3";
+package oracle.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "oracle/v1/oracle.proto";
+
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/oracle/params";
+  }
+  rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
+    option (google.api.http).get = "/oracle/counts";
+  }
+  rpc Data(QueryDataRequest) returns (QueryDataResponse) {
+    option (google.api.http).get = "/oracle/data/{data_hash}";
+  }
+  rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
+    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+  }
+  rpc OracleScript(QueryOracleScriptRequest)
+      returns (QueryOracleScriptResponse) {
+    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+  }
+  rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
+    option (google.api.http).get = "/oracle/request/{request_id}";
+  }
+  rpc RequestSearch(QueryRequestSearchRequest)
+      returns (QueryRequestSearchResponse) {
+    option (google.api.http).get = "/oracle/request_search";
+  }
+  rpc RequestPrice(QueryRequestPriceRequest)
+      returns (QueryRequestPriceResponse) {
+    option (google.api.http).post = "/oracle/request_prices";
+  }
+  rpc RequestValidatorStatus(QueryValidatorStatusRequest)
+      returns (QueryValidatorStatusResponse) {
+    option (google.api.http).get = "/oracle/validators/{validator_address}";
+  }
+  rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
+    option (google.api.http).get = "/oracle/reporters/{validator_address}";
+  }
+  rpc ActiveValidators(QueryActiveValidatorsRequest)
+      returns (QueryActiveValidatorsResponse) {
+    option (google.api.http).get = "/oracle/active_validators";
+  }
+}
+message QueryParamsRequest {}
+
+message QueryParamsResponse {
+  // pagination defines an optional pagination for the request.
+  bytes result = 1;
+}
+
+message QueryCountsRequest {}
+
+message QueryCountsResponse {
+  int64 data_source_count = 1;
+  int64 oracle_script_count = 2;
+  int64 request_count = 3;
+}
+
+message QueryDataRequest { string data_hash = 1; }
+
+message QueryDataResponse { bytes data = 1; }
+
+message QueryDataSourceRequest { int64 data_source_id = 1; }
+
+message QueryDataSourceResponse { DataSource data_source = 1; }
+
+message QueryOracleScriptRequest { int64 oracle_script_id = 1; }
+
+message QueryOracleScriptResponse { OracleScript oracle_script = 1; }
+
+message QueryRequestRequest { int64 request_id = 1; }
+
+message QueryRequestResponse { Request request = 1; }
+
+message QueryRequestSearchRequest {
+  int64 oracle_script_id = 1;
+  bytes calldata = 2;
+  int64 ask_count = 3;
+  int64 min_count = 4;
+}
+message QueryRequestSearchResponse {}
+
+message QueryRequestPriceRequest {
+  string symbol = 1;
+  int64 ask_count = 2;
+  int64 min_count = 3;
+}
+
+message QueryRequestPriceResponse {
+  int64 oracle_script_id = 1;
+  bytes calldata = 2;
+  int64 ask_count = 3;
+  int64 min_count = 4;
+}
+
+message QueryValidatorStatusRequest { string validator_address = 1; }
+
+message QueryValidatorStatusResponse { ValidatorStatus status = 1; }
+
+message QueryReportersRequest { string validator_address = 1; }
+
+message QueryReportersResponse { repeated string reporter = 1; }
+
+message QueryActiveValidatorsRequest {}
+
+message QueryActiveValidatorsResponse { int64 count = 1; }

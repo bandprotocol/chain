@@ -121,7 +121,8 @@ func VerifyRequest(
 	// Verify that this validator has been assigned to report this request
 	assigned := false
 	for _, requestedVal := range request.Request.RequestedValidators {
-		if validator.Equals(requestedVal) {
+		val, _ := sdk.ValAddressFromBech32(requestedVal)
+		if validator.Equals(val) {
 			assigned = true
 			break
 		}
@@ -145,7 +146,8 @@ func VerifyRequest(
 	// Verify validator hasn't reported on the request.
 	reported := false
 	for _, report := range request.Reports {
-		if report.Validator.Equals(validator) {
+		repVal, _ := sdk.ValAddressFromBech32(report.Validator)
+		if repVal.Equals(validator) {
 			reported = true
 			break
 		}

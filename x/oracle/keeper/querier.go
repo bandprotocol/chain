@@ -191,7 +191,11 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 			// If the validator isn't in requested validators set, then skip it.
 			isValidator := false
 			for _, v := range req.RequestedValidators {
-				if valAddress.Equals(v) {
+				val, err := sdk.ValAddressFromBech32(v)
+				if err != nil {
+					return types.QueryBadRequest(err.Error())
+				}
+				if valAddress.Equals(val) {
 					isValidator = true
 					break
 				}
@@ -204,7 +208,11 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 			// If the validator has reported, then skip it.
 			reported := false
 			for _, r := range reports {
-				if valAddress.Equals(r.Validator) {
+				val, err := sdk.ValAddressFromBech32(r.Validator)
+				if err != nil {
+					return types.QueryBadRequest(err.Error())
+				}
+				if valAddress.Equals(val) {
 					reported = true
 					break
 				}
