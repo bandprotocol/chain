@@ -11,8 +11,8 @@ func NewMsgRequestData(
 	MinCount uint64,
 	ClientID string,
 	Sender github_com_cosmos_cosmos_sdk_types.AccAddress,
-) MsgRequestData {
-	return MsgRequestData{
+) *MsgRequestData {
+	return &MsgRequestData{
 		OracleScriptID: OracleScriptID,
 		Calldata:       Calldata,
 		AskCount:       AskCount,

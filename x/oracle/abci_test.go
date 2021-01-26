@@ -6,7 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -52,29 +54,30 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	}}
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
-	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
-	feeCollector.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
+	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
 	mintParams.InflationMax = sdk.ZeroDec()
 	app.MintKeeper.SetParams(ctx, mintParams)
 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// If there are no validators active, Calling begin block should be no-op.
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
 	})
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// 1 validator active, begin block should take 70% of the fee. 2% of that goes to comm pool.
 	k.Activate(ctx, testapp.Validator2.ValAddress)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
 	})
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 30)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 70)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 30)), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
+	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 70)), app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()))
 	// 100*70%*2% = 1.4uband
 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(14, 1)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
 	// 0uband
@@ -87,8 +90,8 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
 	})
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 9)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 91)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 9)), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 91)), app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()))
 	// 1.4uband + 30*70%*2% = 1.82uband
 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(182, 2)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
 	// 30*70%*98%*70% = 14.406uband
@@ -101,8 +104,8 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
 	})
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 3)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
-	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 97)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 3)), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
+	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 97)), app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()))
 	// 1.82uband + 6*2% = 1.82uband
 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(194, 2)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
 	// 14.406uband + 6*98% = 20.286uband
@@ -122,7 +125,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 		SignedLastBlock: true,
 	}}
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
+	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
 	feeCollector.SetCoins(sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)

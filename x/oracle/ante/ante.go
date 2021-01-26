@@ -7,8 +7,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	lru "github.com/hashicorp/golang-lru"
 
-	"github.com/bandprotocol/chain/x/oracle"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 var (
@@ -24,7 +24,7 @@ func init() {
 	}
 }
 
-func checkValidReportMsg(ctx sdk.Context, oracleKeeper oracle.Keeper, rep oracle.MsgReportData) bool {
+func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types.MsgReportData) bool {
 	validator, _ := sdk.ValAddressFromBech32(rep.Validator)
 	reporter, _ := sdk.AccAddressFromBech32(rep.Reporter)
 	if !oracleKeeper.IsReporter(ctx, validator, reporter) {
@@ -61,14 +61,14 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper oracle.Keeper, rep oracle
 
 // NewFeelessReportsAnteHandler returns a new ante handler that waives minimum gas price
 // requirement if the incoming tx is a valid report transaction.
-func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper oracle.Keeper) sdk.AnteHandler {
+func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper) sdk.AnteHandler {
 	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
 		if ctx.IsCheckTx() && !simulate {
 			// TODO: Move this out of "FeelessReports" ante handler.
 			isRepOnlyBlock := ctx.BlockHeight() == nextRepOnlyBlock
 			isValidReportTx := true
 			for _, msg := range tx.GetMsgs() {
-				rep, ok := msg.(oracle.MsgReportData)
+				rep, ok := msg.(*types.MsgReportData)
 				if !ok || !checkValidReportMsg(ctx, oracleKeeper, rep) {
 					isValidReportTx = false
 					break

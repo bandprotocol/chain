@@ -25,7 +25,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
 	handler := oracle.NewHandler(k)
 	requestMsg := types.NewMsgRequestData(types.OracleScriptID(1), []byte("calldata"), 3, 2, "app_test", testapp.Alice.Address)
-	res, err := handler(ctx, requestMsg)
+	res, err := handler(ctx, &requestMsg)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 

@@ -1,4 +1,4 @@
-package app
+package band
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
