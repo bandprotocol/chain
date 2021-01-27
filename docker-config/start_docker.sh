@@ -17,19 +17,19 @@ $DIR/add_os_ds.sh
 
 # create acccounts
 echo "lock nasty suffer dirt dream fine fall deal curtain plate husband sound tower mom crew crawl guard rack snake before fragile course bacon range" \
-    | bandcli keys add validator1 --recover --keyring-backend test
+    | bandd keys add validator1 --recover --keyring-backend test
 
 echo "loyal damage diet label ability huge dad dash mom design method busy notable cash vast nerve congress drip chunk cheese blur stem dawn fatigue" \
-    | bandcli keys add validator2 --recover --keyring-backend test
+    | bandd keys add validator2 --recover --keyring-backend test
 
 echo "whip desk enemy only canal swear help walnut cannon great arm onion oval doctor twice dish comfort team meat junior blind city mask aware" \
-    | bandcli keys add validator3 --recover --keyring-backend test
+    | bandd keys add validator3 --recover --keyring-backend test
 
 echo "unfair beyond material banner okay genre camera dumb grit balcony permit room intact code degree execute twin flip half salt script cause demand recipe" \
-    | bandcli keys add validator4 --recover --keyring-backend test
+    | bandd keys add validator4 --recover --keyring-backend test
 
 echo "smile stem oven genius cave resource better lunar nasty moon company ridge brass rather supply used horn three panic put venue analyst leader comic" \
-    | bandcli keys add requester --recover --keyring-backend test
+    | bandd keys add requester --recover --keyring-backend test
 
 # add accounts to genesis
 bandd add-genesis-account validator1 10000000000000uband --keyring-backend test
@@ -122,11 +122,11 @@ do
     yoda config chain-id bandchain
     yoda config node tcp://172.18.0.1$v:26657
     yoda config chain-rest-server http://172.18.0.20:1317
-    yoda config validator $(bandcli keys show validator$v -a --bech val --keyring-backend test)
+    yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
     yoda config executor "rest:https://iv3lgtv11a.execute-api.ap-southeast-1.amazonaws.com/live/master?timeout=10s"
 
     # activate validator
-    echo "y" | bandcli tx oracle activate --from validator$v --keyring-backend test
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test
 
     # wait for activation transaction success
     sleep 2
@@ -138,13 +138,13 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandcli tx multi-send 1000000uband $(yoda keys list -a) --from validator$v --keyring-backend test
+    echo "y" | bandd tx multi-send 1000000uband $(yoda keys list -a) --from validator$v --keyring-backend test
 
     # wait for sending band tokens transaction success
     sleep 2
 
     # add reporter to bandchain
-    echo "y" | bandcli tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test
+    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test
 
     # wait for addding reporter transaction success
     sleep 2

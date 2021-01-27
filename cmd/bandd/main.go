@@ -5,12 +5,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	app "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/cmd/bandd/cmd"
 )
 
 func main() {
+	app.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	rootCmd, _ := cmd.NewRootCmd()
 
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {

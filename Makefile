@@ -12,7 +12,6 @@ endif
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=bandchain \
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=bandd \
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=bandcli \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags)"
@@ -23,7 +22,6 @@ all: install
 
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandcli
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
 
 faucet: go.sum
@@ -36,12 +34,6 @@ release: go.sum
 		go build -mod=readonly -o ./build/bandd_darwin_amd64 $(BUILD_FLAGS) ./cmd/bandd
 	env GOOS=windows GOARCH=amd64 \
 		go build -mod=readonly -o ./build/bandd_windows_amd64 $(BUILD_FLAGS) ./cmd/bandd
-	env GOOS=linux GOARCH=amd64 \
-		go build -mod=readonly -o ./build/bandcli_linux_amd64 $(BUILD_FLAGS) ./cmd/bandcli
-	env GOOS=darwin GOARCH=amd64 \
-		go build -mod=readonly -o ./build/bandcli_darwin_amd64 $(BUILD_FLAGS) ./cmd/bandcli
-	env GOOS=windows GOARCH=amd64 \
-		go build -mod=readonly -o ./build/bandcli_windows_amd64 $(BUILD_FLAGS) ./cmd/bandcli
 	env GOOS=linux GOARCH=amd64 \
 		go build -mod=readonly -o ./build/yoda_linux_amd64 $(BUILD_FLAGS) ./cmd/yoda
 	env GOOS=darwin GOARCH=amd64 \

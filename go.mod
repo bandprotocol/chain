@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/bandprotocol/go-owasm v0.0.0-20201118130444-22dfa8f13cb5
 	github.com/cosmos/cosmos-sdk v0.40.1
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.9.19
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.4.3

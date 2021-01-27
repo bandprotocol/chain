@@ -77,12 +77,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	authclient.Codec = encodingConfig.Marshaler
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(band.ModuleBasics, band.DefaultNodeHome),
+		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		// band.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(band.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
-		// AddGenesisAccountCmd(band.DefaultNodeHome),
+		AddGenesisAccountCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
