@@ -151,7 +151,8 @@ message OracleResponsePacketData {
 message ValidatorStatus {
   option (gogoproto.equal) = true;
   bool is_active = 1;
-  google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp since = 2
+      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
 // Params is the data structure that keeps the parameters of the oracle module.

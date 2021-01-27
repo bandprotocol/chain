@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
@@ -33,7 +33,7 @@ type Context struct {
 	client           rpcclient.Client
 	validator        sdk.ValAddress
 	gasPrices        sdk.DecCoins
-	keys             []keys.Info
+	keys             []keyring.Info
 	executor         executor.Executor
 	fileCache        filecache.Cache
 	broadcastTimeout time.Duration

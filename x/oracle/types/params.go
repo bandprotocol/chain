@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/x/params"
+	"gopkg.in/yaml.v2"
+
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // nolint
 const (
-	// DefaultParamspace is the parameter namespace key for this module - "oracle"
-	DefaultParamspace = ModuleName
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
 	DefaultMaxRawRequestCount      = uint64(12)
@@ -37,40 +37,41 @@ var (
 	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
 )
 
-// String implements the stringer interface for Params.
-func (p Params) String() string {
-	return fmt.Sprintf(`oracle Params:
-  MaxRawRequestCount:      %d
-  MaxAskCount:             %d
-  ExpirationBlockCount:    %d
-  BaseRequestGas           %d
-  PerValidatorRequestGas:  %d
-  SamplingTryCount:        %d
-  OracleRewardPercentage:  %d
-  InactivePenaltyDuration: %d
-`,
-		p.MaxRawRequestCount,
-		p.MaxAskCount,
-		p.ExpirationBlockCount,
-		p.BaseRequestGas,
-		p.PerValidatorRequestGas,
-		p.SamplingTryCount,
-		p.OracleRewardPercentage,
-		p.InactivePenaltyDuration,
-	)
+var _ paramtypes.ParamSet = (*Params)(nil)
+
+// ParamKeyTable for oracle module
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-// ParamSetPairs implements the params.ParamSet interface for Params.
-func (p *Params) ParamSetPairs() params.ParamSetPairs {
-	return params.ParamSetPairs{
-		params.NewParamSetPair(KeyMaxRawRequestCount, &p.MaxRawRequestCount, validateUint64("max data source count", true)),
-		params.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
-		params.NewParamSetPair(KeyExpirationBlockCount, &p.ExpirationBlockCount, validateUint64("expiration block count", true)),
-		params.NewParamSetPair(KeyBaseRequestGas, &p.BaseRequestGas, validateUint64("base request gas", false)),
-		params.NewParamSetPair(KeyPerValidatorRequestGas, &p.PerValidatorRequestGas, validateUint64("per validator request gas", false)),
-		params.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
-		params.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
-		params.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
+// NewParams creates a new parameter configuration for the oracle module
+func NewParams(
+	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
+	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
+) Params {
+	return Params{
+		MaxRawRequestCount:      maxRawRequestCount,
+		MaxAskCount:             maxAskCount,
+		ExpirationBlockCount:    expirationBlockCount,
+		BaseRequestGas:          baseRequestGas,
+		PerValidatorRequestGas:  perValidatorRequestGas,
+		SamplingTryCount:        samplingTryCount,
+		OracleRewardPercentage:  oracleRewardPercentage,
+		InactivePenaltyDuration: inactivePenaltyDuration,
+	}
+}
+
+// ParamSetPairs implements the paramtypes.ParamSet interface for Params.
+func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(KeyMaxRawRequestCount, &p.MaxRawRequestCount, validateUint64("max data source count", true)),
+		paramtypes.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
+		paramtypes.NewParamSetPair(KeyExpirationBlockCount, &p.ExpirationBlockCount, validateUint64("expiration block count", true)),
+		paramtypes.NewParamSetPair(KeyBaseRequestGas, &p.BaseRequestGas, validateUint64("base request gas", false)),
+		paramtypes.NewParamSetPair(KeyPerValidatorRequestGas, &p.PerValidatorRequestGas, validateUint64("per validator request gas", false)),
+		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
+		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
+		paramtypes.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
 	}
 }
 
@@ -86,6 +87,12 @@ func DefaultParams() Params {
 		DefaultOracleRewardPercentage,
 		DefaultInactivePenaltyDuration,
 	)
+}
+
+// String returns a human readable string representation of the parameters.
+func (p Params) String() string {
+	out, _ := yaml.Marshal(p)
+	return string(out)
 }
 
 func validateUint64(name string, positiveOnly bool) func(interface{}) error {
