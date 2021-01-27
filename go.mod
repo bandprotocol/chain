@@ -6,7 +6,6 @@ require (
 	github.com/bandprotocol/go-owasm v0.0.0-20201118130444-22dfa8f13cb5
 	github.com/cosmos/cosmos-sdk v0.40.1
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/ethereum/go-ethereum v1.9.19
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.4.3
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
@@ -22,7 +21,6 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/iavl v0.14.0
 	github.com/tendermint/tendermint v0.34.3
 	github.com/tendermint/tm-db v0.6.3
 	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
