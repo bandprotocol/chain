@@ -1,6 +1,6 @@
 package types
 
-import time "time"
+import "time"
 
 func NewValidatorStatus(
 	IsActive bool,

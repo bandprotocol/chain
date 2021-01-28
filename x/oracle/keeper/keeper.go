@@ -35,7 +35,6 @@ func NewKeeper(
 	authKeeper types.AccountKeeper, bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper, distrKeeper types.DistrKeeper, ps paramtypes.Subspace,
 ) Keeper {
-	fmt.Print("!!->", ps)
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
@@ -92,11 +91,7 @@ func (k Keeper) SetRequestCount(ctx sdk.Context, count int64) {
 
 // GetRequestCount returns the current number of all requests ever exist.
 func (k Keeper) GetRequestCount(ctx sdk.Context) int64 {
-	// var requestNumber int64
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestCountStoreKey)
-	// if err := gogotypes.StdInt64Unmarshal(&requestNumber, bz); err != nil {
-	// 	panic(err)
-	// }
 	intV := gogotypes.Int64Value{}
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
 	return intV.GetValue()
