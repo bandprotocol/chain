@@ -74,7 +74,7 @@ func (k Keeper) GetValidatorStatus(ctx sdk.Context, val sdk.ValAddress) types.Va
 
 // SetValidatorStatus sets the validator status for the given validator.
 func (k Keeper) SetValidatorStatus(ctx sdk.Context, val sdk.ValAddress, status types.ValidatorStatus) {
-	// ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(status))
+	ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(&status))
 }
 
 // Activate changes the given validator's status to active. Returns error if the validator is

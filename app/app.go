@@ -298,7 +298,6 @@ func NewBandApp(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
 	)
-
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec, keys[oracletypes.StoreKey], filepath.Join(viper.GetString(cli.HomeFlag), "files"),
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.GetSubspace(oracletypes.ModuleName))

@@ -138,7 +138,8 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	return InitGenesis(ctx, am.keeper, &genesisState)
+	InitGenesis(ctx, am.keeper, &genesisState)
+	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the current state as genesis raw bytes.

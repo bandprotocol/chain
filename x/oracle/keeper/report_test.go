@@ -1,26 +1,23 @@
 package keeper_test
 
-// import (
-// 	"testing"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/stretchr/testify/require"
+	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/x/oracle/types"
+)
 
-// 	"github.com/bandprotocol/chain/x/oracle/testapp"
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// )
-
-// func defaultRequest() types.Request {
-// 	return types.NewRequest(
-// 		1, BasicCalldata,
-// 		[]sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress},
-// 		2, 0, testapp.ParseTime(0),
-// 		BasicClientID, []types.RawRequest{
-// 			types.NewRawRequest(42, 1, BasicCalldata),
-// 			types.NewRawRequest(43, 2, BasicCalldata),
-// 		},
-// 	)
-// }
+func defaultRequest() types.Request {
+	return types.NewRequest(
+		1, BasicCalldata,
+		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		2, 0, testapp.ParseTime(0),
+		BasicClientID, []types.RawRequest{
+			types.NewRawRequest(42, 1, BasicCalldata),
+			types.NewRawRequest(43, 2, BasicCalldata),
+		},
+	)
+}
 
 // func TestHasReport(t *testing.T) {
 // 	_, ctx, k := testapp.CreateTestInput(true)
@@ -35,14 +32,14 @@ package keeper_test
 // 	_, ctx, k := testapp.CreateTestInput(true)
 // 	k.SetRequest(ctx, 1, defaultRequest())
 // 	err := k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(43, 1, []byte("data2/1")),
 // 		},
 // 	))
 // 	require.NoError(t, err)
 // 	require.Equal(t, []types.Report{
-// 		types.NewReport(testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(43, 1, []byte("data2/1")),
 // 		}),
@@ -52,7 +49,7 @@ package keeper_test
 // func TestReportOnNonExistingRequest(t *testing.T) {
 // 	_, ctx, k := testapp.CreateTestInput(true)
 // 	err := k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(43, 1, []byte("data2/1")),
 // 		},
@@ -76,14 +73,14 @@ package keeper_test
 // 	_, ctx, k := testapp.CreateTestInput(true)
 // 	k.SetRequest(ctx, 1, defaultRequest())
 // 	err := k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(43, 1, []byte("data2/1")),
 // 		},
 // 	))
 // 	require.NoError(t, err)
 // 	err = k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(43, 1, []byte("data2/1")),
 // 		},
@@ -95,7 +92,7 @@ package keeper_test
 // 	_, ctx, k := testapp.CreateTestInput(true)
 // 	k.SetRequest(ctx, 1, defaultRequest())
 // 	err := k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 		},
 // 	))
@@ -106,7 +103,7 @@ package keeper_test
 // 	_, ctx, k := testapp.CreateTestInput(true)
 // 	k.SetRequest(ctx, 1, defaultRequest())
 // 	err := k.AddReport(ctx, 1, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(42, 0, []byte("data1/1")),
 // 			types.NewRawReport(44, 1, []byte("data2/1")), // BAD EXTERNAL ID!
 // 		},
