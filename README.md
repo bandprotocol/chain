@@ -84,13 +84,11 @@ cd bandchain/chain
 git checkout v1.2.6
 make install
 
-# Check that the correction version of bandd and bandcli is installed
+# Check that the correction version of bandd is installed
 bandd version --long
-bandcli version --long
 # Both should show:
 # name: bandchain
 # server_name: bandd
-# client_name: bandcli
 # version: chain/v1.2.6
 # commit: 2689a3ae4b0b866e198ba31fd88c4c300090a49b
 # build_tags: ledger
@@ -99,11 +97,11 @@ bandcli version --long
 
 ### Creating BandChain Account and Setup Config
 
-Once installed, you can use the `bandcli` CLI to create a new BandChain wallet address and use `bandd` to initialize the chain. Please make sure to keep your mnemonic safe!
+Once installed, you can use the `bandd` CLI to create a new BandChain wallet address and initialize the chain. Please make sure to keep your mnemonic safe!
 
 ```bash
 # Create a new Band wallet. Do not lose your mnemonic!
-bandcli keys add <YOUR_WALLET>
+bandd keys add <YOUR_WALLET>
 
 # Initialize a blockchain environment for generating genesis transaction.
 bandd init --chain-id band-guanyu-mainnet <YOUR_MONIKER>
@@ -173,10 +171,10 @@ See the our [explorer](https://cosmoscan.io/) for the height of the latest block
 
 ### Send Yourself BAND Token
 
-With everything ready, you will need some BAND tokens to apply as a validator. You can use `bandcli` keys list command to show your address.
+With everything ready, you will need some BAND tokens to apply as a validator. You can use `bandd` keys list command to show your address.
 
 ```shell
-bandcli keys list
+bandd keys list
 - name: ...
   type: local
   address: band1g3fd6rslryv498tjqmmjcnq5dlr0r6udm2rxjk
@@ -191,7 +189,7 @@ bandcli keys list
 Once you have some BAND tokens, you can apply to become a validator by sending `MsgCreateValidator` transaction.
 
 ```bash
-bandcli tx staking create-validator \
+bandd tx staking create-validator \
     --amount <your-amount-to-stake>uband \
     --commission-max-change-rate 0.01 \
     --commission-max-rate 0.2 \
@@ -227,10 +225,10 @@ That’s it! You can verify that your validator is now an oracle provider on the
     - JavaScript: [bandchainjs](https://www.npmjs.com/package/@bandprotocol/bandchain.js)
     - Python: [pyband](https://pypi.org/project/pyband/)
 - Block Explorers:
-  - Mainnet: 
+  - Mainnet:
     - [Cosmoscan Mainnet](https://cosmoscan.io)
     - [Big Dipper](https://band.bigdipper.live/)
-  - Testnet: 
+  - Testnet:
     - [CosmoScan Testnet](https://guanyu-testnet3.cosmoscan.io)
 
 ## Community

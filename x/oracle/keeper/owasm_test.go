@@ -58,8 +58,8 @@ package keeper_test
 // 	_, err := k.GetRandomValidators(ctx, 1, 1)
 // 	require.Error(t, err)
 // 	// If we activate 2 validators, we should be able to get at most 2 from the function.
-// 	k.ActivateValidator(ctx, testapp.Validator1.ValAddress)
-// 	k.ActivateValidator(ctx, testapp.Validator2.ValAddress)
+// 	k.Activate(ctx, testapp.Validator1.ValAddress)
+// 	k.Activate(ctx, testapp.Validator2.ValAddress)
 // 	vals, err := k.GetRandomValidators(ctx, 1, 1)
 // 	require.NoError(t, err)
 // 	require.Equal(t, []sdk.ValAddress{testapp.Validator1.ValAddress}, vals)

@@ -77,9 +77,9 @@ func (k Keeper) SetValidatorStatus(ctx sdk.Context, val sdk.ValAddress, status t
 	// ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(status))
 }
 
-// ActivateValidator changes the given validator's status to active. Returns error if the validator is
+// Activate changes the given validator's status to active. Returns error if the validator is
 // already active or was deactivated recently, as specified by InactivePenaltyDuration parameter.
-func (k Keeper) ActivateValidator(ctx sdk.Context, val sdk.ValAddress) error {
+func (k Keeper) Activate(ctx sdk.Context, val sdk.ValAddress) error {
 	status := k.GetValidatorStatus(ctx, val)
 	if status.IsActive {
 		return types.ErrValidatorAlreadyActive
