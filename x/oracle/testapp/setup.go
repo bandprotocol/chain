@@ -207,7 +207,6 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	oracleGenesis := types.DefaultGenesisState()
 	oracleGenesis.DataSources = getGenesisDataSources()
 	oracleGenesis.OracleScripts = getGenesisOracleScripts()
-	fmt.Println(oracleGenesis)
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
 
@@ -225,9 +224,9 @@ func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keepe
 	app := NewSimApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
-		app.OracleKeeper.ActivateValidator(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.ActivateValidator(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.ActivateValidator(ctx, Validators[2].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
 	return app, ctx, app.OracleKeeper
 }
