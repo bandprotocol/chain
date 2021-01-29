@@ -1,41 +1,37 @@
 package keeper_test
 
-// import (
-// 	"encoding/hex"
-// 	"testing"
-// 	"time"
+import (
+	"testing"
 
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/stretchr/testify/require"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
-// 	"github.com/bandprotocol/chain/pkg/obi"
-// 	"github.com/bandprotocol/chain/x/oracle/testapp"
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// )
+	"github.com/bandprotocol/chain/x/oracle/testapp"
+)
 
-// func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
-// 	_, ctx, k := testapp.CreateTestInput(true)
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err := k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator3.ValAddress, testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, vals)
-// 	// Getting 3 validators using ROLLING_SEED_A
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator3.ValAddress, testapp.Validator2.ValAddress}, vals)
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator3.ValAddress, testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, vals)
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 42)
-// 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator3.ValAddress, testapp.Validator2.ValAddress}, vals)
-// }
+func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err := k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(t, err)
+	require.Equal(t, []sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, vals)
+	// Getting 3 validators using ROLLING_SEED_A
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(t, err)
+	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[2].ValAddress, testapp.Validators[1].ValAddress}, vals)
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(t, err)
+	require.Equal(t, []sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, vals)
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 42)
+	require.NoError(t, err)
+	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[2].ValAddress, testapp.Validators[1].ValAddress}, vals)
+}
 
 // func TestGetRandomValidatorsTooBigSize(t *testing.T) {
 // 	_, ctx, k := testapp.CreateTestInput(true)
@@ -58,21 +54,21 @@ package keeper_test
 // 	_, err := k.GetRandomValidators(ctx, 1, 1)
 // 	require.Error(t, err)
 // 	// If we activate 2 validators, we should be able to get at most 2 from the function.
-// 	k.Activate(ctx, testapp.Validator1.ValAddress)
-// 	k.Activate(ctx, testapp.Validator2.ValAddress)
+// 	k.ActivateValidator(ctx, testapp.Validators[0].ValAddress)
+// 	k.ActivateValidator(ctx, testapp.Validators[1].ValAddress)
 // 	vals, err := k.GetRandomValidators(ctx, 1, 1)
 // 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator1.ValAddress}, vals)
+// 	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress}, vals)
 // 	vals, err = k.GetRandomValidators(ctx, 2, 1)
 // 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, vals)
+// 	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, vals)
 // 	_, err = k.GetRandomValidators(ctx, 3, 1)
 // 	require.Error(t, err)
 // 	// After we deactivate 1 validator due to missing a report, we can only get at most 1 validator.
-// 	k.MissReport(ctx, testapp.Validator1.ValAddress, time.Now())
+// 	k.MissReport(ctx, testapp.Validators[0].ValAddress, time.Now())
 // 	vals, err = k.GetRandomValidators(ctx, 1, 1)
 // 	require.NoError(t, err)
-// 	require.Equal(t, []sdk.ValAddress{testapp.Validator2.ValAddress}, vals)
+// 	require.Equal(t, []sdk.ValAddress{testapp.Validators[1].ValAddress}, vals)
 // 	_, err = k.GetRandomValidators(ctx, 2, 1)
 // 	require.Error(t, err)
 // }
@@ -85,7 +81,7 @@ package keeper_test
 // 	err := k.PrepareRequest(ctx, m)
 // 	require.NoError(t, err)
 // 	require.Equal(t, types.NewRequest(
-// 		1, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress}, 1,
+// 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("beeb")),
 // 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -101,7 +97,7 @@ package keeper_test
 // 		sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 // 		sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
 // 		sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
-// 		sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validator1.ValAddress.String()),
+// 		sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
 // 	), sdk.NewEvent(
 // 		types.EventTypeRawRequest,
 // 		sdk.NewAttribute(types.AttributeKeyDataSourceID, "1"),
@@ -242,13 +238,13 @@ package keeper_test
 // 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 // 	k.SetRequest(ctx, 42, types.NewRequest(
 // 		// 1st Wasm - return "beeb"
-// 		1, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(1, 0, []byte("beeb")),
 // 		},
 // 	))
@@ -276,20 +272,20 @@ package keeper_test
 // 		4, obi.MustEncode(testapp.Wasm4Input{
 // 			IDs:      []int64{1, 2},
 // 			Calldata: string(BasicCalldata),
-// 		}), []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(0, 1, BasicCalldata),
 // 			types.NewRawRequest(1, 2, BasicCalldata),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(0, 0, []byte("beebd1v1")),
 // 			types.NewRawReport(1, 0, []byte("beebd2v1")),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator2.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[1].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(0, 0, []byte("beebd1v2")),
 // 			types.NewRawReport(1, 0, []byte("beebd2v2")),
 // 		},
@@ -324,20 +320,20 @@ package keeper_test
 // 		4, obi.MustEncode(testapp.Wasm4Input{
 // 			IDs:      []int64{1, 2},
 // 			Calldata: string(BasicCalldata),
-// 		}), []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(0, 1, BasicCalldata),
 // 			types.NewRawRequest(1, 2, BasicCalldata),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(0, 0, nil),
 // 			types.NewRawReport(1, 0, []byte("beebd2v1")),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator2.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[1].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(0, 0, []byte("beebd1v2")),
 // 			types.NewRawReport(1, 0, nil),
 // 		},
@@ -369,13 +365,13 @@ package keeper_test
 // 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 // 	k.SetRequest(ctx, 42, types.NewRequest(
 // 		// 3rd Wasm - do nothing
-// 		3, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		3, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(1, 0, []byte("beeb")),
 // 		},
 // 	))
@@ -399,13 +395,13 @@ package keeper_test
 // 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 // 	k.SetRequest(ctx, 42, types.NewRequest(
 // 		// 6th Wasm - out-of-gas
-// 		6, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		6, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
 // 	))
 // 	k.SetReport(ctx, 42, types.NewReport(
-// 		testapp.Validator1.ValAddress, true, []types.RawReport{
+// 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 // 			types.NewRawReport(1, 0, []byte("beeb")),
 // 		},
 // 	))
@@ -429,7 +425,7 @@ package keeper_test
 // 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 // 	k.SetRequest(ctx, 42, types.NewRequest(
 // 		// 9th Wasm - set return data several times
-// 		9, BasicCalldata, []sdk.ValAddress{testapp.Validator1.ValAddress, testapp.Validator2.ValAddress}, 1,
+// 		9, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 // 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("beeb")),
 // 		},

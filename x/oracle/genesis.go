@@ -2,14 +2,13 @@ package oracle
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // InitGenesis performs genesis initialization for the oracle module.
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) []abci.ValidatorUpdate {
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetParams(ctx, data.Params)
 	k.SetDataSourceCount(ctx, 0)
 	k.SetOracleScriptCount(ctx, 0)
@@ -22,7 +21,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) []a
 	for _, oracleScript := range data.OracleScripts {
 		_ = k.AddOracleScript(ctx, oracleScript)
 	}
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

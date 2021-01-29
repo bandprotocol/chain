@@ -25,7 +25,7 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		AskCount:       1,
 		MinCount:       1,
 	}
-	require.Equal(t, []byte(`{"type":"oracle/OracleRequestPacketData","value":{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","min_count":"1","oracle_script_id":"1"}}`), req.GetBytes())
+	require.Equal(t, []byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","min_count":"1","oracle_script_id":"1"}`), req.GetBytes())
 }
 
 func TestGetBytesResponsePacket(t *testing.T) {
@@ -38,7 +38,7 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("4bb10e0000000000"),
 	}
-	require.Equal(t, []byte(`{"type":"oracle/OracleResponsePacketData","value":{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":1,"resolve_time":"1589535022","result":"S7EOAAAAAAA="}}`), res.GetBytes())
+	require.Equal(t, []byte(`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA="}`), res.GetBytes())
 }
 
 func TestOBIEncodeResult(t *testing.T) {

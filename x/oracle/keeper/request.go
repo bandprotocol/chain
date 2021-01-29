@@ -36,7 +36,7 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id types.RequestID) types.Reques
 
 // SetRequest saves the given data request to the store without performing any validation.
 func (k Keeper) SetRequest(ctx sdk.Context, id types.RequestID, request types.Request) {
-	// ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(request))
+	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
 }
 
 // DeleteRequest removes the given data request from the store.
@@ -91,20 +91,28 @@ func (k Keeper) AddPendingRequest(ctx sdk.Context, id types.RequestID) {
 
 // SetPendingResolveList saves the list of pending request that will be resolved at end block.
 func (k Keeper) SetPendingResolveList(ctx sdk.Context, ids []types.RequestID) {
-	// bz := k.cdc.MustMarshalBinaryBare(ids)
-	// if bz == nil {
-	// 	bz = []byte{}
-	// }
-	// ctx.KVStore(k.storeKey).Set(types.PendingResolveListStoreKey, bz)
+	intVs := make([]int64, len(ids))
+	for idx, id := range ids {
+		intVs[idx] = int64(id)
+	}
+
+	bz := k.cdc.MustMarshalBinaryBare(&types.PendingResolveList{RequestIds: intVs})
+	if bz == nil {
+		bz = []byte{}
+	}
+	ctx.KVStore(k.storeKey).Set(types.PendingResolveListStoreKey, bz)
 }
 
 // GetPendingResolveList returns the list of pending requests to be executed during EndBlock.
 func (k Keeper) GetPendingResolveList(ctx sdk.Context) (ids []types.RequestID) {
-	// bz := ctx.KVStore(k.storeKey).Get(types.PendingResolveListStoreKey)
-	// if len(bz) == 0 { // Return an empty list if the key does not exist in the store.
-	// 	return []types.RequestID{}
-	// }
-	// k.cdc.MustUnmarshalBinaryBare(bz, &ids)
-	// return ids
-	return []types.RequestID{}
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingResolveListStoreKey)
+	if len(bz) == 0 { // Return an empty list if the key does not exist in the store.
+		return []types.RequestID{}
+	}
+	pendingResolveList := types.PendingResolveList{}
+	k.cdc.MustUnmarshalBinaryBare(bz, &pendingResolveList)
+	for _, rid := range pendingResolveList.RequestIds {
+		ids = append(ids, types.RequestID(rid))
+	}
+	return ids
 }

@@ -56,14 +56,14 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 		return nil, types.ErrRequestAlreadyExpired
 	}
 
-	notResolvedYet := !k.HasResult(ctx, msg.RequestID)
-	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, !notResolvedYet, msg.RawReports))
+	reportInTime := !k.HasResult(ctx, msg.RequestID)
+	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, reportInTime, msg.RawReports))
 	if err != nil {
 		return nil, err
 	}
 
 	// if request has not been resolved, check if it need to resolve at the endblock
-	if notResolvedYet {
+	if reportInTime {
 		req := k.MustGetRequest(ctx, msg.RequestID)
 		if k.GetReportCount(ctx, msg.RequestID) == req.MinCount {
 			// At the exact moment when the number of reports is sufficient, we add the request to
@@ -200,7 +200,7 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
-	sender, err := sdk.AccAddressFromBech32(oracleScript.Owner)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
 	}
@@ -246,6 +246,10 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	if err != nil {
 		return nil, err
 	}
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActivate,
+		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+	))
 	return &types.MsgActivateResponse{}, nil
 }
 
@@ -259,11 +263,16 @@ func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter)
 	if err != nil {
 		return nil, err
 	}
-	if k.IsReporter(ctx, valAddr, repAddr) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrReporterAlreadyExists, "val: %s, reporter: %s", msg.Validator, msg.Reporter)
+	err = k.Keeper.AddReporter(ctx, valAddr, repAddr)
+	if err != nil {
+		return nil, err
 	}
 	ctx.KVStore(k.storeKey).Set(types.ReporterStoreKey(valAddr, repAddr), []byte{1})
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeAddReporter,
+		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
+	))
 	return &types.MsgAddReporterResponse{}, nil
 }
 
@@ -277,10 +286,15 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 	if err != nil {
 		return nil, err
 	}
-	if !k.IsReporter(ctx, valAddr, repAddr) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrReporterNotFound, "val: %s, addr: %s", msg.Validator, msg.Reporter)
+	err = k.Keeper.RemoveReporter(ctx, valAddr, repAddr)
+	if err != nil {
+		return nil, err
 	}
 	ctx.KVStore(k.storeKey).Delete(types.ReporterStoreKey(valAddr, repAddr))
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeRemoveReporter,
+		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
+	))
 	return &types.MsgRemoveReporterResponse{}, nil
 }

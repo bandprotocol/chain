@@ -183,3 +183,9 @@ message Params {
   // activate back after missing an oracle report.
   uint64 inactive_penalty_duration = 8;
 }
+
+message PendingResolveList {
+  option (gogoproto.equal) = true;
+  repeated int64 request_ids = 1;
+}
+
