@@ -263,9 +263,9 @@ func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter)
 	if err != nil {
 		return nil, err
 	}
-	if k.IsReporter(ctx, valAddr, repAddr) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrReporterAlreadyExists, "val: %s, reporter: %s", msg.Validator, msg.Reporter)
+	err = k.Keeper.AddReporter(ctx, valAddr, repAddr)
+	if err != nil {
+		return nil, err
 	}
 	ctx.KVStore(k.storeKey).Set(types.ReporterStoreKey(valAddr, repAddr), []byte{1})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -286,9 +286,9 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 	if err != nil {
 		return nil, err
 	}
-	if !k.IsReporter(ctx, valAddr, repAddr) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrReporterNotFound, "val: %s, addr: %s", msg.Validator, msg.Reporter)
+	err = k.Keeper.RemoveReporter(ctx, valAddr, repAddr)
+	if err != nil {
+		return nil, err
 	}
 	ctx.KVStore(k.storeKey).Delete(types.ReporterStoreKey(valAddr, repAddr))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
