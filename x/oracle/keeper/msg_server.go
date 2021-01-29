@@ -200,7 +200,7 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
-	sender, err := sdk.AccAddressFromBech32(oracleScript.Owner)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
 	}
