@@ -83,6 +83,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.GenTxCmd(band.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
 		AddGenesisAccountCmd(band.DefaultNodeHome),
+		AddGenesisDataSourceCmd(band.DefaultNodeHome),
+		AddGenesisOracleScriptCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
