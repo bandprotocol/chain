@@ -1,6 +1,7 @@
 package band
 
 import (
+	"fmt"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -447,6 +448,7 @@ func (app *BandApp) Commit() (res abci.ResponseCommit) {
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
+	fmt.Println(req.AppStateBytes)
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
