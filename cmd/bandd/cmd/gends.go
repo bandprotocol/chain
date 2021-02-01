@@ -55,13 +55,14 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
 				owner, args[0], args[1], filename,
 			))
-			appState[types.ModuleName] = cdc.MustMarshalJSON(oracleGenState)
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
+
 			if err != nil {
 				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
 			}
+			appState[types.ModuleName] = oracleGenStateBz
 
-			appStateJSON, err := json.Marshal(oracleGenStateBz)
+			appStateJSON, err := json.Marshal(appState)
 			if err != nil {
 				return fmt.Errorf("failed to marshal application genesis state: %w", err)
 			}
