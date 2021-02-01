@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/input"
-	ckeys "github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	bip39 "github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	band "github.com/bandprotocol/chain/app"
 )
 
 const (
@@ -77,8 +78,8 @@ func keysAddCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			hdPath := keys.CreateHDPath(account, index)
-			info, err := keybase.CreateAccount(args[0], mnemonic, "", ckeys.DefaultKeyPass, hdPath.String(), keys.Secp256k1)
+			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
+			info, err := kb.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
 			if err != nil {
 				return err
 			}
@@ -101,7 +102,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			_, err := keybase.Get(name)
+			_, err := kb.Key(name)
 			if err != nil {
 				return err
 			}
@@ -117,7 +118,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 				return nil
 			}
 
-			if err := keybase.Delete(name, "", true); err != nil {
+			if err := kb.Delete(name); err != nil {
 				return err
 			}
 
@@ -135,7 +136,7 @@ func keysListCmd(c *Context) *cobra.Command {
 		Short:   "List all the keys in the keychain",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			keys, err := keybase.List()
+			keys, err := kb.List()
 			if err != nil {
 				return err
 			}
@@ -164,7 +165,7 @@ func keysShowCmd(c *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			key, err := keybase.Get(name)
+			key, err := kb.Key(name)
 			if err != nil {
 				return err
 			}

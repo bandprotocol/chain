@@ -4,11 +4,10 @@ import (
 	"encoding/hex"
 	"strconv"
 
-	ckeys "github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/bandprotocol/chain/hooks/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -20,7 +19,7 @@ type processingResult struct {
 	err       error
 }
 
-func handleTransaction(c *Context, l *Logger, tx tmtypes.TxResult) {
+func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 	l.Debug(":eyes: Inspecting incoming transaction: %X", tmhash.Sum(tx.Tx))
 	if tx.Result.Code != 0 {
 		l.Debug(":alien: Skipping transaction with non-zero code: %d", tx.Result.Code)
@@ -194,7 +193,7 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 	}
 }
 
-func handleRawRequests(c *Context, l *Logger, id types.RequestID, reqs []rawRequest, key keys.Info) (reports []types.RawReport, execVersions []string) {
+func handleRawRequests(c *Context, l *Logger, id types.RequestID, reqs []rawRequest, key keyring.Info) (reports []types.RawReport, execVersions []string) {
 	resultsChan := make(chan processingResult, len(reqs))
 	for _, req := range reqs {
 		go handleRawRequest(c, l.With("did", req.dataSourceID, "eid", req.externalID), req, key, types.RequestID(id), resultsChan)
@@ -217,7 +216,7 @@ func handleRawRequests(c *Context, l *Logger, id types.RequestID, reqs []rawRequ
 	return
 }
 
-func handleRawRequest(c *Context, l *Logger, req rawRequest, key keys.Info, id types.RequestID, processingResultCh chan processingResult) {
+func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, id types.RequestID, processingResultCh chan processingResult) {
 
 	exec, err := GetExecutable(c, l, req.dataSourceHash)
 	if err != nil {
@@ -232,7 +231,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keys.Info, id t
 	}
 
 	vmsg := NewVerificationMessage(cfg.ChainID, c.validator, id, req.externalID)
-	sig, pubkey, err := keybase.Sign(key.GetName(), ckeys.DefaultKeyPass, vmsg.GetSignBytes())
+	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", err.Error())
 		processingResultCh <- processingResult{

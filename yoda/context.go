@@ -23,7 +23,7 @@ type FeeEstimationData struct {
 }
 
 type ReportMsgWithKey struct {
-	msg               types.MsgReportData
+	msg               *types.MsgReportData
 	execVersion       []string
 	keyIndex          int64
 	feeEstimationData FeeEstimationData

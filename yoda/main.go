@@ -6,7 +6,7 @@ import (
 	"path"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -40,8 +40,8 @@ type Config struct {
 
 // Global instances.
 var (
-	cfg     Config
-	keybase keys.Keybase
+	cfg Config
+	kb  keyring.Keyring
 )
 
 func initConfig(cmd *cobra.Command) error {
@@ -82,7 +82,7 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		keybase, err = keys.NewKeyring("band", "test", home, nil)
+		kb, err = keyring.New("band", "test", home, nil)
 		if err != nil {
 			return err
 		}

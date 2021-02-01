@@ -41,7 +41,7 @@ func signAndBroadcast(
 		WithChainID(cfg.ChainID).
 		WithMemo(memo).
 		WithGasPrices(c.gasPrices).
-		WithKeybase(keybase)
+		WithKeybase(kb)
 
 	// txBldr, err = authclient.EnrichWithGas(txBldr, cliCtx, []sdk.Msg{msg})
 	// if err != nil {
@@ -92,7 +92,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 			l.Error(":exploding_head: Failed to validate basic with error: %s", err.Error())
 			return
 		}
-		msgs[i] = &report.msg
+		msgs[i] = report.msg
 		ids[i] = report.msg.RequestID
 		feeEstimations[i] = report.feeEstimationData
 		for _, exec := range report.execVersion {
