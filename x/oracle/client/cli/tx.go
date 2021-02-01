@@ -2,10 +2,15 @@ package cli
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strconv"
 	"strings"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 )
@@ -60,58 +65,57 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-			// int64OracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
-			// if err != nil {
-			// 	return err
-			// }
-			// oracleScriptID := types.OracleScriptID(int64OracleScriptID)
+			int64OracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			oracleScriptID := types.OracleScriptID(int64OracleScriptID)
 
-			// askCount, err := strconv.ParseUint(args[1], 10, 64)
-			// if err != nil {
-			// 	return err
-			// }
+			askCount, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
 
-			// minCount, err := strconv.ParseUint(args[2], 10, 64)
-			// if err != nil {
-			// 	return err
-			// }
+			minCount, err := strconv.ParseUint(args[2], 10, 64)
+			if err != nil {
+				return err
+			}
 
-			// calldata, err := cmd.Flags().GetBytesHex(flagCalldata)
-			// if err != nil {
-			// 	return err
-			// }
+			calldata, err := cmd.Flags().GetBytesHex(flagCalldata)
+			if err != nil {
+				return err
+			}
 
-			// clientID, err := cmd.Flags().GetString(flagClientID)
-			// if err != nil {
-			// 	return err
-			// }
+			clientID, err := cmd.Flags().GetString(flagClientID)
+			if err != nil {
+				return err
+			}
 
-			// msg := types.NewMsgRequestData(
-			// 	oracleScriptID,
-			// 	calldata,
-			// 	askCount,
-			// 	minCount,
-			// 	clientID,
-			// 	cliCtx.GetFromAddress(),
-			// )
+			msg := types.NewMsgRequestData(
+				oracleScriptID,
+				calldata,
+				askCount,
+				minCount,
+				clientID,
+				clientCtx.GetFromAddress(),
+			)
 
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
-
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
 	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -131,60 +135,60 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-			// name, err := cmd.Flags().GetString(flagName)
-			// if err != nil {
-			// 	return err
-			// }
+			name, err := cmd.Flags().GetString(flagName)
+			if err != nil {
+				return err
+			}
 
-			// description, err := cmd.Flags().GetString(flagDescription)
-			// if err != nil {
-			// 	return err
-			// }
+			description, err := cmd.Flags().GetString(flagDescription)
+			if err != nil {
+				return err
+			}
 
-			// scriptPath, err := cmd.Flags().GetString(flagScript)
-			// if err != nil {
-			// 	return err
-			// }
-			// execBytes, err := ioutil.ReadFile(scriptPath)
-			// if err != nil {
-			// 	return err
-			// }
+			scriptPath, err := cmd.Flags().GetString(flagScript)
+			if err != nil {
+				return err
+			}
+			execBytes, err := ioutil.ReadFile(scriptPath)
+			if err != nil {
+				return err
+			}
 
-			// ownerStr, err := cmd.Flags().GetString(flagOwner)
-			// if err != nil {
-			// 	return err
-			// }
-			// owner, err := sdk.AccAddressFromBech32(ownerStr)
-			// if err != nil {
-			// 	return err
-			// }
+			ownerStr, err := cmd.Flags().GetString(flagOwner)
+			if err != nil {
+				return err
+			}
+			owner, err := sdk.AccAddressFromBech32(ownerStr)
+			if err != nil {
+				return err
+			}
 
-			// msg := types.NewMsgCreateDataSource(
-			// 	owner,
-			// 	name,
-			// 	description,
-			// 	execBytes,
-			// 	cliCtx.GetFromAddress(),
-			// )
+			msg := types.NewMsgCreateDataSource(
+				name,
+				description,
+				execBytes,
+				owner,
+				clientCtx.GetFromAddress(),
+			)
 
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
 
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String(flagName, "", "Name of this data source")
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -204,69 +208,69 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-			// int64ID, err := strconv.ParseInt(args[0], 10, 64)
-			// if err != nil {
-			// 	return err
-			// }
-			// dataSourceID := types.DataSourceID(int64ID)
-			// name, err := cmd.Flags().GetString(flagName)
-			// if err != nil {
-			// 	return err
-			// }
+			int64ID, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			dataSourceID := types.DataSourceID(int64ID)
+			name, err := cmd.Flags().GetString(flagName)
+			if err != nil {
+				return err
+			}
 
-			// description, err := cmd.Flags().GetString(flagDescription)
-			// if err != nil {
-			// 	return err
-			// }
+			description, err := cmd.Flags().GetString(flagDescription)
+			if err != nil {
+				return err
+			}
 
-			// scriptPath, err := cmd.Flags().GetString(flagScript)
-			// if err != nil {
-			// 	return err
-			// }
-			// execBytes := types.DoNotModifyBytes
-			// if scriptPath != types.DoNotModify {
-			// 	execBytes, err = ioutil.ReadFile(scriptPath)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// }
+			scriptPath, err := cmd.Flags().GetString(flagScript)
+			if err != nil {
+				return err
+			}
+			execBytes := types.DoNotModifyBytes
+			if scriptPath != types.DoNotModify {
+				execBytes, err = ioutil.ReadFile(scriptPath)
+				if err != nil {
+					return err
+				}
+			}
 
-			// ownerStr, err := cmd.Flags().GetString(flagOwner)
-			// if err != nil {
-			// 	return err
-			// }
-			// owner, err := sdk.AccAddressFromBech32(ownerStr)
-			// if err != nil {
-			// 	return err
-			// }
+			ownerStr, err := cmd.Flags().GetString(flagOwner)
+			if err != nil {
+				return err
+			}
+			owner, err := sdk.AccAddressFromBech32(ownerStr)
+			if err != nil {
+				return err
+			}
 
-			// msg := types.NewMsgEditDataSource(
-			// 	dataSourceID,
-			// 	owner,
-			// 	name,
-			// 	description,
-			// 	execBytes,
-			// 	cliCtx.GetFromAddress(),
-			// )
+			msg := types.NewMsgEditDataSource(
+				dataSourceID,
+				name,
+				description,
+				execBytes,
+				owner,
+				clientCtx.GetFromAddress(),
+			)
 
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
 
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String(flagName, types.DoNotModify, "Name of this data source")
 	cmd.Flags().String(flagDescription, types.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, types.DoNotModify, "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -286,65 +290,64 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-			// name, err := cmd.Flags().GetString(flagName)
-			// if err != nil {
-			// 	return err
-			// }
-			// description, err := cmd.Flags().GetString(flagDescription)
-			// if err != nil {
-			// 	return err
-			// }
+			name, err := cmd.Flags().GetString(flagName)
+			if err != nil {
+				return err
+			}
+			description, err := cmd.Flags().GetString(flagDescription)
+			if err != nil {
+				return err
+			}
 
-			// scriptPath, err := cmd.Flags().GetString(flagScript)
-			// if err != nil {
-			// 	return err
-			// }
-			// scriptCode, err := ioutil.ReadFile(scriptPath)
-			// if err != nil {
-			// 	return err
-			// }
+			scriptPath, err := cmd.Flags().GetString(flagScript)
+			if err != nil {
+				return err
+			}
+			scriptCode, err := ioutil.ReadFile(scriptPath)
+			if err != nil {
+				return err
+			}
 
-			// ownerStr, err := cmd.Flags().GetString(flagOwner)
-			// if err != nil {
-			// 	return err
-			// }
-			// owner, err := sdk.AccAddressFromBech32(ownerStr)
-			// if err != nil {
-			// 	return err
-			// }
+			ownerStr, err := cmd.Flags().GetString(flagOwner)
+			if err != nil {
+				return err
+			}
+			owner, err := sdk.AccAddressFromBech32(ownerStr)
+			if err != nil {
+				return err
+			}
 
-			// schema, err := cmd.Flags().GetString(flagSchema)
-			// if err != nil {
-			// 	return err
-			// }
+			schema, err := cmd.Flags().GetString(flagSchema)
+			if err != nil {
+				return err
+			}
 
-			// sourceCodeURL, err := cmd.Flags().GetString(flagSourceCodeURL)
-			// if err != nil {
-			// 	return err
-			// }
+			sourceCodeURL, err := cmd.Flags().GetString(flagSourceCodeURL)
+			if err != nil {
+				return err
+			}
 
-			// msg := types.NewMsgCreateOracleScript(
-			// 	owner,
-			// 	name,
-			// 	description,
-			// 	scriptCode,
-			// 	schema,
-			// 	sourceCodeURL,
-			// 	cliCtx.GetFromAddress(),
-			// )
+			msg := types.NewMsgCreateOracleScript(
+				name,
+				description,
+				schema,
+				sourceCodeURL,
+				scriptCode,
+				owner,
+				clientCtx.GetFromAddress(),
+			)
 
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
 
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String(flagName, "", "Name of this oracle script")
@@ -353,6 +356,7 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 	cmd.Flags().String(flagOwner, "", "Owner of this oracle script")
 	cmd.Flags().String(flagSchema, "", "Schema of this oracle script")
 	cmd.Flags().String(flagSourceCodeURL, "", "URL for the source code of this oracle script")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -372,75 +376,74 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
 
-			// id, err := strconv.ParseInt(args[0], 10, 64)
-			// if err != nil {
-			// 	return err
-			// }
-			// oracleScriptID := types.OracleScriptID(id)
-			// name, err := cmd.Flags().GetString(flagName)
-			// if err != nil {
-			// 	return err
-			// }
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			oracleScriptID := types.OracleScriptID(id)
+			name, err := cmd.Flags().GetString(flagName)
+			if err != nil {
+				return err
+			}
 
-			// description, err := cmd.Flags().GetString(flagDescription)
-			// if err != nil {
-			// 	return err
-			// }
+			description, err := cmd.Flags().GetString(flagDescription)
+			if err != nil {
+				return err
+			}
 
-			// scriptPath, err := cmd.Flags().GetString(flagScript)
-			// if err != nil {
-			// 	return err
-			// }
-			// scriptCode := types.DoNotModifyBytes
-			// if scriptPath != types.DoNotModify {
-			// 	scriptCode, err = ioutil.ReadFile(scriptPath)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// }
+			scriptPath, err := cmd.Flags().GetString(flagScript)
+			if err != nil {
+				return err
+			}
+			scriptCode := types.DoNotModifyBytes
+			if scriptPath != types.DoNotModify {
+				scriptCode, err = ioutil.ReadFile(scriptPath)
+				if err != nil {
+					return err
+				}
+			}
 
-			// ownerStr, err := cmd.Flags().GetString(flagOwner)
-			// if err != nil {
-			// 	return err
-			// }
-			// owner, err := sdk.AccAddressFromBech32(ownerStr)
-			// if err != nil {
-			// 	return err
-			// }
+			ownerStr, err := cmd.Flags().GetString(flagOwner)
+			if err != nil {
+				return err
+			}
+			owner, err := sdk.AccAddressFromBech32(ownerStr)
+			if err != nil {
+				return err
+			}
 
-			// schema, err := cmd.Flags().GetString(flagSchema)
-			// if err != nil {
-			// 	return err
-			// }
+			schema, err := cmd.Flags().GetString(flagSchema)
+			if err != nil {
+				return err
+			}
 
-			// sourceCodeURL, err := cmd.Flags().GetString(flagSourceCodeURL)
-			// if err != nil {
-			// 	return err
-			// }
+			sourceCodeURL, err := cmd.Flags().GetString(flagSourceCodeURL)
+			if err != nil {
+				return err
+			}
 
-			// msg := types.NewMsgEditOracleScript(
-			// 	oracleScriptID,
-			// 	owner,
-			// 	name,
-			// 	description,
-			// 	scriptCode,
-			// 	schema,
-			// 	sourceCodeURL,
-			// 	cliCtx.GetFromAddress(),
-			// )
+			msg := types.NewMsgEditOracleScript(
+				oracleScriptID,
+				name,
+				description,
+				schema,
+				sourceCodeURL,
+				scriptCode,
+				owner,
+				clientCtx.GetFromAddress(),
+			)
 
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
 
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	cmd.Flags().String(flagName, types.DoNotModify, "Name of this oracle script")
@@ -449,6 +452,7 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 	cmd.Flags().String(flagOwner, "", "Owner of this oracle script")
 	cmd.Flags().String(flagSchema, types.DoNotModify, "Schema of this oracle script")
 	cmd.Flags().String(flagSourceCodeURL, types.DoNotModify, "URL for the source code of this oracle script")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -468,21 +472,23 @@ $ %s tx oracle activate --from mykey
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// validator := sdk.ValAddress(cliCtx.GetFromAddress())
-			// msg := types.NewMsgActivate(validator)
-			// err := msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			validator := sdk.ValAddress(clientCtx.GetFromAddress())
+			msg := types.NewMsgActivate(validator)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -501,32 +507,30 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			// validator := sdk.ValAddress(cliCtx.GetFromAddress())
-			// msgs := make([]sdk.Msg, len(args))
-			// for i, raw := range args {
-			// 	reporter, err := sdk.AccAddressFromBech32(raw)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// 	msgs[i] = types.NewMsgAddReporter(
-			// 		validator,
-			// 		reporter,
-			// 	)
-			// 	err = msgs[i].ValidateBasic()
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// }
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, msgs)
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			validator := sdk.ValAddress(clientCtx.GetFromAddress())
+			msgs := make([]sdk.Msg, len(args))
+			for i, raw := range args {
+				reporter, err := sdk.AccAddressFromBech32(raw)
+				if err != nil {
+					return err
+				}
+				msgs[i] = types.NewMsgAddReporter(
+					validator,
+					reporter,
+				)
+				err = msgs[i].ValidateBasic()
+				if err != nil {
+					return err
+				}
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
-
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -545,27 +549,26 @@ $ %s tx oracle remove-reporter band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun --fro
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// TODO: Bring CLI back
-			return nil
-			// inBuf := bufio.NewReader(cmd.InOrStdin())
-			// cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// validator := sdk.ValAddress(cliCtx.GetFromAddress())
-			// reporter, err := sdk.AccAddressFromBech32(args[0])
-			// if err != nil {
-			// 	return err
-			// }
-			// msg := types.NewMsgRemoveReporter(
-			// 	validator,
-			// 	reporter,
-			// )
-			// err = msg.ValidateBasic()
-			// if err != nil {
-			// 	return err
-			// }
-			// return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			validator := sdk.ValAddress(clientCtx.GetFromAddress())
+			reporter, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+			msg := types.NewMsgRemoveReporter(
+				validator,
+				reporter,
+			)
+			err = msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
