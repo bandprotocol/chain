@@ -188,6 +188,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
