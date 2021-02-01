@@ -35,7 +35,6 @@ func NewKeeper(
 	authKeeper types.AccountKeeper, bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper, distrKeeper types.DistrKeeper, ps paramtypes.Subspace,
 ) Keeper {
-	fmt.Print("!!->", ps)
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
