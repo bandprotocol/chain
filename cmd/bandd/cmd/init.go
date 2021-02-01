@@ -17,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/libs/cli"
@@ -28,13 +27,14 @@ import (
 )
 
 const (
-	flagTimeoutCommit = "timeout-commit"
+	// FlagOverwrite defines a flag to overwrite an existing genesis JSON file.
+	FlagOverwrite = "overwrite"
 
-	// flagOverwrite defines a flag to overwrite an existing genesis JSON file.
-	flagOverwrite = "overwrite"
+	// FlagRecover defines a flag to initialize the private validator key from a specific seed.
+	FlagRecover = "recover"
 
-	// flagSeed defines a flag to initialize the private validator key from a specific seed.
-	flagRecover = "recover"
+	// FlagTimeoutCommit defines a flag to set timeout commit of node.
+	FlagTimeoutCommit = "timeout-commit"
 )
 
 type printInfo struct {
@@ -112,19 +112,23 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			config := serverCtx.Config
 
 			config.SetRoot(clientCtx.HomeDir)
-			config.Consensus.TimeoutCommit = time.Duration(viper.GetInt(flagTimeoutCommit)) * time.Millisecond
+			timeoutCommit, err := cmd.Flags().GetInt(FlagTimeoutCommit)
+			if err != nil {
+				return err
+			}
+			config.Consensus.TimeoutCommit = time.Duration(timeoutCommit) * time.Millisecond
 			if err := genFilePVIfNotExists(config.PrivValidatorKeyFile(), config.PrivValidatorStateFile()); err != nil {
 				return err
 			}
 
-			chainID := viper.GetString(flags.FlagChainID)
+			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
 			if chainID == "" {
 				chainID = fmt.Sprintf("test-chain-%v", tmrand.Str(6))
 			}
 
 			// Get bip39 mnemonic
 			var mnemonic string
-			recover, _ := cmd.Flags().GetBool(flagRecover)
+			recover, _ := cmd.Flags().GetBool(FlagRecover)
 			if recover {
 				inBuf := bufio.NewReader(cmd.InOrStdin())
 				mnemonic, err := input.GetString("Enter your bip39 mnemonic", inBuf)
@@ -145,7 +149,9 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			config.Moniker = args[0]
 
 			genFile := config.GenesisFile()
-			if !viper.GetBool(flagOverwrite) && tmos.FileExists(genFile) {
+			overwrite, _ := cmd.Flags().GetBool(FlagOverwrite)
+
+			if !overwrite && tmos.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
 			appState, err := json.MarshalIndent(customAppState, "", "")
@@ -181,8 +187,9 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 		},
 	}
 	cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
-	cmd.Flags().BoolP(flagOverwrite, "o", false, "overwrite the genesis.json file")
+	cmd.Flags().BoolP(FlagOverwrite, "o", false, "overwrite the genesis.json file")
+	cmd.Flags().Bool(FlagRecover, false, "provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().Int(flagTimeoutCommit, 1500, "timeout commit of the node in ms")
+	cmd.Flags().Int(FlagTimeoutCommit, 1500, "timeout commit of the node in ms")
 	return cmd
 }

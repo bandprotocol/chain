@@ -14,9 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
-	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/cli"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -299,7 +297,7 @@ func NewBandApp(
 		&stakingKeeper, govRouter,
 	)
 	app.OracleKeeper = oraclekeeper.NewKeeper(
-		appCodec, keys[oracletypes.StoreKey], filepath.Join(viper.GetString(cli.HomeFlag), "files"),
+		appCodec, keys[oracletypes.StoreKey], filepath.Join(homePath, "files"),
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.GetSubspace(oracletypes.ModuleName))
 
 	// TODO: create static IBC router, add transfer route, then set and seal it
