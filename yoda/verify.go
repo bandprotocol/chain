@@ -28,5 +28,5 @@ func NewVerificationMessage(
 
 func (msg VerificationMessage) GetSignBytes() []byte {
 	bz, _ := json.Marshal(msg)
-	return bz
+	return sdk.MustSortJSON(bz)
 }
