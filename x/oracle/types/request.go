@@ -56,7 +56,7 @@ func NewRequest(
 		RequestedValidators: requestedVals,
 		MinCount:            MinCount,
 		RequestHeight:       RequestHeight,
-		RequestTime:         uint64(RequestTime.UnixNano()),
+		RequestTime:         uint64(RequestTime.Unix()),
 		ClientID:            ClientID,
 		RawRequests:         RawRequests,
 	}

@@ -105,7 +105,10 @@ message QueryOracleScriptResponse { OracleScript oracle_script = 1; }
 message QueryRequestRequest { int64 request_id = 1; }
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
-message QueryRequestResponse { Request request = 1; }
+message QueryRequestResponse {
+  OracleRequestPacketData request_packet_data = 1;
+  OracleResponsePacketData response_packet_data = 2;
+}
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
 message QueryParamsRequest {}

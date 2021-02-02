@@ -14,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -36,7 +35,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 
 			config.SetRoot(clientCtx.HomeDir)
 
-			f := filecache.New(filepath.Join(viper.GetString(cli.HomeFlag), "files"))
+			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
 			data, err := ioutil.ReadFile(args[3])
 			if err != nil {
 				return err

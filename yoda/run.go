@@ -2,7 +2,9 @@ package yoda
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -51,24 +53,23 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	// Get pending requests and handle them
-	// rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
-	// fmt.Println(rawPendingRequests, err)
-	// if err != nil {
-	// 	return err
-	// }
+	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
+	if err != nil {
+		return err
+	}
 
-	// var result types.QueryResult
-	// if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
-	// 	return err
-	// }
+	var result types.QueryResult
+	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
+		return err
+	}
 
-	// var pendingRequests []types.RequestID
-	// cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
+	var pendingRequests types.PendingResolveList
+	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
 
-	// for _, id := range pendingRequests {
-	// 	c.pendingRequests[id] = true
-	// 	go handlePendingRequest(c, l.With("rid", id), id)
-	// }
+	for _, id := range pendingRequests.RequestIds {
+		c.pendingRequests[types.RequestID(id)] = true
+		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
+	}
 
 	for {
 		select {
