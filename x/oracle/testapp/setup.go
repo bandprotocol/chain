@@ -14,11 +14,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
@@ -79,8 +77,8 @@ func createArbitraryAccount(r *rand.Rand) Account {
 	}
 }
 
-func getGenesisDataSources() []types.DataSource {
-	dir := filepath.Join(viper.GetString(cli.HomeFlag), "files")
+func getGenesisDataSources(homePath string) []types.DataSource {
+	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	DataSources = []types.DataSource{{}} // 0th index should be ignored
 	for idx := 0; idx < 5; idx++ {
@@ -93,8 +91,8 @@ func getGenesisDataSources() []types.DataSource {
 	return DataSources[1:]
 }
 
-func getGenesisOracleScripts() []types.OracleScript {
-	dir := filepath.Join(viper.GetString(cli.HomeFlag), "files")
+func getGenesisOracleScripts(homePath string) []types.OracleScript {
+	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
 	wasms := [][]byte{
@@ -125,10 +123,9 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	if err != nil {
 		panic(err)
 	}
-	viper.Set(cli.HomeFlag, dir)
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
-	app := bandapp.NewBandApp(logger, db, nil, true, map[int64]bool{}, "", 0, encCdc, EmptyAppOptions{}, false)
+	app := bandapp.NewBandApp(logger, db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false)
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
@@ -205,8 +202,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := types.DefaultGenesisState()
-	oracleGenesis.DataSources = getGenesisDataSources()
-	oracleGenesis.OracleScripts = getGenesisOracleScripts()
+	oracleGenesis.DataSources = getGenesisDataSources(dir)
+	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
 

@@ -23,7 +23,7 @@ type FeeEstimationData struct {
 }
 
 type ReportMsgWithKey struct {
-	msg               types.MsgReportData
+	msg               *types.MsgReportData
 	execVersion       []string
 	keyIndex          int64
 	feeEstimationData FeeEstimationData
@@ -32,7 +32,7 @@ type ReportMsgWithKey struct {
 type Context struct {
 	client           rpcclient.Client
 	validator        sdk.ValAddress
-	gasPrices        sdk.DecCoins
+	gasPrices        string
 	keys             []keyring.Info
 	executor         executor.Executor
 	fileCache        filecache.Cache

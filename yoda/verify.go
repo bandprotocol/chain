@@ -1,29 +1,32 @@
 package yoda
 
-// import (
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"encoding/json"
 
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// )
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// type VerificationMessage struct {
-// 	ChainID    string           `json:"chain_id"`
-// 	Validator  sdk.ValAddress   `json:"validator"`
-// 	RequestID  types.RequestID  `json:"request_id"`
-// 	ExternalID types.ExternalID `json:"external_id"`
-// }
+	"github.com/bandprotocol/chain/x/oracle/types"
+)
 
-// func NewVerificationMessage(
-// 	chainID string, validator sdk.ValAddress, requestID types.RequestID, externalID types.ExternalID,
-// ) VerificationMessage {
-// 	return VerificationMessage{
-// 		ChainID:    chainID,
-// 		Validator:  validator,
-// 		RequestID:  requestID,
-// 		ExternalID: externalID,
-// 	}
-// }
+type VerificationMessage struct {
+	ChainID    string           `json:"chain_id"`
+	Validator  sdk.ValAddress   `json:"validator"`
+	RequestID  types.RequestID  `json:"request_id"`
+	ExternalID types.ExternalID `json:"external_id"`
+}
 
-// func (msg VerificationMessage) GetSignBytes() []byte {
-// 	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
-// }
+func NewVerificationMessage(
+	chainID string, validator sdk.ValAddress, requestID types.RequestID, externalID types.ExternalID,
+) VerificationMessage {
+	return VerificationMessage{
+		ChainID:    chainID,
+		Validator:  validator,
+		RequestID:  requestID,
+		ExternalID: externalID,
+	}
+}
+
+func (msg VerificationMessage) GetSignBytes() []byte {
+	bz, _ := json.Marshal(msg)
+	return sdk.MustSortJSON(bz)
+}

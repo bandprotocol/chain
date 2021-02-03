@@ -1,197 +1,219 @@
 package yoda
 
-// import (
-// 	"fmt"
-// 	"strings"
-// 	"time"
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
 
-// 	sdkCtx "github.com/cosmos/cosmos-sdk/client/context"
-// 	ckeys "github.com/cosmos/cosmos-sdk/client/keys"
-// 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-// 	"github.com/cosmos/cosmos-sdk/version"
-// 	"github.com/cosmos/cosmos-sdk/x/auth"
-// 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/version"
+	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-// 	"github.com/bandprotocol/chain/app"
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-// )
+	band "github.com/bandprotocol/chain/app"
+	"github.com/bandprotocol/chain/x/oracle/types"
+)
 
-// var (
-// 	cdc = app.MakeCodec()
-// )
+var (
+	// Use this as codec to legacy msg
+	cdc = band.MakeEncodingConfig().Amino
+)
 
-// func signAndBroadcast(
-// 	c *Context, key keys.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
-// ) (string, error) {
-// 	cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-// 	acc, err := auth.NewAccountRetriever(cliCtx).GetAccount(key.GetAddress())
-// 	if err != nil {
-// 		return "", fmt.Errorf("Failed to retreive account with error: %s", err.Error())
-// 	}
+func signAndBroadcast(
+	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
+) (string, error) {
+	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
+	accountRetriever := authtypes.AccountRetriever{}
+	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	if err != nil {
+		return "", fmt.Errorf("Failed to retreive account with error: %s", err.Error())
+	}
 
-// 	txBldr := auth.NewTxBuilder(
-// 		auth.DefaultTxEncoder(cdc), acc.GetAccountNumber(), acc.GetSequence(),
-// 		gasLimit, 1, false, cfg.ChainID, memo, sdk.NewCoins(), c.gasPrices,
-// 	)
-// 	// txBldr, err = authclient.EnrichWithGas(txBldr, cliCtx, []sdk.Msg{msg})
-// 	// if err != nil {
-// 	// 	l.Error(":exploding_head: Failed to enrich with gas with error: %s", err.Error())
-// 	// 	return
-// 	// }
+	txf := tx.Factory{}.
+		WithAccountNumber(acc.GetAccountNumber()).
+		WithSequence(acc.GetSequence()).
+		WithGas(gasLimit).WithGasAdjustment(1).
+		WithChainID(cfg.ChainID).
+		WithMemo(memo).
+		WithGasPrices(c.gasPrices).
+		WithKeybase(kb)
 
-// 	out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
-// 	if err != nil {
-// 		return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
-// 	}
+	// txBldr, err = authclient.EnrichWithGas(txBldr, cliCtx, []sdk.Msg{msg})
+	// if err != nil {
+	// 	l.Error(":exploding_head: Failed to enrich with gas with error: %s", err.Error())
+	// 	return
+	// }
+	txb, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		return "", err
+	}
 
-// 	res, err := cliCtx.BroadcastTxSync(out)
-// 	if err != nil {
-// 		return "", fmt.Errorf("Failed to broadcast tx with error: %s", err.Error())
-// 	}
-// 	return res.TxHash, nil
-// }
+	err = tx.Sign(txf, key.GetName(), txb, true)
+	if err != nil {
+		return "", err
+	}
 
-// func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {
-// 	// Return key when done with SubmitReport whether successfully or not.
-// 	defer func() {
-// 		c.freeKeys <- keyIndex
-// 	}()
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
+	if err != nil {
+		return "", err
+	}
 
-// 	// Summarize execute version
-// 	versionMap := make(map[string]bool)
-// 	msgs := make([]sdk.Msg, len(reports))
-// 	ids := make([]types.RequestID, len(reports))
-// 	feeEstimations := make([]FeeEstimationData, len(reports))
+	// broadcast to a Tendermint node
+	res, err := clientCtx.BroadcastTx(txBytes)
+	if err != nil {
+		return "", err
+	}
+	// out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
+	// if err != nil {
+	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
+	// }
+	return res.TxHash, nil
+}
 
-// 	for i, report := range reports {
-// 		if err := report.msg.ValidateBasic(); err != nil {
-// 			l.Error(":exploding_head: Failed to validate basic with error: %s", err.Error())
-// 			return
-// 		}
-// 		msgs[i] = report.msg
-// 		ids[i] = report.msg.RequestID
-// 		feeEstimations[i] = report.feeEstimationData
-// 		for _, exec := range report.execVersion {
-// 			versionMap[exec] = true
-// 		}
-// 	}
-// 	l = l.With("rids", ids)
+func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {
+	// Return key when done with SubmitReport whether successfully or not.
+	defer func() {
+		c.freeKeys <- keyIndex
+	}()
 
-// 	versions := make([]string, 0, len(versionMap))
-// 	for exec := range versionMap {
-// 		versions = append(versions, exec)
-// 	}
-// 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
-// 	key := c.keys[keyIndex]
-// 	cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-// 	gasLimit := estimateGas(c, msgs, feeEstimations)
-// 	// We want to resend transaction only if tx returns Out of gas error.
-// 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
-// 		var txHash string
-// 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
-// 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
-// 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-// 			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
-// 			if err != nil {
-// 				// Use info level because this error can happen and retry process can solve this error.
-// 				l.Info(":warning: %s", err.Error())
-// 				time.Sleep(c.rpcPollInterval)
-// 				continue
-// 			}
-// 			// Transaction passed CheckTx process and wait to include in block.
-// 			txHash = hash
-// 			break
-// 		}
-// 		if txHash == "" {
-// 			l.Error(":exploding_head: Cannot try to broadcast more than %d try", c.maxTry)
-// 			return
-// 		}
-// 		txFound := false
-// 	FindTx:
-// 		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
-// 			time.Sleep(c.rpcPollInterval)
-// 			txRes, err := utils.QueryTx(cliCtx, txHash)
-// 			if err != nil {
-// 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
-// 				continue
-// 			}
-// 			switch txRes.Code {
-// 			case 0:
-// 				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
-// 				return
-// 			case sdkerrors.ErrOutOfGas.ABCICode():
-// 				// Increase gas limit and try to broadcast again
-// 				gasLimit = gasLimit * 110 / 100
-// 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
-// 				txFound = true
-// 				break FindTx
-// 			default:
-// 				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", txRes.Code, txRes.RawLog, txRes.TxHash)
-// 				return
-// 			}
-// 		}
-// 		if !txFound {
-// 			l.Error(":question_mark: Cannot get transaction response from hash: %s transaction might be included in the next few blocks or check your node's health.", txHash)
-// 			return
-// 		}
-// 	}
-// 	l.Error(":anxious_face_with_sweat: Cannot send reports with adjusted gas: %d", gasLimit)
-// 	return
-// }
+	// Summarize execute version
+	versionMap := make(map[string]bool)
+	msgs := make([]sdk.Msg, len(reports))
+	ids := make([]types.RequestID, len(reports))
+	feeEstimations := make([]FeeEstimationData, len(reports))
 
-// // GetExecutable fetches data source executable using the provided client.
-// func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
-// 	resValue, err := c.fileCache.GetFile(hash)
-// 	if err != nil {
-// 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-// 		res, err := c.client.ABCIQueryWithOptions(fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil, rpcclient.ABCIQueryOptions{})
-// 		if err != nil {
-// 			l.Error(":exploding_head: Failed to get data source with error: %s", err.Error())
-// 			return nil, err
-// 		}
-// 		resValue = res.Response.GetValue()
-// 		c.fileCache.AddFile(resValue)
-// 	} else {
-// 		l.Debug(":card_file_box: Found data source hash: %s in cache file", hash)
-// 	}
+	for i, report := range reports {
+		if err := report.msg.ValidateBasic(); err != nil {
+			l.Error(":exploding_head: Failed to validate basic with error: %s", err.Error())
+			return
+		}
+		msgs[i] = report.msg
+		ids[i] = report.msg.RequestID
+		feeEstimations[i] = report.feeEstimationData
+		for _, exec := range report.execVersion {
+			versionMap[exec] = true
+		}
+	}
+	l = l.With("rids", ids)
 
-// 	l.Debug(":balloon: Received data source hash: %s content: %q", hash, resValue[:32])
-// 	return resValue, nil
-// }
+	versions := make([]string, 0, len(versionMap))
+	for exec := range versionMap {
+		versions = append(versions, exec)
+	}
+	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
+	key := c.keys[keyIndex]
+	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
+	gasLimit := estimateGas(c, msgs, feeEstimations)
+	// We want to resend transaction only if tx returns Out of gas error.
+	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
+		var txHash string
+		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
+		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
+			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
+			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
+			if err != nil {
+				// Use info level because this error can happen and retry process can solve this error.
+				l.Info(":warning: %s", err.Error())
+				time.Sleep(c.rpcPollInterval)
+				continue
+			}
+			// Transaction passed CheckTx process and wait to include in block.
+			txHash = hash
+			break
+		}
+		if txHash == "" {
+			l.Error(":exploding_head: Cannot try to broadcast more than %d try", c.maxTry)
+			return
+		}
+		txFound := false
+	FindTx:
+		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
+			time.Sleep(c.rpcPollInterval)
+			txRes, err := authclient.QueryTx(clientCtx, txHash)
+			if err != nil {
+				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
+				continue
+			}
+			switch txRes.Code {
+			case 0:
+				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
+				return
+			case sdkerrors.ErrOutOfGas.ABCICode():
+				// Increase gas limit and try to broadcast again
+				gasLimit = gasLimit * 110 / 100
+				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
+				txFound = true
+				break FindTx
+			default:
+				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", txRes.Code, txRes.RawLog, txRes.TxHash)
+				return
+			}
+		}
+		if !txFound {
+			l.Error(":question_mark: Cannot get transaction response from hash: %s transaction might be included in the next few blocks or check your node's health.", txHash)
+			return
+		}
+	}
+	l.Error(":anxious_face_with_sweat: Cannot send reports with adjusted gas: %d", gasLimit)
+	return
+}
 
-// // GetDataSourceHash fetches data source hash by id
-// func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, error) {
-// 	if hash, ok := c.dataSourceCache.Load(id); ok {
-// 		return hash.(string), nil
-// 	}
+// GetExecutable fetches data source executable using the provided client.
+func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
+	resValue, err := c.fileCache.GetFile(hash)
+	if err != nil {
+		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
+		res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
+		if err != nil {
+			l.Error(":exploding_head: Failed to get data source with error: %s", err.Error())
+			return nil, err
+		}
+		resValue = res.Response.GetValue()
+		c.fileCache.AddFile(resValue)
+	} else {
+		l.Debug(":card_file_box: Found data source hash: %s in cache file", hash)
+	}
 
-// 	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
-// 	if err != nil {
-// 		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
-// 		return "", err
-// 	}
+	l.Debug(":balloon: Received data source hash: %s content: %q", hash, resValue[:32])
+	return resValue, nil
+}
 
-// 	var d types.DataSource
-// 	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+// GetDataSourceHash fetches data source hash by id
+func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, error) {
+	if hash, ok := c.dataSourceCache.Load(id); ok {
+		return hash.(string), nil
+	}
 
-// 	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
+	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
+	if err != nil {
+		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
+		return "", err
+	}
 
-// 	return hash.(string), nil
-// }
+	var d types.DataSource
+	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
 
-// // GetRequest fetches request by id
-// func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
-// 	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
-// 	if err != nil {
-// 		l.Debug(":skull: Failed to get request with error: %s", err.Error())
-// 		return types.Request{}, err
-// 	}
+	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
 
-// 	var r types.Request
-// 	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
+	return hash.(string), nil
+}
 
-// 	return r, nil
-// }
+// GetRequest fetches request by id
+func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
+	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
+	if err != nil {
+		l.Debug(":skull: Failed to get request with error: %s", err.Error())
+		return types.Request{}, err
+	}
+
+	var r types.Request
+	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
+
+	return r, nil
+}
