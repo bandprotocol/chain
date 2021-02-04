@@ -1,9 +1,11 @@
 package yoda
 
 import (
+	"encoding/json"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 type VerificationMessage struct {
@@ -25,5 +27,6 @@ func NewVerificationMessage(
 }
 
 func (msg VerificationMessage) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+	bz, _ := json.Marshal(msg)
+	return sdk.MustSortJSON(bz)
 }

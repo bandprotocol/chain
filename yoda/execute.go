@@ -1,56 +1,79 @@
 package yoda
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
-	sdkCtx "github.com/cosmos/cosmos-sdk/client/context"
-	ckeys "github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/bandprotocol/bandchain/chain/app"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	band "github.com/bandprotocol/chain/app"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 var (
-	cdc = app.MakeCodec()
+	// Use this as codec to legacy msg
+	cdc = band.MakeEncodingConfig().Amino
 )
 
 func signAndBroadcast(
-	c *Context, key keys.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
+	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
 ) (string, error) {
-	cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-	acc, err := auth.NewAccountRetriever(cliCtx).GetAccount(key.GetAddress())
+	clientCtx := client.Context{
+		Client:            c.client,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		BroadcastMode:     "async",
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+	accountRetriever := authtypes.AccountRetriever{}
+	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
 	if err != nil {
 		return "", fmt.Errorf("Failed to retreive account with error: %s", err.Error())
 	}
 
-	txBldr := auth.NewTxBuilder(
-		auth.DefaultTxEncoder(cdc), acc.GetAccountNumber(), acc.GetSequence(),
-		gasLimit, 1, false, cfg.ChainID, memo, sdk.NewCoins(), c.gasPrices,
-	)
-	// txBldr, err = authclient.EnrichWithGas(txBldr, cliCtx, []sdk.Msg{msg})
+	txf := tx.Factory{}.
+		WithAccountNumber(acc.GetAccountNumber()).
+		WithSequence(acc.GetSequence()).
+		WithTxConfig(band.MakeEncodingConfig().TxConfig).
+		WithGas(gasLimit).WithGasAdjustment(1).
+		WithChainID(cfg.ChainID).
+		WithMemo(memo).
+		WithGasPrices(c.gasPrices).
+		WithKeybase(kb).
+		WithAccountRetriever(clientCtx.AccountRetriever)
+
+	txb, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		return "", err
+	}
+
+	err = tx.Sign(txf, key.GetName(), txb, true)
+	if err != nil {
+		return "", err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
+	if err != nil {
+		return "", err
+	}
+
+	// broadcast to a Tendermint node
+	res, err := clientCtx.BroadcastTx(txBytes)
+	if err != nil {
+		return "", err
+	}
+	// out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
 	// if err != nil {
-	// 	l.Error(":exploding_head: Failed to enrich with gas with error: %s", c, err.Error())
-	// 	return
+	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
 	// }
-
-	out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
-	if err != nil {
-		return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
-	}
-
-	res, err := cliCtx.BroadcastTxSync(out)
-	if err != nil {
-		return "", fmt.Errorf("Failed to broadcast tx with error: %s", err.Error())
-	}
 	return res.TxHash, nil
 }
 
@@ -87,7 +110,8 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	}
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
-	cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
 	gasLimit := estimateGas(c, msgs, feeEstimations)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
@@ -114,7 +138,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	FindTx:
 		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
 			time.Sleep(c.rpcPollInterval)
-			txRes, err := utils.QueryTx(cliCtx, txHash)
+			txRes, err := authclient.QueryTx(clientCtx, txHash)
 			if err != nil {
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
@@ -149,7 +173,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-		res, err := c.client.ABCIQueryWithOptions(fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil, rpcclient.ABCIQueryOptions{})
+		res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
 		if err != nil {
 			l.Error(":exploding_head: Failed to get data source with error: %s", c, err.Error())
 			return nil, err
@@ -170,7 +194,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 		return hash.(string), nil
 	}
 
-	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
+	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
 	if err != nil {
 		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
 		return "", err
@@ -186,7 +210,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 
 // GetRequest fetches request by id
 func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
-	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
+	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
 	if err != nil {
 		l.Debug(":skull: Failed to get request with error: %s", err.Error())
 		return types.Request{}, err

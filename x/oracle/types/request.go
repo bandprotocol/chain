@@ -1,5 +1,11 @@
 package types
 
+import (
+	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 var (
 	_ RequestSpec = &MsgRequestData{}
 	_ RequestSpec = &OracleRequestPacketData{}
@@ -12,4 +18,46 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
+}
+
+func NewRawRequest(
+	ExternalID ExternalID,
+	DataSourceID DataSourceID,
+	Calldata []byte,
+) RawRequest {
+	return RawRequest{
+		ExternalID:   ExternalID,
+		DataSourceID: DataSourceID,
+		Calldata:     Calldata,
+	}
+}
+
+func NewRequest(
+	OracleScriptID OracleScriptID,
+	Calldata []byte,
+	RequestedValidators []sdk.ValAddress,
+	MinCount uint64,
+	RequestHeight int64,
+	RequestTime time.Time,
+	ClientID string,
+	RawRequests []RawRequest,
+) Request {
+	requestedVals := make([]string, len(RequestedValidators))
+	if RequestedValidators != nil {
+		for idx, reqVal := range RequestedValidators {
+			requestedVals[idx] = reqVal.String()
+		}
+	} else {
+		requestedVals = nil
+	}
+	return Request{
+		OracleScriptID:      OracleScriptID,
+		Calldata:            Calldata,
+		RequestedValidators: requestedVals,
+		MinCount:            MinCount,
+		RequestHeight:       RequestHeight,
+		RequestTime:         uint64(RequestTime.Unix()),
+		ClientID:            ClientID,
+		RawRequests:         RawRequests,
+	}
 }

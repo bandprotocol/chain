@@ -14,13 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/log"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/bandprotocol/bandchain/chain/pkg/filecache"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
-	"github.com/bandprotocol/bandchain/chain/yoda/executor"
+	"github.com/bandprotocol/chain/pkg/filecache"
+	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/yoda/executor"
 )
 
 const (
@@ -59,7 +58,7 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQueryWithOptions(fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil, rpcclient.ABCIQueryOptions{})
+	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
 	if err != nil {
 		return err
 	}
@@ -69,12 +68,12 @@ func runImpl(c *Context, l *Logger) error {
 		return err
 	}
 
-	var pendingRequests []types.RequestID
+	var pendingRequests types.PendingResolveList
 	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
 
-	for _, id := range pendingRequests {
-		c.pendingRequests[id] = true
-		go handlePendingRequest(c, l.With("rid", id), id)
+	for _, id := range pendingRequests.RequestIds {
+		c.pendingRequests[types.RequestID(id)] = true
+		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
 	}
 
 	for {
@@ -115,7 +114,7 @@ func runCmd(c *Context) *cobra.Command {
 			if cfg.ChainID == "" {
 				return errors.New("Chain ID must not be empty")
 			}
-			keys, err := keybase.List()
+			keys, err := kb.List()
 			if err != nil {
 				return err
 			}
@@ -131,10 +130,9 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.gasPrices, err = sdk.ParseDecCoins(cfg.GasPrices)
-			if err != nil {
-				return err
-			}
+
+			c.gasPrices = cfg.GasPrices
+
 			allowLevel, err := log.AllowLevel(cfg.LogLevel)
 			if err != nil {
 				return err

@@ -29,7 +29,6 @@ make install
 
 # Now you should be able to run the following commands:
 bandd help
-bandcli help
 ```
 
 ## Running test application locally
@@ -61,8 +60,8 @@ On a separate tab, you should run the oracle daemon script to ensure your valida
 ./scripts/start_yoda.sh validator
 ```
 
-To send an oracle request to the chain, use `bandcli`.
+To send an oracle request to the chain, use `bandd`.
 
 ```bash
-bandcli tx oracle request [ORACLE_SCRIPT_ID] [ASK_COUNT] [MIN_COUNT] -c [CALLDATA] --from requester --gas auto --keyring-backend test --from requester
+bandd tx oracle request [ORACLE_SCRIPT_ID] [ASK_COUNT] [MIN_COUNT] -c [CALLDATA] --from requester --gas auto --keyring-backend test --from requester
 ```

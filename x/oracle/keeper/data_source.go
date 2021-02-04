@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // HasDataSource checks if the data source of this ID exists in the storage.
@@ -37,7 +37,7 @@ func (k Keeper) MustGetDataSource(ctx sdk.Context, id types.DataSourceID) types.
 // SetDataSource saves the given data source to the storage without performing validation.
 func (k Keeper) SetDataSource(ctx sdk.Context, id types.DataSourceID, dataSource types.DataSource) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(dataSource))
+	store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(&dataSource))
 }
 
 // AddDataSource adds the given data source to the storage.

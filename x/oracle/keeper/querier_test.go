@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/keeper"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/testapp"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/keeper"
+	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 func TestQueryPendingRequests(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 
 	// Add 3 requests
 	k.SetRequestLastExpired(ctx, 40)
@@ -23,35 +23,35 @@ func TestQueryPendingRequests(t *testing.T) {
 	k.SetRequestCount(ctx, 43)
 
 	// Fulfill some requests
-	k.SetReport(ctx, 41, types.NewReport(testapp.Validator1.ValAddress, true, nil))
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validator2.ValAddress, true, nil))
+	k.SetReport(ctx, 41, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[1].ValAddress, true, nil))
 
-	q := keeper.NewQuerier(k)
+	q := keeper.NewQuerier(k, app.LegacyAmino())
 
 	tests := []struct {
 		name     string
 		args     []string
-		expected []types.RequestID
+		expected types.PendingResolveList
 	}{
 		{
 			name:     "Get all pending requests",
 			args:     []string{},
-			expected: []types.RequestID{41, 42, 43},
+			expected: types.PendingResolveList{RequestIds: []int64{41, 42, 43}},
 		},
 		{
-			name:     "Get pending requests for validator1",
-			args:     []string{testapp.Validator1.ValAddress.String()},
-			expected: []types.RequestID{42, 43},
+			name:     "Get pending requests for Validators[0]",
+			args:     []string{testapp.Validators[0].ValAddress.String()},
+			expected: types.PendingResolveList{RequestIds: []int64{42, 43}},
 		},
 		{
-			name:     "Get pending requests for validator2",
-			args:     []string{testapp.Validator2.ValAddress.String()},
-			expected: []types.RequestID{41, 43},
+			name:     "Get pending requests for Validators[1]",
+			args:     []string{testapp.Validators[1].ValAddress.String()},
+			expected: types.PendingResolveList{RequestIds: []int64{41, 43}},
 		},
 		{
-			name:     "Get pending requests for validator3",
-			args:     []string{testapp.Validator3.ValAddress.String()},
-			expected: nil,
+			name:     "Get pending requests for Validators[2]",
+			args:     []string{testapp.Validators[2].ValAddress.String()},
+			expected: types.PendingResolveList{RequestIds: nil},
 		},
 	}
 
@@ -63,10 +63,10 @@ func TestQueryPendingRequests(t *testing.T) {
 			var queryRequest types.QueryResult
 			require.NoError(t, json.Unmarshal(raw, &queryRequest))
 
-			var requestIDs []types.RequestID
-			types.ModuleCdc.MustUnmarshalJSON(queryRequest.Result, &requestIDs)
+			var pending types.PendingResolveList
+			types.ModuleCdc.MustUnmarshalJSON(queryRequest.Result, &pending)
 
-			require.Equal(t, tt.expected, requestIDs)
+			require.Equal(t, tt.expected, pending)
 		})
 	}
 }

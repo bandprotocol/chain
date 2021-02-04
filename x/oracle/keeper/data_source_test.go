@@ -3,10 +3,11 @@ package keeper_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/testapp"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 func TestHasDataSource(t *testing.T) {
@@ -56,9 +57,11 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))
+	owner, err := sdk.AccAddressFromBech32(dataSource2.Owner)
+	require.NoError(t, err)
 	// Edits the data source. We should get the updated data source.
 	k.MustEditDataSource(ctx, id, types.NewDataSource(
-		dataSource2.Owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename,
+		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename,
 	))
 	require.NotEqual(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.Equal(t, dataSource2, k.MustGetDataSource(ctx, id))

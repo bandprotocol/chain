@@ -4,11 +4,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/keeper"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.
-func handleBeginBlock(ctx sdk.Context, k Keeper, req abci.RequestBeginBlock) {
+func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
 	// Update rolling seed used for pseudorandom oracle provider selection.
 	rollingSeed := k.GetRollingSeed(ctx)
 	k.SetRollingSeed(ctx, append(rollingSeed[1:], req.GetHash()[0]))
@@ -17,7 +18,7 @@ func handleBeginBlock(ctx sdk.Context, k Keeper, req abci.RequestBeginBlock) {
 }
 
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
-func handleEndBlock(ctx sdk.Context, k Keeper) {
+func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Loops through all requests in the resolvable list to resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		k.ResolveRequest(ctx, reqID)

@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/bandprotocol/bandchain/go-owasm/api"
+	"github.com/bandprotocol/go-owasm/api"
 )
 
 // BaseEnv combines shared functions used in prepare and execution Owasm program,
@@ -105,7 +105,7 @@ func NewExecuteEnv(req Request, reports []Report) *ExecuteEnv {
 		for _, each := range report.RawReports {
 			valReports[each.ExternalID] = each
 		}
-		envReports[report.Validator.String()] = valReports
+		envReports[report.Validator] = valReports
 	}
 	return &ExecuteEnv{
 		BaseEnv: BaseEnv{
@@ -133,7 +133,7 @@ func (env *ExecuteEnv) getExternalDataFull(eid int64, valIdx int64) ([]byte, int
 	if valIdx < 0 || valIdx >= int64(len(env.request.RequestedValidators)) {
 		return nil, 0, api.ErrBadValidatorIndex
 	}
-	valAddr := env.request.RequestedValidators[valIdx].String()
+	valAddr := env.request.RequestedValidators[valIdx]
 	valReports, ok := env.reports[valAddr]
 	if !ok {
 		return nil, -1, nil

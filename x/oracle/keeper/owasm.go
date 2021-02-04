@@ -6,11 +6,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/staking/exported"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/bandchain/chain/pkg/bandrng"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
-	owasm "github.com/bandprotocol/bandchain/go-owasm/api"
+	"github.com/bandprotocol/chain/pkg/bandrng"
+	"github.com/bandprotocol/chain/x/oracle/types"
+	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -19,7 +19,7 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 	valOperators := []sdk.ValAddress{}
 	valPowers := []uint64{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
-		func(idx int64, val exported.ValidatorI) (stop bool) {
+		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
 				valOperators = append(valOperators, val.GetOperator())
 				valPowers = append(valPowers, val.GetTokens().Uint64())
@@ -93,7 +93,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 	)
 	for _, val := range req.RequestedValidators {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val.String()))
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
 	}
 	ctx.EventManager().EmitEvent(event)
 	// Emit an event for each of the raw data requests.

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package oracle.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "oracle/v1/oracle.proto";
+
+// GenesisState defines the oracle module's genesis state.
+message GenesisState {
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  repeated DataSource data_sources = 2 [ (gogoproto.nullable) = false ];
+  repeated OracleScript oracle_scripts = 3 [ (gogoproto.nullable) = false ];
+}

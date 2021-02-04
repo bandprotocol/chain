@@ -6,13 +6,12 @@ import (
 	"path"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/bandchain/chain/app"
+	band "github.com/bandprotocol/chain/app"
 )
 
 const (
@@ -42,8 +41,8 @@ type Config struct {
 
 // Global instances.
 var (
-	cfg     Config
-	keybase keys.Keybase
+	cfg Config
+	kb  keyring.Keyring
 )
 
 func initConfig(cmd *cobra.Command) error {
@@ -61,7 +60,7 @@ func initConfig(cmd *cobra.Command) error {
 
 func Main() {
 	appConfig := sdk.GetConfig()
-	app.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
+	band.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
 	appConfig.Seal()
 
 	ctx := &Context{}
@@ -70,7 +69,12 @@ func Main() {
 		Short: "BandChain oracle daemon to subscribe and response to oracle requests",
 	}
 
-	rootCmd.AddCommand(configCmd(), keysCmd(ctx), runCmd(ctx), version.Cmd)
+	rootCmd.AddCommand(
+		configCmd(),
+		keysCmd(ctx),
+		runCmd(ctx),
+		// version.Cmd
+	)
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
@@ -79,7 +83,7 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		keybase, err = keys.NewKeyring("band", "test", home, nil)
+		kb, err = keyring.New("band", "test", home, nil)
 		if err != nil {
 			return err
 		}

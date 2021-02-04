@@ -5,15 +5,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingexported "github.com/cosmos/cosmos-sdk/x/staking/exported"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // valWithPower is an internal type to track validator with voting power inside of AllocateTokens.
 type valWithPower struct {
-	val   stakingexported.ValidatorI
+	val   stakingtypes.ValidatorI
 	power int64
 }
 
@@ -33,13 +33,13 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		// No active validators performing oracle tasks, nothing needs to be done here.
 		return
 	}
-	feeCollector := k.supplyKeeper.GetModuleAccount(ctx, k.feeCollectorName)
-	totalFee := sdk.NewDecCoinsFromCoins(feeCollector.GetCoins()...)
+	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
+	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 	// Compute the fee allocated for oracle module to distribute to active validators.
 	oracleRewardRatio := sdk.NewDecWithPrec(int64(k.GetParam(ctx, types.KeyOracleRewardPercentage)), 2)
 	oracleRewardInt, _ := totalFee.MulDecTruncate(oracleRewardRatio).TruncateDecimal()
 	// Transfer the oracle reward portion from fee collector to distr module.
-	err := k.supplyKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distr.ModuleName, oracleRewardInt)
+	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distr.ModuleName, oracleRewardInt)
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +74,7 @@ func (k Keeper) GetValidatorStatus(ctx sdk.Context, val sdk.ValAddress) types.Va
 
 // SetValidatorStatus sets the validator status for the given validator.
 func (k Keeper) SetValidatorStatus(ctx sdk.Context, val sdk.ValAddress, status types.ValidatorStatus) {
-	ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(status))
+	ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(&status))
 }
 
 // Activate changes the given validator's status to active. Returns error if the validator is

@@ -3,147 +3,153 @@ package keeper
 import (
 	"strconv"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/staking/exported"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // NewQuerier is the module level router for state queries.
-func NewQuerier(keeper Keeper) sdk.Querier {
+func NewQuerier(keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryParams:
-			return queryParameters(ctx, keeper)
+			return queryParameters(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryCounts:
-			return queryCounts(ctx, keeper)
+			return queryCounts(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryData:
-			return queryData(ctx, path[1:], keeper)
+			return queryData(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryDataSources:
-			return queryDataSourceByID(ctx, path[1:], keeper)
+			return queryDataSourceByID(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryOracleScripts:
-			return queryOracleScriptByID(ctx, path[1:], keeper)
+			return queryOracleScriptByID(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryRequests:
-			return queryRequestByID(ctx, path[1:], keeper)
+			return queryRequestByID(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryValidatorStatus:
-			return queryValidatorStatus(ctx, path[1:], keeper)
+			return queryValidatorStatus(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryReporters:
-			return queryReporters(ctx, path[1:], keeper)
+			return queryReporters(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryActiveValidators:
-			return queryActiveValidators(ctx, keeper)
+			return queryActiveValidators(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		case types.QueryPendingRequests:
-			return queryPendingRequests(ctx, path[1:], keeper)
+			return queryPendingRequests(ctx, path[1:], req, keeper, legacyQuerierCdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown oracle query endpoint")
 		}
 	}
 }
 
-func queryParameters(ctx sdk.Context, k Keeper) ([]byte, error) {
-	return types.QueryOK(k.GetParams(ctx))
+func queryParameters(ctx sdk.Context, _ []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	return types.QueryOK(legacyQuerierCdc, k.GetParams(ctx))
 }
 
-func queryCounts(ctx sdk.Context, k Keeper) ([]byte, error) {
-	return types.QueryOK(types.QueryCountsResult{
+func queryCounts(ctx sdk.Context, _ []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	queryResult := types.QueryCountsResult{
 		DataSourceCount:   k.GetDataSourceCount(ctx),
 		OracleScriptCount: k.GetOracleScriptCount(ctx),
 		RequestCount:      k.GetRequestCount(ctx),
-	})
+	}
+	res, err := codec.MarshalJSONIndent(legacyQuerierCdc, queryResult)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return res, nil
 }
 
-func queryData(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryData(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "data hash not specified")
 	}
 	return k.fileCache.GetFile(path[0])
 }
 
-func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryDataSourceByID(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "data source not specified")
 	}
 	id, err := strconv.ParseInt(path[0], 10, 64)
 	if err != nil {
-		return types.QueryBadRequest(err.Error())
+		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 	}
 	dataSource, err := k.GetDataSource(ctx, types.DataSourceID(id))
 	if err != nil {
-		return types.QueryNotFound(err.Error())
+		return types.QueryNotFound(legacyQuerierCdc, err.Error())
 	}
-	return types.QueryOK(dataSource)
+	return types.QueryOK(legacyQuerierCdc, dataSource)
 }
 
-func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryOracleScriptByID(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "oracle script not specified")
 	}
 	id, err := strconv.ParseInt(path[0], 10, 64)
 	if err != nil {
-		return types.QueryBadRequest(err.Error())
+		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 	}
 	oracleScript, err := k.GetOracleScript(ctx, types.OracleScriptID(id))
 	if err != nil {
-		return types.QueryNotFound(err.Error())
+		return types.QueryNotFound(legacyQuerierCdc, err.Error())
 	}
-	return types.QueryOK(oracleScript)
+	return types.QueryOK(legacyQuerierCdc, oracleScript)
 }
 
-func queryRequestByID(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryRequestByID(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
 	}
 	id, err := strconv.ParseInt(path[0], 10, 64)
 	if err != nil {
-		return types.QueryBadRequest(err.Error())
+		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 	}
 	request, err := k.GetRequest(ctx, types.RequestID(id))
 	if err != nil {
-		return types.QueryNotFound(err.Error())
+		return types.QueryNotFound(legacyQuerierCdc, err.Error())
 	}
 	reports := k.GetReports(ctx, types.RequestID(id))
 	if !k.HasResult(ctx, types.RequestID(id)) {
-		return types.QueryOK(types.QueryRequestResult{
+		return types.QueryOK(legacyQuerierCdc, types.QueryRequestResult{
 			Request: request,
 			Reports: reports,
 			Result:  nil,
 		})
 	}
 	result := k.MustGetResult(ctx, types.RequestID(id))
-	return types.QueryOK(types.QueryRequestResult{
+	return types.QueryOK(legacyQuerierCdc, types.QueryRequestResult{
 		Request: request,
 		Reports: reports,
 		Result:  &result,
 	})
 }
 
-func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryValidatorStatus(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
 	}
 	validatorAddress, err := sdk.ValAddressFromBech32(path[0])
 	if err != nil {
-		return types.QueryBadRequest(err.Error())
+		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 	}
-	return types.QueryOK(k.GetValidatorStatus(ctx, validatorAddress))
+	return types.QueryOK(legacyQuerierCdc, k.GetValidatorStatus(ctx, validatorAddress))
 }
 
-func queryReporters(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryReporters(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
 	}
 	validatorAddress, err := sdk.ValAddressFromBech32(path[0])
 	if err != nil {
-		return types.QueryBadRequest(err.Error())
+		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 	}
-	return types.QueryOK(k.GetReporters(ctx, validatorAddress))
+	return types.QueryOK(legacyQuerierCdc, k.GetReporters(ctx, validatorAddress))
 }
 
-func queryActiveValidators(ctx sdk.Context, k Keeper) ([]byte, error) {
+func queryActiveValidators(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	vals := []types.QueryActiveValidatorResult{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
-		func(idx int64, val exported.ValidatorI) (stop bool) {
+		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
 				vals = append(vals, types.QueryActiveValidatorResult{
 					Address: val.GetOperator(),
@@ -152,12 +158,12 @@ func queryActiveValidators(ctx sdk.Context, k Keeper) ([]byte, error) {
 			}
 			return false
 		})
-	return types.QueryOK(vals)
+	return types.QueryOK(legacyQuerierCdc, vals)
 }
 
-func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func queryPendingRequests(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) > 1 {
-		return types.QueryBadRequest("too many arguments")
+		return types.QueryBadRequest(legacyQuerierCdc, "too many arguments")
 	}
 
 	var valAddress *sdk.ValAddress
@@ -165,7 +171,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 		valAddress = new(sdk.ValAddress)
 		address, err := sdk.ValAddressFromBech32(path[0])
 		if err != nil {
-			return types.QueryBadRequest(err.Error())
+			return types.QueryBadRequest(legacyQuerierCdc, err.Error())
 		}
 
 		*valAddress = address
@@ -174,7 +180,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []types.RequestID
+	var pendingIDs []int64
 	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
 
 		req := k.MustGetRequest(ctx, id)
@@ -191,7 +197,11 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 			// If the validator isn't in requested validators set, then skip it.
 			isValidator := false
 			for _, v := range req.RequestedValidators {
-				if valAddress.Equals(v) {
+				val, err := sdk.ValAddressFromBech32(v)
+				if err != nil {
+					return types.QueryBadRequest(legacyQuerierCdc, err.Error())
+				}
+				if valAddress.Equals(val) {
 					isValidator = true
 					break
 				}
@@ -204,7 +214,13 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 			// If the validator has reported, then skip it.
 			reported := false
 			for _, r := range reports {
-				if valAddress.Equals(r.Validator) {
+
+				val, err := sdk.ValAddressFromBech32(r.Validator)
+
+				if err != nil {
+					return types.QueryBadRequest(legacyQuerierCdc, err.Error())
+				}
+				if valAddress.Equals(val) {
 					reported = true
 					break
 				}
@@ -215,8 +231,9 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper) ([]byte, err
 			}
 		}
 
-		pendingIDs = append(pendingIDs, id)
+		pendingIDs = append(pendingIDs, int64(id))
 	}
 
-	return types.QueryOK(pendingIDs)
+	res := types.PendingResolveList{RequestIds: pendingIDs}
+	return types.QueryOK(legacyQuerierCdc, res)
 }

@@ -1,6 +1,6 @@
 package price
 
-import "github.com/bandprotocol/bandchain/chain/x/oracle/types"
+import "github.com/bandprotocol/chain/x/oracle/types"
 
 type Input struct {
 	Symbols    []string `json:"symbols"`

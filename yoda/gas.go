@@ -3,7 +3,7 @@ package yoda
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // Constant used to estimate gas price of reports transaction.
@@ -36,7 +36,7 @@ func estimateTxSize(msgs []sdk.Msg) uint64 {
 	size := baseTransactionSize
 
 	for _, msg := range msgs {
-		msg, ok := msg.(types.MsgReportData)
+		msg, ok := msg.(*types.MsgReportData)
 		if !ok {
 			panic("Don't support non-report data message")
 		}

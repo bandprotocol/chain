@@ -1,0 +1,172 @@
+syntax = "proto3";
+package oracle.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "oracle/v1/oracle.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Counts queries the number of data sources, oracle scripts, and requests.
+  rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
+    option (google.api.http).get = "/oracle/counts";
+  }
+
+  // Data queries the data source or oracle script script for given file hash.
+  rpc Data(QueryDataRequest) returns (QueryDataResponse) {
+    option (google.api.http).get = "/oracle/data/{data_hash}";
+  }
+
+  // DataSource queries data source info for given data source id.
+  rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
+    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+  }
+
+  // OracleScript queries oracle script info for given oracle script id.
+  rpc OracleScript(QueryOracleScriptRequest)
+      returns (QueryOracleScriptResponse) {
+    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+  }
+
+  // Request queries request info for given request id.
+  rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
+    option (google.api.http).get = "/oracle/request/{request_id}";
+  }
+
+  // Validator queries oracle info of validator for given validator
+  // address.
+  rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
+    option (google.api.http).get = "/oracle/validators/{validator_address}";
+  }
+
+  // Reporters queries all reporters of a given validator address.
+  rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
+    option (google.api.http).get = "/oracle/reporters/{validator_address}";
+  }
+
+  // ActiveValidators queries all active oracle validators.
+  rpc ActiveValidators(QueryActiveValidatorsRequest)
+      returns (QueryActiveValidatorsResponse) {
+    option (google.api.http).get = "/oracle/active_validators";
+  }
+
+  // Params queries the oracle parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/oracle/params";
+  }
+
+  // RequestSearch queries the latest request that match the given input.
+  rpc RequestSearch(QueryRequestSearchRequest)
+      returns (QueryRequestSearchResponse) {
+    option (google.api.http).get = "/oracle/request_search";
+  }
+
+  // RequestPrice queries the latest price on standard price reference oracle
+  // script.
+  rpc RequestPrice(QueryRequestPriceRequest)
+      returns (QueryRequestPriceResponse) {
+    option (google.api.http).post = "/oracle/request_prices";
+  }
+}
+
+// QueryCountsRequest is request type for the Query/Count RPC method.
+message QueryCountsRequest {}
+
+// QueryCountsResponse is response type for the Query/Count RPC method.
+message QueryCountsResponse {
+  int64 data_source_count = 1;
+  int64 oracle_script_count = 2;
+  int64 request_count = 3;
+}
+
+// QueryDataRequest is request type for the Query/Data RPC method.
+message QueryDataRequest { string data_hash = 1; }
+
+// QueryDataResponse is response type for the Query/Data RPC method.
+message QueryDataResponse { bytes data = 1; }
+
+// QueryDataSourceRequest is request type for the Query/DataSource RPC method.
+message QueryDataSourceRequest { int64 data_source_id = 1; }
+
+// QueryDataSourceResponse is response type for the Query/DataSource RPC method.
+message QueryDataSourceResponse { DataSource data_source = 1; }
+
+// QueryOracleScriptRequest is request type for the Query/OracleScript RPC
+// method.
+message QueryOracleScriptRequest { int64 oracle_script_id = 1; }
+
+// QueryOracleScriptResponse is response type for the Query/OracleScript RPC
+// method.
+message QueryOracleScriptResponse { OracleScript oracle_script = 1; }
+
+// QueryRequestRequest is request type for the Query/Request RPC method.
+message QueryRequestRequest { int64 request_id = 1; }
+
+// QueryRequestResponse is response type for the Query/Request RPC method.
+message QueryRequestResponse {
+  OracleRequestPacketData request_packet_data = 1;
+  OracleResponsePacketData response_packet_data = 2;
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // pagination defines an optional pagination for the request.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryValidatorRequest is request type for the Query/Validator RPC method.
+message QueryValidatorRequest { string validator_address = 1; }
+
+// QueryValidatorResponse is response type for the Query/Validator RPC method.
+message QueryValidatorResponse { ValidatorStatus status = 1; }
+
+// QueryReportersRequest is request type for the Query/Reporters RPC method.
+message QueryReportersRequest { string validator_address = 1; }
+
+// QueryReportersResponse is response type for the Query/Reporters RPC method.
+message QueryReportersResponse { repeated string reporter = 1; }
+
+// QueryActiveValidatorsRequest is request type for the Query/ActiveValidators
+// RPC method.
+message QueryActiveValidatorsRequest {}
+
+// QueryActiveValidatorsResponse is response type for the Query/ActiveValidators
+// RPC method.
+message QueryActiveValidatorsResponse { int64 count = 1; }
+
+// QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
+// method.
+message QueryRequestSearchRequest {
+  int64 oracle_script_id = 1;
+  bytes calldata = 2;
+  int64 ask_count = 3;
+  int64 min_count = 4;
+}
+
+// QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
+// method.
+message QueryRequestSearchResponse {
+  // TODO: add fields
+}
+
+// QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
+// method.
+message QueryRequestPriceRequest {
+  string symbol = 1;
+  int64 ask_count = 2;
+  int64 min_count = 3;
+}
+
+// QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
+// method.
+message QueryRequestPriceResponse {
+  int64 oracle_script_id = 1;
+  bytes calldata = 2;
+  int64 ask_count = 3;
+  int64 min_count = 4;
+}

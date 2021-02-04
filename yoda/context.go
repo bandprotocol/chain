@@ -5,13 +5,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
-	"github.com/bandprotocol/bandchain/chain/pkg/filecache"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
-	"github.com/bandprotocol/bandchain/chain/yoda/executor"
+	"github.com/bandprotocol/chain/pkg/filecache"
+	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/yoda/executor"
 )
 
 type FeeEstimationData struct {
@@ -23,7 +23,7 @@ type FeeEstimationData struct {
 }
 
 type ReportMsgWithKey struct {
-	msg               types.MsgReportData
+	msg               *types.MsgReportData
 	execVersion       []string
 	keyIndex          int64
 	feeEstimationData FeeEstimationData
@@ -32,8 +32,8 @@ type ReportMsgWithKey struct {
 type Context struct {
 	client           rpcclient.Client
 	validator        sdk.ValAddress
-	gasPrices        sdk.DecCoins
-	keys             []keys.Info
+	gasPrices        string
+	keys             []keyring.Info
 	executor         executor.Executor
 	fileCache        filecache.Cache
 	broadcastTimeout time.Duration

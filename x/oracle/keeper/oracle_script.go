@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
-	"github.com/bandprotocol/bandchain/go-owasm/api"
+	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/go-owasm/api"
 )
 
 // HasOracleScript checks if the oracle script of this ID exists in the storage.
@@ -38,7 +38,7 @@ func (k Keeper) MustGetOracleScript(ctx sdk.Context, id types.OracleScriptID) ty
 // SetOracleScript saves the given oracle script to the storage without performing validation.
 func (k Keeper) SetOracleScript(ctx sdk.Context, id types.OracleScriptID, oracleScript types.OracleScript) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.OracleScriptStoreKey(id), k.cdc.MustMarshalBinaryBare(oracleScript))
+	store.Set(types.OracleScriptStoreKey(id), k.cdc.MustMarshalBinaryBare(&oracleScript))
 }
 
 // AddOracleScript adds the given oracle script to the storage.

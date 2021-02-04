@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/bandchain/chain/pkg/obi"
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/pkg/obi"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // HasResult checks if the result of this request ID exists in the storage.
@@ -44,11 +44,11 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 
 // ResolveSuccess resolves the given request as success with the given result.
 func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32) {
-	k.SaveResult(ctx, id, types.ResolveStatus_Success, result)
+	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, result)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_Success)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
 	))
@@ -56,22 +56,22 @@ func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byt
 
 // ResolveFailure resolves the given request as failure with the given reason.
 func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, reason string) {
-	k.SaveResult(ctx, id, types.ResolveStatus_Failure, []byte{})
+	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_Failure)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_FAILURE)),
 		sdk.NewAttribute(types.AttributeKeyReason, reason),
 	))
 }
 
 // ResolveExpired resolves the given request as expired.
 func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
-	k.SaveResult(ctx, id, types.ResolveStatus_Expired, []byte{})
+	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_Expired)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_EXPIRED)),
 	))
 }
 
@@ -91,7 +91,7 @@ func (k Keeper) SaveResult(
 		r.ClientID,                // ClientID
 		id,                        // RequestID
 		k.GetReportCount(ctx, id), // AnsCount
-		r.RequestTime.Unix(),      // RequestTime
+		int64(r.RequestTime),      // RequestTime
 		ctx.BlockTime().Unix(),    // ResolveTime
 		status,                    // ResolveStatus
 		result,                    // Result

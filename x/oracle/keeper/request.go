@@ -1,10 +1,12 @@
 package keeper
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/bandchain/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // HasRequest checks if the request of this ID exists in the storage.
@@ -34,7 +36,7 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id types.RequestID) types.Reques
 
 // SetRequest saves the given data request to the store without performing any validation.
 func (k Keeper) SetRequest(ctx sdk.Context, id types.RequestID, request types.Request) {
-	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(request))
+	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
 }
 
 // DeleteRequest removes the given data request from the store.
@@ -70,8 +72,9 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		}
 		// Deactivate all validators that do not report to this request.
 		for _, val := range req.RequestedValidators {
-			if !k.HasReport(ctx, currentReqID, val) {
-				k.MissReport(ctx, val, req.RequestTime)
+			v, _ := sdk.ValAddressFromBech32(val)
+			if !k.HasReport(ctx, currentReqID, v) {
+				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
 			}
 		}
 		// Set last expired request ID to be this current request.
@@ -88,7 +91,12 @@ func (k Keeper) AddPendingRequest(ctx sdk.Context, id types.RequestID) {
 
 // SetPendingResolveList saves the list of pending request that will be resolved at end block.
 func (k Keeper) SetPendingResolveList(ctx sdk.Context, ids []types.RequestID) {
-	bz := k.cdc.MustMarshalBinaryBare(ids)
+	intVs := make([]int64, len(ids))
+	for idx, id := range ids {
+		intVs[idx] = int64(id)
+	}
+
+	bz := k.cdc.MustMarshalBinaryBare(&types.PendingResolveList{RequestIds: intVs})
 	if bz == nil {
 		bz = []byte{}
 	}
@@ -101,6 +109,10 @@ func (k Keeper) GetPendingResolveList(ctx sdk.Context) (ids []types.RequestID) {
 	if len(bz) == 0 { // Return an empty list if the key does not exist in the store.
 		return []types.RequestID{}
 	}
-	k.cdc.MustUnmarshalBinaryBare(bz, &ids)
+	pendingResolveList := types.PendingResolveList{}
+	k.cdc.MustUnmarshalBinaryBare(bz, &pendingResolveList)
+	for _, rid := range pendingResolveList.RequestIds {
+		ids = append(ids, types.RequestID(rid))
+	}
 	return ids
 }
