@@ -8,6 +8,10 @@ const (
 	// ModuleName is the name of the module.
 	ModuleName = "oracle"
 
+	// Version defines the current version the IBC oracle
+	// module supports
+	Version = "ics20-1"
+
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
 
@@ -53,6 +57,9 @@ var (
 	ValidatorStatusKeyPrefix = []byte{0x06}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
+
+	// PortKey defines the key to store the port ID in store
+	PortKey = []byte{0xf0}
 )
 
 // RequestStoreKey returns the key to retrieve a specfic request from the store.
