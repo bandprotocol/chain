@@ -16,6 +16,7 @@ require (
 	github.com/levigross/grequests v0.0.0-20190908174114-253788527a1a
 	github.com/oasisprotocol/oasis-core/go v0.0.0-20200730171716-3be2b460b3ac
 	github.com/peterbourgon/diskv v2.0.1+incompatible
+	github.com/prometheus/client_golang v1.8.0
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.1
