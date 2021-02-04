@@ -21,8 +21,8 @@ import (
 //
 // Note that distrKeeper keeps the reference to the distr module keeper.
 // Due to the circular dependency between bank-distr, distrKeeper
-// cannot be initialized when the struct is created. Rather, SetDistrKeeper
-// is expected to be called to set `distrKeeper`.
+// cannot be initialized when the struct is created. Rather, SetDistrKeeper and SetAccountKeeper
+// are expected to be called to set `distrKeeper` and `accountKeeper` respectively.
 type WrappedBankKeeper struct {
 	bankkeeper.Keeper
 
@@ -31,7 +31,7 @@ type WrappedBankKeeper struct {
 }
 
 // NewWrappedBankKeeperBurnToCommunityPool creates a new instance of WrappedBankKeeper
-// with its distrKeeper member set to nil.
+// with its distrKeeper and accountKeeper members set to nil.
 func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper) WrappedBankKeeper {
 	return WrappedBankKeeper{bk, nil, nil}
 }

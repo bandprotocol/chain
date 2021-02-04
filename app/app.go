@@ -262,7 +262,6 @@ func NewBandApp(
 	// wrappedBankerKeeter overrides burn token behavior to instead transfer to community pool.
 	wrappedBankerKeeter := bandbank.NewWrappedBankKeeperBurnToCommunityPool(app.BankKeeper)
 	wrappedBankerKeeter.SetAccountKeeper(app.AccountKeeper)
-
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, wrappedBankerKeeter, app.GetSubspace(stakingtypes.ModuleName),
 	)
@@ -274,7 +273,7 @@ func NewBandApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
-	// DistrKeeper must be set afterward due to the circular reference between supply-staking-distr.
+	// DistrKeeper must be set afterward due to the circular reference between banker-staking-distr.
 	wrappedBankerKeeter.SetDistrKeeper(&app.DistrKeeper)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
