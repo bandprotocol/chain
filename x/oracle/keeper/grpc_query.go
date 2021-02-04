@@ -71,11 +71,11 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
+	r, err := k.GetResult(ctx, types.RequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryRequestResponse{Request: &r}, nil
+	return &types.QueryRequestResponse{RequestPacketData: &r.RequestPacketData, ResponsePacketData: &r.ResponsePacketData}, nil
 }
 
 // Validator queries oracle info of validator for given validator

@@ -27,7 +27,12 @@ var (
 func signAndBroadcast(
 	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
 ) (string, error) {
-	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
+	clientCtx := client.Context{
+		Client:            c.client,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		BroadcastMode:     "async",
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
 	accountRetriever := authtypes.AccountRetriever{}
 	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
 	if err != nil {
@@ -37,17 +42,14 @@ func signAndBroadcast(
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
+		WithTxConfig(band.MakeEncodingConfig().TxConfig).
 		WithGas(gasLimit).WithGasAdjustment(1).
 		WithChainID(cfg.ChainID).
 		WithMemo(memo).
 		WithGasPrices(c.gasPrices).
-		WithKeybase(kb)
+		WithKeybase(kb).
+		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	// txBldr, err = authclient.EnrichWithGas(txBldr, cliCtx, []sdk.Msg{msg})
-	// if err != nil {
-	// 	l.Error(":exploding_head: Failed to enrich with gas with error: %s", err.Error())
-	// 	return
-	// }
 	txb, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
 		return "", err
