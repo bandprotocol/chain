@@ -18,6 +18,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/x/oracle/client/cli"
+	"github.com/bandprotocol/chain/x/oracle/client/rest"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -65,8 +66,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
 func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
-	// TODO: Bring rest endpoint back
-	// rest.RegisterRoutes(ctx, rtr, StoreKey)
+	rest.RegisterHandlers(ctx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the oracle module.
