@@ -250,6 +250,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
+		nil,
 	), k.MustGetRequest(ctx, 1))
 
 	event := abci.Event{
@@ -333,6 +334,7 @@ func TestReportSuccess(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
+		nil,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
@@ -395,6 +397,7 @@ func TestReportFail(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
+		nil,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}

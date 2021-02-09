@@ -21,6 +21,7 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	gogotypes "github.com/gogo/protobuf/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/x/oracle/client/cli"
@@ -328,11 +329,13 @@ func (am AppModule) OnRecvPacket(
 		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data: %s", err.Error())
 	}
 
-	acknowledgement := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
-
-	err := am.keeper.PrepareRequest(ctx, &data)
+	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
+	id, err := am.keeper.PrepareRequest(ctx, &data, &source)
+	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
+	} else {
+		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
 	}
 
 	// ctx.EventManager().EmitEvent(

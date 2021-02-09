@@ -26,7 +26,7 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := k.PrepareRequest(ctx, msg)
+	_, err := k.PrepareRequest(ctx, msg, nil)
 	if err != nil {
 		return nil, err
 	}

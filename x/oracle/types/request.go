@@ -33,31 +33,33 @@ func NewRawRequest(
 }
 
 func NewRequest(
-	OracleScriptID OracleScriptID,
-	Calldata []byte,
-	RequestedValidators []sdk.ValAddress,
-	MinCount uint64,
-	RequestHeight int64,
-	RequestTime time.Time,
-	ClientID string,
-	RawRequests []RawRequest,
+	oracleScriptID OracleScriptID,
+	calldata []byte,
+	requestedValidators []sdk.ValAddress,
+	minCount uint64,
+	requestHeight int64,
+	requestTime time.Time,
+	clientID string,
+	rawRequests []RawRequest,
+	iBCSource *IBCSource,
 ) Request {
-	requestedVals := make([]string, len(RequestedValidators))
-	if RequestedValidators != nil {
-		for idx, reqVal := range RequestedValidators {
+	requestedVals := make([]string, len(requestedValidators))
+	if requestedValidators != nil {
+		for idx, reqVal := range requestedValidators {
 			requestedVals[idx] = reqVal.String()
 		}
 	} else {
 		requestedVals = nil
 	}
 	return Request{
-		OracleScriptID:      OracleScriptID,
-		Calldata:            Calldata,
+		OracleScriptID:      oracleScriptID,
+		Calldata:            calldata,
 		RequestedValidators: requestedVals,
-		MinCount:            MinCount,
-		RequestHeight:       RequestHeight,
-		RequestTime:         uint64(RequestTime.Unix()),
-		ClientID:            ClientID,
-		RawRequests:         RawRequests,
+		MinCount:            minCount,
+		RequestHeight:       requestHeight,
+		RequestTime:         uint64(requestTime.Unix()),
+		ClientID:            clientID,
+		RawRequests:         rawRequests,
+		IBCSource:           iBCSource,
 	}
 }

@@ -66,6 +66,7 @@ message Request {
   uint64 request_time = 6;
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
   repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
+  IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
 }
 
 // Report is the data structure for storing reports in the storage.
@@ -199,4 +200,14 @@ message Params {
 message PendingResolveList {
   option (gogoproto.equal) = true;
   repeated int64 request_ids = 1;
+}
+
+// IBCSource
+message IBCSource {
+  option (gogoproto.equal) = true;
+
+  // SourceChannel
+  string source_channel = 1;
+  // SourcePort
+  string source_port = 2;
 }
