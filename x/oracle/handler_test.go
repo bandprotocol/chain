@@ -364,7 +364,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234, nil)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress, testapp.Validators[2].Address))
 	require.NoError(t, err)
 	event = abci.Event{
