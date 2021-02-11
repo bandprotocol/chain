@@ -32,6 +32,7 @@ import (
 
 	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/app/params"
+	"github.com/bandprotocol/chain/hooks/request"
 )
 
 const (
@@ -99,6 +100,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		keys.Commands(band.DefaultNodeHome),
 	)
+
+	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
@@ -184,7 +187,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		panic(err)
 	}
 
-	return band.NewBandApp(
+	bandApp := band.NewBandApp(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
@@ -203,6 +206,13 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
+	connStr, _ := appOpts.Get(flagWithRequestSearch).(string)
+	if connStr != "" {
+		bandApp.AddHook(request.NewHook(
+			bandApp.LegacyAmino(), bandApp.OracleKeeper, connStr))
+	}
+
+	return bandApp
 }
 
 func createSimappAndExport(

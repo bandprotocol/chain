@@ -3,11 +3,13 @@ package rest
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
+	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -118,23 +120,24 @@ func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-// func getRequestSearchHandler(cliCtx context.CLIContext, route string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		bz, height, err := clientcmn.QuerySearchLatestRequest(
-// 			route, cliCtx,
-// 			r.FormValue("oid"), r.FormValue("calldata"), r.FormValue("ask_count"), r.FormValue("min_count"),
-// 		)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientcmn.PostProcessQueryResponse(w, cliCtx.WithHeight(height), bz)
-// 	}
-// }
+func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		bz, height, err := clientcmn.QuerySearchLatestRequest(
+			clientCtx,
+			r.FormValue("oid"), r.FormValue("calldata"), r.FormValue("ask_count"), r.FormValue("min_count"),
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
 // func getRequestsPricesHandler(cliCtx context.CLIContext, route string) http.HandlerFunc {
 // 	return func(w http.ResponseWriter, r *http.Request) {
@@ -198,31 +201,31 @@ func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
 // 	}
 // }
 
-// func getMultiRequestSearchHandler(cliCtx context.CLIContext, route string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		limit := 1
-// 		if rawLimit := r.FormValue("limit"); rawLimit != "" {
-// 			var err error
-// 			limit, err = strconv.Atoi(rawLimit)
-// 			if err != nil {
-// 				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-// 			}
-// 		}
-// 		bz, height, err := clientcmn.QueryMultiSearchLatestRequest(
-// 			route, cliCtx,
-// 			r.FormValue("oid"), r.FormValue("calldata"), r.FormValue("ask_count"), r.FormValue("min_count"), limit,
-// 		)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientcmn.PostProcessQueryResponse(w, cliCtx.WithHeight(height), bz)
-// 	}
-// }
+func getMultiRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		limit := 1
+		if rawLimit := r.FormValue("limit"); rawLimit != "" {
+			var err error
+			limit, err = strconv.Atoi(rawLimit)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			}
+		}
+		bz, height, err := clientcmn.QueryMultiSearchLatestRequest(
+			clientCtx, r.FormValue("oid"), r.FormValue("calldata"), r.FormValue("ask_count"), r.FormValue("min_count"), limit,
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
 func getValidatorStatusHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
