@@ -143,7 +143,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	// At block 8, now last request ID should move to 1. No events should be emitted.
 	ctx = ctx.WithBlockHeight(8).WithBlockTime(testapp.ParseTime(8000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
-	require.Equal(t, sdk.Events{}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{sdk.NewEvent(
+		types.EventTypeResolve,
+		sdk.NewAttribute(types.AttributeKeyID, "1"),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, "3"),
+	)}, ctx.EventManager().Events())
 	require.Equal(t, types.RequestID(1), k.GetRequestLastExpired(ctx))
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
@@ -151,6 +155,10 @@ func TestProcessExpiredRequests(t *testing.T) {
 	ctx = ctx.WithBlockHeight(9).WithBlockTime(testapp.ParseTime(9000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
+		types.EventTypeResolve,
+		sdk.NewAttribute(types.AttributeKeyID, "2"),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, "3"),
+	), sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "3"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "3"),
@@ -173,6 +181,10 @@ func TestProcessExpiredRequests(t *testing.T) {
 	// At block 13, last expired request becomes 4.
 	ctx = ctx.WithBlockHeight(13).WithBlockTime(testapp.ParseTime(13000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
-	require.Equal(t, sdk.Events{}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{sdk.NewEvent(
+		types.EventTypeResolve,
+		sdk.NewAttribute(types.AttributeKeyID, "4"),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, "3"),
+	)}, ctx.EventManager().Events())
 	require.Equal(t, types.RequestID(4), k.GetRequestLastExpired(ctx))
 }
