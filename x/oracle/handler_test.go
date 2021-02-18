@@ -250,6 +250,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
+		nil,
 	), k.MustGetRequest(ctx, 1))
 
 	event := abci.Event{
@@ -333,6 +334,7 @@ func TestReportSuccess(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
+		nil,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
@@ -362,7 +364,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234, nil)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress, testapp.Validators[2].Address))
 	require.NoError(t, err)
 	event = abci.Event{
@@ -395,6 +397,7 @@ func TestReportFail(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
+		nil,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}

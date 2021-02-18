@@ -59,6 +59,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibcclient "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client"
+	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -169,7 +170,8 @@ type BandApp struct {
 	OracleKeeper     oraclekeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper    capabilitykeeper.ScopedKeeper
+	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
 
 	// Module manager.
 	mm *module.Manager
@@ -248,7 +250,7 @@ func NewBandApp(
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
-	// TODO: add scopeToModule to oracle module
+	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
 
 	// Add keepers.
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -297,10 +299,17 @@ func NewBandApp(
 		&stakingKeeper, govRouter,
 	)
 	app.OracleKeeper = oraclekeeper.NewKeeper(
-		appCodec, keys[oracletypes.StoreKey], filepath.Join(homePath, "files"),
-		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.GetSubspace(oracletypes.ModuleName))
+		appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), filepath.Join(homePath, "files"),
+		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper,
+	)
 
-	// TODO: create static IBC router, add transfer route, then set and seal it
+	oracleModule := oracle.NewAppModule(app.OracleKeeper)
+
+	// Create static IBC router, add transfer route, then set and seal it
+	ibcRouter := porttypes.NewRouter()
+	ibcRouter.AddRoute(oracletypes.ModuleName, oracleModule)
+	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router.
 	// create evidence keeper with router
@@ -336,7 +345,7 @@ func NewBandApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		oracle.NewAppModule(app.OracleKeeper),
+		oracleModule,
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -375,7 +384,7 @@ func NewBandApp(
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
-		oracle.NewAppModule(app.OracleKeeper),
+		oracleModule,
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -400,6 +409,10 @@ func NewBandApp(
 			tmos.Exit(err.Error())
 		}
 	}
+
+	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedOracleKeeper = scopedOracleKeeper
+
 	return app
 }
 

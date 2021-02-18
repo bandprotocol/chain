@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
@@ -41,9 +42,7 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 
 		if messageType == (types.MsgRequestData{}).Type() {
 			go handleRequestLog(c, l, log)
-		} else {
-			l.Debug(":ghost: Skipping non-{request/packet} type: %s", messageType)
-		} /*else if messageType == (ibc.MsgPacket{}).Type() {
+		} else if messageType == (channeltypes.MsgRecvPacket{}).Type() {
 			// Try to get request id from packet. If not then return error.
 			_, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
 			if err != nil {
@@ -51,7 +50,9 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 				return
 			}
 			go handleRequestLog(c, l, log)
-		} */
+		} else {
+			l.Debug(":ghost: Skipping non-{request/packet} type: %s", messageType)
+		}
 	}
 }
 
