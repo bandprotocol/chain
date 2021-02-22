@@ -143,7 +143,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 		}
 		for _, msg := range tx.GetMsgs() {
 			if msg, ok := msg.(*stakingtypes.MsgCreateValidator); ok {
-				h.handleMsgCreateValidator(ctx, msg)
+				h.handleMsgCreateValidator(ctx, msg, make(common.JsDict))
 			}
 		}
 	}

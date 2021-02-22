@@ -126,7 +126,7 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband--keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
 
     # wait for sending band tokens transaction success
     sleep 2
@@ -137,7 +137,7 @@ do
     # wait for addding reporter transaction success
     sleep 2
 
-    docker create --network bandchain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
+    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
     docker start bandchain_oracle${v}
 done

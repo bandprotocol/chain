@@ -26,8 +26,6 @@ func (h *Hook) getCurrentRewardAndCurrentRatio(ctx sdk.Context, addr sdk.ValAddr
 
 func (h *Hook) emitUpdateValidatorRewardAndAccumulatedCommission(ctx sdk.Context, addr sdk.ValAddress) {
 	currentReward, currentRatio := h.getCurrentRewardAndCurrentRatio(ctx, addr)
-	x := h.distrKeeper.GetValidatorAccumulatedCommission(ctx, addr)
-	x.Commission.TruncateDecimal()
 	accCommission, _ := h.distrKeeper.GetValidatorAccumulatedCommission(ctx, addr).Commission.TruncateDecimal()
 	h.Write("UPDATE_VALIDATOR", common.JsDict{
 		"operator_address":       addr.String(),
@@ -50,27 +48,36 @@ func (h *Hook) emitUpdateValidatorReward(ctx sdk.Context, addr sdk.ValAddress) {
 func (h *Hook) handleMsgWithdrawDelegatorReward(
 	ctx sdk.Context, msg *types.MsgWithdrawDelegatorReward, evMap common.EvMap, extra common.JsDict,
 ) {
-	val, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	del, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-	withdrawAddr := h.distrKeeper.GetDelegatorWithdrawAddr(ctx, del)
+	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	withdrawAddr := h.distrKeeper.GetDelegatorWithdrawAddr(ctx, delAddr)
 	h.AddAccountsInTx(withdrawAddr.String())
-	h.emitUpdateValidatorReward(ctx, val)
-	h.emitDelegationAfterWithdrawReward(ctx, val, withdrawAddr)
+	h.emitUpdateValidatorReward(ctx, valAddr)
+	h.emitDelegationAfterWithdrawReward(ctx, valAddr, withdrawAddr)
+	val, _ := h.stakingKeeper.GetValidator(ctx, valAddr)
+	extra["moniker"] = val.Description.Moniker
+	extra["identity"] = val.Description.Identity
 	extra["reward_amount"] = evMap[types.EventTypeWithdrawRewards+"."+sdk.AttributeKeyAmount][0]
 }
 
 // handleMsgSetWithdrawAddress implements emitter handler for MsgSetWithdrawAddress.
-func (h *Hook) handleMsgSetWithdrawAddress(msg *types.MsgSetWithdrawAddress) {
+func (h *Hook) handleMsgSetWithdrawAddress(msg *types.MsgSetWithdrawAddress, extra common.JsDict) {
 	h.AddAccountsInTx(msg.WithdrawAddress)
+	extra["delegator_address"] = msg.DelegatorAddress
+	extra["withdraw_address"] = msg.WithdrawAddress
 }
 
 // handleMsgWithdrawValidatorCommission implements emitter handler for MsgWithdrawValidatorCommission.
 func (h *Hook) handleMsgWithdrawValidatorCommission(
 	ctx sdk.Context, msg *types.MsgWithdrawValidatorCommission, evMap common.EvMap, extra common.JsDict,
 ) {
-	val, _ := sdk.AccAddressFromBech32(msg.ValidatorAddress)
-	withdrawAddr := h.distrKeeper.GetDelegatorWithdrawAddr(ctx, val)
+	delAddr, _ := sdk.AccAddressFromBech32(msg.ValidatorAddress)
+	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	withdrawAddr := h.distrKeeper.GetDelegatorWithdrawAddr(ctx, delAddr)
 	h.AddAccountsInTx(withdrawAddr.String())
-	h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, sdk.ValAddress(msg.ValidatorAddress))
+	h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, valAddr)
+	val, _ := h.stakingKeeper.GetValidator(ctx, valAddr)
+	extra["moniker"] = val.Description.Moniker
+	extra["identity"] = val.Description.Identity
 	extra["commission_amount"] = evMap[types.EventTypeWithdrawCommission+"."+sdk.AttributeKeyAmount][0]
 }
