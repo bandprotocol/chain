@@ -32,6 +32,7 @@ import (
 
 	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/app/params"
+	"github.com/bandprotocol/chain/hooks/emitter"
 	"github.com/bandprotocol/chain/hooks/request"
 )
 
@@ -102,6 +103,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	)
 
 	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
+	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
@@ -210,6 +213,14 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	if connStr != "" {
 		bandApp.AddHook(request.NewHook(
 			bandApp.LegacyAmino(), bandApp.OracleKeeper, connStr))
+	}
+
+	connStr, _ = appOpts.Get(flagWithEmitter).(string)
+	if connStr != "" {
+		bandApp.AddHook(
+			emitter.NewHook(bandApp.AppCodec(), bandApp.LegacyAmino(), band.MakeEncodingConfig(), bandApp.AccountKeeper, bandApp.BankKeeper,
+				bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
+				bandApp.OracleKeeper, connStr, false))
 	}
 
 	return bandApp
