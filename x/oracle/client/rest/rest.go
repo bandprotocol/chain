@@ -32,5 +32,5 @@ func RegisterHandlers(cliCtx client.Context, rtr *mux.Router) {
 	// r.HandleFunc(fmt.Sprintf("/oracle/multi_proof"), proof.GetMutiProofHandlerFn(cliCtx)).Methods("GET")
 	// r.HandleFunc(fmt.Sprintf("/oracle/requests_count_proof"), proof.GetRequestsCountProofHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/oracle/active_validators"), getActiveValidatorsHandler(cliCtx)).Methods("GET")
-	// r.HandleFunc(fmt.Sprintf("/oracle/verify_request"), verifyRequest(cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/oracle/verify_request"), verifyRequest(cliCtx)).Methods("POST")
 }
