@@ -94,13 +94,15 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule represents the AppModule for this module.
 type AppModule struct {
 	AppModuleBasic
-	keeper keeper.Keeper
+	keeper      keeper.Keeper
+	customQuery keeper.CustomQuery
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper) AppModule {
+func NewAppModule(k keeper.Keeper, query keeper.CustomQuery) AppModule {
 	return AppModule{
-		keeper: k,
+		keeper:      k,
+		customQuery: query,
 	}
 }
 
@@ -125,7 +127,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{am.keeper})
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQuerierServerImpl(am.keeper, am.customQuery))
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).

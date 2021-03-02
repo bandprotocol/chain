@@ -8,6 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-gorp/gorp"
+	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/encoding/proto"
 
 	// DB driver
 	_ "github.com/go-sql-driver/mysql"
@@ -114,32 +116,24 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	paths := strings.Split(req.Path, "/")
-	if paths[0] == "band" {
-		switch paths[1] {
-		case "latest_request":
-			if len(paths) != 7 {
-				return common.QueryResultError(fmt.Errorf("expect 7 arguments given %d", len(paths))), true
-			}
-			oid := types.OracleScriptID(common.Atoi(paths[2]))
-			calldata := paths[3]
-			askCount := common.Atoui(paths[4])
-			minCount := common.Atoui(paths[5])
-			limit := common.Atoi(paths[6])
-			requestIDs := h.getMultiRequestID(oid, calldata, askCount, minCount, limit)
-			bz, err := h.cdc.MarshalBinaryBare(requestIDs)
-			if err != nil {
-				return common.QueryResultError(err), true
-			}
-			return common.QueryResultSuccess(bz, req.Height), true
-		default:
-			return abci.ResponseQuery{}, false
-		}
-	} else {
-		return abci.ResponseQuery{}, false
-	}
+var protoCodec = encoding.GetCodec(proto.Name)
+
+// CustomQuery catch the custom query that matches specific paths (app.Hook interface).
+func (h *Hook) CustomQuery(path string) (res []byte, match bool, err error) {
+	// // if path == "/oracle.v1.Query/RequestSearch" {
+	// // 	var rs types.QueryRequestSearchRequest
+	// // 	protoCodec.Unmarshal(req.Data, &rs)
+	// // 	requestIDs := h.getMultiRequestID(types.OracleScriptID(rs.OracleScriptId), rs.Calldata, uint64(rs.AskCount), uint64(rs.MinCount), 10)
+	// // 	bz, err := h.cdc.MarshalBinaryBare(requestIDs)
+	// // 	if err != nil {
+	// // 		return common.QueryResultError(err), true
+	// // 	}
+	// // 	return common.QueryResultSuccess(bz, req.Height), true
+
+	// // }
+	// return nil, false, nil
+	return []byte("Passsss"), true, nil
+
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

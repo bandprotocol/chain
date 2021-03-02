@@ -372,9 +372,9 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	h.Write("COMMIT", common.JsDict{"height": req.Height})
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	return abci.ResponseQuery{}, false
+// CustomQuery catch the custom query that matches specific paths (app.Hook interface).
+func (h *Hook) CustomQuery(path string) (result []byte, match bool, err error) {
+	return nil, false, nil
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,15 +11,28 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
-type Querier struct {
-	Keeper
+type CustomQuery interface {
+	CustomQuery(path string) (result []byte, match bool, err error)
 }
 
-var _ types.QueryServer = Querier{}
+type queryServer struct {
+	Keeper
+	custom CustomQuery
+}
+
+// NewQuerierServerImpl returns an implementation of the oracle QueryServer interface
+// for the provided Keeper.
+func NewQuerierServerImpl(keeper Keeper, custom CustomQuery) types.QueryServer {
+	return &queryServer{
+		Keeper: keeper,
+		custom: custom,
+	}
+}
+
+var _ types.QueryServer = queryServer{}
 
 // Counts queries the number of data sources, oracle scripts, and requests.
-func (k Querier) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
+func (k queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryCountsResponse{
 			DataSourceCount:   k.GetDataSourceCount(ctx),
@@ -28,7 +42,7 @@ func (k Querier) Counts(c context.Context, req *types.QueryCountsRequest) (*type
 }
 
 // Data queries the data source or oracle script script for given file hash.
-func (k Querier) Data(c context.Context, req *types.QueryDataRequest) (*types.QueryDataResponse, error) {
+func (k queryServer) Data(c context.Context, req *types.QueryDataRequest) (*types.QueryDataResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -40,7 +54,7 @@ func (k Querier) Data(c context.Context, req *types.QueryDataRequest) (*types.Qu
 }
 
 // DataSource queries data source info for given data source id.
-func (k Querier) DataSource(c context.Context, req *types.QueryDataSourceRequest) (*types.QueryDataSourceResponse, error) {
+func (k queryServer) DataSource(c context.Context, req *types.QueryDataSourceRequest) (*types.QueryDataSourceResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -53,7 +67,7 @@ func (k Querier) DataSource(c context.Context, req *types.QueryDataSourceRequest
 }
 
 // OracleScript queries oracle script info for given oracle script id.
-func (k Querier) OracleScript(c context.Context, req *types.QueryOracleScriptRequest) (*types.QueryOracleScriptResponse, error) {
+func (k queryServer) OracleScript(c context.Context, req *types.QueryOracleScriptRequest) (*types.QueryOracleScriptResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -66,7 +80,7 @@ func (k Querier) OracleScript(c context.Context, req *types.QueryOracleScriptReq
 }
 
 // Request queries request info for given request id.
-func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*types.QueryRequestResponse, error) {
+func (k queryServer) Request(c context.Context, req *types.QueryRequestRequest) (*types.QueryRequestResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -80,7 +94,7 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 
 // Validator queries oracle info of validator for given validator
 // address.
-func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+func (k queryServer) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -97,7 +111,7 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 }
 
 // Reporters queries all reporters of a given validator address.
-func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+func (k queryServer) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -115,7 +129,7 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 }
 
 // ActiveValidators queries all active oracle validators.
-func (k Querier) ActiveValidators(c context.Context, req *types.QueryActiveValidatorsRequest) (*types.QueryActiveValidatorsResponse, error) {
+func (k queryServer) ActiveValidators(c context.Context, req *types.QueryActiveValidatorsRequest) (*types.QueryActiveValidatorsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -135,7 +149,7 @@ func (k Querier) ActiveValidators(c context.Context, req *types.QueryActiveValid
 }
 
 // Params queries the oracle parameters.
-func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (k queryServer) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -145,12 +159,19 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 }
 
 // RequestSearch queries the latest request that match the given input.
-func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return &types.QueryRequestSearchResponse{}, nil
+func (k queryServer) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
+	res, match, err := k.custom.CustomQuery(fmt.Sprintf("latest_request/%s", req.Calldata))
+	if !match {
+		return nil, status.Error(codes.Internal, "Not support on this version")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryRequestSearchResponse{Test: string(res)}, nil
 }
 
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
-func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
+func (k queryServer) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
 	return &types.QueryRequestPriceResponse{}, nil
 }

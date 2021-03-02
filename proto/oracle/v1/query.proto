@@ -11,63 +11,64 @@ import "oracle/v1/oracle.proto";
 service Query {
   // Counts queries the number of data sources, oracle scripts, and requests.
   rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
-    option (google.api.http).get = "/oracle/counts";
+    option (google.api.http).get = "/oracle/v1/counts";
   }
 
   // Data queries the data source or oracle script script for given file hash.
   rpc Data(QueryDataRequest) returns (QueryDataResponse) {
-    option (google.api.http).get = "/oracle/data/{data_hash}";
+    option (google.api.http).get = "/oracle/v1/data/{data_hash}";
   }
 
   // DataSource queries data source info for given data source id.
   rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
-    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+    option (google.api.http).get = "/oracle/v1/data_sources/{data_source_id}";
   }
 
   // OracleScript queries oracle script info for given oracle script id.
   rpc OracleScript(QueryOracleScriptRequest)
       returns (QueryOracleScriptResponse) {
-    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+    option (google.api.http).get =
+        "/oracle/v1/oracle_script/{oracle_script_id}";
   }
 
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
-    option (google.api.http).get = "/oracle/request/{request_id}";
+    option (google.api.http).get = "/oracle/v1/request/{request_id}";
   }
 
   // Validator queries oracle info of validator for given validator
   // address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
-    option (google.api.http).get = "/oracle/validators/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/validators/{validator_address}";
   }
 
   // Reporters queries all reporters of a given validator address.
   rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
-    option (google.api.http).get = "/oracle/reporters/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/reporters/{validator_address}";
   }
 
   // ActiveValidators queries all active oracle validators.
   rpc ActiveValidators(QueryActiveValidatorsRequest)
       returns (QueryActiveValidatorsResponse) {
-    option (google.api.http).get = "/oracle/active_validators";
+    option (google.api.http).get = "/oracle/v1/active_validators";
   }
 
   // Params queries the oracle parameters.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/oracle/params";
+    option (google.api.http).get = "/oracle/v1/params";
   }
 
   // RequestSearch queries the latest request that match the given input.
   rpc RequestSearch(QueryRequestSearchRequest)
       returns (QueryRequestSearchResponse) {
-    option (google.api.http).get = "/oracle/request_search";
+    option (google.api.http).get = "/oracle/v1/request_search";
   }
 
   // RequestPrice queries the latest price on standard price reference oracle
   // script.
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
-    option (google.api.http).post = "/oracle/request_prices";
+    option (google.api.http).post = "/oracle/v1/request_prices";
   }
 }
 
@@ -143,16 +144,14 @@ message QueryActiveValidatorsResponse { int64 count = 1; }
 // method.
 message QueryRequestSearchRequest {
   int64 oracle_script_id = 1;
-  bytes calldata = 2;
+  string calldata = 2;
   int64 ask_count = 3;
   int64 min_count = 4;
 }
 
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
-message QueryRequestSearchResponse {
-  // TODO: add fields
-}
+message QueryRequestSearchResponse { string test = 1; }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
 // method.
