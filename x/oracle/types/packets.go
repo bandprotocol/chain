@@ -40,6 +40,12 @@ func (p OracleRequestPacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
 }
 
+func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPacketAcknowledgement {
+	return &OracleRequestPacketAcknowledgement{
+		RequestID: requestID,
+	}
+}
+
 // NewOracleResponsePacketData contructs a new OracleResponsePacketData instance
 func NewOracleResponsePacketData(
 	clientID string, requestID RequestID, ansCount uint64, requestTime int64,
