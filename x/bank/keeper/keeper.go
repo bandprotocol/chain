@@ -1,14 +1,14 @@
-package bank
+package keeper
 
 import (
 	"fmt"
 
+	"github.com/bandprotocol/chain/x/bank/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -26,13 +26,13 @@ import (
 type WrappedBankKeeper struct {
 	bankkeeper.Keeper
 
-	distrKeeper   *distrkeeper.Keeper
-	accountKeeper banktypes.AccountKeeper
+	distrKeeper   types.DistributionKeeper
+	accountKeeper types.AccountKeeper
 }
 
 // NewWrappedBankKeeperBurnToCommunityPool creates a new instance of WrappedBankKeeper
 // with its distrKeeper and accountKeeper members set to nil.
-func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc banktypes.AccountKeeper) *WrappedBankKeeper {
+func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.AccountKeeper) *WrappedBankKeeper {
 	return &WrappedBankKeeper{bk, nil, acc}
 }
 

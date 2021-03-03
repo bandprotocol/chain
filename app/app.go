@@ -87,7 +87,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 
-	bandbank "github.com/bandprotocol/chain/x/bank"
+	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 )
 
 const (
@@ -156,7 +156,7 @@ type BandApp struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       *bandbank.WrappedBankKeeper
+	BankKeeper       *bandbankkeeper.WrappedBankKeeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
@@ -257,7 +257,7 @@ func NewBandApp(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
 	// wrappedBankerKeeter overrides burn token behavior to instead transfer to community pool.
-	app.BankKeeper = bandbank.NewWrappedBankKeeperBurnToCommunityPool(
+	app.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
 		bankkeeper.NewBaseKeeper(
 			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
 		),
