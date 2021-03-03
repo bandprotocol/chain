@@ -69,7 +69,9 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		}
 
 		// If the request still does not have result, we resolve it as EXPIRED.
-		k.ResolveExpired(ctx, currentReqID)
+		if !k.HasResult(ctx, currentReqID) {
+			k.ResolveExpired(ctx, currentReqID)
+		}
 
 		// Deactivate all validators that do not report to this request.
 		for _, val := range req.RequestedValidators {
