@@ -41,7 +41,8 @@ service Msg {
   // RemoveReporter defines a method for TODO
   rpc RemoveReporter(MsgRemoveReporter) returns (MsgRemoveReporterResponse);
 
-  // depositRequestPool(MsgDepositRequestPool) returns (MsgDepositRequestPoolResponse);
+  // DepositRequestPool defines a method for deposit coins to request pool
+  rpc DepositRequestPool(MsgDepositRequestPool) returns (MsgDepositRequestPoolResponse);
 }
 
 // MsgRequestData is a message for sending a data oracle request.
