@@ -7,6 +7,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // Msg defines the oracle Msg service.
 service Msg {
@@ -39,6 +40,8 @@ service Msg {
 
   // RemoveReporter defines a method for TODO
   rpc RemoveReporter(MsgRemoveReporter) returns (MsgRemoveReporterResponse);
+
+  // depositRequestPool(MsgDepositRequestPool) returns (MsgDepositRequestPoolResponse);
 }
 
 // MsgRequestData is a message for sending a data oracle request.
@@ -221,3 +224,17 @@ message MsgRemoveReporter {
 
 // MsgRemoveReporterResponse
 message MsgRemoveReporterResponse {}
+
+// MsgDepositRequestPool is a message for deposit coin to request pool
+message MsgDepositRequestPool {
+  option (gogoproto.equal) = true;
+  // RequestKey is the key of request pool
+  string request_key = 1;
+  string port_id = 2;
+  string channel_id = 3;
+  repeated cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];;
+  string sender =5;
+}
+
+// MsgDepositRequestPoolResponse
+message MsgDepositRequestPoolResponse {}

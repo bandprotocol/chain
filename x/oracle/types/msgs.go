@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 )
 
 // oracle message types
@@ -18,6 +19,7 @@ const (
 	TypeMsgActivate           = "activate"
 	TypeMsgAddReporter        = "add_reporter"
 	TypeMsgRemoveReporter     = "remove_reporter"
+	TypeMsgDepositRequestPool = "deposit_request_pool"
 )
 
 var (
@@ -549,6 +551,60 @@ func (msg MsgRemoveReporter) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgRemoveReporter) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
+}
+
+// NewMsgDepositRequestPool creates a new NewMsgDepositRequestPool instance
+func NewMsgDepositRequestPool(requestKey string, portID string, channelID string, amount sdk.Coins, sender sdk.AccAddress) *MsgDepositRequestPool {
+	return &MsgDepositRequestPool{
+		RequestKey: requestKey,
+		PortId:     portID,
+		ChannelId:  channelID,
+		Amount:     amount,
+		Sender:     sender.String(),
+	}
+}
+
+// Route returns the route of NewMsgDepositRequestPool - "oracle" (sdk.Msg interface).
+func (msg MsgDepositRequestPool) Route() string { return RouterKey }
+
+// Type returns the message type of NewMsgDepositRequestPool (sdk.Msg interface).
+func (msg MsgDepositRequestPool) Type() string { return TypeMsgDepositRequestPool }
+
+// ValidateBasic checks whether the given MsgRemoveReporter instance (sdk.Msg interface).
+func (msg MsgDepositRequestPool) ValidateBasic() error {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+	}
+	if err := host.PortIdentifierValidator(msg.PortId); err != nil {
+		return err
+	}
+	if err := host.ChannelIdentifierValidator(msg.ChannelId); err != nil {
+		return err
+	}
+	if len(msg.RequestKey) > MaxRequestKeyLength {
+		return WrapMaxError(ErrTooLongRequestKey, len(msg.RequestKey), MaxRequestKeyLength)
+	}
+	if ok := msg.Amount.IsValid(); !ok {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+	return nil
+}
+
+// GetSigners returns the signer addresses that are expected to sign the result
+// of GetSignBytes.
+func (msg MsgDepositRequestPool) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
+}
+
+// GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
+func (msg MsgDepositRequestPool) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }

@@ -46,6 +46,7 @@ func TestMsgRoute(t *testing.T) {
 	require.Equal(t, "oracle", MsgActivate{}.Route())
 	require.Equal(t, "oracle", MsgAddReporter{}.Route())
 	require.Equal(t, "oracle", MsgRemoveReporter{}.Route())
+	require.Equal(t, "oracle", MsgDepositRequestPool{}.Route())
 }
 
 func TestMsgType(t *testing.T) {
@@ -58,6 +59,7 @@ func TestMsgType(t *testing.T) {
 	require.Equal(t, "activate", MsgActivate{}.Type())
 	require.Equal(t, "add_reporter", MsgAddReporter{}.Type())
 	require.Equal(t, "remove_reporter", MsgRemoveReporter{}.Type())
+	require.Equal(t, "deposit_request_pool", MsgDepositRequestPool{}.Type())
 }
 
 func TestMsgGetSigners(t *testing.T) {
@@ -75,6 +77,7 @@ func TestMsgGetSigners(t *testing.T) {
 	require.Equal(t, signers, NewMsgActivate(signerVal).GetSigners())
 	require.Equal(t, signers, NewMsgAddReporter(signerVal, anotherAcc).GetSigners())
 	require.Equal(t, signers, NewMsgRemoveReporter(signerVal, anotherAcc).GetSigners())
+	require.Equal(t, signers, NewMsgDepositRequestPool("request_key", "port-1", "channel-1", sdk.Coins{}, signerAcc).GetSigners())
 }
 
 // func TestMsgGetSignBytes(t *testing.T) {
@@ -217,5 +220,15 @@ func TestMsgRemoveReporterValidation(t *testing.T) {
 		{false, NewMsgRemoveReporter(BadTestValAddr, GoodTestAddr)},
 		{false, NewMsgRemoveReporter(GoodTestValAddr, BadTestAddr)},
 		{false, NewMsgRemoveReporter(GoodTestValAddr, GoodTestAddr)},
+	})
+}
+func TestMsg(t *testing.T) {
+	performValidateTests(t, []validateTestCase{
+		{true, NewMsgDepositRequestPool("request-key", "port-1", "channel-1", sdk.Coins{}, GoodTestAddr)},
+		{false, NewMsgDepositRequestPool(strings.Repeat("x", 200), "port-1", "channel-1", sdk.Coins{}, GoodTestAddr)},
+		{false, NewMsgDepositRequestPool("request-key", "#", "channel-1", sdk.Coins{}, GoodTestAddr)},
+		{false, NewMsgDepositRequestPool("request-key", "port-1", "#", sdk.Coins{}, GoodTestAddr)},
+		{false, NewMsgDepositRequestPool("request-key", "port-1", "channel-1", sdk.Coins{sdk.NewInt64Coin("uband", 0)}, GoodTestAddr)},
+		{false, NewMsgDepositRequestPool("request-key", "port-1", "channel-1", sdk.Coins{}, BadTestAddr)},
 	})
 }
