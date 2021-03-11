@@ -586,5 +586,12 @@ func TestDepositRequestPool(t *testing.T) {
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[1])
+	event = abci.Event{
+		Type: types.EventTypeDepositRequestPool,
+		Attributes: []abci.EventAttribute{
+			abci.EventAttribute{Key: []byte(types.AttributeKeySender), Value: []byte(msg.Sender)},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[2])
 
 }
