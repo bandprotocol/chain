@@ -14,6 +14,7 @@ import (
 
 	"github.com/bandprotocol/chain/pkg/filecache"
 	"github.com/bandprotocol/chain/x/oracle/types"
+	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 const (
@@ -26,6 +27,7 @@ type Keeper struct {
 	fileCache        filecache.Cache
 	feeCollectorName string
 	paramstore       paramtypes.Subspace
+	owasmVM          *owasm.Vm
 
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
@@ -38,10 +40,19 @@ type Keeper struct {
 
 // NewKeeper creates a new oracle Keeper instance.
 func NewKeeper(
-	cdc codec.BinaryMarshaler, key sdk.StoreKey, ps paramtypes.Subspace,
-	fileDir string, feeCollectorName string, authKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper, stakingKeeper types.StakingKeeper, distrKeeper types.DistrKeeper,
-	channelKeeper types.ChannelKeeper, portKeeper types.PortKeeper, scopeKeeper capabilitykeeper.ScopedKeeper,
+	cdc codec.BinaryMarshaler,
+	key sdk.StoreKey,
+	ps paramtypes.Subspace,
+	fileDir string,
+	feeCollectorName string,
+	authKeeper types.AccountKeeper,
+	bankKeeper types.BankKeeper,
+	stakingKeeper types.StakingKeeper,
+	distrKeeper types.DistrKeeper,
+	channelKeeper types.ChannelKeeper,
+	portKeeper types.PortKeeper,
+	scopeKeeper capabilitykeeper.ScopedKeeper,
+	owasmVM *owasm.Vm,
 ) Keeper {
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
@@ -52,6 +63,7 @@ func NewKeeper(
 		fileCache:        filecache.New(fileDir),
 		feeCollectorName: feeCollectorName,
 		paramstore:       ps,
+		owasmVM:          owasmVM,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
 		distrKeeper:      distrKeeper,

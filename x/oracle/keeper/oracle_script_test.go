@@ -8,7 +8,6 @@ import (
 
 	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
-	"github.com/bandprotocol/go-owasm/api"
 )
 
 func TestHasOracleScript(t *testing.T) {
@@ -144,7 +143,7 @@ func TestGetAllOracleScripts(t *testing.T) {
 func TestAddOracleScriptFile(t *testing.T) {
 	_, _, k := testapp.CreateTestInput(true)
 	// Code should be perferctly compilable.
-	compiledCode, err := api.Compile(testapp.WasmExtra1, types.MaxCompiledWasmCodeSize)
+	compiledCode, err := testapp.OwasmVM.Compile(testapp.WasmExtra1, types.MaxCompiledWasmCodeSize)
 	require.NoError(t, err)
 	// We start by adding the Owasm content to the storage.
 	filename, err := k.AddOracleScriptFile(testapp.WasmExtra1)
