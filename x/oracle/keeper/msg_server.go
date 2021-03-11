@@ -300,6 +300,14 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 }
 
 func (k msgServer) DepositRequestPool(goCtx context.Context, msg *types.MsgDepositRequestPool) (*types.MsgDepositRequestPoolResponse, error) {
-	// TODO: implement msg server for MsgDepositRequestPool
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+	err = k.Keeper.DepositRequestPool(ctx, msg.RequestKey, msg.PortId, msg.ChannelId, msg.Amount, sender)
+	if err != nil {
+		return nil, err
+	}
 	return &types.MsgDepositRequestPoolResponse{}, nil
 }
