@@ -309,5 +309,9 @@ func (k msgServer) DepositRequestPool(goCtx context.Context, msg *types.MsgDepos
 	if err != nil {
 		return nil, err
 	}
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeDepositRequestPool,
+		sdk.NewAttribute(types.AttributeKeySender, msg.Sender),
+	))
 	return &types.MsgDepositRequestPoolResponse{}, nil
 }
