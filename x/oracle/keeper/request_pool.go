@@ -9,6 +9,6 @@ func (k Keeper) DepositRequestPool(ctx sdk.Context, requestKey string, portID st
 	return k.bankKeeper.SendCoins(ctx, sender, types.GetEscrowAddress(requestKey, portID, channelID), amount)
 }
 
-func (k Keeper) GetRequetPoolBalances(ctx sdk.Context, requestKey string, portID string, channelID string) sdk.Coins {
+func (k Keeper) GetRequetPoolBalance(ctx sdk.Context, requestKey string, portID string, channelID string) sdk.Coins {
 	return k.bankKeeper.GetAllBalances(ctx, types.GetEscrowAddress(requestKey, portID, channelID))
 }
