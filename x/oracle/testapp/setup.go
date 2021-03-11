@@ -52,6 +52,9 @@ var (
 // nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
+	Coins1unband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+	Coins10unband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	Coins11unband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
