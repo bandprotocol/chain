@@ -101,6 +101,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeActiveProposal(ctx, evMap)
 	case banktypes.EventTypeTransfer:
 		h.handleEventTypeTransfer(evMap)
+	case channeltypes.EventTypeSendPacket:
+		h.handleEventSendPacket(ctx, evMap)
 	default:
 		break
 	}
