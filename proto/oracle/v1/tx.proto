@@ -42,7 +42,8 @@ service Msg {
   rpc RemoveReporter(MsgRemoveReporter) returns (MsgRemoveReporterResponse);
 
   // DepositRequestPool defines a method for deposit coins to request pool
-  rpc DepositRequestPool(MsgDepositRequestPool) returns (MsgDepositRequestPoolResponse);
+  rpc DepositRequestPool(MsgDepositRequestPool)
+      returns (MsgDepositRequestPoolResponse);
 }
 
 // MsgRequestData is a message for sending a data oracle request.
@@ -233,8 +234,12 @@ message MsgDepositRequestPool {
   string request_key = 1;
   string port_id = 2;
   string channel_id = 3;
-  repeated cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];;
-  string sender =5;
+  repeated cosmos.base.v1beta1.Coin amount = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  ;
+  string sender = 5;
 }
 
 // MsgDepositRequestPoolResponse
