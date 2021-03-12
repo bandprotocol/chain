@@ -6,6 +6,7 @@ DIR=`dirname "$0"`
 rm -rf ~/.band*
 
 make install
+make faucet
 
 # initial new node
 bandd init node-validator --chain-id bandchain
