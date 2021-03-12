@@ -119,6 +119,17 @@ message OracleRequestPacketData {
   uint64 min_count = 5;
 }
 
+// OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
+// send back to requester chain.
+message OracleRequestPacketAcknowledgement {
+  option (gogoproto.equal) = true;
+  // RequestID is BandChain's unique identifier for this oracle request.
+  int64 request_id = 1 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+}
+
 // OracleResponsePacketData encodes an oracle response from BandChain to the
 // requester.
 message OracleResponsePacketData {
