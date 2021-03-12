@@ -14,7 +14,7 @@ func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, extra common.JsDict,
 ) {
 	packet := common.JsDict{
-		"is_incoming":  false,
+		"is_incoming":  true,
 		"block_height": ctx.BlockHeight(),
 		"src_channel":  msg.Packet.SourceChannel,
 		"src_port":     msg.Packet.SourcePort,
