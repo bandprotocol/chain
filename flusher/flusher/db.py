@@ -214,12 +214,8 @@ raw_reports = sa.Table(
     Column("external_id", sa.BigInteger, primary_key=True),
     Column("data", CustomBase64),
     Column("exit_code", sa.BigInteger),
-    sa.ForeignKeyConstraint(
-        ["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]
-    ),
-    sa.ForeignKeyConstraint(
-        ["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]
-    ),
+    sa.ForeignKeyConstraint(["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]),
+    sa.ForeignKeyConstraint(["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]),
 )
 
 validators = sa.Table(
@@ -381,4 +377,19 @@ request_count_per_days = sa.Table(
     metadata,
     Column("date", CustomDate, primary_key=True),
     Column("count", sa.Integer),
+)
+
+packets = sa.Table(
+    "packets",
+    metadata,
+    Column("is_incoming", sa.Boolean),
+    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
+    Column("src_channel", sa.String),
+    Column("src_port", sa.String),
+    Column("sequence", sa.Integer),
+    Column("dst_channel", sa.String),
+    Column("dst_port", sa.String),
+    Column("type", sa.String),
+    Column("data", sa.JSON),
+    Column("acknowledgement", sa.JSON, nullable=True),
 )
