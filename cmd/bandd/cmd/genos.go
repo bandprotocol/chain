@@ -40,7 +40,11 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			compiledData, err := api.Compile(data, types.MaxCompiledWasmCodeSize)
+			vm, err := api.NewVm(0) // The compilation doesn't use cache
+			if err != nil {
+				return err
+			}
+			compiledData, err := vm.Compile(data, types.MaxCompiledWasmCodeSize)
 			if err != nil {
 				return err
 			}

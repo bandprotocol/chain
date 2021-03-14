@@ -10,7 +10,6 @@ import (
 
 	"github.com/bandprotocol/chain/pkg/bandrng"
 	"github.com/bandprotocol/chain/x/oracle/types"
-	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -70,7 +69,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 		return 0, err
 	}
 	code := k.GetFile(script.Filename)
-	output, err := owasm.Prepare(code, types.WasmPrepareGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Prepare(code, types.WasmPrepareGas, types.MaxDataSize, env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
@@ -120,7 +119,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := owasm.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 		// TODO: send response to IBC module on fail request

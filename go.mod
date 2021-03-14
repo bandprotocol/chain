@@ -3,7 +3,7 @@ module github.com/bandprotocol/chain
 go 1.15
 
 require (
-	github.com/bandprotocol/go-owasm v0.0.0-20201118130444-22dfa8f13cb5
+	github.com/bandprotocol/go-owasm v0.0.0-20210311072328-a6859c27139c
 	github.com/cosmos/cosmos-sdk v0.41.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/gin-gonic/gin v1.6.3

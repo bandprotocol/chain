@@ -87,6 +87,8 @@ import (
 	bandante "github.com/bandprotocol/chain/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+
+	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 const (
@@ -211,7 +213,7 @@ func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	disableFeelessReports bool, baseAppOptions ...func(*baseapp.BaseApp),
+	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 
 	appCodec := encodingConfig.Marshaler
@@ -241,6 +243,10 @@ func NewBandApp(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+	}
+	owasmVM, err := owasm.NewVm(owasmCacheSize)
+	if err != nil {
+		panic(err)
 	}
 	// Initialize params keeper and module subspaces.
 	app.ParamsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
@@ -301,7 +307,7 @@ func NewBandApp(
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), filepath.Join(homePath, "files"),
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper,
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
 	)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
