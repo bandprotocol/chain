@@ -111,4 +111,6 @@ func (h *Hook) handleEventSendPacket(
 			"result":               parseBytes(data.Result),
 		}
 	}
+
+	h.Write("NEW_PACKET", packet)
 }
