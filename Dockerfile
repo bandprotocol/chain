@@ -1,4 +1,4 @@
-FROM golang:1.13.5-buster
+FROM golang:1.15.8-buster
 
 WORKDIR /chain
 COPY . /chain

@@ -6,6 +6,7 @@ DIR=`dirname "$0"`
 rm -rf ~/.band*
 
 make install
+make faucet
 
 # initial new node
 bandd init node-validator --chain-id bandchain
@@ -39,11 +40,11 @@ bandd add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd add-genesis-account requester 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
-cp ~/.bandd/config/config.toml ~/.bandd/config/config.toml.temp
-cp -r ~/.bandd/files docker-config/
+cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
+cp -r ~/.band/files docker-config/
 
 # modify moniker
-sed 's/node-validator/🙎‍♀️Alice \& Co./g' ~/.bandd/config/config.toml.temp > ~/.bandd/config/config.toml
+sed 's/node-validator/🙎‍♀️Alice \& Co./g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 # register initial validators
 bandd gentx validator1 100000000uband \
@@ -56,7 +57,7 @@ bandd gentx validator1 100000000uband \
     --keyring-backend test
 
 # modify moniker
-sed 's/node-validator/Bobby.fish 🐡/g' ~/.bandd/config/config.toml.temp > ~/.bandd/config/config.toml
+sed 's/node-validator/Bobby.fish 🐡/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 bandd gentx validator2 100000000uband \
     --chain-id bandchain \
@@ -68,7 +69,7 @@ bandd gentx validator2 100000000uband \
     --keyring-backend test
 
 # modify moniker
-sed 's/node-validator/Carol/g' ~/.bandd/config/config.toml.temp > ~/.bandd/config/config.toml
+sed 's/node-validator/Carol/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 bandd gentx validator3 100000000uband \
     --chain-id bandchain \
@@ -80,7 +81,7 @@ bandd gentx validator3 100000000uband \
     --keyring-backend test
 
 # modify moniker
-sed 's/node-validator/Eve 🦹🏿‍♂️the evil with a really long moniker name/g' ~/.bandd/config/config.toml.temp > ~/.bandd/config/config.toml
+sed 's/node-validator/Eve 🦹🏿‍♂️the evil with a really long moniker name/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 bandd gentx validator4 100000000uband \
     --chain-id bandchain \
@@ -92,15 +93,13 @@ bandd gentx validator4 100000000uband \
     --keyring-backend test
 
 # remove temp test
-rm -rf ~/.bandd/config/config.toml.temp
+rm -rf ~/.band/config/config.toml.temp
 
 # collect genesis transactions
 bandd collect-gentxs
 
 # copy genesis to the proper location!
-cp ~/.bandd/config/genesis.json $DIR/genesis.json
-
-cd ..
+cp ~/.band/config/genesis.json $DIR/genesis.json
 
 docker-compose up -d --build
 
@@ -116,30 +115,30 @@ do
     yoda config executor "rest:https://iv3lgtv11a.execute-api.ap-southeast-1.amazonaws.com/live/master?timeout=10s"
 
     # activate validator
-    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain
 
     # wait for activation transaction success
     sleep 2
 
-    for i in $(eval echo {1..5})
+    for i in $(eval echo {1..1})
     do
         # add reporter key
         yoda keys add reporter$i
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx multi-send 1000000uband $(yoda keys list -a) --from validator$v --keyring-backend test
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
 
     # wait for sending band tokens transaction success
     sleep 2
 
     # add reporter to bandchain
-    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test
+    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain
 
     # wait for addding reporter transaction success
     sleep 2
 
-    docker create --network bandchain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
+    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
     docker start bandchain_oracle${v}
 done
@@ -155,12 +154,12 @@ do
     faucet keys add worker$i
 
     # send band tokens to worker
-    echo "y" | bandd tx send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain
 
     # wait for addding reporter transaction success
     sleep 2
 done
 
-docker create --network bandchain_bandchain --name bandchain_faucet --ip 172.18.0.17 band-validator:latest faucet r
+docker create --network chain_bandchain --name bandchain_faucet --ip 172.18.0.17 band-validator:latest faucet r
 docker cp ~/.faucet bandchain_faucet:/root/.faucet
 docker start bandchain_faucet

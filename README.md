@@ -118,11 +118,11 @@ jq -S -c -M '' genesis.json | shasum -a 256
 # It should get this hash
 9673376e8416d1e7fc87d271b8a9e5e3d3ce78a076b0d907d87c782bb0320e30  -
 # Move the genesis file to the proper location
-mv genesis.json $HOME/.bandd/config
+mv genesis.json $HOME/.band/config
 # Add some persistent peers
 sed -E -i \
   's/persistent_peers = \".*\"/persistent_peers = \"924a8094846222e14c7b86bfb42c0ddfd93cc6d1@gyms1.bandchain.org:26656,4c0b2cadc5ec7de90379b4a8fb7e19c252c7e565@gyms2.bandchain.org:26656\"/' \
-  $HOME/.bandd/config/config.toml
+  $HOME/.band/config/config.toml
 ```
 
 ### Starting the Blockchain Daemon

@@ -1,36 +1,36 @@
 package rest
 
-// import (
-// 	"fmt"
+import (
+	"fmt"
 
-// 	"github.com/cosmos/cosmos-sdk/client/context"
-// 	"github.com/gorilla/mux"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/rest"
+	"github.com/gorilla/mux"
+)
 
-// 	"github.com/bandprotocol/chain/x/oracle/client/common/proof"
-// )
+const (
+	idTag               = "idTag"
+	dataHashTag         = "dataHashTag"
+	validatorAddressTag = "validatorAddressTag"
+)
 
-// const (
-// 	idTag               = "idTag"
-// 	dataHashTag         = "dataHashTag"
-// 	validatorAddressTag = "validatorAddressTag"
-// )
-
-// func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
-// 	r.HandleFunc(fmt.Sprintf("/%s/params", storeName), getParamsHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/counts", storeName), getCountsHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/data/{%s}", storeName, dataHashTag), getDataByHashHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/data_sources/{%s}", storeName, idTag), getDataSourceByIDHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/oracle_scripts/{%s}", storeName, idTag), getOracleScriptByIDHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/requests/{%s}", storeName, idTag), getRequestByIDHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/request_search", storeName), getRequestSearchHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/request_prices", storeName), getRequestsPricesHandler(cliCtx, storeName)).Methods("POST")
-// 	r.HandleFunc(fmt.Sprintf("/%s/price_symbols", storeName), getRequestsPriceSymbolsHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/multi_request_search", storeName), getMultiRequestSearchHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/validators/{%s}", storeName, validatorAddressTag), getValidatorStatusHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/reporters/{%s}", storeName, validatorAddressTag), getReportersHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/proof/{%s}", storeName, proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/multi_proof", storeName), proof.GetMutiProofHandlerFn(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/requests_count_proof", storeName), proof.GetRequestsCountProofHandlerFn(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/active_validators", storeName), getActiveValidatorsHandler(cliCtx, storeName)).Methods("GET")
-// 	r.HandleFunc(fmt.Sprintf("/%s/verify_request", storeName), verifyRequest(cliCtx, storeName)).Methods("POST")
-// }
+func RegisterHandlers(cliCtx client.Context, rtr *mux.Router) {
+	r := rest.WithHTTPDeprecationHeaders(rtr)
+	r.HandleFunc(fmt.Sprintf("/oracle/params"), getParamsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/counts"), getCountsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/data/{%s}", dataHashTag), getDataByHashHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/data_sources/{%s}", idTag), getDataSourceByIDHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/oracle_scripts/{%s}", idTag), getOracleScriptByIDHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/requests/{%s}", idTag), getRequestByIDHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/request_search"), getRequestSearchHandler(cliCtx)).Methods("GET")
+	// r.HandleFunc(fmt.Sprintf("/oracle/request_prices"), getRequestsPricesHandler(cliCtx)).Methods("POST")
+	// r.HandleFunc(fmt.Sprintf("/oracle/price_symbols"), getRequestsPriceSymbolsHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/multi_request_search"), getMultiRequestSearchHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/validators/{%s}", validatorAddressTag), getValidatorStatusHandler(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/reporters/{%s}", validatorAddressTag), getReportersHandler(cliCtx)).Methods("GET")
+	// r.HandleFunc(fmt.Sprintf("/oracle/proof/{oracle}", proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx)).Methods("GET")
+	// r.HandleFunc(fmt.Sprintf("/oracle/multi_proof"), proof.GetMutiProofHandlerFn(cliCtx)).Methods("GET")
+	// r.HandleFunc(fmt.Sprintf("/oracle/requests_count_proof"), proof.GetRequestsCountProofHandlerFn(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/oracle/active_validators"), getActiveValidatorsHandler(cliCtx)).Methods("GET")
+	// r.HandleFunc(fmt.Sprintf("/oracle/verify_request"), verifyRequest(cliCtx)).Methods("POST")
+}

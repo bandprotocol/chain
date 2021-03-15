@@ -10,7 +10,6 @@ import (
 
 	"github.com/bandprotocol/chain/pkg/bandrng"
 	"github.com/bandprotocol/chain/x/oracle/types"
-	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -45,10 +44,10 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 
 // PrepareRequest takes an request specification object, performs the prepare call, and saves
 // the request object to store. Also emits events related to the request.
-func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
+func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *types.IBCSource) (types.RequestID, error) {
 	askCount := r.GetAskCount()
 	if askCount > k.GetParam(ctx, types.KeyMaxAskCount) {
-		return sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.GetParam(ctx, types.KeyMaxAskCount))
+		return 0, sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.GetParam(ctx, types.KeyMaxAskCount))
 	}
 	// Consume gas for data requests. We trust that we have reasonable params that don't cause overflow.
 	ctx.GasMeter().ConsumeGas(k.GetParam(ctx, types.KeyBaseRequestGas), "BASE_REQUEST_FEE")
@@ -56,28 +55,28 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 	// Get a random validator set to perform this request.
 	validators, err := k.GetRandomValidators(ctx, int(askCount), k.GetRequestCount(ctx)+1)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil,
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource,
 	)
 	// Create an execution environment and call Owasm prepare function.
 	env := types.NewPrepareEnv(req, int64(k.GetParam(ctx, types.KeyMaxRawRequestCount)))
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	code := k.GetFile(script.Filename)
-	output, err := owasm.Prepare(code, types.WasmPrepareGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Prepare(code, types.WasmPrepareGas, types.MaxDataSize, env)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
+		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
 	// Preparation complete! It's time to collect raw request ids.
 	req.RawRequests = env.GetRawRequests()
 	if len(req.RawRequests) == 0 {
-		return types.ErrEmptyRawRequests
+		return 0, types.ErrEmptyRawRequests
 	}
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
@@ -100,7 +99,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 	for _, rawReq := range env.GetRawRequests() {
 		ds, err := k.GetDataSource(ctx, rawReq.DataSourceID)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			types.EventTypeRawRequest,
@@ -110,7 +109,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec) error {
 			sdk.NewAttribute(types.AttributeKeyCalldata, string(rawReq.Calldata)),
 		))
 	}
-	return nil
+	return id, nil
 }
 
 // ResolveRequest resolves the given request and saves the result to the store. The function
@@ -120,12 +119,14 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := owasm.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
+		// TODO: send response to IBC module on fail request
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
+		// TODO: send response to IBC module on fail request
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed, req.IBCSource)
 	}
 }
