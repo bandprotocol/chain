@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -37,7 +36,7 @@ func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.Acc
 }
 
 // SetDistrKeeper sets distr module keeper for this WrappedBankKeeper instance.
-func (k *WrappedBankKeeper) SetDistrKeeper(dk *distrkeeper.Keeper) {
+func (k *WrappedBankKeeper) SetDistrKeeper(dk types.DistributionKeeper) {
 	k.distrKeeper = dk
 }
 
