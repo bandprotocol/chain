@@ -31,8 +31,8 @@ type WrappedBankKeeper struct {
 
 // NewWrappedBankKeeperBurnToCommunityPool creates a new instance of WrappedBankKeeper
 // with its distrKeeper and accountKeeper members set to nil.
-func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.AccountKeeper) *WrappedBankKeeper {
-	return &WrappedBankKeeper{bk, nil, acc}
+func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.AccountKeeper) WrappedBankKeeper {
+	return WrappedBankKeeper{bk, nil, acc}
 }
 
 // SetDistrKeeper sets distr module keeper for this WrappedBankKeeper instance.
