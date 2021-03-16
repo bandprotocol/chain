@@ -52,7 +52,7 @@ func TestResolveSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveSuccess(ctx, 42, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 42, BasicResult, 1234, nil)
 	require.Equal(t, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResponsePacketData.ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).ResponsePacketData.Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(

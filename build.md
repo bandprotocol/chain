@@ -37,8 +37,8 @@ You can use the following script to generate a test environment to run BandChain
 
 ```bash
 ./scripts/generate_genesis.sh
-cp ./docker-config/single-validator/priv_validator_key.json ~/.bandd/config/priv_validator_key.json
-cp ./docker-config/single-validator/node_key.json ~/.bandd/config/node_key.json
+cp ./docker-config/single-validator/priv_validator_key.json ~/.band/config/priv_validator_key.json
+cp ./docker-config/single-validator/node_key.json ~/.band/config/node_key.json
 ```
 
 Once done, you can optionally add data sources or oracle scripts to the genesis file using `bandd`.

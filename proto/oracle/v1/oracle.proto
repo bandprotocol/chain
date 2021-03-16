@@ -66,6 +66,7 @@ message Request {
   uint64 request_time = 6;
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
   repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
+  IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
 }
 
 // Report is the data structure for storing reports in the storage.
@@ -116,6 +117,17 @@ message OracleRequestPacketData {
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
   uint64 min_count = 5;
+}
+
+// OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
+// send back to requester chain.
+message OracleRequestPacketAcknowledgement {
+  option (gogoproto.equal) = true;
+  // RequestID is BandChain's unique identifier for this oracle request.
+  int64 request_id = 1 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
 }
 
 // OracleResponsePacketData encodes an oracle response from BandChain to the
@@ -184,8 +196,18 @@ message Params {
   uint64 inactive_penalty_duration = 8;
 }
 
+// PendingResolveList
 message PendingResolveList {
   option (gogoproto.equal) = true;
   repeated int64 request_ids = 1;
 }
 
+// IBCSource
+message IBCSource {
+  option (gogoproto.equal) = true;
+
+  // SourceChannel
+  string source_channel = 1;
+  // SourcePort
+  string source_port = 2;
+}

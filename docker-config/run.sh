@@ -2,10 +2,14 @@
 
 bandd init $1 --chain-id bandchain
 
-cp /chain/docker-config/$1/priv_validator_key.json ~/.bandd/config/priv_validator_key.json
-cp /chain/docker-config/$1/node_key.json ~/.bandd/config/node_key.json
-cp /chain/docker-config/genesis.json ~/.bandd/config/genesis.json
-cp -r /chain/docker-config/files ~/.bandd
+cp /chain/docker-config/$1/priv_validator_key.json ~/.band/config/priv_validator_key.json
+cp /chain/docker-config/$1/node_key.json ~/.band/config/node_key.json
+cp /chain/docker-config/genesis.json ~/.band/config/genesis.json
+cp -r /chain/docker-config/files ~/.band
+
+if [ "$1" == "query-node" ];then
+    cp /chain/docker-config/app.toml ~/.band/config/app.toml
+fi
 
 if [ "$1" == "emitter" ];then
     sleep 60

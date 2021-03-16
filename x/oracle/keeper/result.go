@@ -6,6 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
+	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 
 	"github.com/bandprotocol/chain/pkg/obi"
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -43,8 +46,40 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 }
 
 // ResolveSuccess resolves the given request as success with the given result.
-func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32) {
-	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, result)
+func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32, ibcSource *types.IBCSource) {
+	_, rep := k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, result)
+
+	if ibcSource != nil {
+		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, ibcSource.SourcePort, ibcSource.SourceChannel)
+		if !found {
+			// TODO: Better error handler
+			panic("unknown channel")
+		}
+		destinationPort := sourceChannelEnd.Counterparty.PortId
+		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
+		sequence, found := k.channelKeeper.GetNextSequenceSend(
+			ctx, ibcSource.SourcePort, ibcSource.SourceChannel,
+		)
+		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(ibcSource.SourcePort, ibcSource.SourceChannel))
+		if !ok {
+			// TODO: Better error handler
+			panic("module does not own channel capability")
+		}
+
+		err := k.channelKeeper.SendPacket(ctx, channelCap, channeltypes.NewPacket(
+			rep.GetBytes(),
+			sequence,
+			ibcSource.SourcePort,
+			ibcSource.SourceChannel,
+			destinationPort,
+			destinationChannel,
+			clienttypes.NewHeight(0, 10000), // Arbitary height
+			0,                               // Arbitrarily timeout for now
+		))
+		if err != nil {
+			panic(err)
+		}
+	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -78,7 +113,7 @@ func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
 // SaveResult saves the result packets for the request with the given resolve status and result.
 func (k Keeper) SaveResult(
 	ctx sdk.Context, id types.RequestID, status types.ResolveStatus, result []byte,
-) {
+) (types.OracleRequestPacketData, types.OracleResponsePacketData) {
 	r := k.MustGetRequest(ctx, id)
 	reqPacket := types.NewOracleRequestPacketData(
 		r.ClientID,                         // ClientID
@@ -97,4 +132,5 @@ func (k Keeper) SaveResult(
 		result,                    // Result
 	)
 	k.SetResult(ctx, id, types.NewResult(reqPacket, resPacket))
+	return reqPacket, resPacket
 }
