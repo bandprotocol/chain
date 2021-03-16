@@ -39,6 +39,7 @@ type Account struct {
 // nolint
 var (
 	Owner         Account
+	Treasury      Account
 	Alice         Account
 	Bob           Account
 	Carol         Account
@@ -50,6 +51,7 @@ var (
 
 // nolint
 var (
+	EmptyCoins          = sdk.NewCoins()
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
@@ -59,6 +61,7 @@ func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
+	Treasury = createArbitraryAccount(r)
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)

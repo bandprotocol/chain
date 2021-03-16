@@ -96,12 +96,14 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				return err
 			}
 
+			// TODO: Add fee limit flag
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
 				askCount,
 				minCount,
 				clientID,
+				sdk.NewCoins(),
 				clientCtx.GetFromAddress(),
 			)
 
@@ -168,10 +170,13 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
+			// TODO: Add tresury and fee flag
 			msg := types.NewMsgCreateDataSource(
 				name,
 				description,
 				execBytes,
+				sdk.NewCoins(),
+				owner,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -249,11 +254,14 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
+			// TODO: Add tresury and fee flag
 			msg := types.NewMsgEditDataSource(
 				dataSourceID,
 				name,
 				description,
 				execBytes,
+				sdk.NewCoins(),
+				owner,
 				owner,
 				clientCtx.GetFromAddress(),
 			)

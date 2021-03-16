@@ -75,7 +75,8 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryRequestResponse{RequestPacketData: &r.RequestPacketData, ResponsePacketData: &r.ResponsePacketData}, nil
+	// TODO: Define specification on this endpoint (For test only)
+	return &types.QueryRequestResponse{&types.OracleRequestPacketData{}, &types.OracleResponsePacketData{Result: r.Result}}, nil
 }
 
 // Validator queries oracle info of validator for given validator

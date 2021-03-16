@@ -123,10 +123,10 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":             id,
-		"request_time":   result.ResponsePacketData.RequestTime,
-		"resolve_time":   result.ResponsePacketData.ResolveTime,
-		"resolve_status": result.ResponsePacketData.ResolveStatus,
-		"result":         parseBytes(result.ResponsePacketData.Result),
+		"request_time":   result.RequestTime,
+		"resolve_time":   result.ResolveTime,
+		"resolve_status": result.ResolveStatus,
+		"result":         parseBytes(result.Result),
 	})
 }
 
