@@ -31,12 +31,12 @@ service Query {
   rpc OracleScript(QueryOracleScriptRequest)
       returns (QueryOracleScriptResponse) {
     option (google.api.http).get =
-        "/oracle/v1/oracle_script/{oracle_script_id}";
+        "/oracle/v1/oracle_scripts/{oracle_script_id}";
   }
 
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
-    option (google.api.http).get = "/oracle/v1/request/{request_id}";
+    option (google.api.http).get = "/oracle/v1/requests/{request_id}";
   }
 
   // Validator queries properties of given validator address.

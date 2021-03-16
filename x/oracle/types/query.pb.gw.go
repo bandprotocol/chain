@@ -1192,9 +1192,9 @@ var (
 
 	pattern_Query_DataSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "data_sources", "data_source_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "oracle_script", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "oracle_scripts", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "request", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "requests", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_Validator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "validators", "validator_address"}, "", runtime.AssumeColonVerbOpt(true)))
 
