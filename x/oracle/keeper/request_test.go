@@ -6,9 +6,32 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
+
+func testRequest(
+	t *testing.T,
+	k keeper.Keeper,
+	ctx sdk.Context,
+	rid types.RequestID,
+	resolveStatus types.ResolveStatus,
+	reportCount uint64,
+	hasRequest bool,
+) {
+	if resolveStatus == types.ResolveStatus_RESOLVE_STATUS_OPEN {
+		require.False(t, k.HasResult(ctx, rid))
+	} else {
+		r, err := k.GetResult(ctx, rid)
+		require.NoError(t, err)
+		require.NotNil(t, r)
+		require.Equal(t, resolveStatus, r.ResponsePacketData.ResolveStatus)
+	}
+
+	require.Equal(t, reportCount, k.GetReportCount(ctx, rid))
+	require.Equal(t, hasRequest, k.HasRequest(ctx, rid))
+}
 
 func TestHasRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
@@ -102,6 +125,7 @@ func TestAddPendingResolveList(t *testing.T) {
 func TestProcessExpiredRequests(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyExpirationBlockCount, 3)
+
 	// Set some initial requests. All requests are asked to validators 1 & 2.
 	req1 := defaultRequest()
 	req1.RequestHeight = 5
@@ -115,9 +139,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	k.AddRequest(ctx, req2)
 	k.AddRequest(ctx, req3)
 	k.AddRequest(ctx, req4)
+
 	// Initially all validators are active.
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
+
 	// Validator 1 reports all requests. Validator 2 misses request#3.
 	rawReports := []types.RawReport{types.NewRawReport(42, 0, BasicReport), types.NewRawReport(43, 0, BasicReport)}
 	k.AddReport(ctx, 1, types.NewReport(testapp.Validators[0].ValAddress, false, rawReports))
@@ -127,12 +153,15 @@ func TestProcessExpiredRequests(t *testing.T) {
 	k.AddReport(ctx, 1, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
 	k.AddReport(ctx, 2, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
 	k.AddReport(ctx, 4, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
+
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
 	k.ResolveSuccess(ctx, 1, BasicResult, 1234)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
 	k.ResolveSuccess(ctx, 4, BasicResult, 1234)
+
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
+
 	// At block 7, nothing should happen.
 	ctx = ctx.WithBlockHeight(7).WithBlockTime(testapp.ParseTime(7000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
@@ -140,6 +169,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
+	testRequest(t, k, ctx, types.RequestID(1), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 2, true)
+	testRequest(t, k, ctx, types.RequestID(2), types.ResolveStatus_RESOLVE_STATUS_FAILURE, 2, true)
+	testRequest(t, k, ctx, types.RequestID(3), types.ResolveStatus_RESOLVE_STATUS_OPEN, 1, true)
+	testRequest(t, k, ctx, types.RequestID(4), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 2, true)
+
 	// At block 8, now last request ID should move to 1. No events should be emitted.
 	ctx = ctx.WithBlockHeight(8).WithBlockTime(testapp.ParseTime(8000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
@@ -147,6 +181,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.Equal(t, types.RequestID(1), k.GetRequestLastExpired(ctx))
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
+	testRequest(t, k, ctx, types.RequestID(1), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 0, false)
+	testRequest(t, k, ctx, types.RequestID(2), types.ResolveStatus_RESOLVE_STATUS_FAILURE, 2, true)
+	testRequest(t, k, ctx, types.RequestID(3), types.ResolveStatus_RESOLVE_STATUS_OPEN, 1, true)
+	testRequest(t, k, ctx, types.RequestID(4), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 2, true)
+
 	// At block 9, request#3 is expired and validator 2 becomes inactive.
 	ctx = ctx.WithBlockHeight(9).WithBlockTime(testapp.ParseTime(9000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
@@ -165,14 +204,28 @@ func TestProcessExpiredRequests(t *testing.T) {
 		BasicClientID, 3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
 		types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{},
 	), k.MustGetResult(ctx, 3).ResponsePacketData)
+	testRequest(t, k, ctx, types.RequestID(1), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 0, false)
+	testRequest(t, k, ctx, types.RequestID(2), types.ResolveStatus_RESOLVE_STATUS_FAILURE, 0, false)
+	testRequest(t, k, ctx, types.RequestID(3), types.ResolveStatus_RESOLVE_STATUS_EXPIRED, 0, false)
+	testRequest(t, k, ctx, types.RequestID(4), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 2, true)
+
 	// At block 10, nothing should happen
 	ctx = ctx.WithBlockHeight(10).WithBlockTime(testapp.ParseTime(10000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
 	require.Equal(t, sdk.Events{}, ctx.EventManager().Events())
 	require.Equal(t, types.RequestID(3), k.GetRequestLastExpired(ctx))
+	testRequest(t, k, ctx, types.RequestID(1), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 0, false)
+	testRequest(t, k, ctx, types.RequestID(2), types.ResolveStatus_RESOLVE_STATUS_FAILURE, 0, false)
+	testRequest(t, k, ctx, types.RequestID(3), types.ResolveStatus_RESOLVE_STATUS_EXPIRED, 0, false)
+	testRequest(t, k, ctx, types.RequestID(4), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 2, true)
+
 	// At block 13, last expired request becomes 4.
 	ctx = ctx.WithBlockHeight(13).WithBlockTime(testapp.ParseTime(13000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
 	require.Equal(t, sdk.Events{}, ctx.EventManager().Events())
 	require.Equal(t, types.RequestID(4), k.GetRequestLastExpired(ctx))
+	testRequest(t, k, ctx, types.RequestID(1), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 0, false)
+	testRequest(t, k, ctx, types.RequestID(2), types.ResolveStatus_RESOLVE_STATUS_FAILURE, 0, false)
+	testRequest(t, k, ctx, types.RequestID(3), types.ResolveStatus_RESOLVE_STATUS_EXPIRED, 0, false)
+	testRequest(t, k, ctx, types.RequestID(4), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, 0, false)
 }
