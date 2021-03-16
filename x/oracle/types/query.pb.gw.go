@@ -1186,31 +1186,35 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Counts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "counts"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Counts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "counts"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Data_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "data", "data_hash"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Data_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "data", "data_hash"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_DataSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "data_sources", "data_source_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DataSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "data_sources", "data_source_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "oracle_script", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "oracle_script", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "request", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "request", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Validator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "validators", "validator_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Validator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "validators", "validator_address"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Reporters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "reporters", "validator_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Reporters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"oracle", "v1", "reporters", "validator_address"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_ActiveValidators_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "active_validators"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_ActiveValidators_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "active_validators"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "params"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_RequestSearch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "request_search"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_RequestSearch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "request_search"}, "", runtime.AssumeColonVerbOpt(true)))
 
+<<<<<<< HEAD
 	pattern_Query_RequestPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "request_prices"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_RequestVerification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "verify_request"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_RequestPool_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"oracle", "v1", "request_pool", "request_key", "port_id", "channel_id"}, "", runtime.AssumeColonVerbOpt(true)))
+=======
+	pattern_Query_RequestPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "request_prices"}, "", runtime.AssumeColonVerbOpt(true)))
+>>>>>>> Fix grpc request endpoint
 )
 
 var (

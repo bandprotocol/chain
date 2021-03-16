@@ -72,12 +72,20 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetResult(ctx, types.RequestID(req.RequestId))
+	rid := types.RequestID(req.RequestId)
+
+	request, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Define specification on this endpoint (For test only)
-	return &types.QueryRequestResponse{&types.OracleRequestPacketData{}, &types.OracleResponsePacketData{Result: r.Result}}, nil
+
+	reports := k.GetReports(ctx, rid)
+	if !k.HasResult(ctx, rid) {
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
+	}
+	result := k.MustGetResult(ctx, rid)
+
+	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
 }
 
 // Validator queries oracle info of validator for given validator
