@@ -9,7 +9,6 @@ const (
 	MaxClientIDLength    = 128
 	MaxSchemaLength      = 512
 	MaxURLLength         = 128
-	MaxRequestKeyLength  = 128
 
 	MaxExecutableSize       = 8 * 1024        // 8kB
 	MaxWasmCodeSize         = 512 * 1024      // 512kB
