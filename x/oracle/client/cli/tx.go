@@ -12,6 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	"github.com/spf13/cobra"
 )
 
@@ -594,12 +596,21 @@ $ %s tx oracle deposit-request-pool request-key port-1 channel-1 1000uband --fro
 				return err
 			}
 			sender := sdk.AccAddress(clientCtx.GetFromAddress())
-			coins, err := sdk.ParseCoinsNormalized(args[3])
+			amt, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
 			}
-			msg := types.NewMsgDepositRequestPool(args[0], args[1], args[2], coins, sender)
 
+			portID := args[1]
+			if err := host.PortIdentifierValidator(portID); err != nil {
+				return err
+			}
+			channelID := args[2]
+			if err := host.ChannelIdentifierValidator(channelID); err != nil {
+				return err
+			}
+			pool := types.GetEscrowAddress(args[0], portID, channelID)
+			msg := banktypes.NewMsgSend(sender, pool, amt)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
