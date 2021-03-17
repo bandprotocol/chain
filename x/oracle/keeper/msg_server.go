@@ -308,8 +308,3 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 	))
 	return &types.MsgRemoveReporterResponse{}, nil
 }
-
-func (k msgServer) DepositRequestPool(goCtx context.Context, msg *types.MsgDepositRequestPool) (*types.MsgDepositRequestPoolResponse, error) {
-	// TODO: implement msg server for MsgDepositRequestPool
-	return &types.MsgDepositRequestPoolResponse{}, nil
-}
