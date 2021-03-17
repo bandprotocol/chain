@@ -18,7 +18,6 @@ const (
 	TypeMsgActivate           = "activate"
 	TypeMsgAddReporter        = "add_reporter"
 	TypeMsgRemoveReporter     = "remove_reporter"
-	TypeMsgDepositRequestPool = "deposit_request_pool"
 )
 
 var (
