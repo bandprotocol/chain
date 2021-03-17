@@ -11,7 +11,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -560,38 +559,4 @@ func TestRemoveReporterFail(t *testing.T) {
 	// require.EqualError(t, err, fmt.Sprintf("reporter not found: val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Bob.Address.String()))
 	_ = err
 	require.Nil(t, res)
-}
-
-func TestDepositRequestPool(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	msg := types.NewMsgDepositRequestPool("beeb", testapp.Port1, testapp.Channel1, testapp.Coins1unband, testapp.Alice.Address)
-	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.NoError(t, err)
-
-	escrow := types.GetEscrowAddress(msg.RequestKey, msg.PortId, msg.ChannelId)
-
-	event := abci.Event{
-		Type: banktypes.EventTypeTransfer,
-		Attributes: []abci.EventAttribute{
-			abci.EventAttribute{Key: []byte(banktypes.AttributeKeyRecipient), Value: []byte(escrow.String())},
-			abci.EventAttribute{Key: []byte(banktypes.AttributeKeySender), Value: []byte(msg.Sender)},
-			abci.EventAttribute{Key: []byte(sdk.AttributeKeyAmount), Value: []byte(testapp.Coins1unband.String())},
-		},
-	}
-	require.Equal(t, abci.Event(event), res.Events[0])
-	event = abci.Event{
-		Type: sdk.EventTypeMessage,
-		Attributes: []abci.EventAttribute{
-			abci.EventAttribute{Key: []byte(banktypes.AttributeKeySender), Value: []byte(msg.Sender)},
-		},
-	}
-	require.Equal(t, abci.Event(event), res.Events[1])
-	event = abci.Event{
-		Type: types.EventTypeDepositRequestPool,
-		Attributes: []abci.EventAttribute{
-			abci.EventAttribute{Key: []byte(types.AttributeKeySender), Value: []byte(msg.Sender)},
-		},
-	}
-	require.Equal(t, abci.Event(event), res.Events[2])
-
 }

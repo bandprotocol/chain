@@ -13,7 +13,6 @@ const (
 	EventTypeDeactivate         = "deactivate"
 	EventTypeAddReporter        = "add_reporter"
 	EventTypeRemoveReporter     = "remove_reporter"
-	EventTypeDepositRequestPool = "deposit_request_pool"
 	EventTypeResolve            = "resolve"
 
 	AttributeKeyID             = "id"
@@ -31,5 +30,4 @@ const (
 	AttributeKeyGasUsed        = "gas_used"
 	AttributeKeyResult         = "result"
 	AttributeKeyReason         = "reason"
-	AttributeKeySender         = "sender"
 )
