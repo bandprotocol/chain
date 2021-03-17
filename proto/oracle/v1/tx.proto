@@ -61,7 +61,7 @@ message MsgRequestData {
   // Sender is the sender of this message.
   string sender = 6;
   // PrepareGas is amount of gas to pay to prepare raw requests
-  uint32 prepare_gas = 7;
+  uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 8;
 }

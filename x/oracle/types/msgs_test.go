@@ -70,7 +70,7 @@ func TestMsgGetSigners(t *testing.T) {
 	require.Equal(t, signers, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
-	require.Equal(t, signers, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", signerAcc).GetSigners())
+	require.Equal(t, signers, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", signerAcc, 0, 0).GetSigners())
 	require.Equal(t, signers, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, anotherVal, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgActivate(signerVal).GetSigners())
 	require.Equal(t, signers, NewMsgAddReporter(signerVal, anotherAcc).GetSigners())
@@ -175,12 +175,15 @@ func TestMsgEditOracleScriptValidation(t *testing.T) {
 
 func TestMsgRequestDataValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
-		{true, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 10, 5, "client-id", GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadTestAddr)},
+		{true, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 10, 5, "client-id", GoodTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadTestAddr, 1, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 0, 1)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 1, 0)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 0, 0)},
 	})
 }
 

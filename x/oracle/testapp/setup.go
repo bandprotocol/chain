@@ -55,6 +55,11 @@ var (
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
 )
 
+const (
+	TestDefaultPrepareGas = 40000
+	TestDefaultExecuteGas = 300000
+)
+
 func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
@@ -233,4 +238,14 @@ func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keepe
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
 	return app, ctx, app.OracleKeeper
+}
+
+func NewMsgRequestData(
+	oracleScriptID types.OracleScriptID,
+	calldata []byte,
+	askCount, minCount uint64,
+	clientID string,
+	sender sdk.AccAddress,
+) *types.MsgRequestData {
+	return types.NewMsgRequestData(oracleScriptID, calldata, askCount, minCount, clientID, sender, uint64(TestDefaultPrepareGas), uint64(TestDefaultExecuteGas))
 }

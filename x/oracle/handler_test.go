@@ -234,7 +234,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address)
+	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, uint64(testapp.TestDefaultPrepareGas), uint64(testapp.TestDefaultExecuteGas))
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -251,6 +251,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
+		uint64(testapp.TestDefaultPrepareGas), uint64(testapp.TestDefaultExecuteGas),
 	), k.MustGetRequest(ctx, 1))
 
 	event := abci.Event{
@@ -303,17 +304,17 @@ func TestRequestDataSuccess(t *testing.T) {
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address))
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, 0, 0))
 	// require.EqualError(t, err, "insufficent available validators: 0 < 2")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Alice.Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Alice.Address, 0, 0))
 	// require.EqualError(t, err, "insufficent available validators: 2 < 3")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, 0, 0))
 	// require.EqualError(t, err, "oracle script not found: id: 999")
 	_ = err
 	require.Nil(t, res)
@@ -335,6 +336,7 @@ func TestReportSuccess(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
+		0, 0,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
@@ -398,6 +400,7 @@ func TestReportFail(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
+		0, 0,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}

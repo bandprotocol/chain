@@ -32,9 +32,14 @@ var (
 	_ sdk.Msg = &MsgRemoveReporter{}
 )
 
-// NewMsgRequestData creates a new MsgRequestData instance.
+// NewMsgRequestData creates a new MsgRequestData instance with custom owasm gas.
 func NewMsgRequestData(
-	oracleScriptID OracleScriptID, calldata []byte, askCount, minCount uint64, clientID string, sender sdk.AccAddress,
+	oracleScriptID OracleScriptID,
+	calldata []byte,
+	askCount, minCount uint64,
+	clientID string,
+	sender sdk.AccAddress,
+	prepareGas, executeGas uint64,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,
@@ -43,6 +48,8 @@ func NewMsgRequestData(
 		MinCount:       minCount,
 		ClientID:       clientID,
 		Sender:         sender.String(),
+		PrepareGas:     prepareGas,
+		ExecuteGas:     executeGas,
 	}
 }
 
@@ -72,6 +79,12 @@ func (msg MsgRequestData) ValidateBasic() error {
 	}
 	if len(msg.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
+	}
+	if msg.PrepareGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidVersion, "invalid prepare gas: %d", msg.PrepareGas)
+	}
+	if msg.ExecuteGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidVersion, "invalid execute gas: %d", msg.ExecuteGas)
 	}
 	return nil
 }

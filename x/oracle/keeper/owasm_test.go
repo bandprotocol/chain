@@ -82,7 +82,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
-		}, nil,
+		}, nil, uint64(testapp.TestDefaultPrepareGas), uint64(testapp.TestDefaultExecuteGas),
 	), k.MustGetRequest(ctx, 1))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeRequest,
@@ -128,26 +128,26 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxAskCount, 5)
-	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
-	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Alice.Address)
+	m = testapp.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m = testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 }
 
-func TestPrepareRequestBaseRequestFeePanic(t *testing.T) {
+func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyBaseRequestGas, 100000) // Set BaseRequestGas to 100000
+	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000) // Set KeyBaseOwasmGas to 100000
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 0)
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
-	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, nil) })
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(200000))
+	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"}, func() { k.PrepareRequest(ctx, m, nil) })
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -155,13 +155,13 @@ func TestPrepareRequestBaseRequestFeePanic(t *testing.T) {
 
 func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyBaseRequestGas, 100000)
+	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000)
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
-	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Alice.Address)
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
+	m := testapp.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Alice.Address)
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(40000))
 	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, nil) })
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
+	m = testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -169,7 +169,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 
 func TestPrepareRequestEmptyCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true) // Send nil while oracle script expects calldata
-	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "bad wasm execution: runtime error while executing the Wasm script")
@@ -178,7 +178,7 @@ func TestPrepareRequestEmptyCalldata(t *testing.T) {
 
 func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "oracle script not found: id: 999")
@@ -186,7 +186,7 @@ func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 
 func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "bad wasm execution: OEI action to invoke is not available")
@@ -194,7 +194,7 @@ func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 
 func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "empty raw requests")
@@ -202,7 +202,7 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 
 func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
@@ -214,13 +214,13 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxRawRequestCount, 3)
-	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "bad wasm execution: too many external data requests")
-	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m = testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Alice.Address)
@@ -231,11 +231,11 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 
 func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m = testapp.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "bad wasm execution: out-of-gas while executing the wasm script")
@@ -243,11 +243,11 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 
 func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m := testapp.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
+	m = testapp.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	// require.EqualError(t, err, "bad wasm execution: span to write is too small")
@@ -261,7 +261,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -296,7 +296,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -344,7 +344,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -388,7 +388,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 		3, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -418,7 +418,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 		6, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -448,7 +448,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		9, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil,
+		}, nil, 0, 0,
 	))
 	k.ResolveRequest(ctx, 42)
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 9, BasicCalldata, 2, 1)

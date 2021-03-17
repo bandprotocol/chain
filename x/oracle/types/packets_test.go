@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/hex"
+	fmt "fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,8 +25,10 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		Calldata:       mustDecodeString("030000004254436400000000000000"),
 		AskCount:       1,
 		MinCount:       1,
+		PrepareGas:     100,
+		ExecuteGas:     100,
 	}
-	require.Equal(t, []byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","min_count":"1","oracle_script_id":"1"}`), req.GetBytes())
+	require.Equal(t, []byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`), req.GetBytes())
 }
 
 func TestGetBytesResponsePacket(t *testing.T) {
@@ -48,6 +51,8 @@ func TestOBIEncodeResult(t *testing.T) {
 		Calldata:       mustDecodeString("0000000342544300000000000003e8"),
 		AskCount:       1,
 		MinCount:       1,
+		ExecuteGas:     100,
+		PrepareGas:     100,
 	}
 
 	res := OracleResponsePacketData{
@@ -59,7 +64,8 @@ func TestOBIEncodeResult(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("00000000009443ee"),
 	}
-	expectedEncodedResult := mustDecodeString("000000046265656200000000000000010000000f0000000342544300000000000003e800000000000000010000000000000001000000046265656200000000000000020000000000000001000000005ede3bd8000000005ede3bda000000010000000800000000009443ee")
+	fmt.Println(hex.EncodeToString(obi.MustEncode(req, res)))
+	expectedEncodedResult := mustDecodeString("000000046265656200000000000000010000000f0000000342544300000000000003e80000000000000001000000000000000100000000000000640000000000000064000000046265656200000000000000020000000000000001000000005ede3bd8000000005ede3bda000000010000000800000000009443ee")
 	require.Equal(t, expectedEncodedResult, obi.MustEncode(req, res))
 }
 
@@ -70,6 +76,8 @@ func TestOBIEncodeResultOfEmptyClientID(t *testing.T) {
 		Calldata:       mustDecodeString("0000000342544300000000000003e8"),
 		AskCount:       1,
 		MinCount:       1,
+		ExecuteGas:     100,
+		PrepareGas:     100,
 	}
 
 	res := OracleResponsePacketData{
@@ -81,6 +89,6 @@ func TestOBIEncodeResultOfEmptyClientID(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("0000000000944387"),
 	}
-	expectedEncodedResult := mustDecodeString("0000000000000000000000010000000f0000000342544300000000000003e8000000000000000100000000000000010000000000000000000000010000000000000001000000005ede3b1a000000005ede3b1d00000001000000080000000000944387")
+	expectedEncodedResult := mustDecodeString("0000000000000000000000010000000f0000000342544300000000000003e800000000000000010000000000000001000000000000006400000000000000640000000000000000000000010000000000000001000000005ede3b1a000000005ede3b1d00000001000000080000000000944387")
 	require.Equal(t, expectedEncodedResult, obi.MustEncode(req, res))
 }

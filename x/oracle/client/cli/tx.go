@@ -24,6 +24,8 @@ const (
 	flagClientID      = "client-id"
 	flagSchema        = "schema"
 	flagSourceCodeURL = "url"
+	flagPrepareGas    = "prepare-gas"
+	flagExecuteGas    = "execute-gas"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -52,7 +54,7 @@ func NewTxCmd() *cobra.Command {
 // GetCmdRequest implements the request command handler.
 func GetCmdRequest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id])",
+		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id]) (--prepare-gas=[prepare-gas] (--execute-gas=[execute-gas]))",
 		Short: "Make a new data request via an existing oracle script",
 		Args:  cobra.ExactArgs(3),
 		Long: strings.TrimSpace(
@@ -96,6 +98,16 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				return err
 			}
 
+			prepareGas, _ := cmd.Flags().GetUint64(flagPrepareGas)
+			if err != nil {
+				return err
+			}
+
+			executeGas, _ := cmd.Flags().GetUint64(flagExecuteGas)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
@@ -103,6 +115,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				minCount,
 				clientID,
 				clientCtx.GetFromAddress(),
+				prepareGas,
+				executeGas,
 			)
 
 			err = msg.ValidateBasic()
@@ -115,6 +129,9 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 
 	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
+	// TODO: create default
+	cmd.Flags().Uint64(flagPrepareGas, 40_000, "Prepare gas used in fee counting for prepare request")
+	cmd.Flags().Uint64(flagExecuteGas, 40_000, "Execute gas used in fee counting for execute request")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
