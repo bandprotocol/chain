@@ -51,7 +51,7 @@ var (
 
 // nolint
 var (
-	EmptyCoins          = sdk.NewCoins()
+	EmptyCoins          = sdk.Coins(nil)
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
@@ -95,7 +95,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, EmptyCoins,
 		))
 	}
 	return DataSources[1:]

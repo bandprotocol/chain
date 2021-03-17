@@ -15,6 +15,10 @@ message DataSource {
   string name = 2;
   string description = 3;
   string filename = 4;
+  repeated cosmos.base.v1beta1.Coin fee = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // OracleScript is the data structure for storing oracle scripts in the storage.
