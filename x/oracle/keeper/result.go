@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -81,7 +82,7 @@ func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
 // SaveResult saves the result packets for the request with the given resolve status and result.
 func (k Keeper) SaveResult(
 	ctx sdk.Context, id types.RequestID, status types.ResolveStatus, result []byte,
-) error {
+) {
 	r := k.MustGetRequest(ctx, id)
 	reportCount := k.GetReportCount(ctx, id)
 	k.SetResult(ctx, id, types.NewResult(
@@ -103,7 +104,7 @@ func (k Keeper) SaveResult(
 		sourcePort := r.IBCSource.SourcePort
 		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 		if !found {
-			return sdkerrors.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", sourcePort, sourceChannel)
+			panic(fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel))
 		}
 		destinationPort := sourceChannelEnd.Counterparty.PortId
 		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
@@ -111,14 +112,11 @@ func (k Keeper) SaveResult(
 			ctx, sourcePort, sourceChannel,
 		)
 		if !found {
-			return sdkerrors.Wrapf(
-				channeltypes.ErrSequenceSendNotFound,
-				"source port: %s, source channel: %s", sourcePort, sourceChannel,
-			)
+			panic(fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel))
 		}
 		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 		if !ok {
-			return sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
+			panic("Module does not own channel capability")
 		}
 
 		packetData := types.NewOracleResponsePacketData(
@@ -132,14 +130,12 @@ func (k Keeper) SaveResult(
 			sourceChannel,
 			destinationPort,
 			destinationChannel,
-			clienttypes.NewHeight(0, 10000), // Arbitary height
-			0,                               // Arbitrarily timeout for now
+			clienttypes.NewHeight(0, 0),
+			uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), // TODO: Find what time out will be used on response packet
 		)
 
 		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
-			return err
+			panic(err)
 		}
 	}
-
-	return nil
 }
