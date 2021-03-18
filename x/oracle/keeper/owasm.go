@@ -12,9 +12,11 @@ import (
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
-const factor = 7 // TODO: move to const group or set as a param
+// 1 cosmos gas is equal to 7 owasm gas
+const gasConversionFactor = 7
+
 func convertToOwasmGas(cosmos uint64) uint32 {
-	return uint32(cosmos * factor)
+	return uint32(cosmos * gasConversionFactor)
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -140,7 +142,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 		// TODO: send response to IBC module on fail request
