@@ -272,7 +272,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 1, BasicCalldata, 2, 1)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -319,7 +319,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 	)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 2, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS,
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
 	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
@@ -367,7 +367,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 2, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS,
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
@@ -399,7 +399,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 3, BasicCalldata, 2, 1)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -429,7 +429,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 6, BasicCalldata, 2, 1)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -454,7 +454,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 9, BasicCalldata, 2, 1)
 	resPacket := types.NewOracleResponsePacketData(
 		BasicClientID, 42, 0, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	fmt.Println(ctx.BlockTime().Unix())
 	fmt.Println(k.MustGetResult(ctx, 42))

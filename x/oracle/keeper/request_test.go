@@ -163,7 +163,7 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.False(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
 	require.Equal(t, types.NewOracleResponsePacketData(
 		BasicClientID, 3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
-		types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{},
+		types.RESOLVE_STATUS_EXPIRED, []byte{},
 	), k.MustGetResult(ctx, 3).ResponsePacketData)
 	// At block 10, nothing should happen
 	ctx = ctx.WithBlockHeight(10).WithBlockTime(testapp.ParseTime(10000)).WithEventManager(sdk.NewEventManager())
