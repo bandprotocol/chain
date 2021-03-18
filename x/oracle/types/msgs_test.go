@@ -183,7 +183,6 @@ func TestMsgRequestDataValidation(t *testing.T) {
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadTestAddr, 1, 1)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 0, 1)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 1, 0)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodTestAddr, 0, 0)},
 	})
 }
 

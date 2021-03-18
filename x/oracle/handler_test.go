@@ -234,7 +234,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, uint64(testapp.TestDefaultPrepareGas), uint64(testapp.TestDefaultExecuteGas))
+	msg := testapp.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -304,17 +304,17 @@ func TestRequestDataSuccess(t *testing.T) {
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, 0, 0))
+	res, err := oracle.NewHandler(k)(ctx, testapp.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address))
 	// require.EqualError(t, err, "insufficent available validators: 0 < 2")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Alice.Address, 0, 0))
+	res, err = oracle.NewHandler(k)(ctx, testapp.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Alice.Address))
 	// require.EqualError(t, err, "insufficent available validators: 2 < 3")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address, 0, 0))
+	res, err = oracle.NewHandler(k)(ctx, testapp.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Alice.Address))
 	// require.EqualError(t, err, "oracle script not found: id: 999")
 	_ = err
 	require.Nil(t, res)

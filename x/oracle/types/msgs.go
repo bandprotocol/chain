@@ -32,7 +32,7 @@ var (
 	_ sdk.Msg = &MsgRemoveReporter{}
 )
 
-// NewMsgRequestData creates a new MsgRequestData instance with custom owasm gas.
+// NewMsgRequestData creates a new MsgRequestData instance.
 func NewMsgRequestData(
 	oracleScriptID OracleScriptID,
 	calldata []byte,
