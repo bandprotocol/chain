@@ -81,6 +81,10 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 func TestPrepareRequestSuccessBasic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+
+	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
+	ctx = ctx.WithGasMeter(wrappedGasMeter)
+
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
 	m := testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
@@ -123,21 +127,62 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
 		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
 	)}, ctx.EventManager().Events())
+
+	// assert gas consumation
+	params := k.GetParams(ctx)
+	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
+	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
+	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
+}
+
+func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+
+	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
+	ctx = ctx.WithGasMeter(wrappedGasMeter)
+
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address, 100, testapp.TestDefaultExecuteGas)
+	_, err := k.PrepareRequest(ctx, m, nil)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "out-of-gas")
+
+	params := k.GetParams(ctx)
+	require.Equal(t, 1, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
+	require.Equal(t, 1, wrappedGasMeter.CountRecord(100, "OWASM_PREPARE_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 }
 
 func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxAskCount, 5)
+
+	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
+	ctx = ctx.WithGasMeter(wrappedGasMeter)
+
 	m := testapp.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
+
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
+
 	m = testapp.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
+
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
+
 	m = testapp.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
+	require.Equal(t, 2, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
+	require.Equal(t, 1, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
+	require.Equal(t, 1, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 }
 
 func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
@@ -261,7 +306,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0,
+		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -296,7 +341,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, 0, 0,
+		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -332,6 +377,30 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 	)}, ctx.EventManager().Events())
 }
 
+func TestResolveRequestOutOfGas(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
+	k.SetRequest(ctx, 42, types.NewRequest(
+		// 1st Wasm - return "beeb"
+		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
+		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("beeb")),
+		}, nil, testapp.TestDefaultPrepareGas, 0,
+	))
+	k.SetReport(ctx, 42, types.NewReport(
+		testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("beeb")),
+		},
+	))
+	k.ResolveRequest(ctx, 42)
+	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 1, BasicCalldata, 2, 1)
+	resPacket := types.NewOracleResponsePacketData(
+		BasicClientID, 42, 1, testapp.ParseTime(1581589790).Unix(),
+		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+	)
+	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
+}
+
 func TestResolveReadNilExternalData(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
@@ -344,7 +413,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, 0, 0,
+		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -448,7 +517,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		9, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0,
+		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
 	))
 	k.ResolveRequest(ctx, 42)
 	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 9, BasicCalldata, 2, 1)
