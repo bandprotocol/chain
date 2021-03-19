@@ -86,17 +86,17 @@ func (k Keeper) SaveResult(
 	r := k.MustGetRequest(ctx, id)
 	reportCount := k.GetReportCount(ctx, id)
 	k.SetResult(ctx, id, types.NewResult(
-		r.ClientID,
-		r.OracleScriptID,
-		r.Calldata,
-		uint64(len(r.RequestedValidators)),
-		r.MinCount,
-		id,
-		reportCount,
-		int64(r.RequestTime),   // RequestTime
-		ctx.BlockTime().Unix(), // ResolveTime
-		status,                 // ResolveStatus
-		result,                 // Result
+		r.ClientID,                         // ClientID
+		r.OracleScriptID,                   // OracleScriptID
+		r.Calldata,                         // Calldata
+		uint64(len(r.RequestedValidators)), // AskCount
+		r.MinCount,                         // MinCount
+		id,                                 // RequestID
+		reportCount,                        // AnsCount
+		int64(r.RequestTime),               // RequestTime
+		ctx.BlockTime().Unix(),             // ResolveTime
+		status,                             // ResolveStatus
+		result,                             // Result
 	))
 
 	if r.IBCSource != nil {
