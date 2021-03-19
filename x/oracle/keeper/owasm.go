@@ -150,6 +150,6 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		k.ResolveFailure(ctx, reqID, "no return data")
 		// TODO: send response to IBC module on fail request
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed, req.IBCSource)
+		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}
 }

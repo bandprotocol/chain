@@ -6,6 +6,7 @@ option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // DataSource is the data structure for storing data sources in the storage.
 message DataSource {
@@ -14,6 +15,10 @@ message DataSource {
   string name = 2;
   string description = 3;
   string filename = 4;
+  repeated cosmos.base.v1beta1.Coin fee = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // OracleScript is the data structure for storing oracle scripts in the storage.
@@ -121,10 +126,19 @@ message OracleRequestPacketData {
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
   uint64 min_count = 5;
+  // FeeLimit is the maximum tokens that will be paid to all data source
+  // providers.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // RequestKey is the key from request chain to match data source fee payer on
+  // Bandchain
+  string request_key = 7;
   // PrepareGas is amount of gas to pay to prepare raw requests
-  uint64 prepare_gas = 7;
+  uint64 prepare_gas = 8;
   // ExecuteGas is amount of gas to reserve for executing
-  uint64 execute_gas = 8;
+  uint64 execute_gas = 9;
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
@@ -165,6 +179,50 @@ message OracleResponsePacketData {
   ResolveStatus resolve_status = 6;
   // Result is the final aggregated value only available if status if OK.
   bytes result = 7;
+}
+
+// Result encodes a result of request and store in chain
+message Result {
+  option (gogoproto.equal) = true;
+  // ClientID is the unique identifier of this oracle request, as specified by
+  // the client. This same unique ID will be sent back to the requester with the
+  // oracle response.
+  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  // OracleScriptID is the unique identifier of the oracle script to be
+  // executed.
+  int64 oracle_script_id = 2 [
+    (gogoproto.customname) = "OracleScriptID",
+    (gogoproto.casttype) = "OracleScriptID"
+  ];
+  // Calldata is the calldata bytes available for oracle executor to read.
+  bytes calldata = 3;
+  // AskCount is the number of validators that are requested to respond to this
+  // oracle request. Higher value means more security, at a higher gas cost.
+  uint64 ask_count = 4;
+  // MinCount is the minimum number of validators necessary for the request to
+  // proceed to the execution phase. Higher value means more security, at the
+  // cost of liveness.
+  uint64 min_count = 5;
+  // RequestID is BandChain's unique identifier for this oracle request.
+  int64 request_id = 6 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // AnsCount is the number of validators among to the asked validators that
+  // actually responded to this oracle request prior to this oracle request
+  // being resolved.
+  uint64 ans_count = 7;
+  // RequestTime is the UNIX epoch time at which the request was sent to
+  // BandChain.
+  int64 request_time = 8;
+  // ResolveTime is the UNIX epoch time at which the request was resolved to the
+  // final result.
+  int64 resolve_time = 9;
+  // ResolveStatus is the status of this oracle request, which can be OK,
+  // FAILURE, or EXPIRED.
+  ResolveStatus resolve_status = 10;
+  // Result is the final aggregated value only available if status if OK.
+  bytes result = 11;
 }
 
 // ValidatorStatus maintains whether a validator is an active oracle provider.

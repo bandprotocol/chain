@@ -20,6 +20,7 @@ type RequestSpec interface {
 	GetClientID() string
 	GetPrepareGas() uint64
 	GetExecuteGas() uint64
+	GetFeeLimit() sdk.Coins
 }
 
 func NewRawRequest(

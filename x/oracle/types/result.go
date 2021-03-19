@@ -1,15 +1,20 @@
 package types
 
-// Result is a convenience struct that keeps both request and response packets of a request.
-type Result struct {
-	RequestPacketData  OracleRequestPacketData  `json:"request_packet_data"`
-	ResponsePacketData OracleResponsePacketData `json:"response_packet_data"`
-}
-
 // NewResult creates a new Result instance.
-func NewResult(req OracleRequestPacketData, res OracleResponsePacketData) Result {
+func NewResult(
+	clientId string, oid OracleScriptID, calldata []byte, askCount, minCount uint64,
+	requestId RequestID, ansCount uint64, requestTime, resolveTime int64, resolveStatus ResolveStatus, result []byte) Result {
 	return Result{
-		RequestPacketData:  req,
-		ResponsePacketData: res,
+		ClientID:       clientId,
+		OracleScriptID: oid,
+		Calldata:       calldata,
+		AskCount:       askCount,
+		MinCount:       minCount,
+		RequestID:      requestId,
+		AnsCount:       ansCount,
+		RequestTime:    requestTime,
+		ResolveTime:    resolveTime,
+		ResolveStatus:  resolveStatus,
+		Result:         result,
 	}
 }
