@@ -18,6 +18,7 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
+	GetFeeLimit() sdk.Coins
 }
 
 func NewRawRequest(

@@ -128,9 +128,9 @@ func TestProcessExpiredRequests(t *testing.T) {
 	k.AddReport(ctx, 2, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
 	k.AddReport(ctx, 4, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
-	k.ResolveSuccess(ctx, 1, BasicResult, 1234, nil)
+	k.ResolveSuccess(ctx, 1, BasicResult, 1234)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
-	k.ResolveSuccess(ctx, 4, BasicResult, 1234, nil)
+	k.ResolveSuccess(ctx, 4, BasicResult, 1234)
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 	// At block 7, nothing should happen.
@@ -161,10 +161,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.Equal(t, types.RequestID(3), k.GetRequestLastExpired(ctx))
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.False(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
-	require.Equal(t, types.NewOracleResponsePacketData(
-		BasicClientID, 3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
+	require.Equal(t, types.NewResult(
+		BasicClientID, req3.OracleScriptID, req3.Calldata, uint64(len(req3.RequestedValidators)), req3.MinCount,
+		3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
 		types.RESOLVE_STATUS_EXPIRED, []byte{},
-	), k.MustGetResult(ctx, 3).ResponsePacketData)
+	), k.MustGetResult(ctx, 3))
 	// At block 10, nothing should happen
 	ctx = ctx.WithBlockHeight(10).WithBlockTime(testapp.ParseTime(10000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
