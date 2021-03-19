@@ -36,7 +36,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			"min_count":        req.MinCount,
 			"tx_hash":          nil,
 			"client_id":        req.ClientID,
-			"resolve_status":   types.ResolveStatus_RESOLVE_STATUS_OPEN,
+			"resolve_status":   types.RESOLVE_STATUS_OPEN,
 			"prepare_gas":      req.PrepareGas,
 			"execute_gas":      req.ExecuteGas,
 		})
@@ -147,7 +147,7 @@ func (h *Hook) handleMsgRequestData(
 		"min_count":        msg.MinCount,
 		"sender":           msg.Sender,
 		"client_id":        msg.ClientID,
-		"resolve_status":   types.ResolveStatus_RESOLVE_STATUS_OPEN,
+		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 		"prepare_gas":      msg.PrepareGas,
 		"execute_gas":      msg.ExecuteGas,

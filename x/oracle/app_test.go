@@ -84,7 +84,7 @@ package oracle_test
 // 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 // 	resPacket := types.NewOracleResponsePacketData(
 // 		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
-// 		types.ResolveStatus_RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+// 		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 // 	)
 // 	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
 // 		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
@@ -133,7 +133,7 @@ package oracle_test
 // 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 // 	resPacket := types.NewOracleResponsePacketData(
 // 		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
-// 		types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{},
+// 		types.RESOLVE_STATUS_EXPIRED, []byte{},
 // 	)
 // 	expectEvents := []abci.Event{{
 // 		Type: types.EventTypeResolve,

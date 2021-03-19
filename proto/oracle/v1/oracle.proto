@@ -81,6 +81,8 @@ message Report {
 
 // ResolveStatus encodes the status of an oracle request.
 enum ResolveStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // Open - the request is not yet resolved.
   RESOLVE_STATUS_OPEN_UNSPECIFIED = 0
       [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN" ];
