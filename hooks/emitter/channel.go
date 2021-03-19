@@ -26,7 +26,7 @@ func (h *Hook) handleMsgRecvPacket(
 		"min_count":        data.MinCount,
 		"sender":           msg.Signer,
 		"client_id":        data.ClientID,
-		"resolve_status":   oracletypes.ResolveStatus_RESOLVE_STATUS_OPEN,
+		"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 	})
 	h.emitRawRequestAndValRequest(id, req)

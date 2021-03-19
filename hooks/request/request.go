@@ -103,7 +103,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 		case types.EventTypeResolve:
 			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
 			result := h.oracleKeeper.MustGetResult(ctx, reqID)
-			if result.ResolveStatus == types.ResolveStatus_RESOLVE_STATUS_SUCCESS {
+			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 				h.insertRequest(
 					reqID, result.OracleScriptID, result.Calldata,
 					result.AskCount, result.MinCount, result.ResolveTime,

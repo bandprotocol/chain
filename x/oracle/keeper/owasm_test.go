@@ -271,7 +271,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 	expectResult := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
 		42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 	require.Equal(t, expectResult, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -316,7 +316,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
 		42, 2, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS,
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -362,7 +362,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
 		42, 2, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS,
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -393,7 +393,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -422,7 +422,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -447,7 +447,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 
 	result := types.NewResult(
 		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 

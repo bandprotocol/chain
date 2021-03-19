@@ -37,11 +37,11 @@ func TestSaveResultOK(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200))
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.SaveResult(ctx, 42, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, BasicResult)
+	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
 	// TODO: Fix this test when change fee limit and request key.
 	expect := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
-		testapp.ParseTime(200).Unix(), types.ResolveStatus_RESOLVE_STATUS_SUCCESS, BasicResult,
+		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
 	)
 	result, err := k.GetResult(ctx, 42)
 	require.NoError(t, err)
@@ -53,7 +53,7 @@ func TestResolveSuccess(t *testing.T) {
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveSuccess(ctx, 42, BasicResult, 1234)
-	require.Equal(t, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
+	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
@@ -69,7 +69,7 @@ func TestResolveFailure(t *testing.T) {
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveFailure(ctx, 42, "REASON")
-	require.Equal(t, types.ResolveStatus_RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
+	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
@@ -84,7 +84,7 @@ func TestResolveExpired(t *testing.T) {
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveExpired(ctx, 42)
-	require.Equal(t, types.ResolveStatus_RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
+	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
