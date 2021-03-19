@@ -41,7 +41,7 @@ You can find the latest binaries on our [releases](https://github.com/bandprotoc
 
 ### Building from source
 
-To install BandChain's daemon `bandd`, you need to have [Go](https://golang.org/) (version 1.13.5 or later) and [gcc](https://gcc.gnu.org/) installed on our machine. Navigate to the Golang project [download page](https://golang.org/dl/) and gcc [install page](https://gcc.gnu.org/install/), respectively for install and setup instructions.
+To install BandChain's daemon `bandd`, you need to have [Go](https://golang.org/) (version 1.13.5 or 1.14.x) and [gcc](https://gcc.gnu.org/) installed on our machine. Navigate to the Golang project [download page](https://golang.org/dl/) and gcc [install page](https://gcc.gnu.org/install/), respectively for install and setup instructions.
 
 ## Running a Validator Node on the Bandchain Mainnet
 
@@ -49,9 +49,9 @@ The following steps shows how to set up a validator node on the Bandchain mainne
 
 We recommend the following for running a BandChain Validator:
 
-- **2 or more** CPU cores
-- **8 GB **of RAM
-- At least **256GB** of disk storage
+- **4 or more** CPU cores
+- **8 GB** of RAM
+- At least **350GB** of fast disk storage (SSD)
 
 ## Setting Up Validator Node
 
@@ -76,12 +76,12 @@ source ~/.profile
 
 ### Build BandChain Daemon
 
-Next, you will need to clone and build BandChain. The canonical version for this GuanYu Mainnet is v1.2.6.
+Next, you will need to clone and build BandChain. The canonical version for this GuanYu Mainnet is v1.2.7a.
 
 ```bash
 git clone https://github.com/bandprotocol/bandchain
 cd bandchain/chain
-git checkout v1.2.6
+git checkout v1.2.7a
 make install
 
 # Check that the correction version of bandd is installed
@@ -89,8 +89,9 @@ bandd version --long
 # Both should show:
 # name: bandchain
 # server_name: bandd
-# version: chain/v1.2.6
-# commit: 2689a3ae4b0b866e198ba31fd88c4c300090a49b
+# client_name: bandcli
+# version: 1.2.7a
+# commit: 6f60ea325a792ce3206710337f0726b3fc1b05b4
 # build_tags: ledger
 # go: go version go1.14.9 linux/amd64
 ```
