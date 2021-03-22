@@ -37,7 +37,6 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			"tx_hash":          nil,
 			"client_id":        req.ClientID,
 			"resolve_status":   types.RESOLVE_STATUS_OPEN,
-			"prepare_gas":      req.PrepareGas,
 			"execute_gas":      req.ExecuteGas,
 		})
 		if h.oracleKeeper.HasResult(ctx, rid) {

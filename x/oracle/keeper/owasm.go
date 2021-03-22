@@ -69,8 +69,7 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource,
-		r.GetPrepareGas(), r.GetExecuteGas(),
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource, r.GetExecuteGas(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.

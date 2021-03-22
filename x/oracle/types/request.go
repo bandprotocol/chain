@@ -45,7 +45,6 @@ func NewRequest(
 	clientID string,
 	rawRequests []RawRequest,
 	iBCSource *IBCSource,
-	prepareGas uint64,
 	executeGas uint64,
 ) Request {
 	requestedVals := make([]string, len(requestedValidators))
@@ -66,7 +65,6 @@ func NewRequest(
 		ClientID:            clientID,
 		RawRequests:         rawRequests,
 		IBCSource:           iBCSource,
-		PrepareGas:          prepareGas,
 		ExecuteGas:          executeGas,
 	}
 }

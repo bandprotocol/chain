@@ -95,7 +95,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
-		}, nil, uint64(testapp.TestDefaultPrepareGas), uint64(testapp.TestDefaultExecuteGas),
+		}, nil, testapp.TestDefaultExecuteGas,
 	), k.MustGetRequest(ctx, 1))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeRequest,
@@ -310,7 +310,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
+		}, nil, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -345,7 +345,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
+		}, nil, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -387,7 +387,7 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, testapp.TestDefaultPrepareGas, 0,
+		}, nil, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -415,7 +415,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
+		}, nil, testapp.TestDefaultExecuteGas,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -457,7 +457,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 		3, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0,
+		}, nil, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -486,7 +486,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 		6, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0,
+		}, nil, 0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -515,7 +515,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		9, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
+		}, nil, testapp.TestDefaultExecuteGas,
 	))
 	k.ResolveRequest(ctx, 42)
 
