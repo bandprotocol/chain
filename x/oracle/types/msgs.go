@@ -83,10 +83,10 @@ func (msg MsgRequestData) ValidateBasic() error {
 		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
 	}
 	if msg.PrepareGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidVersion, "invalid prepare gas: %d", msg.PrepareGas)
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", msg.PrepareGas)
 	}
 	if msg.ExecuteGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidVersion, "invalid execute gas: %d", msg.ExecuteGas)
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", msg.ExecuteGas)
 	}
 	if !msg.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())

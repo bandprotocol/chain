@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/hex"
-	fmt "fmt"
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
