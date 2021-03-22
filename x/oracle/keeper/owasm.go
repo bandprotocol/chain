@@ -78,6 +78,8 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 	if len(req.RawRequests) == 0 {
 		return 0, types.ErrEmptyRawRequests
 	}
+	// Collect ds fee
+	// k.CollectFee(ctx, r.)
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
 	// Emit an event describing a data request and asked validators.
@@ -129,4 +131,25 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}
+}
+
+// CollectFee subtract fee from fee payer and send them to teasury
+func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, rawRequests []types.RawRequest) error {
+	collector := NewFeeCollector(k.bankKeeper, feeLimit, payer)
+
+	for _, r := range rawRequests {
+
+		ds := k.MustGetDataSource(ctx, r.DataSourceID)
+
+		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
+		if err != nil {
+			return err
+		}
+
+		if err := collector.Collect(ctx, ds.Fee, treasury); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
