@@ -22,7 +22,7 @@ import (
 // AddGenesisDataSourceCmd returns add-data-source cobra Command.
 func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-data-source [name] [description] [owner] [filepath]",
+		Use:   "add-data-source [name] [description] [owner] [treasury] [fee] [filepath]",
 		Short: "Add a data source to genesis.json",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,12 +36,20 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			config.SetRoot(clientCtx.HomeDir)
 
 			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
-			data, err := ioutil.ReadFile(args[3])
+			data, err := ioutil.ReadFile(args[5])
 			if err != nil {
 				return err
 			}
 			filename := f.AddFile(data)
 			owner, err := sdk.AccAddressFromBech32(args[2])
+			if err != nil {
+				return err
+			}
+			treasury, err := sdk.AccAddressFromBech32(args[3])
+			if err != nil {
+				return err
+			}
+			coins, err := sdk.ParseCoinsNormalized(args[4])
 			if err != nil {
 				return err
 			}
@@ -53,7 +61,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
 			// TODO: Add fee tag
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
-				owner, args[0], args[1], filename, sdk.NewCoins(),
+				owner, args[0], args[1], filename, treasury, coins,
 			))
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
 
