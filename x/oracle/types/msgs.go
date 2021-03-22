@@ -87,6 +87,7 @@ func (msg MsgRequestData) ValidateBasic() error {
 	}
 	if msg.ExecuteGas <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidVersion, "invalid execute gas: %d", msg.ExecuteGas)
+	}
 	if !msg.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())
 	}

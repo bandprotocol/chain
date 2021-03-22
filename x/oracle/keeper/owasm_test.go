@@ -141,7 +141,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
 
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Alice.Address, 100, testapp.TestDefaultExecuteGas)
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address, 100, testapp.TestDefaultExecuteGas)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "out-of-gas")
@@ -248,10 +248,11 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 
 func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address,
+		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	_ = err
 	// require.EqualError(t, err, "data source not found: id: 99")
@@ -260,16 +261,18 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxRawRequestCount, 3)
-	m := testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address,
+		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas)
 	_, err := k.PrepareRequest(ctx, m, nil)
 	// require.EqualError(t, err, "bad wasm execution: too many external data requests")
-	m = testapp.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address,
+		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas)
 	id, err := k.PrepareRequest(ctx, m, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -392,12 +395,12 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 		},
 	))
 	k.ResolveRequest(ctx, 42)
-	reqPacket := types.NewOracleRequestPacketData(BasicClientID, 1, BasicCalldata, 2, 1)
-	resPacket := types.NewOracleResponsePacketData(
-		BasicClientID, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{},
+	result := types.NewResult(
+		BasicClientID, 1, BasicCalldata, 2, 1,
+		42, 1, testapp.ParseTime(1581589790).Unix(),
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
 	)
-	require.Equal(t, types.NewResult(reqPacket, resPacket), k.MustGetResult(ctx, 42))
+	require.Equal(t, result, k.MustGetResult(ctx, 42))
 }
 
 func TestResolveReadNilExternalData(t *testing.T) {

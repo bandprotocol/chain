@@ -242,13 +242,3 @@ func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keepe
 	}
 	return app, ctx, app.OracleKeeper
 }
-
-func NewMsgRequestData(
-	oracleScriptID types.OracleScriptID,
-	calldata []byte,
-	askCount, minCount uint64,
-	clientID string,
-	sender sdk.AccAddress,
-) *types.MsgRequestData {
-	return types.NewMsgRequestData(oracleScriptID, calldata, askCount, minCount, clientID, sender, uint64(TestDefaultPrepareGas), uint64(TestDefaultExecuteGas))
-}
