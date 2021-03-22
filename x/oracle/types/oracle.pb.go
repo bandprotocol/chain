@@ -1022,7 +1022,7 @@ type Params struct {
 	// it gets expired due to insufficient reports.
 	ExpirationBlockCount uint64 `protobuf:"varint,3,opt,name=expiration_block_count,json=expirationBlockCount,proto3" json:"expiration_block_count,omitempty"`
 	// BaseOwasmGas is the base amount of Cosmos-SDK gas charged for owasm
-	// execution request.
+	// execution.
 	BaseOwasmGas uint64 `protobuf:"varint,4,opt,name=base_owasm_gas,json=baseOwasmGas,proto3" json:"base_owasm_gas,omitempty"`
 	// PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
 	// requested validator.

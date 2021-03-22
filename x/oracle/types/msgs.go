@@ -39,8 +39,8 @@ func NewMsgRequestData(
 	askCount, minCount uint64,
 	clientID string,
 	feeLimit sdk.Coins,
-	sender sdk.AccAddress,
 	prepareGas, executeGas uint64,
+	sender sdk.AccAddress,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,

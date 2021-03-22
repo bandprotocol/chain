@@ -245,7 +245,7 @@ message Params {
   // it gets expired due to insufficient reports.
   uint64 expiration_block_count = 3;
   // BaseOwasmGas is the base amount of Cosmos-SDK gas charged for owasm
-  // execution request.
+  // execution.
   uint64 base_owasm_gas = 4;
   // PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
   // requested validator.

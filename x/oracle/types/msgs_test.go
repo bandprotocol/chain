@@ -75,7 +75,7 @@ func TestMsgGetSigners(t *testing.T) {
 	require.Equal(t, signers, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), emptyCoins, treasuryAcc, anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
-	require.Equal(t, signers, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", emptyCoins, signerAcc, 1, 1).GetSigners())
+	require.Equal(t, signers, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", emptyCoins, 1, 1, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, anotherVal, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgActivate(signerVal).GetSigners())
 	require.Equal(t, signers, NewMsgAddReporter(signerVal, anotherAcc).GetSigners())
@@ -184,15 +184,15 @@ func TestMsgEditOracleScriptValidation(t *testing.T) {
 
 func TestMsgRequestDataValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
-		{true, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 10, 5, "client-id", GoodCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, BadTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadCoins, GoodTestAddr, 1, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, GoodTestAddr, 0, 1)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, GoodTestAddr, 1, 0)},
+		{true, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 10, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 1, BadTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadCoins, 1, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 0, 1, GoodTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 0, GoodTestAddr)},
 	})
 }
 

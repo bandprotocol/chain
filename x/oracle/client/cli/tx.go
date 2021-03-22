@@ -116,9 +116,9 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				minCount,
 				clientID,
 				sdk.NewCoins(),
-				clientCtx.GetFromAddress(),
 				prepareGas,
 				executeGas,
+				clientCtx.GetFromAddress(),
 			)
 
 			err = msg.ValidateBasic()
@@ -131,8 +131,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 
 	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
-	cmd.Flags().Uint64(flagPrepareGas, 0, "Prepare gas used in fee counting for prepare request")
-	cmd.Flags().Uint64(flagExecuteGas, 0, "Execute gas used in fee counting for execute request")
+	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
+	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
