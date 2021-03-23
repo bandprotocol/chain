@@ -47,6 +47,7 @@ var (
 	ErrMaxOracleChannels        = sdkerrors.Register(ModuleName, 41, "max oracle channels")
 	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid ICS20 version")
 	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
+	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.

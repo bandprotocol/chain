@@ -58,6 +58,11 @@ var (
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
 )
 
+const (
+	TestDefaultPrepareGas uint64 = 40000
+	TestDefaultExecuteGas uint64 = 300000
+)
+
 func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))

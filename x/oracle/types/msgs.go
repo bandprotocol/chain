@@ -34,7 +34,13 @@ var (
 
 // NewMsgRequestData creates a new MsgRequestData instance.
 func NewMsgRequestData(
-	oracleScriptID OracleScriptID, calldata []byte, askCount, minCount uint64, clientID string, feeLimit sdk.Coins, sender sdk.AccAddress,
+	oracleScriptID OracleScriptID,
+	calldata []byte,
+	askCount, minCount uint64,
+	clientID string,
+	feeLimit sdk.Coins,
+	prepareGas, executeGas uint64,
+	sender sdk.AccAddress,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,
@@ -44,6 +50,8 @@ func NewMsgRequestData(
 		ClientID:       clientID,
 		FeeLimit:       feeLimit,
 		Sender:         sender.String(),
+		PrepareGas:     prepareGas,
+		ExecuteGas:     executeGas,
 	}
 }
 
@@ -73,6 +81,12 @@ func (msg MsgRequestData) ValidateBasic() error {
 	}
 	if len(msg.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
+	}
+	if msg.PrepareGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", msg.PrepareGas)
+	}
+	if msg.ExecuteGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", msg.ExecuteGas)
 	}
 	if !msg.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())

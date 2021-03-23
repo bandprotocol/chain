@@ -37,6 +37,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			"tx_hash":          nil,
 			"client_id":        req.ClientID,
 			"resolve_status":   types.RESOLVE_STATUS_OPEN,
+			"execute_gas":      req.ExecuteGas,
 		})
 		if h.oracleKeeper.HasResult(ctx, rid) {
 			h.emitUpdateResult(ctx, rid)
@@ -147,6 +148,8 @@ func (h *Hook) handleMsgRequestData(
 		"client_id":        msg.ClientID,
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
+		"prepare_gas":      msg.PrepareGas,
+		"execute_gas":      msg.ExecuteGas,
 	})
 	h.emitRawRequestAndValRequest(id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)

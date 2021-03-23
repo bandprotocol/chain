@@ -65,8 +65,12 @@ message MsgRequestData {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
+  // PrepareGas is amount of gas to pay to prepare raw requests
+  uint64 prepare_gas = 7;
+  // ExecuteGas is amount of gas to reserve for executing
+  uint64 execute_gas = 8;
   // Sender is the sender of this message.
-  string sender = 7;
+  string sender = 9;
 }
 
 // MsgRequestDataResponse
