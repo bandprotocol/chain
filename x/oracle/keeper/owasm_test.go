@@ -6,6 +6,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/pkg/obi"
@@ -81,7 +82,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.FeePayer.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -93,47 +94,103 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		}, nil,
 	), k.MustGetRequest(ctx, 1))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeRequest,
-		sdk.NewAttribute(types.AttributeKeyID, "1"),
-		sdk.NewAttribute(types.AttributeKeyClientID, BasicClientID),
-		sdk.NewAttribute(types.AttributeKeyOracleScriptID, "1"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
-		sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
-		sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
-		sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "1"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	)}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			types.EventTypeRequest,
+			sdk.NewAttribute(types.AttributeKeyID, "1"),
+			sdk.NewAttribute(types.AttributeKeyClientID, BasicClientID),
+			sdk.NewAttribute(types.AttributeKeyOracleScriptID, "1"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
+			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "1"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		)}, ctx.EventManager().Events())
+}
+
+func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.FeePayer.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 1000000, max: 0: not enough fee: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)), testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 2000000, max: 1000000: not enough fee: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)), testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 3000000, max: 2000000: not enough fee: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)), testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 3000000, max: 2999999: not enough fee: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)), testapp.FeePayer.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.NoError(t, err)
+	require.Equal(t, types.RequestID(1), id)
+}
+
+func TestPrepareRequestSuccessBasicNotEnoughFund(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.Alice.Address, nil)
+	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds: not enough fee")
 }
 
 func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyMaxAskCount, 5)
-	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
-	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -143,7 +200,7 @@ func TestPrepareRequestBaseRequestFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyBaseRequestGas, 100000) // Set BaseRequestGas to 100000
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 0)
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
 	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(200000))
@@ -156,11 +213,11 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyBaseRequestGas, 100000)
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
-	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
+	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(200000))
 	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(190000))
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(240000))
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -168,35 +225,30 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 
 func TestPrepareRequestEmptyCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true) // Send nil while oracle script expects calldata
-	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: runtime error while executing the Wasm script")
-
+	require.EqualError(t, err, "runtime error while executing the Wasm script: bad wasm execution")
 }
 
 func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "oracle script not found: id: 999")
+	require.EqualError(t, err, "id: 999: oracle script not found")
 }
 
 func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: OEI action to invoke is not available")
+	require.EqualError(t, err, "OEI action to invoke is not available: bad wasm execution")
 }
 
 func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "empty raw requests")
+	require.EqualError(t, err, "empty raw requests")
 }
 
 func TestPrepareRequestUnknownDataSource(t *testing.T) {
@@ -204,7 +256,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.EqualError(t, err, "id: 99: data source not found: not enough fee")
 }
@@ -215,13 +267,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "bad wasm execution: too many external data requests")
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -229,26 +281,24 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 
 func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: out-of-gas while executing the wasm script")
+	require.EqualError(t, err, "out-of-gas while executing the wasm script: bad wasm execution")
 }
 
 func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.Alice.Address)
+	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: span to write is too small")
+	require.EqualError(t, err, "span to write is too small: bad wasm execution")
 }
 
 func TestResolveRequestSuccess(t *testing.T) {

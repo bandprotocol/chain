@@ -73,7 +73,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.EmptyCoins), ds)
+	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins1000000uband), ds)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
@@ -236,7 +236,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.Alice.Address)
+	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.FeePayer.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -269,7 +269,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, abci.Event(event), res.Events[6])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -279,7 +279,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[1])
+	require.Equal(t, abci.Event(event), res.Events[7])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -289,7 +289,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[2])
+	require.Equal(t, abci.Event(event), res.Events[8])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -299,25 +299,28 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[3])
+	require.Equal(t, abci.Event(event), res.Events[9])
 }
 
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.Alice.Address))
-	// require.EqualError(t, err, "insufficent available validators: 0 < 2")
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.FeePayer.Address))
+	require.EqualError(t, err, "0 < 2: insufficent available validators")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.EmptyCoins, testapp.Alice.Address))
-	// require.EqualError(t, err, "insufficent available validators: 2 < 3")
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.FeePayer.Address))
+	require.EqualError(t, err, "2 < 3: insufficent available validators")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.Alice.Address))
-	// require.EqualError(t, err, "oracle script not found: id: 999")
-	_ = err
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.FeePayer.Address))
+	require.EqualError(t, err, "id: 999: oracle script not found")
+	require.Nil(t, res)
+	// Pay not enough fee
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.FeePayer.Address))
+	require.EqualError(t, err, "require: 1000000, max: 0: not enough fee: not enough fee")
 	require.Nil(t, res)
 }
 
