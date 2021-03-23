@@ -51,15 +51,9 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	availiableKeys := make([]bool, len(c.keys))
-	// isKeyUsedFirstTime is used for gas estimation to check
-	// whether account info already stored on chain store.
-	// Account usually be stored on chain when the user send tx
-	// to chain for the first time
-	isKeyUsedFirstTime := make([]bool, len(c.keys))
 	waitingMsgs := make([][]ReportMsgWithKey, len(c.keys))
 	for i := range availiableKeys {
 		availiableKeys[i] = true
-		isKeyUsedFirstTime[i] = true
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
@@ -87,13 +81,12 @@ func runImpl(c *Context, l *Logger) error {
 		case ev := <-eventChan:
 			go handleTransaction(c, l, ev.Data.(tmtypes.EventDataTx).TxResult)
 		case keyIndex := <-c.freeKeys:
-			isKeyUsedFirstTime[keyIndex] = false
 			if len(waitingMsgs[keyIndex]) != 0 {
 				if uint64(len(waitingMsgs[keyIndex])) > c.maxReport {
-					go SubmitReport(c, l, keyIndex, isKeyUsedFirstTime[keyIndex], waitingMsgs[keyIndex][:c.maxReport])
+					go SubmitReport(c, l, keyIndex, waitingMsgs[keyIndex][:c.maxReport])
 					waitingMsgs[keyIndex] = waitingMsgs[keyIndex][c.maxReport:]
 				} else {
-					go SubmitReport(c, l, keyIndex, isKeyUsedFirstTime[keyIndex], waitingMsgs[keyIndex])
+					go SubmitReport(c, l, keyIndex, waitingMsgs[keyIndex])
 					waitingMsgs[keyIndex] = []ReportMsgWithKey{}
 				}
 			} else {
@@ -103,7 +96,7 @@ func runImpl(c *Context, l *Logger) error {
 			c.updatePendingGauge(1)
 			if availiableKeys[pm.keyIndex] {
 				availiableKeys[pm.keyIndex] = false
-				go SubmitReport(c, l, pm.keyIndex, isKeyUsedFirstTime[pm.keyIndex], []ReportMsgWithKey{pm})
+				go SubmitReport(c, l, pm.keyIndex, []ReportMsgWithKey{pm})
 			} else {
 				waitingMsgs[pm.keyIndex] = append(waitingMsgs[pm.keyIndex], pm)
 			}

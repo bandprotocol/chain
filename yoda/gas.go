@@ -1,6 +1,7 @@
 package yoda
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -101,13 +102,13 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 	return cost
 }
 
-func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, isAccountExistOnChain bool) uint64 {
+func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
 	gas := uint64(baseAuthAnteGas)
 
-	if isAccountExistOnChain {
-		gas += readAccountGas
-	} else {
+	if acc == nil || acc.GetPubKey() == nil {
 		gas += readAccountWithoutPublicKeyGas + writeAccountGas
+	} else {
+		gas += readAccountGas
 	}
 
 	txByteLength := getTxByteLength(msgs)
@@ -120,8 +121,8 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, isAccountExistOnChai
 	return gas
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, isAccountExistOnChain bool, l *Logger) uint64 {
-	gas := estimateAuthAnteHandlerGas(c, msgs, isAccountExistOnChain)
+func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
+	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
 
 	for i := range msgs {
 		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
