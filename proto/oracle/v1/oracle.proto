@@ -15,6 +15,7 @@ message DataSource {
   string name = 2;
   string description = 3;
   string filename = 4;
+  string treasury = 5;
   repeated cosmos.base.v1beta1.Coin fee = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"

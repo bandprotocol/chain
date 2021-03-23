@@ -33,7 +33,7 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, types.DataSourceID(dsCount+1))
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins), ds)
+	require.Equal(t, types.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins, treasury), ds)
 	event := abci.Event{
 		Type:       types.EventTypeCreateDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))}},
@@ -68,12 +68,12 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	newExecutable := []byte("executable2")
 	newExecutableHash := sha256.Sum256(newExecutable)
 	newFilename := hex.EncodeToString(newExecutableHash[:])
-	msg := types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.EmptyCoins), ds)
+	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.EmptyCoins, testapp.Owner.Address), ds)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
