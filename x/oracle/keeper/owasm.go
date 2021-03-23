@@ -142,7 +142,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 
 // CollectFee subtract fee from fee payer and send them to teasury
 func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, rawRequests []types.RawRequest) error {
-	collector := NewFeeCollector(k.bankKeeper, feeLimit, payer)
+	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {
 

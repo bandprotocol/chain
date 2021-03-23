@@ -40,8 +40,7 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 	return coll.bankKeeper.SendCoins(ctx, coll.payer, treasury, coins)
 }
 
-// NewFeeCollector create new fee collector
-func NewFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
+func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
 	limit := map[string]sdk.Int{}
 
 	for _, c := range feeLimit {
