@@ -9,22 +9,45 @@ import (
 
 // Constant used to estimate gas price of reports transaction.
 const (
+	// Cosmos default gas
+	readFlatGas     = 1000
+	readGasPerByte  = 3
+	writeFlatGas    = 2000
+	writeGasPerByte = 30
+	iterateFlatGas  = 30
+	hasFlatGas      = 1000
 
 	// Request components
 	baseRequestSize    = uint64(32)
 	addressSize        = uint64(20)
 	baseRawRequestSize = uint64(16)
 
-	// auth ante handlers procedures
-	baseAuthAnteGas     = uint64(34656)
-	payingFeeGasCost    = uint64(19834)
-	baseTransactionSize = uint64(253)
-	txCostPerByte       = uint64(5) // Using DefaultTxSizeCostPerByte of BandChain
+	// Auth's ante handlers keepers operations
+	authParamsByteLength           = 22
+	accountByteLength              = 176
+	accountWithoutPubKeyByteLength = 103
 
-	readParamGas                   = uint64(5066)
-	readAccountGas                 = uint64(1528)
-	readAccountWithoutPublicKeyGas = uint64(1309)
-	setAccountGas                  = uint64(7280)
+	readParamGas                   = readFlatGas*5 + authParamsByteLength*readGasPerByte
+	readAccountGas                 = readFlatGas + accountByteLength*readGasPerByte
+	readAccountWithoutPublicKeyGas = readFlatGas + accountWithoutPubKeyByteLength*readGasPerByte
+	writeAccountGas                = writeFlatGas + accountByteLength*writeGasPerByte
+
+	// Auth's ante handlers procedures
+	baseAuthAnteGas              = readParamGas*4 + readAccountGas*4 + writeAccountGas + signatureVerificationGasCost
+	payingFeeGasCost             = uint64(19834)
+	baseTransactionSize          = uint64(253)
+	txCostPerByte                = uint64(5)    // Using DefaultTxSizeCostPerByte of BandChain
+	signatureVerificationGasCost = uint64(1000) // for secp256k1 signature, which more than ed21559
+
+	// Report Data byte lengths
+	pendingRequestIDByteLength   = 9
+	requestIDByteLength          = 11
+	pendingResolveListByteLength = 137 // The list have 15 request IDs
+
+	// Report Data handlers
+	baseReportDataHandlerGas = hasFlatGas*3 + readFlatGas*3 + requestIDByteLength*readGasPerByte + writeFlatGas
+	readPendingListGas       = pendingResolveListByteLength*readGasPerByte + readFlatGas
+	writePendingListGas      = (pendingResolveListByteLength+pendingRequestIDByteLength)*writeGasPerByte + writeFlatGas
 )
 
 func getTxByteLength(msgs []sdk.Msg) uint64 {
@@ -65,10 +88,10 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 	reportByteLength := getReportMsgByteLength(msg)
 	requestByteLength := getRequestMsgByteLength(f)
 
-	cost := 6*requestByteLength + 33*reportByteLength + 8041
+	cost := 2*readGasPerByte*requestByteLength + writeGasPerByte*reportByteLength + baseReportDataHandlerGas
 
-	costWhenReachAskCountFirst := 3*reportByteLength*uint64(f.askCount) + 30*uint64(f.askCount)
-	costWhenReachMinCountFirst := 3*reportByteLength*uint64(f.minCount) + 30*uint64(f.minCount) + 7791
+	costWhenReachAskCountFirst := (reportByteLength*readGasPerByte + iterateFlatGas) * (uint64(f.askCount) + 1)
+	costWhenReachMinCountFirst := (reportByteLength*readGasPerByte+iterateFlatGas)*(uint64(f.minCount)+1) + readPendingListGas + writePendingListGas
 
 	if costWhenReachMinCountFirst > costWhenReachAskCountFirst {
 		cost += costWhenReachMinCountFirst
@@ -83,7 +106,7 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) 
 	gas := uint64(baseAuthAnteGas)
 
 	if acc == nil || acc.GetPubKey() == nil {
-		gas += readAccountWithoutPublicKeyGas + setAccountGas
+		gas += readAccountWithoutPublicKeyGas + writeAccountGas
 	} else {
 		gas += readAccountGas
 	}
