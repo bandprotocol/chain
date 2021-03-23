@@ -44,7 +44,12 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 
 // PrepareRequest takes an request specification object, performs the prepare call, and saves
 // the request object to store. Also emits events related to the request.
-func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *types.IBCSource) (types.RequestID, error) {
+func (k Keeper) PrepareRequest(
+	ctx sdk.Context,
+	r types.RequestSpec,
+	feePayer sdk.AccAddress,
+	ibcSource *types.IBCSource,
+) (types.RequestID, error) {
 	askCount := r.GetAskCount()
 	if askCount > k.GetParam(ctx, types.KeyMaxAskCount) {
 		return 0, sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.GetParam(ctx, types.KeyMaxAskCount))
@@ -79,7 +84,9 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	// k.CollectFee(ctx, r.)
+	if err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), req.RawRequests); err != nil {
+		return 0, sdkerrors.Wrapf(types.ErrNotEnoughFee, err.Error())
+	}
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
 	// Emit an event describing a data request and asked validators.
@@ -139,7 +146,14 @@ func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.C
 
 	for _, r := range rawRequests {
 
-		ds := k.MustGetDataSource(ctx, r.DataSourceID)
+		ds, err := k.GetDataSource(ctx, r.DataSourceID)
+		if err != nil {
+			return err
+		}
+
+		if ds.Fee.Empty() {
+			continue
+		}
 
 		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
 		if err != nil {
