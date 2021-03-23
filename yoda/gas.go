@@ -101,13 +101,13 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 	return cost
 }
 
-func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, isKeyUsedFirstTime bool) uint64 {
+func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, isAccountExistOnChain bool) uint64 {
 	gas := uint64(baseAuthAnteGas)
 
-	if isKeyUsedFirstTime {
-		gas += readAccountWithoutPublicKeyGas + writeAccountGas
-	} else {
+	if isAccountExistOnChain {
 		gas += readAccountGas
+	} else {
+		gas += readAccountWithoutPublicKeyGas + writeAccountGas
 	}
 
 	txByteLength := getTxByteLength(msgs)
@@ -120,8 +120,8 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, isKeyUsedFirstTime b
 	return gas
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, isKeyUsedFirstTime bool, l *Logger) uint64 {
-	gas := estimateAuthAnteHandlerGas(c, msgs, isKeyUsedFirstTime)
+func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, isAccountExistOnChain bool, l *Logger) uint64 {
+	gas := estimateAuthAnteHandlerGas(c, msgs, isAccountExistOnChain)
 
 	for i := range msgs {
 		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
