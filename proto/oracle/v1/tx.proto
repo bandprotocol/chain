@@ -7,6 +7,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // Msg defines the oracle Msg service.
 service Msg {
@@ -58,8 +59,14 @@ message MsgRequestData {
   uint64 min_count = 4;
   // ClientID is the client-provided unique identifier to tracking the request.
   string client_id = 5 [ (gogoproto.customname) = "ClientID" ];
+  // FeeLimit is the maximum tokens that will be paid to all data source
+  // providers.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // Sender is the sender of this message.
-  string sender = 6;
+  string sender = 7;
 }
 
 // MsgRequestDataResponse
@@ -96,11 +103,19 @@ message MsgCreateDataSource {
   // Executable is the executable script or binary to be run by validators upon
   // execution.
   bytes executable = 3;
+  // Fee is the data source fee per ask_count that data provider will receive
+  // from requester.
+  repeated cosmos.base.v1beta1.Coin fee = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // Treasury is the address who recive data source fee from requester.
+  string treasury = 5;
   // Owner is the address who is allowed to make further changes to the data
   // source.
-  string owner = 4;
+  string owner = 6;
   // Sender is the signer of this message.
-  string sender = 5;
+  string sender = 7;
 }
 
 // MsgCreateDataSourceResponse
@@ -121,12 +136,20 @@ message MsgEditDataSource {
   // Executable is the executable script or binary to be run by validators upon
   // execution.
   bytes executable = 4;
-  // Owner is the new address who is allowed to make further changes to the data
+  // Fee is the data source fee per ask_count that data provider will receive
+  // from requester.
+  repeated cosmos.base.v1beta1.Coin fee = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // Treasury is the address who recive data source fee from requester.
+  string treasury = 6;
+  // Owner is the address who is allowed to make further changes to the data
   // source.
-  string owner = 5;
+  string owner = 7;
   // Sender is the signer of this message. Must be the current data source's
   // owner.
-  string sender = 6;
+  string sender = 8;
 }
 
 // MsgEditDataSourceResponse

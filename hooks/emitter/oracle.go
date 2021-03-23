@@ -36,7 +36,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			"min_count":        req.MinCount,
 			"tx_hash":          nil,
 			"client_id":        req.ClientID,
-			"resolve_status":   types.ResolveStatus_RESOLVE_STATUS_OPEN,
+			"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		})
 		if h.oracleKeeper.HasResult(ctx, rid) {
 			h.emitUpdateResult(ctx, rid)
@@ -123,10 +123,10 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":             id,
-		"request_time":   result.ResponsePacketData.RequestTime,
-		"resolve_time":   result.ResponsePacketData.ResolveTime,
-		"resolve_status": result.ResponsePacketData.ResolveStatus,
-		"result":         parseBytes(result.ResponsePacketData.Result),
+		"request_time":   result.RequestTime,
+		"resolve_time":   result.ResolveTime,
+		"resolve_status": result.ResolveStatus,
+		"result":         parseBytes(result.Result),
 	})
 }
 
@@ -145,7 +145,7 @@ func (h *Hook) handleMsgRequestData(
 		"min_count":        msg.MinCount,
 		"sender":           msg.Sender,
 		"client_id":        msg.ClientID,
-		"resolve_status":   types.ResolveStatus_RESOLVE_STATUS_OPEN,
+		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 	})
 	h.emitRawRequestAndValRequest(id, req)

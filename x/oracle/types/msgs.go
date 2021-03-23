@@ -34,7 +34,7 @@ var (
 
 // NewMsgRequestData creates a new MsgRequestData instance.
 func NewMsgRequestData(
-	oracleScriptID OracleScriptID, calldata []byte, askCount, minCount uint64, clientID string, sender sdk.AccAddress,
+	oracleScriptID OracleScriptID, calldata []byte, askCount, minCount uint64, clientID string, feeLimit sdk.Coins, sender sdk.AccAddress,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,
@@ -42,6 +42,7 @@ func NewMsgRequestData(
 		AskCount:       askCount,
 		MinCount:       minCount,
 		ClientID:       clientID,
+		FeeLimit:       feeLimit,
 		Sender:         sender.String(),
 	}
 }
@@ -72,6 +73,9 @@ func (msg MsgRequestData) ValidateBasic() error {
 	}
 	if len(msg.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
+	}
+	if !msg.FeeLimit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())
 	}
 	return nil
 }
@@ -150,12 +154,14 @@ func (msg MsgReportData) GetSignBytes() []byte {
 
 // NewMsgCreateDataSource creates a new MsgCreateDataSource instance
 func NewMsgCreateDataSource(
-	name, description string, executable []byte, owner, sender sdk.AccAddress,
+	name, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
 ) *MsgCreateDataSource {
 	return &MsgCreateDataSource{
 		Name:        name,
 		Description: description,
 		Executable:  executable,
+		Fee:         fee,
+		Treasury:    treasury.String(),
 		Owner:       owner.String(),
 		Sender:      sender.String(),
 	}
@@ -169,6 +175,10 @@ func (msg MsgCreateDataSource) Type() string { return TypeMsgCreateDataSource }
 
 // ValidateBasic checks whether the given MsgCreateDataSource instance (sdk.Msg interface).
 func (msg MsgCreateDataSource) ValidateBasic() error {
+	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+	if err != nil {
+		return err
+	}
 	owner, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return err
@@ -176,6 +186,9 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return err
+	}
+	if err := sdk.VerifyAddressFormat(treasury); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
@@ -188,6 +201,9 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 	}
 	if len(msg.Description) > MaxDescriptionLength {
 		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	}
+	if !msg.Fee.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Fee.String())
 	}
 	if len(msg.Executable) == 0 {
 		return ErrEmptyExecutable
@@ -215,13 +231,15 @@ func (msg MsgCreateDataSource) GetSignBytes() []byte {
 
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
 func NewMsgEditDataSource(
-	dataSourceID DataSourceID, name string, description string, executable []byte, owner, sender sdk.AccAddress,
+	dataSourceID DataSourceID, name string, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
 ) *MsgEditDataSource {
 	return &MsgEditDataSource{
 		DataSourceID: dataSourceID,
 		Name:         name,
 		Description:  description,
 		Executable:   executable,
+		Fee:          fee,
+		Treasury:     treasury.String(),
 		Owner:        owner.String(),
 		Sender:       sender.String(),
 	}
@@ -235,6 +253,10 @@ func (msg MsgEditDataSource) Type() string { return TypeMsgEditDataSource }
 
 // ValidateBasic checks whether the given MsgEditDataSource instance (sdk.Msg interface).
 func (msg MsgEditDataSource) ValidateBasic() error {
+	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+	if err != nil {
+		return err
+	}
 	owner, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return err
@@ -242,6 +264,9 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return err
+	}
+	if err := sdk.VerifyAddressFormat(treasury); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
@@ -254,6 +279,9 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 	}
 	if len(msg.Description) > MaxDescriptionLength {
 		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	}
+	if !msg.Fee.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Fee.String())
 	}
 	if len(msg.Executable) == 0 {
 		return ErrEmptyExecutable

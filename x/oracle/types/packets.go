@@ -7,7 +7,7 @@ import (
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64,
+	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -15,6 +15,8 @@ func NewOracleRequestPacketData(
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
+		FeeLimit:       feeLimit,
+		RequestKey:     requestKey,
 	}
 }
 
