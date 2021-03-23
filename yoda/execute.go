@@ -112,7 +112,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	key := c.keys[keyIndex]
 	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
 	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
-	gasLimit := estimateGas(c, msgs, feeEstimations)
+	gasLimit := estimateGas(c, msgs, feeEstimations, l)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
