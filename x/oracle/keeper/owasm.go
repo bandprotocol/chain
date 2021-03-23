@@ -12,6 +12,13 @@ import (
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
+// 1 cosmos gas is equal to 7 owasm gas
+const gasConversionFactor = 7
+
+func convertToOwasmGas(cosmos uint64) uint32 {
+	return uint32(cosmos * gasConversionFactor)
+}
+
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
 // chance of getting selected directly proportional to the amount of voting power it has.
 func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.ValAddress, error) {
@@ -49,37 +56,47 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 	if askCount > k.GetParam(ctx, types.KeyMaxAskCount) {
 		return 0, sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.GetParam(ctx, types.KeyMaxAskCount))
 	}
-	// Consume gas for data requests. We trust that we have reasonable params that don't cause overflow.
-	ctx.GasMeter().ConsumeGas(k.GetParam(ctx, types.KeyBaseRequestGas), "BASE_REQUEST_FEE")
+
+	// Consume gas for data requests.
 	ctx.GasMeter().ConsumeGas(askCount*k.GetParam(ctx, types.KeyPerValidatorRequestGas), "PER_VALIDATOR_REQUEST_FEE")
+
 	// Get a random validator set to perform this request.
 	validators, err := k.GetRandomValidators(ctx, int(askCount), k.GetRequestCount(ctx)+1)
 	if err != nil {
 		return 0, err
 	}
+
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource,
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource, r.GetExecuteGas(),
 	)
+
 	// Create an execution environment and call Owasm prepare function.
 	env := types.NewPrepareEnv(req, int64(k.GetParam(ctx, types.KeyMaxRawRequestCount)))
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
 		return 0, err
 	}
+
+	// Consume fee and execute owasm code
+	ctx.GasMeter().ConsumeGas(k.GetParam(ctx, types.KeyBaseOwasmGas), "BASE_OWASM_FEE")
+	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, types.WasmPrepareGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), types.MaxDataSize, env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
+
 	// Preparation complete! It's time to collect raw request ids.
 	req.RawRequests = env.GetRawRequests()
 	if len(req.RawRequests) == 0 {
 		return 0, types.ErrEmptyRawRequests
 	}
+
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
+
 	// Emit an event describing a data request and asked validators.
 	event := sdk.NewEvent(types.EventTypeRequest)
 	event = event.AppendAttributes(
@@ -95,6 +112,11 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
 	}
 	ctx.EventManager().EmitEvent(event)
+
+	// Subtract execute fee
+	ctx.GasMeter().ConsumeGas(k.GetParam(ctx, types.KeyBaseOwasmGas), "BASE_OWASM_FEE")
+	ctx.GasMeter().ConsumeGas(r.GetExecuteGas(), "OWASM_EXECUTE_FEE")
+
 	// Emit an event for each of the raw data requests.
 	for _, rawReq := range env.GetRawRequests() {
 		ds, err := k.GetDataSource(ctx, rawReq.DataSourceID)
@@ -119,7 +141,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(code, types.WasmExecuteGas, types.MaxDataSize, env)
+	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 		// TODO: send response to IBC module on fail request

@@ -24,6 +24,7 @@ require (
 	github.com/poy/onpar v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.8.0
 	github.com/rakyll/statik v0.1.7
+	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/segmentio/kafka-go v0.4.9
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.1
@@ -34,6 +35,7 @@ require (
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
 	google.golang.org/grpc v1.35.0
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

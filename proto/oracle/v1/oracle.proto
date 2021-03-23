@@ -72,6 +72,7 @@ message Request {
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
   repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
   IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
+  uint64 execute_gas = 10;
 }
 
 // Report is the data structure for storing reports in the storage.
@@ -133,6 +134,10 @@ message OracleRequestPacketData {
   // RequestKey is the key from request chain to match data source fee payer on
   // Bandchain
   string request_key = 7;
+  // PrepareGas is amount of gas to pay to prepare raw requests
+  uint64 prepare_gas = 8;
+  // ExecuteGas is amount of gas to reserve for executing
+  uint64 execute_gas = 9;
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
@@ -239,9 +244,9 @@ message Params {
   // ExpirationBlockCount is the number of blocks a request stays valid before
   // it gets expired due to insufficient reports.
   uint64 expiration_block_count = 3;
-  // BaseRequestGas is the base amount of Cosmos-SDK gas charged for an oracle
-  // request.
-  uint64 base_request_gas = 4;
+  // BaseOwasmGas is the base amount of Cosmos-SDK gas charged for owasm
+  // execution.
+  uint64 base_owasm_gas = 4;
   // PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
   // requested validator.
   uint64 per_validator_request_gas = 5;
