@@ -77,7 +77,7 @@ func signAndBroadcast(
 	return res.TxHash, nil
 }
 
-func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {
+func SubmitReport(c *Context, l *Logger, keyIndex int64, isKeyUsedFirstTime bool, reports []ReportMsgWithKey) {
 	// Return key and update pending metric when done with SubmitReport whether successfully or not.
 	defer func() {
 		c.freeKeys <- keyIndex
@@ -111,17 +111,8 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
 	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-	clientCtx := client.Context{
-		Client:            c.client,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
-	}
-	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
-	if err != nil {
-		l.Debug(":warning: Failed to query account with error: %s", err.Error())
-	}
-	gasLimit := estimateGas(c, msgs, feeEstimations, acc, l)
+	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
+	gasLimit := estimateGas(c, msgs, feeEstimations, !isKeyUsedFirstTime, l)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
