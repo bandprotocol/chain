@@ -22,33 +22,9 @@ type GasMeterWrapper struct {
 	GasRecords []GasRecord
 }
 
-func (m *GasMeterWrapper) GasConsumed() sdk.Gas {
-	return m.GasMeter.GasConsumed()
-}
-
-func (m *GasMeterWrapper) GasConsumedToLimit() sdk.Gas {
-	return m.GasMeter.GasConsumedToLimit()
-}
-
-func (m *GasMeterWrapper) Limit() sdk.Gas {
-	return m.GasMeter.Limit()
-}
-
 func (m *GasMeterWrapper) ConsumeGas(amount sdk.Gas, descriptor string) {
 	m.GasRecords = append(m.GasRecords, GasRecord{amount, descriptor})
 	m.GasMeter.ConsumeGas(amount, descriptor)
-}
-
-func (m *GasMeterWrapper) IsPastLimit() bool {
-	return m.GasMeter.IsPastLimit()
-}
-
-func (m *GasMeterWrapper) IsOutOfGas() bool {
-	return m.GasMeter.IsOutOfGas()
-}
-
-func (m *GasMeterWrapper) String() string {
-	return m.GasMeter.String()
 }
 
 func (m *GasMeterWrapper) CountRecord(amount sdk.Gas, descriptor string) int {
