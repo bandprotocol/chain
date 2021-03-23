@@ -26,6 +26,7 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
+	flagFeeLimit      = "fee-limit"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -98,24 +99,33 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				return err
 			}
 
-			prepareGas, _ := cmd.Flags().GetUint64(flagPrepareGas)
+			prepareGas, err := cmd.Flags().GetUint64(flagPrepareGas)
 			if err != nil {
 				return err
 			}
 
-			executeGas, _ := cmd.Flags().GetUint64(flagExecuteGas)
+			executeGas, err := cmd.Flags().GetUint64(flagExecuteGas)
 			if err != nil {
 				return err
 			}
 
-			// TODO: Add fee limit flag
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
 				askCount,
 				minCount,
 				clientID,
-				sdk.NewCoins(),
+				feeLimit,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
@@ -133,6 +143,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
+	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -186,12 +197,21 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
-			// TODO: Add tresury and fee flag
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgCreateDataSource(
 				name,
 				description,
 				execBytes,
-				sdk.NewCoins(),
+				feeLimit,
 				owner,
 				owner,
 				clientCtx.GetFromAddress(),
@@ -209,6 +229,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -270,13 +291,22 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			// TODO: Add tresury and fee flag
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgEditDataSource(
 				dataSourceID,
 				name,
 				description,
 				execBytes,
-				sdk.NewCoins(),
+				feeLimit,
 				owner,
 				owner,
 				clientCtx.GetFromAddress(),
@@ -294,6 +324,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagDescription, types.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, types.DoNotModify, "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
