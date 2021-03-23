@@ -1,6 +1,7 @@
 package yoda
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -8,17 +9,22 @@ import (
 
 // Constant used to estimate gas price of reports transaction.
 const (
-	// cosmos
-	baseFixedGas        = uint64(43245)
+
+	// Request components
+	baseRequestSize    = uint64(32)
+	addressSize        = uint64(20)
+	baseRawRequestSize = uint64(16)
+
+	// auth ante handlers procedures
+	baseAuthAnteGas     = uint64(34656)
+	payingFeeGasCost    = uint64(19834)
 	baseTransactionSize = uint64(253)
 	txCostPerByte       = uint64(5) // Using DefaultTxSizeCostPerByte of BandChain
 
-	payingFeeGasCost = uint64(19834)
-
-	baseRequestSize = uint64(32)
-	addressSize     = uint64(20)
-
-	baseRawRequestSize = uint64(16)
+	readParamGas                   = uint64(5066)
+	readAccountGas                 = uint64(1528)
+	readAccountWithoutPublicKeyGas = uint64(1309)
+	setAccountGas                  = uint64(7280)
 )
 
 func getTxByteLength(msgs []sdk.Msg) uint64 {
@@ -73,8 +79,14 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 	return cost
 }
 
-func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
-	gas := uint64(baseFixedGas)
+func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
+	gas := uint64(baseAuthAnteGas)
+
+	if acc == nil || acc.GetPubKey() == nil {
+		gas += readAccountWithoutPublicKeyGas + setAccountGas
+	} else {
+		gas += readAccountGas
+	}
 
 	txByteLength := getTxByteLength(msgs)
 	gas += txCostPerByte * txByteLength
@@ -86,8 +98,8 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 	return gas
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, l *Logger) uint64 {
-	gas := estimateAuthAnteHandlerGas(c, msgs)
+func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
+	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
 
 	for i := range msgs {
 		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
