@@ -116,6 +116,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
 	if err != nil {
 		l.Debug(":warning: Failed to query account with error: %s", err.Error())
+		return
 	}
 
 	gasLimit := estimateGas(c, msgs, feeEstimations, acc, l)

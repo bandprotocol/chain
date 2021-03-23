@@ -105,7 +105,7 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
 	gas := uint64(baseAuthAnteGas)
 
-	if acc == nil || acc.GetPubKey() == nil {
+	if acc.GetPubKey() == nil {
 		gas += readAccountWithoutPublicKeyGas + writeAccountGas
 	} else {
 		gas += readAccountGas
