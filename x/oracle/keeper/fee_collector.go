@@ -15,57 +15,55 @@ type FeeCollector interface {
 type feeCollector struct {
 	bankKeeper types.BankKeeper
 	payer      sdk.AccAddress
-	collected  map[string]sdk.Int
-	limit      map[string]sdk.Int
+	collected  map[string]sdk.Coin
+	limit      map[string]sdk.Coin
 }
 
 func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk.AccAddress) error {
 	for _, c := range coins {
 		if _, found := coll.collected[c.Denom]; !found {
-			coll.collected[c.Denom] = sdk.NewInt(0)
+			coll.collected[c.Denom] = sdk.NewCoin(c.Denom, sdk.ZeroInt())
 		}
 
-		coll.collected[c.Denom] = coll.collected[c.Denom].Add(c.Amount)
+		coll.collected[c.Denom] = coll.collected[c.Denom].Add(c)
 		collected := coll.collected[c.Denom]
 
-		limit := sdk.NewInt(0)
+		limit := sdk.NewCoin(c.Denom, sdk.ZeroInt())
 		if cLimit, found := coll.limit[c.Denom]; found {
 			limit = cLimit
 		}
 
-		if collected.GT(limit) {
-			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %d%s, max: %d%s", collected.Int64(), c.Denom, limit.Int64(), c.Denom)
+		if collected.IsGTE(limit) && !collected.Equal(limit) { // Need GT but have no
+			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %s, max: %s", collected.String(), limit.String())
 		}
 	}
 
+	// Actual send coins
 	return coll.bankKeeper.SendCoins(ctx, coll.payer, treasury, coins)
 }
 
 func (coll *feeCollector) Collected() sdk.Coins {
 	coins := sdk.NewCoins()
 
-	for d, amt := range coll.collected {
-		coins = append(coins, sdk.NewCoin(d, amt))
+	for _, c := range coll.collected {
+		coins = append(coins, c)
 	}
 
-	return coins
+	return coins.Sort()
 }
 
 func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-	limit := map[string]sdk.Int{}
+	limit := map[string]sdk.Coin{}
 
+	// Coins is sorted and there are no duplicated denom
 	for _, c := range feeLimit {
-		if _, found := limit[c.Denom]; !found {
-			limit[c.Denom] = sdk.NewInt(0)
-		}
-
-		limit[c.Denom] = limit[c.Denom].Add(c.Amount)
+		limit[c.Denom] = c
 	}
 
 	return &feeCollector{
 		bankKeeper: bankKeeper,
 		payer:      payer,
-		collected:  map[string]sdk.Int{},
+		collected:  map[string]sdk.Coin{},
 		limit:      limit,
 	}
 }
