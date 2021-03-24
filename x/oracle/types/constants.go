@@ -1,5 +1,9 @@
 package types
 
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 // nolint
 const (
 	DoNotModify = "[do-not-modify]"
@@ -22,4 +26,5 @@ const (
 // nolint
 var (
 	DoNotModifyBytes = []byte(DoNotModify)
+	DoNotModifyCoins = sdk.NewCoins(sdk.NewCoin("donotmodify", sdk.NewInt(0)))
 )
