@@ -73,7 +73,7 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Creates some basic data sources.
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.Coins1000000uband, testapp.Treasury.Address)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", types.DoNotModifyCoins, types.DoNotModifyBytes)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", types.DoNotModifyCoins, testapp.Bob.Address)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
@@ -88,7 +88,7 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 	require.Equal(t, dataSourceRes.Description, dataSource1.Description)
 	require.Equal(t, dataSourceRes.Filename, dataSource2.Filename)
 	require.Equal(t, dataSourceRes.Fee, dataSource1.Fee)
-	require.Equal(t, dataSourceRes.Treasury, dataSource1.Treasury)
+	require.Equal(t, dataSourceRes.Treasury, dataSource2.Treasury)
 }
 
 func TestAddDataSourceDataSourceMustReturnCorrectID(t *testing.T) {
