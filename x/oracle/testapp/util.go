@@ -1,9 +1,14 @@
 package testapp
 
 import (
+	"testing"
 	"time"
 
+	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/stretchr/testify/require"
 )
 
 // ParseTime is a helper function to parse from number to time.Time with UTC locale.
@@ -52,4 +57,30 @@ func (m *GasMeterWrapper) CountDescriptor(descriptor string) int {
 // NewGasMeterWrapper to wrap gas meters for testing purposes
 func NewGasMeterWrapper(meter sdk.GasMeter) *GasMeterWrapper {
 	return &GasMeterWrapper{meter, nil}
+}
+
+func MustGetBalances(ctx sdk.Context, bankKeeper bandbankkeeper.WrappedBankKeeper, address sdk.AccAddress) sdk.Coins {
+	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
+	if err != nil {
+		panic(err)
+	}
+
+	return balancesRes.Balances
+}
+
+func EqualCoins(t *testing.T, expected, actual sdk.Coins, msgAndArgs ...interface{}) {
+	require.Equal(t, expected.Sort(), actual.Sort(), msgAndArgs...)
+}
+
+func CheckBalances(
+	t *testing.T,
+	ctx sdk.Context,
+	bankKeeper bandbankkeeper.WrappedBankKeeper,
+	address sdk.AccAddress,
+	expected sdk.Coins,
+) {
+	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
+	require.NoError(t, err)
+
+	EqualCoins(t, expected, balancesRes.Balances)
 }

@@ -99,7 +99,7 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	if err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), req.RawRequests); err != nil {
+	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), req.RawRequests); err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrNotEnoughFee, err.Error())
 	}
 	// We now have everything we need to the request, so let's add it to the store.
@@ -162,14 +162,14 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 }
 
 // CollectFee subtract fee from fee payer and send them to teasury
-func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, rawRequests []types.RawRequest) error {
+func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, rawRequests []types.RawRequest) (sdk.Coins, error) {
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {
 
 		ds, err := k.GetDataSource(ctx, r.DataSourceID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if ds.Fee.Empty() {
@@ -178,13 +178,13 @@ func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.C
 
 		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if err := collector.Collect(ctx, ds.Fee, treasury); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return collector.Collected(), nil
 }

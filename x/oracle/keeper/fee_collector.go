@@ -9,6 +9,7 @@ import (
 // FeeCollector define fee collector
 type FeeCollector interface {
 	Collect(sdk.Context, sdk.Coins, sdk.AccAddress) error
+	Collected() sdk.Coins
 }
 
 type feeCollector struct {
@@ -33,11 +34,21 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 		}
 
 		if collected.GT(limit) {
-			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %d, max: %d", collected.Int64(), limit.Int64())
+			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %d%s, max: %d%s", collected.Int64(), c.Denom, limit.Int64(), c.Denom)
 		}
 	}
 
 	return coll.bankKeeper.SendCoins(ctx, coll.payer, treasury, coins)
+}
+
+func (coll *feeCollector) Collected() sdk.Coins {
+	coins := sdk.NewCoins()
+
+	for d, amt := range coll.collected {
+		coins = append(coins, sdk.NewCoin(d, amt))
+	}
+
+	return coins
 }
 
 func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
