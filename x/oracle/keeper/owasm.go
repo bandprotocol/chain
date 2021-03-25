@@ -100,7 +100,7 @@ func (k Keeper) PrepareRequest(
 	}
 	// Collect ds fee
 	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests); err != nil {
-		return 0, sdkerrors.Wrapf(types.ErrNotEnoughFee, err.Error())
+		return 0, err
 	}
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
@@ -163,6 +163,11 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 
 // CollectFee subtract fee from fee payer and send them to teasury
 func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
+
+	if err := feeLimit.Validate(); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
+	}
+
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {

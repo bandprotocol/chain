@@ -343,7 +343,7 @@ func TestRequestDataFail(t *testing.T) {
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "require: 2000000uband, max: 0uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 2000000uband, max: 0uband: not enough fee")
 	require.Nil(t, res)
 }
 

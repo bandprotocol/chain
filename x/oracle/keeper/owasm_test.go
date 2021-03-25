@@ -169,16 +169,16 @@ func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "require: 1000000uband, max: 0uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 1000000uband, max: 0uband: not enough fee")
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "require: 2000000uband, max: 1000000uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 2000000uband, max: 1000000uband: not enough fee")
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "require: 3000000uband, max: 2000000uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 3000000uband, max: 2000000uband: not enough fee")
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "require: 3000000uband, max: 2999999uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 3000000uband, max: 2999999uband: not enough fee")
 	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.NoError(t, err)
@@ -191,7 +191,7 @@ func TestPrepareRequestSuccessBasicNotEnoughFund(t *testing.T) {
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.Alice.Address, nil)
-	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds: not enough fee")
+	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds")
 }
 
 func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
@@ -306,7 +306,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "id: 99: data source not found: not enough fee")
+	require.EqualError(t, err, "id: 99: data source not found")
 }
 
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
@@ -784,4 +784,20 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 	// Carol
 	_, err = k.CollectFee(ctx, testapp.Carol.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Carol.Address), 1, raws)
 	require.EqualError(t, err, "require: 3000000uband, max: 1000000uband: not enough fee")
+}
+
+func TestCollectFeeWithInvalidCoins(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	invalidCoins := sdk.Coins{sdk.Coin{Denom: "uband", Amount: sdk.NewInt(1).Neg()}}
+	_, err := k.CollectFee(ctx, testapp.FeePayer.Address, invalidCoins, 1, raws)
+	require.EqualError(t, err, "coin -1uband amount is not positive: invalid coins")
 }
