@@ -147,6 +147,8 @@ data_sources = sa.Table(
     Column("description", sa.String),
     Column("owner", sa.String),
     Column("executable", CustomBase64),
+    Column("treasury", sa.String),
+    Column("fee", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
 )
 
@@ -172,6 +174,9 @@ requests = sa.Table(
     Column("calldata", CustomBase64),
     Column("ask_count", sa.Integer),
     Column("min_count", sa.Integer),
+    Column("fee_limit", sa.String),
+    Column("prepare_gas", sa.Integer),
+    Column("execute_gas", sa.Integer),
     Column("sender", sa.String, nullable=True),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True),
@@ -257,12 +262,7 @@ validator_votes = sa.Table(
     "validator_votes",
     metadata,
     Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), primary_key=True),
-    Column(
-        "consensus_address",
-        sa.String,
-        sa.ForeignKey("validators.consensus_address"),
-        primary_key=True,
-    ),
+    Column("consensus_address", sa.String, sa.ForeignKey("validators.consensus_address"), primary_key=True,),
     Column("voted", sa.Boolean),
 )
 
@@ -373,10 +373,7 @@ oracle_script_requests = sa.Table(
 )
 
 request_count_per_days = sa.Table(
-    "request_count_per_days",
-    metadata,
-    Column("date", CustomDate, primary_key=True),
-    Column("count", sa.Integer),
+    "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
 )
 
 packets = sa.Table(
