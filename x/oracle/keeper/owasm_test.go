@@ -740,7 +740,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 	require.NoError(t, err)
 
 	// Coins sum is correct
-	testapp.EqualCoins(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))), coins)
+	require.True(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))).IsEqual(coins))
 
 	// FeePayer balance
 	// start: 100band, 0abc

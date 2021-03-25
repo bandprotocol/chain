@@ -68,10 +68,6 @@ func MustGetBalances(ctx sdk.Context, bankKeeper bandbankkeeper.WrappedBankKeepe
 	return balancesRes.Balances
 }
 
-func EqualCoins(t *testing.T, expected, actual sdk.Coins, msgAndArgs ...interface{}) {
-	require.Equal(t, expected.Sort(), actual.Sort(), msgAndArgs...)
-}
-
 func CheckBalances(
 	t *testing.T,
 	ctx sdk.Context,
@@ -82,5 +78,5 @@ func CheckBalances(
 	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
 	require.NoError(t, err)
 
-	EqualCoins(t, expected, balancesRes.Balances)
+	require.True(t, expected.IsEqual(balancesRes.Balances))
 }
