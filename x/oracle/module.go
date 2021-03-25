@@ -3,6 +3,7 @@ package oracle
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 	"math/rand"
 
@@ -22,6 +23,7 @@ import (
 	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/bandprotocol/chain/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/x/oracle/client/rest"
@@ -329,12 +331,27 @@ func (am AppModule) OnRecvPacket(
 	}
 
 	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-	id, err := am.keeper.PrepareRequest(ctx, &data, &source)
+
+	ms := ctx.MultiStore()
+	msCache := ms.CacheMultiStore()
+	if msCache.TracingEnabled() {
+		msCache = msCache.SetTracingContext(
+			sdk.TraceContext(
+				map[string]interface{}{
+					// TODO: Find a good key of packet (like tx hash for transaction)
+					"packet": fmt.Sprintf("%X", tmhash.Sum(packet.GetData())),
+				},
+			),
+		).(sdk.CacheMultiStore)
+	}
+
+	id, err := am.keeper.PrepareRequest(ctx.WithMultiStore(msCache), &data, &source)
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
+		msCache.Write()
 		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 
