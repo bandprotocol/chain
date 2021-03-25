@@ -51,8 +51,9 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
+			// TODO: Add fee tag
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
-				owner, args[0], args[1], filename,
+				owner, args[0], args[1], filename, sdk.NewCoins(),
 			))
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
 

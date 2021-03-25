@@ -24,6 +24,8 @@ const (
 	flagClientID      = "client-id"
 	flagSchema        = "schema"
 	flagSourceCodeURL = "url"
+	flagPrepareGas    = "prepare-gas"
+	flagExecuteGas    = "execute-gas"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -52,7 +54,7 @@ func NewTxCmd() *cobra.Command {
 // GetCmdRequest implements the request command handler.
 func GetCmdRequest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id])",
+		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id]) (--prepare-gas=[prepare-gas] (--execute-gas=[execute-gas]))",
 		Short: "Make a new data request via an existing oracle script",
 		Args:  cobra.ExactArgs(3),
 		Long: strings.TrimSpace(
@@ -96,12 +98,26 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				return err
 			}
 
+			prepareGas, _ := cmd.Flags().GetUint64(flagPrepareGas)
+			if err != nil {
+				return err
+			}
+
+			executeGas, _ := cmd.Flags().GetUint64(flagExecuteGas)
+			if err != nil {
+				return err
+			}
+
+			// TODO: Add fee limit flag
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
 				askCount,
 				minCount,
 				clientID,
+				sdk.NewCoins(),
+				prepareGas,
+				executeGas,
 				clientCtx.GetFromAddress(),
 			)
 
@@ -115,6 +131,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 
 	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
+	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
+	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -168,10 +186,13 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
+			// TODO: Add tresury and fee flag
 			msg := types.NewMsgCreateDataSource(
 				name,
 				description,
 				execBytes,
+				sdk.NewCoins(),
+				owner,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -249,11 +270,14 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
+			// TODO: Add tresury and fee flag
 			msg := types.NewMsgEditDataSource(
 				dataSourceID,
 				name,
 				description,
 				execBytes,
+				sdk.NewCoins(),
+				owner,
 				owner,
 				clientCtx.GetFromAddress(),
 			)

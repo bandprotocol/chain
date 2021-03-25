@@ -18,6 +18,9 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
+	GetPrepareGas() uint64
+	GetExecuteGas() uint64
+	GetFeeLimit() sdk.Coins
 }
 
 func NewRawRequest(
@@ -42,6 +45,7 @@ func NewRequest(
 	clientID string,
 	rawRequests []RawRequest,
 	iBCSource *IBCSource,
+	executeGas uint64,
 ) Request {
 	requestedVals := make([]string, len(requestedValidators))
 	if requestedValidators != nil {
@@ -61,5 +65,6 @@ func NewRequest(
 		ClientID:            clientID,
 		RawRequests:         rawRequests,
 		IBCSource:           iBCSource,
+		ExecuteGas:          executeGas,
 	}
 }
