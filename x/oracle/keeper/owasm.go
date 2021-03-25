@@ -161,7 +161,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	}
 }
 
-// CollectFee subtract fee from fee payer and send them to teasury
+// CollectFee subtract fee from fee payer and send them to treasury
 func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
 
 	if err := feeLimit.Validate(); err != nil {

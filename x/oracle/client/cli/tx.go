@@ -20,7 +20,7 @@ const (
 	flagDescription   = "description"
 	flagScript        = "script"
 	flagOwner         = "owner"
-	flagTeasury       = "teasury"
+	flagTreasury      = "treasury"
 	flagFee           = "fee"
 	flagCalldata      = "calldata"
 	flagClientID      = "client-id"
@@ -143,13 +143,13 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 // GetCmdCreateDataSource implements the create data source command handler.
 func GetCmdCreateDataSource() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-data-source (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--teasury [teasury]) (--fee [fee])",
+		Use:   "create-data-source (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--treasury [treasury]) (--fee [fee])",
 		Short: "Create a new data source",
 		Args:  cobra.NoArgs,
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new data source that will be used by oracle scripts.
 Example:
-$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --teasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
+$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
 `,
 				version.AppName,
 			),
@@ -188,11 +188,11 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
-			teasuryStr, err := cmd.Flags().GetString(flagTeasury)
+			treasuryStr, err := cmd.Flags().GetString(flagTreasury)
 			if err != nil {
 				return err
 			}
-			teasury, err := sdk.AccAddressFromBech32(teasuryStr)
+			treasury, err := sdk.AccAddressFromBech32(treasuryStr)
 			if err != nil {
 				return err
 			}
@@ -212,7 +212,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				description,
 				execBytes,
 				fee,
-				teasury,
+				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -229,7 +229,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
-	cmd.Flags().String(flagTeasury, "", "Teasury of this data source")
+	cmd.Flags().String(flagTreasury, "", "Treasury of this data source")
 	cmd.Flags().String(flagFee, "", "Fee of this data source")
 	flags.AddTxFlagsToCmd(cmd)
 
@@ -239,13 +239,13 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 // GetCmdEditDataSource implements the edit data source command handler.
 func GetCmdEditDataSource() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit-data-source [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--teasury [teasury]) (--fee [fee])",
+		Use:   "edit-data-source [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--treasury [treasury]) (--fee [fee])",
 		Short: "Edit data source",
 		Args:  cobra.ExactArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Edit an existing data source. The caller must be the current data source's owner.
 Example:
-$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --teasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
+$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
 `,
 				version.AppName,
 			),
@@ -292,11 +292,11 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			teasuryStr, err := cmd.Flags().GetString(flagTeasury)
+			treasuryStr, err := cmd.Flags().GetString(flagTreasury)
 			if err != nil {
 				return err
 			}
-			teasury, err := sdk.AccAddressFromBech32(teasuryStr)
+			treasury, err := sdk.AccAddressFromBech32(treasuryStr)
 			if err != nil {
 				return err
 			}
@@ -317,7 +317,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				description,
 				execBytes,
 				fee,
-				teasury,
+				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -334,7 +334,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagDescription, types.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, types.DoNotModify, "Path to this data source script")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
-	cmd.Flags().String(flagTeasury, "", "Teasury of this data source")
+	cmd.Flags().String(flagTreasury, "", "Treasury of this data source")
 	cmd.Flags().String(flagFee, "", "Fee of this data source")
 	flags.AddTxFlagsToCmd(cmd)
 
