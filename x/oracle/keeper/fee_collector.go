@@ -15,26 +15,18 @@ type FeeCollector interface {
 type feeCollector struct {
 	bankKeeper types.BankKeeper
 	payer      sdk.AccAddress
-	collected  map[string]sdk.Coin
-	limit      map[string]sdk.Coin
+	collected  sdk.Coins
+	limit      sdk.Coins
 }
 
 func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk.AccAddress) error {
-	for _, c := range coins {
-		if _, found := coll.collected[c.Denom]; !found {
-			coll.collected[c.Denom] = sdk.NewCoin(c.Denom, sdk.ZeroInt())
-		}
+	coll.collected = coll.collected.Add(coins...)
 
-		coll.collected[c.Denom] = coll.collected[c.Denom].Add(c)
-		collected := coll.collected[c.Denom]
-
-		limit := sdk.NewCoin(c.Denom, sdk.ZeroInt())
-		if cLimit, found := coll.limit[c.Denom]; found {
-			limit = cLimit
-		}
-
-		if collected.IsGTE(limit) && !collected.Equal(limit) { // Need GT but have no
-			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %s, max: %s", collected.String(), limit.String())
+	// If found any collected coin that exceed limit then return error
+	for _, c := range coll.collected {
+		limitAmt := coll.limit.AmountOf(c.Denom)
+		if c.Amount.GT(limitAmt) {
+			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %s, max: %s%s", c.String(), limitAmt.String(), c.Denom)
 		}
 	}
 
@@ -43,27 +35,15 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 }
 
 func (coll *feeCollector) Collected() sdk.Coins {
-	coins := sdk.NewCoins()
-
-	for _, c := range coll.collected {
-		coins = append(coins, c)
-	}
-
-	return coins.Sort()
+	return coll.collected
 }
 
 func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-	limit := map[string]sdk.Coin{}
-
-	// Coins is sorted and there are no duplicated denom
-	for _, c := range feeLimit {
-		limit[c.Denom] = c
-	}
 
 	return &feeCollector{
 		bankKeeper: bankKeeper,
 		payer:      payer,
-		collected:  map[string]sdk.Coin{},
-		limit:      limit,
+		collected:  sdk.NewCoins(),
+		limit:      feeLimit,
 	}
 }
