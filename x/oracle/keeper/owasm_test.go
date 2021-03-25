@@ -587,8 +587,8 @@ func rawRequestsFromFees(ctx sdk.Context, k keeper.Keeper, fees []sdk.Coins) []t
 	for _, f := range fees {
 		id := k.AddDataSource(ctx, types.NewDataSource(
 			testapp.Owner.Address,
-			"no fee",
-			"a mock data source that collect no fee",
+			"mock ds",
+			"there is no real code",
 			"no file",
 			testapp.Treasury.Address,
 			f,
@@ -613,54 +613,24 @@ func TestCollectFeeEmptyFee(t *testing.T) {
 		testapp.EmptyCoins,
 	})
 
-	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.EmptyCoins, raws)
+	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.EmptyCoins, 1, raws)
 	require.NoError(t, err)
 	require.Empty(t, coins)
 
-	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, raws)
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 1, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.EmptyCoins, 2, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 2, raws)
 	require.NoError(t, err)
 	require.Empty(t, coins)
 }
 
-func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-
-	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-		testapp.EmptyCoins,
-		testapp.Coins1000000uband,
-		testapp.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
-		testapp.EmptyCoins,
-	})
-
-	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.EmptyCoins, raws)
-	require.Error(t, err)
-	require.Nil(t, coins)
-
-	coins, err = k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins1000000uband, raws)
-	require.Error(t, err)
-	require.Nil(t, coins)
-}
-
-func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-
-	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-		testapp.EmptyCoins,
-		testapp.Coins1000000uband,
-		testapp.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
-		testapp.EmptyCoins,
-	})
-
-	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, raws)
-	require.Nil(t, coins)
-	// MAX is 100m but have only 1m in account
-	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
-	require.EqualError(t, err, "0uband is smaller than 2000000uband: insufficient funds")
-}
-
-func TestCollectFeeWithMixedAndFeeEnough(t *testing.T) {
+func TestCollectFeeBasicSuccess(t *testing.T) {
 	app, ctx, k := testapp.CreateTestInput(true)
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
@@ -678,12 +648,76 @@ func TestCollectFeeWithMixedAndFeeEnough(t *testing.T) {
 	feePayerBalances := balancesRes.Balances
 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(3000000))
 
-	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins100000000uband, raws)
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins100000000uband, 1, raws)
 	require.NoError(t, err)
 	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))), coins)
 
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))))
+}
+
+func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
+	app, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	balancesRes, err := app.BankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
+	)
+	feePayerBalances := balancesRes.Balances
+	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(12000000))
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins100000000uband, 4, raws)
+	require.NoError(t, err)
+	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))), coins)
+
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))))
+}
+
+func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.EmptyCoins, 1, raws)
+	require.Error(t, err)
+	require.Nil(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins1000000uband, 1, raws)
+	require.Error(t, err)
+	require.Nil(t, coins)
+}
+
+func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 1, raws)
+	require.Nil(t, coins)
+	// MAX is 100m but have only 1m in account
+	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
+	require.EqualError(t, err, "0uband is smaller than 2000000uband: insufficient funds")
 }
 
 func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
@@ -702,7 +736,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 	// Carol have not enough uband but have enough uabc
 	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.FeePayer.Address, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
 
-	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.FeePayer.Address), raws)
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.FeePayer.Address), 1, raws)
 	require.NoError(t, err)
 
 	// Coins sum is correct
@@ -740,14 +774,14 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.Carol.Address, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1000000))))
 
 	// Alice
-	_, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Alice.Address), raws)
+	_, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Alice.Address), 1, raws)
 	require.EqualError(t, err, "require: 1000000uabc, max: 0uabc: not enough fee")
 
 	// Bob
-	_, err = k.CollectFee(ctx, testapp.Bob.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Bob.Address), raws)
+	_, err = k.CollectFee(ctx, testapp.Bob.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Bob.Address), 1, raws)
 	require.EqualError(t, err, "require: 1000000uabc, max: 1uabc: not enough fee")
 
 	// Carol
-	_, err = k.CollectFee(ctx, testapp.Carol.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Carol.Address), raws)
+	_, err = k.CollectFee(ctx, testapp.Carol.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Carol.Address), 1, raws)
 	require.EqualError(t, err, "require: 3000000uband, max: 1000000uband: not enough fee")
 }

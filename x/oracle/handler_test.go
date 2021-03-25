@@ -10,6 +10,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -257,6 +258,27 @@ func TestRequestDataSuccess(t *testing.T) {
 	), k.MustGetRequest(ctx, 1))
 
 	event := abci.Event{
+		Type: authtypes.EventTypeTransfer,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(authtypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
+			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, abci.Event(event), res.Events[2])
+	require.Equal(t, abci.Event(event), res.Events[4])
+	event = abci.Event{
+		Type: sdk.EventTypeMessage,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[1])
+	require.Equal(t, abci.Event(event), res.Events[3])
+	require.Equal(t, abci.Event(event), res.Events[5])
+
+	event = abci.Event{
 		Type: types.EventTypeRequest,
 		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyID), Value: []byte("1")},
@@ -321,7 +343,7 @@ func TestRequestDataFail(t *testing.T) {
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "require: 1000000uband, max: 0uband: not enough fee: not enough fee")
+	require.EqualError(t, err, "require: 2000000uband, max: 0uband: not enough fee: not enough fee")
 	require.Nil(t, res)
 }
 
