@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -46,44 +47,12 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 }
 
 // ResolveSuccess resolves the given request as success with the given result.
-func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32, ibcSource *types.IBCSource) {
-	_, rep := k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_SUCCESS, result)
-
-	if ibcSource != nil {
-		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, ibcSource.SourcePort, ibcSource.SourceChannel)
-		if !found {
-			// TODO: Better error handler
-			panic("unknown channel")
-		}
-		destinationPort := sourceChannelEnd.Counterparty.PortId
-		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
-		sequence, found := k.channelKeeper.GetNextSequenceSend(
-			ctx, ibcSource.SourcePort, ibcSource.SourceChannel,
-		)
-		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(ibcSource.SourcePort, ibcSource.SourceChannel))
-		if !ok {
-			// TODO: Better error handler
-			panic("module does not own channel capability")
-		}
-
-		err := k.channelKeeper.SendPacket(ctx, channelCap, channeltypes.NewPacket(
-			rep.GetBytes(),
-			sequence,
-			ibcSource.SourcePort,
-			ibcSource.SourceChannel,
-			destinationPort,
-			destinationChannel,
-			clienttypes.NewHeight(0, 10000), // Arbitary height
-			0,                               // Arbitrarily timeout for now
-		))
-		if err != nil {
-			panic(err)
-		}
-	}
+func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32) {
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_SUCCESS)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
 	))
@@ -91,46 +60,82 @@ func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byt
 
 // ResolveFailure resolves the given request as failure with the given reason.
 func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, reason string) {
-	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_FAILURE, []byte{})
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_FAILURE, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_FAILURE)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_FAILURE)),
 		sdk.NewAttribute(types.AttributeKeyReason, reason),
 	))
 }
 
 // ResolveExpired resolves the given request as expired.
 func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
-	k.SaveResult(ctx, id, types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{})
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_EXPIRED, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.ResolveStatus_RESOLVE_STATUS_EXPIRED)),
+		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_EXPIRED)),
 	))
 }
 
 // SaveResult saves the result packets for the request with the given resolve status and result.
 func (k Keeper) SaveResult(
 	ctx sdk.Context, id types.RequestID, status types.ResolveStatus, result []byte,
-) (types.OracleRequestPacketData, types.OracleResponsePacketData) {
+) {
 	r := k.MustGetRequest(ctx, id)
-	reqPacket := types.NewOracleRequestPacketData(
+	reportCount := k.GetReportCount(ctx, id)
+	k.SetResult(ctx, id, types.NewResult(
 		r.ClientID,                         // ClientID
 		r.OracleScriptID,                   // OracleScriptID
 		r.Calldata,                         // Calldata
 		uint64(len(r.RequestedValidators)), // AskCount
-		r.MinCount,                         // Mincount
-	)
-	resPacket := types.NewOracleResponsePacketData(
-		r.ClientID,                // ClientID
-		id,                        // RequestID
-		k.GetReportCount(ctx, id), // AnsCount
-		int64(r.RequestTime),      // RequestTime
-		ctx.BlockTime().Unix(),    // ResolveTime
-		status,                    // ResolveStatus
-		result,                    // Result
-	)
-	k.SetResult(ctx, id, types.NewResult(reqPacket, resPacket))
-	return reqPacket, resPacket
+		r.MinCount,                         // MinCount
+		id,                                 // RequestID
+		reportCount,                        // AnsCount
+		int64(r.RequestTime),               // RequestTime
+		ctx.BlockTime().Unix(),             // ResolveTime
+		status,                             // ResolveStatus
+		result,                             // Result
+	))
+
+	if r.IBCSource != nil {
+		sourceChannel := r.IBCSource.SourceChannel
+		sourcePort := r.IBCSource.SourcePort
+		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
+		if !found {
+			panic(fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel))
+		}
+		destinationPort := sourceChannelEnd.Counterparty.PortId
+		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
+		sequence, found := k.channelKeeper.GetNextSequenceSend(
+			ctx, sourcePort, sourceChannel,
+		)
+		if !found {
+			panic(fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel))
+		}
+		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
+		if !ok {
+			panic("Module does not own channel capability")
+		}
+
+		packetData := types.NewOracleResponsePacketData(
+			r.ClientID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+		)
+
+		packet := channeltypes.NewPacket(
+			packetData.GetBytes(),
+			sequence,
+			sourcePort,
+			sourceChannel,
+			destinationPort,
+			destinationChannel,
+			clienttypes.NewHeight(0, 0),
+			uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), // TODO: Find what time out will be used on response packet
+		)
+
+		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
+			panic(err)
+		}
+	}
 }

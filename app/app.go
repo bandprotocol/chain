@@ -88,6 +88,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 
+	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
@@ -157,7 +158,7 @@ type BandApp struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bandbankkeeper.WrappedBankKeeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
@@ -262,9 +263,14 @@ func NewBandApp(
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
-	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
+	app.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
+		bankkeeper.NewBaseKeeper(
+			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+		),
+		app.AccountKeeper,
 	)
+
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
@@ -276,6 +282,8 @@ func NewBandApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
+	// DistrKeeper must be set afterward due to the circular reference between banker-staking-distr.
+	app.BankKeeper.SetDistrKeeper(&app.DistrKeeper)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)

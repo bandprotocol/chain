@@ -39,6 +39,7 @@ type Account struct {
 // nolint
 var (
 	Owner         Account
+	Treasury      Account
 	Alice         Account
 	Bob           Account
 	Carol         Account
@@ -50,15 +51,22 @@ var (
 
 // nolint
 var (
+	EmptyCoins          = sdk.Coins(nil)
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+)
+
+const (
+	TestDefaultPrepareGas uint64 = 40000
+	TestDefaultExecuteGas uint64 = 300000
 )
 
 func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
+	Treasury = createArbitraryAccount(r)
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
@@ -92,7 +100,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, EmptyCoins,
 		))
 	}
 	return DataSources[1:]
