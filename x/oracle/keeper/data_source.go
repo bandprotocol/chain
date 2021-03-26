@@ -55,7 +55,7 @@ func (k Keeper) MustEditDataSource(ctx sdk.Context, id types.DataSourceID, new t
 	dataSource.Description = modify(dataSource.Description, new.Description)
 	dataSource.Filename = modify(dataSource.Filename, new.Filename)
 	dataSource.Treasury = new.Treasury
-	dataSource.Fee = modifyCoins(dataSource.Fee, new.Fee)
+	dataSource.Fee = new.Fee
 	k.SetDataSource(ctx, id, dataSource)
 }
 
