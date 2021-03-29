@@ -302,6 +302,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
+			// TODO: Support do-not-modify fee
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {
 				return err
@@ -315,8 +316,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			if err != nil {
 				return err
 			}
-			var treasury sdk.AccAddress
-			treasury, err = sdk.AccAddressFromBech32(treasuryStr)
+			treasury, err := sdk.AccAddressFromBech32(treasuryStr)
 			if err != nil {
 				return err
 			}
