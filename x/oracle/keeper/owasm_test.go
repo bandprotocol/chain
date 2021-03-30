@@ -305,8 +305,12 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "id: 99: data source not found")
+	require.PanicsWithErrorf(
+		t,
+		"id: 99: data source not found",
+		func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
+		"Expected data source 99 not found",
+	)
 }
 
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
@@ -784,20 +788,4 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 	// Carol
 	_, err = k.CollectFee(ctx, testapp.Carol.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Carol.Address), 1, raws)
 	require.EqualError(t, err, "require: 3000000uband, max: 1000000uband: not enough fee")
-}
-
-func TestCollectFeeWithInvalidCoins(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-
-	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-		testapp.EmptyCoins,
-		testapp.Coins1000000uband,
-		testapp.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
-		testapp.EmptyCoins,
-	})
-
-	invalidCoins := sdk.Coins{sdk.Coin{Denom: "uband", Amount: sdk.NewInt(1).Neg()}}
-	_, err := k.CollectFee(ctx, testapp.FeePayer.Address, invalidCoins, 1, raws)
-	require.EqualError(t, err, "coin -1uband amount is not positive: invalid coins")
 }
