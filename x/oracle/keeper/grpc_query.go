@@ -183,9 +183,8 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
-	// TODO: panicked when signature array is less than 64 bytes
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Invalid signature: %s", err.Error()))
+		return nil, status.Error(codes.InvalidArgument, "Invalid reporter's signature")
 	}
 
 	// Provided reporter should be authorized by the provided validator
