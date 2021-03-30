@@ -276,3 +276,23 @@ message IBCSource {
   // SourcePort
   string source_port = 2;
 }
+
+// RequestVerification is a message that is constructed and signed by a reporter
+// to be used as a part of verification of oracle request.
+message RequestVerification {
+  option (gogoproto.equal) = true;
+  // ChainID is the ID of targeted chain
+  string chain_id = 1 [ (gogoproto.customname) = "ChainID" ];
+  // Validator is an validator address
+  string validator = 2;
+  // RequestID is the targeted request ID
+  int64 request_id = 3 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // ExternalID is the oracle's external ID of data source
+  int64 external_id = 4  [
+    (gogoproto.customname) = "ExternalID",
+    (gogoproto.casttype) = "ExternalID"
+  ];
+}

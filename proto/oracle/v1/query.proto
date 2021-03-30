@@ -69,6 +69,13 @@ service Query {
       returns (QueryRequestPriceResponse) {
     option (google.api.http).post = "/oracle/request_prices";
   }
+
+  // RequestVerification verifies a request to make sure that
+  // the request requires data from given reporter
+  rpc RequestVerification(QueryRequestVerificationRequest)
+    returns (QueryRequestVerificationResponse) {
+      option (google.api.http).post = "/oracle/verify_request";
+  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -169,4 +176,34 @@ message QueryRequestPriceResponse {
   bytes calldata = 2;
   int64 ask_count = 3;
   int64 min_count = 4;
+}
+
+// QueryRequestVerificationRequest is request type for the Query/RequestVerification RPC
+message QueryRequestVerificationRequest {
+  // ChainID is the chain ID to identify which chain ID is used for the verification
+  string chain_id = 1;
+  // Validator is a validator address
+  string validator = 2;
+  // RequestID is oracle request ID
+  int64 request_id = 3;
+  // ExternalID is an oracle's external ID
+  int64 external_id = 4;
+  // Reporter is an account address which is a reporter authorized by the validator
+  string reporter = 5;
+  // Signature is a signature signed by the reporter using reporter's private key
+  bytes signature = 6;
+}
+
+// QueryRequestVerificationResponse is response type for the Query/RequestVerification RPC
+message QueryRequestVerificationResponse {
+  // ChainID is the targeted chain ID
+  string chain_id = 1;
+  // Validator is the targeted validator address
+  string validator = 2;
+  // RequestID is the ID of targeted request
+  int64 request_id = 3;
+  // ExternalID is the ID of targeted oracle's external data source
+  int64 external_id = 4;
+  // DataSourceID is the ID of a data source that relates to the targeted external ID
+  int64 data_source_id = 5;
 }

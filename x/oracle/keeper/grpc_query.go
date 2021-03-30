@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -154,4 +155,109 @@ func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchR
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
 	return &types.QueryRequestPriceResponse{}, nil
+}
+
+func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestVerificationRequest) (*types.QueryRequestVerificationResponse, error) {
+	// Request should not be empty
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Provided chain ID should match validator's chain ID
+	if ctx.ChainID() != req.ChainId {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+	}
+
+	// Provided validator's address should be valid
+	validator, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse validator address: %s", err.Error()))
+	}
+
+	// Provided signature should be valid, which means this query request should be signed by the provided reporter
+	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
+	}
+	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
+	signByte := requestVerificationContent.GetSignBytes()
+	// TODO: panicked when signature array is less than 64 bytes
+	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Invalid signature: %s", err.Error()))
+	}
+
+	// Provided reporter should be authorized by the provided validator
+	reporters := k.GetReporters(ctx, validator)
+	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
+	isReporterAuthorizedByValidator := false
+	for _, existingReporter := range reporters {
+		if reporter.Equals(existingReporter) {
+			isReporterAuthorizedByValidator = true
+			break
+		}
+	}
+	if !isReporterAuthorizedByValidator {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not an authorized report of %s", reporter, req.Validator))
+	}
+
+	// Provided request should exist on chain
+	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
+	}
+
+	// Provided validator should be assigned to response to the request
+	isValidatorAssigned := false
+	for _, requestedValidator := range request.RequestedValidators {
+		v, _ := sdk.ValAddressFromBech32(requestedValidator)
+		if validator.Equals(v) {
+			isValidatorAssigned = true
+			break
+		}
+	}
+	if !isValidatorAssigned {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
+	}
+
+	// Provided external ID should be required by the request determined by oracle script
+	var dataSourceID *types.DataSourceID
+	for _, rawRequest := range request.RawRequests {
+		if rawRequest.ExternalID == types.ExternalID(req.ExternalId) {
+			dataSourceID = &rawRequest.DataSourceID
+			break
+		}
+	}
+	if dataSourceID == nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The external data source with ID %d is not required by the request with ID %d", req.ExternalId, req.RequestId))
+	}
+
+	// Provided validator should not have reported data for the request
+	reports := k.GetReports(ctx, types.RequestID(req.RequestId))
+	isValidatorReported := false
+	for _, report := range reports {
+		reportVal, _ := sdk.ValAddressFromBech32(report.Validator)
+		if reportVal.Equals(validator) {
+			isValidatorReported = true
+			break
+		}
+	}
+	if isValidatorReported {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Validator %s already submitted data report for this request", validator))
+	}
+
+	// The request should not be expired
+	params := k.GetParams(ctx)
+	if request.RequestHeight+int64(params.ExpirationBlockCount) < ctx.BlockHeader().Height {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
+	}
+
+	return &types.QueryRequestVerificationResponse{
+		ChainId:      req.ChainId,
+		Validator:    req.Validator,
+		RequestId:    req.RequestId,
+		ExternalId:   req.ExternalId,
+		DataSourceId: int64(*dataSourceID),
+	}, nil
 }
