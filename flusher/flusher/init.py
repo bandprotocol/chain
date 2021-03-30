@@ -21,7 +21,7 @@ def init(chain_id, topic, replay_topic, db):
     metadata.create_all(engine)
     engine.execute(
         tracking.insert(),
-        {"chain_id": chain_id, "topic": topic, "replay_topic": replay_topic, "kafka_offset": -1, "replay_offset": -1,},
+        {"chain_id": chain_id, "topic": topic, "replay_topic": replay_topic, "kafka_offset": -1, "replay_offset": -1},
     )
     engine.execute(
         """
@@ -128,7 +128,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  To_timestamp(requests.request_time) >= Now() - '1 day' :: interval
+  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 day' :: interval
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
         """
@@ -144,7 +144,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  To_timestamp(requests.request_time) >= Now() - '1 week' :: interval
+  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 week' :: interval
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
 """
@@ -160,7 +160,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  To_timestamp(requests.request_time) >= Now() - '1 month' :: interval
+  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 month' :: interval
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
 """
