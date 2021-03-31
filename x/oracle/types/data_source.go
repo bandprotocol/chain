@@ -5,7 +5,7 @@ import (
 )
 
 func NewDataSource(
-	owner sdk.AccAddress, name, description, filename string, fee sdk.Coins,
+	owner sdk.AccAddress, name, description, filename string, fee sdk.Coins, treasury sdk.AccAddress,
 ) DataSource {
 	return DataSource{
 		Owner:       owner.String(),
@@ -13,5 +13,6 @@ func NewDataSource(
 		Description: description,
 		Filename:    filename,
 		Fee:         fee,
+		Treasury:    treasury.String(),
 	}
 }

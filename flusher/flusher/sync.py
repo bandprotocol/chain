@@ -22,17 +22,10 @@ from .handler import Handler
     show_default=True,
 )
 @click.option(
-    "--db",
-    help="Database URI connection string.",
-    default="localhost:5432/postgres",
-    show_default=True,
+    "--db", help="Database URI connection string.", default="localhost:5432/postgres", show_default=True,
 )
 @click.option(
-    "-s",
-    "--servers",
-    help="Kafka bootstrap servers.",
-    default="localhost:9092",
-    show_default=True,
+    "-s", "--servers", help="Kafka bootstrap servers.", default="localhost:9092", show_default=True,
 )
 @click.option("-e", "--echo-sqlalchemy", "echo_sqlalchemy", is_flag=True)
 def sync(commit_interval, db, servers, echo_sqlalchemy):
@@ -61,15 +54,12 @@ def sync(commit_interval, db, servers, echo_sqlalchemy):
             for msg in consumer_iter:
                 handler = Handler(conn)
                 key = msg.key.decode()
-                print(msg.value)
                 value = json.loads(msg.value)
                 if key == "COMMIT":
                     if value["height"] % commit_interval == 0:
                         conn.execute(tracking.update().values(kafka_offset=msg.offset))
                         logger.info(
-                            "Committed at block {} and Kafka offset {}",
-                            value["height"],
-                            msg.offset,
+                            "Committed at block {} and Kafka offset {}", value["height"], msg.offset,
                         )
                         break
                     continue
