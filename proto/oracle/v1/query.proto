@@ -188,7 +188,7 @@ message QueryRequestVerificationRequest {
   int64 request_id = 3;
   // ExternalID is an oracle's external ID
   int64 external_id = 4;
-  // Reporter is an account address which is a reporter authorized by the validator
+  // Reporter is an bech32-encoded public key of the reporter authorized by the validator
   string reporter = 5;
   // Signature is a signature signed by the reporter using reporter's private key
   bytes signature = 6;

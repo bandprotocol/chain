@@ -167,7 +167,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 
 	// Provided chain ID should match validator's chain ID
 	if ctx.ChainID() != req.ChainId {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
 	}
 
 	// Provided validator's address should be valid
@@ -184,7 +184,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
-		return nil, status.Error(codes.InvalidArgument, "Invalid reporter's signature")
+		return nil, status.Error(codes.InvalidArgument, "invalid reporter's signature")
 	}
 
 	// Provided reporter should be authorized by the provided validator
@@ -198,7 +198,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isReporterAuthorizedByValidator {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not an authorized report of %s", reporter, req.Validator))
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 
 	// Provided request should exist on chain
@@ -229,7 +229,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if dataSourceID == nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("The external data source with ID %d is not required by the request with ID %d", req.ExternalId, req.RequestId))
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("no data source required by the request %d found which relates to the external data source with ID %d.", req.RequestId, req.ExternalId))
 	}
 
 	// Provided validator should not have reported data for the request
@@ -243,7 +243,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if isValidatorReported {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Validator %s already submitted data report for this request", validator))
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("validator %s already submitted data report for this request", validator))
 	}
 
 	// The request should not be expired
