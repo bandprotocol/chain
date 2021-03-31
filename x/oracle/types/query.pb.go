@@ -1094,7 +1094,7 @@ type QueryRequestVerificationRequest struct {
 	RequestId int64 `protobuf:"varint,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	// ExternalID is an oracle's external ID
 	ExternalId int64 `protobuf:"varint,4,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
-	// Reporter is an account address which is a reporter authorized by the validator
+	// Reporter is an bech32-encoded public key of the reporter authorized by the validator
 	Reporter string `protobuf:"bytes,5,opt,name=reporter,proto3" json:"reporter,omitempty"`
 	// Signature is a signature signed by the reporter using reporter's private key
 	Signature []byte `protobuf:"bytes,6,opt,name=signature,proto3" json:"signature,omitempty"`
@@ -1404,7 +1404,7 @@ type QueryClient interface {
 	// script.
 	RequestPrice(ctx context.Context, in *QueryRequestPriceRequest, opts ...grpc.CallOption) (*QueryRequestPriceResponse, error)
 	// RequestVerification verifies a request to make sure that
-	// the request requires data from given reporter
+	// all information that will be used to report the data is valid
 	RequestVerification(ctx context.Context, in *QueryRequestVerificationRequest, opts ...grpc.CallOption) (*QueryRequestVerificationResponse, error)
 }
 
@@ -1551,7 +1551,7 @@ type QueryServer interface {
 	// script.
 	RequestPrice(context.Context, *QueryRequestPriceRequest) (*QueryRequestPriceResponse, error)
 	// RequestVerification verifies a request to make sure that
-	// the request requires data from given reporter
+	// all information that will be used to report the data is valid
 	RequestVerification(context.Context, *QueryRequestVerificationRequest) (*QueryRequestVerificationResponse, error)
 }
 
