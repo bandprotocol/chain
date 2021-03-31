@@ -108,7 +108,7 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 	}
 
 	id := k.AddDataSource(ctx, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), treasury, msg.Fee,
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -132,11 +132,6 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 		return nil, err
 	}
 
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
-	if err != nil {
-		return nil, err
-	}
-
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
@@ -145,6 +140,11 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 	// sender must be the owner of data source
 	if !owner.Equals(sender) {
 		return nil, types.ErrEditorNotAuthorized
+	}
+
+	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+	if err != nil {
+		return nil, err
 	}
 
 	// unzip if it's a zip file
@@ -157,7 +157,7 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), treasury, msg.Fee,
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(

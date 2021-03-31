@@ -102,7 +102,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins1000000uband,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000uband, Treasury.Address,
 		))
 	}
 	return DataSources[1:]

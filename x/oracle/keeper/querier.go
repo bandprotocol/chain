@@ -106,7 +106,16 @@ func queryRequestByID(ctx sdk.Context, path []string, _ abci.RequestQuery, k Kee
 	}
 	request, err := k.GetRequest(ctx, types.RequestID(id))
 	if err != nil {
-		return types.QueryNotFound(legacyQuerierCdc, err.Error())
+		if types.RequestID(id) > k.GetRequestLastExpired(ctx) {
+			return types.QueryNotFound(legacyQuerierCdc, err.Error())
+		}
+
+		result := k.MustGetResult(ctx, types.RequestID(id))
+		return types.QueryOK(legacyQuerierCdc, types.QueryRequestResult{
+			Request: types.Request{},
+			Reports: nil,
+			Result:  &result,
+		})
 	}
 	reports := k.GetReports(ctx, types.RequestID(id))
 	if !k.HasResult(ctx, types.RequestID(id)) {

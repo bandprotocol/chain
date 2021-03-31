@@ -20,14 +20,15 @@ const (
 	flagDescription   = "description"
 	flagScript        = "script"
 	flagOwner         = "owner"
-	flagTreasury      = "treasury"
-	flagFee           = "fee"
 	flagCalldata      = "calldata"
 	flagClientID      = "client-id"
 	flagSchema        = "schema"
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
+	flagFeeLimit      = "fee-limit"
+	flagFee           = "fee"
+	flagTreasury      = "treasury"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -56,14 +57,14 @@ func NewTxCmd() *cobra.Command {
 // GetCmdRequest implements the request command handler.
 func GetCmdRequest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id]) (--prepare-gas=[prepare-gas] (--execute-gas=[execute-gas]))",
+		Use:   "request [oracle-script-id] [ask-count] [min-count] (-c [calldata]) (-m [client-id]) (--prepare-gas=[prepare-gas] (--execute-gas=[execute-gas])) (--fee-limit=[fee-limit])",
 		Short: "Make a new data request via an existing oracle script",
 		Args:  cobra.ExactArgs(3),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Make a new request via an existing oracle script with the configuration flags.
 Example:
 $ %s tx oracle request 1 4 3 -c 1234abcdef -x 20 -m client-id --from mykey
-$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from mykey
+$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-limit 10uband --from mykey
 `,
 				version.AppName, version.AppName,
 			),
@@ -100,24 +101,33 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 				return err
 			}
 
-			prepareGas, _ := cmd.Flags().GetUint64(flagPrepareGas)
+			prepareGas, err := cmd.Flags().GetUint64(flagPrepareGas)
 			if err != nil {
 				return err
 			}
 
-			executeGas, _ := cmd.Flags().GetUint64(flagExecuteGas)
+			executeGas, err := cmd.Flags().GetUint64(flagExecuteGas)
 			if err != nil {
 				return err
 			}
 
-			// TODO: Add fee limit flag
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
 				askCount,
 				minCount,
 				clientID,
-				sdk.NewCoins(),
+				feeLimit,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
@@ -135,6 +145,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
+	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -149,7 +160,7 @@ func GetCmdCreateDataSource() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new data source that will be used by oracle scripts.
 Example:
-$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
+$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from mykey
 `,
 				version.AppName,
 			),
@@ -188,6 +199,16 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
+			coinStr, err := cmd.Flags().GetString(flagFee)
+			if err != nil {
+				return err
+			}
+
+			fee, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			treasuryStr, err := cmd.Flags().GetString(flagTreasury)
 			if err != nil {
 				return err
@@ -197,16 +218,6 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
-			feeStr, err := cmd.Flags().GetString(flagFee)
-			if err != nil {
-				return err
-			}
-			fee, err := sdk.ParseCoinsNormalized(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// TODO: Add tresury and fee flag
 			msg := types.NewMsgCreateDataSource(
 				name,
 				description,
@@ -228,6 +239,8 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagName, "", "Name of this data source")
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
+	cmd.Flags().String(flagFee, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().String(flagTreasury, "", "Who recive data source fee from requester.")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 	cmd.Flags().String(flagTreasury, "", "Treasury of this data source")
 	cmd.Flags().String(flagFee, "", "Fee of this data source")
@@ -245,7 +258,7 @@ func GetCmdEditDataSource() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Edit an existing data source. The caller must be the current data source's owner.
 Example:
-$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee ''
+$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from mykey
 `,
 				version.AppName,
 			),
@@ -292,6 +305,16 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
+			// TODO: Support do-not-modify fee
+			coinStr, err := cmd.Flags().GetString(flagFee)
+			if err != nil {
+				return err
+			}
+			fee, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
 			treasuryStr, err := cmd.Flags().GetString(flagTreasury)
 			if err != nil {
 				return err
@@ -301,16 +324,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			feeStr, err := cmd.Flags().GetString(flagFee)
-			if err != nil {
-				return err
-			}
-			fee, err := sdk.ParseCoinsNormalized(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// TODO: Add tresury and fee flag
 			msg := types.NewMsgEditDataSource(
 				dataSourceID,
 				name,
@@ -333,6 +346,8 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagName, types.DoNotModify, "Name of this data source")
 	cmd.Flags().String(flagDescription, types.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, types.DoNotModify, "Path to this data source script")
+	cmd.Flags().String(flagFee, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().String(flagTreasury, "", "Who recive data source fee from requester.")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 	cmd.Flags().String(flagTreasury, "", "Treasury of this data source")
 	cmd.Flags().String(flagFee, "", "Fee of this data source")

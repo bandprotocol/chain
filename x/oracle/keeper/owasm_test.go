@@ -594,8 +594,8 @@ func rawRequestsFromFees(ctx sdk.Context, k keeper.Keeper, fees []sdk.Coins) []t
 			"mock ds",
 			"there is no real code",
 			"no file",
-			testapp.Treasury.Address,
 			f,
+			testapp.Treasury.Address,
 		))
 
 		rawRequests = append(rawRequests, types.NewRawRequest(

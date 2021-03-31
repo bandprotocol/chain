@@ -61,15 +61,18 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 	// request. We also resolve requests to status EXPIRED if they are not yet resolved.
 	for ; currentReqID <= lastReqID; currentReqID++ {
 		req := k.MustGetRequest(ctx, currentReqID)
+
 		// This request is not yet expired, so there's nothing to do here. Ditto for
 		// all other requests that come after this. Thus we can just break the loop.
 		if req.RequestHeight+expirationBlockCount > ctx.BlockHeight() {
 			break
 		}
+
 		// If the request still does not have result, we resolve it as EXPIRED.
 		if !k.HasResult(ctx, currentReqID) {
 			k.ResolveExpired(ctx, currentReqID)
 		}
+
 		// Deactivate all validators that do not report to this request.
 		for _, val := range req.RequestedValidators {
 			v, _ := sdk.ValAddressFromBech32(val)
@@ -77,6 +80,11 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
 			}
 		}
+
+		// Cleanup request and reports
+		k.DeleteRequest(ctx, currentReqID)
+		k.DeleteReports(ctx, currentReqID)
+
 		// Set last expired request ID to be this current request.
 		k.SetRequestLastExpired(ctx, currentReqID)
 	}
