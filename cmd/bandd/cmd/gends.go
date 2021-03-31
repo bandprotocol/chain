@@ -22,7 +22,7 @@ import (
 // AddGenesisDataSourceCmd returns add-data-source cobra Command.
 func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-data-source [name] [description] [owner] [filepath] [fee-limit] [treasury]",
+		Use:   "add-data-source [name] [description] [owner] [filepath] [fee] [treasury]",
 		Short: "Add a data source to genesis.json",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -50,7 +50,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
-			feeLimit, err := sdk.ParseCoinsNormalized(args[4])
+			fee, err := sdk.ParseCoinsNormalized(args[4])
 			if err != nil {
 				return err
 			}
@@ -60,7 +60,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			}
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
-				owner, args[0], args[1], filename, feeLimit, treasury,
+				owner, args[0], args[1], filename, fee, treasury,
 			))
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
 
