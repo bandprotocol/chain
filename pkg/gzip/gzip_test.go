@@ -5,7 +5,7 @@ import (
 	gz "compress/gzip"
 	"testing"
 
-	"github.com/bandprotocol/chain/pkg/gzip"
+	"github.com/GeoDB-Limited/odin-core/pkg/gzip"
 	"github.com/stretchr/testify/require"
 )
 

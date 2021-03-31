@@ -27,14 +27,18 @@ const (
 var (
 	// Each value below is the key to store the respective oracle module parameter. See comments
 	// in types.proto for explanation for each parameter.
-	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
-	KeyMaxAskCount             = []byte("MaxAskCount")
-	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
-	KeyBaseOwasmGas            = []byte("BaseOwasmGas")
-	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
-	KeySamplingTryCount        = []byte("SamplingTryCount")
-	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
-	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
+	KeyMaxRawRequestCount        = []byte("MaxRawRequestCount")
+	KeyMaxAskCount               = []byte("MaxAskCount")
+	KeyExpirationBlockCount      = []byte("ExpirationBlockCount")
+	KeyBaseOwasmGas              = []byte("BaseOwasmGas")
+	KeyPerValidatorRequestGas    = []byte("PerValidatorRequestGas")
+	KeySamplingTryCount          = []byte("SamplingTryCount")
+	KeyOracleRewardPercentage    = []byte("OracleRewardPercentage")
+	KeyInactivePenaltyDuration   = []byte("InactivePenaltyDuration")
+	KeyMaxDataSize               = []byte("MaxDataSize")
+	KeyMaxCalldataSize           = []byte("MaxCalldataSize")
+	KeyDataProviderRewardPerByte = []byte("DataProviderRewardPerByte")
+	KeyDataRequesterBasicFee     = []byte("DataRequesterBasicFee")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -47,17 +51,22 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
 	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
-	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
+	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration, maxDataSize, maxCallDataSize uint64,
+	dataProviderRewardPerByte CoinDecProto, dataRequesterBasicFee CoinProto,
 ) Params {
 	return Params{
-		MaxRawRequestCount:      maxRawRequestCount,
-		MaxAskCount:             maxAskCount,
-		ExpirationBlockCount:    expirationBlockCount,
-		BaseOwasmGas:            baseRequestGas,
-		PerValidatorRequestGas:  perValidatorRequestGas,
-		SamplingTryCount:        samplingTryCount,
-		OracleRewardPercentage:  oracleRewardPercentage,
-		InactivePenaltyDuration: inactivePenaltyDuration,
+		MaxRawRequestCount:        maxRawRequestCount,
+		MaxAskCount:               maxAskCount,
+		ExpirationBlockCount:      expirationBlockCount,
+		BaseOwasmGas:              baseRequestGas,
+		PerValidatorRequestGas:    perValidatorRequestGas,
+		SamplingTryCount:          samplingTryCount,
+		OracleRewardPercentage:    oracleRewardPercentage,
+		InactivePenaltyDuration:   inactivePenaltyDuration,
+		MaxDataSize:               maxDataSize,
+		MaxCalldataSize:           maxCallDataSize,
+		DataProviderRewardPerByte: dataProviderRewardPerByte,
+		DataRequesterBasicFee:     dataRequesterBasicFee,
 	}
 }
 

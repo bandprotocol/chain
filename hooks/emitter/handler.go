@@ -10,8 +10,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/hooks/common"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func parseEvents(events sdk.StringEvents) common.EvMap {

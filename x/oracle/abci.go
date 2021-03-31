@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.

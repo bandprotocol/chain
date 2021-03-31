@@ -16,9 +16,9 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/hooks/common"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // Hook inherits from Band app hook to save latest request into SQL database.

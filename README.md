@@ -8,14 +8,14 @@
 <p align="center">
 BandChain - Decentralized Data Delivery Network<br/><br/>
 
-<a href="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
-    <img src="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
+<a href="https://pkg.go.dev/badge/github.com/GeoDB-Limited/odin-core">
+    <img src="https://pkg.go.dev/badge/github.com/GeoDB-Limited/odin-core">
 </a>
-<a href="https://goreportcard.com/badge/github.com/bandprotocol/chain">
-    <img src="https://goreportcard.com/badge/github.com/bandprotocol/chain">
+<a href="https://goreportcard.com/badge/github.com/GeoDB-Limited/odin-core">
+    <img src="https://goreportcard.com/badge/github.com/GeoDB-Limited/odin-core">
 </a>
-<a href="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
-    <img src="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
+<a href="https://github.com/GeoDB-Limited/odin-core/workflows/Tests/badge.svg">
+    <img src="https://github.com/GeoDB-Limited/odin-core/workflows/Tests/badge.svg">
 </a>
 
 <p align="center">
@@ -37,7 +37,7 @@ BandChain - Decentralized Data Delivery Network<br/><br/>
 
 ### Binaries
 
-You can find the latest binaries on our [releases](https://github.com/bandprotocol/chain/releases) page.
+You can find the latest binaries on our [releases](https://github.com/GeoDB-Limited/odin-core/releases) page.
 
 ### Building from source
 

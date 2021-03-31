@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func TestGetSetRequestCount(t *testing.T) {

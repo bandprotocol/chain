@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/x/bank/types"
+	"github.com/GeoDB-Limited/odin-core/x/bank/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,13 +26,14 @@ type WrappedBankKeeper struct {
 	bankkeeper.Keeper
 
 	distrKeeper   types.DistributionKeeper
+	mintKeeper    types.MintKeeper
 	accountKeeper types.AccountKeeper
 }
 
 // NewWrappedBankKeeperBurnToCommunityPool creates a new instance of WrappedBankKeeper
 // with its distrKeeper and accountKeeper members set to nil.
 func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.AccountKeeper) WrappedBankKeeper {
-	return WrappedBankKeeper{bk, nil, acc}
+	return WrappedBankKeeper{bk, nil, nil, acc}
 }
 
 // SetDistrKeeper sets distr module keeper for this WrappedBankKeeper instance.

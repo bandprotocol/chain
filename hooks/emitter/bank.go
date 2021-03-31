@@ -3,7 +3,7 @@ package emitter
 import (
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/GeoDB-Limited/odin-core/hooks/common"
 )
 
 // handleMsgSend implements emitter handler for MsgSend.

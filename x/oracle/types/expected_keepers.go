@@ -15,11 +15,14 @@ import (
 type AccountKeeper interface {
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
+
+	SetModuleAccount(sdk.Context, authtypes.ModuleAccountI)
 }
 
 // BankKeeper defines the expected bank keeper.
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SetBalances(ctx sdk.Context, addr sdk.AccAddress, balances sdk.Coins) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }

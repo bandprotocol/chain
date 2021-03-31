@@ -1,0 +1,26 @@
+syntax = "proto3";
+package coinswap;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/any.proto";
+
+message Exchange {
+  repeated string value = 1;
+}
+
+message ValidExchanges {
+  option (gogoproto.equal) = false;
+  map<string, Exchange> exchanges = 1;
+}
+
+message Params {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_stringer) = true;
+
+  string rate_multiplier = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  // DataRequesterBasicFee is the amount of tokens user has to pay in DataProvidersPool for the data provided
+  ValidExchanges valid_exchanges = 2 [(gogoproto.nullable) = false];
+}

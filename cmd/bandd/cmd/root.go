@@ -30,10 +30,10 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/app/params"
-	"github.com/bandprotocol/chain/hooks/emitter"
-	"github.com/bandprotocol/chain/hooks/request"
+	band "github.com/GeoDB-Limited/odin-core/app"
+	"github.com/GeoDB-Limited/odin-core/app/params"
+	"github.com/GeoDB-Limited/odin-core/hooks/emitter"
+	"github.com/GeoDB-Limited/odin-core/hooks/request"
 )
 
 const (

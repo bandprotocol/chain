@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
-	"github.com/bandprotocol/chain/yoda/executor"
+	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 )
 
 type FeeEstimationData struct {

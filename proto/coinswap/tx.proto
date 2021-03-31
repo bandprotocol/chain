@@ -1,0 +1,24 @@
+syntax = "proto3";
+package coinswap;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Msg defines the oracle Msg service.
+service Msg {
+  // RequestData defines a method for requesting a new request.
+  rpc Exchange(MsgExchange) returns (MsgExchangeResponse);
+}
+
+message MsgExchange {
+  option (gogoproto.equal) = true;
+
+  string from = 1;
+  string to = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  string requester = 4;
+}
+
+message MsgExchangeResponse {}

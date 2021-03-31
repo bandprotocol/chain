@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/GeoDB-Limited/odin-core/app"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func TestGetSignBytesVerificationMessage(t *testing.T) {

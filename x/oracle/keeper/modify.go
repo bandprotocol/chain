@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // modify returns new value if it is not `DoNotModify`. Returns old value otherwise

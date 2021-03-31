@@ -1,6 +1,6 @@
 package price
 
-import "github.com/bandprotocol/chain/x/oracle/types"
+import "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 
 type Input struct {
 	Symbols    []string `json:"symbols"`

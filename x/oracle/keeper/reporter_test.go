@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/testapp"
 )
 
 func TestCheckSelfReporter(t *testing.T) {

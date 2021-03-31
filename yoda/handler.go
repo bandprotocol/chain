@@ -10,8 +10,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/hooks/common"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 type processingResult struct {

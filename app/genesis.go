@@ -19,14 +19,13 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.

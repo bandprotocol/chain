@@ -1,9 +1,8 @@
 package types
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"time"
 )
 
 var (

@@ -1,6 +1,7 @@
 package types
 
 import (
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -17,4 +18,8 @@ type AccountKeeper interface {
 type DistributionKeeper interface {
 	GetFeePool(sdk.Context) disttypes.FeePool
 	SetFeePool(sdk.Context, disttypes.FeePool)
+}
+
+type MintKeeper interface {
+	GetParams(sdk.Context) minttypes.Params
 }

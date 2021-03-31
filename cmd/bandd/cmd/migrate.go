@@ -5,8 +5,8 @@ package cmd
 // 	"io/ioutil"
 // 	"time"
 
-// 	"github.com/bandprotocol/chain/app"
-// 	"github.com/bandprotocol/chain/x/oracle"
+// 	"github.com/GeoDB-Limited/odin-core/app"
+// 	"github.com/GeoDB-Limited/odin-core/x/oracle"
 // 	"github.com/cosmos/cosmos-sdk/codec"
 // 	"github.com/cosmos/cosmos-sdk/server"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"

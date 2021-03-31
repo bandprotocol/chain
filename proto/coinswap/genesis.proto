@@ -1,0 +1,13 @@
+syntax = "proto3";
+package coinswap;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+
+import "gogoproto/gogo.proto";
+import "coinswap/params.proto";
+
+// GenesisState defines the oracle module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+  string initial_rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}

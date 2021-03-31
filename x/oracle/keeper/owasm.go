@@ -8,8 +8,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/pkg/bandrng"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/pkg/bandrng"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // 1 cosmos gas is equal to 7 owasm gas
@@ -98,6 +98,7 @@ func (k Keeper) PrepareRequest(
 	if len(req.RawRequests) == 0 {
 		return 0, types.ErrEmptyRawRequests
 	}
+	// TODO now fees are sent to the data source 'Treasury' which is, what we want is to send it to Data Providers Pool
 	// Collect ds fee
 	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests); err != nil {
 		return 0, err
@@ -122,7 +123,7 @@ func (k Keeper) PrepareRequest(
 	ctx.EventManager().EmitEvent(event)
 
 	// Subtract execute fee
-	ctx.GasMeter().ConsumeGas(k.GetParam(ctx, types.KeyBaseOwasmGas), "BASE_OWASM_FEE")
+	ctx.GasMeter().ConsumeGas(k.GetParamUint64(ctx, types.KeyBaseOwasmGas), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetExecuteGas(), "OWASM_EXECUTE_FEE")
 
 	// Emit an event for each of the raw data requests.
@@ -139,7 +140,7 @@ func (k Keeper) PrepareRequest(
 			sdk.NewAttribute(types.AttributeKeyCalldata, string(rawReq.Calldata)),
 		))
 	}
-	return id, nil
+	return rid, nil
 }
 
 // ResolveRequest resolves the given request and saves the result to the store. The function

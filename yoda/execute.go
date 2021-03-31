@@ -15,8 +15,8 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/GeoDB-Limited/odin-core/app"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 var (

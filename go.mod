@@ -1,4 +1,4 @@
-module github.com/bandprotocol/chain
+module github.com/GeoDB-Limited/odin-core
 
 go 1.15
 
@@ -33,9 +33,9 @@ require (
 	github.com/tendermint/tendermint v0.34.8
 	github.com/tendermint/tm-db v0.6.4
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
-	google.golang.org/grpc v1.35.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/genproto v0.0.0-20210224155714-063164c882e6
+	google.golang.org/grpc v1.36.0
+	google.golang.org/protobuf v1.25.1-0.20201208041424-160c7477e0e8
 	gopkg.in/yaml.v2 v2.4.0
 )
 

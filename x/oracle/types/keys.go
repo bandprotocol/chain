@@ -42,6 +42,8 @@ var (
 	DataSourceCountStoreKey = append(GlobalStoreKeyPrefix, []byte("DataSourceCount")...)
 	// OracleScriptCountStoreKey is the key that keeps the total oracle sciprt count.
 	OracleScriptCountStoreKey = append(GlobalStoreKeyPrefix, []byte("OracleScriptCount")...)
+	// OraclePoolStoreKey is the key that keeps the oracle pool
+	OraclePoolStoreKey = append(GlobalStoreKeyPrefix, []byte("OraclePool")...) // key for global oracle pool state
 
 	// RequestStoreKeyPrefix is the prefix for request store.
 	RequestStoreKeyPrefix = []byte{0x01}
@@ -54,7 +56,10 @@ var (
 	// ReporterStoreKeyPrefix is the prefix for reporter store.
 	ReporterStoreKeyPrefix = []byte{0x05}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
-	ValidatorStatusKeyPrefix = []byte{0x06}
+	ValidatorStatusKeyPrefix     = []byte{0x06}
+	DataProviderRewardsKeyPrefix = []byte{0x07}
+	// DataRequesterFeesKeyPrefix is the prefix for the data requester address with accumulated fee
+	DataRequesterFeesKeyPrefix = []byte{0x08}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 

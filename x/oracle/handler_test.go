@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/oracle"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func TestCreateDataSourceSuccess(t *testing.T) {
@@ -74,7 +74,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins1000000uband), ds)
+	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins100000000odin), ds)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
@@ -237,7 +237,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -328,17 +328,17 @@ func TestRequestDataSuccess(t *testing.T) {
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "0 < 2: insufficent available validators")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "2 < 3: insufficent available validators")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "id: 999: oracle script not found")
 	require.Nil(t, res)
 	// Pay not enough fee

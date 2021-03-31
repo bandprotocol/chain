@@ -1,6 +1,11 @@
 package band
 
 import (
+	"github.com/GeoDB-Limited/odin-core/x/coinswap"
+	coinswapkeeper "github.com/GeoDB-Limited/odin-core/x/coinswap/keeper"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	odinmintkeeper "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
+	odinminttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -81,20 +86,22 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	bandappparams "github.com/bandprotocol/chain/app/params"
+	bandappparams "github.com/GeoDB-Limited/odin-core/app/params"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	bandante "github.com/bandprotocol/chain/x/oracle/ante"
-	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	odinmint "github.com/GeoDB-Limited/odin-core/x/mint"
+	"github.com/GeoDB-Limited/odin-core/x/oracle"
+	bandante "github.com/GeoDB-Limited/odin-core/x/oracle/ante"
+	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 
-	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
+	bandbankkeeper "github.com/GeoDB-Limited/odin-core/x/bank/keeper"
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 const (
-	appName          = "BandApp"
-	Bech32MainPrefix = "band"
+	appName          = "OdinApp"
+	Name             = "Odin"
+	Bech32MainPrefix = "odin"
 	Bip44CoinType    = 494
 )
 
@@ -111,7 +118,7 @@ var (
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		mint.AppModuleBasic{},
+		odinmint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.CancelProposalHandler),
 		params.AppModuleBasic{},
@@ -122,12 +129,14 @@ var (
 		evidence.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		coinswap.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
+		oracletypes.ModuleName:         nil,
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
-		minttypes.ModuleName:           {authtypes.Minter},
+		odinminttypes.ModuleName:       {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
@@ -171,6 +180,7 @@ type BandApp struct {
 	UpgradeKeeper    upgradekeeper.Keeper
 	EvidenceKeeper   evidencekeeper.Keeper
 	OracleKeeper     oraclekeeper.Keeper
+	CoinswapKeeper   coinswapkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper    capabilitykeeper.ScopedKeeper

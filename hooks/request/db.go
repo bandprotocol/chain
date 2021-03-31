@@ -3,7 +3,7 @@ package request
 import (
 	"encoding/hex"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 type Request struct {

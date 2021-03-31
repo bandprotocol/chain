@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/GeoDB-Limited/odin-core/hooks/common"
 )
 
 var (
