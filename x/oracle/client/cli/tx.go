@@ -27,6 +27,7 @@ const (
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
 	flagFeeLimit      = "fee-limit"
+	flagFee           = "fee"
 	flagTreasury      = "treasury"
 )
 
@@ -198,12 +199,12 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
-			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			coinStr, err := cmd.Flags().GetString(flagFee)
 			if err != nil {
 				return err
 			}
 
-			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			fee, err := sdk.ParseCoinsNormalized(coinStr)
 			if err != nil {
 				return err
 			}
@@ -221,7 +222,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				name,
 				description,
 				execBytes,
-				feeLimit,
+				fee,
 				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
@@ -238,7 +239,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagName, "", "Name of this data source")
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
-	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().String(flagFee, "", "the maximum tokens that will be paid to all data source providers")
 	cmd.Flags().String(flagTreasury, "", "Who recive data source fee from requester.")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 	flags.AddTxFlagsToCmd(cmd)
@@ -303,11 +304,11 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			}
 
 			// TODO: Support do-not-modify fee
-			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			coinStr, err := cmd.Flags().GetString(flagFee)
 			if err != nil {
 				return err
 			}
-			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			fee, err := sdk.ParseCoinsNormalized(coinStr)
 			if err != nil {
 				return err
 			}
@@ -326,7 +327,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				name,
 				description,
 				execBytes,
-				feeLimit,
+				fee,
 				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
@@ -343,7 +344,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagName, types.DoNotModify, "Name of this data source")
 	cmd.Flags().String(flagDescription, types.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, types.DoNotModify, "Path to this data source script")
-	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().String(flagFee, "", "the maximum tokens that will be paid to all data source providers")
 	cmd.Flags().String(flagTreasury, "", "Who recive data source fee from requester.")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 	flags.AddTxFlagsToCmd(cmd)
