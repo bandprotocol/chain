@@ -71,7 +71,7 @@ service Query {
   }
 
   // RequestVerification verifies a request to make sure that
-  // the request requires data from given reporter
+  // all information that will be used to report the data is valid
   rpc RequestVerification(QueryRequestVerificationRequest)
     returns (QueryRequestVerificationResponse) {
       option (google.api.http).post = "/oracle/verify_request";
