@@ -2,6 +2,7 @@ package band
 
 import (
 	"encoding/json"
+	odinminttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,12 +35,12 @@ type GenesisState map[string]json.RawMessage
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	cdc := MakeEncodingConfig().Marshaler
-	denom := "uband"
+	denom := "odin"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 	distrGenesis := distrtypes.DefaultGenesisState()
-	mintGenesis := minttypes.DefaultGenesisState()
+	mintGenesis := odinminttypes.DefaultGenesisState()
 	govGenesis := govtypes.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
@@ -64,7 +65,7 @@ func NewDefaultGenesisState() GenesisState {
 		banktypes.ModuleName:       bank.AppModuleBasic{}.DefaultGenesis(cdc),
 		capabilitytypes.ModuleName: capability.AppModuleBasic{}.DefaultGenesis(cdc),
 		stakingtypes.ModuleName:    cdc.MustMarshalJSON(stakingGenesis),
-		minttypes.ModuleName:       cdc.MustMarshalJSON(mintGenesis),
+		odinminttypes.ModuleName:   cdc.MustMarshalJSON(mintGenesis),
 		distrtypes.ModuleName:      cdc.MustMarshalJSON(distrGenesis),
 		govtypes.ModuleName:        cdc.MustMarshalJSON(govGenesis),
 		crisistypes.ModuleName:     cdc.MustMarshalJSON(crisisGenesis),

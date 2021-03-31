@@ -70,9 +70,6 @@ func (msg MsgRequestData) ValidateBasic() error {
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
 	}
-	if len(msg.Calldata) > MaxDataSize {
-		return WrapMaxError(ErrTooLargeCalldata, len(msg.Calldata), MaxDataSize)
-	}
 	if msg.MinCount <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", msg.MinCount)
 	}
@@ -147,9 +144,6 @@ func (msg MsgReportData) ValidateBasic() error {
 			return sdkerrors.Wrapf(ErrDuplicateExternalID, "external id: %d", r.ExternalID)
 		}
 		uniqueMap[r.ExternalID] = true
-		if len(r.Data) > MaxDataSize {
-			return WrapMaxError(ErrTooLargeRawReportData, len(r.Data), MaxDataSize)
-		}
 	}
 	return nil
 }

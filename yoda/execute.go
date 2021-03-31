@@ -118,7 +118,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		var txHash string
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
-			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
+			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d) with gas limit: %d", broadcastTry, c.maxTry, gasLimit)
 			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
@@ -188,24 +188,31 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	return resValue, nil
 }
 
-// GetDataSourceHash fetches data source hash by id
-func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, error) {
-	if hash, ok := c.dataSourceCache.Load(id); ok {
-		return hash.(string), nil
-	}
-
+func GetDataSource(c *Context, l *Logger, id types.DataSourceID) (types.DataSource, error) {
 	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
 	if err != nil {
 		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
-		return "", err
+		return types.DataSource{}, err
 	}
 
 	var d types.DataSource
 	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
 
-	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
+	_, _ = c.dataSourceCache.LoadOrStore(id, d.Filename) // just put hash
+	return d, nil
+}
 
-	return hash.(string), nil
+// todo for refactoring
+func GetDataProviderRewardPerByte(c *Context, l *Logger) (sdk.Dec, error) {
+	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.KeyDataProviderRewardPerByte)
+	if err != nil {
+		l.Debug(":skull: Failed to get data provider reward per byte with error: %s", err.Error())
+		return sdk.Dec{}, err
+	}
+
+	var d sdk.Dec
+	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+	return d, nil
 }
 
 // GetRequest fetches request by id

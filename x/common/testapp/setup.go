@@ -21,10 +21,10 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/pkg/filecache"
-	me "github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	bandapp "github.com/GeoDB-Limited/odin-core/app"
+	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
+	me "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
@@ -38,24 +38,32 @@ type Account struct {
 
 // nolint
 var (
-	Owner         Account
-	Treasury      Account
-	FeePayer      Account
-	Alice         Account
-	Bob           Account
-	Carol         Account
-	Validators    []Account
-	DataSources   []types.DataSource
-	OracleScripts []types.OracleScript
-	OwasmVM       *owasm.Vm
+	Owner              Account
+	Treasury           Account
+	FeePayer           Account
+	Alice              Account
+	Bob                Account
+	Carol              Account
+	OraclePoolProvider Account
+	FeePoolProvider    Account
+	Validators         []Account
+	DataSources        []types.DataSource
+	OracleScripts      []types.OracleScript
+	OwasmVM            *owasm.Vm
 )
 
 // nolint
 var (
-	EmptyCoins          = sdk.Coins(nil)
-	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	EmptyCoins               = sdk.Coins(nil)
+	Coin1geo                 = sdk.NewInt64Coin("geo", 1)
+	Coin10odin               = sdk.NewInt64Coin("odin", 10)
+	Coin100000000geo         = sdk.NewInt64Coin("geo", 1000000)
+	Coins1000000odin         = sdk.NewCoins(sdk.NewInt64Coin("odin", 1000000))
+	Coins99999999odin        = sdk.NewCoins(sdk.NewInt64Coin("odin", 99999999))
+	Coin100000000odin        = sdk.NewInt64Coin("odin", 100000000)
+	Coins100000000odin       = sdk.NewCoins(Coin100000000odin)
+	DefaultDataProvidersPool = sdk.NewCoins(Coin100000000odin)
+	DefaultCommunityPool     = sdk.NewCoins(Coin100000000geo, Coin100000000odin)
 )
 
 const (
@@ -72,6 +80,8 @@ func init() {
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
+	OraclePoolProvider = createArbitraryAccount(r)
+	FeePoolProvider = createArbitraryAccount(r)
 	for i := 0; i < 3; i++ {
 		Validators = append(Validators, createArbitraryAccount(r))
 	}
@@ -153,6 +163,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
+		&auth.BaseAccount{Address: OraclePoolProvider.Address, Coins: DefaultDataProvidersPool},
+		&auth.BaseAccount{Address: FeePoolProvider.Address, Coins: DefaultCommunityPool},
 	}
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), acc)
 	genesis[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -221,6 +233,10 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := types.DefaultGenesisState()
+
+	oracleGenesis.Params.DataRequesterBasicFee = types.CoinProto(Coin10odin)
+	oracleGenesis.Params.DataProviderRewardPerByte = types.CoinDecProto(sdk.NewDecCoinFromCoin(Coin1geo))
+
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
@@ -236,13 +252,22 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 }
 
 // CreateTestInput creates a new test environment for unit tests.
-func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
-	app := NewSimApp("BANDCHAIN", log.NewNopLogger())
+// params[0] - activate;
+// params[1] - fund pools;
+func CreateTestInput(params ...bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
+	app := NewSimApp("ODINCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
-	if autoActivate {
+	if len(params) > 0 && params[0] {
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+	}
+
+	if len(params) > 1 && params[1] {
+		app.DistrKeeper.FundCommunityPool(ctx, DefaultCommunityPool, FeePoolProvider.Address)
+		app.OracleKeeper.FundOraclePool(ctx, DefaultDataProvidersPool, OraclePoolProvider.Address)
+
+		ctx = app.NewContext(false, abci.Header{})
 	}
 	return app, ctx, app.OracleKeeper
 }

@@ -2,6 +2,7 @@ package yoda
 
 import (
 	"encoding/hex"
+	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -94,7 +95,7 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 
 	l.Info(":delivery_truck: Processing incoming request event")
 
-	reqs, err := GetRawRequests(log)
+	reqs, err := GetRawRequests(c, l, log)
 	if err != nil {
 		l.Error(":skull: Failed to parse raw requests with error: %s", c, err.Error())
 	}
@@ -141,6 +142,7 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 			callData:    callData,
 			rawRequests: reqs,
 			clientID:    clientID,
+			reports:     reports,
 		},
 	}
 }
@@ -163,17 +165,24 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 	// prepare raw requests
 	for _, raw := range req.RawRequests {
 
-		hash, err := GetDataSourceHash(c, l, raw.DataSourceID)
+		ds, err := GetDataSource(c, l, raw.DataSourceID)
 		if err != nil {
 			l.Error(":skull: Failed to get data source hash with error: %s", c, err.Error())
 			return
 		}
 
+		hash, ok := c.dataSourceCache.Load(raw.DataSourceID)
+		if !ok {
+			l.Error(":skull: couldn't load data source id from cache", c)
+			panic(fmt.Errorf("couldn't load data source id from cache"))
+		}
+
 		rawRequests = append(rawRequests, rawRequest{
 			dataSourceID:   raw.DataSourceID,
-			dataSourceHash: hash,
+			dataSourceHash: hash.(string),
 			externalID:     raw.ExternalID,
 			calldata:       string(raw.Calldata),
+			dataSource:     ds,
 		})
 	}
 
@@ -190,6 +199,7 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 			callData:    req.Calldata,
 			rawRequests: rawRequests,
 			clientID:    req.ClientID,
+			reports:     reports,
 		},
 	}
 }

@@ -41,6 +41,10 @@ func (k *WrappedBankKeeper) SetDistrKeeper(dk types.DistributionKeeper) {
 	k.distrKeeper = dk
 }
 
+func (k *WrappedBankKeeper) SetMintKeeper(mintKeeper types.MintKeeper) {
+	k.mintKeeper = mintKeeper
+}
+
 // Logger returns a module-specific logger.
 func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprint("x/wrappedbank"))
@@ -82,5 +86,36 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	logger.Info(fmt.Sprintf(
 		"sent %s from %s module account to community pool", amt.String(), moduleName,
 	))
+	return nil
+}
+
+// MintCoins does not create any new coins, just gets them from the community pull
+func (k WrappedBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+	if k.distrKeeper == nil || moduleName == distrtypes.ModuleName {
+		return k.Keeper.MintCoins(ctx, moduleName, amt)
+	}
+
+	vanillaMinting := k.mintKeeper.GetParams(ctx).MintAir
+	if vanillaMinting {
+		return k.Keeper.MintCoins(ctx, moduleName, amt)
+	}
+	acc := k.accountKeeper.GetModuleAccount(ctx, moduleName)
+	if acc == nil {
+		panic(sdkerrors.Wrapf(sdkerrors.ErrUnknownAddress, "module account %s does not exist", moduleName))
+	}
+
+	if !acc.HasPermission(authtypes.Minter) {
+		panic(sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "module account %s does not have permissions to mint tokens", moduleName))
+	}
+
+	logger := k.Logger(ctx)
+	err := k.SendCoinsFromModuleToModule(ctx, distrtypes.ModuleName, moduleName, amt)
+	if err != nil {
+		err = sdkerrors.Wrap(err, fmt.Sprintf("failed to mint %s from %s module account", amt.String(), moduleName))
+		logger.Error(err.Error())
+		return err
+	}
+	logger.Info(fmt.Sprintf("minted %s from %s module account", amt.String(), moduleName))
+
 	return nil
 }

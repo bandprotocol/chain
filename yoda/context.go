@@ -19,6 +19,7 @@ type FeeEstimationData struct {
 	minCount    int64
 	callData    []byte
 	rawRequests []rawRequest
+	reports     []types.RawReport
 	clientID    string
 }
 
@@ -58,6 +59,30 @@ type Context struct {
 func (c *Context) nextKeyIndex() int64 {
 	keyIndex := atomic.AddInt64(&c.keyRoundRobinIndex, 1) % int64(len(c.keys))
 	return keyIndex
+}
+
+func (c *Context) updateHandlingGauge(amount int64) {
+	if c.metricsEnabled {
+		atomic.AddInt64(&c.handlingGauge, amount)
+	}
+}
+
+func (c *Context) updatePendingGauge(amount int64) {
+	if c.metricsEnabled {
+		atomic.AddInt64(&c.pendingGauge, amount)
+	}
+}
+
+func (c *Context) updateErrorCount(amount int64) {
+	if c.metricsEnabled {
+		atomic.AddInt64(&c.errorCount, amount)
+	}
+}
+
+func (c *Context) updateSubmittedCount(amount int64) {
+	if c.metricsEnabled {
+		atomic.AddInt64(&c.submittedCount, amount)
+	}
 }
 
 func (c *Context) updateHandlingGauge(amount int64) {

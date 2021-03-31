@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	odinmint "github.com/GeoDB-Limited/odincore/chain/x/mint"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -49,7 +50,7 @@ type Hook struct {
 	accountKeeper authkeeper.AccountKeeper
 	bankKeeper    bankkeeper.Keeper
 	stakingKeeper stakingkeeper.Keeper
-	mintKeeper    mintkeeper.Keeper
+	mintKeeper    odinmint.Keeper
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
@@ -58,7 +59,7 @@ type Hook struct {
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
 	cdc codec.Marshaler, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper, mintKeeper odinmint.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
 	oracleKeeper keeper.Keeper, kafkaURI string, emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)

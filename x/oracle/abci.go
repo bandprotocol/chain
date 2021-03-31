@@ -22,6 +22,7 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Loops through all requests in the resolvable list to resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		k.ResolveRequest(ctx, reqID)
+		k.AllocateRewardsToDataProviders(ctx, reqID)
 	}
 	// Once all the requests are resolved, we can clear the list.
 	k.SetPendingResolveList(ctx, []types.RequestID{})

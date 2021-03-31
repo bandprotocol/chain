@@ -54,6 +54,10 @@ func NewKeeper(
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
 ) Keeper {
+	if addr := bankKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+		panic("the oracle module account has not been set")
+	}
+
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
@@ -79,21 +83,43 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// GetParam returns the parameter as specified by key as an uint64.
-func (k Keeper) GetParam(ctx sdk.Context, key []byte) (res uint64) {
+// GetParamUint64 returns the parameter as specified by key as an uint64.
+func (k Keeper) GetParamUint64(ctx sdk.Context, key []byte) (res uint64) {
 	k.paramstore.Get(ctx, key, &res)
 	return res
 }
 
-// SetParam saves the given key-value parameter to the store.
-func (k Keeper) SetParam(ctx sdk.Context, key []byte, value uint64) {
+func (k Keeper) SetParamUint64(ctx sdk.Context, key []byte, value uint64) {
 	k.paramstore.Set(ctx, key, value)
+}
+
+// SetParam saves the given key-value parameter to the store.
+func (k Keeper) SetParams(ctx sdk.Context, value types.Params) {
+	k.paramstore.SetParamSet(ctx, &value)
 }
 
 // GetParams returns all current parameters as a types.Params instance.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramstore.GetParamSet(ctx, &params)
 	return params
+}
+
+func (k Keeper) SetDataProviderRewardPerByteParam(ctx sdk.Context, value types.CoinDecProto) {
+	k.paramstore.Set(ctx, types.KeyDataProviderRewardPerByte, value)
+}
+
+func (k Keeper) GetDataProviderRewardPerByteParam(ctx sdk.Context) (res types.CoinDecProto) {
+	k.paramstore.Get(ctx, types.KeyDataProviderRewardPerByte, &res)
+	return res
+}
+
+func (k Keeper) SetDataRequesterBasicFeeParam(ctx sdk.Context, value types.CoinProto) {
+	k.paramstore.Set(ctx, types.KeyDataRequesterBasicFee, value)
+}
+
+func (k Keeper) GetDataRequesterBasicFeeParam(ctx sdk.Context) (res types.CoinProto) {
+	k.paramstore.Get(ctx, types.KeyDataRequesterBasicFee, &res)
+	return res
 }
 
 // SetRollingSeed sets the rolling seed value to be provided value.

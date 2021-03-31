@@ -13,14 +13,23 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount      = uint64(12)
-	DefaultMaxAskCount             = uint64(16)
-	DefaultExpirationBlockCount    = uint64(100)
-	DefaultBaseRequestGas          = uint64(150000)
-	DefaultPerValidatorRequestGas  = uint64(30000)
-	DefaultSamplingTryCount        = uint64(3)
-	DefaultOracleRewardPercentage  = uint64(70)
-	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
+	DefaultMaxRawRequestCount         = uint64(12)
+	DefaultMaxAskCount                = uint64(16)
+	DefaultExpirationBlockCount       = uint64(100)
+	DefaultBaseRequestGas             = uint64(150000)
+	DefaultPerValidatorRequestGas     = uint64(30000)
+	DefaultSamplingTryCount           = uint64(3)
+	DefaultOracleRewardPercentage     = uint64(70)
+	DefaultInactivePenaltyDuration    = uint64(10 * time.Minute)
+	DefaultMaxDataSize                = uint64(1 * 1024) // 1 KB
+	DefaultMaxCalldataSize            = uint64(1 * 1024) // 1 KB
+	DefaultDataProviderRewardDenom    = "geo"
+	DefaultDataRequesterBasicFeeDenom = "odin"
+)
+
+var (
+	DefaultDataProviderRewardPerByte = NewCoinDecProto(DefaultDataProviderRewardDenom)
+	DefaultDataRequesterBasicFee     = NewCoinProto(DefaultDataRequesterBasicFeeDenom)
 )
 
 // nolint
@@ -81,6 +90,10 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
 		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
 		paramtypes.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
+		paramtypes.NewParamSetPair(KeyMaxDataSize, &p.MaxDataSize, validateUint64("max data size", true)),
+		paramtypes.NewParamSetPair(KeyMaxCalldataSize, &p.MaxCalldataSize, validateUint64("max calldata size", true)),
+		paramtypes.NewParamSetPair(KeyDataProviderRewardPerByte, &p.DataProviderRewardPerByte, validateDataProviderRewardPerByte),
+		paramtypes.NewParamSetPair(KeyDataRequesterBasicFee, &p.DataRequesterBasicFee, validateDataRequesterFee),
 	}
 }
 
@@ -95,6 +108,10 @@ func DefaultParams() Params {
 		DefaultSamplingTryCount,
 		DefaultOracleRewardPercentage,
 		DefaultInactivePenaltyDuration,
+		DefaultMaxDataSize,
+		DefaultMaxCalldataSize,
+		DefaultDataProviderRewardPerByte,
+		DefaultDataRequesterBasicFee,
 	)
 }
 
@@ -115,4 +132,28 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 		}
 		return nil
 	}
+}
+
+func validateDataProviderRewardPerByte(i interface{}) error {
+	v, ok := i.(CoinDecProto)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.Amount.IsNegative() {
+		return fmt.Errorf("data provider reward must be positive: %v", v)
+	}
+	return nil
+}
+
+func validateDataRequesterFee(i interface{}) error {
+	v, ok := i.(CoinProto)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.Amount.IsNegative() {
+		return fmt.Errorf("data requester fee must be positive: %v", v)
+	}
+	return nil
 }

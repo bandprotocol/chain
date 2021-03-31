@@ -34,6 +34,24 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 			panic(fmt.Sprintf("could not claim port capability: %v", err))
 		}
 	}
+
+	moduleAcc := k.GetOracleAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
+	moduleHoldings, _ := data.OraclePool.DataProvidersPool.TruncateDecimal()
+
+	balances := k.bankKeeper.GetAllBalances(ctx, moduleAcc.GetAddress())
+	if balances.IsZero() {
+		if err := k.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), moduleHoldings); err != nil {
+			panic(err)
+		}
+
+		k.authKeeper.SetModuleAccount(ctx, moduleAcc)
+	}
+
+	k.SetOraclePool(ctx, data.OraclePool)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -42,5 +60,6 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 		Params:        k.GetParams(ctx),
 		DataSources:   k.GetAllDataSources(ctx),
 		OracleScripts: k.GetAllOracleScripts(ctx),
+		OraclePool:    k.GetOraclePool(ctx),
 	}
 }

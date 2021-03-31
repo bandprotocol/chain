@@ -25,6 +25,8 @@ const (
 	baseReportCost    = uint64(4024)
 	addingPendingCost = uint64(4500)
 
+	baseDecCoinSize = uint64(64) // approximate value
+
 	baseRequestSize = uint64(32)
 	addressSize     = uint64(20)
 
@@ -72,11 +74,42 @@ func estimateReadingRequestCost(f FeeEstimationData) uint64 {
 	return cost
 }
 
+func estimateReadingDataSourceCost(f FeeEstimationData) uint64 {
+	cost := readingBaseCost
+
+	dataSourceMap := make(map[types.ExternalID]types.DataSource)
+	for _, rawRequest := range f.rawRequests {
+		dataSourceMap[rawRequest.externalID] = rawRequest.dataSource
+	}
+
+	for _, rawRep := range f.reports {
+		cost += uint64(len(cdc.MustMarshalBinaryBare(dataSourceMap[rawRep.ExternalID]))) * readingCostPerByte
+	}
+	return cost
+}
+
 func estimateReportHandleCost(msg sdk.Msg, f FeeEstimationData) uint64 {
 	cost := baseReportCost
 
 	// read request twice
 	cost += 2 * estimateReadingRequestCost(f)
+
+	// read oracle params
+	cost += readingBaseCost + readingCostPerByte*baseDecCoinSize
+
+	// write reward
+	writeRewardCost := writingBaseCost + addressSize*writingCostPerByte + baseDecCoinSize*writingCostPerByte
+
+	// read reward
+	readRewardCost := readingBaseCost + addressSize*readingCostPerByte + baseDecCoinSize*readingCostPerByte
+
+	// store reward for every provider
+	storeRewardCost := writeRewardCost + 2*readRewardCost
+
+	cost += storeRewardCost * uint64(len(f.reports))
+
+	// we need to read data sources
+	cost += estimateReadingDataSourceCost(f)
 
 	// write report once
 	cost += estimateStoringReportCost(msg)
@@ -85,13 +118,13 @@ func estimateReportHandleCost(msg sdk.Msg, f FeeEstimationData) uint64 {
 	countingPerReportCost := 30 + readingCostPerByte*uint64(len(cdc.MustMarshalBinaryBare(msg)))
 
 	// reach min count and have to update pending list
-	costWhenReacnMinCount := countingPerReportCost*uint64(f.minCount+1) + addingPendingCost
+	costWhenReachMinCount := countingPerReportCost*uint64(f.minCount+1) + addingPendingCost
 
 	// reach ask count but don't have to update pending list
 	costWhenReachAskCount := countingPerReportCost * uint64(f.askCount+1)
 
-	if costWhenReacnMinCount > costWhenReachAskCount {
-		cost += costWhenReacnMinCount
+	if costWhenReachMinCount > costWhenReachAskCount {
+		cost += costWhenReachMinCount
 	} else {
 		cost += costWhenReachAskCount
 	}

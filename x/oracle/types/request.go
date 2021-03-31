@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	_ RequestSpec = &MsgRequestData{}
 	_ RequestSpec = &OracleRequestPacketData{}
+	_ RequestSpec = &MsgRequestData{}
 )
 
 // RequestSpec captures the essence of what it means to be a request-making object.

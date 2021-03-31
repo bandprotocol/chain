@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -345,6 +346,10 @@ func TestRequestDataFail(t *testing.T) {
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "require: 2000000uband, max: 0uband: not enough fee")
 	require.Nil(t, res)
+	// Too large calldata
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte(strings.Repeat("a", 2000)), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address))
+	require.EqualError(t, err, "too large calldata: got: 2000, max: 1024")
+	require.Nil(t, res)
 }
 
 func TestReportSuccess(t *testing.T) {
@@ -527,6 +532,12 @@ func TestAddReporterFail(t *testing.T) {
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	// require.EqualError(t, err, fmt.Sprintf("reporter already exists: val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String()))
 	_ = err
+	require.Nil(t, res)
+	// Too large report data
+	k.SetRequestLastExpired(ctx, 0)
+	reports := []types.RawReport{types.NewRawReport(1, 0, []byte(strings.Repeat("1", 2000))), types.NewRawReport(2, 0, []byte(strings.Repeat("2", 2000)))}
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(1, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	require.EqualError(t, err, "too large raw report data: got: 2000, max: 1024")
 	require.Nil(t, res)
 }
 

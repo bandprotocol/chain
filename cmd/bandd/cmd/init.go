@@ -158,7 +158,18 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			if err != nil {
 				return err
 			}
+
 			genDoc := &types.GenesisDoc{}
+			genDoc.ChainID = chainID
+			genDoc.Validators = nil
+			genDoc.AppState = appState
+			genDoc.ConsensusParams = types.DefaultConsensusParams()
+			// TODO: Revisit max block size
+			// genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
+			genDoc.ConsensusParams.Block.MaxGas = 40000000 // 40M gas
+			genDoc.ConsensusParams.Block.TimeIotaMs = 1000 // 1 second
+			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
+
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {
 					return err
@@ -169,15 +180,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 					return err
 				}
 			}
-			genDoc.ChainID = chainID
-			genDoc.Validators = nil
-			genDoc.AppState = appState
-			genDoc.ConsensusParams = types.DefaultConsensusParams()
-			// TODO: Revisit max block size
-			// genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
-			genDoc.ConsensusParams.Block.MaxGas = 40000000 // 40M gas
-			genDoc.ConsensusParams.Block.TimeIotaMs = 1000 // 1 second
-			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
+
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
 				return err
 			}

@@ -23,6 +23,7 @@ func NewDockerExec(image string, timeout time.Duration) *DockerExec {
 	return &DockerExec{image: image, timeout: timeout}
 }
 
+// TODO: handle max data size (either in env, or in args)
 func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
 	// TODO: Handle env if we are to revive Docker
 	dir, err := ioutil.TempDir("/tmp", "executor")
