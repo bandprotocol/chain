@@ -69,7 +69,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	newExecutable := []byte("executable2")
 	newExecutableHash := sha256.Sum256(newExecutable)
 	newFilename := hex.EncodeToString(newExecutableHash[:])
-	msg := types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.Coins1000000uband, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
