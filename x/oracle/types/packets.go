@@ -1,8 +1,11 @@
 package types
 
 import (
+	fmt "fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
@@ -69,4 +72,10 @@ func NewOracleResponsePacketData(
 // GetBytes returns the bytes representation of this oracle response packet data.
 func (p OracleResponsePacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
+}
+
+func NewPoolAddress(ibcChannel, ibcPort, requestKey string) sdk.AccAddress {
+	hash := tmhash.Sum([]byte(fmt.Sprintf("%s/%s/%s", ibcChannel, ibcPort, requestKey)))
+
+	return sdk.AccAddress(hash)
 }
