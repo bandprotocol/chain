@@ -79,6 +79,7 @@ type DataSource struct {
 	// Filename is string of file name used as reference for locating
 	// data source file stored in bandchain nodes
 	Filename string `protobuf:"bytes,4,opt,name=filename,proto3" json:"filename,omitempty"`
+	// Treasury is the account address who recive data source fee from requester.
 	Treasury string `protobuf:"bytes,5,opt,name=treasury,proto3" json:"treasury,omitempty"`
 	// Fee is the data source fee per ask_count that data provider will receive
 	// from requester.
