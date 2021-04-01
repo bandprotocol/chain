@@ -46,6 +46,7 @@ var (
 	ErrBadDrbgInitialization    = sdkerrors.Register(ModuleName, 40, "bad drbg initialization")
 	ErrMaxOracleChannels        = sdkerrors.Register(ModuleName, 41, "max oracle channels")
 	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid ICS20 version")
+	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 43, "invalid owasm gas")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.
