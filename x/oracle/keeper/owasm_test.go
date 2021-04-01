@@ -305,12 +305,8 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	require.PanicsWithErrorf(
-		t,
-		"id: 99: data source not found",
-		func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
-		"Expected data source 99 not found",
-	)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "id: 99: data source not found")
 }
 
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {

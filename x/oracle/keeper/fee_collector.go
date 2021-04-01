@@ -19,6 +19,16 @@ type feeCollector struct {
 	limit      sdk.Coins
 }
 
+func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
+
+	return &feeCollector{
+		bankKeeper: bankKeeper,
+		payer:      payer,
+		collected:  sdk.NewCoins(),
+		limit:      feeLimit,
+	}
+}
+
 func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk.AccAddress) error {
 	coll.collected = coll.collected.Add(coins...)
 
@@ -36,14 +46,4 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 
 func (coll *feeCollector) Collected() sdk.Coins {
 	return coll.collected
-}
-
-func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-
-	return &feeCollector{
-		bankKeeper: bankKeeper,
-		payer:      payer,
-		collected:  sdk.NewCoins(),
-		limit:      feeLimit,
-	}
 }

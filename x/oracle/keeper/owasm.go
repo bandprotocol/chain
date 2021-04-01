@@ -168,7 +168,11 @@ func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.C
 
 	for _, r := range rawRequests {
 
-		ds := k.MustGetDataSource(ctx, r.DataSourceID)
+		ds, err := k.GetDataSource(ctx, r.DataSourceID)
+		if err != nil {
+			return nil, err
+		}
+
 		if ds.Fee.Empty() {
 			continue
 		}
