@@ -150,18 +150,20 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
 			}
-			switch txRes.Code {
-			case 0:
+
+			if txRes.Code == 0 {
 				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
 				c.updateSubmittedCount(int64(len(reports)))
 				return
-			case sdkerrors.ErrOutOfGas.ABCICode():
+			}
+			if txRes.Codespace == sdkerrors.RootCodespace &&
+				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas limit and try to broadcast again
 				gasLimit = gasLimit * 110 / 100
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
 				txFound = true
 				break FindTx
-			default:
+			} else {
 				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txRes.Code, txRes.RawLog, txRes.TxHash)
 				return
 			}
