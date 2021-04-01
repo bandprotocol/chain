@@ -128,7 +128,7 @@ func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData,
 		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
 	}
 
-	l.Info(":fuel_pump: Estimated gas is %d", gas)
+	l.Debug(":fuel_pump: Estimated gas is %d", gas)
 
 	return gas
 }
