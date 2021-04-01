@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
+	bankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -59,7 +59,7 @@ func NewGasMeterWrapper(meter sdk.GasMeter) *GasMeterWrapper {
 	return &GasMeterWrapper{meter, nil}
 }
 
-func MustGetBalances(ctx sdk.Context, bankKeeper bandbankkeeper.WrappedBankKeeper, address sdk.AccAddress) sdk.Coins {
+func MustGetBalances(ctx sdk.Context, bankKeeper bankkeeper.WrappedBankKeeper, address sdk.AccAddress) sdk.Coins {
 	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
 	if err != nil {
 		panic(err)
@@ -71,7 +71,7 @@ func MustGetBalances(ctx sdk.Context, bankKeeper bandbankkeeper.WrappedBankKeepe
 func CheckBalances(
 	t *testing.T,
 	ctx sdk.Context,
-	bankKeeper bandbankkeeper.WrappedBankKeeper,
+	bankKeeper bankkeeper.WrappedBankKeeper,
 	address sdk.AccAddress,
 	expected sdk.Coins,
 ) {
