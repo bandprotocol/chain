@@ -165,9 +165,9 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	// Provided chain ID should match validator's chain ID
+	// Provided chain ID should match current chain ID
 	if ctx.ChainID() != req.ChainId {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+		return nil, status.Error(codes.Internal, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
 	}
 
 	// Provided validator's address should be valid
@@ -198,13 +198,13 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isReporterAuthorizedByValidator {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
+		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 
 	// Provided request should exist on chain
 	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
 	}
 
 	// Provided validator should be assigned to response to the request
@@ -217,7 +217,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isValidatorAssigned {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
+		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
 	}
 
 	// Provided external ID should be required by the request determined by oracle script
@@ -243,13 +243,13 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if isValidatorReported {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("validator %s already submitted data report for this request", validator))
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("validator %s already submitted data report for this request", validator))
 	}
 
 	// The request should not be expired
 	params := k.GetParams(ctx)
 	if request.RequestHeight+int64(params.ExpirationBlockCount) < ctx.BlockHeader().Height {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
+		return nil, status.Error(codes.DeadlineExceeded, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
 	}
 
 	return &types.QueryRequestVerificationResponse{
