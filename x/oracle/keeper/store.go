@@ -1,14 +1,14 @@
-package keeper
+package oraclekeeper
 
 import (
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // get the oracle pool info
-func (k Keeper) GetOraclePool(ctx sdk.Context) (oraclePool types.OraclePool) {
+func (k Keeper) GetOraclePool(ctx sdk.Context) (oraclePool oracletypes.OraclePool) {
 	store := ctx.KVStore(k.storeKey)
-	b := store.Get(types.OraclePoolStoreKey)
+	b := store.Get(oracletypes.OraclePoolStoreKey)
 	if b == nil {
 		panic("Stored fee pool should not have been nil")
 	}
@@ -17,8 +17,8 @@ func (k Keeper) GetOraclePool(ctx sdk.Context) (oraclePool types.OraclePool) {
 }
 
 // set the oracle pool info
-func (k Keeper) SetOraclePool(ctx sdk.Context, oraclePool types.OraclePool) {
+func (k Keeper) SetOraclePool(ctx sdk.Context, oraclePool oracletypes.OraclePool) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshalBinaryLengthPrefixed(&oraclePool)
-	store.Set(types.OraclePoolStoreKey, b)
+	store.Set(oracletypes.OraclePoolStoreKey, b)
 }

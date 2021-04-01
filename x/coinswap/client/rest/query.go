@@ -2,39 +2,40 @@ package rest
 
 import (
 	"fmt"
-	"github.com/GeoDB-Limited/odincore/chain/x/coinswap/types"
-	commonrest "github.com/GeoDB-Limited/odincore/chain/x/common/client/rest"
-	"github.com/cosmos/cosmos-sdk/client/context"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"net/http"
 )
 
-func getParamsHandler(cliCtx context.CLIContext, route string) http.HandlerFunc {
+func getParamsHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
 			return
 		}
-		bz, height, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s", route, types.QueryParams))
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", coinswaptypes.QuerierRoute, coinswaptypes.QueryParams))
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
-		commonrest.PostProcessQueryResponse(w, cliCtx.WithHeight(height), bz)
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
 	}
 }
 
-func getRateHandler(cliCtx context.CLIContext, route string) http.HandlerFunc {
+func getRateHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
 			return
 		}
-		bz, height, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s", route, types.QueryRate))
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", coinswaptypes.QuerierRoute, coinswaptypes.QueryRate))
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
-		commonrest.PostProcessQueryResponse(w, cliCtx.WithHeight(height), bz)
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
 	}
 }

@@ -20,7 +20,7 @@ var (
 	GoodTestValAddr2 = sdk.ValAddress(MsgPk.Address())
 
 	GoodCoins = sdk.NewCoins()
-	BadCoins  = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
+	BadCoins  = []sdk.Coin{{Denom: "odin", Amount: sdk.NewInt(-1)}}
 )
 
 type validateTestCase struct {

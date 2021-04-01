@@ -202,19 +202,6 @@ func GetDataSource(c *Context, l *Logger, id types.DataSourceID) (types.DataSour
 	return d, nil
 }
 
-// todo for refactoring
-func GetDataProviderRewardPerByte(c *Context, l *Logger) (sdk.Dec, error) {
-	res, err := c.client.ABCIQuery(fmt.Sprintf("/store/%s/key", types.StoreKey), types.KeyDataProviderRewardPerByte)
-	if err != nil {
-		l.Debug(":skull: Failed to get data provider reward per byte with error: %s", err.Error())
-		return sdk.Dec{}, err
-	}
-
-	var d sdk.Dec
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
-	return d, nil
-}
-
 // GetRequest fetches request by id
 func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
 	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))

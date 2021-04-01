@@ -61,7 +61,9 @@ var (
 	Coins1000000odin         = sdk.NewCoins(sdk.NewInt64Coin("odin", 1000000))
 	Coins99999999odin        = sdk.NewCoins(sdk.NewInt64Coin("odin", 99999999))
 	Coin100000000odin        = sdk.NewInt64Coin("odin", 100000000)
+	Coin10000000000odin      = sdk.NewInt64Coin("odin", 10000000000)
 	Coins100000000odin       = sdk.NewCoins(Coin100000000odin)
+	Coins10000000000odin     = sdk.NewCoins(Coin10000000000odin)
 	DefaultDataProvidersPool = sdk.NewCoins(Coin100000000odin)
 	DefaultCommunityPool     = sdk.NewCoins(Coin100000000geo, Coin100000000odin)
 )
@@ -112,7 +114,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins1000000uband,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins100000000odin,
 		))
 	}
 	return DataSources[1:]
@@ -163,15 +165,15 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
-		&auth.BaseAccount{Address: OraclePoolProvider.Address, Coins: DefaultDataProvidersPool},
-		&auth.BaseAccount{Address: FeePoolProvider.Address, Coins: DefaultCommunityPool},
+		&authtypes.BaseAccount{Address: OraclePoolProvider.Address.String()},
+		&authtypes.BaseAccount{Address: FeePoolProvider.Address.String()},
 	}
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), acc)
 	genesis[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []sdk.Int{Coins100000000odin[0].Amount, Coins100000000odin[0].Amount, Coins99999999odin[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -200,23 +202,25 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	}
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = "uband"
+	stakingParams.BondDenom = "odin"
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesis[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	// Fund seed accounts and validators with 1000000uband and 100000000uband initially.
+	// Fund seed accounts and validators with 1000000odin and 100000000odin initially.
 	balances := []banktypes.Balance{
 		{
 			Address: Owner.Address.String(),
-			Coins:   Coins1000000uband,
+			Coins:   Coins1000000odin,
 		},
-		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
-		{Address: Alice.Address.String(), Coins: Coins1000000uband},
-		{Address: Bob.Address.String(), Coins: Coins1000000uband},
-		{Address: Carol.Address.String(), Coins: Coins1000000uband},
-		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
+		{Address: FeePayer.Address.String(), Coins: Coins10000000000odin},
+		{Address: Alice.Address.String(), Coins: Coins1000000odin.Add(Coin100000000geo)},
+		{Address: Bob.Address.String(), Coins: Coins1000000odin},
+		{Address: Carol.Address.String(), Coins: Coins1000000odin},
+		{Address: Validators[0].Address.String(), Coins: Coins100000000odin},
+		{Address: Validators[1].Address.String(), Coins: Coins100000000odin},
+		{Address: Validators[2].Address.String(), Coins: Coins100000000odin},
+		{Address: OraclePoolProvider.Address.String(), Coins: DefaultDataProvidersPool},
+		{Address: FeePoolProvider.Address.String(), Coins: DefaultCommunityPool},
 	}
 	totalSupply := sdk.NewCoins()
 	for idx := 0; idx < len(balances)-len(validators); idx++ {
@@ -225,7 +229,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	}
 	for idx := 0; idx < len(validators); idx++ {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
+		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("odin", bamt[idx]))...)
 	}
 
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
@@ -234,8 +238,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := types.DefaultGenesisState()
 
-	oracleGenesis.Params.DataRequesterBasicFee = types.CoinProto(Coin10odin)
-	oracleGenesis.Params.DataProviderRewardPerByte = types.CoinDecProto(sdk.NewDecCoinFromCoin(Coin1geo))
+	oracleGenesis.Params.DataRequesterBasicFee = Coin10odin
+	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewDecCoinFromCoin(Coin1geo)
 
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
@@ -267,7 +271,7 @@ func CreateTestInput(params ...bool) (*bandapp.BandApp, sdk.Context, me.Keeper) 
 		app.DistrKeeper.FundCommunityPool(ctx, DefaultCommunityPool, FeePoolProvider.Address)
 		app.OracleKeeper.FundOraclePool(ctx, DefaultDataProvidersPool, OraclePoolProvider.Address)
 
-		ctx = app.NewContext(false, abci.Header{})
+		ctx = app.NewContext(false, tmproto.Header{})
 	}
 	return app, ctx, app.OracleKeeper
 }

@@ -1,4 +1,4 @@
-package keeper
+package oraclekeeper
 
 import (
 	"context"
@@ -155,3 +155,5 @@ func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchR
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
 	return &types.QueryRequestPriceResponse{}, nil
 }
+
+// TODO: add oracle pool query

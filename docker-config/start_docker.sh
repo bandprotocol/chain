@@ -33,11 +33,11 @@ echo "smile stem oven genius cave resource better lunar nasty moon company ridge
     | bandd keys add requester --recover --keyring-backend test
 
 # add accounts to genesis
-bandd add-genesis-account validator1 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator2 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator3 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator4 10000000000000uband --keyring-backend test
-bandd add-genesis-account requester 100000000000000uband --keyring-backend test
+bandd add-genesis-account validator1 10000000000000odin --keyring-backend test
+bandd add-genesis-account validator2 10000000000000odin --keyring-backend test
+bandd add-genesis-account validator3 10000000000000odin --keyring-backend test
+bandd add-genesis-account validator4 10000000000000odin --keyring-backend test
+bandd add-genesis-account requester 100000000000000odin --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -47,7 +47,7 @@ cp -r ~/.band/files docker-config/
 sed 's/node-validator/🙎‍♀️Alice \& Co./g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 # register initial validators
-bandd gentx validator1 100000000uband \
+bandd gentx validator1 100000000odin \
     --chain-id bandchain \
     --node-id 11392b605378063b1c505c0ab123f04bd710d7d7 \
     --pubkey bandvalconspub1addwnpepq06h7wvh5n5pmrejr6t3pyn7ytpwd5c0kmv0wjdfujs847em8dusjl96sxg \
@@ -59,7 +59,7 @@ bandd gentx validator1 100000000uband \
 # modify moniker
 sed 's/node-validator/Bobby.fish 🐡/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator2 100000000uband \
+bandd gentx validator2 100000000odin \
     --chain-id bandchain \
     --node-id 0851086afcd835d5a6fb0ffbf96fcdf74fec742e \
     --pubkey bandvalconspub1addwnpepqfey4c5ul6m5juz36z0dlk8gyg6jcnyrvxm4werkgkmcerx8fn5g2gj9q6w \
@@ -71,7 +71,7 @@ bandd gentx validator2 100000000uband \
 # modify moniker
 sed 's/node-validator/Carol/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator3 100000000uband \
+bandd gentx validator3 100000000odin \
     --chain-id bandchain \
     --node-id 7b58b086dd915a79836eb8bfa956aeb9488d13b0 \
     --pubkey bandvalconspub1addwnpepqwj5l74gfj8j77v8st0gh932s3uyu2yys7n50qf6pptjgwnqu2arxkkn82m \
@@ -83,7 +83,7 @@ bandd gentx validator3 100000000uband \
 # modify moniker
 sed 's/node-validator/Eve 🦹🏿‍♂️the evil with a really long moniker name/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator4 100000000uband \
+bandd gentx validator4 100000000odin \
     --chain-id bandchain \
     --node-id 63808bd64f2ec19acb2a494c8ce8467c595f6fba \
     --pubkey bandvalconspub1addwnpepq0grwz83v8g4s06fusnq5s4jkzxnhgvx67qr5g7v8tx39ur5m8tk7rg2nxj \
@@ -127,7 +127,7 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000odin --keyring-backend test --chain-id bandchain
 
     # wait for sending band tokens transaction success
     sleep 2
@@ -154,7 +154,7 @@ do
     faucet keys add worker$i
 
     # send band tokens to worker
-    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000odin --keyring-backend test --chain-id bandchain
 
     # wait for addding reporter transaction success
     sleep 2

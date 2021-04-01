@@ -3,6 +3,8 @@ package coinswap
 import (
 	"context"
 	"encoding/json"
+	coinswapcli "github.com/GeoDB-Limited/odin-core/x/coinswap/client/cli"
+	coinswaprest "github.com/GeoDB-Limited/odin-core/x/coinswap/client/rest"
 	coinswapkeeper "github.com/GeoDB-Limited/odin-core/x/coinswap/keeper"
 	"github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -55,7 +57,8 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 }
 
 // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
-func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
+	coinswaprest.RegisterRoutes(clientCtx, rtr)
 	return
 }
 
@@ -66,18 +69,25 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return &cobra.Command{}
+	return coinswapcli.GetTxCmd()
 }
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return &cobra.Command{}
+	return coinswapcli.GetQueryCmd()
 }
 
 // AppModule represents the AppModule for this module.
 type AppModule struct {
 	AppModuleBasic
 	keeper coinswapkeeper.Keeper
+}
+
+// NewAppModule creates a new AppModule object.
+func NewAppModule(k coinswapkeeper.Keeper) AppModule {
+	return AppModule{
+		keeper: k,
+	}
 }
 
 // RegisterInvariants is a noop function to satisfy SDK AppModule interface.
@@ -106,7 +116,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-
 }
 
 // EndBlock processes ABCI end block message for this oracle module (SDK AppModule interface).

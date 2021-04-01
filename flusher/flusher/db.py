@@ -112,7 +112,7 @@ blocks = sa.Table(
     Column("proposer", sa.String, sa.ForeignKey("validators.consensus_address")),
     Column("hash", CustomBase64),
     Column("inflation", sa.Float),
-    Column("supply", sa.String),  # uband suffix
+    Column("supply", sa.String),  # odin suffix
 )
 
 transactions = sa.Table(
@@ -123,7 +123,7 @@ transactions = sa.Table(
     Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
     Column("gas_used", sa.Integer),
     Column("gas_limit", sa.Integer),
-    Column("gas_fee", sa.String),  # uband suffix
+    Column("gas_fee", sa.String),  # odin suffix
     Column("err_msg", sa.String, nullable=True),
     Column("success", sa.Boolean),
     Column("sender", sa.String),
@@ -241,7 +241,7 @@ validators = sa.Table(
     Column("current_ratio", sa.DECIMAL),
     Column("status", sa.Boolean, default=False),
     Column("status_since", CustomDateTime, default=0),
-    Column("accumulated_commission", sa.String),  # uband suffix
+    Column("accumulated_commission", sa.String),  # odin suffix
 )
 
 delegations = sa.Table(
@@ -305,7 +305,7 @@ proposals = sa.Table(
     Column("status", CustomProposalStatus),
     Column("submit_time", CustomDateTime),
     Column("deposit_end_time", CustomDateTime),
-    Column("total_deposit", sa.String),  # uband suffix
+    Column("total_deposit", sa.String),  # odin suffix
     Column("voting_time", CustomDateTime),
     Column("voting_end_time", CustomDateTime),
 )
@@ -315,7 +315,7 @@ deposits = sa.Table(
     metadata,
     Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
     Column("depositor_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    Column("amount", sa.String),  # uband suffix
+    Column("amount", sa.String),  # odin suffix
     Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
 )
 

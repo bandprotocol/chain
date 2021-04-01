@@ -1,12 +1,11 @@
 package rest
 
 import (
-	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gorilla/mux"
 )
 
-func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
-	r.HandleFunc(fmt.Sprintf("/%s/params", storeName), getParamsHandler(cliCtx, storeName)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/rate", storeName), getRateHandler(cliCtx, storeName)).Methods("GET")
+func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
+	rtr.HandleFunc("/coinswap/params", getParamsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc("/coinswap/rate", getRateHandler(clientCtx)).Methods("GET")
 }

@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -28,8 +29,8 @@ const (
 )
 
 var (
-	DefaultDataProviderRewardPerByte = NewCoinDecProto(DefaultDataProviderRewardDenom)
-	DefaultDataRequesterBasicFee     = NewCoinProto(DefaultDataRequesterBasicFeeDenom)
+	DefaultDataProviderRewardPerByte = sdk.NewInt64DecCoin(DefaultDataProviderRewardDenom, 0)
+	DefaultDataRequesterBasicFee     = sdk.NewInt64Coin(DefaultDataRequesterBasicFeeDenom, 0)
 )
 
 // nolint
@@ -61,7 +62,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
 	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration, maxDataSize, maxCallDataSize uint64,
-	dataProviderRewardPerByte CoinDecProto, dataRequesterBasicFee CoinProto,
+	dataProviderRewardPerByte sdk.DecCoin, dataRequesterBasicFee sdk.Coin,
 ) Params {
 	return Params{
 		MaxRawRequestCount:        maxRawRequestCount,
@@ -135,7 +136,7 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 }
 
 func validateDataProviderRewardPerByte(i interface{}) error {
-	v, ok := i.(CoinDecProto)
+	v, ok := i.(sdk.DecCoin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -147,7 +148,7 @@ func validateDataProviderRewardPerByte(i interface{}) error {
 }
 
 func validateDataRequesterFee(i interface{}) error {
-	v, ok := i.(CoinProto)
+	v, ok := i.(sdk.Coin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}

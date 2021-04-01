@@ -1,4 +1,4 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"

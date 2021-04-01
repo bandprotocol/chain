@@ -1,4 +1,4 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/GeoDB-Limited/odin-core/x/oracle/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 

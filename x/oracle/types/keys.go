@@ -115,3 +115,7 @@ func ReportsOfValidatorPrefixKey(reqID RequestID, val sdk.ValAddress) []byte {
 func ReportersOfValidatorPrefixKey(val sdk.ValAddress) []byte {
 	return append(ReporterStoreKeyPrefix, val.Bytes()...)
 }
+
+func DataProviderRewardsPrefixKey(acc sdk.AccAddress) []byte {
+	return append(DataProviderRewardsKeyPrefix, acc.Bytes()...)
+}

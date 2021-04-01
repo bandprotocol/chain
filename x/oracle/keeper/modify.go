@@ -1,4 +1,4 @@
-package keeper
+package oraclekeeper
 
 import (
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"

@@ -23,8 +23,9 @@ import (
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	//oraclerest "github.com/GeoDB-Limited/odin-core/x/oracle/client/rest"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 var (
@@ -40,27 +41,27 @@ type AppModuleBasic struct {
 
 // Name returns this module's name - "oracle" (SDK AppModuleBasic interface).
 func (AppModuleBasic) Name() string {
-	return types.ModuleName
+	return oracletypes.ModuleName
 }
 
-// RegisterLegacyAminoCodec registers the staking module's types on the given LegacyAmino codec.
+// RegisterLegacyAminoCodec registers the staking module's oracletypes on the given LegacyAmino codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
+	oracletypes.RegisterLegacyAminoCodec(cdc)
 }
 
-// RegisterInterfaces registers the module's interface types
+// RegisterInterfaces registers the module's interface oracletypes
 func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(registry)
+	oracletypes.RegisterInterfaces(registry)
 }
 
 // DefaultGenesis returns the default genesis state as raw bytes.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
-	return cdc.MustMarshalJSON(types.DefaultGenesisState())
+	return cdc.MustMarshalJSON(oracletypes.DefaultGenesisState())
 }
 
 // Validation check of the Genesis
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
-	var gs types.GenesisState
+	var gs oracletypes.GenesisState
 	err := cdc.UnmarshalJSON(bz, &gs)
 	if err != nil {
 		return err
@@ -70,12 +71,12 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
 func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
-	return
+	//oraclerest.RegisterRoutes(ctx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the oracle module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	oracletypes.RegisterQueryHandlerClient(context.Background(), mux, oracletypes.NewQueryClient(clientCtx))
 }
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
@@ -91,11 +92,11 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule represents the AppModule for this module.
 type AppModule struct {
 	AppModuleBasic
-	keeper keeper.Keeper
+	keeper oraclekeeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper) AppModule {
+func NewAppModule(k oraclekeeper.Keeper) AppModule {
 	return AppModule{
 		keeper: k,
 	}
@@ -106,23 +107,23 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // Route returns the module's path for message route (SDK AppModule interface).
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+	return sdk.NewRoute(oracletypes.RouterKey, NewHandler(am.keeper))
 }
 
 // QuerierRoute returns the oracle module's querier route name.
 func (AppModule) QuerierRoute() string {
-	return types.QuerierRoute
+	return oracletypes.QuerierRoute
 }
 
 // LegacyQuerierHandler returns the staking module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-	return keeper.NewQuerier(am.keeper, legacyQuerierCdc)
+	return oraclekeeper.NewQuerier(am.keeper, legacyQuerierCdc)
 }
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{am.keeper})
+	oracletypes.RegisterMsgServer(cfg.MsgServer(), oraclekeeper.NewMsgServerImpl(am.keeper))
+	oracletypes.RegisterQueryServer(cfg.QueryServer(), oraclekeeper.Querier{am.keeper})
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
@@ -138,15 +139,15 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 
 // InitGenesis performs genesis initialization for the oracle module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
+	var genesisState oracletypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	keeper.InitGenesis(ctx, am.keeper, &genesisState)
+	oraclekeeper.InitGenesis(ctx, am.keeper, &genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the current state as genesis raw bytes.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
-	gs := keeper.ExportGenesis(ctx, am.keeper)
+	gs := oraclekeeper.ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
 }
 
@@ -170,9 +171,9 @@ func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 	// return simulation.ParamChanges(r)
 }
 
-// RegisterStoreDecoder registers a decoder for transfer module's types
+// RegisterStoreDecoder registers a decoder for transfer module's oracletypes
 func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
-	// sdr[types.StoreKey] = simulation.NewDecodeStore(am.keeper)
+	// sdr[oracletypes.StoreKey] = simulation.NewDecodeStore(am.keeperoraclekeeper)
 }
 
 // WeightedOperations returns the all the transfer module operations with their respective weights.
@@ -187,7 +188,7 @@ func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.Weig
 // supported version. Only 2^32 channels are allowed to be created.
 func ValidateOracleChannelParams(
 	ctx sdk.Context,
-	keeper keeper.Keeper,
+	keeper oraclekeeper.Keeper,
 	order channeltypes.Order,
 	portID string,
 	channelID string,
@@ -200,7 +201,7 @@ func ValidateOracleChannelParams(
 		return err
 	}
 	if channelSequence > uint64(math.MaxUint32) {
-		return sdkerrors.Wrapf(types.ErrMaxOracleChannels, "channel sequence %d is greater than max allowed oracle channels %d", channelSequence, uint64(math.MaxUint32))
+		return sdkerrors.Wrapf(oracletypes.ErrMaxOracleChannels, "channel sequence %d is greater than max allowed oracle channels %d", channelSequence, uint64(math.MaxUint32))
 	}
 	if order != channeltypes.UNORDERED {
 		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.UNORDERED, order)
@@ -212,8 +213,8 @@ func ValidateOracleChannelParams(
 		return sdkerrors.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
 	}
 
-	if version != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "got %s, expected %s", version, types.Version)
+	if version != oracletypes.Version {
+		return sdkerrors.Wrapf(oracletypes.ErrInvalidVersion, "got %s, expected %s", version, oracletypes.Version)
 	}
 	return nil
 }
@@ -257,8 +258,8 @@ func (am AppModule) OnChanOpenTry(
 		return err
 	}
 
-	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, types.Version)
+	if counterpartyVersion != oracletypes.Version {
+		return sdkerrors.Wrapf(oracletypes.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, oracletypes.Version)
 	}
 
 	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
@@ -282,8 +283,8 @@ func (am AppModule) OnChanOpenAck(
 	channelID string,
 	counterpartyVersion string,
 ) error {
-	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: %s, expected %s", counterpartyVersion, types.Version)
+	if counterpartyVersion != oracletypes.Version {
+		return sdkerrors.Wrapf(oracletypes.ErrInvalidVersion, "invalid counterparty version: %s, expected %s", counterpartyVersion, oracletypes.Version)
 	}
 	return nil
 }
@@ -321,19 +322,19 @@ func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
-	var data types.OracleRequestPacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+	var data oracletypes.OracleRequestPacketData
+	if err := oracletypes.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 oracle request packet data: %s", err.Error())
 	}
 
-	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
+	source := oracletypes.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
 	id, err := am.keeper.PrepareRequest(ctx, &data, sdk.AccAddress{}, &source) // TODO: add fee payer
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
-		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
+		acknowledgement = channeltypes.NewResultAcknowledgement(oracletypes.ModuleCdc.MustMarshalJSON(oracletypes.NewOracleRequestPacketAcknowledgement(id)))
 	}
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.

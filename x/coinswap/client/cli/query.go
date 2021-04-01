@@ -1,59 +1,82 @@
 package cli
 
 import (
-	"fmt"
-	"github.com/GeoDB-Limited/odincore/chain/x/coinswap/types"
-	"github.com/GeoDB-Limited/odincore/chain/x/common/client/cli"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 )
 
 // GetQueryCmd returns the cli query commands for this module.
-func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd() *cobra.Command {
 	coinswapCmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        coinswaptypes.ModuleName,
 		Short:                      "Querying commands for the coinswap module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	coinswapCmd.AddCommand(flags.GetCommands(
-		GetQueryCmdParams(storeKey, cdc),
-		GetQueryCmdRate(storeKey, cdc),
-	)...)
+	coinswapCmd.AddCommand(
+		GetQueryCmdParams(),
+		GetQueryCmdRate(),
+	)
 	return coinswapCmd
 }
 
 // GetQueryCmdParams implements the query parameters command.
-func GetQueryCmdParams(route string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+func GetQueryCmdParams() *cobra.Command {
+	cmd := &cobra.Command{
 		Use:  "params",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			bz, _, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s", route, types.QueryParams))
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			return cli.PrintOutput(cliCtx, cdc, bz, &types.Params{})
+
+			queryClient := coinswaptypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Params(cmd.Context(), &coinswaptypes.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
-func GetQueryCmdRate(route string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+func GetQueryCmdRate() *cobra.Command {
+	cmd := &cobra.Command{
 		Use:  "rate [from-denom] [to-denom]",
-		Args: cobra.NoArgs,
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			bz, _, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s", route, types.QueryRate))
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
-			return cli.PrintOutput(cliCtx, cdc, bz, &types.QueryRateResult{})
+
+			err = sdk.ValidateDenom(args[0])
+			if err != nil {
+				return err
+			}
+
+			err = sdk.ValidateDenom(args[1])
+			if err != nil {
+				return err
+			}
+
+			queryClient := coinswaptypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Rate(cmd.Context(), &coinswaptypes.QueryRateRequest{From: args[0], To: args[1]})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }

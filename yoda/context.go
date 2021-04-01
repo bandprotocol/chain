@@ -84,27 +84,3 @@ func (c *Context) updateSubmittedCount(amount int64) {
 		atomic.AddInt64(&c.submittedCount, amount)
 	}
 }
-
-func (c *Context) updateHandlingGauge(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.handlingGauge, amount)
-	}
-}
-
-func (c *Context) updatePendingGauge(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.pendingGauge, amount)
-	}
-}
-
-func (c *Context) updateErrorCount(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.errorCount, amount)
-	}
-}
-
-func (c *Context) updateSubmittedCount(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.submittedCount, amount)
-	}
-}

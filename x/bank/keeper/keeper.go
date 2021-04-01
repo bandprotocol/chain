@@ -95,10 +95,11 @@ func (k WrappedBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk
 		return k.Keeper.MintCoins(ctx, moduleName, amt)
 	}
 
-	vanillaMinting := k.mintKeeper.GetParams(ctx).MintAir
-	if vanillaMinting {
-		return k.Keeper.MintCoins(ctx, moduleName, amt)
-	}
+	// TODO
+	//vanillaMinting := k.mintKeeper.GetParams(ctx).MintAir
+	//if vanillaMinting {
+	//	return k.Keeper.MintCoins(ctx, moduleName, amt)
+	//}
 	acc := k.accountKeeper.GetModuleAccount(ctx, moduleName)
 	if acc == nil {
 		panic(sdkerrors.Wrapf(sdkerrors.ErrUnknownAddress, "module account %s does not exist", moduleName))

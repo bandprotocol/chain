@@ -13,12 +13,12 @@ cp ./docker-config/single-validator/priv_validator_key.json ~/.band/config/priv_
 cp ./docker-config/single-validator/node_key.json ~/.band/config/node_key.json
 
 # add accounts to genesis
-bandd add-genesis-account validator 10000000000000uband --keyring-backend test
-bandd add-genesis-account requester 10000000000000uband --keyring-backend test
+bandd add-genesis-account validator 10000000000000odin --keyring-backend test
+bandd add-genesis-account requester 10000000000000odin --keyring-backend test
 
 
 # register initial validators
-bandd gentx validator 100000000uband \
+bandd gentx validator 100000000odin \
     --chain-id bandchain \
     --keyring-backend test
 

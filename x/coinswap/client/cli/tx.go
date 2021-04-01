@@ -1,40 +1,34 @@
 package cli
 
 import (
-	"bufio"
 	"fmt"
-	"github.com/GeoDB-Limited/odincore/chain/x/coinswap/types"
-	commontypes "github.com/GeoDB-Limited/odincore/chain/x/common/types"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
 	"strings"
 )
 
 // GetTxCmd returns the transaction commands for this module
-func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd() *cobra.Command {
 	oracleCmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        coinswaptypes.ModuleName,
 		Short:                      "coinswap transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	oracleCmd.AddCommand(flags.PostCommands(
-		GetCmdExchange(cdc),
-	)...)
+	oracleCmd.AddCommand(
+		GetCmdExchange(),
+	)
 
 	return oracleCmd
 }
 
 // GetCmdExchange implements the request command handler.
-func GetCmdExchange(cdc *codec.Codec) *cobra.Command {
+func GetCmdExchange() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "exchange [from-denom] [to-denom] [amount]",
 		Short: "Exchange the specific amount of one token to another",
@@ -44,42 +38,42 @@ func GetCmdExchange(cdc *codec.Codec) *cobra.Command {
 Example:
 $ %s tx coinswap exchange geo loki 10loki --from mykey
 `,
-				version.ClientName,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-
-			fromDenom, err := commontypes.ParseDenom(args[0])
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			toDenom, err := commontypes.ParseDenom(args[1])
+			err = sdk.ValidateDenom(args[0])
 			if err != nil {
 				return err
 			}
 
-			amt, err := sdk.ParseCoin(args[2])
+			err = sdk.ValidateDenom(args[1])
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgExchange(
-				fromDenom,
-				toDenom,
+			amt, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := coinswaptypes.NewMsgExchange(
+				args[0],
+				args[1],
 				amt,
-				cliCtx.GetFromAddress(),
+				clientCtx.GetFromAddress(),
 			)
-
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
 
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 

@@ -24,7 +24,7 @@ import (
 // Hook inherits from Band app hook to save latest request into SQL database.
 type Hook struct {
 	cdc          *codec.LegacyAmino
-	oracleKeeper keeper.Keeper
+	oracleKeeper oraclekeeper.Keeper
 	dbMap        *gorp.DbMap
 	trans        *gorp.Transaction
 }
@@ -69,7 +69,7 @@ func initDb(connStr string) *gorp.DbMap {
 }
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc *codec.LegacyAmino, oracleKeeper keeper.Keeper, connStr string) *Hook {
+func NewHook(cdc *codec.LegacyAmino, oracleKeeper oraclekeeper.Keeper, connStr string) *Hook {
 	return &Hook{
 		cdc:          cdc,
 		oracleKeeper: oracleKeeper,

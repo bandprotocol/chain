@@ -5,6 +5,7 @@ option go_package = "github.com/GeoDB-Limited/odin-core/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "oracle/v1/oracle.proto";
+import "oracle/v1/params.proto";
 
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {

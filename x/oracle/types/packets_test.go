@@ -25,13 +25,13 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		Calldata:       mustDecodeString("030000004254436400000000000000"),
 		AskCount:       1,
 		MinCount:       1,
-		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
+		FeeLimit:       sdk.NewCoins(sdk.NewCoin("odin", sdk.NewInt(10000))),
 		RequestKey:     "TEST_KEY",
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}
 	require.Equal(t,
-		[]byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100","request_key":"TEST_KEY"}`),
+		[]byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"odin"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100","request_key":"TEST_KEY"}`),
 		req.GetBytes(),
 	)
 }

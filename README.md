@@ -190,7 +190,7 @@ Once you have some BAND tokens, you can apply to become a validator by sending `
 
 ```bash
 bandd tx staking create-validator \
-    --amount <your-amount-to-stake>uband \
+    --amount <your-amount-to-stake>odin \
     --commission-max-change-rate 0.01 \
     --commission-max-rate 0.2 \
     --commission-rate 0.1 \

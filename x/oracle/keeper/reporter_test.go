@@ -1,11 +1,11 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/GeoDB-Limited/odin-core/x/oracle/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
 )
 
 func TestCheckSelfReporter(t *testing.T) {

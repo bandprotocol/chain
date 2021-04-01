@@ -2,7 +2,6 @@ package band
 
 import (
 	"encoding/json"
-	odinminttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,6 +19,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
@@ -40,7 +40,7 @@ func NewDefaultGenesisState() GenesisState {
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 	distrGenesis := distrtypes.DefaultGenesisState()
-	mintGenesis := odinminttypes.DefaultGenesisState()
+	mintGenesis := minttypes.DefaultGenesisState()
 	govGenesis := govtypes.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
@@ -65,7 +65,7 @@ func NewDefaultGenesisState() GenesisState {
 		banktypes.ModuleName:       bank.AppModuleBasic{}.DefaultGenesis(cdc),
 		capabilitytypes.ModuleName: capability.AppModuleBasic{}.DefaultGenesis(cdc),
 		stakingtypes.ModuleName:    cdc.MustMarshalJSON(stakingGenesis),
-		odinminttypes.ModuleName:   cdc.MustMarshalJSON(mintGenesis),
+		minttypes.ModuleName:       cdc.MustMarshalJSON(mintGenesis),
 		distrtypes.ModuleName:      cdc.MustMarshalJSON(distrGenesis),
 		govtypes.ModuleName:        cdc.MustMarshalJSON(govGenesis),
 		crisistypes.ModuleName:     cdc.MustMarshalJSON(crisisGenesis),

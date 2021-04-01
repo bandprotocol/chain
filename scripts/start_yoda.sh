@@ -32,7 +32,7 @@ do
 done
 
 # send band tokens to reporters
-echo "y" | bandd tx bank send  validator $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx bank send  validator $(yoda keys list -a) 1000000odin --keyring-backend test --chain-id bandchain
 
 # wait for sending band tokens transaction success
 sleep 2

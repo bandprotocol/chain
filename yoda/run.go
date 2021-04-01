@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	commontypes "github.com/GeoDB-Limited/odincore/chain/x/common/types"
+	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
 	"path/filepath"
 	"sync"
 	"time"

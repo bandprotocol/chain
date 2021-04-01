@@ -6,6 +6,8 @@ option go_package = "github.com/GeoDB-Limited/odin-core/x/oracle/types";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
+import "oracle/v1/params.proto";
+
 
 // Query defines the gRPC querier service.
 service Query {
@@ -82,27 +84,27 @@ message QueryCountsResponse {
 }
 
 // QueryDataRequest is request type for the Query/Data RPC method.
-message QueryDataRequest { string data_hash = 1; }
+message QueryDataRequest {string data_hash = 1;}
 
 // QueryDataResponse is response type for the Query/Data RPC method.
-message QueryDataResponse { bytes data = 1; }
+message QueryDataResponse {bytes data = 1;}
 
 // QueryDataSourceRequest is request type for the Query/DataSource RPC method.
-message QueryDataSourceRequest { int64 data_source_id = 1; }
+message QueryDataSourceRequest {int64 data_source_id = 1;}
 
 // QueryDataSourceResponse is response type for the Query/DataSource RPC method.
-message QueryDataSourceResponse { DataSource data_source = 1; }
+message QueryDataSourceResponse {DataSource data_source = 1;}
 
 // QueryOracleScriptRequest is request type for the Query/OracleScript RPC
 // method.
-message QueryOracleScriptRequest { int64 oracle_script_id = 1; }
+message QueryOracleScriptRequest {int64 oracle_script_id = 1;}
 
 // QueryOracleScriptResponse is response type for the Query/OracleScript RPC
 // method.
-message QueryOracleScriptResponse { OracleScript oracle_script = 1; }
+message QueryOracleScriptResponse {OracleScript oracle_script = 1;}
 
 // QueryRequestRequest is request type for the Query/Request RPC method.
-message QueryRequestRequest { int64 request_id = 1; }
+message QueryRequestRequest {int64 request_id = 1;}
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
 message QueryRequestResponse {
@@ -116,20 +118,20 @@ message QueryParamsRequest {}
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // pagination defines an optional pagination for the request.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorRequest is request type for the Query/Validator RPC method.
-message QueryValidatorRequest { string validator_address = 1; }
+message QueryValidatorRequest {string validator_address = 1;}
 
 // QueryValidatorResponse is response type for the Query/Validator RPC method.
-message QueryValidatorResponse { ValidatorStatus status = 1; }
+message QueryValidatorResponse {ValidatorStatus status = 1;}
 
 // QueryReportersRequest is request type for the Query/Reporters RPC method.
-message QueryReportersRequest { string validator_address = 1; }
+message QueryReportersRequest {string validator_address = 1;}
 
 // QueryReportersResponse is response type for the Query/Reporters RPC method.
-message QueryReportersResponse { repeated string reporter = 1; }
+message QueryReportersResponse {repeated string reporter = 1;}
 
 // QueryActiveValidatorsRequest is request type for the Query/ActiveValidators
 // RPC method.
@@ -137,7 +139,7 @@ message QueryActiveValidatorsRequest {}
 
 // QueryActiveValidatorsResponse is response type for the Query/ActiveValidators
 // RPC method.
-message QueryActiveValidatorsResponse { int64 count = 1; }
+message QueryActiveValidatorsResponse {int64 count = 1;}
 
 // QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
 // method.

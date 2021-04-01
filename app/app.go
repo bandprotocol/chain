@@ -4,8 +4,8 @@ import (
 	"github.com/GeoDB-Limited/odin-core/x/coinswap"
 	coinswapkeeper "github.com/GeoDB-Limited/odin-core/x/coinswap/keeper"
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
-	odinmintkeeper "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
-	odinminttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
+	odinminttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -68,7 +68,6 @@ import (
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	"github.com/cosmos/cosmos-sdk/x/mint"
-	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
@@ -88,7 +87,6 @@ import (
 
 	bandappparams "github.com/GeoDB-Limited/odin-core/app/params"
 
-	odinmint "github.com/GeoDB-Limited/odin-core/x/mint"
 	"github.com/GeoDB-Limited/odin-core/x/oracle"
 	bandante "github.com/GeoDB-Limited/odin-core/x/oracle/ante"
 	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
@@ -118,7 +116,7 @@ var (
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		odinmint.AppModuleBasic{},
+		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.CancelProposalHandler),
 		params.AppModuleBasic{},
@@ -136,7 +134,7 @@ var (
 		oracletypes.ModuleName:         nil,
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
-		odinminttypes.ModuleName:       {authtypes.Minter},
+		minttypes.ModuleName:           {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
@@ -283,7 +281,7 @@ func NewBandApp(
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
-	app.MintKeeper = odinmintkeeper.NewKeeper(appCodec, keys[odinminttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
+	app.MintKeeper = mintkeeper.NewKeeper(appCodec, keys[odinminttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
 		app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName)
 
 	app.DistrKeeper = distrkeeper.NewKeeper(
@@ -326,9 +324,9 @@ func NewBandApp(
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
 	)
-	app.CoinswapKeeper = coinswapkeeper.NewKeeper(appCodec, keys[coinswaptypes.StoreKey], app.GetSubspace(coinswaptypes.ModuleName), app.BankKeeper, app.DistrKeeper, app.OracleKeeper)
+	app.CoinswapKeeper = coinswapkeeper.NewKeeper(appCodec, keys[coinswaptypes.StoreKey], app.GetSubspace(coinswaptypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.OracleKeeper)
 
-	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.BankKeeper)
+	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -361,7 +359,7 @@ func NewBandApp(
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
-		odinmint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -664,6 +662,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(coinswaptypes.ModuleName)
 
 	return paramsKeeper
 }
