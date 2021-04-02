@@ -329,7 +329,7 @@ func (am AppModule) OnRecvPacket(
 	}
 
 	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-	id, err := am.keeper.PrepareRequest(ctx, &data, &source)
+	id, err := am.keeper.PrepareRequest(ctx, &data, sdk.AccAddress{}, &source) // TODO: add fee payer
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {

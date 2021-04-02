@@ -1,6 +1,7 @@
 package yoda
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -8,30 +9,48 @@ import (
 
 // Constant used to estimate gas price of reports transaction.
 const (
-	// cosmos
-	baseFixedGas        = uint64(37764)
-	baseTransactionSize = uint64(200)
-	txCostPerByte       = uint64(5) // Using DefaultTxSizeCostPerByte of BandChain
+	// Cosmos default gas
+	readFlatGas     = 1000
+	readGasPerByte  = 3
+	writeFlatGas    = 2000
+	writeGasPerByte = 30
+	iterateFlatGas  = 30
+	hasFlatGas      = 1000
 
-	readingBaseCost = uint64(1000)
-	writingBaseCost = uint64(2000)
-
-	readingCostPerByte = uint64(3)
-	writingCostPerByte = uint64(30)
-
-	payingFeeCost = uint64(16500)
-
-	// band
-	baseReportCost    = uint64(4024)
-	addingPendingCost = uint64(4500)
-
-	baseRequestSize = uint64(32)
-	addressSize     = uint64(20)
-
+	// Request components
+	baseRequestSize    = uint64(32)
+	addressSize        = uint64(20)
 	baseRawRequestSize = uint64(16)
+
+	// Auth's ante handlers keepers operations
+	authParamsByteLength           = 22
+	accountByteLength              = 176
+	accountWithoutPubKeyByteLength = 103
+
+	readParamGas                   = readFlatGas*5 + authParamsByteLength*readGasPerByte
+	readAccountGas                 = readFlatGas + accountByteLength*readGasPerByte
+	readAccountWithoutPublicKeyGas = readFlatGas + accountWithoutPubKeyByteLength*readGasPerByte
+	writeAccountGas                = writeFlatGas + accountByteLength*writeGasPerByte
+
+	// Auth's ante handlers procedures
+	baseAuthAnteGas              = readParamGas*4 + readAccountGas*4 + writeAccountGas + signatureVerificationGasCost
+	payingFeeGasCost             = uint64(19834)
+	baseTransactionSize          = uint64(253)
+	txCostPerByte                = uint64(5)    // Using DefaultTxSizeCostPerByte of BandChain
+	signatureVerificationGasCost = uint64(1000) // for secp256k1 signature, which more than ed21559
+
+	// Report Data byte lengths
+	pendingRequestIDByteLength   = 9
+	requestIDByteLength          = 11
+	pendingResolveListByteLength = 137 // The list have 15 request IDs
+
+	// Report Data handlers
+	baseReportDataHandlerGas = hasFlatGas*3 + readFlatGas*3 + requestIDByteLength*readGasPerByte + writeFlatGas
+	readPendingListGas       = pendingResolveListByteLength*readGasPerByte + readFlatGas
+	writePendingListGas      = (pendingResolveListByteLength+pendingRequestIDByteLength)*writeGasPerByte + writeFlatGas
 )
 
-func estimateTxSize(msgs []sdk.Msg) uint64 {
+func getTxByteLength(msgs []sdk.Msg) uint64 {
 	// base tx + reports
 	size := baseTransactionSize
 
@@ -48,16 +67,7 @@ func estimateTxSize(msgs []sdk.Msg) uint64 {
 	return size
 }
 
-func estimateStoringReportCost(msg sdk.Msg) uint64 {
-	cost := writingBaseCost
-	cost += uint64(len(cdc.MustMarshalBinaryBare(msg))) * writingCostPerByte
-
-	return cost
-}
-
-func estimateReadingRequestCost(f FeeEstimationData) uint64 {
-	cost := readingBaseCost
-
+func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 	size := baseRequestSize
 	size += uint64(len(f.callData))
 	size += uint64(f.askCount) * addressSize
@@ -67,52 +77,58 @@ func estimateReadingRequestCost(f FeeEstimationData) uint64 {
 		size += baseRawRequestSize + uint64(len(r.calldata))
 	}
 
-	cost += size * readingCostPerByte
-
-	return cost
+	return size
 }
 
-func estimateReportHandleCost(msg sdk.Msg, f FeeEstimationData) uint64 {
-	cost := baseReportCost
+func getReportMsgByteLength(msg sdk.Msg) uint64 {
+	return uint64(len(cdc.MustMarshalBinaryBare(msg)))
+}
 
-	// read request twice
-	cost += 2 * estimateReadingRequestCost(f)
+func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
+	reportByteLength := getReportMsgByteLength(msg)
+	requestByteLength := getRequestMsgByteLength(f)
 
-	// write report once
-	cost += estimateStoringReportCost(msg)
+	cost := 2*readGasPerByte*requestByteLength + writeGasPerByte*reportByteLength + baseReportDataHandlerGas
 
-	// count report
-	countingPerReportCost := 30 + readingCostPerByte*uint64(len(cdc.MustMarshalBinaryBare(msg)))
+	costWhenReachAskCountFirst := (reportByteLength*readGasPerByte + iterateFlatGas) * (uint64(f.askCount) + 1)
+	costWhenReachMinCountFirst := (reportByteLength*readGasPerByte+iterateFlatGas)*(uint64(f.minCount)+1) + readPendingListGas + writePendingListGas
 
-	// reach min count and have to update pending list
-	costWhenReacnMinCount := countingPerReportCost*uint64(f.minCount+1) + addingPendingCost
-
-	// reach ask count but don't have to update pending list
-	costWhenReachAskCount := countingPerReportCost * uint64(f.askCount+1)
-
-	if costWhenReacnMinCount > costWhenReachAskCount {
-		cost += costWhenReacnMinCount
+	if costWhenReachMinCountFirst > costWhenReachAskCountFirst {
+		cost += costWhenReachMinCountFirst
 	} else {
-		cost += costWhenReachAskCount
+		cost += costWhenReachAskCountFirst
 	}
 
 	return cost
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData) uint64 {
-	gas := baseFixedGas
+func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
+	gas := uint64(baseAuthAnteGas)
 
-	txSize := estimateTxSize(msgs)
-	gas += txCostPerByte * txSize
-
-	// process paying fee
-	if len(c.gasPrices) > 0 {
-		gas += payingFeeCost
+	if acc.GetPubKey() == nil {
+		gas += readAccountWithoutPublicKeyGas + writeAccountGas
+	} else {
+		gas += readAccountGas
 	}
+
+	txByteLength := getTxByteLength(msgs)
+	gas += txCostPerByte * txByteLength
+
+	if len(c.gasPrices) > 0 {
+		gas += payingFeeGasCost
+	}
+
+	return gas
+}
+
+func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
+	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
 
 	for i := range msgs {
-		gas += estimateReportHandleCost(msgs[i], feeEstimations[i])
+		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
 	}
+
+	l.Debug(":fuel_pump: Estimated gas is %d", gas)
 
 	return gas
 }

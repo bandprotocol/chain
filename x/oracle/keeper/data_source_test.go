@@ -16,7 +16,7 @@ func TestHasDataSource(t *testing.T) {
 	require.False(t, k.HasDataSource(ctx, 42))
 	// After we set it, we should be able to find it.
 	k.SetDataSource(ctx, 42, types.NewDataSource(
-		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins,
+		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins, testapp.Treasury.Address,
 	))
 	require.True(t, k.HasDataSource(ctx, 42))
 }
@@ -28,8 +28,8 @@ func TestSetterGetterDataSource(t *testing.T) {
 	require.Error(t, err)
 	require.Panics(t, func() { _ = k.MustGetDataSource(ctx, 42) })
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "filename2", testapp.EmptyCoins)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "filename2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Sets id 42 with data soure 1 and id 42 with data source 2.
 	k.SetDataSource(ctx, 42, dataSource1)
 	k.SetDataSource(ctx, 43, dataSource2)
@@ -51,17 +51,19 @@ func TestSetterGetterDataSource(t *testing.T) {
 func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))
 	owner, err := sdk.AccAddressFromBech32(dataSource2.Owner)
 	require.NoError(t, err)
+	treasury, err := sdk.AccAddressFromBech32(dataSource2.Treasury)
+	require.NoError(t, err)
 	// Edits the data source. We should get the updated data source.
 	k.MustEditDataSource(ctx, id, types.NewDataSource(
-		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename, testapp.EmptyCoins,
+		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename, testapp.EmptyCoins, treasury,
 	))
 	require.NotEqual(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.Equal(t, dataSource2, k.MustGetDataSource(ctx, id))
@@ -70,8 +72,8 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 func TestEditDataSourceDoNotModify(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
@@ -85,6 +87,8 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 	require.Equal(t, dataSourceRes.Name, dataSource1.Name)
 	require.Equal(t, dataSourceRes.Description, dataSource1.Description)
 	require.Equal(t, dataSourceRes.Filename, dataSource2.Filename)
+	require.Equal(t, dataSourceRes.Fee, dataSource2.Fee)
+	require.Equal(t, dataSourceRes.Treasury, dataSource2.Treasury)
 }
 
 func TestAddDataSourceDataSourceMustReturnCorrectID(t *testing.T) {
@@ -93,10 +97,10 @@ func TestAddDataSourceDataSourceMustReturnCorrectID(t *testing.T) {
 	genesisCount := int64(len(testapp.DataSources)) - 1
 	require.Equal(t, genesisCount, k.GetDataSourceCount(ctx))
 	// Every new data source we add should return a new ID.
-	id1 := k.AddDataSource(ctx, types.NewDataSource(testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins))
+	id1 := k.AddDataSource(ctx, types.NewDataSource(testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins, testapp.Treasury.Address))
 	require.Equal(t, types.DataSourceID(genesisCount+1), id1)
 	// Adds another data source so now ID should increase by 2.
-	id2 := k.AddDataSource(ctx, types.NewDataSource(testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins))
+	id2 := k.AddDataSource(ctx, types.NewDataSource(testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins, testapp.Treasury.Address))
 	require.Equal(t, types.DataSourceID(genesisCount+2), id2)
 	// Finally we expect the data source to increase as well.
 	require.Equal(t, genesisCount+2, k.GetDataSourceCount(ctx))

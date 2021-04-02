@@ -35,16 +35,16 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgRequestData is a message for sending a data oracle request.
 type MsgRequestData struct {
-	// OracleScriptID is the identifier of the oracle script to call.
+	// OracleScriptID is the identifier of the oracle script to be called.
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
-	// Calldata is the OBI encoded call parameters to the oracle script.
+	// Calldata is the OBI-encoded call parameters for the oracle script.
 	Calldata []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
 	// AskCount is the number of validators to perform the oracle task.
 	AskCount uint64 `protobuf:"varint,3,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
 	// MinCount is the minimum number of validators sufficient to resolve the
-	// tasks.
+	// oracle tasks.
 	MinCount uint64 `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
-	// ClientID is the client-provided unique identifier to tracking the request.
+	// ClientID is the client-provided unique identifier to track the request.
 	ClientID string `protobuf:"bytes,5,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	// FeeLimit is the maximum tokens that will be paid to all data source
 	// providers.
@@ -53,7 +53,7 @@ type MsgRequestData struct {
 	PrepareGas uint64 `protobuf:"varint,7,opt,name=prepare_gas,json=prepareGas,proto3" json:"prepare_gas,omitempty"`
 	// ExecuteGas is amount of gas to reserve for executing
 	ExecuteGas uint64 `protobuf:"varint,8,opt,name=execute_gas,json=executeGas,proto3" json:"execute_gas,omitempty"`
-	// Sender is the sender of this message.
+	// Sender is an account address of message sender.
 	Sender string `protobuf:"bytes,9,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -153,7 +153,7 @@ func (m *MsgRequestData) GetSender() string {
 	return ""
 }
 
-// MsgRequestDataResponse
+// MsgRequestDataResponse is response data for MsgRequestData message
 type MsgRequestDataResponse struct {
 }
 
@@ -192,10 +192,9 @@ var xxx_messageInfo_MsgRequestDataResponse proto.InternalMessageInfo
 
 // MsgReportData is a message for reporting to a data request by a validator.
 type MsgReportData struct {
-	// RequestID is the identifier of the request to report to.
+	// RequestID is the identifier of the request to be reported to.
 	RequestID RequestID `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3,casttype=RequestID" json:"request_id,omitempty"`
-	// RawReports is the list of report information for each of the request's
-	// external ID.
+	// RawReports is the list of report information provided by data sources identified by external ID
 	RawReports []RawReport `protobuf:"bytes,2,rep,name=raw_reports,json=rawReports,proto3" json:"raw_reports"`
 	// Validator is the address of the validator that owns this report.
 	Validator string `protobuf:"bytes,3,opt,name=validator,proto3" json:"validator,omitempty"`
@@ -265,7 +264,7 @@ func (m *MsgReportData) GetReporter() string {
 	return ""
 }
 
-// MsgReportDataResponse
+// MsgReportDataResponse is response data for MsgReportData message
 type MsgReportDataResponse struct {
 }
 
@@ -304,19 +303,19 @@ var xxx_messageInfo_MsgReportDataResponse proto.InternalMessageInfo
 
 // MsgCreateDataSource is a message for creating a new data source.
 type MsgCreateDataSource struct {
-	// Name is the name of this data source (optional).
+	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source (optional).
+	// Description is the description of this data source used for display (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// Executable is the executable script or binary to be run by validators upon
+	// Executable is the content of executable script or binary file to be run by validators upon
 	// execution.
 	Executable []byte `protobuf:"bytes,3,opt,name=executable,proto3" json:"executable,omitempty"`
 	// Fee is the data source fee per ask_count that data provider will receive
 	// from requester.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
-	// Treasury is the address who recive data source fee from requester.
+	// Treasury is the account address who recive data source fee from requester.
 	Treasury string `protobuf:"bytes,5,opt,name=treasury,proto3" json:"treasury,omitempty"`
-	// Owner is the address who is allowed to make further changes to the data
+	// Owner is the account address who is allowed to make further changes to the data
 	// source.
 	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message.
@@ -405,7 +404,7 @@ func (m *MsgCreateDataSource) GetSender() string {
 	return ""
 }
 
-// MsgCreateDataSourceResponse
+// MsgCreateDataSourceResponse is response data for MsgCreateDataSource message
 type MsgCreateDataSourceResponse struct {
 }
 
@@ -446,9 +445,9 @@ var xxx_messageInfo_MsgCreateDataSourceResponse proto.InternalMessageInfo
 type MsgEditDataSource struct {
 	// DataSourceID is the unique identifier of the data source to be edited.
 	DataSourceID DataSourceID `protobuf:"varint,1,opt,name=data_source_id,json=dataSourceId,proto3,casttype=DataSourceID" json:"data_source_id,omitempty"`
-	// Name is the name of this data source (optional).
+	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source (optional).
+	// Description is the description of this data source used for display (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Executable is the executable script or binary to be run by validators upon
 	// execution.
@@ -555,7 +554,7 @@ func (m *MsgEditDataSource) GetSender() string {
 	return ""
 }
 
-// MsgEditDataSourceResponse
+// MsgEditDataSourceResponse is response data for MsgEditDataSource message
 type MsgEditDataSourceResponse struct {
 }
 
@@ -594,9 +593,9 @@ var xxx_messageInfo_MsgEditDataSourceResponse proto.InternalMessageInfo
 
 // MsgCreateOracleScript is a message for creating an oracle script.
 type MsgCreateOracleScript struct {
-	// Name is the name of this oracle script (optional).
+	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script (optional).
+	// Description is the description of this oracle script used for display (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -693,7 +692,7 @@ func (m *MsgCreateOracleScript) GetSender() string {
 	return ""
 }
 
-// MsgCreateOracleScriptResponse
+// MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript message
 type MsgCreateOracleScriptResponse struct {
 }
 
@@ -734,9 +733,9 @@ var xxx_messageInfo_MsgCreateOracleScriptResponse proto.InternalMessageInfo
 type MsgEditOracleScript struct {
 	// OracleScriptID is the unique identifier of the oracle script to be edited.
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
-	// Name is the name of this oracle script (optional).
+	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script (optional).
+	// Description is the description of this oracle script used for display (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -744,10 +743,10 @@ type MsgEditOracleScript struct {
 	SourceCodeURL string `protobuf:"bytes,5,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
 	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
 	Code []byte `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`
-	// Owner is new the address who is allowed to make further changes to the
+	// Owner is an account address who is allowed to make further changes to the
 	// oracle script.
 	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is the signer of this message. Must be the current oracle script's
+	// Sender is an account address who sign this message. Must be the current oracle script's
 	// owner.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
 }
@@ -841,7 +840,7 @@ func (m *MsgEditOracleScript) GetSender() string {
 	return ""
 }
 
-// MsgEditOracleScriptResponse
+// MsgEditOracleScriptResponse is response data for MsgEditOracleScript message
 type MsgEditOracleScriptResponse struct {
 }
 
@@ -879,9 +878,10 @@ func (m *MsgEditOracleScriptResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgEditOracleScriptResponse proto.InternalMessageInfo
 
 // MsgEditOracleScript is a message for activating a validator to become an
-// oracle provider.
+// oracle provider. However, the activation can be revoked once the validator
+// is unable to provide data to fulfill requests
 type MsgActivate struct {
-	// Validator is the signer of this message and the validator to be activated.
+	// Validator is the validator address who sign this message and request to be activated.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -925,7 +925,7 @@ func (m *MsgActivate) GetValidator() string {
 	return ""
 }
 
-// MsgActivateResponse
+// MsgActivateResponse is response data for MsgActivate message
 type MsgActivateResponse struct {
 }
 
@@ -964,10 +964,10 @@ var xxx_messageInfo_MsgActivateResponse proto.InternalMessageInfo
 
 // MsgAddReporter is a message for adding a new reporter for a validator.
 type MsgAddReporter struct {
-	// Validator is the validator that wishes to add a new reporter. This is the
+	// Validator is the validator address who requested to add a new reporter. Note that this is the
 	// signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Reporter is the address to be added as a reporter to the validator.
+	// Reporter is the account address to be added as a reporter to the validator.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
 }
 
@@ -1018,7 +1018,7 @@ func (m *MsgAddReporter) GetReporter() string {
 	return ""
 }
 
-// MsgAddReporterResponse
+// MsgAddReporterResponse is response data for MsgAddReporter message
 type MsgAddReporterResponse struct {
 }
 
@@ -1058,10 +1058,10 @@ var xxx_messageInfo_MsgAddReporterResponse proto.InternalMessageInfo
 // MsgAddReporter is a message for removing an existing reporter from a
 // validator.
 type MsgRemoveReporter struct {
-	// Validator is the validator that wishes to remove an existing reporter. This
+	// Validator is the validator address who requested to remove an existing reporter. Note that this
 	// is the signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Reporter is the address to be removed from being the validators' reporter.
+	// Reporter is the account address to be removed from being the validator's reporter.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
 }
 
@@ -1112,7 +1112,7 @@ func (m *MsgRemoveReporter) GetReporter() string {
 	return ""
 }
 
-// MsgRemoveReporterResponse
+// MsgRemoveReporterResponse is response data for MsgRemoveReporter message
 type MsgRemoveReporterResponse struct {
 }
 
@@ -1611,9 +1611,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// RequestData defines a method for requesting a new request.
+	// RequestData defines a method for submitting a new request.
 	RequestData(ctx context.Context, in *MsgRequestData, opts ...grpc.CallOption) (*MsgRequestDataResponse, error)
-	// ReportData defines a method for reporting a data to resolving the request.
+	// ReportData defines a method for reporting a data to resolve the request.
 	ReportData(ctx context.Context, in *MsgReportData, opts ...grpc.CallOption) (*MsgReportDataResponse, error)
 	// CreateDataSource defines a method for creating a new data source.
 	CreateDataSource(ctx context.Context, in *MsgCreateDataSource, opts ...grpc.CallOption) (*MsgCreateDataSourceResponse, error)
@@ -1627,7 +1627,7 @@ type MsgClient interface {
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
 	// AddReporter defines a method for adding a new reporter for a validator.
 	AddReporter(ctx context.Context, in *MsgAddReporter, opts ...grpc.CallOption) (*MsgAddReporterResponse, error)
-	// RemoveReporter defines a method for TODO
+	// RemoveReporter defines a method for removing an reporter from a validator
 	RemoveReporter(ctx context.Context, in *MsgRemoveReporter, opts ...grpc.CallOption) (*MsgRemoveReporterResponse, error)
 }
 
@@ -1722,9 +1722,9 @@ func (c *msgClient) RemoveReporter(ctx context.Context, in *MsgRemoveReporter, o
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// RequestData defines a method for requesting a new request.
+	// RequestData defines a method for submitting a new request.
 	RequestData(context.Context, *MsgRequestData) (*MsgRequestDataResponse, error)
-	// ReportData defines a method for reporting a data to resolving the request.
+	// ReportData defines a method for reporting a data to resolve the request.
 	ReportData(context.Context, *MsgReportData) (*MsgReportDataResponse, error)
 	// CreateDataSource defines a method for creating a new data source.
 	CreateDataSource(context.Context, *MsgCreateDataSource) (*MsgCreateDataSourceResponse, error)
@@ -1738,7 +1738,7 @@ type MsgServer interface {
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
 	// AddReporter defines a method for adding a new reporter for a validator.
 	AddReporter(context.Context, *MsgAddReporter) (*MsgAddReporterResponse, error)
-	// RemoveReporter defines a method for TODO
+	// RemoveReporter defines a method for removing an reporter from a validator
 	RemoveReporter(context.Context, *MsgRemoveReporter) (*MsgRemoveReporterResponse, error)
 }
 

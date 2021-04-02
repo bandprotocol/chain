@@ -68,9 +68,12 @@ var xxx_messageInfo_QueryCountsRequest proto.InternalMessageInfo
 
 // QueryCountsResponse is response type for the Query/Count RPC method.
 type QueryCountsResponse struct {
-	DataSourceCount   int64 `protobuf:"varint,1,opt,name=data_source_count,json=dataSourceCount,proto3" json:"data_source_count,omitempty"`
+	// DataSourceCount is total number of data sources available on the chain
+	DataSourceCount int64 `protobuf:"varint,1,opt,name=data_source_count,json=dataSourceCount,proto3" json:"data_source_count,omitempty"`
+	// OracleScriptCount is total number of oracle scripts available on the chain
 	OracleScriptCount int64 `protobuf:"varint,2,opt,name=oracle_script_count,json=oracleScriptCount,proto3" json:"oracle_script_count,omitempty"`
-	RequestCount      int64 `protobuf:"varint,3,opt,name=request_count,json=requestCount,proto3" json:"request_count,omitempty"`
+	// RequestCount is total number of requests submitted to the chain
+	RequestCount int64 `protobuf:"varint,3,opt,name=request_count,json=requestCount,proto3" json:"request_count,omitempty"`
 }
 
 func (m *QueryCountsResponse) Reset()         { *m = QueryCountsResponse{} }
@@ -129,6 +132,7 @@ func (m *QueryCountsResponse) GetRequestCount() int64 {
 
 // QueryDataRequest is request type for the Query/Data RPC method.
 type QueryDataRequest struct {
+	// DataHash is SHA256 hash of the file's content, which can be data source or oracle script
 	DataHash string `protobuf:"bytes,1,opt,name=data_hash,json=dataHash,proto3" json:"data_hash,omitempty"`
 }
 
@@ -174,6 +178,7 @@ func (m *QueryDataRequest) GetDataHash() string {
 
 // QueryDataResponse is response type for the Query/Data RPC method.
 type QueryDataResponse struct {
+	// Data is file's content, which can be data source or oracle script
 	Data []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 }
 
@@ -219,6 +224,7 @@ func (m *QueryDataResponse) GetData() []byte {
 
 // QueryDataSourceRequest is request type for the Query/DataSource RPC method.
 type QueryDataSourceRequest struct {
+	// DataSourceID is ID of a data source script
 	DataSourceId int64 `protobuf:"varint,1,opt,name=data_source_id,json=dataSourceId,proto3" json:"data_source_id,omitempty"`
 }
 
@@ -264,6 +270,7 @@ func (m *QueryDataSourceRequest) GetDataSourceId() int64 {
 
 // QueryDataSourceResponse is response type for the Query/DataSource RPC method.
 type QueryDataSourceResponse struct {
+	// DataSource is summary information of a data source
 	DataSource *DataSource `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`
 }
 
@@ -310,6 +317,7 @@ func (m *QueryDataSourceResponse) GetDataSource() *DataSource {
 // QueryOracleScriptRequest is request type for the Query/OracleScript RPC
 // method.
 type QueryOracleScriptRequest struct {
+	// OracleScriptID is ID of an oracle script
 	OracleScriptId int64 `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
 }
 
@@ -356,6 +364,7 @@ func (m *QueryOracleScriptRequest) GetOracleScriptId() int64 {
 // QueryOracleScriptResponse is response type for the Query/OracleScript RPC
 // method.
 type QueryOracleScriptResponse struct {
+	// OracleScript is summary information of an oracle script
 	OracleScript *OracleScript `protobuf:"bytes,1,opt,name=oracle_script,json=oracleScript,proto3" json:"oracle_script,omitempty"`
 }
 
@@ -401,6 +410,7 @@ func (m *QueryOracleScriptResponse) GetOracleScript() *OracleScript {
 
 // QueryRequestRequest is request type for the Query/Request RPC method.
 type QueryRequestRequest struct {
+	// RequestID is ID of an oracle request
 	RequestId int64 `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 }
 
@@ -446,7 +456,10 @@ func (m *QueryRequestRequest) GetRequestId() int64 {
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
 type QueryRequestResponse struct {
-	RequestPacketData  *OracleRequestPacketData  `protobuf:"bytes,1,opt,name=request_packet_data,json=requestPacketData,proto3" json:"request_packet_data,omitempty"`
+	// RequestPacketData is information of oracle request submitted by a client
+	RequestPacketData *OracleRequestPacketData `protobuf:"bytes,1,opt,name=request_packet_data,json=requestPacketData,proto3" json:"request_packet_data,omitempty"`
+	// ResponsePacketData is information of oracle result that fulfilled the oracle request.
+	// The result can be empty if the request has not been fulfilled yet.
 	ResponsePacketData *OracleResponsePacketData `protobuf:"bytes,2,opt,name=response_packet_data,json=responsePacketData,proto3" json:"response_packet_data,omitempty"`
 }
 
@@ -582,6 +595,7 @@ func (m *QueryParamsResponse) GetParams() Params {
 
 // QueryValidatorRequest is request type for the Query/Validator RPC method.
 type QueryValidatorRequest struct {
+	// ValidatorAddress is address of a validator
 	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
 }
 
@@ -627,6 +641,7 @@ func (m *QueryValidatorRequest) GetValidatorAddress() string {
 
 // QueryValidatorResponse is response type for the Query/Validator RPC method.
 type QueryValidatorResponse struct {
+	// Status is status of a validator e.g. active/inactive
 	Status *ValidatorStatus `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 }
 
@@ -672,6 +687,7 @@ func (m *QueryValidatorResponse) GetStatus() *ValidatorStatus {
 
 // QueryReportersRequest is request type for the Query/Reporters RPC method.
 type QueryReportersRequest struct {
+	// ValidatorAddress is a validator address
 	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
 }
 
@@ -717,6 +733,7 @@ func (m *QueryReportersRequest) GetValidatorAddress() string {
 
 // QueryReportersResponse is response type for the Query/Reporters RPC method.
 type QueryReportersResponse struct {
+	// Reporter is a list of account addresses of reporters
 	Reporter []string `protobuf:"bytes,1,rep,name=reporter,proto3" json:"reporter,omitempty"`
 }
 
@@ -801,6 +818,7 @@ var xxx_messageInfo_QueryActiveValidatorsRequest proto.InternalMessageInfo
 // QueryActiveValidatorsResponse is response type for the Query/ActiveValidators
 // RPC method.
 type QueryActiveValidatorsResponse struct {
+	// Count is number of active validators
 	Count int64 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
 }
 
@@ -847,10 +865,14 @@ func (m *QueryActiveValidatorsResponse) GetCount() int64 {
 // QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
 // method.
 type QueryRequestSearchRequest struct {
-	OracleScriptId int64  `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
-	Calldata       []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
-	AskCount       int64  `protobuf:"varint,3,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
-	MinCount       int64  `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
+	// OracleScriptID is ID of an oracle script
+	OracleScriptId int64 `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
+	// Calldata is OBI-encoded data as argument params for the oracle script
+	Calldata []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
+	// AskCount is number of validators allowed for fulfilling the request
+	AskCount int64 `protobuf:"varint,3,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
+	// MinCount is number of validators required for fulfilling the request
+	MinCount int64 `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
 }
 
 func (m *QueryRequestSearchRequest) Reset()         { *m = QueryRequestSearchRequest{} }
@@ -955,9 +977,12 @@ var xxx_messageInfo_QueryRequestSearchResponse proto.InternalMessageInfo
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
 // method.
 type QueryRequestPriceRequest struct {
-	Symbol   string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	AskCount int64  `protobuf:"varint,2,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
-	MinCount int64  `protobuf:"varint,3,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
+	// Symbol is unit of data indicating what the data is
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// AskCount is number of validators allowed for fulfilling the request
+	AskCount int64 `protobuf:"varint,2,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
+	// MinCount is number of validators required for fulfilling the request
+	MinCount int64 `protobuf:"varint,3,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
 }
 
 func (m *QueryRequestPriceRequest) Reset()         { *m = QueryRequestPriceRequest{} }
@@ -1017,10 +1042,14 @@ func (m *QueryRequestPriceRequest) GetMinCount() int64 {
 // QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
 // method.
 type QueryRequestPriceResponse struct {
-	OracleScriptId int64  `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
-	Calldata       []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
-	AskCount       int64  `protobuf:"varint,3,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
-	MinCount       int64  `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
+	// OracleScriptID is ID of an oracle script
+	OracleScriptId int64 `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
+	// Calldata is OBI-encoded data as argument params for the oracle script
+	Calldata []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
+	// AskCount is number of validators allowed for fulfilling the request
+	AskCount int64 `protobuf:"varint,3,opt,name=ask_count,json=askCount,proto3" json:"ask_count,omitempty"`
+	// MinCount is number of validators required to fulfill the request
+	MinCount int64 `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
 }
 
 func (m *QueryRequestPriceResponse) Reset()         { *m = QueryRequestPriceResponse{} }
@@ -1379,26 +1408,25 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Counts queries the number of data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and requests.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// Data queries the data source or oracle script script for given file hash.
+	// Data queries content of the data source or oracle script for given SHA256 file hash.
 	Data(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*QueryDataResponse, error)
-	// DataSource queries data source info for given data source id.
+	// DataSource queries data source summary info for given data source id.
 	DataSource(ctx context.Context, in *QueryDataSourceRequest, opts ...grpc.CallOption) (*QueryDataSourceResponse, error)
-	// OracleScript queries oracle script info for given oracle script id.
+	// OracleScript queries oracle script summary info for given oracle script id.
 	OracleScript(ctx context.Context, in *QueryOracleScriptRequest, opts ...grpc.CallOption) (*QueryOracleScriptResponse, error)
 	// Request queries request info for given request id.
 	Request(ctx context.Context, in *QueryRequestRequest, opts ...grpc.CallOption) (*QueryRequestResponse, error)
-	// Validator queries oracle info of validator for given validator
-	// address.
+	// Validator queries properties of given validator address.
 	Validator(ctx context.Context, in *QueryValidatorRequest, opts ...grpc.CallOption) (*QueryValidatorResponse, error)
-	// Reporters queries all reporters of a given validator address.
+	// Reporters queries all reporters associated with given validator address.
 	Reporters(ctx context.Context, in *QueryReportersRequest, opts ...grpc.CallOption) (*QueryReportersResponse, error)
 	// ActiveValidators queries all active oracle validators.
 	ActiveValidators(ctx context.Context, in *QueryActiveValidatorsRequest, opts ...grpc.CallOption) (*QueryActiveValidatorsResponse, error)
-	// Params queries the oracle parameters.
+	// Params queries parameters used for runnning bandchain network.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// RequestSearch queries the latest request that match the given input.
+	// RequestSearch queries the latest request that match search criteria.
 	RequestSearch(ctx context.Context, in *QueryRequestSearchRequest, opts ...grpc.CallOption) (*QueryRequestSearchResponse, error)
 	// RequestPrice queries the latest price on standard price reference oracle
 	// script.
@@ -1526,26 +1554,25 @@ func (c *queryClient) RequestVerification(ctx context.Context, in *QueryRequestV
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Counts queries the number of data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and requests.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// Data queries the data source or oracle script script for given file hash.
+	// Data queries content of the data source or oracle script for given SHA256 file hash.
 	Data(context.Context, *QueryDataRequest) (*QueryDataResponse, error)
-	// DataSource queries data source info for given data source id.
+	// DataSource queries data source summary info for given data source id.
 	DataSource(context.Context, *QueryDataSourceRequest) (*QueryDataSourceResponse, error)
-	// OracleScript queries oracle script info for given oracle script id.
+	// OracleScript queries oracle script summary info for given oracle script id.
 	OracleScript(context.Context, *QueryOracleScriptRequest) (*QueryOracleScriptResponse, error)
 	// Request queries request info for given request id.
 	Request(context.Context, *QueryRequestRequest) (*QueryRequestResponse, error)
-	// Validator queries oracle info of validator for given validator
-	// address.
+	// Validator queries properties of given validator address.
 	Validator(context.Context, *QueryValidatorRequest) (*QueryValidatorResponse, error)
-	// Reporters queries all reporters of a given validator address.
+	// Reporters queries all reporters associated with given validator address.
 	Reporters(context.Context, *QueryReportersRequest) (*QueryReportersResponse, error)
 	// ActiveValidators queries all active oracle validators.
 	ActiveValidators(context.Context, *QueryActiveValidatorsRequest) (*QueryActiveValidatorsResponse, error)
-	// Params queries the oracle parameters.
+	// Params queries parameters used for runnning bandchain network.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// RequestSearch queries the latest request that match the given input.
+	// RequestSearch queries the latest request that match search criteria.
 	RequestSearch(context.Context, *QueryRequestSearchRequest) (*QueryRequestSearchResponse, error)
 	// RequestPrice queries the latest price on standard price reference oracle
 	// script.

@@ -133,10 +133,6 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 	}
-	// module accounts that are allowed to receive tokens.
-	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
-	}
 )
 
 var (
@@ -267,7 +263,7 @@ func NewBandApp(
 	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
 	app.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
 		bankkeeper.NewBaseKeeper(
-			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
 		),
 		app.AccountKeeper,
 	)
@@ -530,16 +526,6 @@ func (app *BandApp) ModuleAccountAddrs() map[string]bool {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 	return modAccAddrs
-}
-
-// BlockedAddrs returns all the app's module account addresses that are not
-// allowed to receive external tokens.
-func (app *BandApp) BlockedAddrs() map[string]bool {
-	blacklistedAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		blacklistedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
-	}
-	return blacklistedAddrs
 }
 
 // LegacyAmino returns BandApp's amino codec.

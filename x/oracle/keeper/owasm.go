@@ -51,7 +51,12 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 
 // PrepareRequest takes an request specification object, performs the prepare call, and saves
 // the request object to store. Also emits events related to the request.
-func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *types.IBCSource) (types.RequestID, error) {
+func (k Keeper) PrepareRequest(
+	ctx sdk.Context,
+	r types.RequestSpec,
+	feePayer sdk.AccAddress,
+	ibcSource *types.IBCSource,
+) (types.RequestID, error) {
 	askCount := r.GetAskCount()
 	if askCount > k.GetParam(ctx, types.KeyMaxAskCount) {
 		return 0, sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.GetParam(ctx, types.KeyMaxAskCount))
@@ -93,7 +98,10 @@ func (k Keeper) PrepareRequest(ctx sdk.Context, r types.RequestSpec, ibcSource *
 	if len(req.RawRequests) == 0 {
 		return 0, types.ErrEmptyRawRequests
 	}
-
+	// Collect ds fee
+	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests); err != nil {
+		return 0, err
+	}
 	// We now have everything we need to the request, so let's add it to the store.
 	id := k.AddRequest(ctx, req)
 
@@ -151,4 +159,39 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}
+}
+
+// CollectFee subtract fee from fee payer and send them to treasury
+func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
+
+	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
+
+	for _, r := range rawRequests {
+
+		ds, err := k.GetDataSource(ctx, r.DataSourceID)
+		if err != nil {
+			return nil, err
+		}
+
+		if ds.Fee.Empty() {
+			continue
+		}
+
+		fee := sdk.NewCoins()
+		for _, c := range ds.Fee {
+			c.Amount = c.Amount.Mul(sdk.NewInt(int64(askCount)))
+			fee = fee.Add(c)
+		}
+
+		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := collector.Collect(ctx, fee, treasury); err != nil {
+			return nil, err
+		}
+	}
+
+	return collector.Collected(), nil
 }

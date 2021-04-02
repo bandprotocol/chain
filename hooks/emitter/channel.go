@@ -43,6 +43,9 @@ func (h *Hook) handleMsgRecvPacket(
 				"client_id":        data.ClientID,
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
+				"prepare_gas":      data.PrepareGas,
+				"execute_gas":      data.ExecuteGas,
+				"fee_limit":        data.FeeLimit.String(),
 			})
 			h.emitRawRequestAndValRequest(id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
@@ -59,6 +62,10 @@ func (h *Hook) handleMsgRecvPacket(
 				"ask_count":            data.AskCount,
 				"min_count":            data.MinCount,
 				"client_id":            data.ClientID,
+				"prepare_gas":          data.PrepareGas,
+				"execute_gas":          data.ExecuteGas,
+				"fee_limit":            data.FeeLimit.String(),
+				"request_key":          data.RequestKey,
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"success":    true,
@@ -72,6 +79,10 @@ func (h *Hook) handleMsgRecvPacket(
 				"ask_count":        data.AskCount,
 				"min_count":        data.MinCount,
 				"client_id":        data.ClientID,
+				"prepare_gas":      data.PrepareGas,
+				"execute_gas":      data.ExecuteGas,
+				"fee_limit":        data.FeeLimit.String(),
+				"request_key":      data.RequestKey,
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"success": false,
