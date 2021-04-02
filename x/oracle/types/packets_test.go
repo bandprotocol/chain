@@ -84,11 +84,3 @@ func TestOBIEncodeResultOfEmptyClientID(t *testing.T) {
 	expectedEncodedResult := mustDecodeString("0000000000000000000000010000000f0000000342544300000000000003e80000000000000001000000000000000100000000000000010000000000000001000000005ede3b1a000000005ede3b1d00000001000000080000000000944387")
 	require.Equal(t, expectedEncodedResult, obi.MustEncode(result))
 }
-
-func TestNewPoolAddress(t *testing.T) {
-	result := NewPoolAddress("testchannel", "testport", "testRequestKey")
-
-	expectedResult := sdk.AccAddress(mustDecodeString("ae493b7c3fa13314d8be991060e6f3d1010dc6d91b17f216b7ae2a9ba1a49788"))
-
-	require.Equal(t, expectedResult, result)
-}

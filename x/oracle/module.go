@@ -329,8 +329,8 @@ func (am AppModule) OnRecvPacket(
 	}
 
 	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-	poolAddress := types.NewPoolAddress(source.SourceChannel, source.SourcePort, data.RequestKey)
-	id, err := am.keeper.PrepareRequest(ctx, &data, poolAddress, &source)
+	escrowAddress := types.GetEscrowAddress(data.RequestKey, source.SourcePort, source.SourceChannel)
+	id, err := am.keeper.PrepareRequest(ctx, &data, escrowAddress, &source)
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
