@@ -7,6 +7,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
 import "oracle/v1/params.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 
 // Query defines the gRPC querier service.
@@ -70,6 +71,11 @@ service Query {
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
     option (google.api.http).post = "/oracle/request_prices";
+  }
+
+  rpc DataProvidersPool(QueryDataProvidersPoolRequest)
+      returns (QueryDataProvidersPoolResponse) {
+    option (google.api.http).post = "/oracle/data_providers_pool";
   }
 }
 
@@ -171,4 +177,13 @@ message QueryRequestPriceResponse {
   bytes calldata = 2;
   int64 ask_count = 3;
   int64 min_count = 4;
+}
+
+message QueryDataProvidersPoolRequest {}
+
+// QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
+// method.
+message QueryDataProvidersPoolResponse {
+  repeated cosmos.base.v1beta1.DecCoin pool = 1
+  [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
 }

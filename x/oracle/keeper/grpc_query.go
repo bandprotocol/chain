@@ -76,7 +76,7 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 		return nil, err
 	}
 	// TODO: Define specification on this endpoint (For test only)
-	return &types.QueryRequestResponse{&types.OracleRequestPacketData{}, &types.OracleResponsePacketData{Result: r.Result}}, nil
+	return &types.QueryRequestResponse{RequestPacketData: &types.OracleRequestPacketData{}, ResponsePacketData: &types.OracleResponsePacketData{Result: r.Result}}, nil
 }
 
 // Validator queries oracle info of validator for given validator
@@ -121,7 +121,7 @@ func (k Querier) ActiveValidators(c context.Context, req *types.QueryActiveValid
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	vals := []types.QueryActiveValidatorResult{}
+	var vals []types.QueryActiveValidatorResult
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
@@ -145,15 +145,23 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
+// TODO:
 // RequestSearch queries the latest request that match the given input.
 func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
 	return &types.QueryRequestSearchResponse{}, nil
 }
 
+// TODO:
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
 	return &types.QueryRequestPriceResponse{}, nil
 }
 
-// TODO: add oracle pool query
+func (k Querier) DataProvidersPool(c context.Context, req *types.QueryDataProvidersPoolRequest) (*types.QueryDataProvidersPoolResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	return &types.QueryDataProvidersPoolResponse{
+		Pool: k.GetOraclePool(ctx).DataProvidersPool,
+	}, nil
+}

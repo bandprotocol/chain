@@ -2,7 +2,7 @@ package oraclekeeper
 
 import (
 	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -15,27 +15,27 @@ import (
 func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
-		case types.QueryParams:
+		case oracletypes.QueryParams:
 			return queryParameters(ctx, keeper, cdc)
-		case types.QueryCounts:
+		case oracletypes.QueryCounts:
 			return queryCounts(ctx, keeper, cdc)
-		case types.QueryData:
+		case oracletypes.QueryData:
 			return queryData(ctx, path[1:], keeper, cdc)
-		case types.QueryDataSources:
+		case oracletypes.QueryDataSources:
 			return queryDataSourceByID(ctx, path[1:], keeper, cdc)
-		case types.QueryOracleScripts:
+		case oracletypes.QueryOracleScripts:
 			return queryOracleScriptByID(ctx, path[1:], keeper, cdc)
-		case types.QueryRequests:
+		case oracletypes.QueryRequests:
 			return queryRequestByID(ctx, path[1:], keeper, cdc)
-		case types.QueryValidatorStatus:
+		case oracletypes.QueryValidatorStatus:
 			return queryValidatorStatus(ctx, path[1:], keeper, cdc)
-		case types.QueryReporters:
+		case oracletypes.QueryReporters:
 			return queryReporters(ctx, path[1:], keeper, cdc)
-		case types.QueryActiveValidators:
+		case oracletypes.QueryActiveValidators:
 			return queryActiveValidators(ctx, keeper, cdc)
-		case types.QueryPendingRequests:
+		case oracletypes.QueryPendingRequests:
 			return queryPendingRequests(ctx, path[1:], keeper, cdc)
-		case types.QueryDataProvidersPool:
+		case oracletypes.QueryDataProvidersPool:
 			return queryDataProvidersPool(ctx, keeper, cdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown oracle query endpoint")
@@ -48,7 +48,7 @@ func queryParameters(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte,
 }
 
 func queryCounts(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
-	return commontypes.QueryOK(cdc, types.QueryCountsResult{
+	return commontypes.QueryOK(cdc, oracletypes.QueryCountsResult{
 		DataSourceCount:   k.GetDataSourceCount(ctx),
 		OracleScriptCount: k.GetOracleScriptCount(ctx),
 		RequestCount:      k.GetRequestCount(ctx),
@@ -70,7 +70,7 @@ func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.Le
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	dataSource, err := k.GetDataSource(ctx, types.DataSourceID(id))
+	dataSource, err := k.GetDataSource(ctx, oracletypes.DataSourceID(id))
 	if err != nil {
 		return commontypes.QueryNotFound(cdc, err.Error())
 	}
@@ -85,7 +85,7 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	oracleScript, err := k.GetOracleScript(ctx, types.OracleScriptID(id))
+	oracleScript, err := k.GetOracleScript(ctx, oracletypes.OracleScriptID(id))
 	if err != nil {
 		return commontypes.QueryNotFound(cdc, err.Error())
 	}
@@ -100,20 +100,20 @@ func queryRequestByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.Legac
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	request, err := k.GetRequest(ctx, types.RequestID(id))
+	request, err := k.GetRequest(ctx, oracletypes.RequestID(id))
 	if err != nil {
 		return commontypes.QueryNotFound(cdc, err.Error())
 	}
-	reports := k.GetReports(ctx, types.RequestID(id))
-	if !k.HasResult(ctx, types.RequestID(id)) {
-		return commontypes.QueryOK(cdc, types.QueryRequestResult{
+	reports := k.GetReports(ctx, oracletypes.RequestID(id))
+	if !k.HasResult(ctx, oracletypes.RequestID(id)) {
+		return commontypes.QueryOK(cdc, oracletypes.QueryRequestResult{
 			Request: request,
 			Reports: reports,
 			Result:  nil,
 		})
 	}
-	result := k.MustGetResult(ctx, types.RequestID(id))
-	return commontypes.QueryOK(cdc, types.QueryRequestResult{
+	result := k.MustGetResult(ctx, oracletypes.RequestID(id))
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResult{
 		Request: request,
 		Reports: reports,
 		Result:  &result,
@@ -143,11 +143,11 @@ func queryReporters(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyA
 }
 
 func queryActiveValidators(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
-	vals := []types.QueryActiveValidatorResult{}
+	var vals []oracletypes.QueryActiveValidatorResult
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
-				vals = append(vals, types.QueryActiveValidatorResult{
+				vals = append(vals, oracletypes.QueryActiveValidatorResult{
 					Address: val.GetOperator(),
 					Power:   val.GetTokens().Uint64(),
 				})
@@ -176,7 +176,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, cdc *codec.L
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []types.RequestID
+	var pendingIDs []oracletypes.RequestID
 	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
 
 		req := k.MustGetRequest(ctx, id)

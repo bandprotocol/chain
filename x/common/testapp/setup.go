@@ -69,11 +69,6 @@ var (
 	DefaultCommunityPool     = sdk.NewCoins(Coin100000000geo, Coin100000000odin)
 )
 
-const (
-	TestDefaultPrepareGas uint64 = 40000
-	TestDefaultExecuteGas uint64 = 300000
-)
-
 func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))

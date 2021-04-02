@@ -14,23 +14,26 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount         = uint64(12)
-	DefaultMaxAskCount                = uint64(16)
-	DefaultExpirationBlockCount       = uint64(100)
-	DefaultBaseRequestGas             = uint64(150000)
-	DefaultPerValidatorRequestGas     = uint64(30000)
-	DefaultSamplingTryCount           = uint64(3)
-	DefaultOracleRewardPercentage     = uint64(70)
-	DefaultInactivePenaltyDuration    = uint64(10 * time.Minute)
-	DefaultMaxDataSize                = uint64(1 * 1024) // 1 KB
-	DefaultMaxCalldataSize            = uint64(1 * 1024) // 1 KB
-	DefaultDataProviderRewardDenom    = "geo"
-	DefaultDataRequesterBasicFeeDenom = "odin"
+	DefaultMaxRawRequestCount                = uint64(12)
+	DefaultMaxAskCount                       = uint64(16)
+	DefaultExpirationBlockCount              = uint64(100)
+	DefaultBaseRequestGas                    = uint64(150000)
+	DefaultPerValidatorRequestGas            = uint64(30000)
+	DefaultSamplingTryCount                  = uint64(3)
+	DefaultOracleRewardPercentage            = uint64(70)
+	DefaultInactivePenaltyDuration           = uint64(10 * time.Minute)
+	DefaultMaxDataSize                       = uint64(1 * 1024) // 1 KB
+	DefaultMaxCalldataSize                   = uint64(1 * 1024) // 1 KB
+	DefaultDataProviderRewardDenom           = "geo"
+	DefaultDataRequesterBasicFeeDenom        = "odin"
+	DefaultPrepareGas                 uint64 = 40000
+	DefaultExecuteGas                 uint64 = 300000
 )
 
 var (
 	DefaultDataProviderRewardPerByte = sdk.NewInt64DecCoin(DefaultDataProviderRewardDenom, 0)
 	DefaultDataRequesterBasicFee     = sdk.NewInt64Coin(DefaultDataRequesterBasicFeeDenom, 0)
+	DefaultFeeLimit                  = sdk.NewCoins()
 )
 
 // nolint

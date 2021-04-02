@@ -25,6 +25,7 @@ import (
 
 	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
 	//oraclerest "github.com/GeoDB-Limited/odin-core/x/oracle/client/rest"
+	oraclecli "github.com/GeoDB-Limited/odin-core/x/oracle/client/cli"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
@@ -86,7 +87,7 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return &cobra.Command{}
+	return oraclecli.GetQueryCmd()
 }
 
 // AppModule represents the AppModule for this module.
@@ -168,7 +169,6 @@ func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedP
 // RandomizedParams creates randomized ibc-transfer param changes for the simulator.
 func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{}
-	// return simulation.ParamChanges(r)
 }
 
 // RegisterStoreDecoder registers a decoder for transfer module's oracletypes
