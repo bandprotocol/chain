@@ -54,8 +54,10 @@ type Params struct {
 	MaxDataSize uint64 `protobuf:"varint,9,opt,name=max_data_size,json=maxDataSize,proto3" json:"max_data_size,omitempty"`
 	// MaxCalldataSize is the maximum number of bytes that can be present in the calldata
 	MaxCalldataSize uint64 `protobuf:"varint,10,opt,name=max_calldata_size,json=maxCalldataSize,proto3" json:"max_calldata_size,omitempty"`
+	// TODO: maybe use DecCoins
 	// DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
 	DataProviderRewardPerByte github_com_cosmos_cosmos_sdk_types.DecCoin `protobuf:"bytes,11,opt,name=data_provider_reward_per_byte,json=dataProviderRewardPerByte,proto3,customtype=github.com/cosmos/cosmos-sdk/types.DecCoin" json:"data_provider_reward_per_byte"`
+	// TODO: maybe use Coins
 	// DataRequesterBasicFee is the amount of tokens user has to pay in DataProvidersPool for the data provided
 	DataRequesterBasicFee github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,12,opt,name=data_requester_basic_fee,json=dataRequesterBasicFee,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"data_requester_basic_fee"`
 }

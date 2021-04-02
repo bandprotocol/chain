@@ -1,0 +1,47 @@
+syntax = "proto3";
+package mint;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/mint/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "mint/mint.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  rpc Parameters(QueryParametersRequest) returns (QueryParametersResponse) {
+    option (google.api.http).get = "/minting/parameters";
+  }
+
+  rpc Inflation(QueryInflationRequest) returns (QueryInflationResponse) {
+    option (google.api.http).get = "/minting/parameters";
+  }
+
+  rpc AnnualProvisions(QueryAnnualProvisionsRequest) returns (QueryAnnualProvisionsResponse) {
+    option (google.api.http).get = "/minting/annual_provisions";
+  }
+
+  rpc EthIntegrationAddress(QueryEthIntegrationAddressRequest) returns (QueryEthIntegrationAddressResponse) {
+    option (google.api.http).get = "/minting/eth_integration_address";
+  }
+}
+
+message QueryParametersRequest{}
+message QueryParametersResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryInflationRequest {}
+message  QueryInflationResponse {
+  string inflation = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+message QueryAnnualProvisionsRequest {}
+message   QueryAnnualProvisionsResponse {
+  string annual_provisions = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+message QueryEthIntegrationAddressRequest {}
+message  QueryEthIntegrationAddressResponse {
+  string eth_integration_address = 1;
+}
