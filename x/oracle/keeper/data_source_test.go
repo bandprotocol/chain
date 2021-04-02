@@ -28,8 +28,8 @@ func TestSetterGetterDataSource(t *testing.T) {
 	require.Error(t, err)
 	require.Panics(t, func() { _ = k.MustGetDataSource(ctx, 42) })
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins, testapp.Alice.Address)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "filename2", testapp.EmptyCoins, testapp.Bob.Address)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "filename2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Sets id 42 with data soure 1 and id 42 with data source 2.
 	k.SetDataSource(ctx, 42, dataSource1)
 	k.SetDataSource(ctx, 43, dataSource2)
@@ -51,8 +51,8 @@ func TestSetterGetterDataSource(t *testing.T) {
 func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Alice.Address)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins, testapp.Bob.Address)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
@@ -72,8 +72,8 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 func TestEditDataSourceDoNotModify(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Creates some basic data sources.
-	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.Coins1000000uband, testapp.Treasury.Address)
-	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins, testapp.Bob.Address)
+	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
+	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))

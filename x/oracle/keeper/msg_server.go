@@ -26,7 +26,12 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	_, err := k.PrepareRequest(ctx, msg, nil)
+	payer, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = k.PrepareRequest(ctx, msg, payer, nil)
 	if err != nil {
 		return nil, err
 	}

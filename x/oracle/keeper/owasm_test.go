@@ -6,9 +6,13 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/pkg/obi"
+	"github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -78,15 +82,21 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 }
 
 func TestPrepareRequestSuccessBasic(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
 
+	balancesRes, err := app.BankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
+	)
+	feePayerBalances := balancesRes.Balances
+
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	id, err := k.PrepareRequest(ctx, m, nil)
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -97,41 +107,102 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
 	), k.MustGetRequest(ctx, 1))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeRequest,
-		sdk.NewAttribute(types.AttributeKeyID, "1"),
-		sdk.NewAttribute(types.AttributeKeyClientID, BasicClientID),
-		sdk.NewAttribute(types.AttributeKeyOracleScriptID, "1"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
-		sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
-		sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
-		sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "1"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	), sdk.NewEvent(
-		types.EventTypeRawRequest,
-		sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
-		sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
-		sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
-		sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
-	)}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeTransfer,
+			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			types.EventTypeRequest,
+			sdk.NewAttribute(types.AttributeKeyID, "1"),
+			sdk.NewAttribute(types.AttributeKeyClientID, BasicClientID),
+			sdk.NewAttribute(types.AttributeKeyOracleScriptID, "1"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
+			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "1"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		), sdk.NewEvent(
+			types.EventTypeRawRequest,
+			sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
+			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
+			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
+			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+		)}, ctx.EventManager().Events())
 
 	// assert gas consumation
 	params := k.GetParams(ctx)
 	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
+
+	paid := sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000))
+	feePayerBalances = feePayerBalances.Sub(paid)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
+}
+
+func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 1000000uband, max: 0uband: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 2000000uband, max: 1000000uband: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 3000000uband, max: 2000000uband: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "require: 3000000uband, max: 2999999uband: not enough fee")
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.NoError(t, err)
+	require.Equal(t, types.RequestID(1), id)
+}
+
+func TestPrepareRequestSuccessBasicNotEnoughFund(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
+	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.Alice.Address, nil)
+	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds")
 }
 
 func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
@@ -142,7 +213,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
 
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, 100, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "out-of-gas")
 
@@ -159,24 +230,24 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
 
-	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
+	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 
-	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err = k.PrepareRequest(ctx, m, nil)
+	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	id, err := k.PrepareRequest(ctx, m, nil)
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 	require.Equal(t, 2, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
@@ -188,11 +259,11 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000) // Set KeyBaseOwasmGas to 100000
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 0)
-	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
-	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"}, func() { k.PrepareRequest(ctx, m, nil) })
+	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
-	id, err := k.PrepareRequest(ctx, m, nil)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 }
@@ -201,49 +272,42 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000)
 	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
-
-	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(40000))
-	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, nil) })
-	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
+	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
+	m = types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
-
-	id, err := k.PrepareRequest(ctx, m, nil)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 }
 
 func TestPrepareRequestEmptyCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true) // Send nil while oracle script expects calldata
-	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: runtime error while executing the Wasm script")
-
+	m := types.NewMsgRequestData(4, nil, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "runtime error while executing the Wasm script: bad wasm execution")
 }
 
 func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "oracle script not found: id: 999")
+	m := types.NewMsgRequestData(999, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "id: 999: oracle script not found")
 }
 
 func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: OEI action to invoke is not available")
+	m := types.NewMsgRequestData(2, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "OEI action to invoke is not available: bad wasm execution")
 }
 
 func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "empty raw requests")
+	m := types.NewMsgRequestData(3, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "empty raw requests")
 }
 
 func TestPrepareRequestUnknownDataSource(t *testing.T) {
@@ -251,12 +315,9 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins,
-		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
-		testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
-	_ = err
-	// require.EqualError(t, err, "data source not found: id: 99")
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "id: 99: data source not found")
 }
 
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
@@ -265,44 +326,40 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins,
-		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
-		testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, nil)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	// require.EqualError(t, err, "bad wasm execution: too many external data requests")
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.EmptyCoins,
-		testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas,
-		testapp.Alice.Address)
-	id, err := k.PrepareRequest(ctx, m, nil)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
 }
 
 func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	id, err := k.PrepareRequest(ctx, m, nil)
+
+	m := types.NewMsgRequestData(5, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err = k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: out-of-gas while executing the wasm script")
+	m = types.NewMsgRequestData(6, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "out-of-gas while executing the wasm script: bad wasm execution")
 }
 
 func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	id, err := k.PrepareRequest(ctx, m, nil)
+
+	m := types.NewMsgRequestData(7, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
-	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err = k.PrepareRequest(ctx, m, nil)
-	require.Error(t, err)
-	// require.EqualError(t, err, "bad wasm execution: span to write is too small")
+	m = types.NewMsgRequestData(8, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "span to write is too small: bad wasm execution")
 }
 
 func TestResolveRequestSuccess(t *testing.T) {
@@ -534,4 +591,208 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "2"),
 		sdk.NewAttribute(types.AttributeKeyReason, "set return data is called more than once"),
 	)}, ctx.EventManager().Events())
+}
+
+func rawRequestsFromFees(ctx sdk.Context, k keeper.Keeper, fees []sdk.Coins) []types.RawRequest {
+	var rawRequests []types.RawRequest
+	for _, f := range fees {
+		id := k.AddDataSource(ctx, types.NewDataSource(
+			testapp.Owner.Address,
+			"mock ds",
+			"there is no real code",
+			"no file",
+			f,
+			testapp.Treasury.Address,
+		))
+
+		rawRequests = append(rawRequests, types.NewRawRequest(
+			0, id, nil,
+		))
+	}
+
+	return rawRequests
+}
+
+func TestCollectFeeEmptyFee(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.EmptyCoins,
+		testapp.EmptyCoins,
+		testapp.EmptyCoins,
+		testapp.EmptyCoins,
+	})
+
+	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.EmptyCoins, 1, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 1, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.EmptyCoins, 2, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 2, raws)
+	require.NoError(t, err)
+	require.Empty(t, coins)
+}
+
+func TestCollectFeeBasicSuccess(t *testing.T) {
+	app, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	balancesRes, err := app.BankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
+	)
+	feePayerBalances := balancesRes.Balances
+	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(3000000))
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins100000000uband, 1, raws)
+	require.NoError(t, err)
+	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))), coins)
+
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))))
+}
+
+func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
+	app, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	balancesRes, err := app.BankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
+	)
+	feePayerBalances := balancesRes.Balances
+	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(12000000))
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins100000000uband, 4, raws)
+	require.NoError(t, err)
+	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))), coins)
+
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))))
+}
+
+func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.EmptyCoins, 1, raws)
+	require.Error(t, err)
+	require.Nil(t, coins)
+
+	coins, err = k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins1000000uband, 1, raws)
+	require.Error(t, err)
+	require.Nil(t, coins)
+}
+
+func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.EmptyCoins,
+	})
+
+	coins, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.Coins100000000uband, 1, raws)
+	require.Nil(t, coins)
+	// MAX is 100m but have only 1m in account
+	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
+	require.EqualError(t, err, "0uband is smaller than 2000000uband: insufficient funds")
+}
+
+func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
+	app, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		testapp.EmptyCoins,
+	})
+
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+
+	// Carol have not enough uband but have enough uabc
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.FeePayer.Address, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+
+	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.FeePayer.Address), 1, raws)
+	require.NoError(t, err)
+
+	// Coins sum is correct
+	require.True(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))).IsEqual(coins))
+
+	// FeePayer balance
+	// start: 100band, 0abc
+	// top-up: 100band, 2abc
+	// collect 3 band and 1 abc => 97band, 1abc
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(97000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))))
+
+	// Treasury balance
+	// start: 0band, 0abc
+	// collect 3 band and 1 abc => 3band, 1abc
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))))
+}
+
+func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
+	app, ctx, k := testapp.CreateTestInput(true)
+
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		testapp.EmptyCoins,
+		testapp.Coins1000000uband,
+		testapp.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		testapp.EmptyCoins,
+	})
+
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000)), sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+	// Alice have no enough uband and don't have uabc so don't top up
+	// Bob have enough uband and have some but not enough uabc so add some
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.Bob.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))))
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.Bob.Address, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1))))
+	// Carol have not enough uband but have enough uabc
+	app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, testapp.Carol.Address, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1000000))))
+
+	// Alice
+	_, err := k.CollectFee(ctx, testapp.Alice.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Alice.Address), 1, raws)
+	require.EqualError(t, err, "require: 1000000uabc, max: 0uabc: not enough fee")
+
+	// Bob
+	_, err = k.CollectFee(ctx, testapp.Bob.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Bob.Address), 1, raws)
+	require.EqualError(t, err, "require: 1000000uabc, max: 1uabc: not enough fee")
+
+	// Carol
+	_, err = k.CollectFee(ctx, testapp.Carol.Address, testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Carol.Address), 1, raws)
+	require.EqualError(t, err, "require: 3000000uband, max: 1000000uband: not enough fee")
 }

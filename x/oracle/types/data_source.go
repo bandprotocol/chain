@@ -12,7 +12,7 @@ func NewDataSource(
 		Name:        name,
 		Description: description,
 		Filename:    filename,
-		Fee:         fee,
 		Treasury:    treasury.String(),
+		Fee:         fee,
 	}
 }

@@ -40,6 +40,7 @@ type Account struct {
 var (
 	Owner         Account
 	Treasury      Account
+	FeePayer      Account
 	Alice         Account
 	Bob           Account
 	Carol         Account
@@ -74,6 +75,7 @@ func init() {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
+	FeePayer = createArbitraryAccount(r)
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
@@ -107,7 +109,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, EmptyCoins, Owner.Address,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000uband, Treasury.Address,
 		))
 	}
 	return DataSources[1:]
@@ -151,6 +153,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
+		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
 		&authtypes.BaseAccount{Address: Alice.Address.String()},
 		&authtypes.BaseAccount{Address: Bob.Address.String()},
 		&authtypes.BaseAccount{Address: Carol.Address.String()},
@@ -202,6 +205,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 			Address: Owner.Address.String(),
 			Coins:   Coins1000000uband,
 		},
+		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
 		{Address: Alice.Address.String(), Coins: Coins1000000uband},
 		{Address: Bob.Address.String(), Coins: Coins1000000uband},
 		{Address: Carol.Address.String(), Coins: Coins1000000uband},

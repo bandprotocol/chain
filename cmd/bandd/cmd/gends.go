@@ -58,6 +58,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
 				owner, args[0], args[1], filename, fee, treasury,
