@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"strings"
 	"testing"
 	"time"
 
@@ -56,8 +58,7 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	msg := types.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, treasury, owner, sender)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	fmt.Println(err)
-	// TODO: Revisit
-	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
+	require.EqualError(t, err, "unexpected EOF: uncompression failed")
 	require.Nil(t, res)
 }
 
@@ -73,7 +74,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins100000000odin), ds)
+	require.Equal(t, types.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins1000000odin), ds)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
@@ -233,123 +234,122 @@ func TestEditOracleScriptFail(t *testing.T) {
 	require.Nil(t, res)
 }
 
-//func TestRequestDataSuccess(t *testing.T) {
-//	_, ctx, k := testapp.CreateTestInput(true)
-//	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-//	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
-//	res, err := oracle.NewHandler(k)(ctx, msg)
-//	require.NoError(t, err)
-//	require.Equal(t, types.NewRequest(
-//		1,
-//		[]byte("beeb"),
-//		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
-//		2,
-//		124,
-//		testapp.ParseTime(1581589790),
-//		"CID",
-//		[]types.RawRequest{
-//			types.NewRawRequest(1, 1, []byte("beeb")),
-//			types.NewRawRequest(2, 2, []byte("beeb")),
-//			types.NewRawRequest(3, 3, []byte("beeb")),
-//		},
-//		nil,
-//		uint64(testapp.TestDefaultExecuteGas),
-//	), k.MustGetRequest(ctx, 1))
-//
-//	event := abci.Event{
-//		Type: authtypes.EventTypeTransfer,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(authtypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
-//			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
-//			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("200000000odin")},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[0])
-//	require.Equal(t, abci.Event(event), res.Events[2])
-//	require.Equal(t, abci.Event(event), res.Events[4])
-//	event = abci.Event{
-//		Type: sdk.EventTypeMessage,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[1])
-//	require.Equal(t, abci.Event(event), res.Events[3])
-//	require.Equal(t, abci.Event(event), res.Events[5])
-//
-//	event = abci.Event{
-//		Type: types.EventTypeRequest,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(types.AttributeKeyID), Value: []byte("1")},
-//			{Key: []byte(types.AttributeKeyClientID), Value: []byte("CID")},
-//			{Key: []byte(types.AttributeKeyOracleScriptID), Value: []byte("1")},
-//			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
-//			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
-//			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
-//			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("3089")},
-//			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
-//			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[1].ValAddress.String())},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[6])
-//	event = abci.Event{
-//		Type: types.EventTypeRawRequest,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("1")},
-//			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[1].Filename)},
-//			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("1")},
-//			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[7])
-//	event = abci.Event{
-//		Type: types.EventTypeRawRequest,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("2")},
-//			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[2].Filename)},
-//			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("2")},
-//			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[8])
-//	event = abci.Event{
-//		Type: types.EventTypeRawRequest,
-//		Attributes: []abci.EventAttribute{
-//			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("3")},
-//			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[3].Filename)},
-//			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("3")},
-//			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-//		},
-//	}
-//	require.Equal(t, abci.Event(event), res.Events[9])
-//}
+func TestRequestDataSuccess(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
+	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, types.NewRequest(
+		1,
+		[]byte("beeb"),
+		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress},
+		2,
+		124,
+		testapp.ParseTime(1581589790),
+		"CID",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("beeb")),
+			types.NewRawRequest(2, 2, []byte("beeb")),
+			types.NewRawRequest(3, 3, []byte("beeb")),
+		},
+		nil,
+		uint64(testapp.TestDefaultExecuteGas),
+	), k.MustGetRequest(ctx, 1))
 
-// TODO fix pseudo random
-//func TestRequestDataFail(t *testing.T) {
-//	_, ctx, k := testapp.CreateTestInput(false)
-//	// No active oracle validators
-//	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-//	require.EqualError(t, err, "0 < 2: insufficent available validators")
-//	require.Nil(t, res)
-//	k.Activate(ctx, testapp.Validators[0].ValAddress)
-//	k.Activate(ctx, testapp.Validators[1].ValAddress)
-//	// Too high ask count
-//	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-//	require.EqualError(t, err, "2 < 3: insufficent available validators")
-//	require.Nil(t, res)
-//	// Bad oracle script ID
-//	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-//	require.EqualError(t, err, "id: 999: oracle script not found")
-//	require.Nil(t, res)
-//	// Pay not enough fee
-//	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-//	require.EqualError(t, err, "require: 200000000odin, max: 0odin: not enough fee")
-//	require.Nil(t, res)
-//	// Too large calldata
-//	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte(strings.Repeat("a", 2000)), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address))
-//	require.EqualError(t, err, "too large calldata: got: 2000, max: 1024")
-//	require.Nil(t, res)
-//}
+	event := abci.Event{
+		Type: banktypes.EventTypeTransfer,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(banktypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
+			{Key: []byte(banktypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000odin")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, abci.Event(event), res.Events[2])
+	require.Equal(t, abci.Event(event), res.Events[4])
+	event = abci.Event{
+		Type: sdk.EventTypeMessage,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(banktypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[1])
+	require.Equal(t, abci.Event(event), res.Events[3])
+	require.Equal(t, abci.Event(event), res.Events[5])
+
+	event = abci.Event{
+		Type: types.EventTypeRequest,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyID), Value: []byte("1")},
+			{Key: []byte(types.AttributeKeyClientID), Value: []byte("CID")},
+			{Key: []byte(types.AttributeKeyOracleScriptID), Value: []byte("1")},
+			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
+			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
+			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
+			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("3089")},
+			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
+			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[6])
+	event = abci.Event{
+		Type: types.EventTypeRawRequest,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("1")},
+			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[1].Filename)},
+			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("1")},
+			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[7])
+	event = abci.Event{
+		Type: types.EventTypeRawRequest,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("2")},
+			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[2].Filename)},
+			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("2")},
+			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[8])
+	event = abci.Event{
+		Type: types.EventTypeRawRequest,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("3")},
+			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[3].Filename)},
+			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("3")},
+			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[9])
+}
+
+func TestRequestDataFail(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(false)
+	// No active oracle validators
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	require.EqualError(t, err, "0 < 2: insufficent available validators")
+	require.Nil(t, res)
+	k.Activate(ctx, testapp.Validators[0].ValAddress)
+	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	// Too high ask count
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	require.EqualError(t, err, "2 < 3: insufficent available validators")
+	require.Nil(t, res)
+	// Bad oracle script ID
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	require.EqualError(t, err, "id: 999: oracle script not found")
+	require.Nil(t, res)
+	// Pay not enough fee
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	require.EqualError(t, err, "require: 2000000odin, max: 0odin: not enough fee")
+	require.Nil(t, res)
+	// Too large calldata
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte(strings.Repeat("a", 2000)), 2, 2, "CID", testapp.Coins100000000odin, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address))
+	require.EqualError(t, err, "got: 2000, max: 1024: too large calldata")
+	require.Nil(t, res)
+}
 
 func TestReportSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
@@ -524,22 +524,21 @@ func TestAddReporterSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
 
-// TODO fix
-//func TestAddReporterFail(t *testing.T) {
-//	_, ctx, k := testapp.CreateTestInput(false)
-//	// Should fail when you try to add yourself as your reporter.
-//	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
-//	res, err := oracle.NewHandler(k)(ctx, msg)
-//	// require.EqualError(t, err, fmt.Sprintf("reporter already exists: val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String()))
-//	_ = err
-//	require.Nil(t, res)
-//	// Too large report data
-//	k.SetRequestLastExpired(ctx, 0)
-//	reports := []types.RawReport{types.NewRawReport(1, 0, []byte(strings.Repeat("1", 2000))), types.NewRawReport(2, 0, []byte(strings.Repeat("2", 2000)))}
-//	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(1, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-//	require.EqualError(t, err, "too large raw report data: got: 2000, max: 1024")
-//	require.Nil(t, res)
-//}
+func TestAddReporterFail(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(false)
+	// Should fail when you try to add yourself as your reporter.
+	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.EqualError(t, err, fmt.Sprintf("val: %s, addr: %s: reporter already exists", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String()))
+	_ = err
+	require.Nil(t, res)
+	// Too large report data
+	k.SetRequestLastExpired(ctx, 0)
+	reports := []types.RawReport{types.NewRawReport(1, 0, []byte(strings.Repeat("1", 2000))), types.NewRawReport(2, 0, []byte(strings.Repeat("2", 2000)))}
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(1, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	require.EqualError(t, err, "got: 2000, max: 1024: too large raw report data")
+	require.Nil(t, res)
+}
 
 func TestRemoveReporterSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)

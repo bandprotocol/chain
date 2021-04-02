@@ -22,8 +22,17 @@ func (q Querier) Params(c context.Context, request *coinswaptypes.QueryParamsReq
 }
 
 func (q Querier) Rate(c context.Context, request *coinswaptypes.QueryRateRequest) (*coinswaptypes.QueryRateResponse, error) {
-	panic("implement me")
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	initialRate := q.GetInitialRate(ctx)
+	rateMultiplier := q.GetRateMultiplier(ctx)
+	return &coinswaptypes.QueryRateResponse{
+		Rate:        initialRate.Mul(rateMultiplier),
+		InitialRate: initialRate,
+	}, nil
 }
 
-// todo
 var _ coinswaptypes.QueryServer = Querier{}

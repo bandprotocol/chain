@@ -1,8 +1,6 @@
 package types
 
 // nolint
-// todo make some params configurable
-// todo setup appropriate values
 const (
 	DoNotModify = "[do-not-modify]"
 

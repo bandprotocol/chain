@@ -176,34 +176,3 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}
 }
-
-// CollectFee subtract fee from fee payer and send them to treasury
-func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
-
-	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
-
-	for _, r := range rawRequests {
-
-		ds := k.MustGetDataSource(ctx, r.DataSourceID)
-		if ds.Fee.Empty() {
-			continue
-		}
-
-		fee := sdk.NewCoins()
-		for _, c := range ds.Fee {
-			c.Amount = c.Amount.Mul(sdk.NewInt(int64(askCount)))
-			fee = fee.Add(c)
-		}
-
-		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := collector.Collect(ctx, fee, treasury); err != nil {
-			return nil, err
-		}
-	}
-
-	return collector.Collected(), nil
-}

@@ -6,12 +6,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// FeeCollector define fee collector
-type FeeCollector interface {
-	Collect(sdk.Context, sdk.Coins, sdk.AccAddress) error
-	Collected() sdk.Coins
-}
-
 type feeCollector struct {
 	bankKeeper types.BankKeeper
 	payer      sdk.AccAddress
@@ -38,7 +32,7 @@ func (coll *feeCollector) Collected() sdk.Coins {
 	return coll.collected
 }
 
-func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
+func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) Collector {
 
 	return &feeCollector{
 		bankKeeper: bankKeeper,

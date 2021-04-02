@@ -41,6 +41,7 @@ var (
 	Owner              Account
 	Treasury           Account
 	FeePayer           Account
+	Peter              Account
 	Alice              Account
 	Bob                Account
 	Carol              Account
@@ -57,7 +58,7 @@ var (
 	EmptyCoins               = sdk.Coins(nil)
 	Coin1geo                 = sdk.NewInt64Coin("geo", 1)
 	Coin10odin               = sdk.NewInt64Coin("odin", 10)
-	Coin100000000geo         = sdk.NewInt64Coin("geo", 1000000)
+	Coin100000000geo         = sdk.NewInt64Coin("geo", 100000000)
 	Coins1000000odin         = sdk.NewCoins(sdk.NewInt64Coin("odin", 1000000))
 	Coins99999999odin        = sdk.NewCoins(sdk.NewInt64Coin("odin", 99999999))
 	Coin100000000odin        = sdk.NewInt64Coin("odin", 100000000)
@@ -79,6 +80,7 @@ func init() {
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
 	FeePayer = createArbitraryAccount(r)
+	Peter = createArbitraryAccount(r)
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
@@ -114,7 +116,7 @@ func getGenesisDataSources(homePath string) []types.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins100000000odin,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins1000000odin,
 		))
 	}
 	return DataSources[1:]
@@ -159,6 +161,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
 		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
+		&authtypes.BaseAccount{Address: Peter.Address.String()},
 		&authtypes.BaseAccount{Address: Alice.Address.String()},
 		&authtypes.BaseAccount{Address: Bob.Address.String()},
 		&authtypes.BaseAccount{Address: Carol.Address.String()},
@@ -173,7 +176,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000odin[0].Amount, Coins100000000odin[0].Amount, Coins99999999odin[0].Amount}
+	bamt := []sdk.Int{Coins100000000odin[0].Amount, Coins1000000odin[0].Amount, Coins99999999odin[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -212,7 +215,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 			Address: Owner.Address.String(),
 			Coins:   Coins1000000odin,
 		},
-		{Address: FeePayer.Address.String(), Coins: Coins10000000000odin},
+		{Address: FeePayer.Address.String(), Coins: Coins100000000odin},
+		{Address: Peter.Address.String(), Coins: Coins1000000odin},
 		{Address: Alice.Address.String(), Coins: Coins1000000odin.Add(Coin100000000geo)},
 		{Address: Bob.Address.String(), Coins: Coins1000000odin},
 		{Address: Carol.Address.String(), Coins: Coins1000000odin},
