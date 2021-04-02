@@ -82,11 +82,17 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 }
 
 func TestPrepareRequestSuccessBasic(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
+
+	balancesRes, err := app.BankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
+	)
+	feePayerBalances := balancesRes.Balances
 
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
@@ -161,6 +167,11 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
+
+	paid := sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000))
+	feePayerBalances = feePayerBalances.Sub(paid)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
 }
 
 func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {

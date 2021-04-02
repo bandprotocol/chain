@@ -25,18 +25,13 @@ var (
 )
 
 func signAndBroadcast(
-	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
+	c *Context, key keyring.Info, msgs []sdk.Msg, acc client.Account, gasLimit uint64, memo string,
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "async",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
-	}
-	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
-	if err != nil {
-		return "", fmt.Errorf("Failed to retreive account with error: %s", err.Error())
 	}
 
 	txf := tx.Factory{}.
@@ -111,15 +106,27 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
 	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
-	gasLimit := estimateGas(c, msgs, feeEstimations)
+	clientCtx := client.Context{
+		Client:            c.client,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+
+	accountRetriever := authtypes.AccountRetriever{}
+	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	if err != nil {
+		l.Debug(":warning: Failed to query account with error: %s", err.Error())
+		return
+	}
+
+	gasLimit := estimateGas(c, msgs, feeEstimations, acc, l)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
+			hash, err := signAndBroadcast(c, key, msgs, acc, gasLimit, memo)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())
@@ -143,18 +150,20 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
 			}
-			switch txRes.Code {
-			case 0:
+
+			if txRes.Code == 0 {
 				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
 				c.updateSubmittedCount(int64(len(reports)))
 				return
-			case sdkerrors.ErrOutOfGas.ABCICode():
+			}
+			if txRes.Codespace == sdkerrors.RootCodespace &&
+				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas limit and try to broadcast again
 				gasLimit = gasLimit * 110 / 100
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
 				txFound = true
 				break FindTx
-			default:
+			} else {
 				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txRes.Code, txRes.RawLog, txRes.TxHash)
 				return
 			}
@@ -165,7 +174,6 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		}
 	}
 	l.Error(":anxious_face_with_sweat: Cannot send reports with adjusted gas: %d", c, gasLimit)
-	return
 }
 
 // GetExecutable fetches data source executable using the provided client.
