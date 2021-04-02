@@ -52,9 +52,16 @@ var (
 // nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
+	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	Port1               = "port-1"
+	Port2               = "port-2"
+	Channel1            = "channel-1"
+	Channel2            = "channel-2"
 )
 
 const (
