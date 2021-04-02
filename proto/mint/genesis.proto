@@ -5,6 +5,7 @@ option go_package = "github.com/GeoDB-Limited/odin-core/x/mint/types";
 
 import "gogoproto/gogo.proto";
 import "mint/mint.proto";
+import "mint/params.proto";
 
 // GenesisState defines the mint module's genesis state.
 message GenesisState {
