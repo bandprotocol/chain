@@ -22,13 +22,10 @@ func (m MintPool) ValidateGenesis() error {
 	return nil
 }
 
-// AddrPool defines a pool of addresses
-type AddrPool []sdk.AccAddress
-
-// Contains checks id addr exists in the slice
-func (p AddrPool) Contains(addr sdk.AccAddress) bool {
-	for _, item := range p {
-		if item.Equals(addr) {
+// IsEligibleAccount checks if addr exists in the slice
+func (m MintPool) IsEligibleAccount(addr string) bool {
+	for _, item := range m.EligibleAccountsPool {
+		if item == addr {
 			return true
 		}
 	}

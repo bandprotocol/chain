@@ -139,3 +139,9 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 func (k Keeper) AddCollectedFees(ctx sdk.Context, fees sdk.Coins) error {
 	return k.bankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, k.feeCollectorName, fees)
 }
+
+// LimitExceeded checks if withdrawal amount exceeds the limit
+func (k Keeper) LimitExceeded(ctx sdk.Context, amt sdk.Coins) bool {
+	moduleParams := k.GetParams(ctx)
+	return amt.IsAnyGT(moduleParams.MaxWithdrawalPerTime)
+}
