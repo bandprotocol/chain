@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"fmt"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gorilla/mux"
 )
 
 func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rtr.HandleFunc("/coinswap/params", getParamsHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc("/coinswap/rate", getRateHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("%s/params", coinswaptypes.ModuleName), getParamsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("%s/rate", coinswaptypes.ModuleName), getRateHandler(clientCtx)).Methods("GET")
 }

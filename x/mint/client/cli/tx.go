@@ -64,7 +64,7 @@ func NewCmdWithdrawCoinsToAccFromTreasury() *cobra.Command {
 				return sdkerrors.Wrapf(err, "amount: %s receiver: %s", amount, receiverStr)
 			}
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
 

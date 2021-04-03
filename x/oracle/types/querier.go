@@ -36,3 +36,6 @@ type QueryActiveValidatorResult struct {
 	Address sdk.ValAddress `json:"address"`
 	Power   uint64         `json:"power"`
 }
+
+type QueryDataByHashParams struct {
+}
