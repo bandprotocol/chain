@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/GeoDB-Limited/odin-core/x/mint/client/cli"
+	mintcli "github.com/GeoDB-Limited/odin-core/x/mint/client/cli"
 	"github.com/GeoDB-Limited/odin-core/x/mint/keeper"
 	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -70,7 +71,9 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 }
 
 // GetTxCmd returns no root tx command for the mint module.
-func (AppModuleBasic) GetTxCmd() *cobra.Command { return nil }
+func (AppModuleBasic) GetTxCmd() *cobra.Command {
+	return mintcli.NewTxCmd()
+}
 
 // GetQueryCmd returns the root query command for the mint module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
