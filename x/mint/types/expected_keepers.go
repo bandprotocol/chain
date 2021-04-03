@@ -23,6 +23,8 @@ type AccountKeeper interface {
 // BankKeeper defines the contract needed to be fulfilled for banking and supply
 // dependencies.
 type BankKeeper interface {
+	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SetBalances(ctx sdk.Context, addr sdk.AccAddress, balances sdk.Coins) error
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, name string, amt sdk.Coins) error

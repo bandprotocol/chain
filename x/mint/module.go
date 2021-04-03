@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"github.com/GeoDB-Limited/odin-core/x/mint/client/cli"
 	mintcli "github.com/GeoDB-Limited/odin-core/x/mint/client/cli"
+	mintrest "github.com/GeoDB-Limited/odin-core/x/mint/client/rest"
 	"github.com/GeoDB-Limited/odin-core/x/mint/keeper"
+	mintkeeper "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
+	"github.com/GeoDB-Limited/odin-core/x/mint/simulation"
 	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,6 +21,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"math/rand"
 )
 
 var (
@@ -47,7 +51,7 @@ func (b AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {}
 // DefaultGenesis returns default genesis state as raw bytes for the mint
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
-	return cdc.MustMarshalJSON(minttypes.DefaultGenesisState())
+	return cdc.MustMarshalJSON(mintkeeper.DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the mint module.
@@ -57,17 +61,20 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", minttypes.ModuleName, err)
 	}
 
-	return minttypes.ValidateGenesis(data)
+	return mintkeeper.ValidateGenesis(data)
 }
 
 // RegisterRESTRoutes registers the REST routes for the mint module.
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	minttypes.RegisterRoutes(clientCtx, rtr)
+	mintrest.RegisterRoutes(clientCtx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the mint module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	minttypes.RegisterQueryHandlerClient(context.Background(), mux, minttypes.NewQueryClient(clientCtx))
+	err := minttypes.RegisterQueryHandlerClient(context.Background(), mux, minttypes.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns no root tx command for the mint module.
@@ -130,14 +137,14 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 	var genesisState minttypes.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 
-	InitGenesis(ctx, am.keeper, am.authKeeper, &genesisState)
+	mintkeeper.InitGenesis(ctx, am.keeper, &genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the mint
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
-	gs := ExportGenesis(ctx, am.keeper)
+	gs := mintkeeper.ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
 }
 
@@ -169,7 +176,7 @@ func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 
 // RegisterStoreDecoder registers a decoder for mint module's types.
 func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
-	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
+	sdr[minttypes.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 
 // WeightedOperations doesn't return any mint module operation.
