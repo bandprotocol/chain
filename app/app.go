@@ -18,6 +18,7 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -87,6 +88,9 @@ import (
 	bandante "github.com/bandprotocol/chain/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+
+	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
+	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
 const (
@@ -129,10 +133,6 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 	}
-	// module accounts that are allowed to receive tokens.
-	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
-	}
 )
 
 var (
@@ -155,7 +155,7 @@ type BandApp struct {
 
 	// keepers
 	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
+	BankKeeper       bandbankkeeper.WrappedBankKeeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
 	SlashingKeeper   slashingkeeper.Keeper
@@ -211,7 +211,7 @@ func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	disableFeelessReports bool, baseAppOptions ...func(*baseapp.BaseApp),
+	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 
 	appCodec := encodingConfig.Marshaler
@@ -242,6 +242,10 @@ func NewBandApp(
 		tkeys:             tkeys,
 		memKeys:           memKeys,
 	}
+	owasmVM, err := owasm.NewVm(owasmCacheSize)
+	if err != nil {
+		panic(err)
+	}
 	// Initialize params keeper and module subspaces.
 	app.ParamsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 	// set the BaseApp's parameter store
@@ -256,9 +260,14 @@ func NewBandApp(
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
-	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
+	app.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
+		bankkeeper.NewBaseKeeper(
+			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
+		),
+		app.AccountKeeper,
 	)
+
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
@@ -270,6 +279,8 @@ func NewBandApp(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
+	// DistrKeeper must be set afterward due to the circular reference between banker-staking-distr.
+	app.BankKeeper.SetDistrKeeper(&app.DistrKeeper)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
@@ -301,7 +312,7 @@ func NewBandApp(
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), filepath.Join(homePath, "files"),
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper,
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
 	)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, &app.hooks)
@@ -408,6 +419,15 @@ func NewBandApp(
 		if err != nil {
 			tmos.Exit(err.Error())
 		}
+		// Initialize and seal the capability keeper so all persistent capabilities
+		// are loaded in-memory and prevent any further modules from creating scoped
+		// sub-keepers.
+		// This must be done during creation of baseapp rather than in InitChain so
+		// that in-memory capabilities get regenerated on app restart.
+		// Note that since this reads from the store, we can only perform it when
+		// `loadLatest` is set to true.
+		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		app.CapabilityKeeper.InitializeAndSeal(ctx)
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
@@ -496,16 +516,6 @@ func (app *BandApp) ModuleAccountAddrs() map[string]bool {
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 	return modAccAddrs
-}
-
-// BlockedAddrs returns all the app's module account addresses that are not
-// allowed to receive external tokens.
-func (app *BandApp) BlockedAddrs() map[string]bool {
-	blacklistedAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		blacklistedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
-	}
-	return blacklistedAddrs
 }
 
 // LegacyAmino returns BandApp's amino codec.

@@ -30,7 +30,7 @@ var (
 	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
 	KeyMaxAskCount             = []byte("MaxAskCount")
 	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
-	KeyBaseRequestGas          = []byte("BaseRequestGas")
+	KeyBaseOwasmGas            = []byte("BaseOwasmGas")
 	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
 	KeySamplingTryCount        = []byte("SamplingTryCount")
 	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
@@ -53,7 +53,7 @@ func NewParams(
 		MaxRawRequestCount:      maxRawRequestCount,
 		MaxAskCount:             maxAskCount,
 		ExpirationBlockCount:    expirationBlockCount,
-		BaseRequestGas:          baseRequestGas,
+		BaseOwasmGas:            baseRequestGas,
 		PerValidatorRequestGas:  perValidatorRequestGas,
 		SamplingTryCount:        samplingTryCount,
 		OracleRewardPercentage:  oracleRewardPercentage,
@@ -67,7 +67,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxRawRequestCount, &p.MaxRawRequestCount, validateUint64("max data source count", true)),
 		paramtypes.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
 		paramtypes.NewParamSetPair(KeyExpirationBlockCount, &p.ExpirationBlockCount, validateUint64("expiration block count", true)),
-		paramtypes.NewParamSetPair(KeyBaseRequestGas, &p.BaseRequestGas, validateUint64("base request gas", false)),
+		paramtypes.NewParamSetPair(KeyBaseOwasmGas, &p.BaseOwasmGas, validateUint64("base request gas", false)),
 		paramtypes.NewParamSetPair(KeyPerValidatorRequestGas, &p.PerValidatorRequestGas, validateUint64("per validator request gas", false)),
 		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
 		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),

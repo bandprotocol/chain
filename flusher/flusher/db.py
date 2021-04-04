@@ -147,6 +147,8 @@ data_sources = sa.Table(
     Column("description", sa.String),
     Column("owner", sa.String),
     Column("executable", CustomBase64),
+    Column("treasury", sa.String),
+    Column("fee", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
 )
 
@@ -172,6 +174,9 @@ requests = sa.Table(
     Column("calldata", CustomBase64),
     Column("ask_count", sa.Integer),
     Column("min_count", sa.Integer),
+    Column("fee_limit", sa.String),
+    Column("prepare_gas", sa.Integer),
+    Column("execute_gas", sa.Integer),
     Column("sender", sa.String, nullable=True),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True),
@@ -214,12 +219,8 @@ raw_reports = sa.Table(
     Column("external_id", sa.BigInteger, primary_key=True),
     Column("data", CustomBase64),
     Column("exit_code", sa.BigInteger),
-    sa.ForeignKeyConstraint(
-        ["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]
-    ),
-    sa.ForeignKeyConstraint(
-        ["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]
-    ),
+    sa.ForeignKeyConstraint(["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]),
+    sa.ForeignKeyConstraint(["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]),
 )
 
 validators = sa.Table(
@@ -261,12 +262,7 @@ validator_votes = sa.Table(
     "validator_votes",
     metadata,
     Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), primary_key=True),
-    Column(
-        "consensus_address",
-        sa.String,
-        sa.ForeignKey("validators.consensus_address"),
-        primary_key=True,
-    ),
+    Column("consensus_address", sa.String, sa.ForeignKey("validators.consensus_address"), primary_key=True),
     Column("voted", sa.Boolean),
 )
 
@@ -377,8 +373,20 @@ oracle_script_requests = sa.Table(
 )
 
 request_count_per_days = sa.Table(
-    "request_count_per_days",
+    "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
+)
+
+packets = sa.Table(
+    "packets",
     metadata,
-    Column("date", CustomDate, primary_key=True),
-    Column("count", sa.Integer),
+    Column("is_incoming", sa.Boolean),
+    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
+    Column("src_channel", sa.String),
+    Column("src_port", sa.String),
+    Column("sequence", sa.Integer),
+    Column("dst_channel", sa.String),
+    Column("dst_port", sa.String),
+    Column("type", sa.String),
+    Column("data", sa.JSON),
+    Column("acknowledgement", sa.JSON, nullable=True),
 )

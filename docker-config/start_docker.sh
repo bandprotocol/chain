@@ -6,6 +6,7 @@ DIR=`dirname "$0"`
 rm -rf ~/.band*
 
 make install
+make faucet
 
 # initial new node
 bandd init node-validator --chain-id bandchain
@@ -142,23 +143,23 @@ do
     docker start bandchain_oracle${v}
 done
 
-# # Create faucet container
-# rm -rf ~/.faucet
-# faucet config chain-id bandchain
-# faucet config node tcp://172.18.0.15:26657
-# faucet config port 5005
-# for i in $(eval echo {1..5})
-# do
-#     # add worker key
-#     faucet keys add worker$i
+# Create faucet container
+rm -rf ~/.faucet
+faucet config chain-id bandchain
+faucet config node tcp://172.18.0.15:26657
+faucet config port 5005
+for i in $(eval echo {1..5})
+do
+    # add worker key
+    faucet keys add worker$i
 
-#     # send band tokens to worker
-#     echo "y" | bandd tx send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test
+    # send band tokens to worker
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain
 
-#     # wait for addding reporter transaction success
-#     sleep 2
-# done
+    # wait for addding reporter transaction success
+    sleep 2
+done
 
-# docker create --network bandchain_bandchain --name bandchain_faucet --ip 172.18.0.17 band-validator:latest faucet r
-# docker cp ~/.faucet bandchain_faucet:/root/.faucet
-# docker start bandchain_faucet
+docker create --network chain_bandchain --name bandchain_faucet --ip 172.18.0.17 band-validator:latest faucet r
+docker cp ~/.faucet bandchain_faucet:/root/.faucet
+docker start bandchain_faucet

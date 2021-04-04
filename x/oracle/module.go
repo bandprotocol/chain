@@ -21,7 +21,6 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	gogotypes "github.com/gogo/protobuf/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/x/oracle/client/cli"
@@ -332,14 +331,14 @@ func (am AppModule) OnRecvPacket(
 	}
 
 	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-	id, err := am.keeper.PrepareRequest(ctx, &data, &source)
+	escrowAddress := types.GetEscrowAddress(data.RequestKey, source.SourcePort, source.SourceChannel)
+	id, err := am.keeper.PrepareRequest(ctx, &data, escrowAddress, &source)
 
-	// TODO: Acknowledgement specification for data request or use reponse packet as acknowledgement when request resolved?
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
-		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.

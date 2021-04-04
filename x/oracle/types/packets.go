@@ -7,7 +7,7 @@ import (
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64,
+	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string, prepareGas uint64, executeGas uint64,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -15,6 +15,10 @@ func NewOracleRequestPacketData(
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
+		FeeLimit:       feeLimit,
+		RequestKey:     requestKey,
+		PrepareGas:     prepareGas,
+		ExecuteGas:     executeGas,
 	}
 }
 
@@ -38,6 +42,12 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 // GetBytes is a helper for serialising
 func (p OracleRequestPacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
+}
+
+func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPacketAcknowledgement {
+	return &OracleRequestPacketAcknowledgement{
+		RequestID: requestID,
+	}
 }
 
 // NewOracleResponsePacketData contructs a new OracleResponsePacketData instance
