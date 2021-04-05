@@ -2,10 +2,10 @@ package oraclekeeper_test
 
 import (
 	"encoding/hex"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
