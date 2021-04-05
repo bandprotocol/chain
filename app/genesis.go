@@ -2,6 +2,8 @@ package band
 
 import (
 	"encoding/json"
+	"github.com/GeoDB-Limited/odin-core/x/coinswap"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -74,5 +76,6 @@ func NewDefaultGenesisState() GenesisState {
 		upgradetypes.ModuleName:    upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
 		evidencetypes.ModuleName:   evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:     oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		coinswaptypes.ModuleName:   coinswap.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }
