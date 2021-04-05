@@ -184,7 +184,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
-		return nil, status.Error(codes.InvalidArgument, "invalid reporter's signature")
+		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
 	}
 
 	// Provided reporter should be authorized by the provided validator
@@ -198,7 +198,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isReporterAuthorizedByValidator {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 
 	// Provided request should exist on chain
@@ -217,7 +217,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isValidatorAssigned {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
 	}
 
 	// Provided external ID should be required by the request determined by oracle script
