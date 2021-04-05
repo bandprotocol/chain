@@ -3,6 +3,7 @@ package request
 import (
 	"database/sql"
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -17,8 +18,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/GeoDB-Limited/odin-core/hooks/common"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // Hook inherits from Band app hook to save latest request into SQL database.
@@ -100,10 +101,10 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
 		switch event.Type {
-		case types.EventTypeResolve:
-			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
+		case oracletypes.EventTypeResolve:
+			reqID := oracletypes.RequestID(common.Atoi(evMap[oracletypes.EventTypeResolve+"."+oracletypes.AttributeKeyID][0]))
 			result := h.oracleKeeper.MustGetResult(ctx, reqID)
-			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
+			if result.ResolveStatus == oracletypes.RESOLVE_STATUS_SUCCESS {
 				h.insertRequest(
 					reqID, result.OracleScriptID, result.Calldata,
 					result.AskCount, result.MinCount, result.ResolveTime,
@@ -118,18 +119,26 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 // ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
 func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
 	paths := strings.Split(req.Path, "/")
-	if paths[0] == "band" {
+	if paths[0] == common.AppHook {
 		switch paths[1] {
-		case "latest_request":
-			if len(paths) != 7 {
-				return common.QueryResultError(fmt.Errorf("expect 7 arguments given %d", len(paths))), true
+		case oracletypes.QueryLatestRequest:
+			if len(paths) != 4 {
+				return common.QueryResultError(fmt.Errorf("expect 4 arguments given %d", len(paths))), true
 			}
-			oid := types.OracleScriptID(common.Atoi(paths[2]))
-			calldata := paths[3]
-			askCount := common.Atoui(paths[4])
-			minCount := common.Atoui(paths[5])
-			limit := common.Atoi(paths[6])
-			requestIDs := h.getMultiRequestID(oid, calldata, askCount, minCount, limit)
+
+			var requestSearchParams oracletypes.QueryRequestSearchParams
+			err := h.cdc.UnmarshalJSON(req.Data, &requestSearchParams)
+			if err != nil {
+				return abci.ResponseQuery{}, true
+			}
+
+			oid := oracletypes.OracleScriptID(common.Atoi(paths[2]))
+			if oid != requestSearchParams.OracleScriptID {
+				panic(sdkerrors.ErrInvalidRequest)
+			}
+			limit := common.Atoi(paths[3])
+
+			requestIDs := h.getMultiRequestID(requestSearchParams, limit)
 			bz, err := h.cdc.MarshalBinaryBare(requestIDs)
 			if err != nil {
 				return common.QueryResultError(err), true

@@ -16,38 +16,38 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case oracletypes.QueryParams:
-			return queryParameters(ctx, keeper, cdc)
+			return queryParameters(ctx, keeper, req, cdc)
 		case oracletypes.QueryCounts:
-			return queryCounts(ctx, keeper, cdc)
+			return queryCounts(ctx, keeper, req, cdc)
 		case oracletypes.QueryData:
-			return queryData(ctx, path[1:], keeper, cdc)
+			return queryData(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryDataSources:
-			return queryDataSourceByID(ctx, path[1:], keeper, cdc)
+			return queryDataSourceByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryOracleScripts:
-			return queryOracleScriptByID(ctx, path[1:], keeper, cdc)
+			return queryOracleScriptByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequests:
-			return queryRequestByID(ctx, path[1:], keeper, cdc)
+			return queryRequestByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryValidatorStatus:
-			return queryValidatorStatus(ctx, path[1:], keeper, cdc)
+			return queryValidatorStatus(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryReporters:
-			return queryReporters(ctx, path[1:], keeper, cdc)
+			return queryReporters(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryActiveValidators:
-			return queryActiveValidators(ctx, keeper, cdc)
+			return queryActiveValidators(ctx, keeper, req, cdc)
 		case oracletypes.QueryPendingRequests:
-			return queryPendingRequests(ctx, path[1:], keeper, cdc)
+			return queryPendingRequests(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryDataProvidersPool:
-			return queryDataProvidersPool(ctx, keeper, cdc)
+			return queryDataProvidersPool(ctx, keeper, req, cdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown oracle query endpoint")
 		}
 	}
 }
 
-func queryParameters(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryParameters(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	return commontypes.QueryOK(cdc, k.GetParams(ctx))
 }
 
-func queryCounts(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryCounts(ctx sdk.Context, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	return commontypes.QueryOK(cdc, oracletypes.QueryCountsResult{
 		DataSourceCount:   k.GetDataSourceCount(ctx),
 		OracleScriptCount: k.GetOracleScriptCount(ctx),
@@ -55,14 +55,14 @@ func queryCounts(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, err
 	})
 }
 
-func queryData(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryData(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "data hash not specified")
 	}
 	return k.fileCache.GetFile(path[0])
 }
 
-func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "data source not specified")
 	}
@@ -77,7 +77,7 @@ func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.Le
 	return commontypes.QueryOK(cdc, dataSource)
 }
 
-func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "oracle script not specified")
 	}
@@ -92,7 +92,7 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.
 	return commontypes.QueryOK(cdc, oracleScript)
 }
 
-func queryRequestByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryRequestByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
 	}
@@ -120,7 +120,7 @@ func queryRequestByID(ctx sdk.Context, path []string, k Keeper, cdc *codec.Legac
 	})
 }
 
-func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
 	}
@@ -131,7 +131,7 @@ func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, cdc *codec.L
 	return commontypes.QueryOK(cdc, k.GetValidatorStatus(ctx, validatorAddress))
 }
 
-func queryReporters(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryReporters(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
 	}
@@ -142,7 +142,7 @@ func queryReporters(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyA
 	return commontypes.QueryOK(cdc, k.GetReporters(ctx, validatorAddress))
 }
 
-func queryActiveValidators(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryActiveValidators(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	var vals []oracletypes.QueryActiveValidatorResult
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
@@ -157,7 +157,7 @@ func queryActiveValidators(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([
 	return commontypes.QueryOK(cdc, vals)
 }
 
-func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) > 1 {
 		return commontypes.QueryBadRequest(cdc, "too many arguments")
 	}
@@ -231,6 +231,6 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, cdc *codec.L
 	return commontypes.QueryOK(cdc, pendingIDs)
 }
 
-func queryDataProvidersPool(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryDataProvidersPool(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	return commontypes.QueryOK(cdc, k.GetOraclePool(ctx).DataProvidersPool)
 }

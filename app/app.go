@@ -97,7 +97,6 @@ import (
 
 const (
 	appName          = "OdinApp"
-	Name             = "Odin"
 	Bech32MainPrefix = "odin"
 	Bip44CoinType    = 494
 )
@@ -280,6 +279,7 @@ func NewBandApp(
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
+
 	app.MintKeeper = odinmintkeeper.NewKeeper(appCodec, keys[odinminttypes.StoreKey], app.GetSubspace(odinminttypes.ModuleName), &stakingKeeper,
 		app.AccountKeeper, app.BankKeeper, authtypes.FeeCollectorName)
 
@@ -382,8 +382,8 @@ func NewBandApp(
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
-		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, odinminttypes.ModuleName, oracletypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
-		slashingtypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
+		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, odinminttypes.ModuleName, oracletypes.ModuleName,
+		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
 		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, coinswaptypes.ModuleName,
 	)
 	app.mm.RegisterInvariants(&app.CrisisKeeper)

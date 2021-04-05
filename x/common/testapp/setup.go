@@ -3,6 +3,8 @@ package testapp
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/libs/cli"
 	"io/ioutil"
 	"math/rand"
 	"path/filepath"
@@ -149,6 +151,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	if err != nil {
 		panic(err)
 	}
+	viper.Set(cli.HomeFlag, dir)
+
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := bandapp.NewBandApp(logger, db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0)
@@ -186,7 +190,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
 			ConsensusPubkey:   pkAny,
 			Jailed:            false,
-			Status:            stakingtypes.Bonded,
+			Status:            stakingtypes.Unbonded,
 			Tokens:            bamt[idx],
 			DelegatorShares:   sdk.OneDec(),
 			Description:       stakingtypes.Description{},
@@ -242,6 +246,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
+
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
 
