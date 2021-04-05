@@ -167,7 +167,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 
 	// Provided chain ID should match current chain ID
 	if ctx.ChainID() != req.ChainId {
-		return nil, status.Error(codes.Internal, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+		return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
 	}
 
 	// Provided validator's address should be valid
