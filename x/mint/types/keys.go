@@ -4,11 +4,6 @@ const (
 	// ModuleName
 	ModuleName = "mint"
 
-	WrappedModuleName = "odin" + ModuleName
-
-	// DefaultParamspace params keeper
-	DefaultParamspace = ModuleName
-
 	// StoreKey is the default store key for mint
 	StoreKey = ModuleName
 

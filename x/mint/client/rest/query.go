@@ -11,27 +11,27 @@ import (
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		"/minting/parameters",
+		fmt.Sprintf("%s/params", types.ModuleName),
 		queryParamsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		"/minting/inflation",
+		fmt.Sprintf("%s/inflation", types.ModuleName),
 		queryInflationHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		"/minting/annual_provisions",
+		fmt.Sprintf("%s/annual_provisions", types.ModuleName),
 		queryAnnualProvisionsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		"/minting/eth_integration_address",
+		fmt.Sprintf("%s/eth_integration_address", types.ModuleName),
 		queryEthIntegrationAddressHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		"/minting/treasury_pool",
+		fmt.Sprintf("%s/treasury_pool", types.ModuleName),
 		queryTreasuryPoolHandlerFn(clientCtx),
 	).Methods("GET")
 }

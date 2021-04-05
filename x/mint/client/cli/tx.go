@@ -30,7 +30,7 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-// GetCmdWithdrawCoinsToAccFromTreasury implements minting transaction command.
+// NewCmdWithdrawCoinsToAccFromTreasury implements minting transaction command.
 func NewCmdWithdrawCoinsToAccFromTreasury() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "withdraw-coins (--receiver [receiver]) (--amount [amount])",

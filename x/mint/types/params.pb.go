@@ -41,9 +41,9 @@ type Params struct {
 	BlocksPerYear uint64 `protobuf:"varint,6,opt,name=blocks_per_year,json=blocksPerYear,proto3" json:"blocks_per_year,omitempty" yaml:"blocks_per_year"`
 	//
 	MaxWithdrawalPerTime []github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,7,rep,name=max_withdrawal_per_time,json=maxWithdrawalPerTime,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"max_withdrawal_per_time" yaml:"max_withdrawal_per_time"`
-	//
+	// the address of the smart contract
 	EthIntegrationAddress string `protobuf:"bytes,8,opt,name=eth_integration_address,json=ethIntegrationAddress,proto3" json:"eth_integration_address,omitempty" yaml:"eth_integration_address"`
-	//
+	// flag if minting from air
 	MintAir bool `protobuf:"varint,9,opt,name=mint_air,json=mintAir,proto3" json:"mint_air,omitempty" yaml:"mint_air"`
 }
 

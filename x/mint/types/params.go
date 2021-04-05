@@ -28,7 +28,12 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 func NewParams(
-	mintDenom string, inflationRateChange, inflationMax, inflationMin, goalBonded sdk.Dec, MaxWithdrawalPerTime sdk.Coins, blocksPerYear uint64, mintAir bool, ethIntegrationAddress string,
+	mintDenom string,
+	inflationRateChange, inflationMax, inflationMin, goalBonded sdk.Dec,
+	MaxWithdrawalPerTime sdk.Coins,
+	blocksPerYear uint64,
+	mintAir bool,
+	ethIntegrationAddress string,
 ) Params {
 
 	return Params{

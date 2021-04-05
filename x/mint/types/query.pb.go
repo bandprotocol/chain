@@ -31,6 +31,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// QueryParamsRequest is request type for the Query/QueryParams RPC
+// method.
 type QueryParamsRequest struct {
 }
 
@@ -67,6 +69,8 @@ func (m *QueryParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
+// QueryParamsResponse is response type for the Query/QueryParams RPC
+// method.
 type QueryParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -111,6 +115,8 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryInflationRequest is request type for the Query/QueryInflation RPC
+// method.
 type QueryInflationRequest struct {
 }
 
@@ -147,6 +153,8 @@ func (m *QueryInflationRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInflationRequest proto.InternalMessageInfo
 
+// QueryInflationResponse is response type for the Query/QueryInflation RPC
+// method.
 type QueryInflationResponse struct {
 	Inflation github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=inflation,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"inflation"`
 }
@@ -184,6 +192,8 @@ func (m *QueryInflationResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInflationResponse proto.InternalMessageInfo
 
+// QueryAnnualProvisionsRequest is request type for the Query/QueryAnnualProvisions RPC
+// method.
 type QueryAnnualProvisionsRequest struct {
 }
 
@@ -220,6 +230,8 @@ func (m *QueryAnnualProvisionsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAnnualProvisionsRequest proto.InternalMessageInfo
 
+// QueryAnnualProvisionsResponse is response type for the Query/QueryAnnualProvisions RPC
+// method.
 type QueryAnnualProvisionsResponse struct {
 	AnnualProvisions github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=annual_provisions,json=annualProvisions,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"annual_provisions"`
 }
@@ -257,6 +269,8 @@ func (m *QueryAnnualProvisionsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAnnualProvisionsResponse proto.InternalMessageInfo
 
+// QueryEthIntegrationAddressRequest is request type for the Query/QueryEthIntegrationAddress RPC
+// method.
 type QueryEthIntegrationAddressRequest struct {
 }
 
@@ -293,6 +307,8 @@ func (m *QueryEthIntegrationAddressRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryEthIntegrationAddressRequest proto.InternalMessageInfo
 
+// QueryEthIntegrationAddressResponse is response type for the Query/QueryEthIntegrationAddress RPC
+// method.
 type QueryEthIntegrationAddressResponse struct {
 	EthIntegrationAddress string `protobuf:"bytes,1,opt,name=eth_integration_address,json=ethIntegrationAddress,proto3" json:"eth_integration_address,omitempty"`
 }
@@ -337,6 +353,8 @@ func (m *QueryEthIntegrationAddressResponse) GetEthIntegrationAddress() string {
 	return ""
 }
 
+// QueryTreasuryPoolRequest is request type for the Query/QueryTreasuryPool RPC
+// method.
 type QueryTreasuryPoolRequest struct {
 }
 
@@ -373,6 +391,8 @@ func (m *QueryTreasuryPoolRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryTreasuryPoolRequest proto.InternalMessageInfo
 
+// QueryTreasuryPoolResponse is response type for the Query/QueryTreasuryPool RPC
+// method.
 type QueryTreasuryPoolResponse struct {
 	TreasuryPool github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=treasury_pool,json=treasuryPool,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"treasury_pool"`
 }
@@ -490,9 +510,13 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Params returns the total set of minting parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Inflation returns current inflation.
 	Inflation(ctx context.Context, in *QueryInflationRequest, opts ...grpc.CallOption) (*QueryInflationResponse, error)
+	// Inflation returns current annual provisions.
 	AnnualProvisions(ctx context.Context, in *QueryAnnualProvisionsRequest, opts ...grpc.CallOption) (*QueryAnnualProvisionsResponse, error)
+	// Inflation returns ethereum integration address.
 	EthIntegrationAddress(ctx context.Context, in *QueryEthIntegrationAddressRequest, opts ...grpc.CallOption) (*QueryEthIntegrationAddressResponse, error)
+	// Inflation returns current treasury pool.
 	TreasuryPool(ctx context.Context, in *QueryTreasuryPoolRequest, opts ...grpc.CallOption) (*QueryTreasuryPoolResponse, error)
 }
 
@@ -553,9 +577,13 @@ func (c *queryClient) TreasuryPool(ctx context.Context, in *QueryTreasuryPoolReq
 type QueryServer interface {
 	// Params returns the total set of minting parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Inflation returns current inflation.
 	Inflation(context.Context, *QueryInflationRequest) (*QueryInflationResponse, error)
+	// Inflation returns current annual provisions.
 	AnnualProvisions(context.Context, *QueryAnnualProvisionsRequest) (*QueryAnnualProvisionsResponse, error)
+	// Inflation returns ethereum integration address.
 	EthIntegrationAddress(context.Context, *QueryEthIntegrationAddressRequest) (*QueryEthIntegrationAddressResponse, error)
+	// Inflation returns current treasury pool.
 	TreasuryPool(context.Context, *QueryTreasuryPoolRequest) (*QueryTreasuryPoolResponse, error)
 }
 

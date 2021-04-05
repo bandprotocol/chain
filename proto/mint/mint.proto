@@ -12,13 +12,13 @@ message MintPool {
   option (gogoproto.equal) = true;
   option (gogoproto.goproto_stringer) = true;
 
-  //
+  // treasury pool
   repeated cosmos.base.v1beta1.Coin treasury_pool = 1 [
     (gogoproto.moretags) = "yaml:\"treasury_pool\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
-  //
+  // eligible to withdraw accounts
   repeated string eligible_accounts_pool = 2 [(gogoproto.moretags) = "yaml:\"eligible_accounts_pool\""];
 }
 

@@ -55,7 +55,7 @@ func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) 
 // DefaultGenesis returns default genesis state as raw bytes for the mint
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
-	return cdc.MustMarshalJSON(mintkeeper.DefaultGenesisState())
+	return cdc.MustMarshalJSON(minttypes.DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the mint module.
@@ -65,7 +65,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", minttypes.ModuleName, err)
 	}
 
-	return mintkeeper.ValidateGenesis(data)
+	return minttypes.ValidateGenesis(data)
 }
 
 // RegisterRESTRoutes registers the REST routes for the mint module.

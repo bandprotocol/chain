@@ -32,10 +32,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint module.
 type MsgWithdrawCoinsToAccFromTreasury struct {
-	Amount   github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
-	Receiver string                                   `protobuf:"bytes,2,opt,name=receiver,proto3" json:"receiver,omitempty"`
-	Sender   string                                   `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Amount is the amoutn of coins to withdraw
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	// Receiver is for whom withdraw coins
+	Receiver string `protobuf:"bytes,2,opt,name=receiver,proto3" json:"receiver,omitempty"`
+	// Sender is the message signer who submits this report transaction
+	Sender string `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
 func (m *MsgWithdrawCoinsToAccFromTreasury) Reset()         { *m = MsgWithdrawCoinsToAccFromTreasury{} }
@@ -92,6 +96,7 @@ func (m *MsgWithdrawCoinsToAccFromTreasury) GetSender() string {
 	return ""
 }
 
+// MsgWithdrawCoinsToAccFromTreasuryResponse
 type MsgWithdrawCoinsToAccFromTreasuryResponse struct {
 }
 
@@ -215,6 +220,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
 	WithdrawCoinsToAccFromTreasury(ctx context.Context, in *MsgWithdrawCoinsToAccFromTreasury, opts ...grpc.CallOption) (*MsgWithdrawCoinsToAccFromTreasuryResponse, error)
 }
 
@@ -237,6 +243,7 @@ func (c *msgClient) WithdrawCoinsToAccFromTreasury(ctx context.Context, in *MsgW
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
 	WithdrawCoinsToAccFromTreasury(context.Context, *MsgWithdrawCoinsToAccFromTreasury) (*MsgWithdrawCoinsToAccFromTreasuryResponse, error)
 }
 

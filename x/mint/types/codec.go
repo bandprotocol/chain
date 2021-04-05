@@ -14,7 +14,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgWithdrawCoinsToAccFromTreasury{}, "mint/WithdrawCoinsToAccFromTreasury", nil)
 }
 
-// RegisterInterfaces register the oracle module interfaces to protobuf Any.
+// RegisterInterfaces register the mint module interfaces to protobuf Any.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgWithdrawCoinsToAccFromTreasury{},

@@ -45,8 +45,8 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
-  //
+  // the address of the smart contract
   string eth_integration_address = 8 [(gogoproto.moretags) = "yaml:\"eth_integration_address\""];
-  //
+  // flag if minting from air
   bool mint_air = 9 [(gogoproto.moretags) = "yaml:\"mint_air\""];
 }

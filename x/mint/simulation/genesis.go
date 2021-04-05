@@ -1,15 +1,15 @@
 package simulation
 
-// DONTCOVER
-
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	"math/rand"
 
+	"github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
 // Simulation parameter constants
@@ -82,9 +82,28 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	mintDenom := sdk.DefaultBondDenom
 	blocksPerYear := uint64(60 * 60 * 8766 / 5)
-	params := types.NewParams(mintDenom, inflationRateChange, inflationMax, inflationMin, goalBonded, blocksPerYear)
+	MaxWithdrawalPerTime := sdk.Coins{}
+	mintAir := false
 
-	mintGenesis := types.NewGenesisState(types.InitialMinter(inflation), params)
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		panic(err)
+	}
+	privateKeyBytes := crypto.FromECDSA(privateKey)
+	ethIntegrationAddress := hexutil.Encode(privateKeyBytes)
+
+	params := types.NewParams(
+		mintDenom,
+		inflationRateChange,
+		inflationMax,
+		inflationMin,
+		goalBonded,
+		MaxWithdrawalPerTime,
+		blocksPerYear,
+		mintAir,
+		ethIntegrationAddress,
+	)
+	mintGenesis := types.NewGenesisState(types.InitialMinter(inflation), params, types.InitialMintPool())
 
 	bz, err := json.MarshalIndent(&mintGenesis, "", " ")
 	if err != nil {

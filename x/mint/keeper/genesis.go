@@ -6,15 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewGenesisState creates a new GenesisState object
-func NewGenesisState(minter types.Minter, params types.Params, mintPool types.MintPool) *types.GenesisState {
-	return &types.GenesisState{
-		Minter:   minter,
-		Params:   params,
-		MintPool: mintPool,
-	}
-}
-
 // InitGenesis new mint genesis
 func InitGenesis(ctx sdk.Context, keeper Keeper, data *types.GenesisState) {
 	keeper.SetMinter(ctx, data.Minter)
@@ -37,29 +28,10 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data *types.GenesisState) {
 	keeper.SetMintPool(ctx, data.MintPool)
 }
 
-// DefaultGenesisState creates a default GenesisState object
-func DefaultGenesisState() *types.GenesisState {
-	return &types.GenesisState{
-		Minter:   types.DefaultInitialMinter(),
-		Params:   types.DefaultParams(),
-		MintPool: types.InitialMintPool(),
-	}
-}
-
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper Keeper) *types.GenesisState {
 	minter := keeper.GetMinter(ctx)
 	params := keeper.GetParams(ctx)
 	mintPool := keeper.GetMintPool(ctx)
-	return NewGenesisState(minter, params, mintPool)
-}
-
-// ValidateGenesis validates the provided genesis state to ensure the
-// expected invariants holds.
-func ValidateGenesis(data types.GenesisState) error {
-	if err := data.Params.Validate(); err != nil {
-		return err
-	}
-
-	return types.ValidateMinter(data.Minter)
+	return types.NewGenesisState(minter, params, mintPool)
 }
