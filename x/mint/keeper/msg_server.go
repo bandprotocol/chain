@@ -25,8 +25,7 @@ func (k msgServer) WithdrawCoinsToAccFromTreasury(
 ) (*minttypes.MsgWithdrawCoinsToAccFromTreasuryResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	mintPool := k.GetMintPool(ctx)
-	if !mintPool.IsEligibleAccount(msg.Sender) {
+	if !k.IsEligibleAccount(ctx, msg.Sender) {
 		return nil, sdkerrors.Wrapf(minttypes.ErrAccountIsNotEligible, "account: %s", msg.Sender)
 	}
 
@@ -39,26 +38,16 @@ func (k msgServer) WithdrawCoinsToAccFromTreasury(
 		return nil, sdkerrors.Wrapf(err, "failed to parse receiver address %s", msg.Receiver)
 	}
 
-	if msg.Amount.IsAllGT(mintPool.TreasuryPool) {
-		return nil, sdkerrors.Wrapf(
-			minttypes.ErrWithdrawalAmountExceedsModuleBalance,
-			"withdrawal amount: %s exceeds %s module balance",
-			msg.Amount.String(),
-			minttypes.ModuleName,
-		)
+	if err := k.WithdrawCoinsFromTreasury(ctx, receiver, msg.Amount); err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to mint %s coins to account %s", msg.Amount, msg.Receiver)
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, receiver, msg.Amount); err != nil {
-		return nil, sdkerrors.Wrapf(
-			err,
-			"failed to withdraw %s from %s module account",
-			msg.Amount.String(),
-			minttypes.ModuleName,
-		)
-	}
-
-	mintPool.TreasuryPool = mintPool.TreasuryPool.Sub(msg.Amount)
-	k.SetMintPool(ctx, mintPool)
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		minttypes.EventTypeWithdrawal,
+		sdk.NewAttribute(minttypes.AttributeKeyWithdrawalAmount, msg.Amount.String()),
+		sdk.NewAttribute(minttypes.AttributeKeyReceiver, msg.Receiver),
+		sdk.NewAttribute(minttypes.AttributeKeySender, msg.Sender),
+	))
 
 	return &minttypes.MsgWithdrawCoinsToAccFromTreasuryResponse{}, nil
 }

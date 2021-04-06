@@ -18,8 +18,6 @@ message MintPool {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
-  // eligible to withdraw accounts
-  repeated string eligible_accounts_pool = 2 [(gogoproto.moretags) = "yaml:\"eligible_accounts_pool\""];
 }
 
 // Minter represents the minting state.

@@ -8,8 +8,7 @@ import (
 // InitialMintPool returns the initial state of MintPool
 func InitialMintPool() MintPool {
 	return MintPool{
-		TreasuryPool:         sdk.Coins{},
-		EligibleAccountsPool: []string{},
+		TreasuryPool: sdk.Coins{},
 	}
 }
 
@@ -20,14 +19,4 @@ func (m MintPool) ValidateGenesis() error {
 	}
 
 	return nil
-}
-
-// IsEligibleAccount checks if addr exists in the slice
-func (m MintPool) IsEligibleAccount(addr string) bool {
-	for _, item := range m.EligibleAccountsPool {
-		if item == addr {
-			return true
-		}
-	}
-	return false
 }
