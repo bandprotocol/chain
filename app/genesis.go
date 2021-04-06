@@ -6,6 +6,7 @@ import (
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"time"
 
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -21,7 +22,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
