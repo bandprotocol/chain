@@ -9,16 +9,13 @@ RUN cp wabt-1.0.17/bin/wat2wasm /usr/local/bin
 
 RUN make install && make faucet
 
-FROM debian:latest
-
 RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
 
 RUN apt-get update && apt-get install -y wget
 
-COPY build/libgo_owasm.so /lib/libgo_owasm.so
-COPY --from=builder /go/bin/bandd /usr/local/bin/bandd
-COPY --from=builder /go/bin/yoda /usr/local/bin/yoda
-COPY --from=builder /go/bin/faucet /usr/local/bin/faucet
+COPY /go/bin/bandd /usr/local/bin/bandd
+COPY  /go/bin/yoda /usr/local/bin/yoda
+COPY  /go/bin/faucet /usr/local/bin/faucet
 
 COPY ./docker-config/validator1/ validator1/
 COPY ./docker-config/validator2/ validator2/
