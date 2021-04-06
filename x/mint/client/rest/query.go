@@ -2,7 +2,7 @@ package rest
 
 import (
 	"fmt"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
@@ -11,34 +11,34 @@ import (
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("%s/params", types.ModuleName),
+		fmt.Sprintf("%s/params", minttypes.ModuleName),
 		queryParamsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/inflation", types.ModuleName),
+		fmt.Sprintf("%s/inflation", minttypes.ModuleName),
 		queryInflationHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/annual_provisions", types.ModuleName),
+		fmt.Sprintf("%s/annual_provisions", minttypes.ModuleName),
 		queryAnnualProvisionsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/eth_integration_address", types.ModuleName),
+		fmt.Sprintf("%s/eth_integration_address", minttypes.ModuleName),
 		queryEthIntegrationAddressHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/treasury_pool", types.ModuleName),
+		fmt.Sprintf("%s/treasury_pool", minttypes.ModuleName),
 		queryTreasuryPoolHandlerFn(clientCtx),
 	).Methods("GET")
 }
 
 func queryParamsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryParameters)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryParameters)
 
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
@@ -57,7 +57,7 @@ func queryParamsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 
 func queryInflationHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryInflation)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryInflation)
 
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
@@ -76,7 +76,7 @@ func queryInflationHandlerFn(clientCtx client.Context) http.HandlerFunc {
 
 func queryAnnualProvisionsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryAnnualProvisions)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryAnnualProvisions)
 
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
@@ -95,7 +95,7 @@ func queryAnnualProvisionsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 
 func queryEthIntegrationAddressHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryEthIntegrationAddress)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryEthIntegrationAddress)
 
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
@@ -115,7 +115,7 @@ func queryEthIntegrationAddressHandlerFn(clientCtx client.Context) http.HandlerF
 
 func queryTreasuryPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryTreasuryPool)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryTreasuryPool)
 
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {

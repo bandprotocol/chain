@@ -8,8 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	keep "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	mintkeeper "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -18,23 +18,23 @@ import (
 func TestNewQuerier(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := mintkeeper.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	query := abci.RequestQuery{
 		Path: "",
 		Data: []byte{},
 	}
 
-	_, err := querier(ctx, []string{types.QueryParameters}, query)
+	_, err := querier(ctx, []string{minttypes.QueryParameters}, query)
 	require.NoError(t, err)
 
-	_, err = querier(ctx, []string{types.QueryInflation}, query)
+	_, err = querier(ctx, []string{minttypes.QueryInflation}, query)
 	require.NoError(t, err)
 
-	_, err = querier(ctx, []string{types.QueryAnnualProvisions}, query)
+	_, err = querier(ctx, []string{minttypes.QueryAnnualProvisions}, query)
 	require.NoError(t, err)
 
-	_, err = querier(ctx, []string{types.QueryEthIntegrationAddress}, query)
+	_, err = querier(ctx, []string{minttypes.QueryEthIntegrationAddress}, query)
 	require.NoError(t, err)
 
 	_, err = querier(ctx, []string{"foo"}, query)
@@ -44,11 +44,11 @@ func TestNewQuerier(t *testing.T) {
 func TestQueryParams(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := mintkeeper.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
-	var params types.Params
+	var params minttypes.Params
 
-	res, sdkErr := querier(ctx, []string{types.QueryParameters}, abci.RequestQuery{})
+	res, sdkErr := querier(ctx, []string{minttypes.QueryParameters}, abci.RequestQuery{})
 	require.NoError(t, sdkErr)
 
 	err := app.LegacyAmino().UnmarshalJSON(res, &params)
@@ -60,11 +60,11 @@ func TestQueryParams(t *testing.T) {
 func TestQueryInflation(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := mintkeeper.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var inflation sdk.Dec
 
-	res, sdkErr := querier(ctx, []string{types.QueryInflation}, abci.RequestQuery{})
+	res, sdkErr := querier(ctx, []string{minttypes.QueryInflation}, abci.RequestQuery{})
 	require.NoError(t, sdkErr)
 
 	err := app.LegacyAmino().UnmarshalJSON(res, &inflation)
@@ -76,11 +76,11 @@ func TestQueryInflation(t *testing.T) {
 func TestQueryAnnualProvisions(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := mintkeeper.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var annualProvisions sdk.Dec
 
-	res, sdkErr := querier(ctx, []string{types.QueryAnnualProvisions}, abci.RequestQuery{})
+	res, sdkErr := querier(ctx, []string{minttypes.QueryAnnualProvisions}, abci.RequestQuery{})
 	require.NoError(t, sdkErr)
 
 	err := app.LegacyAmino().UnmarshalJSON(res, &annualProvisions)
@@ -92,11 +92,11 @@ func TestQueryAnnualProvisions(t *testing.T) {
 func TestQueryEthIntegrationAddress(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(true)
 	legacyQuerierCdc := codec.NewAminoCodec(app.LegacyAmino())
-	querier := keep.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
+	querier := mintkeeper.NewQuerier(app.MintKeeper, legacyQuerierCdc.LegacyAmino)
 
 	var integrationAddress string
 
-	res, sdkErr := querier(ctx, []string{types.QueryEthIntegrationAddress}, abci.RequestQuery{})
+	res, sdkErr := querier(ctx, []string{minttypes.QueryEthIntegrationAddress}, abci.RequestQuery{})
 	require.NoError(t, sdkErr)
 
 	err := app.LegacyAmino().UnmarshalJSON(res, &integrationAddress)

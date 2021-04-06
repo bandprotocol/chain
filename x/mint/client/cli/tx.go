@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -18,7 +18,7 @@ const (
 // NewTxCmd returns a root CLI command handler for all x/mint transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        minttypes.ModuleName,
 		Short:                      "Mint transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
@@ -33,35 +33,28 @@ func NewTxCmd() *cobra.Command {
 // NewCmdWithdrawCoinsToAccFromTreasury implements minting transaction command.
 func NewCmdWithdrawCoinsToAccFromTreasury() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraw-coins (--receiver [receiver]) (--amount [amount])",
+		Use:   "withdraw-coins [receiver] [amount]",
+		Args:  cobra.ExactArgs(2),
 		Short: "Withdraw some coins for account",
-		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-			receiverStr, err := cmd.Flags().GetString(flagReceiver)
+
+			receiver, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
-				return sdkerrors.Wrapf(err, "flag: %s", flagReceiver)
-			}
-			receiver, err := sdk.AccAddressFromBech32(receiverStr)
-			if err != nil {
-				return sdkerrors.Wrapf(err, "receiver: %s", receiverStr)
+				return sdkerrors.Wrapf(err, "receiver: %s", args[0])
 			}
 
-			amountStr, err := cmd.Flags().GetString(flagAmount)
+			amount, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
-				return sdkerrors.Wrapf(err, "flag: %s", flagAmount)
-			}
-			amount, err := sdk.ParseCoinsNormalized(amountStr)
-			if err != nil {
-				return sdkerrors.Wrapf(err, "amount: %s", amountStr)
+				return sdkerrors.Wrapf(err, "amount: %s", args[1])
 			}
 
-			msg := types.NewMsgWithdrawCoinsToAccFromTreasury(amount, receiver, clientCtx.GetFromAddress())
+			msg := minttypes.NewMsgWithdrawCoinsToAccFromTreasury(amount, receiver, clientCtx.GetFromAddress())
 			if err := msg.ValidateBasic(); err != nil {
-				return sdkerrors.Wrapf(err, "amount: %s receiver: %s", amount, receiverStr)
+				return sdkerrors.Wrapf(err, "amount: %s receiver: %s", amount, receiver)
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)

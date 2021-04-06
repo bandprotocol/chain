@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
@@ -12,7 +12,7 @@ import (
 // GetQueryCmd returns the cli query commands for the minting module.
 func GetQueryCmd() *cobra.Command {
 	mintingQueryCmd := &cobra.Command{
-		Use:                        types.ModuleName,
+		Use:                        minttypes.ModuleName,
 		Short:                      "Querying commands for the minting module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
@@ -43,9 +43,9 @@ func GetCmdQueryParams() *cobra.Command {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
+			queryClient := minttypes.NewQueryClient(clientCtx)
 
-			params := &types.QueryParamsRequest{}
+			params := &minttypes.QueryParamsRequest{}
 			res, err := queryClient.Params(context.Background(), params)
 			if err != nil {
 				return err
@@ -73,9 +73,9 @@ func GetCmdQueryInflation() *cobra.Command {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
+			queryClient := minttypes.NewQueryClient(clientCtx)
 
-			params := &types.QueryInflationRequest{}
+			params := &minttypes.QueryInflationRequest{}
 			res, err := queryClient.Inflation(context.Background(), params)
 			if err != nil {
 				return err
@@ -103,9 +103,9 @@ func GetCmdQueryAnnualProvisions() *cobra.Command {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
+			queryClient := minttypes.NewQueryClient(clientCtx)
 
-			params := &types.QueryAnnualProvisionsRequest{}
+			params := &minttypes.QueryAnnualProvisionsRequest{}
 			res, err := queryClient.AnnualProvisions(context.Background(), params)
 			if err != nil {
 				return err
@@ -132,9 +132,9 @@ func GetCmdQueryEthIntegrationAddress() *cobra.Command {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
+			queryClient := minttypes.NewQueryClient(clientCtx)
 
-			params := &types.QueryEthIntegrationAddressRequest{}
+			params := &minttypes.QueryEthIntegrationAddressRequest{}
 			res, err := queryClient.EthIntegrationAddress(context.Background(), params)
 			if err != nil {
 				return err
@@ -161,9 +161,9 @@ func GetCmdQueryTreasuryPool() *cobra.Command {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
+			queryClient := minttypes.NewQueryClient(clientCtx)
 
-			params := &types.QueryTreasuryPoolRequest{}
+			params := &minttypes.QueryTreasuryPoolRequest{}
 			res, err := queryClient.TreasuryPool(context.Background(), params)
 			if err != nil {
 				return err

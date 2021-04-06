@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"math/rand"
 
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 )
@@ -92,7 +92,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 	privateKeyBytes := crypto.FromECDSA(privateKey)
 	ethIntegrationAddress := hexutil.Encode(privateKeyBytes)
 
-	params := types.NewParams(
+	params := minttypes.NewParams(
 		mintDenom,
 		inflationRateChange,
 		inflationMax,
@@ -103,12 +103,12 @@ func RandomizedGenState(simState *module.SimulationState) {
 		mintAir,
 		ethIntegrationAddress,
 	)
-	mintGenesis := types.NewGenesisState(types.InitialMinter(inflation), params, types.InitialMintPool())
+	mintGenesis := minttypes.NewGenesisState(minttypes.InitialMinter(inflation), params, minttypes.InitialMintPool())
 
 	bz, err := json.MarshalIndent(&mintGenesis, "", " ")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Selected randomly generated minting parameters:\n%s\n", bz)
-	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(mintGenesis)
+	simState.GenState[minttypes.ModuleName] = simState.Cdc.MustMarshalJSON(mintGenesis)
 }

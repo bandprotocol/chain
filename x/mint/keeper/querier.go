@@ -2,7 +2,7 @@ package keeper
 
 import (
 	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -13,19 +13,19 @@ import (
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryParameters:
+		case minttypes.QueryParameters:
 			return queryParams(ctx, k, legacyQuerierCdc)
 
-		case types.QueryInflation:
+		case minttypes.QueryInflation:
 			return queryInflation(ctx, k, legacyQuerierCdc)
 
-		case types.QueryAnnualProvisions:
+		case minttypes.QueryAnnualProvisions:
 			return queryAnnualProvisions(ctx, k, legacyQuerierCdc)
 
-		case types.QueryEthIntegrationAddress:
+		case minttypes.QueryEthIntegrationAddress:
 			return queryEthIntegrationAddress(ctx, k, legacyQuerierCdc)
 
-		case types.QueryTreasuryPool:
+		case minttypes.QueryTreasuryPool:
 			return queryTreasuryPool(ctx, k, legacyQuerierCdc)
 
 		default:

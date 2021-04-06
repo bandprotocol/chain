@@ -2,18 +2,18 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis new mint genesis
-func InitGenesis(ctx sdk.Context, keeper Keeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper Keeper, data *minttypes.GenesisState) {
 	keeper.SetMinter(ctx, data.Minter)
 	keeper.SetParams(ctx, data.Params)
 
 	moduleAcc := keeper.GetMintAccount(ctx)
 	if moduleAcc == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+		panic(fmt.Sprintf("%s module account has not been set", minttypes.ModuleName))
 	}
 
 	balances := keeper.bankKeeper.GetAllBalances(ctx, moduleAcc.GetAddress())
@@ -29,9 +29,9 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data *types.GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper Keeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper Keeper) *minttypes.GenesisState {
 	minter := keeper.GetMinter(ctx)
 	params := keeper.GetParams(ctx)
 	mintPool := keeper.GetMintPool(ctx)
-	return types.NewGenesisState(minter, params, mintPool)
+	return minttypes.NewGenesisState(minter, params, mintPool)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/GeoDB-Limited/odin-core/x/mint/simulation"
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,8 +37,8 @@ func TestRandomizedGenState(t *testing.T) {
 
 	simulation.RandomizedGenState(&simState)
 
-	var mintGenesis types.GenesisState
-	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &mintGenesis)
+	var mintGenesis minttypes.GenesisState
+	simState.Cdc.MustUnmarshalJSON(simState.GenState[minttypes.ModuleName], &mintGenesis)
 
 	dec1, _ := sdk.NewDecFromStr("0.670000000000000000")
 	dec2, _ := sdk.NewDecFromStr("0.200000000000000000")

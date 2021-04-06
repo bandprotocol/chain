@@ -1,14 +1,12 @@
 package simulation
 
-// DONTCOVER
-
 import (
 	"fmt"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
@@ -23,22 +21,22 @@ const (
 // on the simulation
 func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
-		simulation.NewSimParamChange(types.ModuleName, keyInflationRateChange,
+		simulation.NewSimParamChange(minttypes.ModuleName, keyInflationRateChange,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenInflationRateChange(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, keyInflationMax,
+		simulation.NewSimParamChange(minttypes.ModuleName, keyInflationMax,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenInflationMax(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, keyInflationMin,
+		simulation.NewSimParamChange(minttypes.ModuleName, keyInflationMin,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenInflationMin(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, keyGoalBonded,
+		simulation.NewSimParamChange(minttypes.ModuleName, keyGoalBonded,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenGoalBonded(r))
 			},

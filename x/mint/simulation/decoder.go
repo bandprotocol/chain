@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/GeoDB-Limited/odin-core/x/mint/types"
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 )
@@ -14,8 +14,8 @@ import (
 func NewDecodeStore(cdc codec.Marshaler) func(kvA, kvB kv.Pair) string {
 	return func(kvA, kvB kv.Pair) string {
 		switch {
-		case bytes.Equal(kvA.Key, types.MinterKey):
-			var minterA, minterB types.Minter
+		case bytes.Equal(kvA.Key, minttypes.MinterKey):
+			var minterA, minterB minttypes.Minter
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &minterA)
 			cdc.MustUnmarshalBinaryBare(kvB.Value, &minterB)
 			return fmt.Sprintf("%v\n%v", minterA, minterB)
