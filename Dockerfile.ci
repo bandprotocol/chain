@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificat
 
 RUN apt-get update && apt-get install -y wget
 
+COPY build/libgo_owasm.so /lib/libgo_owasm.so
 COPY --from=builder /go/bin/bandd /usr/local/bin/bandd
 COPY --from=builder /go/bin/yoda /usr/local/bin/yoda
 COPY --from=builder /go/bin/faucet /usr/local/bin/faucet
