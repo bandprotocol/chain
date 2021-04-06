@@ -3,7 +3,6 @@ package coinswap
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	coinswapcli "github.com/GeoDB-Limited/odin-core/x/coinswap/client/cli"
 	coinswaprest "github.com/GeoDB-Limited/odin-core/x/coinswap/client/rest"
 	coinswapkeeper "github.com/GeoDB-Limited/odin-core/x/coinswap/keeper"
@@ -127,7 +126,6 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 // InitGenesis performs genesis initialization for the oracle module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
-	fmt.Println(string(am.DefaultGenesis(cdc)))
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	coinswapkeeper.InitGenesis(ctx, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}

@@ -57,7 +57,6 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	sender := testapp.Alice.Address
 	msg := oracletypes.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, treasury, owner, sender)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	fmt.Println(err)
 	require.EqualError(t, err, "unexpected EOF: uncompression failed")
 	require.Nil(t, res)
 }

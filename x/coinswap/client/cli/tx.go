@@ -4,6 +4,7 @@ import (
 	"fmt"
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -13,18 +14,18 @@ import (
 
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd() *cobra.Command {
-	oracleCmd := &cobra.Command{
+	coinswapCmd := &cobra.Command{
 		Use:                        coinswaptypes.ModuleName,
 		Short:                      "coinswap transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	oracleCmd.AddCommand(
+	coinswapCmd.AddCommand(
 		GetCmdExchange(),
 	)
 
-	return oracleCmd
+	return coinswapCmd
 }
 
 // GetCmdExchange implements the request command handler.
@@ -76,6 +77,8 @@ $ %s tx coinswap exchange geo loki 10loki --from mykey
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }

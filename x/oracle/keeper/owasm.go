@@ -113,6 +113,7 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// TODO now fees are sent to the data source 'Treasury' which is, what we want is to send it to Data Providers Pool
+	// TODO rework this and remove
 	// Collect ds fee
 	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests); err != nil {
 		return 0, err

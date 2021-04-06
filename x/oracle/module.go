@@ -23,9 +23,9 @@ import (
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
-	//oraclerest "github.com/GeoDB-Limited/odin-core/x/oracle/client/rest"
 	oraclecli "github.com/GeoDB-Limited/odin-core/x/oracle/client/cli"
+	oraclerest "github.com/GeoDB-Limited/odin-core/x/oracle/client/rest"
+	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
@@ -72,7 +72,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
 func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
-	//oraclerest.RegisterRoutes(ctx, rtr)
+	oraclerest.RegisterRoutes(ctx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the oracle module.
@@ -82,7 +82,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return &cobra.Command{}
+	return oraclecli.GetTxCmd()
 }
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
@@ -124,7 +124,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	oracletypes.RegisterMsgServer(cfg.MsgServer(), oraclekeeper.NewMsgServerImpl(am.keeper))
-	oracletypes.RegisterQueryServer(cfg.QueryServer(), oraclekeeper.Querier{am.keeper})
+	oracletypes.RegisterQueryServer(cfg.QueryServer(), oraclekeeper.Querier{Keeper: am.keeper})
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
@@ -173,7 +173,7 @@ func (AppModule) RandomizedParams(r *rand.Rand) []simtypes.ParamChange {
 
 // RegisterStoreDecoder registers a decoder for transfer module's oracletypes
 func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
-	// sdr[oracletypes.StoreKey] = simulation.NewDecodeStore(am.keeperoraclekeeper)
+	//sdr[oracletypes.StoreKey] = simulation.NewDecodeStore(am.keeperoraclekeeper)
 }
 
 // WeightedOperations returns the all the transfer module operations with their respective weights.

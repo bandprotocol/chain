@@ -91,7 +91,7 @@ func GetQueryCmdCounts() *cobra.Command {
 
 // GetQueryCmdDataSource implements the query data source command.
 func GetQueryCmdDataSource() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "data-source [id]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -116,11 +116,14 @@ func GetQueryCmdDataSource() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryCmdOracleScript implements the query oracle script command.
 func GetQueryCmdOracleScript() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "oracle-script [id]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -145,11 +148,14 @@ func GetQueryCmdOracleScript() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryCmdRequest implements the query request command.
 func GetQueryCmdRequest() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "request [id]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -174,11 +180,14 @@ func GetQueryCmdRequest() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryCmdRequestSearch implements the search request command.
 func GetQueryCmdRequestSearch() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
 		Args: cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -215,11 +224,14 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryCmdValidatorStatus implements the query reporter list of validator command.
 func GetQueryCmdValidatorStatus() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "validator [validator]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -239,11 +251,14 @@ func GetQueryCmdValidatorStatus() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryCmdReporters implements the query reporter list of validator command.
 func GetQueryCmdReporters() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "reporters [validator]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -263,11 +278,14 @@ func GetQueryCmdReporters() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetQueryActiveValidators implements the query active validators command.
 func GetQueryActiveValidators() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "active-validators",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -285,11 +303,14 @@ func GetQueryActiveValidators() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetCmdQueryDataProvidersPool returns the command for fetching community pool info
 func GetCmdQueryDataProvidersPool() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "data-providers-pool",
 		Args:  cobra.NoArgs,
 		Short: "Query the amount of coins in the data providers pool",
@@ -317,10 +338,13 @@ $ %s query oracle data-providers-pool
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 func GetCmdQueryRequestPrice() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "request-price",
 		Args:  cobra.NoArgs,
 		Short: "queries the latest price on standard price reference oracle",
@@ -353,10 +377,13 @@ func GetCmdQueryRequestPrice() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
 
 func GetQueryCmdData() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:  "data [data-hash]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -376,4 +403,7 @@ func GetQueryCmdData() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
 }
