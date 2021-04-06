@@ -13,10 +13,6 @@ RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificat
 
 RUN apt-get update && apt-get install -y wget
 
-COPY /go/bin/bandd /usr/local/bin/bandd
-COPY  /go/bin/yoda /usr/local/bin/yoda
-COPY  /go/bin/faucet /usr/local/bin/faucet
-
 COPY ./docker-config/validator1/ validator1/
 COPY ./docker-config/validator2/ validator2/
 COPY ./docker-config/validator3/ validator3/
