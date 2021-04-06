@@ -3,7 +3,6 @@ package cli
 import (
 	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -33,35 +32,43 @@ func NewTxCmd() *cobra.Command {
 // NewCmdWithdrawCoinsToAccFromTreasury implements minting transaction command.
 func NewCmdWithdrawCoinsToAccFromTreasury() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraw-coins [receiver] [amount]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "withdraw-coins (--receiver [receiver]) (--amount [amount])",
 		Short: "Withdraw some coins for account",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-
-			receiver, err := sdk.AccAddressFromBech32(args[0])
+			receiverStr, err := cmd.Flags().GetString(flagReceiver)
 			if err != nil {
-				return sdkerrors.Wrapf(err, "receiver: %s", args[0])
+				return sdkerrors.Wrapf(err, "flag: %s", flagReceiver)
+			}
+			receiver, err := sdk.AccAddressFromBech32(receiverStr)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "receiver: %s", receiverStr)
 			}
 
-			amount, err := sdk.ParseCoinsNormalized(args[1])
+			amountStr, err := cmd.Flags().GetString(flagAmount)
 			if err != nil {
-				return sdkerrors.Wrapf(err, "amount: %s", args[1])
+				return sdkerrors.Wrapf(err, "flag: %s", flagAmount)
+			}
+			amount, err := sdk.ParseCoinsNormalized(amountStr)
+			if err != nil {
+				return sdkerrors.Wrapf(err, "amount: %s", amountStr)
 			}
 
 			msg := minttypes.NewMsgWithdrawCoinsToAccFromTreasury(amount, receiver, clientCtx.GetFromAddress())
 			if err := msg.ValidateBasic(); err != nil {
-				return sdkerrors.Wrapf(err, "amount: %s receiver: %s", amount, receiver)
+				return sdkerrors.Wrapf(err, "amount: %s receiver: %s", amount, receiverStr)
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
 
-	flags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().String(flagReceiver, "", "Account address to withdraw coins to")
+	cmd.Flags().String(flagAmount, "", "Amount of coins to withdraw")
 
 	return cmd
 }

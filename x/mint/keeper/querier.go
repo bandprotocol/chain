@@ -13,7 +13,7 @@ import (
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case minttypes.QueryParameters:
+		case minttypes.QueryParams:
 			return queryParams(ctx, k, legacyQuerierCdc)
 
 		case minttypes.QueryInflation:

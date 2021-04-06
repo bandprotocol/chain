@@ -25,7 +25,7 @@ func TestNewQuerier(t *testing.T) {
 		Data: []byte{},
 	}
 
-	_, err := querier(ctx, []string{minttypes.QueryParameters}, query)
+	_, err := querier(ctx, []string{minttypes.QueryParams}, query)
 	require.NoError(t, err)
 
 	_, err = querier(ctx, []string{minttypes.QueryInflation}, query)
@@ -48,7 +48,7 @@ func TestQueryParams(t *testing.T) {
 
 	var params minttypes.Params
 
-	res, sdkErr := querier(ctx, []string{minttypes.QueryParameters}, abci.RequestQuery{})
+	res, sdkErr := querier(ctx, []string{minttypes.QueryParams}, abci.RequestQuery{})
 	require.NoError(t, sdkErr)
 
 	err := app.LegacyAmino().UnmarshalJSON(res, &params)

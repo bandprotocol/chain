@@ -11,34 +11,34 @@ import (
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("%s/params", minttypes.ModuleName),
+		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryParams),
 		queryParamsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/inflation", minttypes.ModuleName),
+		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryInflation),
 		queryInflationHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/annual_provisions", minttypes.ModuleName),
+		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryAnnualProvisions),
 		queryAnnualProvisionsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/eth_integration_address", minttypes.ModuleName),
+		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryEthIntegrationAddress),
 		queryEthIntegrationAddressHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/treasury_pool", minttypes.ModuleName),
+		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryTreasuryPool),
 		queryTreasuryPoolHandlerFn(clientCtx),
 	).Methods("GET")
 }
 
 func queryParamsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryParameters)
+		route := fmt.Sprintf("custom/%s/%s", minttypes.QuerierRoute, minttypes.QueryParams)
 
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
