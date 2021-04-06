@@ -50,4 +50,6 @@ message Params {
   string eth_integration_address = 8 [(gogoproto.moretags) = "yaml:\"eth_integration_address\""];
   // flag if minting from air
   bool mint_air = 9 [(gogoproto.moretags) = "yaml:\"mint_air\""];
+  // eligible to withdraw accounts
+  repeated string eligible_accounts_pool = 10 [(gogoproto.moretags) = "yaml:\"eligible_accounts_pool\""];
 }
