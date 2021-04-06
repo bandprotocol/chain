@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"io/ioutil"
 	"strconv"
@@ -149,6 +150,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 	cmd.Flags().Uint64P(flagPrepareGas, "p", oracletypes.DefaultPrepareGas, "Gas used for preparation phase")
 	cmd.Flags().Uint64P(flagExecuteGas, "e", oracletypes.DefaultExecuteGas, "Gas used for execution phase")
 
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
@@ -246,6 +249,8 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagFee, "", "Fee for usage of this data source")
 	cmd.Flags().String(flagTreasury, "", "Account address to send rewards to")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
+
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -357,6 +362,8 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagTreasury, "", "Account address to send rewards to")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
@@ -441,6 +448,8 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 	cmd.Flags().String(flagOwner, "", "Owner of this oracle script")
 	cmd.Flags().String(flagSchema, "", "Schema of this oracle script")
 	cmd.Flags().String(flagSourceCodeURL, "", "URL for the source code of this oracle script")
+
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -537,6 +546,8 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 	cmd.Flags().String(flagSchema, oracletypes.DoNotModify, "Schema of this oracle script")
 	cmd.Flags().String(flagSourceCodeURL, oracletypes.DoNotModify, "URL for the source code of this oracle script")
 
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
@@ -569,6 +580,8 @@ $ %s tx oracle activate --from mykey
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -613,6 +626,8 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 		},
 	}
 
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
@@ -652,6 +667,8 @@ $ %s tx oracle remove-reporter band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun --fro
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
+	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }

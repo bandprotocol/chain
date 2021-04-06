@@ -20,7 +20,6 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
@@ -89,7 +88,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		AddGenesisDataSourceCmd(band.DefaultNodeHome),
 		AddGenesisOracleScriptCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
-		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 	)
 
@@ -138,7 +136,7 @@ func queryCommand() *cobra.Command {
 func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
-		Short:                      "Transactions sodinommands",
+		Short:                      "Transactions sub-commands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -153,8 +151,8 @@ func txCommand() *cobra.Command {
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
-		flags.LineBreak,
-		vestingcli.GetTxCmd(),
+		//flags.LineBreak,
+		//vestingcli.GetTxCmd(),
 	)
 
 	band.ModuleBasics.AddTxCommands(cmd)
