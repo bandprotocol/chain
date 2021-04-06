@@ -249,9 +249,6 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
-	//fmt.Println(string(genesis["auth"]))
-	//fmt.Println(string(genesis["bank"]))
-	fmt.Println(string(genesis["staking"]))
 
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
