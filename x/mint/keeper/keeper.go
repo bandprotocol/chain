@@ -4,6 +4,7 @@ import (
 	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -144,4 +145,45 @@ func (k Keeper) AddCollectedFees(ctx sdk.Context, fees sdk.Coins) error {
 func (k Keeper) LimitExceeded(ctx sdk.Context, amt sdk.Coins) bool {
 	moduleParams := k.GetParams(ctx)
 	return amt.IsAnyGT(moduleParams.MaxWithdrawalPerTime)
+}
+
+// IsEligibleAccount checks if addr exists in the eligible to withdraw account pool
+func (k Keeper) IsEligibleAccount(ctx sdk.Context, addr string) bool {
+	params := k.GetParams(ctx)
+
+	for _, item := range params.EligibleAccountsPool {
+		if item == addr {
+			return true
+		}
+	}
+
+	return false
+}
+
+// WithdrawCoinsFromTreasury transfers coins from treasury pool to receiver account
+func (k Keeper) WithdrawCoinsFromTreasury(ctx sdk.Context, receiver sdk.AccAddress, amount sdk.Coins) error {
+	mintPool := k.GetMintPool(ctx)
+
+	if amount.IsAllGT(mintPool.TreasuryPool) {
+		return sdkerrors.Wrapf(
+			minttypes.ErrWithdrawalAmountExceedsModuleBalance,
+			"withdrawal amount: %s exceeds %s module balance",
+			amount.String(),
+			minttypes.ModuleName,
+		)
+	}
+
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, receiver, amount); err != nil {
+		return sdkerrors.Wrapf(
+			err,
+			"failed to withdraw %s from %s module account",
+			amount.String(),
+			minttypes.ModuleName,
+		)
+	}
+
+	mintPool.TreasuryPool = mintPool.TreasuryPool.Sub(amount)
+	k.SetMintPool(ctx, mintPool)
+
+	return nil
 }

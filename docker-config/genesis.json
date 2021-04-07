@@ -322,20 +322,20 @@
         "mint_air": false,
         "max_withdrawal_per_time": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "1000"
           }
+        ],
+        "eligible_accounts_pool": [
+          "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"
         ]
       },
       "mint_pool": {
         "treasury_pool": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "30000000000000"
           }
-        ],
-        "eligible_accounts_pool": [
-          "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"
         ]
       }
     },

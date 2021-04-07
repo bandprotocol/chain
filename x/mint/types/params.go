@@ -20,6 +20,7 @@ var (
 	KeyMintAir               = []byte("MintAir")
 	KeyEthIntegrationAddress = []byte("EthIntegrationAddress")
 	KeyMaxWithdrawalPerTime  = []byte("MaxWithdrawalPerTime")
+	KeyEligibleAccountsPool  = []byte("EligibleAccountsPool")
 )
 
 // ParamTable for minting module.
@@ -34,6 +35,8 @@ func NewParams(
 	blocksPerYear uint64,
 	mintAir bool,
 	ethIntegrationAddress string,
+	eligibleAccountsPool []string,
+
 ) Params {
 
 	return Params{
@@ -46,6 +49,7 @@ func NewParams(
 		MintAir:               mintAir,
 		EthIntegrationAddress: ethIntegrationAddress,
 		MaxWithdrawalPerTime:  MaxWithdrawalPerTime,
+		EligibleAccountsPool:  eligibleAccountsPool,
 	}
 }
 
@@ -61,6 +65,7 @@ func DefaultParams() Params {
 		MintAir:               false,
 		EthIntegrationAddress: "0xa19Df1199CeEfd7831576f1D055E454364337633", // default value (might be invalid for actual use)
 		MaxWithdrawalPerTime:  sdk.Coins{sdk.NewCoin("loki", sdk.NewInt(100))},
+		EligibleAccountsPool:  []string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 	}
 }
 
@@ -93,6 +98,9 @@ func (p Params) Validate() error {
 	if err := validateMaxWithdrawalPerTime(p.MaxWithdrawalPerTime); err != nil {
 		return err
 	}
+	if err := validateEligibleAccountsPool(p.EligibleAccountsPool); err != nil {
+		return err
+	}
 	if p.InflationMax.LT(p.InflationMin) {
 		return fmt.Errorf(
 			"max inflation (%s) must be greater than or equal to min inflation (%s)",
@@ -106,17 +114,18 @@ func (p Params) Validate() error {
 // String implements the Stringer interface.
 func (p Params) String() string {
 	return fmt.Sprintf(`Minting Params:
-  Mint Denom:             %s
-  Inflation Rate Change:  %s
-  Inflation Max:          %s
-  Inflation Min:          %s
-  Goal Bonded:            %s
-  Blocks Per Year:        %d
-  Eth Integration Address: %s
+  Mint Denom:             	%s
+  Inflation Rate Change:  	%s
+  Inflation Max:          	%s
+  Inflation Min:          	%s
+  Goal Bonded:            	%s
+  Blocks Per Year:        	%d
+  Eth Integration Address: 	%s
   Max Withdrawal Per Time:	%s
+  Eligible Accounts Pool: 	%s
 `,
-		p.MintDenom, p.InflationRateChange, p.InflationMax,
-		p.InflationMin, p.GoalBonded, p.BlocksPerYear, p.EthIntegrationAddress, p.MaxWithdrawalPerTime,
+		p.MintDenom, p.InflationRateChange, p.InflationMax, p.InflationMin, p.GoalBonded,
+		p.BlocksPerYear, p.EthIntegrationAddress, p.MaxWithdrawalPerTime, p.EligibleAccountsPool,
 	)
 }
 
@@ -132,6 +141,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMintAir, &p.MintAir, validateMintAir),
 		paramtypes.NewParamSetPair(KeyEthIntegrationAddress, &p.EthIntegrationAddress, validateEthIntegarionAddress),
 		paramtypes.NewParamSetPair(KeyMaxWithdrawalPerTime, &p.MaxWithdrawalPerTime, validateMaxWithdrawalPerTime),
+		paramtypes.NewParamSetPair(KeyEligibleAccountsPool, &p.EligibleAccountsPool, validateEligibleAccountsPool),
 	}
 }
 
@@ -162,6 +172,15 @@ func validateInflationRateChange(i interface{}) error {
 	}
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("inflation rate change too large: %s", v)
+	}
+
+	return nil
+}
+
+func validateEligibleAccountsPool(i interface{}) error {
+	_, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil
