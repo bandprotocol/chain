@@ -70,7 +70,10 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	var pendingRequests types.PendingResolveList
-	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
+
+	if result.Result != nil {
+		cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
+	}
 
 	for _, id := range pendingRequests.RequestIds {
 		c.pendingRequests[types.RequestID(id)] = true
