@@ -295,7 +295,7 @@
         "mint_air": false,
         "max_withdrawal_per_time": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "1000"
           }
         ],
@@ -306,7 +306,7 @@
       "mint_pool": {
         "treasury_pool": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "30000000000000"
           }
         ]
