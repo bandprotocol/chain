@@ -57,6 +57,8 @@ func (h *Hook) emitSetDataSource(id types.DataSourceID, ds types.DataSource, txH
 		"description": ds.Description,
 		"owner":       ds.Owner,
 		"executable":  h.oracleKeeper.GetFile(ds.Filename),
+		"fee":         ds.Fee.String(),
+		"treasury":    ds.Treasury,
 		"tx_hash":     txHash,
 	})
 }
@@ -150,6 +152,7 @@ func (h *Hook) handleMsgRequestData(
 		"timestamp":        ctx.BlockTime().UnixNano(),
 		"prepare_gas":      msg.PrepareGas,
 		"execute_gas":      msg.ExecuteGas,
+		"fee_limit":        msg.FeeLimit.String(),
 	})
 	h.emitRawRequestAndValRequest(id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)

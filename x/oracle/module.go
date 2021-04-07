@@ -344,8 +344,8 @@ func (am AppModule) OnRecvPacket(
 			),
 		).(sdk.CacheMultiStore)
 	}
-
-	id, err := am.keeper.PrepareRequest(ctx.WithMultiStore(msCache), &data, &source)
+	escrowAddress := types.GetEscrowAddress(data.RequestKey, source.SourcePort, source.SourceChannel)
+	id, err := am.keeper.PrepareRequest(ctx.WithMultiStore(msCache), &data, escrowAddress, &source)
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
