@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -26,6 +28,7 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/cli"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -33,7 +36,9 @@ import (
 	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/app/params"
 	"github.com/bandprotocol/chain/hooks/emitter"
+	"github.com/bandprotocol/chain/hooks/price"
 	"github.com/bandprotocol/chain/hooks/request"
+	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
 const (
@@ -106,6 +111,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
 	rootCmd.PersistentFlags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
+	rootCmd.PersistentFlags().String(flagWithPricer, "", "[Experimental] Provide list of oracle script ID to enable saving prices in level db")
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
@@ -223,6 +229,21 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 			emitter.NewHook(bandApp.AppCodec(), bandApp.LegacyAmino(), band.MakeEncodingConfig(), bandApp.AccountKeeper, bandApp.BankKeeper,
 				bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
 				bandApp.OracleKeeper, connStr, false))
+	}
+
+	pricerStr, _ := appOpts.Get(flagWithPricer).(string)
+	if pricerStr != "" {
+		rawOracleIDs := strings.Split(pricerStr, ",")
+		var oracleIDs []oracletypes.OracleScriptID
+		for _, rawOracleID := range rawOracleIDs {
+			oracleID, err := strconv.ParseInt(rawOracleID, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			oracleIDs = append(oracleIDs, oracletypes.OracleScriptID(oracleID))
+		}
+		bandApp.AddHook(
+			price.NewHook(bandApp.AppCodec(), bandApp.OracleKeeper, oracleIDs, filepath.Join(cast.ToString(appOpts.Get(cli.HomeFlag)), "prices")))
 	}
 
 	return bandApp

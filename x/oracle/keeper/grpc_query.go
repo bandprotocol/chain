@@ -174,5 +174,16 @@ func (k queryServer) RequestSearch(c context.Context, req *types.QueryRequestSea
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
 func (k queryServer) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return &types.QueryRequestPriceResponse{}, nil
+	bz, match, err := k.custom.CustomQuery(fmt.Sprintf("prices/%s/%d/%d", req.Symbol, req.AskCount, req.MinCount))
+	if !match {
+		return nil, status.Error(codes.Internal, "Not support on this version")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	result := types.QueryRequestPriceResponse{}
+	k.cdc.MustUnmarshalBinaryBare(bz, &result)
+
+	return &result, nil
 }

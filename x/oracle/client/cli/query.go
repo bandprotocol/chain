@@ -6,6 +6,7 @@ import (
 	// "net/http"
 
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -37,7 +38,8 @@ func GetQueryCmd() *cobra.Command {
 		// GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
-	// 	GetQueryPendingRequests(storeKey, cdc),
+		// 	GetQueryPendingRequests(storeKey, cdc),
+		GetQueryRequestPrice(),
 	)
 	return oracleCmd
 }
@@ -248,6 +250,43 @@ func GetQueryActiveValidators() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 			r, err := queryClient.ActiveValidators(context.Background(), &types.QueryActiveValidatorsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryRequestPrice() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "request-price [symbol] [ask-count] [min-count]",
+		Args: cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			symbol := args[0]
+			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse ask count: %w", err)
+			}
+			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse min count: %w", err)
+			}
+
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.RequestPrice(context.Background(), &types.QueryRequestPriceRequest{
+				Symbol:   symbol,
+				AskCount: askCount,
+				MinCount: minCount,
+			})
 			if err != nil {
 				return err
 			}
