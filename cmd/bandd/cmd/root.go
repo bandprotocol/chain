@@ -42,6 +42,7 @@ const (
 	flagWithPricer            = "with-pricer"
 	flagWithRequestSearch     = "with-request-search"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagEnableApi             = "api.enable"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -102,7 +103,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	)
 
 	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
-	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode with emitter")
 	rootCmd.PersistentFlags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
@@ -113,7 +114,7 @@ func queryCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "query",
 		Aliases:                    []string{"q"},
-		Short:                      "Querying sodinommands",
+		Short:                      "Querying subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -136,7 +137,7 @@ func queryCommand() *cobra.Command {
 func txCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        "tx",
-		Short:                      "Transactions sub-commands",
+		Short:                      "Transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -151,8 +152,6 @@ func txCommand() *cobra.Command {
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
-		//flags.LineBreak,
-		//vestingcli.GetTxCmd(),
 	)
 
 	band.ModuleBasics.AddTxCommands(cmd)

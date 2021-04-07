@@ -2,7 +2,6 @@ package yoda
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
@@ -66,7 +65,7 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	var result commontypes.QueryResult
-	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
+	if err := cdc.UnmarshalJSON(rawPendingRequests.Response.GetValue(), &result); err != nil {
 		return err
 	}
 

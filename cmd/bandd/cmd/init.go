@@ -154,6 +154,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			if !overwrite && tmos.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
+			// TODO: remove json.*
 			appState, err := json.MarshalIndent(customAppState, "", "")
 			if err != nil {
 				return err
