@@ -132,7 +132,8 @@ func (m *QueryCountsResponse) GetRequestCount() int64 {
 
 // QueryDataRequest is request type for the Query/Data RPC method.
 type QueryDataRequest struct {
-	// DataHash is SHA256 hash of the file's content, which can be data source or oracle script
+	// DataHash is SHA256 hash of the file's content, which can be data source or
+	// oracle script
 	DataHash string `protobuf:"bytes,1,opt,name=data_hash,json=dataHash,proto3" json:"data_hash,omitempty"`
 }
 
@@ -458,8 +459,9 @@ func (m *QueryRequestRequest) GetRequestId() int64 {
 type QueryRequestResponse struct {
 	// RequestPacketData is information of oracle request submitted by a client
 	RequestPacketData *OracleRequestPacketData `protobuf:"bytes,1,opt,name=request_packet_data,json=requestPacketData,proto3" json:"request_packet_data,omitempty"`
-	// ResponsePacketData is information of oracle result that fulfilled the oracle request.
-	// The result can be empty if the request has not been fulfilled yet.
+	// ResponsePacketData is information of oracle result that fulfilled the
+	// oracle request. The result can be empty if the request has not been
+	// fulfilled yet.
 	ResponsePacketData *OracleResponsePacketData `protobuf:"bytes,2,opt,name=response_packet_data,json=responsePacketData,proto3" json:"response_packet_data,omitempty"`
 }
 
@@ -1113,9 +1115,11 @@ func (m *QueryRequestPriceResponse) GetMinCount() int64 {
 	return 0
 }
 
-// QueryRequestVerificationRequest is request type for the Query/RequestVerification RPC
+// QueryRequestVerificationRequest is request type for the
+// Query/RequestVerification RPC
 type QueryRequestVerificationRequest struct {
-	// ChainID is the chain ID to identify which chain ID is used for the verification
+	// ChainID is the chain ID to identify which chain ID is used for the
+	// verification
 	ChainId string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
 	// Validator is a validator address
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
@@ -1123,9 +1127,11 @@ type QueryRequestVerificationRequest struct {
 	RequestId int64 `protobuf:"varint,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	// ExternalID is an oracle's external ID
 	ExternalId int64 `protobuf:"varint,4,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
-	// Reporter is an bech32-encoded public key of the reporter authorized by the validator
+	// Reporter is an bech32-encoded public key of the reporter authorized by the
+	// validator
 	Reporter string `protobuf:"bytes,5,opt,name=reporter,proto3" json:"reporter,omitempty"`
-	// Signature is a signature signed by the reporter using reporter's private key
+	// Signature is a signature signed by the reporter using reporter's private
+	// key
 	Signature []byte `protobuf:"bytes,6,opt,name=signature,proto3" json:"signature,omitempty"`
 }
 
@@ -1204,7 +1210,8 @@ func (m *QueryRequestVerificationRequest) GetSignature() []byte {
 	return nil
 }
 
-// QueryRequestVerificationResponse is response type for the Query/RequestVerification RPC
+// QueryRequestVerificationResponse is response type for the
+// Query/RequestVerification RPC
 type QueryRequestVerificationResponse struct {
 	// ChainID is the targeted chain ID
 	ChainId string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
@@ -1214,7 +1221,8 @@ type QueryRequestVerificationResponse struct {
 	RequestId int64 `protobuf:"varint,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	// ExternalID is the ID of targeted oracle's external data source
 	ExternalId int64 `protobuf:"varint,4,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
-	// DataSourceID is the ID of a data source that relates to the targeted external ID
+	// DataSourceID is the ID of a data source that relates to the targeted
+	// external ID
 	DataSourceId int64 `protobuf:"varint,5,opt,name=data_source_id,json=dataSourceId,proto3" json:"data_source_id,omitempty"`
 }
 
@@ -1408,9 +1416,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Counts queries the number of existing data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and
+	// requests.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// Data queries content of the data source or oracle script for given SHA256 file hash.
+	// Data queries content of the data source or oracle script for given SHA256
+	// file hash.
 	Data(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*QueryDataResponse, error)
 	// DataSource queries data source summary info for given data source id.
 	DataSource(ctx context.Context, in *QueryDataSourceRequest, opts ...grpc.CallOption) (*QueryDataSourceResponse, error)
@@ -1554,9 +1564,11 @@ func (c *queryClient) RequestVerification(ctx context.Context, in *QueryRequestV
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Counts queries the number of existing data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and
+	// requests.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// Data queries content of the data source or oracle script for given SHA256 file hash.
+	// Data queries content of the data source or oracle script for given SHA256
+	// file hash.
 	Data(context.Context, *QueryDataRequest) (*QueryDataResponse, error)
 	// DataSource queries data source summary info for given data source id.
 	DataSource(context.Context, *QueryDataSourceRequest) (*QueryDataSourceResponse, error)

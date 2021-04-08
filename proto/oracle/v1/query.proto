@@ -9,12 +9,14 @@ import "oracle/v1/oracle.proto";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Counts queries the number of existing data sources, oracle scripts, and requests.
+  // Counts queries the number of existing data sources, oracle scripts, and
+  // requests.
   rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
     option (google.api.http).get = "/oracle/counts";
   }
 
-  // Data queries content of the data source or oracle script for given SHA256 file hash.
+  // Data queries content of the data source or oracle script for given SHA256
+  // file hash.
   rpc Data(QueryDataRequest) returns (QueryDataResponse) {
     option (google.api.http).get = "/oracle/data/{data_hash}";
   }
@@ -72,8 +74,8 @@ service Query {
   // RequestVerification verifies a request to make sure that
   // all information that will be used to report the data is valid
   rpc RequestVerification(QueryRequestVerificationRequest)
-    returns (QueryRequestVerificationResponse) {
-      option (google.api.http).post = "/oracle/v1/verify_request";
+      returns (QueryRequestVerificationResponse) {
+    option (google.api.http).post = "/oracle/v1/verify_request";
   }
 }
 
@@ -92,7 +94,8 @@ message QueryCountsResponse {
 
 // QueryDataRequest is request type for the Query/Data RPC method.
 message QueryDataRequest {
-  // DataHash is SHA256 hash of the file's content, which can be data source or oracle script
+  // DataHash is SHA256 hash of the file's content, which can be data source or
+  // oracle script
   string data_hash = 1;
 }
 
@@ -138,8 +141,9 @@ message QueryRequestRequest {
 message QueryRequestResponse {
   // RequestPacketData is information of oracle request submitted by a client
   OracleRequestPacketData request_packet_data = 1;
-  // ResponsePacketData is information of oracle result that fulfilled the oracle request.
-  // The result can be empty if the request has not been fulfilled yet.
+  // ResponsePacketData is information of oracle result that fulfilled the
+  // oracle request. The result can be empty if the request has not been
+  // fulfilled yet.
   OracleResponsePacketData response_packet_data = 2;
 }
 
@@ -230,9 +234,11 @@ message QueryRequestPriceResponse {
   int64 min_count = 4;
 }
 
-// QueryRequestVerificationRequest is request type for the Query/RequestVerification RPC
+// QueryRequestVerificationRequest is request type for the
+// Query/RequestVerification RPC
 message QueryRequestVerificationRequest {
-  // ChainID is the chain ID to identify which chain ID is used for the verification
+  // ChainID is the chain ID to identify which chain ID is used for the
+  // verification
   string chain_id = 1;
   // Validator is a validator address
   string validator = 2;
@@ -240,13 +246,16 @@ message QueryRequestVerificationRequest {
   int64 request_id = 3;
   // ExternalID is an oracle's external ID
   int64 external_id = 4;
-  // Reporter is an bech32-encoded public key of the reporter authorized by the validator
+  // Reporter is an bech32-encoded public key of the reporter authorized by the
+  // validator
   string reporter = 5;
-  // Signature is a signature signed by the reporter using reporter's private key
+  // Signature is a signature signed by the reporter using reporter's private
+  // key
   bytes signature = 6;
 }
 
-// QueryRequestVerificationResponse is response type for the Query/RequestVerification RPC
+// QueryRequestVerificationResponse is response type for the
+// Query/RequestVerification RPC
 message QueryRequestVerificationResponse {
   // ChainID is the targeted chain ID
   string chain_id = 1;
@@ -256,6 +265,7 @@ message QueryRequestVerificationResponse {
   int64 request_id = 3;
   // ExternalID is the ID of targeted oracle's external data source
   int64 external_id = 4;
-  // DataSourceID is the ID of a data source that relates to the targeted external ID
+  // DataSourceID is the ID of a data source that relates to the targeted
+  // external ID
   int64 data_source_id = 5;
 }
