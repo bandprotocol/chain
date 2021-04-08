@@ -11,27 +11,27 @@ import (
 
 func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
-		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryParams),
+		fmt.Sprintf("%s/%s", minttypes.LegacyRoute, minttypes.QueryParams),
 		queryParamsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryInflation),
+		fmt.Sprintf("%s/%s", minttypes.LegacyRoute, minttypes.QueryInflation),
 		queryInflationHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryAnnualProvisions),
+		fmt.Sprintf("%s/%s", minttypes.LegacyRoute, minttypes.QueryAnnualProvisions),
 		queryAnnualProvisionsHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryEthIntegrationAddress),
+		fmt.Sprintf("%s/%s", minttypes.LegacyRoute, minttypes.QueryEthIntegrationAddress),
 		queryEthIntegrationAddressHandlerFn(clientCtx),
 	).Methods("GET")
 
 	r.HandleFunc(
-		fmt.Sprintf("%s/%s", minttypes.ModuleName, minttypes.QueryTreasuryPool),
+		fmt.Sprintf("%s/%s", minttypes.LegacyRoute, minttypes.QueryTreasuryPool),
 		queryTreasuryPoolHandlerFn(clientCtx),
 	).Methods("GET")
 }

@@ -13,8 +13,12 @@ const (
 	// QuerierRoute is the querier route for the minting store.
 	QuerierRoute = StoreKey
 
+	// DEPRECATED
+	// for backward compatibility
+	LegacyRoute = "minting"
+
 	// Query endpoints supported by the minting querier
-	QueryParams                = "params"
+	QueryParams                = "parameters"
 	QueryInflation             = "inflation"
 	QueryAnnualProvisions      = "annual_provisions"
 	QueryEthIntegrationAddress = "eth_integration_address"
