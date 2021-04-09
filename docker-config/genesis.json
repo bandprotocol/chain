@@ -15,6 +15,7 @@
     },
     "validator": {
       "pub_key_types": [
+        "secp256k1",
         "ed25519"
       ]
     },
@@ -127,7 +128,7 @@
               "amount": "1000000"
             },
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "10000000000000"
             }
           ]
@@ -140,7 +141,7 @@
               "amount": "1000000"
             },
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "10000000000000"
             }
           ]
@@ -149,7 +150,7 @@
           "address": "odin1zd9lthygtlegm2ylnganyutr0c8pg8qz3yv35p",
           "coins": [
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "1000000000"
             }
           ]
@@ -158,7 +159,7 @@
           "address": "odin1henaumsxn39sj09wcywprzh46cf2q3yzy2uvwj",
           "coins": [
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "1000000000"
             }
           ]
@@ -167,7 +168,7 @@
           "address": "odin10laadcz7k9eq2tu4ayfya2ewudgarvd7cy9zts",
           "coins": [
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "1000000000"
             }
           ]
@@ -176,7 +177,7 @@
           "address": "odin1plgvd70drhnd3tzm3a27pzkde7luh9hyhm27hf",
           "coins": [
             {
-              "denom": "odin",
+              "denom": "loki",
               "amount": "1000000000"
             }
           ]
@@ -184,7 +185,7 @@
       ],
       "supply": [
         {
-          "denom": "odin",
+          "denom": "loki",
           "amount": "100000000000000"
         },
         {
@@ -206,7 +207,7 @@
           "exchanges": {
             "geo": {
               "value": [
-                "odin"
+                "loki"
               ]
             }
           }
@@ -215,7 +216,7 @@
     },
     "crisis": {
       "constant_fee": {
-        "denom": "odin",
+        "denom": "loki",
         "amount": "10000000000"
       }
     },
@@ -233,7 +234,7 @@
             "amount": "999999998000000"
           },
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "29992000000000"
           }
         ]
@@ -261,7 +262,7 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "1000000000"
           }
         ],
@@ -313,7 +314,7 @@
       },
       "params": {
         "eth_integration_address": "0xa19Df1199CeEfd7831576f1D055E454364337633",
-        "mint_denom": "odin",
+        "mint_denom": "loki",
         "inflation_rate_change": "0.130000000000000000",
         "inflation_max": "0.200000000000000000",
         "inflation_min": "0.070000000000000000",
@@ -322,7 +323,7 @@
         "mint_air": false,
         "max_withdrawal_per_time": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "1000"
           }
         ],
@@ -333,7 +334,7 @@
       "mint_pool": {
         "treasury_pool": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "30000000000000"
           }
         ]
@@ -356,7 +357,7 @@
           "amount": "1.000000000000000000"
         },
         "data_requester_basic_fee": {
-          "denom": "odin",
+          "denom": "loki",
           "amount": "100"
         }
       },
@@ -365,7 +366,7 @@
       "oracle_pool": {
         "data_providers_pool": [
           {
-            "denom": "odin",
+            "denom": "loki",
             "amount": "20000000000000"
           }
         ]
@@ -388,7 +389,7 @@
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 1000,
-        "bond_denom": "odin"
+        "bond_denom": "loki"
       },
       "last_total_power": "0",
       "last_validator_powers": [],
