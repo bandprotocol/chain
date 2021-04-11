@@ -5,9 +5,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ibctesting "github.com/cosmos/cosmos-sdk/x/ibc/testing"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -19,12 +21,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -40,6 +41,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/ibc/testing/mock"
 
 	bandapp "github.com/bandprotocol/chain/app"
+	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -94,9 +97,9 @@ type TestChain struct {
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
-	// QueryServer   types.QueryServer
-	TxConfig client.TxConfig
-	Codec    codec.BinaryMarshaler
+	QueryServer   types.QueryServer
+	TxConfig      client.TxConfig
+	Codec         codec.BinaryMarshaler
 
 	Vals    *tmtypes.ValidatorSet
 	Signers []tmtypes.PrivValidator
@@ -147,24 +150,33 @@ func fromHex(hexStr string) []byte {
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, chainID string) *TestChain {
 	// generate validator private/public key
-	privVal := mock.NewPV()
-	pubKey, err := privVal.GetPubKey()
+	privVal := mock.PV{testapp.Validators[0].PrivKey}
+	// pubKey, err := privVal.GetPubKey()
+	// require.NoError(t, err)
+
+	tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[0].PubKey)
 	require.NoError(t, err)
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
+	validator := tmtypes.NewValidator(tmPub, 1)
 	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
 	signers := []tmtypes.PrivValidator{privVal}
 
 	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+	// senderPrivKey := secp256k1.GenPrivKey()
+	// acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+	acc := authtypes.NewBaseAccount(testapp.Validators[0].PubKey.Address().Bytes(), testapp.Validators[0].PubKey, 0, 0)
+
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
 		Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100000000000000))),
 	}
 
-	app := bandapp.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	app := testapp.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
+	for _, v := range vals {
+		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+	}
 
 	// create current header and call begin block
 	header := tmproto.Header{
@@ -181,12 +193,12 @@ func NewTestChain(t *testing.T, chainID string) *TestChain {
 		ChainID:       chainID,
 		App:           app,
 		CurrentHeader: header,
-		// QueryServer:   app.IBCKeeper,
+		// QueryServer:   app.ScopedOracleKeeper,
 		TxConfig:      txConfig,
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
 		Signers:       signers,
-		senderPrivKey: senderPrivKey,
+		senderPrivKey: testapp.Validators[0].PrivKey,
 		SenderAccount: acc,
 		ClientIDs:     make([]string, 0),
 		Connections:   make([]*ibctesting.TestConnection, 0),
@@ -326,8 +338,7 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 // number and updates the TestChain's headers. It returns the result and error if one
 // occurred.
 func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
-	// TODO : implement this
-	_, r, err := bandapp.SignCheckDeliver(
+	_, r, err := testapp.SignCheckDeliver(
 		chain.t,
 		chain.TxConfig,
 		chain.App.BaseApp,
@@ -347,8 +358,92 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 
 	// increment sequence for successful transaction execution
 	chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	// TODO: also return acks needed to send
+	toSend := getSendPackets(r.Events)
+	if len(toSend) > 0 {
+		// Keep a queue on the chain that we can relay in tests
+		chain.PendingSendPackets = append(chain.PendingSendPackets, toSend...)
+	}
+	toAck := getAckPackets(r.Events)
+	if len(toAck) > 0 {
+		// Keep a queue on the chain that we can relay in tests
+		chain.PendingAckPackets = append(chain.PendingAckPackets, toAck...)
+	}
 
 	return r, nil
+}
+
+func getSendPackets(evts []abci.Event) []channeltypes.Packet {
+	var res []channeltypes.Packet
+	for _, evt := range evts {
+		if evt.Type == "send_packet" {
+			packet := parsePacketFromEvent(evt)
+			res = append(res, packet)
+		}
+	}
+	return res
+}
+
+func getAckPackets(evts []abci.Event) []PacketAck {
+	var res []PacketAck
+	for _, evt := range evts {
+		if evt.Type == "write_acknowledgement" {
+			packet := parsePacketFromEvent(evt)
+			ack := PacketAck{
+				Packet: packet,
+				Ack:    []byte(getField(evt, "packet_ack")),
+			}
+			res = append(res, ack)
+		}
+	}
+	return res
+}
+
+func parsePacketFromEvent(evt abci.Event) channeltypes.Packet {
+	return channeltypes.Packet{
+		Sequence:           getUintField(evt, "packet_sequence"),
+		SourcePort:         getField(evt, "packet_src_port"),
+		SourceChannel:      getField(evt, "packet_src_channel"),
+		DestinationPort:    getField(evt, "packet_dst_port"),
+		DestinationChannel: getField(evt, "packet_dst_channel"),
+		Data:               []byte(getField(evt, "packet_data")),
+		TimeoutHeight:      parseTimeoutHeight(getField(evt, "packet_timeout_height")),
+		TimeoutTimestamp:   getUintField(evt, "packet_timeout_timestamp"),
+	}
+}
+
+// return the value for the attribute with the given name
+func getField(evt abci.Event, key string) string {
+	for _, attr := range evt.Attributes {
+		if string(attr.Key) == key {
+			return string(attr.Value)
+		}
+	}
+	return ""
+}
+
+func getUintField(evt abci.Event, key string) uint64 {
+	raw := getField(evt, key)
+	return toUint64(raw)
+}
+
+func toUint64(raw string) uint64 {
+	if raw == "" {
+		return 0
+	}
+	i, err := strconv.ParseUint(raw, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}
+
+func parseTimeoutHeight(raw string) clienttypes.Height {
+	chunks := strings.Split(raw, "-")
+	return clienttypes.Height{
+		RevisionNumber: toUint64(chunks[0]),
+		RevisionHeight: toUint64(chunks[1]),
+	}
 }
 
 // GetClientState retrieves the client state for the provided clientID. The client is
@@ -494,14 +589,11 @@ func (chain *TestChain) ConstructMsgCreateClient(counterparty *TestChain, client
 
 	switch clientType {
 	case exported.Tendermint:
-		fmt.Println("yoyo")
 		height := counterparty.LastHeader.GetHeight().(clienttypes.Height)
 		clientState = ibctmtypes.NewClientState(
 			counterparty.ChainID, DefaultTrustLevel, TrustingPeriod, UnbondingPeriod, MaxClockDrift,
 			height, commitmenttypes.GetSDKSpecs(), UpgradePath, false, false,
 		)
-		fmt.Println("X", counterparty.LastHeader.ConsensusState(), counterparty.LastHeader.Header.GetAppHash())
-		fmt.Println("Y", counterparty.LastHeader.Header)
 		consensusState = counterparty.LastHeader.ConsensusState()
 	case exported.Solomachine:
 		// solo := ibctesting.NewSolomachine(chain.t, chain.Codec, clientID, "", 1)

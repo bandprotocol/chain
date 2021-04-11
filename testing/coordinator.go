@@ -63,10 +63,8 @@ func (coord *Coordinator) SetupClients(
 	chainA, chainB *TestChain,
 	clientType string,
 ) (string, string) {
-	fmt.Println("HEOOO")
 	clientA, err := coord.CreateClient(chainA, chainB, clientType)
 	require.NoError(coord.t, err)
-	fmt.Println("HEOOO2")
 	clientB, err := coord.CreateClient(chainB, chainA, clientType)
 	require.NoError(coord.t, err)
 
@@ -82,8 +80,6 @@ func (coord *Coordinator) SetupClientConnections(
 ) (string, string, *ibctesting.TestConnection, *ibctesting.TestConnection) {
 
 	clientA, clientB := coord.SetupClients(chainA, chainB, clientType)
-
-	fmt.Println("YOOOO")
 
 	connA, connB := coord.CreateConnection(chainA, chainB, clientA, clientB)
 
@@ -248,7 +244,7 @@ func (coord *Coordinator) RecvPacket(
 	coord.CommitBlock(source, counterparty)
 
 	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, counterparty.SenderAccount.GetAddress())
-
+	fmt.Println(recvMsg)
 	// receive on counterparty and update source client
 	return coord.SendMsgs(counterparty, source, sourceClient, []sdk.Msg{recvMsg})
 }
@@ -323,7 +319,7 @@ func (coord *Coordinator) RelayPacket(
 func (coord *Coordinator) IncrementTime() {
 	for _, chain := range coord.Chains {
 		chain.CurrentHeader.Time = chain.CurrentHeader.Time.Add(TimeIncrement)
-		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: fromHex("0100000000000000000000000000000000000000000000000000000000000000")})
+		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: chain.App.LastCommitID().Hash})
 	}
 }
 
@@ -332,7 +328,7 @@ func (coord *Coordinator) IncrementTime() {
 func (coord *Coordinator) IncrementTimeBy(increment time.Duration) {
 	for _, chain := range coord.Chains {
 		chain.CurrentHeader.Time = chain.CurrentHeader.Time.Add(increment)
-		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: fromHex("0100000000000000000000000000000000000000000000000000000000000000")})
+		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: chain.App.LastCommitID().Hash})
 	}
 }
 
@@ -383,14 +379,14 @@ func (coord *Coordinator) CommitBlock(chains ...*TestChain) {
 }
 
 // CommitNBlocks commits n blocks to state and updates the block height by 1 for each commit.
-func (coord *Coordinator) CommitNBlocks(chain *TestChain, n uint64) {
-	for i := uint64(0); i < n; i++ {
-		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: fromHex("0100000000000000000000000000000000000000000000000000000000000000")})
-		chain.App.Commit()
-		chain.NextBlock()
-		coord.IncrementTime()
-	}
-}
+// func (coord *Coordinator) CommitNBlocks(chain *TestChain, n uint64) {
+// 	for i := uint64(0); i < n; i++ {
+// 		chain.App.BeginBlock(abci.RequestBeginBlock{Header: chain.CurrentHeader, Hash: chain.CurrentHeader.DataHash})
+// 		chain.App.Commit()
+// 		chain.NextBlock()
+// 		coord.IncrementTime()
+// 	}
+// }
 
 // ConnOpenInit initializes a connection on the source chain with the state INIT
 // using the OpenInit handshake call.
@@ -699,4 +695,47 @@ func (coord *Coordinator) SetChannelClosed(
 		counterparty, source,
 		testChannel.CounterpartyClientID, exported.Tendermint,
 	)
+}
+func (coord *Coordinator) AddPendingSendPackets(src *TestChain, packets ...channeltypes.Packet) {
+	src.PendingSendPackets = append(src.PendingSendPackets, packets...)
+}
+
+func (coord *Coordinator) RelayAndAckPendingPackets(src, dest *TestChain, srcClientID, dstClientID string) error {
+	// get all the packet to relay src->dest
+	toSend := src.PendingSendPackets
+	src.PendingSendPackets = nil
+	fmt.Printf("Relay %d Packets A->B\n", len(toSend))
+
+	// send this to the other side
+	coord.IncrementTime()
+	coord.CommitBlock(src)
+	err := coord.UpdateClient(dest, src, dstClientID, exported.Tendermint)
+	for _, packet := range toSend {
+		err = coord.RecvPacket(src, dest, srcClientID, packet)
+		if err != nil {
+			return err
+		}
+	}
+
+	// get all the acks to relay dest->src
+	toAck := dest.PendingAckPackets
+	dest.PendingAckPackets = nil
+	// TODO: assert >= len(toSend)?
+	fmt.Printf("Ack %d Packets B->A\n", len(toAck))
+
+	// send the ack back from dest -> src
+	coord.IncrementTime()
+	coord.CommitBlock(dest)
+	err = coord.UpdateClient(src, dest, srcClientID, exported.Tendermint)
+	if err != nil {
+		return err
+	}
+	for _, ack := range toAck {
+		err = coord.AcknowledgePacket(src, dest, srcClientID, ack.Packet, ack.Ack)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
