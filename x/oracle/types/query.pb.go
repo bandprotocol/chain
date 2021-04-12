@@ -132,7 +132,8 @@ func (m *QueryCountsResponse) GetRequestCount() int64 {
 
 // QueryDataRequest is request type for the Query/Data RPC method.
 type QueryDataRequest struct {
-	// DataHash is SHA256 hash of the file's content, which can be data source or oracle script
+	// DataHash is SHA256 hash of the file's content, which can be data source or
+	// oracle script
 	DataHash string `protobuf:"bytes,1,opt,name=data_hash,json=dataHash,proto3" json:"data_hash,omitempty"`
 }
 
@@ -458,8 +459,9 @@ func (m *QueryRequestRequest) GetRequestId() int64 {
 type QueryRequestResponse struct {
 	// RequestPacketData is information of oracle request submitted by a client
 	RequestPacketData *OracleRequestPacketData `protobuf:"bytes,1,opt,name=request_packet_data,json=requestPacketData,proto3" json:"request_packet_data,omitempty"`
-	// ResponsePacketData is information of oracle result that fulfilled the oracle request.
-	// The result can be empty if the request has not been fulfilled yet.
+	// ResponsePacketData is information of oracle result that fulfilled the
+	// oracle request. The result can be empty if the request has not been
+	// fulfilled yet.
 	ResponsePacketData *OracleResponsePacketData `protobuf:"bytes,2,opt,name=response_packet_data,json=responsePacketData,proto3" json:"response_packet_data,omitempty"`
 }
 
@@ -1224,9 +1226,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Counts queries the number of existing data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and
+	// requests.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// Data queries content of the data source or oracle script for given SHA256 file hash.
+	// Data queries content of the data source or oracle script for given SHA256
+	// file hash.
 	Data(ctx context.Context, in *QueryDataRequest, opts ...grpc.CallOption) (*QueryDataResponse, error)
 	// DataSource queries data source summary info for given data source id.
 	DataSource(ctx context.Context, in *QueryDataSourceRequest, opts ...grpc.CallOption) (*QueryDataSourceResponse, error)
@@ -1358,9 +1362,11 @@ func (c *queryClient) RequestPrice(ctx context.Context, in *QueryRequestPriceReq
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Counts queries the number of existing data sources, oracle scripts, and requests.
+	// Counts queries the number of existing data sources, oracle scripts, and
+	// requests.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// Data queries content of the data source or oracle script for given SHA256 file hash.
+	// Data queries content of the data source or oracle script for given SHA256
+	// file hash.
 	Data(context.Context, *QueryDataRequest) (*QueryDataResponse, error)
 	// DataSource queries data source summary info for given data source id.
 	DataSource(context.Context, *QueryDataSourceRequest) (*QueryDataSourceResponse, error)

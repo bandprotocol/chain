@@ -13,10 +13,10 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -194,7 +194,8 @@ var xxx_messageInfo_MsgRequestDataResponse proto.InternalMessageInfo
 type MsgReportData struct {
 	// RequestID is the identifier of the request to be reported to.
 	RequestID RequestID `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3,casttype=RequestID" json:"request_id,omitempty"`
-	// RawReports is the list of report information provided by data sources identified by external ID
+	// RawReports is the list of report information provided by data sources
+	// identified by external ID
 	RawReports []RawReport `protobuf:"bytes,2,rep,name=raw_reports,json=rawReports,proto3" json:"raw_reports"`
 	// Validator is the address of the validator that owns this report.
 	Validator string `protobuf:"bytes,3,opt,name=validator,proto3" json:"validator,omitempty"`
@@ -305,18 +306,19 @@ var xxx_messageInfo_MsgReportDataResponse proto.InternalMessageInfo
 type MsgCreateDataSource struct {
 	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source used for display (optional).
+	// Description is the description of this data source used for display
+	// (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// Executable is the content of executable script or binary file to be run by validators upon
-	// execution.
+	// Executable is the content of executable script or binary file to be run by
+	// validators upon execution.
 	Executable []byte `protobuf:"bytes,3,opt,name=executable,proto3" json:"executable,omitempty"`
 	// Fee is the data source fee per ask_count that data provider will receive
 	// from requester.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
 	// Treasury is the account address who recive data source fee from requester.
 	Treasury string `protobuf:"bytes,5,opt,name=treasury,proto3" json:"treasury,omitempty"`
-	// Owner is the account address who is allowed to make further changes to the data
-	// source.
+	// Owner is the account address who is allowed to make further changes to the
+	// data source.
 	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message.
 	Sender string `protobuf:"bytes,7,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -447,7 +449,8 @@ type MsgEditDataSource struct {
 	DataSourceID DataSourceID `protobuf:"varint,1,opt,name=data_source_id,json=dataSourceId,proto3,casttype=DataSourceID" json:"data_source_id,omitempty"`
 	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source used for display (optional).
+	// Description is the description of this data source used for display
+	// (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Executable is the executable script or binary to be run by validators upon
 	// execution.
@@ -595,7 +598,8 @@ var xxx_messageInfo_MsgEditDataSourceResponse proto.InternalMessageInfo
 type MsgCreateOracleScript struct {
 	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script used for display (optional).
+	// Description is the description of this oracle script used for display
+	// (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -692,7 +696,8 @@ func (m *MsgCreateOracleScript) GetSender() string {
 	return ""
 }
 
-// MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript message
+// MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript
+// message
 type MsgCreateOracleScriptResponse struct {
 }
 
@@ -735,7 +740,8 @@ type MsgEditOracleScript struct {
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
 	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script used for display (optional).
+	// Description is the description of this oracle script used for display
+	// (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -746,8 +752,8 @@ type MsgEditOracleScript struct {
 	// Owner is an account address who is allowed to make further changes to the
 	// oracle script.
 	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is an account address who sign this message. Must be the current oracle script's
-	// owner.
+	// Sender is an account address who sign this message. Must be the current
+	// oracle script's owner.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -881,7 +887,8 @@ var xxx_messageInfo_MsgEditOracleScriptResponse proto.InternalMessageInfo
 // oracle provider. However, the activation can be revoked once the validator
 // is unable to provide data to fulfill requests
 type MsgActivate struct {
-	// Validator is the validator address who sign this message and request to be activated.
+	// Validator is the validator address who sign this message and request to be
+	// activated.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -964,8 +971,8 @@ var xxx_messageInfo_MsgActivateResponse proto.InternalMessageInfo
 
 // MsgAddReporter is a message for adding a new reporter for a validator.
 type MsgAddReporter struct {
-	// Validator is the validator address who requested to add a new reporter. Note that this is the
-	// signer.
+	// Validator is the validator address who requested to add a new reporter.
+	// Note that this is the signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 	// Reporter is the account address to be added as a reporter to the validator.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
@@ -1058,10 +1065,11 @@ var xxx_messageInfo_MsgAddReporterResponse proto.InternalMessageInfo
 // MsgAddReporter is a message for removing an existing reporter from a
 // validator.
 type MsgRemoveReporter struct {
-	// Validator is the validator address who requested to remove an existing reporter. Note that this
-	// is the signer.
+	// Validator is the validator address who requested to remove an existing
+	// reporter. Note that this is the signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Reporter is the account address to be removed from being the validator's reporter.
+	// Reporter is the account address to be removed from being the validator's
+	// reporter.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
 }
 
