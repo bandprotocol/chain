@@ -32,7 +32,7 @@ func (coll *feeCollector) Collected() sdk.Coins {
 	return coll.collected
 }
 
-func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) Collector {
+func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
 
 	return &feeCollector{
 		bankKeeper: bankKeeper,

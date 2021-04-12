@@ -6,7 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-type Collector interface {
+type FeeCollector interface {
 	Collect(sdk.Context, sdk.Coins, sdk.AccAddress) error
 	Collected() sdk.Coins
 }

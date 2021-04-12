@@ -95,7 +95,6 @@ func (k WrappedBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk
 		return k.Keeper.MintCoins(ctx, moduleName, amt)
 	}
 
-	// TODO
 	vanillaMinting := k.mintKeeper.GetParams(ctx).MintAir
 	if vanillaMinting {
 		return k.Keeper.MintCoins(ctx, moduleName, amt)
