@@ -18,9 +18,8 @@ import (
 )
 
 const (
-	chainUpgradeGuide = "https://docs.cosmos.network/master/migrations/chain-upgrade-guide-040.html"
-	flagGenesisTime   = "genesis-time"
-	flagChainID       = "chain-id"
+	flagGenesisTime = "genesis-time"
+	flagChainID     = "chain-id"
 )
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
@@ -28,8 +27,8 @@ const (
 func MigrateGenesisCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate [genesis-file]",
-		Short: "Migrate Wenchang genesis to Guanyu version",
-		Long: fmt.Sprintf(`Migrate the Wenchang genesis into the Guanyu version and print to STDOUT.
+		Short: "Migrate Guanyu version to Laozi version",
+		Long: fmt.Sprintf(`Migrate the the Guanyu version into Laozi version and print to STDOUT.
 
 Example:
 $ %s migrate /path/to/genesis.json --chain-id=band-guanyu --genesis-time=2020-08-11T17:00:00Z
