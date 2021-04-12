@@ -13,10 +13,7 @@ type rewardCollector struct {
 
 func (r rewardCollector) Collect(ctx sdk.Context, coins sdk.DecCoins, address sdk.AccAddress) error {
 	r.collected = r.collected.Add(coins...)
-	// TODO: DecCoins does not implement ProtoMarshaller for now, so needs refactoring soon
-	for _, coin := range coins {
-		r.oracleKeeper.SetDataProviderAccumulatedReward(ctx, address, coin)
-	}
+	r.oracleKeeper.SetDataProviderAccumulatedReward(ctx, address, coins)
 	return nil
 }
 

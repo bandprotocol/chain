@@ -26,7 +26,7 @@ import (
 	bandapp "github.com/GeoDB-Limited/odin-core/app"
 	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
 	me "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
@@ -50,8 +50,8 @@ var (
 	OraclePoolProvider Account
 	FeePoolProvider    Account
 	Validators         []Account
-	DataSources        []types.DataSource
-	OracleScripts      []types.OracleScript
+	DataSources        []oracletypes.DataSource
+	OracleScripts      []oracletypes.OracleScript
 	OwasmVM            *owasm.Vm
 )
 
@@ -105,31 +105,31 @@ func createArbitraryAccount(r *rand.Rand) Account {
 	}
 }
 
-func getGenesisDataSources(homePath string) []types.DataSource {
+func getGenesisDataSources(homePath string) []oracletypes.DataSource {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
-	DataSources = []types.DataSource{{}} // 0th index should be ignored
+	DataSources = []oracletypes.DataSource{{}} // 0th index should be ignored
 	for idx := 0; idx < 5; idx++ {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
-		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Treasury.Address, Coins1000000odin,
+		DataSources = append(DataSources, oracletypes.NewDataSource(
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000odin,
 		))
 	}
 	return DataSources[1:]
 }
 
-func getGenesisOracleScripts(homePath string) []types.OracleScript {
+func getGenesisOracleScripts(homePath string) []oracletypes.OracleScript {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
-	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
+	OracleScripts = []oracletypes.OracleScript{{}} // 0th index should be ignored
 	wasms := [][]byte{
 		Wasm1, Wasm2, Wasm3, Wasm4, Wasm56(10), Wasm56(10000000), Wasm78(10), Wasm78(2000), Wasm9,
 	}
 	for idx := 0; idx < len(wasms); idx++ {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile(compile(wasms[idx]))
-		OracleScripts = append(OracleScripts, types.NewOracleScript(
+		OracleScripts = append(OracleScripts, oracletypes.NewOracleScript(
 			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
 		))
 	}
@@ -156,6 +156,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := bandapp.NewBandApp(logger, db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0)
+
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
@@ -239,15 +240,14 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	// Add genesis data sources and oracle scripts
-	oracleGenesis := types.DefaultGenesisState()
+	oracleGenesis := oracletypes.DefaultGenesisState()
 
-	oracleGenesis.Params.DataRequesterBasicFee = Coin10odin
-	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewDecCoinFromCoin(Coin1geo)
+	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewDecCoinsFromCoins(Coin1geo)
 
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 
-	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
+	genesis[oracletypes.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
 
 	// Initialize the sim blockchain. We are ready for testing!

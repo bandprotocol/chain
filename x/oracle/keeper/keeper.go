@@ -104,21 +104,21 @@ func (k Keeper) GetParams(ctx sdk.Context) (params oracletypes.Params) {
 	return params
 }
 
-func (k Keeper) SetDataProviderRewardPerByteParam(ctx sdk.Context, value sdk.DecCoin) {
+func (k Keeper) SetDataProviderRewardPerByteParam(ctx sdk.Context, value sdk.DecCoins) {
 	k.paramstore.Set(ctx, oracletypes.KeyDataProviderRewardPerByte, value)
 }
 
-func (k Keeper) GetDataProviderRewardPerByteParam(ctx sdk.Context) (res sdk.DecCoin) {
+func (k Keeper) GetDataProviderRewardPerByteParam(ctx sdk.Context) (res sdk.DecCoins) {
 	k.paramstore.Get(ctx, oracletypes.KeyDataProviderRewardPerByte, &res)
 	return res
 }
 
-func (k Keeper) SetDataRequesterBasicFeeParam(ctx sdk.Context, value sdk.Coin) {
-	k.paramstore.Set(ctx, oracletypes.KeyDataRequesterBasicFee, value)
+func (k Keeper) SetDataRequesterFeeDenomsParam(ctx sdk.Context, value []string) {
+	k.paramstore.Set(ctx, oracletypes.KeyDataRequesterFeeDenoms, value)
 }
 
-func (k Keeper) GetDataRequesterBasicFeeParam(ctx sdk.Context) (res sdk.Coin) {
-	k.paramstore.Get(ctx, oracletypes.KeyDataRequesterBasicFee, &res)
+func (k Keeper) GetDataRequesterFeeDenomsParam(ctx sdk.Context) (res []string) {
+	k.paramstore.Get(ctx, oracletypes.KeyDataRequesterFeeDenoms, &res)
 	return res
 }
 

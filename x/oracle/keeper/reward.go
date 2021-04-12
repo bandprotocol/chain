@@ -6,26 +6,27 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
-func (k Keeper) SetDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress, reward sdk.DecCoin) {
+func (k Keeper) SetDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress, reward sdk.DecCoins) {
 	key := oracletypes.DataProviderRewardsPrefixKey(acc)
 	if !k.HasDataProviderReward(ctx, acc) {
-		ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&reward))
+		ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(oracletypes.NewDataProviderAccumulatedReward(acc, reward)))
 		return
 	}
 	oldReward := k.GetDataProviderAccumulatedReward(ctx, acc)
-	newReward := oldReward.Add(reward)
-	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&newReward))
+	newReward := oldReward.Add(reward...)
+	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(oracletypes.NewDataProviderAccumulatedReward(acc, newReward)))
 }
 
 func (k Keeper) ClearDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(oracletypes.DataProviderRewardsPrefixKey(acc))
 }
 
-func (k Keeper) GetDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress) (reward sdk.DecCoin) {
+func (k Keeper) GetDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress) sdk.DecCoins {
 	key := oracletypes.DataProviderRewardsPrefixKey(acc)
 	bz := ctx.KVStore(k.storeKey).Get(key)
-	k.cdc.MustUnmarshalBinaryBare(bz, &reward)
-	return reward
+	dataProviderReward := oracletypes.DataProviderAccumulatedReward{}
+	k.cdc.MustUnmarshalBinaryBare(bz, &dataProviderReward)
+	return dataProviderReward.DataProviderReward
 }
 
 func (k Keeper) HasDataProviderReward(ctx sdk.Context, acc sdk.AccAddress) bool {
@@ -52,16 +53,16 @@ func (k Keeper) AllocateRewardsToDataProviders(ctx sdk.Context, rid oracletypes.
 		}
 		reward := k.GetDataProviderAccumulatedReward(ctx, ownerAccAddr)
 
-		diff, hasNeg := feePool.CommunityPool.SafeSub(sdk.NewDecCoins(reward))
+		diff, hasNeg := feePool.CommunityPool.SafeSub(reward)
 		if hasNeg {
-			logger.With("lack", diff, "denom", reward.Denom).Error("oracle pool does not have enough coins to reward data providers")
+			logger.With("lack", diff).Error("oracle pool does not have enough coins to reward data providers")
 			// not return because maybe still enough coins to pay someone
 			continue
 		}
 		feePool.CommunityPool = diff
 
 		rewardCoin, remainder := reward.TruncateDecimal()
-		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, ownerAccAddr, sdk.NewCoins(rewardCoin))
+		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, ownerAccAddr, rewardCoin)
 		if err != nil {
 			panic(err)
 		}
@@ -70,7 +71,7 @@ func (k Keeper) AllocateRewardsToDataProviders(ctx sdk.Context, rid oracletypes.
 		k.ClearDataProviderAccumulatedReward(ctx, ownerAccAddr)
 
 		// if there is something left, that we cannot pay now, we can store it for later
-		if remainder.IsPositive() {
+		if !remainder.IsZero() {
 			k.SetDataProviderAccumulatedReward(ctx, ownerAccAddr, remainder)
 		}
 	}

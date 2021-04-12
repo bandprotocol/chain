@@ -15,8 +15,7 @@ message DataSource {
   string name = 2;
   string description = 3;
   string filename = 4;
-  string treasury = 5;
-  repeated cosmos.base.v1beta1.Coin fee = 6 [
+  repeated cosmos.base.v1beta1.Coin fee = 5 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
@@ -254,4 +253,11 @@ message OraclePool {
   option (gogoproto.goproto_stringer) = true;
 
   repeated cosmos.base.v1beta1.DecCoin data_providers_pool = 1 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+}
+
+message DataProviderAccumulatedReward {
+  option (gogoproto.equal) = false;
+
+  string data_provider = 1;
+  repeated cosmos.base.v1beta1.DecCoin data_provider_reward = 2 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
 }

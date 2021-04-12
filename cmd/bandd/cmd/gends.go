@@ -19,12 +19,16 @@ import (
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
+const (
+	feeFlag = "fee"
+)
+
 // AddGenesisDataSourceCmd returns add-data-source cobra Command.
 func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-data-source [name] [description] [owner] [treasury] [fee] [filepath]",
+		Use:   "add-data-source [name] [description] [owner] [filepath] (--fee [fee])",
 		Short: "Add a data source to genesis.json",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			depCdc := clientCtx.JSONMarshaler
@@ -35,8 +39,11 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 
 			config.SetRoot(clientCtx.HomeDir)
 
+			name := args[0]
+			description := args[1]
+
 			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
-			data, err := ioutil.ReadFile(args[5])
+			data, err := ioutil.ReadFile(args[3])
 			if err != nil {
 				return err
 			}
@@ -45,24 +52,32 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			treasury, err := sdk.AccAddressFromBech32(args[3])
+			coinsRaw, err := cmd.Flags().GetString(feeFlag)
 			if err != nil {
 				return err
 			}
-			coins, err := sdk.ParseCoinsNormalized(args[4])
-			if err != nil {
-				return err
+
+			var coins sdk.Coins
+			if coinsRaw == "" {
+				coins = sdk.NewCoins()
+			} else {
+				coins, err = sdk.ParseCoinsNormalized(coinsRaw)
+				if err != nil {
+					return err
+				}
 			}
+
 			genFile := config.GenesisFile()
 			appState, genDoc, err := genutiltypes.GenesisStateFromGenFile(genFile)
 			if err != nil {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
-			// TODO: Add fee tag
+
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
-				owner, args[0], args[1], filename, treasury, coins,
+				owner, name, description, filename, coins,
 			))
+
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
 
 			if err != nil {
@@ -80,5 +95,6 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 		},
 	}
 	cmd.Flags().String(cli.HomeFlag, defaultNodeHome, "node's home directory")
+	cmd.Flags().String(feeFlag, "", "fee data requesters should pay in data providers pool")
 	return cmd
 }

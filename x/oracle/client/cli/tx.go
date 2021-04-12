@@ -26,7 +26,6 @@ const (
 	flagExecuteGas    = "execute-gas"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
-	flagTreasury      = "treasury"
 	flagSchema        = "schema"
 	flagSourceCodeURL = "url"
 )
@@ -159,7 +158,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 // GetCmdCreateDataSource implements the create data source command handler.
 func GetCmdCreateDataSource() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-data-source (--name [name]) (--description [description]) (--script [path-to-script]) (--fee [fee]) (--treasury [treasury]) (--owner [owner])",
+		Use:   "create-data-source (--name [name]) (--description [description]) (--script [path-to-script]) (--fee [fee]) (--owner [owner])",
 		Short: "Create a new data source",
 		Args:  cobra.NoArgs,
 		Long: strings.TrimSpace(
@@ -205,16 +204,6 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				return err
 			}
 
-			rawTreasury, err := cmd.Flags().GetString(flagTreasury)
-			if err != nil {
-				return err
-			}
-
-			treasury, err := sdk.AccAddressFromBech32(rawTreasury)
-			if err != nil {
-				return err
-			}
-
 			rawOwner, err := cmd.Flags().GetString(flagOwner)
 			if err != nil {
 				return err
@@ -230,7 +219,6 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				description,
 				execBytes,
 				fee,
-				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -247,7 +235,6 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 	cmd.Flags().String(flagDescription, "", "Description of this data source")
 	cmd.Flags().String(flagScript, "", "Path to this data source script")
 	cmd.Flags().String(flagFee, "", "Fee for usage of this data source")
-	cmd.Flags().String(flagTreasury, "", "Account address to send rewards to")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 
 	flags.AddTxFlagsToCmd(cmd)
@@ -315,16 +302,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			rawTreasury, err := cmd.Flags().GetString(flagTreasury)
-			if err != nil {
-				return err
-			}
-
-			treasury, err := sdk.AccAddressFromBech32(rawTreasury)
-			if err != nil {
-				return err
-			}
-
 			rawOwner, err := cmd.Flags().GetString(flagOwner)
 			if err != nil {
 				return err
@@ -341,7 +318,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				description,
 				execBytes,
 				fee,
-				treasury,
 				owner,
 				clientCtx.GetFromAddress(),
 			)
@@ -359,7 +335,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 	cmd.Flags().String(flagDescription, oracletypes.DoNotModify, "Description of this data source")
 	cmd.Flags().String(flagScript, oracletypes.DoNotModify, "Path to this data source script")
 	cmd.Flags().String(flagFee, "", "Fee for usage of this data source")
-	cmd.Flags().String(flagTreasury, "", "Account address to send rewards to")
 	cmd.Flags().String(flagOwner, "", "Owner of this data source")
 
 	flags.AddTxFlagsToCmd(cmd)

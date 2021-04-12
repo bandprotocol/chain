@@ -7,13 +7,13 @@ import (
 )
 
 type feeCollector struct {
-	bankKeeper types.BankKeeper
-	payer      sdk.AccAddress
-	collected  sdk.Coins
-	limit      sdk.Coins
+	oracleKeeper Keeper
+	payer        sdk.AccAddress
+	collected    sdk.Coins
+	limit        sdk.Coins
 }
 
-func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk.AccAddress) error {
+func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins) error {
 	coll.collected = coll.collected.Add(coins...)
 
 	// If found any collected coin that exceed limit then return error
@@ -25,19 +25,19 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 	}
 
 	// Actual send coins
-	return coll.bankKeeper.SendCoins(ctx, coll.payer, treasury, coins)
+	return coll.oracleKeeper.FundOraclePool(ctx, coins, coll.payer)
 }
 
 func (coll *feeCollector) Collected() sdk.Coins {
 	return coll.collected
 }
 
-func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
+func newFeeCollector(oracleKeeper Keeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
 
 	return &feeCollector{
-		bankKeeper: bankKeeper,
-		payer:      payer,
-		collected:  sdk.NewCoins(),
-		limit:      feeLimit,
+		oracleKeeper: oracleKeeper,
+		payer:        payer,
+		collected:    sdk.NewCoins(),
+		limit:        feeLimit,
 	}
 }

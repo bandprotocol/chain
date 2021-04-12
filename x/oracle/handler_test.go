@@ -23,19 +23,18 @@ import (
 func TestCreateDataSourceSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	dsCount := k.GetDataSourceCount(ctx)
-	treasury := testapp.Treasury.Address
 	owner := testapp.Owner.Address
 	name := "data_source_1"
 	description := "description"
 	executable := []byte("executable")
 	executableHash := sha256.Sum256(executable)
 	filename := hex.EncodeToString(executableHash[:])
-	msg := oracletypes.NewMsgCreateDataSource(name, description, executable, testapp.EmptyCoins, treasury, owner, testapp.Alice.Address)
+	msg := oracletypes.NewMsgCreateDataSource(name, description, executable, testapp.EmptyCoins, owner, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, oracletypes.DataSourceID(dsCount+1))
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.Treasury.Address, testapp.EmptyCoins), ds)
+	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins), ds)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeCreateDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))}},
@@ -45,7 +44,6 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 
 func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	treasury := testapp.Treasury.Address
 	owner := testapp.Owner.Address
 	name := "data_source_1"
 	description := "description"
@@ -55,7 +53,7 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	zw.Write(executable)
 	zw.Close()
 	sender := testapp.Alice.Address
-	msg := oracletypes.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, treasury, owner, sender)
+	msg := oracletypes.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, owner, sender)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.EqualError(t, err, "unexpected EOF: uncompression failed")
 	require.Nil(t, res)
@@ -68,12 +66,12 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	newExecutable := []byte("executable2")
 	newExecutableHash := sha256.Sum256(newExecutable)
 	newFilename := hex.EncodeToString(newExecutableHash[:])
-	msg := oracletypes.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg := oracletypes.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Treasury.Address, testapp.Coins1000000odin), ds)
+	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Coins1000000odin), ds)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte("1")}},
@@ -87,12 +85,12 @@ func TestEditDataSourceFail(t *testing.T) {
 	newDescription := "new_description"
 	newExecutable := []byte("executable2")
 	// Bad ID
-	msg := oracletypes.NewMsgEditDataSource(42, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg := oracletypes.NewMsgEditDataSource(42, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	// require.EqualError(t, err, "data source not found: id: 42")
 	require.Nil(t, res)
 	// Not owner
-	msg = oracletypes.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Bob.Address)
+	msg = oracletypes.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Bob.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	// require.EqualError(t, err, "editor not authorized")
 	require.Nil(t, res)
@@ -101,7 +99,7 @@ func TestEditDataSourceFail(t *testing.T) {
 	zw := gz.NewWriter(&buf)
 	zw.Write(newExecutable)
 	zw.Close()
-	msg = oracletypes.NewMsgEditDataSource(1, newName, newDescription, buf.Bytes()[:5], testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg = oracletypes.NewMsgEditDataSource(1, newName, newDescription, buf.Bytes()[:5], testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
 	_ = err
@@ -234,7 +232,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 }
 
 func TestRequestDataSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
 	msg := oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
@@ -259,7 +257,7 @@ func TestRequestDataSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: banktypes.EventTypeTransfer,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(banktypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
+			{Key: []byte(banktypes.AttributeKeyRecipient), Value: []byte(app.AccountKeeper.GetModuleAddress(oracletypes.ModuleName).String())},
 			{Key: []byte(banktypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
 			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000odin")},
 		},

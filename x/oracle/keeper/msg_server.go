@@ -117,13 +117,8 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 		return nil, err
 	}
 
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
-	if err != nil {
-		return nil, err
-	}
-
 	id := k.AddDataSource(ctx, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), treasury, msg.Fee,
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -143,11 +138,6 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 	}
 
 	owner, err := sdk.AccAddressFromBech32(dataSource.Owner)
-	if err != nil {
-		return nil, err
-	}
-
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +162,7 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), treasury, msg.Fee,
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(

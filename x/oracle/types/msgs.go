@@ -162,14 +162,13 @@ func (msg MsgReportData) GetSignBytes() []byte {
 
 // NewMsgCreateDataSource creates a new MsgCreateDataSource instance
 func NewMsgCreateDataSource(
-	name, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
+	name, description string, executable []byte, fee sdk.Coins, owner, sender sdk.AccAddress,
 ) *MsgCreateDataSource {
 	return &MsgCreateDataSource{
 		Name:        name,
 		Description: description,
 		Executable:  executable,
 		Fee:         fee,
-		Treasury:    treasury.String(),
 		Owner:       owner.String(),
 		Sender:      sender.String(),
 	}
@@ -183,10 +182,6 @@ func (msg MsgCreateDataSource) Type() string { return TypeMsgCreateDataSource }
 
 // ValidateBasic checks whether the given MsgCreateDataSource instance (sdk.Msg interface).
 func (msg MsgCreateDataSource) ValidateBasic() error {
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
-	if err != nil {
-		return err
-	}
 	owner, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return err
@@ -194,9 +189,6 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return err
-	}
-	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
@@ -239,7 +231,7 @@ func (msg MsgCreateDataSource) GetSignBytes() []byte {
 
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
 func NewMsgEditDataSource(
-	dataSourceID DataSourceID, name string, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
+	dataSourceID DataSourceID, name string, description string, executable []byte, fee sdk.Coins, owner, sender sdk.AccAddress,
 ) *MsgEditDataSource {
 	return &MsgEditDataSource{
 		DataSourceID: dataSourceID,
@@ -247,7 +239,6 @@ func NewMsgEditDataSource(
 		Description:  description,
 		Executable:   executable,
 		Fee:          fee,
-		Treasury:     treasury.String(),
 		Owner:        owner.String(),
 		Sender:       sender.String(),
 	}
@@ -261,10 +252,6 @@ func (msg MsgEditDataSource) Type() string { return TypeMsgEditDataSource }
 
 // ValidateBasic checks whether the given MsgEditDataSource instance (sdk.Msg interface).
 func (msg MsgEditDataSource) ValidateBasic() error {
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
-	if err != nil {
-		return err
-	}
 	owner, err := sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return err
@@ -272,9 +259,6 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return err
-	}
-	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)

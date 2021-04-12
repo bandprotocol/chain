@@ -37,10 +37,8 @@ message Params {
   uint64 max_data_size = 9;
   // MaxCalldataSize is the maximum number of bytes that can be present in the calldata
   uint64 max_calldata_size = 10;
-  // TODO: maybe use DecCoins
   // DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
-  cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.DecCoin", (gogoproto.nullable) = false];
-  // TODO: maybe use Coins
-  // DataRequesterBasicFee is the amount of tokens user has to pay in DataProvidersPool for the data provided
-  cosmos.base.v1beta1.Coin data_requester_basic_fee = 12 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin", (gogoproto.nullable) = false];
+  repeated cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+  // Denominations that can be used for withdrawing fee from data requesters
+  repeated string data_requester_fee_denoms = 12;
 }

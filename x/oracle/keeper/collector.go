@@ -7,7 +7,7 @@ import (
 )
 
 type FeeCollector interface {
-	Collect(sdk.Context, sdk.Coins, sdk.AccAddress) error
+	Collect(sdk.Context, sdk.Coins) error
 	Collected() sdk.Coins
 }
 
@@ -20,7 +20,7 @@ type RewardCollector interface {
 // CollectFee subtract fee from fee payer and send them to treasury
 func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
 
-	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
+	collector := newFeeCollector(k, feeLimit, payer)
 
 	for _, r := range rawRequests {
 
@@ -35,12 +35,7 @@ func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.C
 			fee = fee.Add(c)
 		}
 
-		treasury, err := sdk.AccAddressFromBech32(ds.Treasury)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := collector.Collect(ctx, fee, treasury); err != nil {
+		if err := collector.Collect(ctx, fee); err != nil {
 			return nil, err
 		}
 	}
@@ -72,7 +67,7 @@ func (k Keeper) CollectReward(ctx sdk.Context, rawReports []types.RawReport, raw
 			return nil, sdkerrors.Wrapf(err, "parsing data source owner address: %s", dsOwnerAddr)
 		}
 
-		err = collector.Collect(ctx, collector.CalculateReward(rawRep.Data, sdk.NewDecCoins(dataProviderRewardPerByte)), dsOwnerAddr)
+		err = collector.Collect(ctx, collector.CalculateReward(rawRep.Data, dataProviderRewardPerByte), dsOwnerAddr)
 		if err != nil {
 			return nil, err
 		}

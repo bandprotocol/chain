@@ -14,25 +14,25 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount                = uint64(12)
-	DefaultMaxAskCount                       = uint64(16)
-	DefaultExpirationBlockCount              = uint64(100)
-	DefaultBaseRequestGas                    = uint64(150000)
-	DefaultPerValidatorRequestGas            = uint64(30000)
-	DefaultSamplingTryCount                  = uint64(3)
-	DefaultOracleRewardPercentage            = uint64(70)
-	DefaultInactivePenaltyDuration           = uint64(10 * time.Minute)
-	DefaultMaxDataSize                       = uint64(1 * 1024) // 1 KB
-	DefaultMaxCalldataSize                   = uint64(1 * 1024) // 1 KB
-	DefaultDataProviderRewardDenom           = "geo"
-	DefaultDataRequesterBasicFeeDenom        = "odin"
-	DefaultPrepareGas                 uint64 = 40000
-	DefaultExecuteGas                 uint64 = 300000
+	DefaultMaxRawRequestCount             = uint64(12)
+	DefaultMaxAskCount                    = uint64(16)
+	DefaultExpirationBlockCount           = uint64(100)
+	DefaultBaseRequestGas                 = uint64(150000)
+	DefaultPerValidatorRequestGas         = uint64(30000)
+	DefaultSamplingTryCount               = uint64(3)
+	DefaultOracleRewardPercentage         = uint64(70)
+	DefaultInactivePenaltyDuration        = uint64(10 * time.Minute)
+	DefaultMaxDataSize                    = uint64(1 * 1024) // 1 KB
+	DefaultMaxCalldataSize                = uint64(1 * 1024) // 1 KB
+	DefaultDataProviderRewardDenom        = "geo"
+	DefaultDataRequesterFeeDenom          = "odin"
+	DefaultPrepareGas              uint64 = 40000
+	DefaultExecuteGas              uint64 = 300000
 )
 
 var (
-	DefaultDataProviderRewardPerByte = sdk.NewInt64DecCoin(DefaultDataProviderRewardDenom, 0)
-	DefaultDataRequesterBasicFee     = sdk.NewInt64Coin(DefaultDataRequesterBasicFeeDenom, 0)
+	DefaultDataProviderRewardPerByte = sdk.NewDecCoins(sdk.NewInt64DecCoin(DefaultDataProviderRewardDenom, 1))
+	DefaultDataRequesterFeeDenoms    = []string{DefaultDataRequesterFeeDenom}
 	DefaultFeeLimit                  = sdk.NewCoins()
 )
 
@@ -51,7 +51,7 @@ var (
 	KeyMaxDataSize               = []byte("MaxDataSize")
 	KeyMaxCalldataSize           = []byte("MaxCalldataSize")
 	KeyDataProviderRewardPerByte = []byte("DataProviderRewardPerByte")
-	KeyDataRequesterBasicFee     = []byte("DataRequesterBasicFee")
+	KeyDataRequesterFeeDenoms    = []byte("DataRequesterFeeDenoms")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -65,7 +65,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
 	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration, maxDataSize, maxCallDataSize uint64,
-	dataProviderRewardPerByte sdk.DecCoin, dataRequesterBasicFee sdk.Coin,
+	dataProviderRewardPerByte sdk.DecCoins, dataRequesterFeeDenoms []string,
 ) Params {
 	return Params{
 		MaxRawRequestCount:        maxRawRequestCount,
@@ -79,7 +79,7 @@ func NewParams(
 		MaxDataSize:               maxDataSize,
 		MaxCalldataSize:           maxCallDataSize,
 		DataProviderRewardPerByte: dataProviderRewardPerByte,
-		DataRequesterBasicFee:     dataRequesterBasicFee,
+		DataRequesterFeeDenoms:    dataRequesterFeeDenoms,
 	}
 }
 
@@ -97,7 +97,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxDataSize, &p.MaxDataSize, validateUint64("max data size", true)),
 		paramtypes.NewParamSetPair(KeyMaxCalldataSize, &p.MaxCalldataSize, validateUint64("max calldata size", true)),
 		paramtypes.NewParamSetPair(KeyDataProviderRewardPerByte, &p.DataProviderRewardPerByte, validateDataProviderRewardPerByte),
-		paramtypes.NewParamSetPair(KeyDataRequesterBasicFee, &p.DataRequesterBasicFee, validateDataRequesterFee),
+		paramtypes.NewParamSetPair(KeyDataRequesterFeeDenoms, &p.DataRequesterFeeDenoms, validateDataRequesterFeeDenoms),
 	}
 }
 
@@ -115,7 +115,7 @@ func DefaultParams() Params {
 		DefaultMaxDataSize,
 		DefaultMaxCalldataSize,
 		DefaultDataProviderRewardPerByte,
-		DefaultDataRequesterBasicFee,
+		DefaultDataRequesterFeeDenoms,
 	)
 }
 
@@ -139,25 +139,27 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 }
 
 func validateDataProviderRewardPerByte(i interface{}) error {
-	v, ok := i.(sdk.DecCoin)
+	v, ok := i.(sdk.DecCoins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.Amount.IsNegative() {
+	if v.IsAnyNegative() {
 		return fmt.Errorf("data provider reward must be positive: %v", v)
 	}
 	return nil
 }
 
-func validateDataRequesterFee(i interface{}) error {
-	v, ok := i.(sdk.Coin)
+func validateDataRequesterFeeDenoms(i interface{}) error {
+	v, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.Amount.IsNegative() {
-		return fmt.Errorf("data requester fee must be positive: %v", v)
+	for _, d := range v {
+		if err := sdk.ValidateDenom(d); err != nil {
+			return fmt.Errorf("denoms must be valid: %s, error: %w", d, err)
+		}
 	}
 	return nil
 }

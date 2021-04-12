@@ -48,7 +48,6 @@ func NewCmdWithdrawCoinsToAccFromTreasury() *cobra.Command {
 			if err != nil {
 				return sdkerrors.Wrapf(err, "receiver: %s", receiverStr)
 			}
-
 			amountStr, err := cmd.Flags().GetString(flagAmount)
 			if err != nil {
 				return sdkerrors.Wrapf(err, "flag: %s", flagAmount)

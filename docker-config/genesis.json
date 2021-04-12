@@ -355,10 +355,6 @@
         "data_provider_reward_per_byte": {
           "denom": "geo",
           "amount": "1.000000000000000000"
-        },
-        "data_requester_basic_fee": {
-          "denom": "loki",
-          "amount": "100"
         }
       },
       "data_sources": [],
