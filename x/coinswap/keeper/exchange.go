@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"strings"
 )
 
 // ExchangeDenom exchanges given amount
@@ -42,7 +43,7 @@ func (k Keeper) GetRate(ctx sdk.Context, fromDenom, toDenom string) (sdk.Dec, er
 	params := k.GetParams(ctx)
 
 	for _, ex := range params.Exchanges {
-		if ex.From == fromDenom && ex.To == toDenom {
+		if strings.ToLower(ex.From) == strings.ToLower(fromDenom) && strings.ToLower(ex.To) == strings.ToLower(toDenom) {
 			return initialRate.Mul(ex.RateMultiplier), nil
 		}
 	}
