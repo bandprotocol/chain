@@ -33,9 +33,21 @@ func getRateHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
+		from := vars["from"]
+		if from == "" {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid value, from: %s", from))
+			return
+		}
+
+		to := vars["to"]
+		if to == "" {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid value, to: %s", to))
+			return
+		}
+
 		params := coinswaptypes.QueryRateRequest{
-			From: vars["from"],
-			To:   vars["to"],
+			From: from,
+			To:   to,
 		}
 
 		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
