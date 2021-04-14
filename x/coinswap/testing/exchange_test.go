@@ -18,7 +18,7 @@ func TestKeeper_ExchangeDenom(t *testing.T) {
 	app, ctx, _ := testapp.CreateTestInput(false, true)
 
 	app.CoinswapKeeper.SetInitialRate(ctx, sdk.NewDec(initialRate))
-	app.CoinswapKeeper.SetParams(ctx, swaptypes.Params{RateMultiplier: sdk.NewDec(1)})
+	app.CoinswapKeeper.SetParams(ctx, swaptypes.DefaultParams())
 
 	err := app.CoinswapKeeper.ExchangeDenom(ctx, geo, odin, sdk.NewInt64Coin(geo, 10), testapp.Alice.Address)
 
