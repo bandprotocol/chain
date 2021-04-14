@@ -26,7 +26,7 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 		case oracletypes.QueryOracleScripts:
 			return queryOracleScriptByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequests:
-			return queryRequestByID(ctx, path[1:], keeper, req, cdc)
+			return queryRequest(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryValidatorStatus:
 			return queryValidatorStatus(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryReporters:
@@ -48,7 +48,7 @@ func queryParameters(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.
 }
 
 func queryCounts(ctx sdk.Context, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	return commontypes.QueryOK(cdc, oracletypes.QueryCountsResult{
+	return commontypes.QueryOK(cdc, oracletypes.QueryCountsResponse{
 		DataSourceCount:   k.GetDataSourceCount(ctx),
 		OracleScriptCount: k.GetOracleScriptCount(ctx),
 		RequestCount:      k.GetRequestCount(ctx),
@@ -92,8 +92,9 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.Requ
 	return commontypes.QueryOK(cdc, oracleScript)
 }
 
-func queryRequestByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 1 {
+// deprecated: to remove
+func queryRequestResult(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
 	}
 	id, err := strconv.ParseInt(path[0], 10, 64)
@@ -118,6 +119,35 @@ func queryRequestByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQu
 		Reports: reports,
 		Result:  &result,
 	})
+}
+
+func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) < 1 {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
+	}
+	id, err := strconv.ParseInt(path[0], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	r, err := k.GetResult(ctx, oracletypes.RequestID(id))
+	if err != nil {
+		return nil, err
+	}
+	// TODO: Define specification on this endpoint (For test only)
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResponse{RequestPacketData: &oracletypes.OracleRequestPacketData{
+		ClientID:       r.ClientID,
+		OracleScriptID: r.OracleScriptID,
+		Calldata:       r.Calldata,
+		AskCount:       r.AskCount,
+		MinCount:       r.MinCount,
+	}, ResponsePacketData: &oracletypes.OracleResponsePacketData{
+		RequestID:     r.RequestID,
+		AnsCount:      r.AnsCount,
+		RequestTime:   r.RequestTime,
+		ResolveTime:   r.ResolveTime,
+		ResolveStatus: r.ResolveStatus,
+		Result:        r.Result,
+	}})
 }
 
 func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {

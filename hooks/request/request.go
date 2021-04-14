@@ -3,7 +3,7 @@ package request
 import (
 	"database/sql"
 	"fmt"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/lib/pq"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -24,7 +24,7 @@ import (
 
 // Hook inherits from Band app hook to save latest request into SQL database.
 type Hook struct {
-	cdc          *codec.LegacyAmino
+	cdc          codec.JSONMarshaler
 	oracleKeeper oraclekeeper.Keeper
 	dbMap        *gorp.DbMap
 	trans        *gorp.Transaction
@@ -33,6 +33,10 @@ type Hook struct {
 func getDB(driverName string, dataSourceName string) *sql.DB {
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
+		panic(err)
+	}
+
+	if err := db.Ping(); err != nil {
 		panic(err)
 	}
 	return db
@@ -56,7 +60,7 @@ func initDb(connStr string) *gorp.DbMap {
 		panic(fmt.Sprintf("unknown driver %s", connStrs[0]))
 	}
 	indexName := "ix_calldata_min_count_ask_count_oracle_script_id_resolve_time"
-	dbMap.AddTableWithName(Request{}, "request").AddIndex(indexName, "Btree", []string{"calldata", "min_count", "ask_count", "oracle_script_id", "resolve_time"})
+	dbMap.AddTableWithName(Request{}, requestsTable).AddIndex(indexName, "Btree", []string{"calldata", "min_count", "ask_count", "oracle_script_id", "resolve_time"})
 	err := dbMap.CreateTablesIfNotExists()
 	if err != nil {
 		panic(err)
@@ -64,13 +68,19 @@ func initDb(connStr string) *gorp.DbMap {
 	err = dbMap.CreateIndex()
 	// Check error if it's not creating existed index, panic the process.
 	if err != nil && err.Error() != fmt.Sprintf("index %s already exists", indexName) {
-		panic(err)
+		if perr, ok := err.(*pq.Error); ok {
+			if perr.Code != "42P07" {
+				panic(perr)
+			}
+		} else {
+			panic(err)
+		}
 	}
 	return dbMap
 }
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc *codec.LegacyAmino, oracleKeeper oraclekeeper.Keeper, connStr string) *Hook {
+func NewHook(cdc codec.JSONMarshaler, oracleKeeper oraclekeeper.Keeper, connStr string) *Hook {
 	return &Hook{
 		cdc:          cdc,
 		oracleKeeper: oracleKeeper,
@@ -122,24 +132,20 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 	if paths[0] == common.AppHook {
 		switch paths[1] {
 		case oracletypes.QueryLatestRequest:
-			if len(paths) != 4 {
-				return common.QueryResultError(fmt.Errorf("expect 4 arguments given %d", len(paths))), true
+			if len(paths) != 3 {
+				return common.QueryResultError(fmt.Errorf("expect 3 arguments given %d", len(paths))), true
 			}
 
-			var requestSearchParams oracletypes.QueryRequestSearchParams
-			err := h.cdc.UnmarshalJSON(req.Data, &requestSearchParams)
+			var requestSearchRequest oracletypes.QueryRequestSearchRequest
+			err := h.cdc.UnmarshalJSON(req.Data, &requestSearchRequest)
 			if err != nil {
 				return abci.ResponseQuery{}, true
 			}
 
-			oid := oracletypes.OracleScriptID(common.Atoi(paths[2]))
-			if oid != requestSearchParams.OracleScriptID {
-				panic(sdkerrors.ErrInvalidRequest)
-			}
-			limit := common.Atoi(paths[3])
+			limit := common.Atoi(paths[2])
 
-			requestIDs := h.getMultiRequestID(requestSearchParams, limit)
-			bz, err := h.cdc.MarshalBinaryBare(requestIDs)
+			containerIDs := h.getMultiRequestID(requestSearchRequest, limit)
+			bz, err := h.cdc.MarshalJSON(&containerIDs)
 			if err != nil {
 				return common.QueryResultError(err), true
 			}

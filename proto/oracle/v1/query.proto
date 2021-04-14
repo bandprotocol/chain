@@ -159,7 +159,8 @@ message QueryRequestSearchRequest {
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
 message QueryRequestSearchResponse {
-  // TODO: add fields
+  OracleRequestPacketData request_packet_data = 1;
+  OracleResponsePacketData response_packet_data = 2;
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
@@ -186,4 +187,8 @@ message QueryDataProvidersPoolRequest {}
 message QueryDataProvidersPoolResponse {
   repeated cosmos.base.v1beta1.DecCoin pool = 1
   [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+}
+
+message QueryRequestIDs {
+  repeated int64 request_ids = 1;
 }

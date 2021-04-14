@@ -2,8 +2,7 @@ package oraclekeeper
 
 import (
 	"context"
-
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/grpc/codes"
@@ -15,12 +14,12 @@ type Querier struct {
 	Keeper
 }
 
-var _ types.QueryServer = Querier{}
+var _ oracletypes.QueryServer = Querier{}
 
 // Counts queries the number of data sources, oracle scripts, and requests.
-func (k Querier) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
+func (k Querier) Counts(c context.Context, req *oracletypes.QueryCountsRequest) (*oracletypes.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	return &types.QueryCountsResponse{
+	return &oracletypes.QueryCountsResponse{
 			DataSourceCount:   k.GetDataSourceCount(ctx),
 			OracleScriptCount: k.GetOracleScriptCount(ctx),
 			RequestCount:      k.GetRequestCount(ctx)},
@@ -28,7 +27,7 @@ func (k Querier) Counts(c context.Context, req *types.QueryCountsRequest) (*type
 }
 
 // Data queries the data source or oracle script script for given file hash.
-func (k Querier) Data(c context.Context, req *types.QueryDataRequest) (*types.QueryDataResponse, error) {
+func (k Querier) Data(c context.Context, req *oracletypes.QueryDataRequest) (*oracletypes.QueryDataResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -36,52 +35,65 @@ func (k Querier) Data(c context.Context, req *types.QueryDataRequest) (*types.Qu
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryDataResponse{Data: data}, nil
+	return &oracletypes.QueryDataResponse{Data: data}, nil
 }
 
 // DataSource queries data source info for given data source id.
-func (k Querier) DataSource(c context.Context, req *types.QueryDataSourceRequest) (*types.QueryDataSourceResponse, error) {
+func (k Querier) DataSource(c context.Context, req *oracletypes.QueryDataSourceRequest) (*oracletypes.QueryDataSourceResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	ds, err := k.GetDataSource(ctx, types.DataSourceID(req.DataSourceId))
+	ds, err := k.GetDataSource(ctx, oracletypes.DataSourceID(req.DataSourceId))
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryDataSourceResponse{DataSource: &ds}, nil
+	return &oracletypes.QueryDataSourceResponse{DataSource: &ds}, nil
 }
 
 // OracleScript queries oracle script info for given oracle script id.
-func (k Querier) OracleScript(c context.Context, req *types.QueryOracleScriptRequest) (*types.QueryOracleScriptResponse, error) {
+func (k Querier) OracleScript(c context.Context, req *oracletypes.QueryOracleScriptRequest) (*oracletypes.QueryOracleScriptResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	os, err := k.GetOracleScript(ctx, types.OracleScriptID(req.OracleScriptId))
+	os, err := k.GetOracleScript(ctx, oracletypes.OracleScriptID(req.OracleScriptId))
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryOracleScriptResponse{OracleScript: &os}, nil
+	return &oracletypes.QueryOracleScriptResponse{OracleScript: &os}, nil
 }
 
 // Request queries request info for given request id.
-func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*types.QueryRequestResponse, error) {
+func (k Querier) Request(c context.Context, req *oracletypes.QueryRequestRequest) (*oracletypes.QueryRequestResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetResult(ctx, types.RequestID(req.RequestId))
+	r, err := k.GetResult(ctx, oracletypes.RequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}
 	// TODO: Define specification on this endpoint (For test only)
-	return &types.QueryRequestResponse{RequestPacketData: &types.OracleRequestPacketData{}, ResponsePacketData: &types.OracleResponsePacketData{Result: r.Result}}, nil
+	return &oracletypes.QueryRequestResponse{RequestPacketData: &oracletypes.OracleRequestPacketData{
+		ClientID:       r.ClientID,
+		OracleScriptID: r.OracleScriptID,
+		Calldata:       r.Calldata,
+		AskCount:       r.AskCount,
+		MinCount:       r.MinCount,
+	}, ResponsePacketData: &oracletypes.OracleResponsePacketData{
+		RequestID:     r.RequestID,
+		AnsCount:      r.AnsCount,
+		RequestTime:   r.RequestTime,
+		ResolveTime:   r.ResolveTime,
+		ResolveStatus: r.ResolveStatus,
+		Result:        r.Result,
+	}}, nil
 }
 
 // Validator queries oracle info of validator for given validator
 // address.
-func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+func (k Querier) Validator(c context.Context, req *oracletypes.QueryValidatorRequest) (*oracletypes.QueryValidatorResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -90,15 +102,12 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 	if err != nil {
 		return nil, err
 	}
-	status := k.GetValidatorStatus(ctx, val)
-	if err != nil {
-		return nil, err
-	}
-	return &types.QueryValidatorResponse{Status: &status}, nil
+	validatorStatus := k.GetValidatorStatus(ctx, val)
+	return &oracletypes.QueryValidatorResponse{Status: &validatorStatus}, nil
 }
 
 // Reporters queries all reporters of a given validator address.
-func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+func (k Querier) Reporters(c context.Context, req *oracletypes.QueryReportersRequest) (*oracletypes.QueryReportersResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -112,56 +121,77 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	for idx, rep := range reps {
 		reporters[idx] = rep.String()
 	}
-	return &types.QueryReportersResponse{Reporter: reporters}, nil
+	return &oracletypes.QueryReportersResponse{Reporter: reporters}, nil
 }
 
 // ActiveValidators queries all active oracle validators.
-func (k Querier) ActiveValidators(c context.Context, req *types.QueryActiveValidatorsRequest) (*types.QueryActiveValidatorsResponse, error) {
+func (k Querier) ActiveValidators(c context.Context, req *oracletypes.QueryActiveValidatorsRequest) (*oracletypes.QueryActiveValidatorsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	var vals []types.QueryActiveValidatorResult
+	var vals []oracletypes.QueryActiveValidatorResult
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
-				vals = append(vals, types.QueryActiveValidatorResult{
+				vals = append(vals, oracletypes.QueryActiveValidatorResult{
 					Address: val.GetOperator(),
 					Power:   val.GetTokens().Uint64(),
 				})
 			}
 			return false
 		})
-	return &types.QueryActiveValidatorsResponse{Count: int64(len(vals))}, nil
+	return &oracletypes.QueryActiveValidatorsResponse{Count: int64(len(vals))}, nil
 }
 
 // Params queries the oracle parameters.
-func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (k Querier) Params(c context.Context, req *oracletypes.QueryParamsRequest) (*oracletypes.QueryParamsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
-	return &types.QueryParamsResponse{Params: params}, nil
+	return &oracletypes.QueryParamsResponse{Params: params}, nil
 }
 
-// TODO:
-// RequestSearch queries the latest request that match the given input.
-func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return &types.QueryRequestSearchResponse{}, nil
+// TODO: drop or change
+// RequestSearch queries the latest request that matches the given input.
+func (k Querier) RequestSearch(c context.Context, req *oracletypes.QueryRequestSearchRequest) (*oracletypes.QueryRequestSearchResponse, error) {
+
+	// TODO: revisit, maybe find another way
+	//var clientCtx client.Context
+	//rawClientCtx := c.Value(client.ClientContextKey)
+	//if rawClientCtx != nil {
+	//	clientCtx = *rawClientCtx.(*client.Context)
+	//} else {
+	//	// SHOULD NEVER HIT
+	//	panic("client ctx is empty")
+	//}
+	//clientCtx := client.Context{}
+	//
+	//resp, _, err := oracleclientcommon.QuerySearchLatestRequest(oracletypes.QuerierRoute, clientCtx, req)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//if resp == nil {
+	//	return &oracletypes.QueryRequestSearchResponse{}, nil
+	//}
+
+	return nil, nil
 }
 
 // TODO:
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
-func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return &types.QueryRequestPriceResponse{}, nil
+func (k Querier) RequestPrice(c context.Context, req *oracletypes.QueryRequestPriceRequest) (*oracletypes.QueryRequestPriceResponse, error) {
+	return &oracletypes.QueryRequestPriceResponse{}, nil
 }
 
-func (k Querier) DataProvidersPool(c context.Context, req *types.QueryDataProvidersPoolRequest) (*types.QueryDataProvidersPoolResponse, error) {
+func (k Querier) DataProvidersPool(c context.Context, req *oracletypes.QueryDataProvidersPoolRequest) (*oracletypes.QueryDataProvidersPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	return &types.QueryDataProvidersPoolResponse{
+	return &oracletypes.QueryDataProvidersPoolResponse{
 		Pool: k.GetOraclePool(ctx).DataProvidersPool,
 	}, nil
 }

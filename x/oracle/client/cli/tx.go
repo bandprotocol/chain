@@ -15,21 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	flagName          = "name"
-	flagDescription   = "description"
-	flagScript        = "script"
-	flagOwner         = "owner"
-	flagCalldata      = "calldata"
-	flagClientID      = "client-id"
-	flagPrepareGas    = "prepare-gas"
-	flagExecuteGas    = "execute-gas"
-	flagFeeLimit      = "fee-limit"
-	flagFee           = "fee"
-	flagSchema        = "schema"
-	flagSourceCodeURL = "url"
-)
-
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd() *cobra.Command {
 	oracleCmd := &cobra.Command{
@@ -53,8 +38,6 @@ func GetTxCmd() *cobra.Command {
 	return oracleCmd
 }
 
-// TODO make some args optional
-// TODO add args to examples
 // GetCmdRequest implements the request command handler.
 func GetCmdRequest() *cobra.Command {
 	cmd := &cobra.Command{
@@ -64,8 +47,8 @@ func GetCmdRequest() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Make a new request via an existing oracle script with the configuration flags.
 Example:
-$ %s tx oracle request 1 4 3 -c 1234abcdef -x 20 -m client-id --from mykey
-$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from mykey
+$ %s tx oracle request 1 4 3 -c 1234abcdef -m client-id -l 100loki -p 4000 -e 3000000 --from mykey
+$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-limit 100loki --prepare-gas 4000 --execute-gas 300000 --from mykey
 `,
 				version.AppName, version.AppName,
 			),
@@ -154,7 +137,6 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --from 
 	return cmd
 }
 
-// TODO add args to examples
 // GetCmdCreateDataSource implements the create data source command handler.
 func GetCmdCreateDataSource() *cobra.Command {
 	cmd := &cobra.Command{
@@ -164,7 +146,7 @@ func GetCmdCreateDataSource() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new data source that will be used by oracle scripts.
 Example:
-$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey
+$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner odin15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10loki,100geo --from mykey
 `,
 				version.AppName,
 			),
@@ -246,13 +228,13 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 // GetCmdEditDataSource implements the edit data source command handler.
 func GetCmdEditDataSource() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit-data-source [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--fee [fee]) (--treasury [treasury]) (--owner [owner])",
+		Use:   "edit-data-source [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--fee [fee]) (--owner [owner])",
 		Short: "Edit data source",
 		Args:  cobra.ExactArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Edit an existing data source. The caller must be the current data source's owner.
 Example:
-$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey
+$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10loki,100geo --from mykey
 `,
 				version.AppName,
 			),

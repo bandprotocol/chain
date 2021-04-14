@@ -3,6 +3,7 @@ module github.com/GeoDB-Limited/odin-core
 go 1.15
 
 require (
+	github.com/Masterminds/squirrel v1.5.0
 	github.com/bandprotocol/go-owasm v0.0.0-20210311072328-a6859c27139c
 	github.com/cosmos/cosmos-sdk v0.42.3
 	github.com/cosmos/go-bip39 v1.0.0
@@ -25,7 +26,6 @@ require (
 	github.com/poy/onpar v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.8.0
 	github.com/rakyll/statik v0.1.7
-	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/segmentio/kafka-go v0.4.9
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.1

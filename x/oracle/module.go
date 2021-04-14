@@ -77,7 +77,10 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the oracle module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	oracletypes.RegisterQueryHandlerClient(context.Background(), mux, oracletypes.NewQueryClient(clientCtx))
+	err := oracletypes.RegisterQueryHandlerClient(context.WithValue(context.Background(), client.ClientContextKey, clientCtx), mux, oracletypes.NewQueryClient(clientCtx))
+	if err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
@@ -123,6 +126,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+
 	oracletypes.RegisterMsgServer(cfg.MsgServer(), oraclekeeper.NewMsgServerImpl(am.keeper))
 	oracletypes.RegisterQueryServer(cfg.QueryServer(), oraclekeeper.Querier{Keeper: am.keeper})
 }

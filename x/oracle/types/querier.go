@@ -1,8 +1,6 @@
 package types
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
 // Query endpoints supported by the oracle Querier.
 const (
@@ -24,13 +22,14 @@ const (
 	QueryDataProvidersPool  = "data_providers_pool"
 )
 
-// QueryCountsResult is the struct for the result of query counts.
-type QueryCountsResult struct {
-	DataSourceCount   int64 `json:"data_source_count"`
-	OracleScriptCount int64 `json:"oracle_script_count"`
-	RequestCount      int64 `json:"request_count"`
+// deprecated: for legacy REST use only
+// QueryActiveValidatorResult is the struct for the result of request active validators.
+type QueryActiveValidatorResult struct {
+	Address sdk.ValAddress `json:"address"`
+	Power   uint64         `json:"power"`
 }
 
+// deprecated: for legacy REST use only
 // QueryRequestResult is the struct for the result of request query.
 type QueryRequestResult struct {
 	Request Request  `json:"request"`
@@ -38,42 +37,24 @@ type QueryRequestResult struct {
 	Result  *Result  `json:"result"`
 }
 
-// QueryActiveValidatorResult is the struct for the result of request active validators.
-type QueryActiveValidatorResult struct {
-	Address sdk.ValAddress `json:"address"`
-	Power   uint64         `json:"power"`
-}
-
-type QueryRequestSearchParams struct {
-	OracleScriptID OracleScriptID `json:"oracle_script_id" yaml:"oracle_script_id"`
-	CallData       []byte         `json:"call_data" yaml:"call_data"`
-	AskCount       int64          `json:"ask_count" yaml:"ask_count"`
-	MinCount       int64          `json:"min_count" yaml:"min_count"`
-}
-
-type RequestPrices struct {
-	Symbols  []string `json:"symbols"`
-	MinCount uint64   `json:"min_count"`
-	AskCount uint64   `json:"ask_count"`
-}
-
-type QueryRequestPricesParams struct {
-	Symbol   string `json:"symbol" yaml:"symbol"`
-	MinCount uint64 `json:"min_count" yaml:"min_count"`
-	AskCount uint64 `json:"ask_count" yaml:"ask_count"`
-}
-
-func NewQueryRequestSearchParams(oid OracleScriptID, callData []byte, askCount, minCount int64) QueryRequestSearchParams {
-	return QueryRequestSearchParams{
-		OracleScriptID: oid,
-		CallData:       callData,
+func NewQueryRequestSearchRequest(oid int64, callData []byte, askCount, minCount int64) *QueryRequestSearchRequest {
+	return &QueryRequestSearchRequest{
+		OracleScriptId: oid,
+		Calldata:       callData,
 		AskCount:       askCount,
 		MinCount:       minCount,
 	}
 }
 
-func NewQueryRequestPricesParams(symbol string, minCount, askCount uint64) QueryRequestPricesParams {
-	return QueryRequestPricesParams{
+func NewQueryRequestSearchResponse(req QueryRequestResponse) *QueryRequestSearchResponse {
+	return &QueryRequestSearchResponse{
+		RequestPacketData:  req.RequestPacketData,
+		ResponsePacketData: req.ResponsePacketData,
+	}
+}
+
+func NewQueryRequestPricesRequest(symbol string, minCount, askCount int64) QueryRequestPriceRequest {
+	return QueryRequestPriceRequest{
 		Symbol:   symbol,
 		MinCount: minCount,
 		AskCount: askCount,

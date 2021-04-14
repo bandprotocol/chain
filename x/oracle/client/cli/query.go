@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	oracleclientcommon "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -188,32 +189,37 @@ func GetQueryCmdRequest() *cobra.Command {
 // GetQueryCmdRequestSearch implements the search request command.
 func GetQueryCmdRequestSearch() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
-		Args: cobra.ExactArgs(4),
+		Use:  "request-search (-s [oracle-script-id]) (-c [calldata]) (-a [ask-count]) (-m [min-count])",
+		Args: cobra.RangeArgs(1, 4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			oId, err := strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-			callData := args[1]
-			askCount, err := strconv.ParseInt(args[2], 10, 64)
-			if err != nil {
-				return err
-			}
-			minCount, err := strconv.ParseInt(args[3], 10, 64)
+			oid, err := cmd.Flags().GetInt64(flagOracleScriptID)
 			if err != nil {
 				return err
 			}
 
-			queryClient := oracletypes.NewQueryClient(clientCtx)
-			res, err := queryClient.RequestSearch(cmd.Context(), &oracletypes.QueryRequestSearchRequest{
-				OracleScriptId: oId,
-				Calldata:       []byte(callData),
+			callData, err := cmd.Flags().GetBytesHex(flagCalldata)
+			if err != nil {
+				return err
+			}
+
+			askCount, err := cmd.Flags().GetInt64(flagAskCount)
+			if err != nil {
+				return err
+			}
+
+			minCount, err := cmd.Flags().GetInt64(flagMinCount)
+			if err != nil {
+				return err
+			}
+
+			res, _, err := oracleclientcommon.QuerySearchLatestRequest(oracletypes.QuerierRoute, clientCtx, &oracletypes.QueryRequestSearchRequest{
+				OracleScriptId: oid,
+				Calldata:       callData,
 				AskCount:       askCount,
 				MinCount:       minCount,
 			})
@@ -224,6 +230,10 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 			return clientCtx.PrintProto(res)
 		},
 	}
+	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
+	cmd.Flags().Int64P(flagOracleScriptID, "s", 0, "oracle script id used in request")
+	cmd.Flags().Int64P(flagMinCount, "m", 0, "min count used in request")
+	cmd.Flags().Int64P(flagAskCount, "a", 0, "ask count used in request")
 
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd

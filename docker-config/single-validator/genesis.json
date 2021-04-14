@@ -15,6 +15,7 @@
     },
     "validator": {
       "pub_key_types": [
+        "secp256k1",
         "ed25519"
       ]
     },
@@ -324,14 +325,12 @@
         "inactive_penalty_duration": "600000000000",
         "max_data_size": "1024",
         "max_calldata_size": "1024",
-        "data_provider_reward_per_byte": {
-          "denom": "geo",
-          "amount": "1.000000000000000000"
-        },
-        "data_requester_basic_fee": {
-          "denom": "loki",
-          "amount": "100"
-        }
+        "data_provider_reward_per_byte": [
+          {
+            "denom": "geo",
+            "amount": "1.000000000000000000"
+          }
+        ]
       },
       "data_sources": [],
       "oracle_scripts": [],

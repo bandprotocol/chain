@@ -4,7 +4,6 @@ import (
 	"fmt"
 	hookscommon "github.com/GeoDB-Limited/odin-core/hooks/common"
 	hookprice "github.com/GeoDB-Limited/odin-core/hooks/price"
-	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
 	oracleclientcommon "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -131,29 +130,33 @@ func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		oid, err := strconv.ParseInt(r.FormValue("oid"), 10, 64)
+		oid, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		callData := []byte(r.FormValue("calldata"))
+		var callData []byte
+		if r.FormValue("calldata") != "" {
+			callData = []byte(r.FormValue("calldata"))
+		}
 
-		askCount, err := strconv.ParseInt(r.FormValue("ask_count"), 10, 64)
+		askCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		minCount, err := strconv.ParseInt(r.FormValue("min_count"), 10, 64)
+		minCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		// TODO add search endpoint to querier
-		bin := clientCtx.LegacyAmino.MustMarshalJSON(oracletypes.NewQueryRequestSearchParams(oracletypes.OracleScriptID(oid), callData, askCount, minCount))
-		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequests), bin)
+		res, height, err := oracleclientcommon.QuerySearchLatestRequest(
+			oracletypes.QuerierRoute, clientCtx,
+			oracletypes.NewQueryRequestSearchRequest(oid, callData, askCount, minCount),
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -164,20 +167,19 @@ func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
-// TODO fix later
 func getRequestsPricesHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var requestPrices oracletypes.RequestPrices
+		var requestPrices []oracletypes.QueryRequestPriceRequest
 
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &requestPrices) {
 			return
 		}
 
-		prices := make([]hookprice.Price, len(requestPrices.Symbols))
+		prices := make([]hookprice.Price, len(requestPrices))
 		height := int64(0)
-		for idx, symbol := range requestPrices.Symbols {
+		for idx, requestPrice := range requestPrices {
 
-			bin := clientCtx.LegacyAmino.MustMarshalJSON(oracletypes.NewQueryRequestPricesParams(symbol, requestPrices.MinCount, requestPrices.AskCount))
+			bin := clientCtx.LegacyAmino.MustMarshalJSON(oracletypes.NewQueryRequestPricesRequest(requestPrice.Symbol, requestPrice.MinCount, requestPrice.AskCount))
 			res, h, err := clientCtx.QueryWithData(fmt.Sprintf("%s/%s", hookscommon.AppHook, oracletypes.QueryRequestPrices), bin)
 			if h > height {
 				height = h
@@ -195,14 +197,8 @@ func getRequestsPricesHandler(clientCtx client.Context) http.HandlerFunc {
 			prices[idx] = price
 		}
 
-		bz, err := commontypes.QueryOK(clientCtx.LegacyAmino, prices)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
 		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, bz)
+		rest.PostProcessResponse(w, clientCtx, prices)
 	}
 }
 
@@ -214,22 +210,20 @@ func getRequestsPriceSymbolsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		bz, height, err := clientCtx.Query(fmt.Sprintf("%s/%s", hookscommon.AppHook, oracletypes.QueryPriceSymbols))
-
-		var symbols []string
-		if err := clientCtx.LegacyAmino.UnmarshalBinaryBare(bz, &symbols); err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		bz, err = commontypes.QueryOK(clientCtx.LegacyAmino, symbols)
+		res, height, err := clientCtx.Query(fmt.Sprintf("%s/%s", hookscommon.AppHook, oracletypes.QueryPriceSymbols))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
+		var symbols []string
+		if err := clientCtx.LegacyAmino.UnmarshalBinaryBare(res, &symbols); err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
 		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, bz)
+		rest.PostProcessResponse(w, clientCtx, symbols)
 	}
 }
 
@@ -240,47 +234,50 @@ func getMultiRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		// TODO: maybe use rest.ParseHTTPArgsWithLimit
-		limit := 1
-		if rawLimit := r.FormValue("limit"); rawLimit != "" {
-			var err error
-			limit, err = strconv.Atoi(rawLimit)
-			if err != nil {
-				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			}
+		_, _, limit, err := rest.ParseHTTPArgsWithLimit(r, 1)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		}
 
-		oid, err := strconv.ParseInt(r.FormValue("oid"), 10, 64)
+		oid, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		callData := []byte(r.FormValue("calldata"))
+		var callData []byte
+		if r.FormValue("calldata") != "" {
+			callData = []byte(r.FormValue("calldata"))
+		}
 
-		askCount, err := strconv.ParseInt(r.FormValue("ask_count"), 10, 64)
+		askCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		minCount, err := strconv.ParseInt(r.FormValue("min_count"), 10, 64)
+		minCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		bz, height, err := oracleclientcommon.QueryMultiSearchLatestRequest(
+		requestResponse, height, err := oracleclientcommon.QueryMultiSearchLatestRequest(
 			oracletypes.QuerierRoute, clientCtx,
-			oracletypes.NewQueryRequestSearchParams(oracletypes.OracleScriptID(oid), callData, askCount, minCount), limit,
+			oracletypes.NewQueryRequestSearchRequest(oid, callData, askCount, minCount), limit,
 		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
+		if requestResponse == nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, "specified request not found")
+			return
+		}
+
 		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, bz)
+		rest.PostProcessResponse(w, clientCtx, requestResponse)
 	}
 }
 

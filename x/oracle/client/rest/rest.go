@@ -25,7 +25,7 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 	// TODO: fix
 	//rtr.HandleFunc(fmt.Sprintf("/%s/request_prices", oracletypes.ModuleName), getRequestsPricesHandler(clientCtx)).Methods("POST")
 	//rtr.HandleFunc(fmt.Sprintf("/%s/price_symbols", oracletypes.ModuleName), getRequestsPriceSymbolsHandler(clientCtx)).Methods("GET")
-	//rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryMultiRequestSearch), getMultiRequestSearchHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryMultiRequestSearch), getMultiRequestSearchHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryValidatorStatus, validatorAddressTag), getValidatorStatusHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryReporters, validatorAddressTag), getReportersHandler(clientCtx)).Methods("GET")
 	// TODO: maybe remove ???
