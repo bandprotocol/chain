@@ -32,11 +32,19 @@ func (msg MsgWithdrawCoinsToAccFromTreasury) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (msg MsgWithdrawCoinsToAccFromTreasury) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat([]byte(msg.Sender)); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "requester: %s", msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
 	}
-	if err := sdk.VerifyAddressFormat([]byte(msg.Receiver)); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "requester: %s", msg.Receiver)
+	receiver, err := sdk.AccAddressFromBech32(msg.Receiver)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(sender); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+	}
+	if err := sdk.VerifyAddressFormat(receiver); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "receiver: %s", msg.Receiver)
 	}
 	if !msg.Amount.IsValid() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "amount: %s", msg.Amount.String())
