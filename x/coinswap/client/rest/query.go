@@ -5,6 +5,7 @@ import (
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -30,7 +31,19 @@ func getRateHandler(clientCtx client.Context) http.HandlerFunc {
 		if !ok {
 			return
 		}
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", coinswaptypes.QuerierRoute, coinswaptypes.QueryRate))
+
+		vars := mux.Vars(r)
+		params := coinswaptypes.QueryRateRequest{
+			From: vars["from"],
+			To:   vars["to"],
+		}
+
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", coinswaptypes.QuerierRoute, coinswaptypes.QueryRate), bz)
 		if rest.CheckInternalServerError(w, err) {
 			return
 		}

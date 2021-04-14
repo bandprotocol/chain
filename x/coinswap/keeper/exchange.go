@@ -1,13 +1,14 @@
 package keeper
 
 import (
-	"github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
+// ExchangeDenom exchanges given amount
 func (k Keeper) ExchangeDenom(ctx sdk.Context, fromDenom, toDenom string, amt sdk.Coin, requester sdk.AccAddress) error {
 
 	// convert source amount to destination amount according to rate
@@ -35,19 +36,31 @@ func (k Keeper) ExchangeDenom(ctx sdk.Context, fromDenom, toDenom string, amt sd
 	return nil
 }
 
-func (k Keeper) GetRate(ctx sdk.Context) sdk.Dec {
-	params := types.Params{}
-	k.paramstore.GetParamSet(ctx, &params)
+// GetRate returns the exchange rate for the given pair
+func (k Keeper) GetRate(ctx sdk.Context, fromDenom, toDenom string) (sdk.Dec, error) {
 	initialRate := k.GetInitialRate(ctx)
-	return initialRate.Mul(params.RateMultiplier)
+	params := k.GetParams(ctx)
+
+	for _, ex := range params.Exchanges {
+		if ex.From == fromDenom && ex.To == toDenom {
+			return initialRate.Mul(ex.RateMultiplier), nil
+		}
+	}
+
+	return sdk.Dec{}, sdkerrors.Wrapf(coinswaptypes.ErrInvalidExchangeDenom, "failed to get rate from: %s, to: %s", fromDenom, toDenom)
 }
 
-// returns the converted amount according to current rate
+// convertToRate returns the converted amount according to current rate
 func (k Keeper) convertToRate(ctx sdk.Context, fromDenom, toDenom string, amt sdk.Coin) (sdk.DecCoin, error) {
-	rate := k.GetRate(ctx)
+	rate, err := k.GetRate(ctx, fromDenom, toDenom)
+	if err != nil {
+		return sdk.DecCoin{}, sdkerrors.Wrap(err, "failed to convert to rate")
+	}
+
 	if rate.GT(amt.Amount.ToDec()) {
 		return sdk.DecCoin{}, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "current rate: %s is higher then amount provided: %s", rate.String(), amt.String())
 	}
+
 	convertedAmt := amt.Amount.ToDec().QuoRoundUp(rate)
 	return sdk.NewDecCoinFromDec(toDenom, convertedAmt), nil
 }

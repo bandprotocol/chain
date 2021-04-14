@@ -202,16 +202,38 @@
     "coinswap": {
       "initial_rate": "10.000000000000000000",
       "params": {
-        "rate_multiplier": "1.000000000000000000",
-        "valid_exchanges": {
-          "exchanges": {
-            "geo": {
-              "value": [
-                "loki"
-              ]
-            }
+        "exchanges": [
+          {
+            "from": "geo",
+            "to": "loki",
+            "rate_multiplier": "1.000000000000000000"
+          },
+          {
+            "from": "loki",
+            "to": "geo",
+            "rate_multiplier": "1.000000000000000000"
+          },
+          {
+            "from": "loki",
+            "to": "eth",
+            "rate_multiplier": "1.500000000000000000"
+          },
+          {
+            "from": "eth",
+            "to": "loki",
+            "rate_multiplier": "2.000000000000000000"
+          },
+          {
+            "from": "loki",
+            "to": "wbtc",
+            "rate_multiplier": "2.000000000000000000"
+          },
+          {
+            "from": "wbtc",
+            "to": "loki",
+            "rate_multiplier": "3.000000000000000000"
           }
-        }
+        ]
       }
     },
     "crisis": {

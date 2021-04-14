@@ -23,7 +23,6 @@ func NewKeeper(
 	cdc codec.BinaryMarshaler,
 	key sdk.StoreKey,
 	subspace paramstypes.Subspace,
-	ak coinswaptypes.AccountKeeper,
 	bk coinswaptypes.BankKeeper,
 	dk coinswaptypes.DistrKeeper,
 	ok coinswaptypes.OracleKeeper) Keeper {
@@ -52,13 +51,7 @@ func (k Keeper) GetDecParam(ctx sdk.Context, key []byte) (res sdk.Dec) {
 	return res
 }
 
-// GetDecParam returns the parameter as specified by key as types.ValidExchanges
-func (k Keeper) GetValidExchangesParam(ctx sdk.Context, key []byte) (res coinswaptypes.ValidExchanges) {
-	k.paramstore.Get(ctx, key, &res)
-	return res
-}
-
-// SetParam saves the given key-value parameter to the store.
+// SetParams saves the given key-value parameter to the store.
 func (k Keeper) SetParams(ctx sdk.Context, value coinswaptypes.Params) {
 	k.paramstore.SetParamSet(ctx, &value)
 }
@@ -80,9 +73,4 @@ func (k Keeper) GetInitialRate(ctx sdk.Context) (rate sdk.Dec) {
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &rawRate)
 	rate = sdk.MustNewDecFromStr(rawRate.Value)
 	return rate
-}
-
-func (k Keeper) GetRateMultiplier(ctx sdk.Context) (multiplier sdk.Dec) {
-	k.paramstore.Get(ctx, coinswaptypes.KeyRateMultiplier, &multiplier)
-	return multiplier
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// RegisterCodec registers the module's concrete types on the codec.
+// RegisterLegacyAminoCodec registers the module's concrete types on the codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(MsgExchange{}, "coinswap/Exchange", nil)
 }

@@ -11,7 +11,7 @@ import "coinswap/params.proto";
 service Query {
   // Counts queries the number of data sources, oracle scripts, and requests.
   rpc Rate(QueryRateRequest) returns (QueryRateResponse) {
-    option (google.api.http).get = "/coinswap/rate";
+    option (google.api.http).get = "/coinswap/rate/{from}/{to}";
   }
 
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
