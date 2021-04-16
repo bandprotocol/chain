@@ -1,7 +1,6 @@
 package emitter
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/bandprotocol/chain/hooks/common"
@@ -54,7 +53,6 @@ func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Vali
 	currentReward, currentRatio := h.getCurrentRewardAndCurrentRatio(ctx, addr)
 	accCommission, _ := h.distrKeeper.GetValidatorAccumulatedCommission(ctx, addr).Commission.TruncateDecimal()
 	pub, _ := val.ConsPubKey()
-	fmt.Println("->", sdk.GetConsAddress(pub).String())
 
 	h.Write("SET_VALIDATOR", common.JsDict{
 		"operator_address":       addr.String(),
