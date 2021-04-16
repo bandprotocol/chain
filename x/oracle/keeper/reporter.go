@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -50,4 +51,18 @@ func (k Keeper) GetReporters(ctx sdk.Context, val sdk.ValAddress) (reporters []s
 		reporters = append(reporters, reporterAddress)
 	}
 	return reporters
+}
+
+func (k Keeper) GetAllReporters(ctx sdk.Context) map[string]string {
+	reporterMap := make(map[string]string)
+	k.stakingKeeper.IterateBondedValidatorsByPower(ctx, func(index int64, validator stakingtypes.ValidatorI) (stop bool) {
+		valAddress := validator.GetOperator()
+		reporters := k.GetReporters(ctx, valAddress)
+		for _, reporter := range reporters {
+			reporterMap[reporter.String()] = valAddress.String()
+		}
+		return false
+	})
+
+	return reporterMap
 }

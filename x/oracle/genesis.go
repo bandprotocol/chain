@@ -18,10 +18,27 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetRequestLastExpired(ctx, 0)
 	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
 	for _, dataSource := range data.DataSources {
+		dataSource.Fee = sdk.NewCoins(sdk.NewCoin("uband", sdk.ZeroInt()))
+		dataSource.Treasury = dataSource.Owner
+
 		_ = k.AddDataSource(ctx, dataSource)
 	}
 	for _, oracleScript := range data.OracleScripts {
 		_ = k.AddOracleScript(ctx, oracleScript)
+	}
+	for reporterAddrBech32, valAddrBech32 := range data.Reporters {
+		reporterAddr, err := sdk.AccAddressFromBech32(reporterAddrBech32)
+		if err != nil {
+			panic(fmt.Sprintf("unable to parse reporter address %s: %v", reporterAddrBech32, err))
+		}
+		valAddr, err := sdk.ValAddressFromBech32(valAddrBech32)
+		if err != nil {
+			panic(fmt.Sprintf("unable to parse validator address %s associated with the reporter %s: %v", valAddrBech32, reporterAddrBech32, err))
+		}
+		err = k.AddReporter(ctx, valAddr, reporterAddr)
+		if err != nil {
+			panic(fmt.Sprintf("unable to add reporter %s: %v", reporterAddrBech32, err))
+		}
 	}
 
 	k.SetPort(ctx, types.PortID)
@@ -43,5 +60,6 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		Params:        k.GetParams(ctx),
 		DataSources:   k.GetAllDataSources(ctx),
 		OracleScripts: k.GetAllOracleScripts(ctx),
+		Reporters:     k.GetAllReporters(ctx),
 	}
 }
