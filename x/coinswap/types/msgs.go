@@ -16,13 +16,14 @@ func (msg MsgExchange) Type() string { return "exchange" }
 
 // ValidateBasic checks whether the given MsgExchange instance (sdk.Msg interface).
 func (msg MsgExchange) ValidateBasic() error {
-	if err := sdk.VerifyAddressFormat([]byte(msg.Requester)); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "requester: %s", msg.Requester)
+	requester, err := sdk.AccAddressFromBech32(msg.Requester)
+	if err != nil {
+		return err
+	}
+	if err := sdk.VerifyAddressFormat(requester); err != nil {
+		return sdkerrors.Wrapf(err, "requester: %s", requester)
 	}
 	if ok := msg.Amount.IsValid(); !ok {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "amount: %s", msg.Amount)
-	}
-	if ok := msg.Amount.IsPositive(); !ok {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "amount: %s", msg.Amount)
 	}
 	if msg.To == "" || msg.From == "" {

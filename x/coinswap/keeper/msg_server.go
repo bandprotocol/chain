@@ -8,6 +8,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+var _ coinswaptypes.MsgServer = msgServer{}
+
 type msgServer struct {
 	Keeper
 }
@@ -43,5 +45,3 @@ func (m msgServer) Exchange(goCtx context.Context, msg *coinswaptypes.MsgExchang
 func NewMsgServerImpl(keeper Keeper) coinswaptypes.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
-
-var _ coinswaptypes.MsgServer = msgServer{}
