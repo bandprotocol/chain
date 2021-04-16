@@ -7,6 +7,9 @@ const (
 	StoreKey          = ModuleName
 	DefaultParamspace = ModuleName
 	QuerierRoute      = ModuleName
+
+	QueryParams = "params"
+	QueryRate   = "rate"
 )
 
 var (

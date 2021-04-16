@@ -323,7 +323,7 @@ func NewBandApp(
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
 	)
-	app.CoinswapKeeper = coinswapkeeper.NewKeeper(appCodec, keys[coinswaptypes.StoreKey], app.GetSubspace(coinswaptypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.OracleKeeper)
+	app.CoinswapKeeper = coinswapkeeper.NewKeeper(appCodec, keys[coinswaptypes.StoreKey], app.GetSubspace(coinswaptypes.ModuleName), app.BankKeeper, app.DistrKeeper, app.OracleKeeper)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
