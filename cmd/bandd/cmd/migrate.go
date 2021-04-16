@@ -11,8 +11,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
+	captypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	v040 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	ibcxfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	ibccoretypes "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -80,7 +84,18 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			// Migrate from guanyu (0.39 like genesis file) to cosmos-sdk v0.40
 			newGenState := v040.Migrate(initialState, clientCtx)
 			defaultLaozi := bandapp.NewDefaultGenesisState()
-			initialState[oracletypes.ModuleName] = defaultLaozi[oracletypes.ModuleName]
+
+			ibcTransferGenesis := ibcxfertypes.DefaultGenesisState()
+			ibcCoreGenesis := ibccoretypes.DefaultGenesisState()
+			capGenesis := captypes.DefaultGenesis()
+
+			ibcTransferGenesis.Params.ReceiveEnabled = false
+			ibcTransferGenesis.Params.SendEnabled = false
+
+			newGenState[ibcxfertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcTransferGenesis)
+			newGenState[host.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcCoreGenesis)
+			newGenState[captypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(capGenesis)
+			newGenState[oracletypes.ModuleName] = defaultLaozi[oracletypes.ModuleName]
 
 			genDoc.AppState, err = json.Marshal(newGenState)
 			if err != nil {
