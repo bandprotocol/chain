@@ -335,11 +335,15 @@ func (am AppModule) OnRecvPacket(
 	ms := ctx.MultiStore()
 	msCache := ms.CacheMultiStore()
 	if msCache.TracingEnabled() {
+		packetBytes, err := json.Marshal(packet)
+		if err != nil {
+			return nil, nil, err
+		}
 		msCache = msCache.SetTracingContext(
 			sdk.TraceContext(
 				map[string]interface{}{
 					// TODO: Find a good key of packet (like tx hash for transaction)
-					"packet": fmt.Sprintf("%X", tmhash.Sum(packet.GetData())),
+					"packet": fmt.Sprintf("%X", tmhash.Sum(packetBytes)),
 				},
 			),
 		).(sdk.CacheMultiStore)
