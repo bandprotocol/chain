@@ -98,13 +98,15 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			v039Codec := codec.NewLegacyAmino()
 			v040Codec := clientCtx.JSONMarshaler
+
 			var oracleGenesisState v039oracle.GenesisState
+			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisState)
+
 			var newOracleGenesisState oracletypes.GenesisState = oracletypes.GenesisState{
 				Params:        oracleGenesisState.Params,
 				OracleScripts: oracleGenesisState.OracleScripts,
 				Reporters:     oracleGenesisState.Reporters,
 			}
-			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisState)
 			for _, dataSource := range oracleGenesisState.DataSources {
 				newOracleGenesisState.DataSources = append(newOracleGenesisState.DataSources, oracletypes.DataSource{
 					Owner:       dataSource.Owner,
@@ -115,7 +117,6 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 					Fee:         sdk.NewCoins(),
 				})
 			}
-
 			newGenState[oracletypes.ModuleName] = v040Codec.MustMarshalJSON(&newOracleGenesisState)
 
 			genDoc.AppState, err = json.Marshal(newGenState)
