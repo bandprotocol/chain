@@ -112,7 +112,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 					Description: dataSource.Description,
 					Filename:    dataSource.Filename,
 					Treasury:    dataSource.Owner,
-					Fee:         sdk.NewCoins(sdk.NewCoin("uband", sdk.ZeroInt())),
+					Fee:         sdk.NewCoins(),
 				})
 			}
 
