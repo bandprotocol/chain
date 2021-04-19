@@ -12,8 +12,8 @@ type DataSource struct {
 }
 
 type GenesisState struct {
-	Params        types.Params         `json:"params" yaml:"params"`
-	DataSources   []DataSource         `json:"data_sources"  yaml:"data_sources"`
-	OracleScripts []types.OracleScript `json:"oracle_scripts"  yaml:"oracle_scripts"`
-	Reporters     map[string]string    `json:"reporters" yaml:"reporters"`
+	Params        types.Params                  `json:"params" yaml:"params"`
+	DataSources   []DataSource                  `json:"data_sources"  yaml:"data_sources"`
+	OracleScripts []types.OracleScript          `json:"oracle_scripts"  yaml:"oracle_scripts"`
+	Reporters     []types.ReportersPerValidator `json:"reporters" yaml:"reporters"`
 }
