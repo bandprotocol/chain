@@ -17,5 +17,5 @@ message GenesisState {
   repeated OracleScript oracle_scripts = 3 [ (gogoproto.nullable) = false ];
   // Reporters are mapping between reporter's account address (key) and
   // validator's validator address (value)
-  map<string, string> reporters = 6 [ (gogoproto.nullable) = false ];
+  repeated ReportersPerValidator reporters = 4 [ (gogoproto.nullable) = false ];
 }

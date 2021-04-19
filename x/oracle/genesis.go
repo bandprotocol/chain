@@ -23,18 +23,20 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	for _, oracleScript := range data.OracleScripts {
 		_ = k.AddOracleScript(ctx, oracleScript)
 	}
-	for reporterAddrBech32, valAddrBech32 := range data.Reporters {
-		reporterAddr, err := sdk.AccAddressFromBech32(reporterAddrBech32)
+	for _, reportersPerValidator := range data.Reporters {
+		valAddr, err := sdk.ValAddressFromBech32(reportersPerValidator.Validator)
 		if err != nil {
-			panic(fmt.Sprintf("unable to parse reporter address %s: %v", reporterAddrBech32, err))
+			panic(fmt.Sprintf("unable to parse validator address %s: %v", reportersPerValidator.Validator, err))
 		}
-		valAddr, err := sdk.ValAddressFromBech32(valAddrBech32)
-		if err != nil {
-			panic(fmt.Sprintf("unable to parse validator address %s associated with the reporter %s: %v", valAddrBech32, reporterAddrBech32, err))
-		}
-		err = k.AddReporter(ctx, valAddr, reporterAddr)
-		if err != nil {
-			panic(fmt.Sprintf("unable to add reporter %s: %v", reporterAddrBech32, err))
+		for _, reporterBech32 := range reportersPerValidator.Reporters {
+			reporterAddr, err := sdk.AccAddressFromBech32(reporterBech32)
+			if err != nil {
+				panic(fmt.Sprintf("unable to parse reporter address %s: %v", reporterBech32, err))
+			}
+			err = k.AddReporter(ctx, valAddr, reporterAddr)
+			if err != nil {
+				panic(fmt.Sprintf("unable to add reporter %s: %v", reporterBech32, err))
+			}
 		}
 	}
 

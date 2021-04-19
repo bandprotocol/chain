@@ -53,16 +53,21 @@ func (k Keeper) GetReporters(ctx sdk.Context, val sdk.ValAddress) (reporters []s
 	return reporters
 }
 
-func (k Keeper) GetAllReporters(ctx sdk.Context) map[string]string {
-	reporterMap := make(map[string]string)
+func (k Keeper) GetAllReporters(ctx sdk.Context) []types.ReportersPerValidator {
+	var reporterList []types.ReportersPerValidator
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx, func(index int64, validator stakingtypes.ValidatorI) (stop bool) {
 		valAddress := validator.GetOperator()
 		reporters := k.GetReporters(ctx, valAddress)
+		var reportersBech32 []string
 		for _, reporter := range reporters {
-			reporterMap[reporter.String()] = valAddress.String()
+			reportersBech32 = append(reportersBech32, reporter.String())
 		}
+		reporterList = append(reporterList, types.ReportersPerValidator{
+			Validator: sdk.ValAddress(valAddress).String(),
+			Reporters: reportersBech32,
+		})
 		return false
 	})
 
-	return reporterMap
+	return reporterList
 }
