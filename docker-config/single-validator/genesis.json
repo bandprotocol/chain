@@ -352,6 +352,9 @@
             "denom": "geo",
             "amount": "1.000000000000000000"
           }
+        ],
+        "data_requester_fee_denoms": [
+          "loki"
         ]
       },
       "data_sources": [],
