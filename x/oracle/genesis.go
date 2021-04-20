@@ -33,6 +33,9 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 			if err != nil {
 				panic(fmt.Sprintf("unable to parse reporter address %s: %v", reporterBech32, err))
 			}
+			if valAddr.Equals(sdk.ValAddress(reporterAddr)) {
+				continue
+			}
 			err = k.AddReporter(ctx, valAddr, reporterAddr)
 			if err != nil {
 				panic(fmt.Sprintf("unable to add reporter %s: %v", reporterBech32, err))
