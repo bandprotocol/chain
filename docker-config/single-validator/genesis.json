@@ -261,13 +261,13 @@
             "amount": "1000000000"
           }
         ],
-        "max_deposit_period": "172800s"
+        "max_deposit_period": "2m"
       },
       "voting_params": {
-        "voting_period": "172800s"
+        "voting_period": "2m"
       },
       "tally_params": {
-        "quorum": "0.334000000000000000",
+        "quorum": "0.000100000000000000",
         "threshold": "0.500000000000000000",
         "veto_threshold": "0.334000000000000000"
       }
@@ -305,7 +305,7 @@
     "mint": {
       "minter": {
         "inflation": "0.130000000000000000",
-        "annual_provisions": "0.000000000000000000"
+        "annual_provisions": "0.000100000000000000"
       },
       "params": {
         "eth_integration_address": "0xa19Df1199CeEfd7831576f1D055E454364337633",
