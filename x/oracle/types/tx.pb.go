@@ -13,10 +13,10 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -194,7 +194,8 @@ var xxx_messageInfo_MsgRequestDataResponse proto.InternalMessageInfo
 type MsgReportData struct {
 	// RequestID is the identifier of the request to be reported to.
 	RequestID RequestID `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3,casttype=RequestID" json:"request_id,omitempty"`
-	// RawReports is the list of report information provided by data sources identified by external ID
+	// RawReports is the list of report information provided by data sources
+	// identified by external ID
 	RawReports []RawReport `protobuf:"bytes,2,rep,name=raw_reports,json=rawReports,proto3" json:"raw_reports"`
 	// Validator is the address of the validator that owns this report.
 	Validator string `protobuf:"bytes,3,opt,name=validator,proto3" json:"validator,omitempty"`
@@ -305,18 +306,19 @@ var xxx_messageInfo_MsgReportDataResponse proto.InternalMessageInfo
 type MsgCreateDataSource struct {
 	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source used for display (optional).
+	// Description is the description of this data source used for display
+	// (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// Executable is the content of executable script or binary file to be run by validators upon
-	// execution.
+	// Executable is the content of executable script or binary file to be run by
+	// validators upon execution.
 	Executable []byte `protobuf:"bytes,3,opt,name=executable,proto3" json:"executable,omitempty"`
 	// Fee is the data source fee per ask_count that data provider will receive
 	// from requester.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
 	// Treasury is the account address who recive data source fee from requester.
 	Treasury string `protobuf:"bytes,5,opt,name=treasury,proto3" json:"treasury,omitempty"`
-	// Owner is the account address who is allowed to make further changes to the data
-	// source.
+	// Owner is the account address who is allowed to make further changes to the
+	// data source.
 	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
 	// Sender is the signer of this message.
 	Sender string `protobuf:"bytes,7,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -447,7 +449,8 @@ type MsgEditDataSource struct {
 	DataSourceID DataSourceID `protobuf:"varint,1,opt,name=data_source_id,json=dataSourceId,proto3,casttype=DataSourceID" json:"data_source_id,omitempty"`
 	// Name is the name of this data source used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this data source used for display (optional).
+	// Description is the description of this data source used for display
+	// (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Executable is the executable script or binary to be run by validators upon
 	// execution.
@@ -595,7 +598,8 @@ var xxx_messageInfo_MsgEditDataSourceResponse proto.InternalMessageInfo
 type MsgCreateOracleScript struct {
 	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script used for display (optional).
+	// Description is the description of this oracle script used for display
+	// (optional).
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -692,7 +696,8 @@ func (m *MsgCreateOracleScript) GetSender() string {
 	return ""
 }
 
-// MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript message
+// MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript
+// message
 type MsgCreateOracleScriptResponse struct {
 }
 
@@ -735,7 +740,8 @@ type MsgEditOracleScript struct {
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
 	// Name is the name of this oracle script used for display (optional).
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Description is the description of this oracle script used for display (optional).
+	// Description is the description of this oracle script used for display
+	// (optional).
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Schema is the OBI schema of this oracle script (optional).
 	Schema string `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
@@ -746,8 +752,8 @@ type MsgEditOracleScript struct {
 	// Owner is an account address who is allowed to make further changes to the
 	// oracle script.
 	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is an account address who sign this message. Must be the current oracle script's
-	// owner.
+	// Sender is an account address who sign this message. Must be the current
+	// oracle script's owner.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -881,7 +887,8 @@ var xxx_messageInfo_MsgEditOracleScriptResponse proto.InternalMessageInfo
 // oracle provider. However, the activation can be revoked once the validator
 // is unable to provide data to fulfill requests
 type MsgActivate struct {
-	// Validator is the validator address who sign this message and request to be activated.
+	// Validator is the validator address who sign this message and request to be
+	// activated.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -964,8 +971,8 @@ var xxx_messageInfo_MsgActivateResponse proto.InternalMessageInfo
 
 // MsgAddReporter is a message for adding a new reporter for a validator.
 type MsgAddReporter struct {
-	// Validator is the validator address who requested to add a new reporter. Note that this is the
-	// signer.
+	// Validator is the validator address who requested to add a new reporter.
+	// Note that this is the signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 	// Reporter is the account address to be added as a reporter to the validator.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
@@ -1058,10 +1065,11 @@ var xxx_messageInfo_MsgAddReporterResponse proto.InternalMessageInfo
 // MsgAddReporter is a message for removing an existing reporter from a
 // validator.
 type MsgRemoveReporter struct {
-	// Validator is the validator address who requested to remove an existing reporter. Note that this
-	// is the signer.
+	// Validator is the validator address who requested to remove an existing
+	// reporter. Note that this is the signer.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Reporter is the account address to be removed from being the validator's reporter.
+	// Reporter is the account address to be removed from being the validator's
+	// reporter.
 	Reporter string `protobuf:"bytes,2,opt,name=reporter,proto3" json:"reporter,omitempty"`
 }
 
@@ -1149,121 +1157,6 @@ func (m *MsgRemoveReporterResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRemoveReporterResponse proto.InternalMessageInfo
 
-// MsgDepositRequestPool is a message for deposit coin to request pool
-type MsgDepositRequestPool struct {
-	// RequestKey is the key of request pool
-	RequestKey string                                   `protobuf:"bytes,1,opt,name=request_key,json=requestKey,proto3" json:"request_key,omitempty"`
-	PortId     string                                   `protobuf:"bytes,2,opt,name=port_id,json=portId,proto3" json:"port_id,omitempty"`
-	ChannelId  string                                   `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Amount     github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
-	Sender     string                                   `protobuf:"bytes,5,opt,name=sender,proto3" json:"sender,omitempty"`
-}
-
-func (m *MsgDepositRequestPool) Reset()         { *m = MsgDepositRequestPool{} }
-func (m *MsgDepositRequestPool) String() string { return proto.CompactTextString(m) }
-func (*MsgDepositRequestPool) ProtoMessage()    {}
-func (*MsgDepositRequestPool) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{18}
-}
-func (m *MsgDepositRequestPool) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgDepositRequestPool) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgDepositRequestPool.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgDepositRequestPool) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDepositRequestPool.Merge(m, src)
-}
-func (m *MsgDepositRequestPool) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgDepositRequestPool) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDepositRequestPool.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgDepositRequestPool proto.InternalMessageInfo
-
-func (m *MsgDepositRequestPool) GetRequestKey() string {
-	if m != nil {
-		return m.RequestKey
-	}
-	return ""
-}
-
-func (m *MsgDepositRequestPool) GetPortId() string {
-	if m != nil {
-		return m.PortId
-	}
-	return ""
-}
-
-func (m *MsgDepositRequestPool) GetChannelId() string {
-	if m != nil {
-		return m.ChannelId
-	}
-	return ""
-}
-
-func (m *MsgDepositRequestPool) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
-	if m != nil {
-		return m.Amount
-	}
-	return nil
-}
-
-func (m *MsgDepositRequestPool) GetSender() string {
-	if m != nil {
-		return m.Sender
-	}
-	return ""
-}
-
-// MsgDepositRequestPoolResponse
-type MsgDepositRequestPoolResponse struct {
-}
-
-func (m *MsgDepositRequestPoolResponse) Reset()         { *m = MsgDepositRequestPoolResponse{} }
-func (m *MsgDepositRequestPoolResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgDepositRequestPoolResponse) ProtoMessage()    {}
-func (*MsgDepositRequestPoolResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31571edce0094a5d, []int{19}
-}
-func (m *MsgDepositRequestPoolResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgDepositRequestPoolResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgDepositRequestPoolResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgDepositRequestPoolResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDepositRequestPoolResponse.Merge(m, src)
-}
-func (m *MsgDepositRequestPoolResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgDepositRequestPoolResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDepositRequestPoolResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgDepositRequestPoolResponse proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*MsgRequestData)(nil), "oracle.v1.MsgRequestData")
 	proto.RegisterType((*MsgRequestDataResponse)(nil), "oracle.v1.MsgRequestDataResponse")
@@ -1283,8 +1176,6 @@ func init() {
 	proto.RegisterType((*MsgAddReporterResponse)(nil), "oracle.v1.MsgAddReporterResponse")
 	proto.RegisterType((*MsgRemoveReporter)(nil), "oracle.v1.MsgRemoveReporter")
 	proto.RegisterType((*MsgRemoveReporterResponse)(nil), "oracle.v1.MsgRemoveReporterResponse")
-	proto.RegisterType((*MsgDepositRequestPool)(nil), "oracle.v1.MsgDepositRequestPool")
-	proto.RegisterType((*MsgDepositRequestPoolResponse)(nil), "oracle.v1.MsgDepositRequestPoolResponse")
 }
 
 func init() { proto.RegisterFile("oracle/v1/tx.proto", fileDescriptor_31571edce0094a5d) }
@@ -1711,47 +1602,6 @@ func (this *MsgRemoveReporter) Equal(that interface{}) bool {
 		return false
 	}
 	if this.Reporter != that1.Reporter {
-		return false
-	}
-	return true
-}
-func (this *MsgDepositRequestPool) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*MsgDepositRequestPool)
-	if !ok {
-		that2, ok := that.(MsgDepositRequestPool)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.RequestKey != that1.RequestKey {
-		return false
-	}
-	if this.PortId != that1.PortId {
-		return false
-	}
-	if this.ChannelId != that1.ChannelId {
-		return false
-	}
-	if len(this.Amount) != len(that1.Amount) {
-		return false
-	}
-	for i := range this.Amount {
-		if !this.Amount[i].Equal(&that1.Amount[i]) {
-			return false
-		}
-	}
-	if this.Sender != that1.Sender {
 		return false
 	}
 	return true
@@ -2905,94 +2755,6 @@ func (m *MsgRemoveReporterResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgDepositRequestPool) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgDepositRequestPool) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgDepositRequestPool) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Sender) > 0 {
-		i -= len(m.Sender)
-		copy(dAtA[i:], m.Sender)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.Amount) > 0 {
-		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTx(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if len(m.ChannelId) > 0 {
-		i -= len(m.ChannelId)
-		copy(dAtA[i:], m.ChannelId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.ChannelId)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.PortId) > 0 {
-		i -= len(m.PortId)
-		copy(dAtA[i:], m.PortId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.PortId)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.RequestKey) > 0 {
-		i -= len(m.RequestKey)
-		copy(dAtA[i:], m.RequestKey)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.RequestKey)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgDepositRequestPoolResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgDepositRequestPoolResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgDepositRequestPoolResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -3350,46 +3112,6 @@ func (m *MsgRemoveReporter) Size() (n int) {
 }
 
 func (m *MsgRemoveReporterResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgDepositRequestPool) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.RequestKey)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.PortId)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.ChannelId)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	if len(m.Amount) > 0 {
-		for _, e := range m.Amount {
-			l = e.Size()
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	l = len(m.Sender)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgDepositRequestPoolResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -5731,268 +5453,6 @@ func (m *MsgRemoveReporterResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgRemoveReporterResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgDepositRequestPool) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDepositRequestPool: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDepositRequestPool: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RequestKey", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.RequestKey = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PortId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.PortId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChannelId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChannelId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Amount = append(m.Amount, types.Coin{})
-			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Sender = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgDepositRequestPoolResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDepositRequestPoolResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDepositRequestPoolResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

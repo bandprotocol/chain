@@ -23,7 +23,7 @@ message DataSource {
   // Treasury is the account address who recive data source fee from requester.
   string treasury = 5;
   // Fee is the data source fee per ask_count that data provider will receive
-	// from requester.
+  // from requester.
   repeated cosmos.base.v1beta1.Coin fee = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
@@ -43,10 +43,12 @@ message OracleScript {
   // compiled oracle script WASM file stored in bandchain nodes
   string filename = 4;
   // Schema is the schema of the oracle script input/output
-  // which is formatted in OBI format e.g. "{symbol:string,multiplier:u64}/{px:u64}"
+  // which is formatted in OBI format e.g.
+  // "{symbol:string,multiplier:u64}/{px:u64}"
   string schema = 5;
   // SourceCodeURL is the URL of oracle script's source code.
-  // It is recommendded to store source code on IPFS and get its URL to preserve decentralization.
+  // It is recommendded to store source code on IPFS and get its URL to preserve
+  // decentralization.
   string source_code_url = 6 [ (gogoproto.customname) = "SourceCodeURL" ];
 }
 
@@ -63,7 +65,8 @@ message RawRequest {
     (gogoproto.customname) = "DataSourceID",
     (gogoproto.casttype) = "DataSourceID"
   ];
-  // Calldata is the data used as argument params for executing data source script
+  // Calldata is the data used as argument params for executing data source
+  // script
   bytes calldata = 3;
 }
 
@@ -76,11 +79,12 @@ message RawReport {
     (gogoproto.casttype) = "ExternalID"
   ];
   // ExitCode is status code provided by validators to specify error, if any.
-  // Exit code is usually filled by the exit code returned from execution of specified data source script.
-  // With code 0 means there is no error.
+  // Exit code is usually filled by the exit code returned from execution of
+  // specified data source script. With code 0 means there is no error.
   uint32 exit_code = 2;
   // Data is raw result provided by validators.
-  // It is usually filled by the result from execution of specified data source script.
+  // It is usually filled by the result from execution of specified data source
+  // script.
   bytes data = 3;
 }
 
@@ -94,9 +98,11 @@ message Request {
   ];
   // Calldata is the data used as argument params for the oracle script
   bytes calldata = 2;
-  // RequestedValidators is a list of validator addresses that are assigned for fulfilling the request
+  // RequestedValidators is a list of validator addresses that are assigned for
+  // fulfilling the request
   repeated string requested_validators = 3;
-  // MinCount is minimum number of validators required for fulfilling the request
+  // MinCount is minimum number of validators required for fulfilling the
+  // request
   uint64 min_count = 4;
   // RequestHeight is block height that the request has been created
   int64 request_height = 5;
@@ -105,11 +111,12 @@ message Request {
   // ClientID is arbitrary id provided by requester.
   // It is used by client-side for referencing the request
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
-  // RawRequests is a list of raw requests specified by execution of oracle script
+  // RawRequests is a list of raw requests specified by execution of oracle
+  // script
   repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
-  // IBCSource is an IBC connection info of the other chain, which contains a channel and a port
-  // to allow bandchain connect to that chain. This field allows other chain be able to request data
-  // from bandchain via IBC.
+  // IBCSource is an IBC connection info of the other chain, which contains a
+  // channel and a port to allow bandchain connect to that chain. This field
+  // allows other chain be able to request data from bandchain via IBC.
   IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 10;
@@ -120,7 +127,8 @@ message Report {
   option (gogoproto.equal) = true;
   // Validator is a validator address who submit the report
   string validator = 1;
-  // InBeforeResolve indicates whether the report is submitted before the request resolved
+  // InBeforeResolve indicates whether the report is submitted before the
+  // request resolved
   bool in_before_resolve = 2;
   // RawReports is list of raw reports provided by the validator.
   // Each raw report has different external ID
@@ -160,7 +168,8 @@ message OracleRequestPacketData {
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
-  // Calldata is the OBI-encoded calldata bytes available for oracle executor to read.
+  // Calldata is the OBI-encoded calldata bytes available for oracle executor to
+  // read.
   bytes calldata = 3;
   // AskCount is the number of validators that are requested to respond to this
   // oracle request. Higher value means more security, at a higher gas cost.
@@ -317,7 +326,8 @@ message PendingResolveList {
   repeated int64 request_ids = 1;
 }
 
-// IBCSource is information of IBC protocol to allow communicating with other chain
+// IBCSource is information of IBC protocol to allow communicating with other
+// chain
 message IBCSource {
   option (gogoproto.equal) = true;
 

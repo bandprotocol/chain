@@ -12,6 +12,7 @@ message GenesisState {
   Params params = 1 [ (gogoproto.nullable) = false ];
   // DataSources are data sources to be installed during genesis phase
   repeated DataSource data_sources = 2 [ (gogoproto.nullable) = false ];
-  // OracleScripts are list of oracle scripts to be installed during genesis phase
+  // OracleScripts are list of oracle scripts to be installed during genesis
+  // phase
   repeated OracleScript oracle_scripts = 3 [ (gogoproto.nullable) = false ];
 }
