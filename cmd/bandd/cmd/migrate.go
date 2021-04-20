@@ -88,6 +88,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			ibcTransferGenesis := ibcxfertypes.DefaultGenesisState()
 			ibcCoreGenesis := ibccoretypes.DefaultGenesisState()
 			capGenesis := captypes.DefaultGenesis()
+			oracleGenesis := oracletypes.DefaultGenesisState()
 
 			ibcTransferGenesis.Params.ReceiveEnabled = false
 			ibcTransferGenesis.Params.SendEnabled = false
@@ -98,17 +99,13 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			v039Codec := codec.NewLegacyAmino()
 			v040Codec := clientCtx.JSONMarshaler
+			var oracleGenesisV039 v039oracle.GenesisState
+			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
 
-			var oracleGenesisState v039oracle.GenesisState
-			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisState)
-
-			var newOracleGenesisState oracletypes.GenesisState = oracletypes.GenesisState{
-				Params:        oracleGenesisState.Params,
-				OracleScripts: oracleGenesisState.OracleScripts,
-				Reporters:     oracleGenesisState.Reporters,
-			}
-			for _, dataSource := range oracleGenesisState.DataSources {
-				newOracleGenesisState.DataSources = append(newOracleGenesisState.DataSources, oracletypes.DataSource{
+			oracleGenesis.OracleScripts = oracleGenesisV039.OracleScripts
+			oracleGenesis.Reporters = oracleGenesisV039.Reporters
+			for _, dataSource := range oracleGenesisV039.DataSources {
+				oracleGenesis.DataSources = append(oracleGenesis.DataSources, oracletypes.DataSource{
 					Owner:       dataSource.Owner,
 					Name:        dataSource.Name,
 					Description: dataSource.Description,
@@ -117,7 +114,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 					Fee:         sdk.NewCoins(),
 				})
 			}
-			newGenState[oracletypes.ModuleName] = v040Codec.MustMarshalJSON(&newOracleGenesisState)
+			newGenState[oracletypes.ModuleName] = v040Codec.MustMarshalJSON(oracleGenesis)
 
 			genDoc.AppState, err = json.Marshal(newGenState)
 			if err != nil {
