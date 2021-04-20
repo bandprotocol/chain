@@ -12,7 +12,7 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -173,10 +173,12 @@ type OracleScript struct {
 	// compiled oracle script WASM file stored in bandchain nodes
 	Filename string `protobuf:"bytes,4,opt,name=filename,proto3" json:"filename,omitempty"`
 	// Schema is the schema of the oracle script input/output
-	// which is formatted in OBI format e.g. "{symbol:string,multiplier:u64}/{px:u64}"
+	// which is formatted in OBI format e.g.
+	// "{symbol:string,multiplier:u64}/{px:u64}"
 	Schema string `protobuf:"bytes,5,opt,name=schema,proto3" json:"schema,omitempty"`
 	// SourceCodeURL is the URL of oracle script's source code.
-	// It is recommendded to store source code on IPFS and get its URL to preserve decentralization.
+	// It is recommendded to store source code on IPFS and get its URL to preserve
+	// decentralization.
 	SourceCodeURL string `protobuf:"bytes,6,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
 }
 
@@ -261,7 +263,8 @@ type RawRequest struct {
 	ExternalID ExternalID `protobuf:"varint,1,opt,name=external_id,json=externalId,proto3,casttype=ExternalID" json:"external_id,omitempty"`
 	// DataSourceID is an ID of data source script that relates to the raw request
 	DataSourceID DataSourceID `protobuf:"varint,2,opt,name=data_source_id,json=dataSourceId,proto3,casttype=DataSourceID" json:"data_source_id,omitempty"`
-	// Calldata is the data used as argument params for executing data source script
+	// Calldata is the data used as argument params for executing data source
+	// script
 	Calldata []byte `protobuf:"bytes,3,opt,name=calldata,proto3" json:"calldata,omitempty"`
 }
 
@@ -324,11 +327,12 @@ type RawReport struct {
 	// ExternalID is an ID of the raw request
 	ExternalID ExternalID `protobuf:"varint,1,opt,name=external_id,json=externalId,proto3,casttype=ExternalID" json:"external_id,omitempty"`
 	// ExitCode is status code provided by validators to specify error, if any.
-	// Exit code is usually filled by the exit code returned from execution of specified data source script.
-	// With code 0 means there is no error.
+	// Exit code is usually filled by the exit code returned from execution of
+	// specified data source script. With code 0 means there is no error.
 	ExitCode uint32 `protobuf:"varint,2,opt,name=exit_code,json=exitCode,proto3" json:"exit_code,omitempty"`
 	// Data is raw result provided by validators.
-	// It is usually filled by the result from execution of specified data source script.
+	// It is usually filled by the result from execution of specified data source
+	// script.
 	Data []byte `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
 }
 
@@ -392,9 +396,11 @@ type Request struct {
 	OracleScriptID OracleScriptID `protobuf:"varint,1,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
 	// Calldata is the data used as argument params for the oracle script
 	Calldata []byte `protobuf:"bytes,2,opt,name=calldata,proto3" json:"calldata,omitempty"`
-	// RequestedValidators is a list of validator addresses that are assigned for fulfilling the request
+	// RequestedValidators is a list of validator addresses that are assigned for
+	// fulfilling the request
 	RequestedValidators []string `protobuf:"bytes,3,rep,name=requested_validators,json=requestedValidators,proto3" json:"requested_validators,omitempty"`
-	// MinCount is minimum number of validators required for fulfilling the request
+	// MinCount is minimum number of validators required for fulfilling the
+	// request
 	MinCount uint64 `protobuf:"varint,4,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
 	// RequestHeight is block height that the request has been created
 	RequestHeight int64 `protobuf:"varint,5,opt,name=request_height,json=requestHeight,proto3" json:"request_height,omitempty"`
@@ -403,11 +409,12 @@ type Request struct {
 	// ClientID is arbitrary id provided by requester.
 	// It is used by client-side for referencing the request
 	ClientID string `protobuf:"bytes,7,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// RawRequests is a list of raw requests specified by execution of oracle script
+	// RawRequests is a list of raw requests specified by execution of oracle
+	// script
 	RawRequests []RawRequest `protobuf:"bytes,8,rep,name=raw_requests,json=rawRequests,proto3" json:"raw_requests"`
-	// IBCSource is an IBC connection info of the other chain, which contains a channel and a port
-	// to allow bandchain connect to that chain. This field allows other chain be able to request data
-	// from bandchain via IBC.
+	// IBCSource is an IBC connection info of the other chain, which contains a
+	// channel and a port to allow bandchain connect to that chain. This field
+	// allows other chain be able to request data from bandchain via IBC.
 	IBCSource *IBCSource `protobuf:"bytes,9,opt,name=ibc_source,json=ibcSource,proto3" json:"ibc_source,omitempty"`
 	// ExecuteGas is amount of gas to reserve for executing
 	ExecuteGas uint64 `protobuf:"varint,10,opt,name=execute_gas,json=executeGas,proto3" json:"execute_gas,omitempty"`
@@ -520,7 +527,8 @@ func (m *Request) GetExecuteGas() uint64 {
 type Report struct {
 	// Validator is a validator address who submit the report
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// InBeforeResolve indicates whether the report is submitted before the request resolved
+	// InBeforeResolve indicates whether the report is submitted before the
+	// request resolved
 	InBeforeResolve bool `protobuf:"varint,2,opt,name=in_before_resolve,json=inBeforeResolve,proto3" json:"in_before_resolve,omitempty"`
 	// RawReports is list of raw reports provided by the validator.
 	// Each raw report has different external ID
@@ -591,7 +599,8 @@ type OracleRequestPacketData struct {
 	// OracleScriptID is the unique identifier of the oracle script to be
 	// executed.
 	OracleScriptID OracleScriptID `protobuf:"varint,2,opt,name=oracle_script_id,json=oracleScriptId,proto3,casttype=OracleScriptID" json:"oracle_script_id,omitempty"`
-	// Calldata is the OBI-encoded calldata bytes available for oracle executor to read.
+	// Calldata is the OBI-encoded calldata bytes available for oracle executor to
+	// read.
 	Calldata []byte `protobuf:"bytes,3,opt,name=calldata,proto3" json:"calldata,omitempty"`
 	// AskCount is the number of validators that are requested to respond to this
 	// oracle request. Higher value means more security, at a higher gas cost.
@@ -1228,7 +1237,8 @@ func (m *PendingResolveList) GetRequestIds() []int64 {
 	return nil
 }
 
-// IBCSource is information of IBC protocol to allow communicating with other chain
+// IBCSource is information of IBC protocol to allow communicating with other
+// chain
 type IBCSource struct {
 	// SourceChannel is channel ID used for communicating with other chains
 	SourceChannel string `protobuf:"bytes,1,opt,name=source_channel,json=sourceChannel,proto3" json:"source_channel,omitempty"`
