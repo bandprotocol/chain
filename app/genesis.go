@@ -17,6 +17,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	ibctransfer "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer"
+	ibctransafertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -60,19 +62,20 @@ func NewDefaultGenesisState() GenesisState {
 	slashingGenesis.Params.SlashFractionDoubleSign = sdk.NewDecWithPrec(5, 2) // 5%
 	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
 	return GenesisState{
-		authtypes.ModuleName:       cdc.MustMarshalJSON(authGenesis),
-		genutiltypes.ModuleName:    genutil.AppModuleBasic{}.DefaultGenesis(cdc),
-		banktypes.ModuleName:       bank.AppModuleBasic{}.DefaultGenesis(cdc),
-		capabilitytypes.ModuleName: capability.AppModuleBasic{}.DefaultGenesis(cdc),
-		stakingtypes.ModuleName:    cdc.MustMarshalJSON(stakingGenesis),
-		minttypes.ModuleName:       cdc.MustMarshalJSON(mintGenesis),
-		distrtypes.ModuleName:      cdc.MustMarshalJSON(distrGenesis),
-		govtypes.ModuleName:        cdc.MustMarshalJSON(govGenesis),
-		crisistypes.ModuleName:     cdc.MustMarshalJSON(crisisGenesis),
-		slashingtypes.ModuleName:   cdc.MustMarshalJSON(slashingGenesis),
-		ibchost.ModuleName:         ibc.AppModuleBasic{}.DefaultGenesis(cdc),
-		upgradetypes.ModuleName:    upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
-		evidencetypes.ModuleName:   evidence.AppModuleBasic{}.DefaultGenesis(cdc),
-		oracletypes.ModuleName:     oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
+		genutiltypes.ModuleName:      genutil.AppModuleBasic{}.DefaultGenesis(cdc),
+		banktypes.ModuleName:         bank.AppModuleBasic{}.DefaultGenesis(cdc),
+		capabilitytypes.ModuleName:   capability.AppModuleBasic{}.DefaultGenesis(cdc),
+		stakingtypes.ModuleName:      cdc.MustMarshalJSON(stakingGenesis),
+		minttypes.ModuleName:         cdc.MustMarshalJSON(mintGenesis),
+		distrtypes.ModuleName:        cdc.MustMarshalJSON(distrGenesis),
+		govtypes.ModuleName:          cdc.MustMarshalJSON(govGenesis),
+		crisistypes.ModuleName:       cdc.MustMarshalJSON(crisisGenesis),
+		slashingtypes.ModuleName:     cdc.MustMarshalJSON(slashingGenesis),
+		ibchost.ModuleName:           ibc.AppModuleBasic{}.DefaultGenesis(cdc),
+		upgradetypes.ModuleName:      upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
+		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
+		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
+		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }
