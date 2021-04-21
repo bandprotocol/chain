@@ -55,7 +55,7 @@ func (k Keeper) PrepareRequest(
 	ctx sdk.Context,
 	r types.RequestSpec,
 	feePayer sdk.AccAddress,
-	ibcSource *types.IBCSource,
+	ibcChannel *types.IBCChannel,
 ) (types.RequestID, error) {
 	askCount := r.GetAskCount()
 	if askCount > k.GetParam(ctx, types.KeyMaxAskCount) {
@@ -74,7 +74,7 @@ func (k Keeper) PrepareRequest(
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcSource, r.GetExecuteGas(),
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcChannel, r.GetExecuteGas(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.

@@ -3,7 +3,6 @@ package oracle
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"math"
 	"math/rand"
 
@@ -23,7 +22,6 @@ import (
 	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/bandprotocol/chain/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/x/oracle/client/rest"
@@ -329,33 +327,17 @@ func (am AppModule) OnRecvPacket(
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 oracle request packet data: %s", err.Error())
 	}
+	escrowAddress := types.GetEscrowAddress(data.RequestKey, packet.DestinationPort, packet.DestinationChannel)
+	ibcChannel := types.NewIBCChannel(packet.DestinationPort, packet.DestinationChannel)
 
-	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-
-	ms := ctx.MultiStore()
-	msCache := ms.CacheMultiStore()
-	if msCache.TracingEnabled() {
-		packetBytes, err := json.Marshal(packet)
-		if err != nil {
-			return nil, nil, err
-		}
-		msCache = msCache.SetTracingContext(
-			sdk.TraceContext(
-				map[string]interface{}{
-					// TODO: Find a good key of packet (like tx hash for transaction)
-					"packet": fmt.Sprintf("%X", tmhash.Sum(packetBytes)),
-				},
-			),
-		).(sdk.CacheMultiStore)
-	}
-	escrowAddress := types.GetEscrowAddress(data.RequestKey, source.SourcePort, source.SourceChannel)
-	id, err := am.keeper.PrepareRequest(ctx.WithMultiStore(msCache), &data, escrowAddress, &source)
+	cacheCtx, writeFn := ctx.CacheContext()
+	id, err := am.keeper.PrepareRequest(cacheCtx, &data, escrowAddress, &ibcChannel)
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
-		msCache.Write()
+		writeFn()
 		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 

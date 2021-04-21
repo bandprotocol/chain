@@ -99,9 +99,9 @@ func (k Keeper) SaveResult(
 		result,                             // Result
 	))
 
-	if r.IBCSource != nil {
-		sourceChannel := r.IBCSource.SourceChannel
-		sourcePort := r.IBCSource.SourcePort
+	if r.IBCChannel != nil {
+		sourceChannel := r.IBCChannel.ChannelId
+		sourcePort := r.IBCChannel.PortId
 		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 		if !found {
 			panic(fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel))

@@ -29,7 +29,8 @@ type GenesisState struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// DataSources are data sources to be installed during genesis phase
 	DataSources []DataSource `protobuf:"bytes,2,rep,name=data_sources,json=dataSources,proto3" json:"data_sources"`
-	// OracleScripts are list of oracle scripts to be installed during genesis phase
+	// OracleScripts are list of oracle scripts to be installed during genesis
+	// phase
 	OracleScripts []OracleScript `protobuf:"bytes,3,rep,name=oracle_scripts,json=oracleScripts,proto3" json:"oracle_scripts"`
 }
 
