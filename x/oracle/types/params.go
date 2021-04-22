@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
 
 	"gopkg.in/yaml.v2"
@@ -13,28 +14,44 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount      = uint64(12)
-	DefaultMaxAskCount             = uint64(16)
-	DefaultExpirationBlockCount    = uint64(100)
-	DefaultBaseRequestGas          = uint64(150000)
-	DefaultPerValidatorRequestGas  = uint64(30000)
-	DefaultSamplingTryCount        = uint64(3)
-	DefaultOracleRewardPercentage  = uint64(70)
-	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
+	DefaultMaxRawRequestCount             = uint64(12)
+	DefaultMaxAskCount                    = uint64(16)
+	DefaultExpirationBlockCount           = uint64(100)
+	DefaultBaseRequestGas                 = uint64(150000)
+	DefaultPerValidatorRequestGas         = uint64(30000)
+	DefaultSamplingTryCount               = uint64(3)
+	DefaultOracleRewardPercentage         = uint64(70)
+	DefaultInactivePenaltyDuration        = uint64(10 * time.Minute)
+	DefaultMaxDataSize                    = uint64(1 * 1024) // 1 KB
+	DefaultMaxCalldataSize                = uint64(1 * 1024) // 1 KB
+	DefaultDataProviderRewardDenom        = "geo"
+	DefaultDataRequesterFeeDenom          = "odin"
+	DefaultPrepareGas              uint64 = 40000
+	DefaultExecuteGas              uint64 = 300000
+)
+
+var (
+	DefaultDataProviderRewardPerByte = sdk.NewDecCoins(sdk.NewInt64DecCoin(DefaultDataProviderRewardDenom, 1))
+	DefaultDataRequesterFeeDenoms    = []string{DefaultDataRequesterFeeDenom}
+	DefaultFeeLimit                  = sdk.NewCoins()
 )
 
 // nolint
 var (
 	// Each value below is the key to store the respective oracle module parameter. See comments
 	// in types.proto for explanation for each parameter.
-	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
-	KeyMaxAskCount             = []byte("MaxAskCount")
-	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
-	KeyBaseRequestGas          = []byte("BaseRequestGas")
-	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
-	KeySamplingTryCount        = []byte("SamplingTryCount")
-	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
-	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
+	KeyMaxRawRequestCount        = []byte("MaxRawRequestCount")
+	KeyMaxAskCount               = []byte("MaxAskCount")
+	KeyExpirationBlockCount      = []byte("ExpirationBlockCount")
+	KeyBaseOwasmGas              = []byte("BaseOwasmGas")
+	KeyPerValidatorRequestGas    = []byte("PerValidatorRequestGas")
+	KeySamplingTryCount          = []byte("SamplingTryCount")
+	KeyOracleRewardPercentage    = []byte("OracleRewardPercentage")
+	KeyInactivePenaltyDuration   = []byte("InactivePenaltyDuration")
+	KeyMaxDataSize               = []byte("MaxDataSize")
+	KeyMaxCalldataSize           = []byte("MaxCalldataSize")
+	KeyDataProviderRewardPerByte = []byte("DataProviderRewardPerByte")
+	KeyDataRequesterFeeDenoms    = []byte("DataRequesterFeeDenoms")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -47,17 +64,22 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
 	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
-	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
+	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration, maxDataSize, maxCallDataSize uint64,
+	dataProviderRewardPerByte sdk.DecCoins, dataRequesterFeeDenoms []string,
 ) Params {
 	return Params{
-		MaxRawRequestCount:      maxRawRequestCount,
-		MaxAskCount:             maxAskCount,
-		ExpirationBlockCount:    expirationBlockCount,
-		BaseRequestGas:          baseRequestGas,
-		PerValidatorRequestGas:  perValidatorRequestGas,
-		SamplingTryCount:        samplingTryCount,
-		OracleRewardPercentage:  oracleRewardPercentage,
-		InactivePenaltyDuration: inactivePenaltyDuration,
+		MaxRawRequestCount:        maxRawRequestCount,
+		MaxAskCount:               maxAskCount,
+		ExpirationBlockCount:      expirationBlockCount,
+		BaseOwasmGas:              baseRequestGas,
+		PerValidatorRequestGas:    perValidatorRequestGas,
+		SamplingTryCount:          samplingTryCount,
+		OracleRewardPercentage:    oracleRewardPercentage,
+		InactivePenaltyDuration:   inactivePenaltyDuration,
+		MaxDataSize:               maxDataSize,
+		MaxCalldataSize:           maxCallDataSize,
+		DataProviderRewardPerByte: dataProviderRewardPerByte,
+		DataRequesterFeeDenoms:    dataRequesterFeeDenoms,
 	}
 }
 
@@ -67,11 +89,15 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxRawRequestCount, &p.MaxRawRequestCount, validateUint64("max data source count", true)),
 		paramtypes.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
 		paramtypes.NewParamSetPair(KeyExpirationBlockCount, &p.ExpirationBlockCount, validateUint64("expiration block count", true)),
-		paramtypes.NewParamSetPair(KeyBaseRequestGas, &p.BaseRequestGas, validateUint64("base request gas", false)),
+		paramtypes.NewParamSetPair(KeyBaseOwasmGas, &p.BaseOwasmGas, validateUint64("base request gas", false)),
 		paramtypes.NewParamSetPair(KeyPerValidatorRequestGas, &p.PerValidatorRequestGas, validateUint64("per validator request gas", false)),
 		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
 		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
 		paramtypes.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
+		paramtypes.NewParamSetPair(KeyMaxDataSize, &p.MaxDataSize, validateUint64("max data size", true)),
+		paramtypes.NewParamSetPair(KeyMaxCalldataSize, &p.MaxCalldataSize, validateUint64("max calldata size", true)),
+		paramtypes.NewParamSetPair(KeyDataProviderRewardPerByte, &p.DataProviderRewardPerByte, validateDataProviderRewardPerByte),
+		paramtypes.NewParamSetPair(KeyDataRequesterFeeDenoms, &p.DataRequesterFeeDenoms, validateDataRequesterFeeDenoms),
 	}
 }
 
@@ -86,6 +112,10 @@ func DefaultParams() Params {
 		DefaultSamplingTryCount,
 		DefaultOracleRewardPercentage,
 		DefaultInactivePenaltyDuration,
+		DefaultMaxDataSize,
+		DefaultMaxCalldataSize,
+		DefaultDataProviderRewardPerByte,
+		DefaultDataRequesterFeeDenoms,
 	)
 }
 
@@ -106,4 +136,30 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 		}
 		return nil
 	}
+}
+
+func validateDataProviderRewardPerByte(i interface{}) error {
+	v, ok := i.(sdk.DecCoins)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsAnyNegative() {
+		return fmt.Errorf("data provider reward must be positive: %v", v)
+	}
+	return nil
+}
+
+func validateDataRequesterFeeDenoms(i interface{}) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, d := range v {
+		if err := sdk.ValidateDenom(d); err != nil {
+			return fmt.Errorf("denoms must be valid: %s, error: %w", d, err)
+		}
+	}
+	return nil
 }

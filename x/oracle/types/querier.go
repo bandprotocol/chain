@@ -1,64 +1,35 @@
 package types
 
-import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
 // Query endpoints supported by the oracle Querier.
 const (
-	QueryParams           = "params"
-	QueryCounts           = "counts"
-	QueryData             = "data"
-	QueryDataSources      = "data_sources"
-	QueryOracleScripts    = "oracle_scripts"
-	QueryRequests         = "requests"
-	QueryValidatorStatus  = "validator_status"
-	QueryReporters        = "reporters"
-	QueryActiveValidators = "active_validators"
-	QueryPendingRequests  = "pending_requests"
+	QueryParams             = "params"
+	QueryCounts             = "counts"
+	QueryData               = "data"
+	QueryDataSources        = "data_sources"
+	QueryOracleScripts      = "oracle_scripts"
+	QueryRequests           = "requests"
+	QueryRequestPrices      = "request_prices"
+	QueryPriceSymbols       = "price_symbols"
+	QueryLatestRequest      = "latest_request"
+	QueryMultiRequestSearch = "multi_request_search"
+	QueryRequestSearch      = "request_search"
+	QueryValidatorStatus    = "validator_status"
+	QueryReporters          = "reporters"
+	QueryActiveValidators   = "active_validators"
+	QueryPendingRequests    = "pending_requests"
+	QueryDataProvidersPool  = "data_providers_pool"
 )
 
-// QueryResult wraps querier result with HTTP status to return to application.
-type QueryResult struct {
-	Status int             `json:"status"`
-	Result json.RawMessage `json:"result"`
+// deprecated: for legacy REST use only
+// QueryActiveValidatorResult is the struct for the result of request active validators.
+type QueryActiveValidatorResult struct {
+	Address sdk.ValAddress `json:"address"`
+	Power   uint64         `json:"power"`
 }
 
-// QueryOK creates and marshals a QueryResult instance with HTTP status OK.
-func QueryOK(legacyQuerierCdc *codec.LegacyAmino, result interface{}) ([]byte, error) {
-	return json.MarshalIndent(QueryResult{
-		Status: http.StatusOK,
-		Result: codec.MustMarshalJSONIndent(legacyQuerierCdc, result),
-	}, "", "  ")
-}
-
-// QueryBadRequest creates and marshals a QueryResult instance with HTTP status BadRequest.
-func QueryBadRequest(legacyQuerierCdc *codec.LegacyAmino, result interface{}) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, QueryResult{
-		Status: http.StatusBadRequest,
-		Result: codec.MustMarshalJSONIndent(legacyQuerierCdc, result),
-	})
-}
-
-// QueryNotFound creates and marshals a QueryResult instance with HTTP status NotFound.
-func QueryNotFound(legacyQuerierCdc *codec.LegacyAmino, result interface{}) ([]byte, error) {
-	return codec.MarshalJSONIndent(legacyQuerierCdc, QueryResult{
-		Status: http.StatusBadRequest,
-		Result: codec.MustMarshalJSONIndent(legacyQuerierCdc, result),
-	})
-}
-
-// QueryCountsResult is the struct for the result of query counts.
-type QueryCountsResult struct {
-	DataSourceCount   int64 `json:"data_source_count"`
-	OracleScriptCount int64 `json:"oracle_script_count"`
-	RequestCount      int64 `json:"request_count"`
-}
-
+// deprecated: for legacy REST use only
 // QueryRequestResult is the struct for the result of request query.
 type QueryRequestResult struct {
 	Request Request  `json:"request"`
@@ -66,8 +37,26 @@ type QueryRequestResult struct {
 	Result  *Result  `json:"result"`
 }
 
-// QueryActiveValidatorResult is the struct for the result of request active validators.
-type QueryActiveValidatorResult struct {
-	Address sdk.ValAddress `json:"address"`
-	Power   uint64         `json:"power"`
+func NewQueryRequestSearchRequest(oid int64, callData []byte, askCount, minCount int64) *QueryRequestSearchRequest {
+	return &QueryRequestSearchRequest{
+		OracleScriptId: oid,
+		Calldata:       callData,
+		AskCount:       askCount,
+		MinCount:       minCount,
+	}
+}
+
+func NewQueryRequestSearchResponse(req QueryRequestResponse) *QueryRequestSearchResponse {
+	return &QueryRequestSearchResponse{
+		RequestPacketData:  req.RequestPacketData,
+		ResponsePacketData: req.ResponsePacketData,
+	}
+}
+
+func NewQueryRequestPricesRequest(symbol string, minCount, askCount int64) QueryRequestPriceRequest {
+	return QueryRequestPriceRequest{
+		Symbol:   symbol,
+		MinCount: minCount,
+		AskCount: askCount,
+	}
 }

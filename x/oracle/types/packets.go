@@ -7,7 +7,7 @@ import (
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64,
+	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -15,14 +15,14 @@ func NewOracleRequestPacketData(
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
+		FeeLimit:       feeLimit,
+		RequestKey:     requestKey,
 	}
 }
 
 // ValidateBasic is used for validating the request.
 func (p OracleRequestPacketData) ValidateBasic() error {
-	if len(p.Calldata) > MaxDataSize {
-		return WrapMaxError(ErrTooLargeCalldata, len(p.Calldata), MaxDataSize)
-	}
+	// not checking for max data here, will check it in handler
 	if p.MinCount <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", p.MinCount)
 	}
@@ -38,6 +38,12 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 // GetBytes is a helper for serialising
 func (p OracleRequestPacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
+}
+
+func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPacketAcknowledgement {
+	return &OracleRequestPacketAcknowledgement{
+		RequestID: requestID,
+	}
 }
 
 // NewOracleResponsePacketData contructs a new OracleResponsePacketData instance

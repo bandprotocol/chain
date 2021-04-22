@@ -8,6 +8,10 @@ const (
 	// ModuleName is the name of the module.
 	ModuleName = "oracle"
 
+	// Version defines the current version the IBC oracle module supports
+	// TODO: Using our new version for oracle packet (new ics?)
+	Version = "ics20-1"
+
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
 
@@ -38,6 +42,8 @@ var (
 	DataSourceCountStoreKey = append(GlobalStoreKeyPrefix, []byte("DataSourceCount")...)
 	// OracleScriptCountStoreKey is the key that keeps the total oracle sciprt count.
 	OracleScriptCountStoreKey = append(GlobalStoreKeyPrefix, []byte("OracleScriptCount")...)
+	// OraclePoolStoreKey is the key that keeps the oracle pool
+	OraclePoolStoreKey = append(GlobalStoreKeyPrefix, []byte("OraclePool")...) // key for global oracle pool state
 
 	// RequestStoreKeyPrefix is the prefix for request store.
 	RequestStoreKeyPrefix = []byte{0x01}
@@ -50,9 +56,15 @@ var (
 	// ReporterStoreKeyPrefix is the prefix for reporter store.
 	ReporterStoreKeyPrefix = []byte{0x05}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
-	ValidatorStatusKeyPrefix = []byte{0x06}
+	ValidatorStatusKeyPrefix     = []byte{0x06}
+	DataProviderRewardsKeyPrefix = []byte{0x07}
+	// DataRequesterFeesKeyPrefix is the prefix for the data requester address with accumulated fee
+	DataRequesterFeesKeyPrefix = []byte{0x08}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
+
+	// PortKey defines the key to store the port ID in store
+	PortKey = []byte{0xf0}
 )
 
 // RequestStoreKey returns the key to retrieve a specfic request from the store.
@@ -102,4 +114,8 @@ func ReportsOfValidatorPrefixKey(reqID RequestID, val sdk.ValAddress) []byte {
 // ReportersOfValidatorPrefixKey returns the prefix key to get all reporters of a validator.
 func ReportersOfValidatorPrefixKey(val sdk.ValAddress) []byte {
 	return append(ReporterStoreKeyPrefix, val.Bytes()...)
+}
+
+func DataProviderRewardsPrefixKey(acc sdk.AccAddress) []byte {
+	return append(DataProviderRewardsKeyPrefix, acc.Bytes()...)
 }

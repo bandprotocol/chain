@@ -1,11 +1,12 @@
 syntax = "proto3";
 package oracle.v1;
 
-option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+option go_package = "github.com/GeoDB-Limited/odin-core/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // DataSource is the data structure for storing data sources in the storage.
 message DataSource {
@@ -14,6 +15,10 @@ message DataSource {
   string name = 2;
   string description = 3;
   string filename = 4;
+  repeated cosmos.base.v1beta1.Coin fee = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
 
 // OracleScript is the data structure for storing oracle scripts in the storage.
@@ -24,7 +29,7 @@ message OracleScript {
   string description = 3;
   string filename = 4;
   string schema = 5;
-  string source_code_url = 6 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 6 [(gogoproto.customname) = "SourceCodeURL"];
 }
 
 // RawRequest is the data structure for storing raw requests in the storage.
@@ -64,8 +69,10 @@ message Request {
   uint64 min_count = 4;
   int64 request_height = 5;
   uint64 request_time = 6;
-  string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
-  repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
+  string client_id = 7 [(gogoproto.customname) = "ClientID"];
+  repeated RawRequest raw_requests = 8 [(gogoproto.nullable) = false];
+  IBCSource ibc_source = 9 [(gogoproto.customname) = "IBCSource"];
+  uint64 execute_gas = 10;
 }
 
 // Report is the data structure for storing reports in the storage.
@@ -73,24 +80,26 @@ message Report {
   option (gogoproto.equal) = true;
   string validator = 1;
   bool in_before_resolve = 2;
-  repeated RawReport raw_reports = 3 [ (gogoproto.nullable) = false ];
+  repeated RawReport raw_reports = 3 [(gogoproto.nullable) = false];
 }
 
 // ResolveStatus encodes the status of an oracle request.
 enum ResolveStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
   // Open - the request is not yet resolved.
   RESOLVE_STATUS_OPEN_UNSPECIFIED = 0
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN"];
   // Success - the request has been resolved successfully with no errors.
   RESOLVE_STATUS_SUCCESS = 1
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS"];
   // Failure - an error occured during the request's resolve call.
   RESOLVE_STATUS_FAILURE = 2
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE"];
   // Expired - the request does not get enough reports from validator within the
   // timeframe.
   RESOLVE_STATUS_EXPIRED = 3
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED"];
 }
 
 // OracleRequestPacketData encodes an oracle request sent from other blockchains
@@ -100,7 +109,7 @@ message OracleRequestPacketData {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
   int64 oracle_script_id = 2 [
@@ -116,6 +125,30 @@ message OracleRequestPacketData {
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
   uint64 min_count = 5;
+  // FeeLimit is the maximum tokens that will be paid to all data source
+  // providers.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // RequestKey is the key from request chain to match data source fee payer on
+  // Bandchain
+  string request_key = 7;
+  // PrepareGas is amount of gas to pay to prepare raw requests
+  uint64 prepare_gas = 8;
+  // ExecuteGas is amount of gas to reserve for executing
+  uint64 execute_gas = 9;
+}
+
+// OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
+// send back to requester chain.
+message OracleRequestPacketAcknowledgement {
+  option (gogoproto.equal) = true;
+  // RequestID is BandChain's unique identifier for this oracle request.
+  int64 request_id = 1 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
 }
 
 // OracleResponsePacketData encodes an oracle response from BandChain to the
@@ -124,7 +157,7 @@ message OracleResponsePacketData {
   option (gogoproto.equal) = true;
   // ClientID is the unique identifier matched with that of the oracle request
   // packet.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // RequestID is BandChain's unique identifier for this oracle request.
   int64 request_id = 2 [
     (gogoproto.customname) = "RequestID",
@@ -147,45 +180,84 @@ message OracleResponsePacketData {
   bytes result = 7;
 }
 
+// Result encodes a result of request and store in chain
+message Result {
+  option (gogoproto.equal) = true;
+  // ClientID is the unique identifier of this oracle request, as specified by
+  // the client. This same unique ID will be sent back to the requester with the
+  // oracle response.
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
+  // OracleScriptID is the unique identifier of the oracle script to be
+  // executed.
+  int64 oracle_script_id = 2 [
+    (gogoproto.customname) = "OracleScriptID",
+    (gogoproto.casttype) = "OracleScriptID"
+  ];
+  // Calldata is the calldata bytes available for oracle executor to read.
+  bytes calldata = 3;
+  // AskCount is the number of validators that are requested to respond to this
+  // oracle request. Higher value means more security, at a higher gas cost.
+  uint64 ask_count = 4;
+  // MinCount is the minimum number of validators necessary for the request to
+  // proceed to the execution phase. Higher value means more security, at the
+  // cost of liveness.
+  uint64 min_count = 5;
+  // RequestID is BandChain's unique identifier for this oracle request.
+  int64 request_id = 6 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // AnsCount is the number of validators among to the asked validators that
+  // actually responded to this oracle request prior to this oracle request
+  // being resolved.
+  uint64 ans_count = 7;
+  // RequestTime is the UNIX epoch time at which the request was sent to
+  // BandChain.
+  int64 request_time = 8;
+  // ResolveTime is the UNIX epoch time at which the request was resolved to the
+  // final result.
+  int64 resolve_time = 9;
+  // ResolveStatus is the status of this oracle request, which can be OK,
+  // FAILURE, or EXPIRED.
+  ResolveStatus resolve_status = 10;
+  // Result is the final aggregated value only available if status if OK.
+  bytes result = 11;
+}
+
 // ValidatorStatus maintains whether a validator is an active oracle provider.
 message ValidatorStatus {
   option (gogoproto.equal) = true;
   bool is_active = 1;
   google.protobuf.Timestamp since = 2
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
-// Params is the data structure that keeps the parameters of the oracle module.
-message Params {
-  option (gogoproto.equal) = true;
-  option (gogoproto.goproto_stringer) = false;
-  // MaxRawRequestCount is the maximum number of data source raw requests a
-  // request can make.
-  uint64 max_raw_request_count = 1;
-  // MaxAskCount is the maximum number of validators a request can target.
-  uint64 max_ask_count = 2;
-  // ExpirationBlockCount is the number of blocks a request stays valid before
-  // it gets expired due to insufficient reports.
-  uint64 expiration_block_count = 3;
-  // BaseRequestGas is the base amount of Cosmos-SDK gas charged for an oracle
-  // request.
-  uint64 base_request_gas = 4;
-  // PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
-  // requested validator.
-  uint64 per_validator_request_gas = 5;
-  // SamplingTryCount the number of validator sampling tries to pick the highest
-  // voting power subset of validators to perform an oracle task.
-  uint64 sampling_try_count = 6;
-  // OracleRewardPercentage is the percentage of block rewards allocated to
-  // active oracle validators.
-  uint64 oracle_reward_percentage = 7;
-  // InactivePenaltyDuration is the duration period where a validator cannot
-  // activate back after missing an oracle report.
-  uint64 inactive_penalty_duration = 8;
-}
-
+// PendingResolveList
 message PendingResolveList {
   option (gogoproto.equal) = true;
   repeated int64 request_ids = 1;
 }
 
+// IBCSource
+message IBCSource {
+  option (gogoproto.equal) = true;
+
+  // SourceChannel
+  string source_channel = 1;
+  // SourcePort
+  string source_port = 2;
+}
+
+message OraclePool {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = true;
+
+  repeated cosmos.base.v1beta1.DecCoin data_providers_pool = 1 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+}
+
+message DataProviderAccumulatedReward {
+  option (gogoproto.equal) = false;
+
+  string data_provider = 1;
+  repeated cosmos.base.v1beta1.DecCoin data_provider_reward = 2 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+}

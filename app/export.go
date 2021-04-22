@@ -29,6 +29,7 @@ func (app *BandApp) ExportAppStateAndValidators(
 	}
 
 	genState := app.mm.ExportGenesis(ctx, app.appCodec)
+	// TODO drop json.* everywhere for cdc.Marshal
 	appState, err := json.MarshalIndent(genState, "", "  ")
 	if err != nil {
 		return servertypes.ExportedApp{}, err

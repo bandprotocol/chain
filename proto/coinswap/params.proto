@@ -1,0 +1,20 @@
+syntax = "proto3";
+package coinswap;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/any.proto";
+
+message Exchange {
+  string from = 1;
+  string to = 2;
+  string rate_multiplier = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+message Params {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_stringer) = true;
+  repeated Exchange exchanges = 1 [(gogoproto.nullable) = false];
+}

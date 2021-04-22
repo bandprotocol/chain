@@ -1,0 +1,33 @@
+syntax = "proto3";
+package mint;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/mint/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+message MintPool {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = true;
+
+  // treasury pool
+  repeated cosmos.base.v1beta1.Coin treasury_pool = 1 [
+    (gogoproto.moretags) = "yaml:\"treasury_pool\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// Minter represents the minting state.
+message Minter {
+  // current annual inflation rate
+  string inflation = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  // current annual expected provisions
+  string annual_provisions = 2 [
+    (gogoproto.moretags) = "yaml:\"annual_provisions\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

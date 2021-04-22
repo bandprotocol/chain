@@ -1,9 +1,9 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
 )
 
 func defaultVotes() []abci.VoteInfo {
@@ -30,53 +30,53 @@ func defaultVotes() []abci.VoteInfo {
 
 // func TestAllocateTokenNoActiveValidators(t *testing.T) {
 // 	app, ctx, k := testapp.CreateTestInput(false)
-// 	// Set collected fee to 1000000uband and 70% oracle reward proportion.
+// 	// Set collected fee to 1000000odin and 70% oracle reward proportion.
 // 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000uband)
+// 	feeCollector.SetCoins(Coins1000000odin)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000uband, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// No active oracle validators so nothing should happen.
 // 	k.AllocateTokens(ctx, defaultVotes())
-// 	require.Equal(t, Coins1000000uband, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	require.Equal(t, sdk.Coins(nil), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
 // }
 
 // func TestAllocateTokensOneActive(t *testing.T) {
 // 	app, ctx, k := testapp.CreateTestInput(false)
-// 	// Set collected fee to 1000000uband + 70% oracle reward proportion.
+// 	// Set collected fee to 1000000odin + 70% oracle reward proportion.
 // 	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000uband)
+// 	feeCollector.SetCoins(Coins1000000odin)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000uband, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// From 70% of fee, 2% should go to community pool, the rest goes to the only active validator.
 // 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 // 	k.AllocateTokens(ctx, defaultVotes())
-// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 300000)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
-// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 700000)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(14000)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
+// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("odin", 300000)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("odin", 700000)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(14000)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
 // 	require.Equal(t, sdk.DecCoins(nil), app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress))
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(686000)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress))
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(686000)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress))
 // 	require.Equal(t, sdk.DecCoins(nil), app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[2].ValAddress))
 // }
 
 // func TestAllocateTokensAllActive(t *testing.T) {
 // 	app, ctx, k := testapp.CreateTestInput(true)
-// 	// Set collected fee to 1000000uband + 70% oracle reward proportion.
+// 	// Set collected fee to 1000000odin + 70% oracle reward proportion.
 // 	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000uband)
+// 	feeCollector.SetCoins(Coins1000000odin)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000uband, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// From 70% of fee, 2% should go to community pool, the rest get split to validators.
 // 	k.AllocateTokens(ctx, defaultVotes())
-// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 300000)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
-// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 700000)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(14000)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(480200)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress))
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(137200)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress))
-// 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(68600)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[2].ValAddress))
+// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("odin", 300000)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("odin", 700000)), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(14000)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(480200)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress))
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(137200)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress))
+// 	require.Equal(t, sdk.DecCoins{{Denom: "odin", Amount: sdk.NewDec(68600)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[2].ValAddress))
 // }
 
 // func TestGetDefaultValidatorStatus(t *testing.T) {

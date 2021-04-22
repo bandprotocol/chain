@@ -1,0 +1,44 @@
+syntax = "proto3";
+package oracle.v1;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/oracle/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Params is the data structure that keeps the parameters of the oracle module.
+message Params {
+  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_stringer) = false;
+  // MaxRawRequestCount is the maximum number of data source raw requests a
+  // request can make.
+  uint64 max_raw_request_count = 1;
+  // MaxAskCount is the maximum number of validators a request can target.
+  uint64 max_ask_count = 2;
+  // ExpirationBlockCount is the number of blocks a request stays valid before
+  // it gets expired due to insufficient reports.
+  uint64 expiration_block_count = 3;
+  // BaseOwasmGas is the base amount of Cosmos-SDK gas charged for owasm
+  // execution.
+  uint64 base_owasm_gas = 4;
+  // PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
+  // requested validator.
+  uint64 per_validator_request_gas = 5;
+  // SamplingTryCount the number of validator sampling tries to pick the highest
+  // voting power subset of validators to perform an oracle task.
+  uint64 sampling_try_count = 6;
+  // OracleRewardPercentage is the percentage of block rewards allocated to
+  // active oracle validators.
+  uint64 oracle_reward_percentage = 7;
+  // InactivePenaltyDuration is the duration period where a validator cannot
+  // activate back after missing an oracle report.
+  uint64 inactive_penalty_duration = 8;
+  // MaxDataSize is the maximum number of bytes that can be present in the report as the result
+  uint64 max_data_size = 9;
+  // MaxCalldataSize is the maximum number of bytes that can be present in the calldata
+  uint64 max_calldata_size = 10;
+  // DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
+  repeated cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+  // Denominations that can be used for withdrawing fee from data requesters
+  repeated string data_requester_fee_denoms = 12;
+}

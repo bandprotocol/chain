@@ -1,17 +1,16 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
-	"encoding/json"
-	"testing"
-
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
+	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
+	oraclekeeper "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"testing"
 )
 
+// TODO: fix test
 func TestQueryPendingRequests(t *testing.T) {
 	app, ctx, k := testapp.CreateTestInput(true)
 
@@ -23,48 +22,52 @@ func TestQueryPendingRequests(t *testing.T) {
 	k.SetRequestCount(ctx, 43)
 
 	// Fulfill some requests
-	k.SetReport(ctx, 41, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[1].ValAddress, true, nil))
+	k.SetReport(ctx, 41, oracletypes.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, oracletypes.NewReport(testapp.Validators[1].ValAddress, true, nil))
 
-	q := keeper.NewQuerier(k, app.LegacyAmino())
+	amino := app.LegacyAmino()
+	q := oraclekeeper.NewQuerier(k, amino)
 
 	tests := []struct {
 		name     string
 		args     []string
-		expected types.PendingResolveList
+		expected oracletypes.PendingResolveList
 	}{
+
 		{
 			name:     "Get all pending requests",
 			args:     []string{},
-			expected: types.PendingResolveList{RequestIds: []int64{41, 42, 43}},
+			expected: oracletypes.PendingResolveList{RequestIds: []int64{41, 42, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[0]",
 			args:     []string{testapp.Validators[0].ValAddress.String()},
-			expected: types.PendingResolveList{RequestIds: []int64{42, 43}},
+			expected: oracletypes.PendingResolveList{RequestIds: []int64{42, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[1]",
 			args:     []string{testapp.Validators[1].ValAddress.String()},
-			expected: types.PendingResolveList{RequestIds: []int64{41, 43}},
+			expected: oracletypes.PendingResolveList{RequestIds: []int64{41, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[2]",
 			args:     []string{testapp.Validators[2].ValAddress.String()},
-			expected: types.PendingResolveList{RequestIds: nil},
+			expected: oracletypes.PendingResolveList{RequestIds: nil},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			raw, err := q(ctx, append([]string{types.QueryPendingRequests}, tt.args...), abci.RequestQuery{})
+			raw, err := q(ctx, append([]string{oracletypes.QueryPendingRequests}, tt.args...), abci.RequestQuery{})
 			require.NoError(t, err)
 
-			var queryRequest types.QueryResult
-			require.NoError(t, json.Unmarshal(raw, &queryRequest))
+			var queryResult commontypes.QueryResult
+			amino.MustUnmarshalJSON(raw, &queryResult)
 
-			var pending types.PendingResolveList
-			types.ModuleCdc.MustUnmarshalJSON(queryRequest.Result, &pending)
+			var pending oracletypes.PendingResolveList
+			if queryResult.Result != nil {
+				amino.MustUnmarshalJSON(queryResult.Result, &pending.RequestIds)
+			}
 
 			require.Equal(t, tt.expected, pending)
 		})

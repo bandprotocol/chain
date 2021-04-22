@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/tendermint/tendermint/crypto/ed25519"
 	"os"
 	"path/filepath"
 	"time"
@@ -18,7 +19,6 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/libs/cli"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -66,7 +66,7 @@ func displayInfo(info printInfo) error {
 
 func genFilePVIfNotExists(keyFilePath, stateFilePath string) error {
 	if !tmos.FileExists(keyFilePath) {
-		pv := privval.NewFilePV(secp256k1.GenPrivKey(), keyFilePath, stateFilePath)
+		pv := privval.NewFilePV(ed25519.GenPrivKey(), keyFilePath, stateFilePath)
 		// privKey :=
 
 		// pv := &privval.FilePV{
@@ -154,11 +154,23 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			if !overwrite && tmos.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
+			// TODO: remove json.*
 			appState, err := json.MarshalIndent(customAppState, "", "")
 			if err != nil {
 				return err
 			}
+
 			genDoc := &types.GenesisDoc{}
+			genDoc.ChainID = chainID
+			genDoc.Validators = nil
+			genDoc.AppState = appState
+			genDoc.ConsensusParams = types.DefaultConsensusParams()
+			// TODO: Revisit max block size
+			// genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
+			genDoc.ConsensusParams.Block.MaxGas = 40000000 // 40M gas
+			genDoc.ConsensusParams.Block.TimeIotaMs = 1000 // 1 second
+			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeEd25519}
+
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {
 					return err
@@ -169,15 +181,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 					return err
 				}
 			}
-			genDoc.ChainID = chainID
-			genDoc.Validators = nil
-			genDoc.AppState = appState
-			genDoc.ConsensusParams = types.DefaultConsensusParams()
-			// TODO: Revisit max block size
-			// genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
-			genDoc.ConsensusParams.Block.MaxGas = 5000000  // 5M gas
-			genDoc.ConsensusParams.Block.TimeIotaMs = 1000 // 1 second
-			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
+
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
 				return err
 			}

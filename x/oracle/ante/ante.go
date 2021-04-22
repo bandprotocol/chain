@@ -7,8 +7,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	lru "github.com/hashicorp/golang-lru"
 
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 var (
@@ -24,7 +24,7 @@ func init() {
 	}
 }
 
-func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types.MsgReportData) bool {
+func checkValidReportMsg(ctx sdk.Context, oracleKeeper oraclekeeper.Keeper, rep *types.MsgReportData) bool {
 	validator, _ := sdk.ValAddressFromBech32(rep.Validator)
 	reporter, _ := sdk.AccAddressFromBech32(rep.Reporter)
 	if !oracleKeeper.IsReporter(ctx, validator, reporter) {
@@ -45,14 +45,14 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types
 		reqVals[idx] = val
 	}
 
-	if !keeper.ContainsVal(reqVals, validator) {
+	if !oraclekeeper.ContainsVal(reqVals, validator) {
 		return false
 	}
 	if len(rep.RawReports) != len(req.RawRequests) {
 		return false
 	}
 	for _, report := range rep.RawReports {
-		if !keeper.ContainsEID(req.RawRequests, report.ExternalID) {
+		if !oraclekeeper.ContainsEID(req.RawRequests, report.ExternalID) {
 			return false
 		}
 	}
@@ -61,7 +61,7 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types
 
 // NewFeelessReportsAnteHandler returns a new ante handler that waives minimum gas price
 // requirement if the incoming tx is a valid report transaction.
-func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper) sdk.AnteHandler {
+func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper oraclekeeper.Keeper) sdk.AnteHandler {
 	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
 		if ctx.IsCheckTx() && !simulate {
 			// TODO: Move this out of "FeelessReports" ante handler.

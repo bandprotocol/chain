@@ -1,4 +1,4 @@
-package keeper
+package oraclekeeper
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // HasRequest checks if the request of this ID exists in the storage.
@@ -55,7 +55,7 @@ func (k Keeper) AddRequest(ctx sdk.Context, req types.Request) types.RequestID {
 func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 	currentReqID := k.GetRequestLastExpired(ctx) + 1
 	lastReqID := types.RequestID(k.GetRequestCount(ctx))
-	expirationBlockCount := int64(k.GetParam(ctx, types.KeyExpirationBlockCount))
+	expirationBlockCount := int64(k.GetParamUint64(ctx, types.KeyExpirationBlockCount))
 	// Loop through all data requests in chronological order. If a request reaches its
 	// expiration height, we will deactivate validators that didn't report data on the
 	// request. We also resolve requests to status EXPIRED if they are not yet resolved.

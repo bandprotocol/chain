@@ -44,6 +44,10 @@ var (
 	ErrUncompressionFailed      = sdkerrors.Register(ModuleName, 38, "uncompression failed")
 	ErrRequestAlreadyExpired    = sdkerrors.Register(ModuleName, 39, "request already expired")
 	ErrBadDrbgInitialization    = sdkerrors.Register(ModuleName, 40, "bad drbg initialization")
+	ErrMaxOracleChannels        = sdkerrors.Register(ModuleName, 41, "max oracle channels")
+	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid ICS20 version")
+	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
+	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.

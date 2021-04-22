@@ -1,12 +1,13 @@
 syntax = "proto3";
 package oracle.v1;
 
-option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+option go_package = "github.com/GeoDB-Limited/odin-core/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // Msg defines the oracle Msg service.
 service Msg {
@@ -57,9 +58,19 @@ message MsgRequestData {
   // tasks.
   uint64 min_count = 4;
   // ClientID is the client-provided unique identifier to tracking the request.
-  string client_id = 5 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 5 [(gogoproto.customname) = "ClientID"];
+  // FeeLimit is the maximum tokens that will be paid to all data source
+  // providers.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // PrepareGas is amount of gas to pay to prepare raw requests
+  uint64 prepare_gas = 7;
+  // ExecuteGas is amount of gas to reserve for executing
+  uint64 execute_gas = 8;
   // Sender is the sender of this message.
-  string sender = 6;
+  string sender = 9;
 }
 
 // MsgRequestDataResponse
@@ -75,7 +86,7 @@ message MsgReportData {
   ];
   // RawReports is the list of report information for each of the request's
   // external ID.
-  repeated RawReport raw_reports = 2 [ (gogoproto.nullable) = false ];
+  repeated RawReport raw_reports = 2 [(gogoproto.nullable) = false];
   // Validator is the address of the validator that owns this report.
   string validator = 3;
   // Reporter is the message signer who submits this report transaction for the
@@ -96,11 +107,17 @@ message MsgCreateDataSource {
   // Executable is the executable script or binary to be run by validators upon
   // execution.
   bytes executable = 3;
+  // Fee is the data source fee per ask_count that data provider will receive
+  // from requester.
+  repeated cosmos.base.v1beta1.Coin fee = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
   // Owner is the address who is allowed to make further changes to the data
   // source.
-  string owner = 4;
+  string owner = 5;
   // Sender is the signer of this message.
-  string sender = 5;
+  string sender = 6;
 }
 
 // MsgCreateDataSourceResponse
@@ -121,12 +138,18 @@ message MsgEditDataSource {
   // Executable is the executable script or binary to be run by validators upon
   // execution.
   bytes executable = 4;
-  // Owner is the new address who is allowed to make further changes to the data
+  // Fee is the data source fee per ask_count that data provider will receive
+  // from requester.
+  repeated cosmos.base.v1beta1.Coin fee = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // Owner is the address who is allowed to make further changes to the data
   // source.
-  string owner = 5;
+  string owner = 6;
   // Sender is the signer of this message. Must be the current data source's
   // owner.
-  string sender = 6;
+  string sender = 7;
 }
 
 // MsgEditDataSourceResponse
@@ -142,7 +165,7 @@ message MsgCreateOracleScript {
   // Schema is the OBI schema of this oracle script (optional).
   string schema = 3;
   // SourceCodeURL is the absolute URI to the script's source code (optional).
-  string source_code_url = 4 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 4 [(gogoproto.customname) = "SourceCodeURL"];
   // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
   bytes code = 5;
   // Owner is the address who is allowed to make further changes to the oracle
@@ -170,7 +193,7 @@ message MsgEditOracleScript {
   // Schema is the OBI schema of this oracle script (optional).
   string schema = 4;
   // SourceCodeURL is the absolute URI to the script's source code (optional).
-  string source_code_url = 5 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 5 [(gogoproto.customname) = "SourceCodeURL"];
   // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
   bytes code = 6;
   // Owner is new the address who is allowed to make further changes to the

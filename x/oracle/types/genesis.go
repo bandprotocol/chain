@@ -7,12 +7,13 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 )
 
-// NewGenesisState creates a new GenesisState instanc e
+// NewGenesisState creates a new GenesisState instance
 func NewGenesisState(params Params, dataSources []DataSource, oracleScripts []OracleScript) *GenesisState {
 	return &GenesisState{
 		Params:        params,
 		DataSources:   dataSources,
 		OracleScripts: oracleScripts,
+		OraclePool:    InitialOraclePool(),
 	}
 }
 
@@ -22,6 +23,7 @@ func DefaultGenesisState() *GenesisState {
 		Params:        DefaultParams(),
 		DataSources:   []DataSource{},
 		OracleScripts: []OracleScript{},
+		OraclePool:    InitialOraclePool(),
 	}
 }
 

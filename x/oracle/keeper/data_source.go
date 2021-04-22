@@ -1,4 +1,4 @@
-package keeper
+package oraclekeeper
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // HasDataSource checks if the data source of this ID exists in the storage.

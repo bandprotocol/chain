@@ -1,4 +1,4 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func defaultRequest() types.Request {
@@ -18,7 +18,7 @@ func defaultRequest() types.Request {
 		BasicClientID, []types.RawRequest{
 			types.NewRawRequest(42, 1, BasicCalldata),
 			types.NewRawRequest(43, 2, BasicCalldata),
-		},
+		}, nil, 0,
 	)
 }
 

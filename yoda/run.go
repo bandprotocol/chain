@@ -2,9 +2,9 @@ package yoda
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
+	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
 	"path/filepath"
 	"sync"
 	"time"
@@ -17,11 +17,12 @@ import (
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
-	"github.com/bandprotocol/chain/yoda/executor"
+	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 )
 
+// TODO: refactor yoda to more consistent errors
 const (
 	// TODO: We can subscribe only for txs that contain request messages
 	TxQuery = "tm.event = 'Tx'"
@@ -63,13 +64,16 @@ func runImpl(c *Context, l *Logger) error {
 		return err
 	}
 
-	var result types.QueryResult
-	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
+	var result commontypes.QueryResult
+	if err := cdc.UnmarshalJSON(rawPendingRequests.Response.GetValue(), &result); err != nil {
 		return err
 	}
 
 	var pendingRequests types.PendingResolveList
-	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
+
+	if result.Result != nil {
+		cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
+	}
 
 	for _, id := range pendingRequests.RequestIds {
 		c.pendingRequests[types.RequestID(id)] = true

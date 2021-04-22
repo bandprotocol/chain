@@ -1,4 +1,4 @@
-package keeper_test
+package oraclekeeper_test
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/common/testapp"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 func TestHasRequest(t *testing.T) {
@@ -15,14 +15,14 @@ func TestHasRequest(t *testing.T) {
 	// We should not have a request ID 42 without setting it.
 	require.False(t, k.HasRequest(ctx, 42))
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil))
+	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
 	require.True(t, k.HasRequest(ctx, 42))
 }
 
 func TestDeleteRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil))
+	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
 	require.True(t, k.HasRequest(ctx, 42))
 	// After we delete it, we should not find it anymore.
 	k.DeleteRequest(ctx, 42)
@@ -39,8 +39,8 @@ func TestSetterGetterRequest(t *testing.T) {
 	require.Error(t, err)
 	require.Panics(t, func() { _ = k.MustGetRequest(ctx, 42) })
 	// Creates some basic requests.
-	req1 := types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil)
-	req2 := types.NewRequest(2, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil)
+	req1 := types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
+	req2 := types.NewRequest(2, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
 	// Sets id 42 with request 1 and id 42 with request 2.
 	k.SetRequest(ctx, 42, req1)
 	k.SetRequest(ctx, 43, req2)
@@ -81,10 +81,10 @@ func TestAddDataSourceBasic(t *testing.T) {
 		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 	))
 	// Adding the first request should return ID 1.
-	id := k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil))
+	id := k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
 	require.Equal(t, id, types.RequestID(1))
 	// Adding another request should return ID 2.
-	id = k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil))
+	id = k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
 	require.Equal(t, id, types.RequestID(2))
 }
 
@@ -101,7 +101,7 @@ func TestAddPendingResolveList(t *testing.T) {
 
 func TestProcessExpiredRequests(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyExpirationBlockCount, 3)
+	k.SetParamUint64(ctx, types.KeyExpirationBlockCount, 3)
 	// Set some initial requests. All requests are asked to validators 1 & 2.
 	req1 := defaultRequest()
 	req1.RequestHeight = 5
@@ -161,10 +161,11 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.Equal(t, types.RequestID(3), k.GetRequestLastExpired(ctx))
 	require.True(t, k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress).IsActive)
 	require.False(t, k.GetValidatorStatus(ctx, testapp.Validators[1].ValAddress).IsActive)
-	require.Equal(t, types.NewOracleResponsePacketData(
-		BasicClientID, 3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
-		types.ResolveStatus_RESOLVE_STATUS_EXPIRED, []byte{},
-	), k.MustGetResult(ctx, 3).ResponsePacketData)
+	require.Equal(t, types.NewResult(
+		BasicClientID, req3.OracleScriptID, req3.Calldata, uint64(len(req3.RequestedValidators)), req3.MinCount,
+		3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
+		types.RESOLVE_STATUS_EXPIRED, []byte{},
+	), k.MustGetResult(ctx, 3))
 	// At block 10, nothing should happen
 	ctx = ctx.WithBlockHeight(10).WithBlockTime(testapp.ParseTime(10000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)

@@ -2,8 +2,11 @@ package band
 
 import (
 	"encoding/json"
+	"github.com/GeoDB-Limited/odin-core/x/coinswap"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"time"
 
+	minttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -19,14 +22,13 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
 	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/x/oracle"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -35,7 +37,7 @@ type GenesisState map[string]json.RawMessage
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	cdc := MakeEncodingConfig().Marshaler
-	denom := "uband"
+	denom := "odin"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
@@ -74,5 +76,6 @@ func NewDefaultGenesisState() GenesisState {
 		upgradetypes.ModuleName:    upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
 		evidencetypes.ModuleName:   evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:     oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		coinswaptypes.ModuleName:   coinswap.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

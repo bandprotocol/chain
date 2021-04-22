@@ -8,14 +8,14 @@
 <p align="center">
 BandChain - Decentralized Data Delivery Network<br/><br/>
 
-<a href="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
-    <img src="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
+<a href="https://pkg.go.dev/badge/github.com/GeoDB-Limited/odin-core">
+    <img src="https://pkg.go.dev/badge/github.com/GeoDB-Limited/odin-core">
 </a>
-<a href="https://goreportcard.com/badge/github.com/bandprotocol/chain">
-    <img src="https://goreportcard.com/badge/github.com/bandprotocol/chain">
+<a href="https://goreportcard.com/badge/github.com/GeoDB-Limited/odin-core">
+    <img src="https://goreportcard.com/badge/github.com/GeoDB-Limited/odin-core">
 </a>
-<a href="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
-    <img src="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
+<a href="https://github.com/GeoDB-Limited/odin-core/workflows/Tests/badge.svg">
+    <img src="https://github.com/GeoDB-Limited/odin-core/workflows/Tests/badge.svg">
 </a>
 
 <p align="center">
@@ -37,7 +37,7 @@ BandChain - Decentralized Data Delivery Network<br/><br/>
 
 ### Binaries
 
-You can find the latest binaries on our [releases](https://github.com/bandprotocol/chain/releases) page.
+You can find the latest binaries on our [releases](https://github.com/GeoDB-Limited/odin-core/releases) page.
 
 ### Building from source
 
@@ -118,11 +118,11 @@ jq -S -c -M '' genesis.json | shasum -a 256
 # It should get this hash
 9673376e8416d1e7fc87d271b8a9e5e3d3ce78a076b0d907d87c782bb0320e30  -
 # Move the genesis file to the proper location
-mv genesis.json $HOME/.bandd/config
+mv genesis.json $HOME/.band/config
 # Add some persistent peers
 sed -E -i \
   's/persistent_peers = \".*\"/persistent_peers = \"924a8094846222e14c7b86bfb42c0ddfd93cc6d1@gyms1.bandchain.org:26656,4c0b2cadc5ec7de90379b4a8fb7e19c252c7e565@gyms2.bandchain.org:26656\"/' \
-  $HOME/.bandd/config/config.toml
+  $HOME/.band/config/config.toml
 ```
 
 ### Starting the Blockchain Daemon
@@ -190,7 +190,7 @@ Once you have some BAND tokens, you can apply to become a validator by sending `
 
 ```bash
 bandd tx staking create-validator \
-    --amount <your-amount-to-stake>uband \
+    --amount <your-amount-to-stake>odin \
     --commission-max-change-rate 0.01 \
     --commission-max-rate 0.2 \
     --commission-rate 0.1 \

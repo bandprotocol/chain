@@ -31,7 +31,7 @@ func mockExecEnv() *ExecuteEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil)
+	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
 	rawReport1 := NewRawReport(1, 0, []byte("DATA1"))
 	rawReport2 := NewRawReport(2, 1, []byte("DATA2"))
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
@@ -49,8 +49,8 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil)
-	env := NewPrepareEnv(request, 3)
+	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
+	env := NewPrepareEnv(request, 3, int64(DefaultMaxDataSize))
 	return env
 }
 
@@ -174,7 +174,7 @@ func TestAskExternalData(t *testing.T) {
 func TestAskExternalDataOnTooSmallSpan(t *testing.T) {
 	penv := mockFreshPrepareEnv()
 
-	err := penv.AskExternalData(1, 3, make([]byte, MaxDataSize+1))
+	err := penv.AskExternalData(1, 3, make([]byte, DefaultMaxDataSize+1))
 	require.Equal(t, api.ErrSpanTooSmall, err)
 	require.Equal(t, []RawRequest(nil), penv.GetRawRequests())
 }

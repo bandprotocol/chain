@@ -1,0 +1,40 @@
+syntax = "proto3";
+package coinswap;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "coinswap/params.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Counts queries the number of data sources, oracle scripts, and requests.
+  rpc Rate(QueryRateRequest) returns (QueryRateResponse) {
+    option (google.api.http).get = "/coinswap/rate/{from}/{to}";
+  }
+
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/coinswap/params";
+  }
+}
+
+// QueryCountsRequest is request type for the Query/Count RPC method.
+message QueryRateRequest {
+  string from = 1;
+  string to = 2;
+}
+
+// QueryCountsResponse is response type for the Query/Count RPC method.
+message QueryRateResponse {
+  string rate = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string initial_rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+// QueryCountsRequest is request type for the Query/Count RPC method.
+message QueryParamsRequest {}
+
+// QueryCountsResponse is response type for the Query/Count RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}

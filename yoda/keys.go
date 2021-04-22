@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/app"
+	band "github.com/GeoDB-Limited/odin-core/app"
 )
 
 const (

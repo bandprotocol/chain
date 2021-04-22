@@ -1,21 +1,17 @@
 package cli
 
 import (
-	// "encoding/json"
-	// "fmt"
-	// "net/http"
-
-	"context"
+	"fmt"
+	oracleclientcommon "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/version"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-
-	// sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-
-	// clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
-	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module.
@@ -33,11 +29,13 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		// 	GetQueryCmdRequestSearch(storeKey, cdc),
-		// GetQueryCmdValidatorStatus(),
+		GetQueryCmdRequestSearch(),
+		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
-	// 	GetQueryPendingRequests(storeKey, cdc),
+		GetCmdQueryDataProvidersPool(),
+		GetCmdQueryRequestPrice(),
+		GetQueryCmdData(),
 	)
 	return oracleCmd
 }
@@ -52,17 +50,18 @@ func GetQueryCmdParams() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Params(cmd.Context(), &oracletypes.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -76,17 +75,18 @@ func GetQueryCmdCounts() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Counts(context.Background(), &types.QueryCountsRequest{})
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Counts(cmd.Context(), &oracletypes.QueryCountsRequest{})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -100,21 +100,25 @@ func GetQueryCmdDataSource() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.DataSource(context.Background(), &types.QueryDataSourceRequest{DataSourceId: id})
+
+			dsId, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.DataSource(cmd.Context(), &oracletypes.QueryDataSourceRequest{
+				DataSourceId: dsId,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -128,21 +132,25 @@ func GetQueryCmdOracleScript() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.OracleScript(context.Background(), &types.QueryOracleScriptRequest{OracleScriptId: id})
+
+			osId, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.OracleScript(cmd.Context(), &oracletypes.QueryOracleScriptRequest{
+				OracleScriptId: osId,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -157,60 +165,106 @@ func GetQueryCmdRequest() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			rId, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Request(context.Background(), &types.QueryRequestRequest{RequestId: id})
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Request(cmd.Context(), &oracletypes.QueryRequestRequest{
+				RequestId: rId,
+			})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
-// // GetQueryCmdRequestSearch implements the search request command.
-// func GetQueryCmdRequestSearch(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
-// 		Args: cobra.ExactArgs(4),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := clientcmn.QuerySearchLatestRequest(route, cliCtx, args[0], args[1], args[2], args[3])
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.QueryRequestResult{})
-// 		},
-// 	}
-// }
+// GetQueryCmdRequestSearch implements the search request command.
+func GetQueryCmdRequestSearch() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "request-search (-s [oracle-script-id]) (-c [calldata]) (-a [ask-count]) (-m [min-count])",
+		Args: cobra.RangeArgs(1, 4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
-// // GetQueryCmdValidatorStatus implements the query reporter list of validator command.
-// func GetQueryCmdValidatorStatus() *cobra.Command {
-// 	cmd := &cobra.Command{
-// 		Use:  "validator [validator]",
-// 		Args: cobra.ExactArgs(1),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
+			oid, err := cmd.Flags().GetInt64(flagOracleScriptID)
+			if err != nil {
+				return err
+			}
 
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s/%s", route, types.QueryValidatorStatus, args[0]))
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.ValidatorStatus{})
-// 		},
-// 	}
-// 	flags.AddQueryFlagsToCmd(cmd)
+			callData, err := cmd.Flags().GetBytesHex(flagCalldata)
+			if err != nil {
+				return err
+			}
 
-// 	return cmd
-// }
+			askCount, err := cmd.Flags().GetInt64(flagAskCount)
+			if err != nil {
+				return err
+			}
+
+			minCount, err := cmd.Flags().GetInt64(flagMinCount)
+			if err != nil {
+				return err
+			}
+
+			res, _, err := oracleclientcommon.QuerySearchLatestRequest(oracletypes.QuerierRoute, clientCtx, &oracletypes.QueryRequestSearchRequest{
+				OracleScriptId: oid,
+				Calldata:       callData,
+				AskCount:       askCount,
+				MinCount:       minCount,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	cmd.Flags().BytesHexP(flagCalldata, "c", nil, "Calldata used in calling the oracle script")
+	cmd.Flags().Int64P(flagOracleScriptID, "s", 0, "oracle script id used in request")
+	cmd.Flags().Int64P(flagMinCount, "m", 0, "min count used in request")
+	cmd.Flags().Int64P(flagAskCount, "a", 0, "ask count used in request")
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdValidatorStatus implements the query reporter list of validator command.
+func GetQueryCmdValidatorStatus() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "validator [validator]",
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Validator(cmd.Context(), &oracletypes.QueryValidatorRequest{
+				ValidatorAddress: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
 
 // GetQueryCmdReporters implements the query reporter list of validator command.
 func GetQueryCmdReporters() *cobra.Command {
@@ -222,17 +276,20 @@ func GetQueryCmdReporters() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Reporters(context.Background(), &types.QueryReportersRequest{ValidatorAddress: args[1]})
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Reporters(cmd.Context(), &oracletypes.QueryReportersRequest{
+				ValidatorAddress: args[0],
+			})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
@@ -246,39 +303,117 @@ func GetQueryActiveValidators() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.ActiveValidators(context.Background(), &types.QueryActiveValidatorsRequest{})
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.ActiveValidators(cmd.Context(), &oracletypes.QueryActiveValidatorsRequest{})
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(r)
+			return clientCtx.PrintProto(res)
 		},
 	}
-	flags.AddQueryFlagsToCmd(cmd)
 
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
-// // GetQueryPendingRequests implements the query pending requests command.
-// func GetQueryPendingRequests(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "pending-requests [validator]",
-// 		Args: cobra.MaximumNArgs(1),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
+// GetCmdQueryDataProvidersPool returns the command for fetching community pool info
+func GetCmdQueryDataProvidersPool() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "data-providers-pool",
+		Args:  cobra.NoArgs,
+		Short: "Query the amount of coins in the data providers pool",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query all coins in the data providers pool.
 
-// 			path := fmt.Sprintf("custom/%s/%s", route, types.QueryPendingRequests)
-// 			if len(args) == 1 {
-// 				path += "/" + args[0]
-// 			}
+Example:
+$ %s query oracle data-providers-pool
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
-// 			bz, _, err := cliCtx.Query(path)
-// 			if err != nil {
-// 				return err
-// 			}
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.DataProvidersPool(cmd.Context(), &oracletypes.QueryDataProvidersPoolRequest{})
+			if err != nil {
+				return err
+			}
 
-// 			return printOutput(cliCtx, cdc, bz, &[]types.RequestID{})
-// 		},
-// 	}
-// }
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryRequestPrice() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "request-price",
+		Args:  cobra.NoArgs,
+		Short: "queries the latest price on standard price reference oracle",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			symbol := args[0]
+			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.RequestPrice(cmd.Context(), &oracletypes.QueryRequestPriceRequest{
+				Symbol:   symbol,
+				AskCount: askCount,
+				MinCount: minCount,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetQueryCmdData() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "data [data-hash]",
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Data(cmd.Context(), &oracletypes.QueryDataRequest{
+				DataHash: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}

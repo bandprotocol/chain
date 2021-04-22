@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/bandprotocol/go-owasm/api"
 )
 
@@ -40,7 +40,11 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			compiledData, err := api.Compile(data, types.MaxCompiledWasmCodeSize)
+			vm, err := api.NewVm(0) // The compilation doesn't use cache
+			if err != nil {
+				return err
+			}
+			compiledData, err := vm.Compile(data, types.MaxCompiledWasmCodeSize)
 			if err != nil {
 				return err
 			}

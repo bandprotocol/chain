@@ -1,6 +1,6 @@
 package main
 
-import "github.com/bandprotocol/chain/yoda"
+import "github.com/GeoDB-Limited/odin-core/yoda"
 
 func main() {
 	yoda.Main()

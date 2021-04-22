@@ -1,0 +1,35 @@
+syntax = "proto3";
+package mint;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/mint/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "mint/mint.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Msg defines the mint Msg service.
+service Msg {
+  // WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
+  rpc WithdrawCoinsToAccFromTreasury(MsgWithdrawCoinsToAccFromTreasury)
+      returns (MsgWithdrawCoinsToAccFromTreasuryResponse);
+}
+
+// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint module.
+message MsgWithdrawCoinsToAccFromTreasury {
+  option (gogoproto.equal) = true;
+
+  // Amount is the amoutn of coins to withdraw
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  // Receiver is for whom withdraw coins
+  string receiver = 2;
+  // Sender is the message signer who submits this report transaction
+  string sender = 3;
+}
+
+// MsgWithdrawCoinsToAccFromTreasuryResponse
+message MsgWithdrawCoinsToAccFromTreasuryResponse {}

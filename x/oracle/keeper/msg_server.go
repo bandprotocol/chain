@@ -1,21 +1,20 @@
-package keeper
+package oraclekeeper
 
 import (
 	"context"
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/pkg/gzip"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/GeoDB-Limited/odin-core/pkg/gzip"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 type msgServer struct {
 	Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the bank MsgServer interface
+// NewMsgServerImpl returns an implementation of the oracle MsgServer interface
 // for the provided Keeper.
 func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
@@ -25,8 +24,17 @@ var _ types.MsgServer = msgServer{}
 
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	maxCalldataSize := k.GetParamUint64(ctx, types.KeyMaxCalldataSize)
+	if len(msg.Calldata) > int(maxCalldataSize) {
+		return nil, types.WrapMaxError(types.ErrTooLargeCalldata, len(msg.Calldata), int(maxCalldataSize))
+	}
 
-	err := k.PrepareRequest(ctx, msg)
+	payer, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = k.PrepareRequest(ctx, msg, payer, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +64,13 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 		return nil, types.ErrRequestAlreadyExpired
 	}
 
+	maxDataSize := k.GetParamUint64(ctx, types.KeyMaxDataSize)
+	for _, r := range msg.RawReports {
+		if len(r.Data) > int(maxDataSize) {
+			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), int(maxDataSize))
+		}
+	}
+
 	reportInTime := !k.HasResult(ctx, msg.RequestID)
 	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, reportInTime, msg.RawReports))
 	if err != nil {
@@ -66,6 +81,11 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	if reportInTime {
 		req := k.MustGetRequest(ctx, msg.RequestID)
 		if k.GetReportCount(ctx, msg.RequestID) == req.MinCount {
+			// at this moment we are sure, that all the raw reports here are validated
+			// so we can distribute the reward for them in end-block
+			if _, err := k.CollectReward(ctx, msg.GetRawReports(), req.RawRequests); err != nil {
+				return nil, err
+			}
 			// At the exact moment when the number of reports is sufficient, we add the request to
 			// the pending resolve list. This can happen at most one time for any request.
 			k.AddPendingRequest(ctx, msg.RequestID)
@@ -98,7 +118,7 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 	}
 
 	id := k.AddDataSource(ctx, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable),
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -142,7 +162,7 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable),
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
