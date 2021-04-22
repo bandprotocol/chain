@@ -76,7 +76,7 @@ service Query {
   // port, channel, and request key.
   rpc RequestPool(QueryRequestPoolRequest) returns (QueryRequestPoolResponse) {
     option (google.api.http).get =
-        "/oracle/request_pool/{request_key}/{port_id}/{channel_id}";
+        "/oracle/v1/request_pool/{request_key}/{port_id}/{channel_id}";
   }
 }
 
