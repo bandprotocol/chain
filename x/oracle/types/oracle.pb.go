@@ -1240,12 +1240,12 @@ func (m *PendingResolveList) GetRequestIds() []int64 {
 // IBCChannel is information of IBC protocol to allow communicating with other
 // chain
 type IBCChannel struct {
-	// ChannelID is channel ID used for sending response packet when request is
-	// resolved.
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// PortID is port ID used for sending response packet when request is
 	// resolved.
-	PortId string `protobuf:"bytes,2,opt,name=port_id,json=portId,proto3" json:"port_id,omitempty"`
+	PortId string `protobuf:"bytes,1,opt,name=port_id,json=portId,proto3" json:"port_id,omitempty"`
+	// ChannelID is channel ID used for sending response packet when request is
+	// resolved.
+	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 }
 
 func (m *IBCChannel) Reset()         { *m = IBCChannel{} }
@@ -1281,16 +1281,16 @@ func (m *IBCChannel) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_IBCChannel proto.InternalMessageInfo
 
-func (m *IBCChannel) GetChannelId() string {
+func (m *IBCChannel) GetPortId() string {
 	if m != nil {
-		return m.ChannelId
+		return m.PortId
 	}
 	return ""
 }
 
-func (m *IBCChannel) GetPortId() string {
+func (m *IBCChannel) GetChannelId() string {
 	if m != nil {
-		return m.PortId
+		return m.ChannelId
 	}
 	return ""
 }
@@ -1401,8 +1401,8 @@ var fileDescriptor_652b57db11528d07 = []byte{
 	0xab, 0x71, 0x40, 0x43, 0xfa, 0x77, 0x95, 0x7b, 0x3b, 0xf5, 0xce, 0xd3, 0xc2, 0x8c, 0xa0, 0xe9,
 	0x1e, 0x98, 0x0d, 0xe2, 0x3b, 0xd4, 0x6f, 0x2b, 0x75, 0xed, 0x53, 0x36, 0x76, 0x38, 0x50, 0x87,
 	0x65, 0xb5, 0xa2, 0xbe, 0xa1, 0x0f, 0x0e, 0x87, 0xba, 0x13, 0x8f, 0xf6, 0x7f, 0xc2, 0xc8, 0x9d,
-	0xc3, 0xfc, 0x15, 0x80, 0xba, 0xab, 0x0c, 0x46, 0x06, 0x32, 0x14, 0x52, 0x77, 0xcc, 0x55, 0x98,
-	0xe7, 0xc7, 0x7a, 0x3c, 0x1c, 0x0c, 0x94, 0xe4, 0x66, 0x3c, 0xbf, 0x6f, 0x7f, 0xad, 0xc1, 0xc2,
+	0xc3, 0x5c, 0x85, 0x79, 0x7e, 0x6e, 0x0f, 0xe6, 0x05, 0x4a, 0x72, 0xb3, 0xee, 0x98, 0xbf, 0x02,
+	0x50, 0x97, 0x98, 0x78, 0x32, 0x18, 0xc8, 0x50, 0x48, 0x3c, 0xbf, 0x6f, 0x7f, 0xad, 0xc1, 0xc2,
 	0x98, 0xc0, 0xcd, 0xbf, 0x40, 0x01, 0xd5, 0x9a, 0x07, 0xfb, 0x0f, 0x6b, 0x56, 0xf3, 0x70, 0xe7,
 	0xf0, 0xa8, 0x69, 0x1d, 0x34, 0x6a, 0x0f, 0xac, 0xa3, 0x07, 0xcd, 0x46, 0xad, 0x5a, 0xdf, 0xab,
 	0xd7, 0x76, 0x97, 0x66, 0x72, 0xab, 0x8f, 0x9e, 0x14, 0xaf, 0x4d, 0x09, 0x33, 0xff, 0x04, 0x2b,
@@ -1413,7 +1413,7 @@ var fileDescriptor_652b57db11528d07 = []byte{
 	0x8f, 0x5f, 0xe6, 0x67, 0x9e, 0xbf, 0xcc, 0xcf, 0x7c, 0xfa, 0x32, 0x3f, 0xf3, 0x9f, 0x3b, 0x23,
 	0x67, 0x7b, 0x0b, 0xfb, 0x8e, 0xd8, 0x81, 0x76, 0xe0, 0x96, 0xed, 0x13, 0x4c, 0xfd, 0xf2, 0x85,
 	0xfa, 0xcf, 0x2c, 0x4f, 0xf9, 0x56, 0x52, 0xb8, 0xff, 0xf0, 0x4d, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x0d, 0xf4, 0x5a, 0xb0, 0x54, 0x0f, 0x00, 0x00,
+	0xab, 0x74, 0xcd, 0x24, 0x54, 0x0f, 0x00, 0x00,
 }
 
 func (this *DataSource) Equal(that interface{}) bool {
@@ -1948,10 +1948,10 @@ func (this *IBCChannel) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.ChannelId != that1.ChannelId {
+	if this.PortId != that1.PortId {
 		return false
 	}
-	if this.PortId != that1.PortId {
+	if this.ChannelId != that1.ChannelId {
 		return false
 	}
 	return true
@@ -2747,17 +2747,17 @@ func (m *IBCChannel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.PortId) > 0 {
-		i -= len(m.PortId)
-		copy(dAtA[i:], m.PortId)
-		i = encodeVarintOracle(dAtA, i, uint64(len(m.PortId)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if len(m.ChannelId) > 0 {
 		i -= len(m.ChannelId)
 		copy(dAtA[i:], m.ChannelId)
 		i = encodeVarintOracle(dAtA, i, uint64(len(m.ChannelId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.PortId) > 0 {
+		i -= len(m.PortId)
+		copy(dAtA[i:], m.PortId)
+		i = encodeVarintOracle(dAtA, i, uint64(len(m.PortId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -3151,11 +3151,11 @@ func (m *IBCChannel) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ChannelId)
+	l = len(m.PortId)
 	if l > 0 {
 		n += 1 + l + sovOracle(uint64(l))
 	}
-	l = len(m.PortId)
+	l = len(m.ChannelId)
 	if l > 0 {
 		n += 1 + l + sovOracle(uint64(l))
 	}
@@ -5668,38 +5668,6 @@ func (m *IBCChannel) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChannelId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowOracle
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthOracle
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthOracle
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChannelId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PortId", wireType)
 			}
 			var stringLen uint64
@@ -5729,6 +5697,38 @@ func (m *IBCChannel) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.PortId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOracle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthOracle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthOracle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChannelId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
