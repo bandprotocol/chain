@@ -185,12 +185,12 @@
       ],
       "supply": [
         {
-          "denom": "loki",
-          "amount": "100000000000000"
-        },
-        {
           "denom": "geo",
           "amount": "1000000000000000"
+        },
+        {
+          "denom": "loki",
+          "amount": "100000000000000"
         }
       ],
       "denom_metadata": []
