@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -21,7 +22,7 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	bandapp "github.com/bandprotocol/chain/app"
+	v039oracle "github.com/bandprotocol/chain/x/oracle/legacy/v039"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -83,11 +84,11 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			// Migrate from guanyu (0.39 like genesis file) to cosmos-sdk v0.40
 			newGenState := v040.Migrate(initialState, clientCtx)
-			defaultLaozi := bandapp.NewDefaultGenesisState()
 
 			ibcTransferGenesis := ibcxfertypes.DefaultGenesisState()
 			ibcCoreGenesis := ibccoretypes.DefaultGenesisState()
 			capGenesis := captypes.DefaultGenesis()
+			oracleGenesis := oracletypes.DefaultGenesisState()
 
 			ibcTransferGenesis.Params.ReceiveEnabled = false
 			ibcTransferGenesis.Params.SendEnabled = false
@@ -95,7 +96,25 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			newGenState[ibcxfertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcTransferGenesis)
 			newGenState[host.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcCoreGenesis)
 			newGenState[captypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(capGenesis)
-			newGenState[oracletypes.ModuleName] = defaultLaozi[oracletypes.ModuleName]
+
+			v039Codec := codec.NewLegacyAmino()
+			v040Codec := clientCtx.JSONMarshaler
+			var oracleGenesisV039 v039oracle.GenesisState
+			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
+
+			oracleGenesis.OracleScripts = oracleGenesisV039.OracleScripts
+			oracleGenesis.Reporters = oracleGenesisV039.Reporters
+			for _, dataSource := range oracleGenesisV039.DataSources {
+				oracleGenesis.DataSources = append(oracleGenesis.DataSources, oracletypes.DataSource{
+					Owner:       dataSource.Owner,
+					Name:        dataSource.Name,
+					Description: dataSource.Description,
+					Filename:    dataSource.Filename,
+					Treasury:    dataSource.Owner,
+					Fee:         sdk.NewCoins(),
+				})
+			}
+			newGenState[oracletypes.ModuleName] = v040Codec.MustMarshalJSON(oracleGenesis)
 
 			genDoc.AppState, err = json.Marshal(newGenState)
 			if err != nil {
