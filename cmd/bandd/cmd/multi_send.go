@@ -12,7 +12,7 @@ import (
 // MultiSendTxCmd creates a multi-send tx and signs it with the given key.
 func MultiSendTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "multi-send [amount] [to_address1] [to_address2] ....",
+		Use:   "multi-send [amount_per_account] [to_address1] [to_address2] ....",
 		Short: "Send token to multiple accounts",
 		Long: "Send equal amount of token to multiple accounts"
 		Args:  cobra.MinimumNArgs(2),
