@@ -38,7 +38,7 @@ func GetQueryCmd() *cobra.Command {
 		// GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
-		// 	GetQueryPendingRequests(storeKey, cdc),
+		// GetQueryPendingRequests(storeKey, cdc),
 		GetQueryRequestPrice(),
 	)
 	return oracleCmd
