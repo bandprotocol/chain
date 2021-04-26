@@ -200,6 +200,7 @@ message QueryRequestSearchRequest {
 
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
+// TODO: revisit on this
 message QueryRequestSearchResponse { string test = 1; }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
