@@ -122,6 +122,43 @@ func GetQueryCmdDataSource() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdDataSources implements the query data sources command.
+func GetQueryCmdDataSources() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "data-sources [page] [limit]",
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			page, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			limit, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.DataSources(cmd.Context(), &oracletypes.QueryDataSourcesRequest{
+				Page:  page,
+				Limit: limit,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
 // GetQueryCmdOracleScript implements the query oracle script command.
 func GetQueryCmdOracleScript() *cobra.Command {
 	cmd := &cobra.Command{

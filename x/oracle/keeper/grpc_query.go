@@ -51,6 +51,16 @@ func (k Querier) DataSource(c context.Context, req *oracletypes.QueryDataSourceR
 	return &oracletypes.QueryDataSourceResponse{DataSource: &ds}, nil
 }
 
+// DataSources queries data sources
+func (k Querier) DataSources(c context.Context, req *oracletypes.QueryDataSourcesRequest) (*oracletypes.QueryDataSourcesResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	ds := k.GetPaginatedDataSources(ctx, uint(req.Page), uint(req.Limit))
+	return &oracletypes.QueryDataSourcesResponse{DataSources: ds}, nil
+}
+
 // OracleScript queries oracle script info for given oracle script id.
 func (k Querier) OracleScript(c context.Context, req *oracletypes.QueryOracleScriptRequest) (*oracletypes.QueryOracleScriptResponse, error) {
 	if req == nil {

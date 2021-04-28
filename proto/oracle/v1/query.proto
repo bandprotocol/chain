@@ -24,7 +24,12 @@ service Query {
 
   // DataSource queries data source info for given data source id.
   rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
-    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+    option (google.api.http).get = "/oracle/data_source/{data_source_id}";
+  }
+
+  // DataSources queries data sources info.
+  rpc DataSources(QueryDataSourcesRequest) returns (QueryDataSourcesResponse) {
+    option (google.api.http).get = "/oracle/data_sources/{page}/{limit}";
   }
 
   // OracleScript queries oracle script info for given oracle script id.
@@ -100,6 +105,15 @@ message QueryDataSourceRequest {int64 data_source_id = 1;}
 
 // QueryDataSourceResponse is response type for the Query/DataSource RPC method.
 message QueryDataSourceResponse {DataSource data_source = 1;}
+
+// QueryDataSourcesRequest is request type for the Query/DataSources RPC method.
+message QueryDataSourcesRequest {
+  uint64 page = 1;
+  uint64 limit = 2;
+}
+
+// QueryDataSourcesResponse is response type for the Query/DataSources RPC method.
+message QueryDataSourcesResponse {repeated DataSource data_sources = 1 [(gogoproto.nullable) = false];}
 
 // QueryOracleScriptRequest is request type for the Query/OracleScript RPC
 // method.

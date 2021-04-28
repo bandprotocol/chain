@@ -7,6 +7,7 @@ const (
 	QueryParams             = "params"
 	QueryCounts             = "counts"
 	QueryData               = "data"
+	QueryDataSource         = "data_source"
 	QueryDataSources        = "data_sources"
 	QueryOracleScripts      = "oracle_scripts"
 	QueryRequests           = "requests"
