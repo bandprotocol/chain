@@ -324,6 +324,13 @@ func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
+
+	if !am.keeper.GetBoolParam(ctx, types.KeyIBCRequestEnabled) {
+		return &sdk.Result{
+			Events: ctx.EventManager().Events().ToABCIEvents(),
+		}, channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error()).GetBytes(), nil
+	}
+
 	var data types.OracleRequestPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return &sdk.Result{

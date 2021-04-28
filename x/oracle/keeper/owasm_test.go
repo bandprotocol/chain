@@ -225,7 +225,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 
 func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyMaxAskCount, 5)
+	k.SetUInt64Param(ctx, types.KeyMaxAskCount, 5)
 
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
@@ -257,8 +257,8 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 
 func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000) // Set KeyBaseOwasmGas to 100000
-	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 0)
+	k.SetUInt64Param(ctx, types.KeyBaseOwasmGas, 100000) // Set KeyBaseOwasmGas to 100000
+	k.SetUInt64Param(ctx, types.KeyPerValidatorRequestGas, 0)
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
 	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
@@ -270,8 +270,8 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 
 func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyBaseOwasmGas, 100000)
-	k.SetParam(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
+	k.SetUInt64Param(ctx, types.KeyBaseOwasmGas, 100000)
+	k.SetUInt64Param(ctx, types.KeyPerValidatorRequestGas, 50000) // Set erValidatorRequestGas to 50000
 	m := types.NewMsgRequestData(1, BasicCalldata, 2, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
 	require.PanicsWithValue(t, sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"}, func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) })
@@ -322,7 +322,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 
 func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetParam(ctx, types.KeyMaxRawRequestCount, 3)
+	k.SetUInt64Param(ctx, types.KeyMaxRawRequestCount, 3)
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
