@@ -1,4 +1,19 @@
+---
+ics: xx
+title: Band Protocol Oracle Requests (consumer)
+stage: Strawman
+category: IBC/APP
+kind: TODO
+author: Songwong Tasneeyapant <songwong@bandprotocol.com>
+created: 2021-04-06
+modified: 2021-04-06
+# requires: (optional list of ics numbers)
+# required-by: (optional list of ics numbers)
+# implements: (optional list of ics numbers)
+---
+
 `icsxx-x` consumer side
+
 <https://hackmd.io/@songwongtp/rye4QgYHO>
 
 ## Technical Specification
