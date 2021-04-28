@@ -3,7 +3,7 @@ ics: xx
 title: Band Protocol Oracle Requests
 stage: Strawman
 category: IBC/APP
-kind: ?
+kind: TODO
 author: Nathachai Jaiboon <nathachai@bandprotocol.com>
 created: 2021-04-05
 modified: 2021-04-05
@@ -13,6 +13,7 @@ modified: 2021-04-05
 ---
 
 TODO: Change `icsxx-x` to correct number
+
 <https://hackmd.io/@ntchjb/rJQirQdS_>
 
 ## Synopsis
