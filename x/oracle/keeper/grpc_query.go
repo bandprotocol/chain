@@ -74,6 +74,16 @@ func (k Querier) OracleScript(c context.Context, req *oracletypes.QueryOracleScr
 	return &oracletypes.QueryOracleScriptResponse{OracleScript: &os}, nil
 }
 
+// OracleScripts queries all oracle scripts with pagination.
+func (k Querier) OracleScripts(c context.Context, req *oracletypes.QueryOracleScriptsRequest) (*oracletypes.QueryOracleScriptsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	oracleScripts := k.GetPaginatedOracleScripts(ctx, uint(req.Page), uint(req.Limit))
+	return &oracletypes.QueryOracleScriptsResponse{OracleScripts: oracleScripts}, nil
+}
+
 // Request queries request info for given request id.
 func (k Querier) Request(c context.Context, req *oracletypes.QueryRequestRequest) (*oracletypes.QueryRequestResponse, error) {
 	if req == nil {

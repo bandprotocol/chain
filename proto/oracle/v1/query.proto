@@ -38,6 +38,12 @@ service Query {
     option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
   }
 
+  // OracleScripts queries all oracle scripts with pagination.
+  rpc OracleScripts(QueryOracleScriptsRequest)
+      returns (QueryOracleScriptsResponse) {
+    option (google.api.http).get = "/oracle/oracle_scripts/{page}/{limit}";
+  }
+
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
     option (google.api.http).get = "/oracle/request/{request_id}";
@@ -115,13 +121,20 @@ message QueryDataSourcesRequest {
 // QueryDataSourcesResponse is response type for the Query/DataSources RPC method.
 message QueryDataSourcesResponse {repeated DataSource data_sources = 1 [(gogoproto.nullable) = false];}
 
-// QueryOracleScriptRequest is request type for the Query/OracleScript RPC
-// method.
+// QueryOracleScriptRequest is request type for the Query/OracleScript RPC method.
 message QueryOracleScriptRequest {int64 oracle_script_id = 1;}
 
-// QueryOracleScriptResponse is response type for the Query/OracleScript RPC
-// method.
+// QueryOracleScriptResponse is response type for the Query/OracleScript RPC method.
 message QueryOracleScriptResponse {OracleScript oracle_script = 1;}
+
+// QueryOracleScriptsRequest is request type for the Query/OracleScripts RPC method.
+message QueryOracleScriptsRequest {
+  uint64 page = 1;
+  uint64 limit = 2;
+}
+
+// QueryOracleScriptsResponse is response type for the Query/OracleScripts RPC method.
+message QueryOracleScriptsResponse {repeated OracleScript oracle_scripts = 1 [(gogoproto.nullable) = false];}
 
 // QueryRequestRequest is request type for the Query/Request RPC method.
 message QueryRequestRequest {int64 request_id = 1;}

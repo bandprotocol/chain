@@ -112,7 +112,26 @@ func getOracleScriptByIDHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts, vars[idTag]))
+		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScript, vars[idTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getOracleScriptsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		vars := mux.Vars(r)
+		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts, vars[pageTag], vars[limitTag]))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

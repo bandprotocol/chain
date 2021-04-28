@@ -9,6 +9,7 @@ const (
 	QueryData               = "data"
 	QueryDataSource         = "data_source"
 	QueryDataSources        = "data_sources"
+	QueryOracleScript       = "oracle_script"
 	QueryOracleScripts      = "oracle_scripts"
 	QueryRequests           = "requests"
 	QueryRequestPrices      = "request_prices"

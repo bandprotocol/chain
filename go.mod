@@ -23,7 +23,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/oasisprotocol/oasis-core/go v0.0.0-20200730171716-3be2b460b3ac
 	github.com/peterbourgon/diskv v2.0.1+incompatible
-	github.com/pkg/errors v0.9.1
 	github.com/poy/onpar v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.8.0
 	github.com/rakyll/statik v0.1.7

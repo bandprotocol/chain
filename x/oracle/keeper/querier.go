@@ -25,8 +25,10 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 			return queryDataSourceByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryDataSources:
 			return queryDataSources(ctx, path[1:], keeper, req, cdc)
-		case oracletypes.QueryOracleScripts:
+		case oracletypes.QueryOracleScript:
 			return queryOracleScriptByID(ctx, path[1:], keeper, req, cdc)
+		case oracletypes.QueryOracleScripts:
+			return queryOracleScripts(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequests:
 			return queryRequest(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryValidatorStatus:
@@ -108,6 +110,22 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.Requ
 		return commontypes.QueryNotFound(cdc, err.Error())
 	}
 	return commontypes.QueryOK(cdc, oracleScript)
+}
+
+func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 2 {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+	}
+	page, err := strconv.ParseUint(path[0], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	limit, err := strconv.ParseUint(path[1], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	dataSources := k.GetPaginatedOracleScripts(ctx, uint(page), uint(limit))
+	return commontypes.QueryOK(cdc, dataSources)
 }
 
 // deprecated: to remove

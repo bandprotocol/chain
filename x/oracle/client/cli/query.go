@@ -27,7 +27,9 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdParams(),
 		GetQueryCmdCounts(),
 		GetQueryCmdDataSource(),
+		GetQueryCmdDataSources(),
 		GetQueryCmdOracleScript(),
+		GetQueryCmdOracleScripts(),
 		GetQueryCmdRequest(),
 		GetQueryCmdRequestSearch(),
 		GetQueryCmdValidatorStatus(),
@@ -178,6 +180,43 @@ func GetQueryCmdOracleScript() *cobra.Command {
 			queryClient := oracletypes.NewQueryClient(clientCtx)
 			res, err := queryClient.OracleScript(cmd.Context(), &oracletypes.QueryOracleScriptRequest{
 				OracleScriptId: osId,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdOracleScripts implements the query all oracle scripts command.
+func GetQueryCmdOracleScripts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "data-sources [page] [limit]",
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			page, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			limit, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.OracleScripts(cmd.Context(), &oracletypes.QueryOracleScriptsRequest{
+				Page:  page,
+				Limit: limit,
 			})
 			if err != nil {
 				return err
