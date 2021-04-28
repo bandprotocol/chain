@@ -12,6 +12,7 @@ const (
 	QueryOracleScript       = "oracle_script"
 	QueryOracleScripts      = "oracle_scripts"
 	QueryRequests           = "requests"
+	QueryRequestReports     = "request_reports"
 	QueryRequestPrices      = "request_prices"
 	QueryPriceSymbols       = "price_symbols"
 	QueryLatestRequest      = "latest_request"

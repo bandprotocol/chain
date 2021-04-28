@@ -31,6 +31,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdOracleScript(),
 		GetQueryCmdOracleScripts(),
 		GetQueryCmdRequest(),
+		GetQueryCmdRequestReports(),
 		GetQueryCmdRequestSearch(),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
@@ -481,6 +482,48 @@ func GetQueryCmdData() *cobra.Command {
 			queryClient := oracletypes.NewQueryClient(clientCtx)
 			res, err := queryClient.Data(cmd.Context(), &oracletypes.QueryDataRequest{
 				DataHash: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdRequestReports implements the query request reports with pagination command.
+func GetQueryCmdRequestReports() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "data-sources [request_id] [page] [limit]",
+		Args: cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			requestId, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			page, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+			limit, err := strconv.ParseUint(args[2], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.RequestReports(cmd.Context(), &oracletypes.QueryRequestReportsRequest{
+				RequestId: requestId,
+				Page:      page,
+				Limit:     limit,
 			})
 			if err != nil {
 				return err

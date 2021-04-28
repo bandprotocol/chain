@@ -43,7 +43,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			h.emitUpdateResult(ctx, rid)
 		}
 		h.emitRawRequestAndValRequest(rid, req)
-		reps := h.oracleKeeper.GetReports(ctx, rid)
+		reps := h.oracleKeeper.GetRequestReports(ctx, rid)
 		for _, rep := range reps {
 			h.emitReportAndRawReport(nil, rid, sdk.ValAddress(rep.Validator), nil, rep.RawReports)
 		}

@@ -31,6 +31,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 			return queryOracleScripts(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequests:
 			return queryRequest(ctx, path[1:], keeper, req, cdc)
+		case oracletypes.QueryRequestReports:
+			return queryRequestReports(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryValidatorStatus:
 			return queryValidatorStatus(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryReporters:
@@ -128,35 +130,6 @@ func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, _ abci.Request
 	return commontypes.QueryOK(cdc, dataSources)
 }
 
-// deprecated: to remove
-func queryRequestResult(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) < 1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
-	}
-	id, err := strconv.ParseInt(path[0], 10, 64)
-	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
-	}
-	request, err := k.GetRequest(ctx, oracletypes.RequestID(id))
-	if err != nil {
-		return commontypes.QueryNotFound(cdc, err.Error())
-	}
-	reports := k.GetReports(ctx, oracletypes.RequestID(id))
-	if !k.HasResult(ctx, oracletypes.RequestID(id)) {
-		return commontypes.QueryOK(cdc, oracletypes.QueryRequestResult{
-			Request: request,
-			Reports: reports,
-			Result:  nil,
-		})
-	}
-	result := k.MustGetResult(ctx, oracletypes.RequestID(id))
-	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResult{
-		Request: request,
-		Reports: reports,
-		Result:  &result,
-	})
-}
-
 func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) < 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
@@ -248,7 +221,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, _ abci.Reque
 		req := k.MustGetRequest(ctx, id)
 
 		// If all validators reported on this request, then skip it.
-		reports := k.GetReports(ctx, id)
+		reports := k.GetRequestReports(ctx, id)
 		if len(reports) == len(req.RequestedValidators) {
 			continue
 		}
@@ -295,6 +268,26 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, _ abci.Reque
 	}
 
 	return commontypes.QueryOK(cdc, pendingIDs)
+}
+
+func queryRequestReports(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 3 {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+	}
+	requestId, err := strconv.ParseInt(path[0], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	page, err := strconv.ParseUint(path[1], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	limit, err := strconv.ParseUint(path[2], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	dataSources := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(requestId), uint(page), uint(limit))
+	return commontypes.QueryOK(cdc, dataSources)
 }
 
 func queryDataProvidersPool(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {

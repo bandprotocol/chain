@@ -46,7 +46,7 @@ func TestAddReportSuccess(t *testing.T) {
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		}),
-	}, k.GetReports(ctx, 1))
+	}, k.GetRequestReports(ctx, 1))
 }
 
 func TestReportOnNonExistingRequest(t *testing.T) {

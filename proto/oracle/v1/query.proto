@@ -88,6 +88,11 @@ service Query {
       returns (QueryDataProvidersPoolResponse) {
     option (google.api.http).post = "/oracle/data_providers_pool";
   }
+
+  rpc RequestReports(QueryRequestReportsRequest)
+      returns (QueryRequestReportsResponse) {
+    option (google.api.http).get = "/oracle/request_reports/{request_id}/{page}/{limit}";
+  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -135,6 +140,18 @@ message QueryOracleScriptsRequest {
 
 // QueryOracleScriptsResponse is response type for the Query/OracleScripts RPC method.
 message QueryOracleScriptsResponse {repeated OracleScript oracle_scripts = 1 [(gogoproto.nullable) = false];}
+
+
+// QueryRequestReportsRequest is request type for the Query/RequestReports RPC method.
+message QueryRequestReportsRequest {
+  int64 request_id = 1;
+  uint64 page = 2;
+  uint64 limit = 3;
+}
+
+// QueryRequestReportsResponse is response type for the Query/RequestReports RPC method.
+message QueryRequestReportsResponse {repeated Report reports = 1 [(gogoproto.nullable) = false];}
+
 
 // QueryRequestRequest is request type for the Query/Request RPC method.
 message QueryRequestRequest {int64 request_id = 1;}

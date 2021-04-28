@@ -111,6 +111,23 @@ func (k Querier) Request(c context.Context, req *oracletypes.QueryRequestRequest
 	}}, nil
 }
 
+// RequestReports queries all reports by the giver request id with pagination.
+func (k Querier) RequestReports(
+	c context.Context, req *oracletypes.QueryRequestReportsRequest,
+) (*oracletypes.QueryRequestReportsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	reports := k.GetPaginatedRequestReports(
+		ctx,
+		oracletypes.RequestID(req.RequestId),
+		uint(req.Page),
+		uint(req.Limit),
+	)
+	return &oracletypes.QueryRequestReportsResponse{Reports: reports}, nil
+}
+
 // Validator queries oracle info of validator for given validator
 // address.
 func (k Querier) Validator(c context.Context, req *oracletypes.QueryValidatorRequest) (*oracletypes.QueryValidatorResponse, error) {
