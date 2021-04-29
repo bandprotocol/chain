@@ -98,7 +98,7 @@
           "coins": [
             {
               "denom": "geo",
-              "amount": "1000000"
+              "amount": "100000000000000"
             },
             {
               "denom": "loki",
@@ -111,7 +111,7 @@
           "coins": [
             {
               "denom": "geo",
-              "amount": "1000000"
+              "amount": "100000000000000"
             },
             {
               "denom": "loki",
@@ -226,7 +226,7 @@
         "community_pool": [
           {
             "denom": "geo",
-            "amount": "999999998000000"
+            "amount": "800000000000000"
           },
           {
             "denom": "loki",

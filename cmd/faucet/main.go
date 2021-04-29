@@ -17,15 +17,17 @@ import (
 const (
 	flagPort   = "port"
 	flagAmount = "amount"
+	flagCoins  = "coins"
 )
 
 // Config data structure for faucet server.
 type Config struct {
-	ChainID   string `mapstructure:"chain-id"`   // ChainID of the target chain
-	NodeURI   string `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
-	GasPrices string `mapstructure:"gas-prices"` // Gas prices of the transaction
-	Port      string `mapstructure:"port"`       // Port of faucet service
-	Amount    int64  `mapstructure:"amount"`     // Amount of BAND for each request
+	ChainID   string   `mapstructure:"chain-id"`   // ChainID of the target chain
+	NodeURI   string   `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
+	GasPrices string   `mapstructure:"gas-prices"` // Gas prices of the transaction
+	Port      string   `mapstructure:"port"`       // Port of faucet service
+	Amount    int64    `mapstructure:"amount"`     // Amount of BAND for each request
+	Coins     []string `mapstructure:"coins"`
 }
 
 // Global instances.
