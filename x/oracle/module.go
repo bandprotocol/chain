@@ -3,7 +3,6 @@ package oracle
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"math"
 	"math/rand"
 
