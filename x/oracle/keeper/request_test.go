@@ -124,7 +124,9 @@ func TestAddPendingResolveList(t *testing.T) {
 
 func TestProcessExpiredRequests(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetUInt64Param(ctx, types.KeyExpirationBlockCount, 3)
+	params := k.GetParams(ctx)
+	params.ExpirationBlockCount = 3
+	k.SetParams(ctx, params)
 
 	// Set some initial requests. All requests are asked to validators 1 & 2.
 	req1 := defaultRequest()

@@ -325,7 +325,7 @@ func (am AppModule) OnRecvPacket(
 	packet channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
 
-	if !am.keeper.GetBoolParam(ctx, types.KeyIBCRequestEnabled) {
+	if !am.keeper.IBCRequestEnabled(ctx) {
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
 		}, channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error()).GetBytes(), nil

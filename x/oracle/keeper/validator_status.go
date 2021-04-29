@@ -36,7 +36,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 	// Compute the fee allocated for oracle module to distribute to active validators.
-	oracleRewardRatio := sdk.NewDecWithPrec(int64(k.GetUInt64Param(ctx, types.KeyOracleRewardPercentage)), 2)
+	oracleRewardRatio := sdk.NewDecWithPrec(int64(k.OracleRewardPercentage(ctx)), 2)
 	oracleRewardInt, _ := totalFee.MulDecTruncate(oracleRewardRatio).TruncateDecimal()
 	// Transfer the oracle reward portion from fee collector to distr module.
 	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distr.ModuleName, oracleRewardInt)
@@ -84,7 +84,7 @@ func (k Keeper) Activate(ctx sdk.Context, val sdk.ValAddress) error {
 	if status.IsActive {
 		return types.ErrValidatorAlreadyActive
 	}
-	penaltyDuration := time.Duration(k.GetUInt64Param(ctx, types.KeyInactivePenaltyDuration))
+	penaltyDuration := time.Duration(k.InactivePenaltyDuration(ctx))
 	if !status.Since.IsZero() && status.Since.Add(penaltyDuration).After(ctx.BlockHeader().Time) {
 		return types.ErrTooSoonToActivate
 	}
