@@ -326,9 +326,7 @@ func (am AppModule) OnRecvPacket(
 ) (*sdk.Result, []byte, error) {
 	var data types.OracleRequestPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return &sdk.Result{
-			Events: ctx.EventManager().Events().ToABCIEvents(),
-		}, channeltypes.NewErrorAcknowledgement(fmt.Sprintf("cannot unmarshal oracle request packet data: %s", err.Error())).GetBytes(), nil
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 oracle request packet data: %s", err.Error())
 	}
 	escrowAddress := types.GetEscrowAddress(data.RequestKey, packet.DestinationPort, packet.DestinationChannel)
 	ibcChannel := types.NewIBCChannel(packet.DestinationPort, packet.DestinationChannel)
