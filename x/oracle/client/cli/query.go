@@ -31,6 +31,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdOracleScript(),
 		GetQueryCmdOracleScripts(),
 		GetQueryCmdRequest(),
+		GetQueryCmdRequests(),
 		GetQueryCmdRequestReports(),
 		GetQueryCmdRequestSearch(),
 		GetQueryCmdValidatorStatus(),
@@ -197,7 +198,7 @@ func GetQueryCmdOracleScript() *cobra.Command {
 // GetQueryCmdOracleScripts implements the query all oracle scripts command.
 func GetQueryCmdOracleScripts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "data-sources [page] [limit]",
+		Use:  "oracle-scripts [page] [limit]",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -250,6 +251,43 @@ func GetQueryCmdRequest() *cobra.Command {
 			queryClient := oracletypes.NewQueryClient(clientCtx)
 			res, err := queryClient.Request(cmd.Context(), &oracletypes.QueryRequestRequest{
 				RequestId: rId,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdRequests implements the query requests command.
+func GetQueryCmdRequests() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "requests [page] [limit]",
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			page, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			limit, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := oracletypes.NewQueryClient(clientCtx)
+			res, err := queryClient.Requests(cmd.Context(), &oracletypes.QueryRequestsRequest{
+				Page:  page,
+				Limit: limit,
 			})
 			if err != nil {
 				return err
@@ -498,7 +536,7 @@ func GetQueryCmdData() *cobra.Command {
 // GetQueryCmdRequestReports implements the query request reports with pagination command.
 func GetQueryCmdRequestReports() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "data-sources [request_id] [page] [limit]",
+		Use:  "request-reports [request_id] [page] [limit]",
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

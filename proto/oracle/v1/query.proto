@@ -49,6 +49,11 @@ service Query {
     option (google.api.http).get = "/oracle/request/{request_id}";
   }
 
+  // Requests queries all requests with pagination.
+  rpc Requests(QueryRequestsRequest) returns (QueryRequestsResponse) {
+    option (google.api.http).get = "/oracle/requests/{page}/{limit}";
+  }
+
   // Validator queries oracle info of validator for given validator
   // address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
@@ -158,9 +163,18 @@ message QueryRequestRequest {int64 request_id = 1;}
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
 message QueryRequestResponse {
-  OracleRequestPacketData request_packet_data = 1;
-  OracleResponsePacketData response_packet_data = 2;
+  RequestResult request = 1;
 }
+
+
+// QueryRequestsRequest is request type for the Query/Requests RPC method.
+message QueryRequestsRequest {
+  uint64 page = 1;
+  uint64 limit = 2;
+}
+
+// QueryRequestsResponse is response type for the Query/Requests RPC method.
+message QueryRequestsResponse {repeated RequestResult requests = 1 [(gogoproto.nullable) = false];}
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
 message QueryParamsRequest {}

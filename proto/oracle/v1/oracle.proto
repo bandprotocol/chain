@@ -180,6 +180,12 @@ message OracleResponsePacketData {
   bytes result = 7;
 }
 
+message RequestResult {
+  option (gogoproto.equal) = true;
+  OracleRequestPacketData request_packet_data = 1;
+  OracleResponsePacketData response_packet_data = 2;
+}
+
 // Result encodes a result of request and store in chain
 message Result {
   option (gogoproto.equal) = true;

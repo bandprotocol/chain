@@ -11,6 +11,7 @@ const (
 	QueryDataSources        = "data_sources"
 	QueryOracleScript       = "oracle_script"
 	QueryOracleScripts      = "oracle_scripts"
+	QueryRequest            = "request"
 	QueryRequests           = "requests"
 	QueryRequestReports     = "request_reports"
 	QueryRequestPrices      = "request_prices"
@@ -51,8 +52,8 @@ func NewQueryRequestSearchRequest(oid int64, callData []byte, askCount, minCount
 
 func NewQueryRequestSearchResponse(req QueryRequestResponse) *QueryRequestSearchResponse {
 	return &QueryRequestSearchResponse{
-		RequestPacketData:  req.RequestPacketData,
-		ResponsePacketData: req.ResponsePacketData,
+		RequestPacketData:  req.Request.RequestPacketData,
+		ResponsePacketData: req.Request.ResponsePacketData,
 	}
 }
 

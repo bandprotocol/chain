@@ -90,25 +90,38 @@ func (k Querier) Request(c context.Context, req *oracletypes.QueryRequestRequest
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetResult(ctx, oracletypes.RequestID(req.RequestId))
+	result, err := k.GetResult(ctx, oracletypes.RequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Define specification on this endpoint (For test only)
-	return &oracletypes.QueryRequestResponse{RequestPacketData: &oracletypes.OracleRequestPacketData{
-		ClientID:       r.ClientID,
-		OracleScriptID: r.OracleScriptID,
-		Calldata:       r.Calldata,
-		AskCount:       r.AskCount,
-		MinCount:       r.MinCount,
-	}, ResponsePacketData: &oracletypes.OracleResponsePacketData{
-		RequestID:     r.RequestID,
-		AnsCount:      r.AnsCount,
-		RequestTime:   r.RequestTime,
-		ResolveTime:   r.ResolveTime,
-		ResolveStatus: r.ResolveStatus,
-		Result:        r.Result,
-	}}, nil
+	request := &oracletypes.RequestResult{
+		RequestPacketData: &oracletypes.OracleRequestPacketData{
+			ClientID:       result.ClientID,
+			OracleScriptID: result.OracleScriptID,
+			Calldata:       result.Calldata,
+			AskCount:       result.AskCount,
+			MinCount:       result.MinCount,
+		},
+		ResponsePacketData: &oracletypes.OracleResponsePacketData{
+			RequestID:     result.RequestID,
+			AnsCount:      result.AnsCount,
+			RequestTime:   result.RequestTime,
+			ResolveTime:   result.ResolveTime,
+			ResolveStatus: result.ResolveStatus,
+			Result:        result.Result,
+		},
+	}
+	return &oracletypes.QueryRequestResponse{Request: request}, nil
+}
+
+// Requests queries all requests with pagination.
+func (k Querier) Requests(c context.Context, req *oracletypes.QueryRequestsRequest) (*oracletypes.QueryRequestsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	ds := k.GetPaginatedRequests(ctx, uint(req.Page), uint(req.Limit))
+	return &oracletypes.QueryRequestsResponse{Requests: ds}, nil
 }
 
 // RequestReports queries all reports by the giver request id with pagination.
@@ -219,8 +232,7 @@ func (k Querier) RequestSearch(c context.Context, req *oracletypes.QueryRequestS
 }
 
 // TODO:
-// RequestPrice queries the latest price on standard price reference oracle
-// script.
+// RequestPrice queries the latest price on standard price reference oracle script.
 func (k Querier) RequestPrice(c context.Context, req *oracletypes.QueryRequestPriceRequest) (*oracletypes.QueryRequestPriceResponse, error) {
 	return &oracletypes.QueryRequestPriceResponse{}, nil
 }

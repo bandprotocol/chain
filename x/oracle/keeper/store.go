@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// get the oracle pool info
+// GetOraclePool gets the oracle pool info
 func (k Keeper) GetOraclePool(ctx sdk.Context) (oraclePool oracletypes.OraclePool) {
 	store := ctx.KVStore(k.storeKey)
 	b := store.Get(oracletypes.OraclePoolStoreKey)
@@ -16,7 +16,7 @@ func (k Keeper) GetOraclePool(ctx sdk.Context) (oraclePool oracletypes.OraclePoo
 	return
 }
 
-// set the oracle pool info
+// SetOraclePool sets the oracle pool info
 func (k Keeper) SetOraclePool(ctx sdk.Context, oraclePool oracletypes.OraclePool) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshalBinaryLengthPrefixed(&oraclePool)

@@ -29,8 +29,10 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 			return queryOracleScriptByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryOracleScripts:
 			return queryOracleScripts(ctx, path[1:], keeper, req, cdc)
-		case oracletypes.QueryRequests:
+		case oracletypes.QueryRequest:
 			return queryRequest(ctx, path[1:], keeper, req, cdc)
+		case oracletypes.QueryRequests:
+			return queryRequests(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequestReports:
 			return queryRequestReports(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryValidatorStatus:
@@ -126,8 +128,8 @@ func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, _ abci.Request
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	dataSources := k.GetPaginatedOracleScripts(ctx, uint(page), uint(limit))
-	return commontypes.QueryOK(cdc, dataSources)
+	oracleScripts := k.GetPaginatedOracleScripts(ctx, uint(page), uint(limit))
+	return commontypes.QueryOK(cdc, oracleScripts)
 }
 
 func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
@@ -138,25 +140,44 @@ func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery,
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	r, err := k.GetResult(ctx, oracletypes.RequestID(id))
+	result, err := k.GetResult(ctx, oracletypes.RequestID(id))
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Define specification on this endpoint (For test only)
-	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResponse{RequestPacketData: &oracletypes.OracleRequestPacketData{
-		ClientID:       r.ClientID,
-		OracleScriptID: r.OracleScriptID,
-		Calldata:       r.Calldata,
-		AskCount:       r.AskCount,
-		MinCount:       r.MinCount,
-	}, ResponsePacketData: &oracletypes.OracleResponsePacketData{
-		RequestID:     r.RequestID,
-		AnsCount:      r.AnsCount,
-		RequestTime:   r.RequestTime,
-		ResolveTime:   r.ResolveTime,
-		ResolveStatus: r.ResolveStatus,
-		Result:        r.Result,
-	}})
+	request := &oracletypes.RequestResult{
+		RequestPacketData: &oracletypes.OracleRequestPacketData{
+			ClientID:       result.ClientID,
+			OracleScriptID: result.OracleScriptID,
+			Calldata:       result.Calldata,
+			AskCount:       result.AskCount,
+			MinCount:       result.MinCount,
+		},
+		ResponsePacketData: &oracletypes.OracleResponsePacketData{
+			RequestID:     result.RequestID,
+			AnsCount:      result.AnsCount,
+			RequestTime:   result.RequestTime,
+			ResolveTime:   result.ResolveTime,
+			ResolveStatus: result.ResolveStatus,
+			Result:        result.Result,
+		},
+	}
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResponse{Request: request})
+}
+
+func queryRequests(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 2 {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+	}
+	page, err := strconv.ParseUint(path[0], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	limit, err := strconv.ParseUint(path[1], 10, 64)
+	if err != nil {
+		return commontypes.QueryBadRequest(cdc, err.Error())
+	}
+	requests := k.GetPaginatedRequests(ctx, uint(page), uint(limit))
+	return commontypes.QueryOK(cdc, requests)
 }
 
 func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {

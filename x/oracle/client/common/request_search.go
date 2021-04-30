@@ -108,7 +108,7 @@ func queryRequests(
 			if req.err != nil {
 				return nil, 0, req.err
 			}
-			if req.result.ResponsePacketData.Result != nil {
+			if req.result.Request.ResponsePacketData.Result != nil {
 				requests = append(requests, req.result)
 				if req.height > height {
 					height = req.height
@@ -118,7 +118,7 @@ func queryRequests(
 	}
 
 	sort.Slice(requests, func(i, j int) bool {
-		return requests[i].ResponsePacketData.ResolveTime > requests[j].ResponsePacketData.ResolveTime
+		return requests[i].Request.ResponsePacketData.ResolveTime > requests[j].Request.ResponsePacketData.ResolveTime
 	})
 
 	return requests, height, nil
