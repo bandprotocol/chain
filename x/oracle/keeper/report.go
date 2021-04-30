@@ -12,14 +12,14 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 	return ctx.KVStore(k.storeKey).Has(types.ReportsOfValidatorPrefixKey(rid, val))
 }
 
-// SetDataReport saves the report to the storage without performing validation.
+// SetReport SetDataReport saves the report to the storage without performing validation.
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)
 	key := types.ReportsOfValidatorPrefixKey(rid, val)
 	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&rep))
 }
 
-// AddReports performs sanity checks and adds a new batch from one validator to one request
+// AddReport performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
 func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
 	req, err := k.GetRequest(ctx, rid)
