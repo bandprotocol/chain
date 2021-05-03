@@ -11,12 +11,14 @@ import "cosmos/base/v1beta1/coin.proto";
 
 // Msg defines the mint Msg service.
 service Msg {
-  // WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
+  // WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint
+  // module.
   rpc WithdrawCoinsToAccFromTreasury(MsgWithdrawCoinsToAccFromTreasury)
       returns (MsgWithdrawCoinsToAccFromTreasuryResponse);
 }
 
-// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint module.
+// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint
+// module.
 message MsgWithdrawCoinsToAccFromTreasury {
   option (gogoproto.equal) = true;
 

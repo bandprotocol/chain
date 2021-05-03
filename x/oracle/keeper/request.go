@@ -2,6 +2,9 @@ package oraclekeeper
 
 import (
 	"github.com/GeoDB-Limited/odin-core/pkg/obi"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/pkg/errors"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,14 +38,17 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id oracletypes.RequestID) oracle
 	return request
 }
 
-func (k Keeper) GetPaginatedRequests(ctx sdk.Context, page, limit uint) (requests []oracletypes.RequestResult) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIteratorPaginated(store, oracletypes.ResultStoreKeyPrefix, page, limit)
-	defer iterator.Close()
+// GetPaginatedRequests returns all requests with pagination
+func (k Keeper) GetPaginatedRequests(
+	ctx sdk.Context,
+	pagination *query.PageRequest,
+) ([]oracletypes.RequestResult, *query.PageResponse, error) {
+	requests := make([]oracletypes.RequestResult, 0)
+	requestsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.ResultStoreKeyPrefix)
 
-	for ; iterator.Valid(); iterator.Next() {
+	pageRes, err := query.FilteredPaginate(requestsStore, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var result oracletypes.Result
-		obi.MustDecode(iterator.Value(), &result)
+		obi.MustDecode(value, &result)
 
 		request := oracletypes.RequestResult{
 			RequestPacketData: &oracletypes.OracleRequestPacketData{
@@ -61,9 +67,16 @@ func (k Keeper) GetPaginatedRequests(ctx sdk.Context, page, limit uint) (request
 				Result:        result.Result,
 			},
 		}
-		requests = append(requests, request)
+		if accumulate {
+			requests = append(requests, request)
+		}
+		return true, nil
+	})
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to paginate requests")
 	}
-	return requests
+
+	return requests, pageRes, nil
 }
 
 // SetRequest saves the given data request to the store without performing any validation.

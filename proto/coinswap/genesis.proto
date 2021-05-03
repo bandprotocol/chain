@@ -8,6 +8,9 @@ import "coinswap/params.proto";
 
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {
-  Params params = 1 [(gogoproto.nullable) = false];
-  string initial_rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  string initial_rate = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

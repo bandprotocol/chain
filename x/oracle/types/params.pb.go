@@ -50,11 +50,14 @@ type Params struct {
 	// InactivePenaltyDuration is the duration period where a validator cannot
 	// activate back after missing an oracle report.
 	InactivePenaltyDuration uint64 `protobuf:"varint,8,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3" json:"inactive_penalty_duration,omitempty"`
-	// MaxDataSize is the maximum number of bytes that can be present in the report as the result
+	// MaxDataSize is the maximum number of bytes that can be present in the
+	// report as the result
 	MaxDataSize uint64 `protobuf:"varint,9,opt,name=max_data_size,json=maxDataSize,proto3" json:"max_data_size,omitempty"`
-	// MaxCalldataSize is the maximum number of bytes that can be present in the calldata
+	// MaxCalldataSize is the maximum number of bytes that can be present in the
+	// calldata
 	MaxCalldataSize uint64 `protobuf:"varint,10,opt,name=max_calldata_size,json=maxCalldataSize,proto3" json:"max_calldata_size,omitempty"`
-	// DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
+	// DataProviderRewardPerByte is the amount of tokens, user gets for the byte
+	// of data provided
 	DataProviderRewardPerByte github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,11,rep,name=data_provider_reward_per_byte,json=dataProviderRewardPerByte,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"data_provider_reward_per_byte"`
 	// Denominations that can be used for withdrawing fee from data requesters
 	DataRequesterFeeDenoms []string `protobuf:"bytes,12,rep,name=data_requester_fee_denoms,json=dataRequesterFeeDenoms,proto3" json:"data_requester_fee_denoms,omitempty"`

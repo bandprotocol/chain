@@ -10,8 +10,6 @@ import (
 
 const (
 	idTag               = "idTag"
-	pageTag             = "pageTag"
-	limitTag            = "limitTag"
 	dataHashTag         = "dataHashTag"
 	validatorAddressTag = "validatorAddressTag"
 )
@@ -21,12 +19,12 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryCounts), getCountsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryData, dataHashTag), getDataByHashHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryDataSource, idTag), getDataSourceByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryDataSources, pageTag, limitTag), getDataSourcesHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryDataSources), getDataSourcesHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryOracleScript, idTag), getOracleScriptByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryOracleScripts, pageTag, limitTag), getOracleScriptsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryOracleScripts), getOracleScriptsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryRequest, idTag), getRequestByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryRequests, pageTag, limitTag), getRequestsHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryRequestReports, idTag, pageTag, limitTag), getRequestReportsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryRequests), getRequestsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryRequestReports, idTag), getRequestReportsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryRequestSearch), getRequestSearchHandler(clientCtx)).Methods("GET")
 	// TODO: fix
 	//rtr.HandleFunc(fmt.Sprintf("/%s/request_prices", oracletypes.ModuleName), getRequestsPricesHandler(clientCtx)).Methods("POST")

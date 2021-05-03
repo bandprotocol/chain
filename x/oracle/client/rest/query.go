@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -109,17 +110,16 @@ func getDataSourcesHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		vars := mux.Vars(r)
+		body, err := ioutil.ReadAll(r.Body)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
 
-		res, height, err := clientCtx.Query(fmt.Sprintf(
-			"custom/%s/%s/%s/%s",
-			oracletypes.QuerierRoute,
-			oracletypes.QueryDataSources,
-			vars[pageTag],
-			vars[limitTag],
-		))
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryDataSources),
+			body,
+		)
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
 
@@ -159,14 +159,15 @@ func getOracleScriptsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		vars := mux.Vars(r)
-		res, height, err := clientCtx.Query(fmt.Sprintf(
-			"custom/%s/%s/%s/%s",
-			oracletypes.QuerierRoute,
-			oracletypes.QueryOracleScripts,
-			vars[pageTag],
-			vars[limitTag],
-		))
+		body, err := ioutil.ReadAll(r.Body)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts),
+			body,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -184,15 +185,16 @@ func getRequestReportsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
+		body, err := ioutil.ReadAll(r.Body)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
 		vars := mux.Vars(r)
-		res, height, err := clientCtx.Query(fmt.Sprintf(
-			"custom/%s/%s/%s/%s/%s",
-			oracletypes.QuerierRoute,
-			oracletypes.QueryRequestReports,
-			vars[idTag],
-			vars[pageTag],
-			vars[limitTag],
-		))
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequestReports, vars[idTag]),
+			body,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -235,15 +237,15 @@ func getRequestsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		vars := mux.Vars(r)
+		body, err := ioutil.ReadAll(r.Body)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
 
-		res, height, err := clientCtx.Query(fmt.Sprintf(
-			"custom/%s/%s/%s/%s",
-			oracletypes.QuerierRoute,
-			oracletypes.QueryRequests,
-			vars[pageTag],
-			vars[limitTag],
-		))
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequests),
+			body,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

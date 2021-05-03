@@ -2,9 +2,11 @@ package oraclekeeper
 
 import (
 	"bytes"
-
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/pkg/errors"
 
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
@@ -26,18 +28,32 @@ func (k Keeper) GetOracleScript(ctx sdk.Context, id oracletypes.OracleScriptID) 
 }
 
 // GetPaginatedOracleScripts returns oracle scripts with pagination.
-func (k Keeper) GetPaginatedOracleScripts(ctx sdk.Context, page, limit uint) (oracleScripts []oracletypes.OracleScript) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIteratorPaginated(store, oracletypes.OracleScriptStoreKeyPrefix, page, limit)
-	defer iterator.Close()
+func (k Keeper) GetPaginatedOracleScripts(
+	ctx sdk.Context,
+	pagination *query.PageRequest,
+) ([]oracletypes.OracleScript, *query.PageResponse, error) {
+	oracleScripts := make([]oracletypes.OracleScript, 0)
+	oracleScriptsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.OracleScriptStoreKeyPrefix)
 
-	for ; iterator.Valid(); iterator.Next() {
-		var oracleScript oracletypes.OracleScript
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &oracleScript)
-		oracleScripts = append(oracleScripts, oracleScript)
+	pageRes, err := query.FilteredPaginate(
+		oracleScriptsStore,
+		pagination,
+		func(key []byte, value []byte, accumulate bool) (bool, error) {
+			var oracleScript oracletypes.OracleScript
+			if err := k.cdc.UnmarshalBinaryBare(value, &oracleScript); err != nil {
+				return false, err
+			}
+			if accumulate {
+				oracleScripts = append(oracleScripts, oracleScript)
+			}
+			return true, nil
+		},
+	)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to paginate oracle scripts")
 	}
 
-	return oracleScripts
+	return oracleScripts, pageRes, nil
 }
 
 // MustGetOracleScript returns the oracle script struct for the given ID. Panic if not exists.

@@ -2,8 +2,11 @@ package oraclekeeper
 
 import (
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/pkg/errors"
 )
 
 // HasReport checks if the report of this ID triple exists in the storage.
@@ -91,18 +94,30 @@ func (k Keeper) GetRequestReports(ctx sdk.Context, rid oracletypes.RequestID) (r
 func (k Keeper) GetPaginatedRequestReports(
 	ctx sdk.Context,
 	rid oracletypes.RequestID,
-	page, limit uint,
-) (reports []oracletypes.Report) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIteratorPaginated(store, oracletypes.ReportStoreKey(rid), page, limit)
-	defer iterator.Close()
+	pagination *query.PageRequest,
+) ([]oracletypes.Report, *query.PageResponse, error) {
+	reports := make([]oracletypes.Report, 0)
+	reportsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.ReportStoreKey(rid))
 
-	for ; iterator.Valid(); iterator.Next() {
-		var rep oracletypes.Report
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &rep)
-		reports = append(reports, rep)
+	pageRes, err := query.FilteredPaginate(
+		reportsStore,
+		pagination,
+		func(key []byte, value []byte, accumulate bool) (bool, error) {
+			var report oracletypes.Report
+			if err := k.cdc.UnmarshalBinaryBare(value, &report); err != nil {
+				return false, err
+			}
+			if accumulate {
+				reports = append(reports, report)
+			}
+			return true, nil
+		},
+	)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to paginate request reports")
 	}
-	return reports
+
+	return reports, pageRes, nil
 }
 
 // DeleteReports removes all reports for the given request ID.

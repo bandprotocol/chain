@@ -2,8 +2,11 @@ package oraclekeeper
 
 import (
 	"bytes"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/pkg/errors"
 
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
@@ -70,18 +73,32 @@ func (k Keeper) GetAllDataSources(ctx sdk.Context) (dataSources []oracletypes.Da
 }
 
 // GetPaginatedDataSources returns the list of all data sources in the store with pagination
-func (k Keeper) GetPaginatedDataSources(ctx sdk.Context, page, limit uint) (dataSources []oracletypes.DataSource) {
-	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIteratorPaginated(store, oracletypes.DataSourceStoreKeyPrefix, page, limit)
-	defer iterator.Close()
+func (k Keeper) GetPaginatedDataSources(
+	ctx sdk.Context,
+	pagination *query.PageRequest,
+) ([]oracletypes.DataSource, *query.PageResponse, error) {
+	dataSources := make([]oracletypes.DataSource, 0)
+	dataSourcesStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.DataSourceStoreKeyPrefix)
 
-	for ; iterator.Valid(); iterator.Next() {
-		var dataSource oracletypes.DataSource
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &dataSource)
-		dataSources = append(dataSources, dataSource)
+	pageRes, err := query.FilteredPaginate(
+		dataSourcesStore,
+		pagination,
+		func(key []byte, value []byte, accumulate bool) (bool, error) {
+			var dataSource oracletypes.DataSource
+			if err := k.cdc.UnmarshalBinaryBare(value, &dataSource); err != nil {
+				return false, err
+			}
+			if accumulate {
+				dataSources = append(dataSources, dataSource)
+			}
+			return true, nil
+		},
+	)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to paginate data sources")
 	}
 
-	return dataSources
+	return dataSources, pageRes, nil
 }
 
 // AddExecutableFile saves the given executable file to a file to filecahe storage and returns

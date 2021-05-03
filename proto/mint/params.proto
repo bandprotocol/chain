@@ -39,7 +39,8 @@ message Params {
     (gogoproto.nullable) = false
   ];
   // expected blocks per year
-  uint64 blocks_per_year = 6 [(gogoproto.moretags) = "yaml:\"blocks_per_year\""];
+  uint64 blocks_per_year = 6
+      [ (gogoproto.moretags) = "yaml:\"blocks_per_year\"" ];
   // max amount to withdraw per time
   repeated cosmos.base.v1beta1.Coin max_withdrawal_per_time = 7 [
     (gogoproto.moretags) = "yaml:\"max_withdrawal_per_time\"",
@@ -47,9 +48,11 @@ message Params {
     (gogoproto.nullable) = false
   ];
   // the address of the smart contract
-  string eth_integration_address = 8 [(gogoproto.moretags) = "yaml:\"eth_integration_address\""];
+  string eth_integration_address = 8
+      [ (gogoproto.moretags) = "yaml:\"eth_integration_address\"" ];
   // flag if minting from air
-  bool mint_air = 9 [(gogoproto.moretags) = "yaml:\"mint_air\""];
+  bool mint_air = 9 [ (gogoproto.moretags) = "yaml:\"mint_air\"" ];
   // eligible to withdraw accounts
-  repeated string eligible_accounts_pool = 10 [(gogoproto.moretags) = "yaml:\"eligible_accounts_pool\""];
+  repeated string eligible_accounts_pool = 10
+      [ (gogoproto.moretags) = "yaml:\"eligible_accounts_pool\"" ];
 }

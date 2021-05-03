@@ -33,12 +33,18 @@ message Params {
   // InactivePenaltyDuration is the duration period where a validator cannot
   // activate back after missing an oracle report.
   uint64 inactive_penalty_duration = 8;
-  // MaxDataSize is the maximum number of bytes that can be present in the report as the result
+  // MaxDataSize is the maximum number of bytes that can be present in the
+  // report as the result
   uint64 max_data_size = 9;
-  // MaxCalldataSize is the maximum number of bytes that can be present in the calldata
+  // MaxCalldataSize is the maximum number of bytes that can be present in the
+  // calldata
   uint64 max_calldata_size = 10;
-  // DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
-  repeated cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+  // DataProviderRewardPerByte is the amount of tokens, user gets for the byte
+  // of data provided
+  repeated cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable) = false
+  ];
   // Denominations that can be used for withdrawing fee from data requesters
   repeated string data_requester_fee_denoms = 12;
 }

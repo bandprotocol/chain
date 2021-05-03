@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"strconv"
@@ -85,20 +86,17 @@ func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, _ abci.Reques
 	return commontypes.QueryOK(cdc, dataSource)
 }
 
-func queryDataSources(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 2 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+func queryDataSources(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	var params oracletypes.QueryDataSourcesRequest
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	page, err := strconv.ParseUint(path[0], 10, 64)
+	ctx, _ = ctx.CacheContext()
+	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, params.Pagination)
 	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
+		return nil, err
 	}
-	limit, err := strconv.ParseUint(path[1], 10, 64)
-	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
-	}
-	dataSources := k.GetPaginatedDataSources(ctx, uint(page), uint(limit))
-	return commontypes.QueryOK(cdc, dataSources)
+	return commontypes.QueryOK(cdc, oracletypes.QueryDataSourcesResponse{DataSources: dataSources, Pagination: pageRes})
 }
 
 func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
@@ -116,20 +114,17 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.Requ
 	return commontypes.QueryOK(cdc, oracleScript)
 }
 
-func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 2 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+func queryOracleScripts(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	var params oracletypes.QueryOracleScriptsRequest
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	page, err := strconv.ParseUint(path[0], 10, 64)
+	ctx, _ = ctx.CacheContext()
+	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, params.Pagination)
 	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
+		return nil, err
 	}
-	limit, err := strconv.ParseUint(path[1], 10, 64)
-	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
-	}
-	oracleScripts := k.GetPaginatedOracleScripts(ctx, uint(page), uint(limit))
-	return commontypes.QueryOK(cdc, oracleScripts)
+	return commontypes.QueryOK(cdc, oracletypes.QueryOracleScriptsResponse{OracleScripts: oracleScripts, Pagination: pageRes})
 }
 
 func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
@@ -164,20 +159,17 @@ func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery,
 	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResponse{Request: request})
 }
 
-func queryRequests(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 2 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
+func queryRequests(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	var params oracletypes.QueryRequestsRequest
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	page, err := strconv.ParseUint(path[0], 10, 64)
+	ctx, _ = ctx.CacheContext()
+	requests, pageRes, err := k.GetPaginatedRequests(ctx, params.Pagination)
 	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
+		return nil, err
 	}
-	limit, err := strconv.ParseUint(path[1], 10, 64)
-	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
-	}
-	requests := k.GetPaginatedRequests(ctx, uint(page), uint(limit))
-	return commontypes.QueryOK(cdc, requests)
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestsResponse{Requests: requests, Pagination: pageRes})
 }
 
 func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
@@ -291,24 +283,24 @@ func queryPendingRequests(ctx sdk.Context, path []string, k Keeper, _ abci.Reque
 	return commontypes.QueryOK(cdc, pendingIDs)
 }
 
-func queryRequestReports(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 3 {
+func queryRequestReports(ctx sdk.Context, path []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "not enough arguments")
 	}
 	requestId, err := strconv.ParseInt(path[0], 10, 64)
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	page, err := strconv.ParseUint(path[1], 10, 64)
-	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
+	var params query.PageRequest
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	limit, err := strconv.ParseUint(path[2], 10, 64)
+	ctx, _ = ctx.CacheContext()
+	reports, pageRes, err := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(requestId), &params)
 	if err != nil {
-		return commontypes.QueryBadRequest(cdc, err.Error())
+		return nil, err
 	}
-	dataSources := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(requestId), uint(page), uint(limit))
-	return commontypes.QueryOK(cdc, dataSources)
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestReportsResponse{Reports: reports, Pagination: pageRes})
 }
 
 func queryDataProvidersPool(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
