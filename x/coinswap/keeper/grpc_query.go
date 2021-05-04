@@ -25,13 +25,13 @@ func (q Querier) Rate(c context.Context, request *coinswaptypes.QueryRateRequest
 	ctx := sdk.UnwrapSDKContext(c)
 
 	initialRate := q.GetInitialRate(ctx)
-	rateMultiplier, err := q.GetRate(ctx, request.From, request.To)
+	rate, err := q.GetRate(ctx, request.From, request.To)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &coinswaptypes.QueryRateResponse{
-		Rate:        initialRate.Mul(rateMultiplier),
+		Rate:        rate,
 		InitialRate: initialRate,
 	}, nil
 }

@@ -36,13 +36,13 @@ func queryRate(ctx sdk.Context, req abci.RequestQuery, keeper Keeper, cdc *codec
 	}
 
 	initialRate := keeper.GetInitialRate(ctx)
-	rateMultiplier, err := keeper.GetRate(ctx, parsedRequest.From, parsedRequest.To)
+	rate, err := keeper.GetRate(ctx, parsedRequest.From, parsedRequest.To)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return commontypes.QueryOK(cdc, coinswaptypes.QueryRateResponse{
-		Rate:        initialRate.Mul(rateMultiplier),
+		Rate:        rate,
 		InitialRate: initialRate,
 	})
 }
