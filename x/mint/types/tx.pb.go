@@ -32,7 +32,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint module.
+// MsgWithdrawCoinsToAccFromTreasury is a message for withdrawing from mint
+// module.
 type MsgWithdrawCoinsToAccFromTreasury struct {
 	// Amount is the amoutn of coins to withdraw
 	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
@@ -220,7 +221,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
+	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint
+	// module.
 	WithdrawCoinsToAccFromTreasury(ctx context.Context, in *MsgWithdrawCoinsToAccFromTreasury, opts ...grpc.CallOption) (*MsgWithdrawCoinsToAccFromTreasuryResponse, error)
 }
 
@@ -243,7 +245,8 @@ func (c *msgClient) WithdrawCoinsToAccFromTreasury(ctx context.Context, in *MsgW
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint module.
+	// WithdrawCoinsToAccFromTreasury defines a method for withdrawing from mint
+	// module.
 	WithdrawCoinsToAccFromTreasury(context.Context, *MsgWithdrawCoinsToAccFromTreasury) (*MsgWithdrawCoinsToAccFromTreasuryResponse, error)
 }
 

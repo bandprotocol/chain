@@ -9,8 +9,8 @@ import "oracle/v1/params.proto";
 
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {
-  Params params = 1 [(gogoproto.nullable) = false];
-  repeated DataSource data_sources = 2 [(gogoproto.nullable) = false];
-  repeated OracleScript oracle_scripts = 3 [(gogoproto.nullable) = false];
-  OraclePool oracle_pool = 4 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  repeated DataSource data_sources = 2 [ (gogoproto.nullable) = false ];
+  repeated OracleScript oracle_scripts = 3 [ (gogoproto.nullable) = false ];
+  OraclePool oracle_pool = 4 [ (gogoproto.nullable) = false ];
 }

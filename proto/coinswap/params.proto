@@ -10,11 +10,14 @@ import "google/protobuf/any.proto";
 message Exchange {
   string from = 1;
   string to = 2;
-  string rate_multiplier = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string rate_multiplier = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message Params {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_stringer) = true;
-  repeated Exchange exchanges = 1 [(gogoproto.nullable) = false];
+  repeated Exchange exchanges = 1 [ (gogoproto.nullable) = false ];
 }

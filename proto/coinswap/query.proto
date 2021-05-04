@@ -27,8 +27,14 @@ message QueryRateRequest {
 
 // QueryCountsResponse is response type for the Query/Count RPC method.
 message QueryRateResponse {
-  string rate = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
-  string initial_rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string rate = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string initial_rate = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -36,5 +42,5 @@ message QueryParamsRequest {}
 
 // QueryCountsResponse is response type for the Query/Count RPC method.
 message QueryParamsResponse {
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }

@@ -7,9 +7,13 @@ const (
 	QueryParams             = "params"
 	QueryCounts             = "counts"
 	QueryData               = "data"
+	QueryDataSource         = "data_source"
 	QueryDataSources        = "data_sources"
+	QueryOracleScript       = "oracle_script"
 	QueryOracleScripts      = "oracle_scripts"
+	QueryRequest            = "request"
 	QueryRequests           = "requests"
+	QueryRequestReports     = "request_reports"
 	QueryRequestPrices      = "request_prices"
 	QueryPriceSymbols       = "price_symbols"
 	QueryLatestRequest      = "latest_request"
@@ -48,8 +52,8 @@ func NewQueryRequestSearchRequest(oid int64, callData []byte, askCount, minCount
 
 func NewQueryRequestSearchResponse(req QueryRequestResponse) *QueryRequestSearchResponse {
 	return &QueryRequestSearchResponse{
-		RequestPacketData:  req.RequestPacketData,
-		ResponsePacketData: req.ResponsePacketData,
+		RequestPacketData:  req.Request.RequestPacketData,
+		ResponsePacketData: req.Request.ResponsePacketData,
 	}
 }
 
@@ -59,4 +63,9 @@ func NewQueryRequestPricesRequest(symbol string, minCount, askCount int64) Query
 		MinCount: minCount,
 		AskCount: askCount,
 	}
+}
+
+type QueryPaginationParams struct {
+	Offset uint64 `json:"offset" yaml:"offset"`
+	Limit  uint64 `json:"limit" yaml:"limit"`
 }

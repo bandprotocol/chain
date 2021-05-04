@@ -7,7 +7,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/GeoDB-Limited/odin-core/pkg/gzip"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 type msgServer struct {
@@ -16,17 +16,17 @@ type msgServer struct {
 
 // NewMsgServerImpl returns an implementation of the oracle MsgServer interface
 // for the provided Keeper.
-func NewMsgServerImpl(keeper Keeper) types.MsgServer {
+func NewMsgServerImpl(keeper Keeper) oracletypes.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
-var _ types.MsgServer = msgServer{}
+var _ oracletypes.MsgServer = msgServer{}
 
-func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
+func (k msgServer) RequestData(goCtx context.Context, msg *oracletypes.MsgRequestData) (*oracletypes.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	maxCalldataSize := k.GetParamUint64(ctx, types.KeyMaxCalldataSize)
+	maxCalldataSize := k.GetParamUint64(ctx, oracletypes.KeyMaxCalldataSize)
 	if len(msg.Calldata) > int(maxCalldataSize) {
-		return nil, types.WrapMaxError(types.ErrTooLargeCalldata, len(msg.Calldata), int(maxCalldataSize))
+		return nil, oracletypes.WrapMaxError(oracletypes.ErrTooLargeCalldata, len(msg.Calldata), int(maxCalldataSize))
 	}
 
 	payer, err := sdk.AccAddressFromBech32(msg.Sender)
@@ -38,10 +38,10 @@ func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData)
 	if err != nil {
 		return nil, err
 	}
-	return &types.MsgRequestDataResponse{}, nil
+	return &oracletypes.MsgRequestDataResponse{}, nil
 }
 
-func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (*types.MsgReportDataResponse, error) {
+func (k msgServer) ReportData(goCtx context.Context, msg *oracletypes.MsgReportData) (*oracletypes.MsgReportDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	validator, err := sdk.ValAddressFromBech32(msg.Validator)
@@ -56,23 +56,23 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 
 	// check this address is a reporter of the validator
 	if !k.IsReporter(ctx, validator, reporter) {
-		return nil, types.ErrReporterNotAuthorized
+		return nil, oracletypes.ErrReporterNotAuthorized
 	}
 
 	// check request must not expire.
 	if msg.RequestID <= k.GetRequestLastExpired(ctx) {
-		return nil, types.ErrRequestAlreadyExpired
+		return nil, oracletypes.ErrRequestAlreadyExpired
 	}
 
-	maxDataSize := k.GetParamUint64(ctx, types.KeyMaxDataSize)
+	maxDataSize := k.GetParamUint64(ctx, oracletypes.KeyMaxDataSize)
 	for _, r := range msg.RawReports {
 		if len(r.Data) > int(maxDataSize) {
-			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), int(maxDataSize))
+			return nil, oracletypes.WrapMaxError(oracletypes.ErrTooLargeRawReportData, len(r.Data), int(maxDataSize))
 		}
 	}
 
 	reportInTime := !k.HasResult(ctx, msg.RequestID)
-	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, reportInTime, msg.RawReports))
+	err = k.AddReport(ctx, msg.RequestID, oracletypes.NewReport(validator, reportInTime, msg.RawReports))
 	if err != nil {
 		return nil, err
 	}
@@ -93,22 +93,22 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeReport,
-		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", msg.RequestID)),
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		oracletypes.EventTypeReport,
+		sdk.NewAttribute(oracletypes.AttributeKeyID, fmt.Sprintf("%d", msg.RequestID)),
+		sdk.NewAttribute(oracletypes.AttributeKeyValidator, msg.Validator),
 	))
-	return &types.MsgReportDataResponse{}, nil
+	return &oracletypes.MsgReportDataResponse{}, nil
 }
 
-func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateDataSource) (*types.MsgCreateDataSourceResponse, error) {
+func (k msgServer) CreateDataSource(goCtx context.Context, msg *oracletypes.MsgCreateDataSource) (*oracletypes.MsgCreateDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Executable) {
 		var err error
-		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
+		msg.Executable, err = gzip.Uncompress(msg.Executable, oracletypes.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, sdkerrors.Wrapf(oracletypes.ErrUncompressionFailed, err.Error())
 		}
 	}
 
@@ -117,19 +117,19 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 		return nil, err
 	}
 
-	id := k.AddDataSource(ctx, types.NewDataSource(
+	id := k.AddDataSource(ctx, oracletypes.NewDataSource(
 		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeCreateDataSource,
-		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
+		oracletypes.EventTypeCreateDataSource,
+		sdk.NewAttribute(oracletypes.AttributeKeyID, fmt.Sprintf("%d", id)),
 	))
 
-	return &types.MsgCreateDataSourceResponse{}, nil
+	return &oracletypes.MsgCreateDataSourceResponse{}, nil
 }
 
-func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataSource) (*types.MsgEditDataSourceResponse, error) {
+func (k msgServer) EditDataSource(goCtx context.Context, msg *oracletypes.MsgEditDataSource) (*oracletypes.MsgEditDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	dataSource, err := k.GetDataSource(ctx, msg.DataSourceID)
@@ -149,39 +149,39 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 
 	// sender must be the owner of data source
 	if !owner.Equals(sender) {
-		return nil, types.ErrEditorNotAuthorized
+		return nil, oracletypes.ErrEditorNotAuthorized
 	}
 
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Executable) {
-		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
+		msg.Executable, err = gzip.Uncompress(msg.Executable, oracletypes.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, sdkerrors.Wrapf(oracletypes.ErrUncompressionFailed, err.Error())
 		}
 	}
 
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
-	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
+	k.MustEditDataSource(ctx, msg.DataSourceID, oracletypes.NewDataSource(
 		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeEditDataSource,
-		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", msg.DataSourceID)),
+		oracletypes.EventTypeEditDataSource,
+		sdk.NewAttribute(oracletypes.AttributeKeyID, fmt.Sprintf("%d", msg.DataSourceID)),
 	))
 
-	return &types.MsgEditDataSourceResponse{}, nil
+	return &oracletypes.MsgEditDataSourceResponse{}, nil
 }
 
-func (k msgServer) CreateOracleScript(goCtx context.Context, msg *types.MsgCreateOracleScript) (*types.MsgCreateOracleScriptResponse, error) {
+func (k msgServer) CreateOracleScript(goCtx context.Context, msg *oracletypes.MsgCreateOracleScript) (*oracletypes.MsgCreateOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Code) {
 		var err error
-		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
+		msg.Code, err = gzip.Uncompress(msg.Code, oracletypes.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, sdkerrors.Wrapf(oracletypes.ErrUncompressionFailed, err.Error())
 		}
 	}
 
@@ -195,19 +195,19 @@ func (k msgServer) CreateOracleScript(goCtx context.Context, msg *types.MsgCreat
 		return nil, err
 	}
 
-	id := k.AddOracleScript(ctx, types.NewOracleScript(
+	id := k.AddOracleScript(ctx, oracletypes.NewOracleScript(
 		owner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeCreateOracleScript,
-		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
+		oracletypes.EventTypeCreateOracleScript,
+		sdk.NewAttribute(oracletypes.AttributeKeyID, fmt.Sprintf("%d", id)),
 	))
 
-	return &types.MsgCreateOracleScriptResponse{}, nil
+	return &oracletypes.MsgCreateOracleScriptResponse{}, nil
 }
 
-func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOracleScript) (*types.MsgEditOracleScriptResponse, error) {
+func (k msgServer) EditOracleScript(goCtx context.Context, msg *oracletypes.MsgEditOracleScript) (*oracletypes.MsgEditOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	oracleScript, err := k.GetOracleScript(ctx, msg.OracleScriptID)
@@ -227,14 +227,14 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 
 	// sender must be the owner of oracle script
 	if !owner.Equals(sender) {
-		return nil, types.ErrEditorNotAuthorized
+		return nil, oracletypes.ErrEditorNotAuthorized
 	}
 
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Code) {
-		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
+		msg.Code, err = gzip.Uncompress(msg.Code, oracletypes.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, sdkerrors.Wrapf(oracletypes.ErrUncompressionFailed, err.Error())
 		}
 	}
 
@@ -243,19 +243,19 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
-	k.MustEditOracleScript(ctx, msg.OracleScriptID, types.NewOracleScript(
+	k.MustEditOracleScript(ctx, msg.OracleScriptID, oracletypes.NewOracleScript(
 		owner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeEditOracleScript,
-		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", msg.OracleScriptID)),
+		oracletypes.EventTypeEditOracleScript,
+		sdk.NewAttribute(oracletypes.AttributeKeyID, fmt.Sprintf("%d", msg.OracleScriptID)),
 	))
 
-	return &types.MsgEditOracleScriptResponse{}, nil
+	return &oracletypes.MsgEditOracleScriptResponse{}, nil
 }
 
-func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
+func (k msgServer) Activate(goCtx context.Context, msg *oracletypes.MsgActivate) (*oracletypes.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
@@ -267,13 +267,13 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActivate,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		oracletypes.EventTypeActivate,
+		sdk.NewAttribute(oracletypes.AttributeKeyValidator, msg.Validator),
 	))
-	return &types.MsgActivateResponse{}, nil
+	return &oracletypes.MsgActivateResponse{}, nil
 }
 
-func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter) (*types.MsgAddReporterResponse, error) {
+func (k msgServer) AddReporter(goCtx context.Context, msg *oracletypes.MsgAddReporter) (*oracletypes.MsgAddReporterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
 	if err != nil {
@@ -287,16 +287,16 @@ func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter)
 	if err != nil {
 		return nil, err
 	}
-	ctx.KVStore(k.storeKey).Set(types.ReporterStoreKey(valAddr, repAddr), []byte{1})
+	ctx.KVStore(k.storeKey).Set(oracletypes.ReporterStoreKey(valAddr, repAddr), []byte{1})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeAddReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
+		oracletypes.EventTypeAddReporter,
+		sdk.NewAttribute(oracletypes.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(oracletypes.AttributeKeyReporter, msg.Reporter),
 	))
-	return &types.MsgAddReporterResponse{}, nil
+	return &oracletypes.MsgAddReporterResponse{}, nil
 }
 
-func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveReporter) (*types.MsgRemoveReporterResponse, error) {
+func (k msgServer) RemoveReporter(goCtx context.Context, msg *oracletypes.MsgRemoveReporter) (*oracletypes.MsgRemoveReporterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
 	if err != nil {
@@ -310,11 +310,11 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 	if err != nil {
 		return nil, err
 	}
-	ctx.KVStore(k.storeKey).Delete(types.ReporterStoreKey(valAddr, repAddr))
+	ctx.KVStore(k.storeKey).Delete(oracletypes.ReporterStoreKey(valAddr, repAddr))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeRemoveReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
+		oracletypes.EventTypeRemoveReporter,
+		sdk.NewAttribute(oracletypes.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(oracletypes.AttributeKeyReporter, msg.Reporter),
 	))
-	return &types.MsgRemoveReporterResponse{}, nil
+	return &oracletypes.MsgRemoveReporterResponse{}, nil
 }

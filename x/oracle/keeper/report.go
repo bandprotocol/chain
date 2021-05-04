@@ -1,27 +1,29 @@
 package oraclekeeper
 
 import (
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/pkg/errors"
 )
 
 // HasReport checks if the report of this ID triple exists in the storage.
-func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) bool {
-	return ctx.KVStore(k.storeKey).Has(types.ReportsOfValidatorPrefixKey(rid, val))
+func (k Keeper) HasReport(ctx sdk.Context, rid oracletypes.RequestID, val sdk.ValAddress) bool {
+	return ctx.KVStore(k.storeKey).Has(oracletypes.ReportsOfValidatorPrefixKey(rid, val))
 }
 
-// SetReport SetDataReport saves the report to the storage without performing validation.
-func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
+// SetReport saves the report to the storage without performing validation.
+func (k Keeper) SetReport(ctx sdk.Context, rid oracletypes.RequestID, rep oracletypes.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)
-	key := types.ReportsOfValidatorPrefixKey(rid, val)
+	key := oracletypes.ReportsOfValidatorPrefixKey(rid, val)
 	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&rep))
 }
 
 // AddReport performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
-func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
+func (k Keeper) AddReport(ctx sdk.Context, rid oracletypes.RequestID, rep oracletypes.Report) error {
 	req, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		return err
@@ -40,21 +42,21 @@ func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 	}
 	if !ContainsVal(reqVals, val) {
 		return sdkerrors.Wrapf(
-			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, rep.Validator)
+			oracletypes.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, rep.Validator)
 	}
 	if k.HasReport(ctx, rid, val) {
 		return sdkerrors.Wrapf(
-			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, rep.Validator)
+			oracletypes.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, rep.Validator)
 	}
 	if len(rep.RawReports) != len(req.RawRequests) {
-		return types.ErrInvalidReportSize
+		return oracletypes.ErrInvalidReportSize
 	}
 	for _, rep := range rep.RawReports {
 		// Here we can safely assume that external IDs are unique, as this has already been
 		// checked by ValidateBasic performed in baseapp's runTx function.
 		if !ContainsEID(req.RawRequests, rep.ExternalID) {
 			return sdkerrors.Wrapf(
-				types.ErrRawRequestNotFound, "reqID: %d, extID: %d", rid, rep.ExternalID)
+				oracletypes.ErrRawRequestNotFound, "reqID: %d, extID: %d", rid, rep.ExternalID)
 		}
 	}
 	k.SetReport(ctx, rid, rep)
@@ -62,12 +64,12 @@ func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 }
 
 // GetReportIterator returns the iterator for all reports of the given request ID.
-func (k Keeper) GetReportIterator(ctx sdk.Context, rid types.RequestID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ReportStoreKey(rid))
+func (k Keeper) GetReportIterator(ctx sdk.Context, rid oracletypes.RequestID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), oracletypes.ReportStoreKey(rid))
 }
 
 // GetReportCount returns the number of reports for the given request ID.
-func (k Keeper) GetReportCount(ctx sdk.Context, rid types.RequestID) (count uint64) {
+func (k Keeper) GetReportCount(ctx sdk.Context, rid oracletypes.RequestID) (count uint64) {
 	iterator := k.GetReportIterator(ctx, rid)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -76,20 +78,54 @@ func (k Keeper) GetReportCount(ctx sdk.Context, rid types.RequestID) (count uint
 	return count
 }
 
-// GetReports returns all reports for the given request ID, or nil if there is none.
-func (k Keeper) GetReports(ctx sdk.Context, rid types.RequestID) (reports []types.Report) {
+// GetRequestReports returns all reports for the given request ID, or nil if there is none.
+func (k Keeper) GetRequestReports(ctx sdk.Context, rid oracletypes.RequestID) (reports []oracletypes.Report) {
 	iterator := k.GetReportIterator(ctx, rid)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var rep types.Report
+		var rep oracletypes.Report
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &rep)
 		reports = append(reports, rep)
 	}
 	return reports
 }
 
+// GetPaginatedRequestReports returns all reports for the given request ID with pagination.
+func (k Keeper) GetPaginatedRequestReports(
+	ctx sdk.Context,
+	rid oracletypes.RequestID,
+	limit, offset uint64,
+) ([]oracletypes.Report, *query.PageResponse, error) {
+	reports := make([]oracletypes.Report, 0)
+	reportsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.ReportStoreKey(rid))
+	pagination := &query.PageRequest{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	pageRes, err := query.FilteredPaginate(
+		reportsStore,
+		pagination,
+		func(key []byte, value []byte, accumulate bool) (bool, error) {
+			var report oracletypes.Report
+			if err := k.cdc.UnmarshalBinaryBare(value, &report); err != nil {
+				return false, err
+			}
+			if accumulate {
+				reports = append(reports, report)
+			}
+			return true, nil
+		},
+	)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to paginate request reports")
+	}
+
+	return reports, pageRes, nil
+}
+
 // DeleteReports removes all reports for the given request ID.
-func (k Keeper) DeleteReports(ctx sdk.Context, rid types.RequestID) {
+func (k Keeper) DeleteReports(ctx sdk.Context, rid oracletypes.RequestID) {
 	var keys [][]byte
 	iterator := k.GetReportIterator(ctx, rid)
 	defer iterator.Close()

@@ -405,11 +405,11 @@ func TestReportSuccess(t *testing.T) {
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
-	// require.Equal(t, k.GetReports(ctx, 42)[0], oracletypes.NewReport(testapp.Validators[0].ValAddress, false, reports))
+	// require.Equal(t, k.GetRequestReports(ctx, 42)[0], oracletypes.NewReport(testapp.Validators[0].ValAddress, false, reports))
 	// Check the reports of this request. We should see 3 reports, with report from Validators[2] comes after resolve.
-	require.Contains(t, k.GetReports(ctx, 42), oracletypes.NewReport(testapp.Validators[0].ValAddress, true, reports))
-	require.Contains(t, k.GetReports(ctx, 42), oracletypes.NewReport(testapp.Validators[1].ValAddress, true, reports))
-	require.Contains(t, k.GetReports(ctx, 42), oracletypes.NewReport(testapp.Validators[2].ValAddress, false, reports))
+	require.Contains(t, k.GetRequestReports(ctx, 42), oracletypes.NewReport(testapp.Validators[0].ValAddress, true, reports))
+	require.Contains(t, k.GetRequestReports(ctx, 42), oracletypes.NewReport(testapp.Validators[1].ValAddress, true, reports))
+	require.Contains(t, k.GetRequestReports(ctx, 42), oracletypes.NewReport(testapp.Validators[2].ValAddress, false, reports))
 }
 
 func TestReportFail(t *testing.T) {

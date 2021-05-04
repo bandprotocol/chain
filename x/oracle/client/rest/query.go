@@ -19,7 +19,11 @@ func getParamsHandler(clientCtx client.Context) http.HandlerFunc {
 		if !ok {
 			return
 		}
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryParams))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryParams,
+		))
 		if rest.CheckInternalServerError(w, err) {
 			return
 		}
@@ -35,7 +39,11 @@ func getCountsHandler(clientCtx client.Context) http.HandlerFunc {
 		if !ok {
 			return
 		}
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryCounts))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryCounts,
+		))
 		if rest.CheckInternalServerError(w, err) {
 			return
 		}
@@ -54,7 +62,12 @@ func getDataByHashHandler(clientCtx client.Context) http.HandlerFunc {
 
 		vars := mux.Vars(r)
 
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryData, vars[dataHashTag]))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryData,
+			vars[dataHashTag],
+		))
 		if rest.CheckInternalServerError(w, err) {
 			return
 		}
@@ -73,9 +86,44 @@ func getDataSourceByIDHandler(clientCtx client.Context) http.HandlerFunc {
 
 		vars := mux.Vars(r)
 
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryDataSources, vars[idTag]))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryDataSource,
+			vars[idTag],
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getDataSourcesHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryDataSources),
+			bz,
+		)
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
 
@@ -92,7 +140,43 @@ func getOracleScriptByIDHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts, vars[idTag]))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryOracleScript,
+			vars[idTag],
+		))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getOracleScriptsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts),
+			bz,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -112,7 +196,78 @@ func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
 
 		vars := mux.Vars(r)
 
-		res, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequests, vars[idTag]))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryRequest,
+			vars[idTag],
+		))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getRequestsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequests),
+			bz,
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getRequestReportsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf(
+				"custom/%s/%s/%s",
+				oracletypes.QuerierRoute,
+				oracletypes.QueryRequestReports,
+				mux.Vars(r)[idTag],
+			), bz,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -130,7 +285,9 @@ func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		oid, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64)
+		oid, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -141,13 +298,17 @@ func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			callData = []byte(r.FormValue("calldata"))
 		}
 
-		askCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64)
+		askCount, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		minCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64)
+		minCount, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -179,8 +340,16 @@ func getRequestsPricesHandler(clientCtx client.Context) http.HandlerFunc {
 		height := int64(0)
 		for idx, requestPrice := range requestPrices {
 
-			bin := clientCtx.LegacyAmino.MustMarshalJSON(oracletypes.NewQueryRequestPricesRequest(requestPrice.Symbol, requestPrice.MinCount, requestPrice.AskCount))
-			res, h, err := clientCtx.QueryWithData(fmt.Sprintf("%s/%s", hookscommon.AppHook, oracletypes.QueryRequestPrices), bin)
+			bin := clientCtx.LegacyAmino.MustMarshalJSON(oracletypes.NewQueryRequestPricesRequest(
+				requestPrice.Symbol,
+				requestPrice.MinCount,
+				requestPrice.AskCount,
+			))
+			res, h, err := clientCtx.QueryWithData(fmt.Sprintf(
+				"%s/%s",
+				hookscommon.AppHook,
+				oracletypes.QueryRequestPrices,
+			), bin)
 			if h > height {
 				height = h
 			}
@@ -210,7 +379,11 @@ func getRequestsPriceSymbolsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		res, height, err := clientCtx.Query(fmt.Sprintf("%s/%s", hookscommon.AppHook, oracletypes.QueryPriceSymbols))
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"%s/%s",
+			hookscommon.AppHook,
+			oracletypes.QueryPriceSymbols,
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -239,7 +412,9 @@ func getMultiRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		}
 
-		oid, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64)
+		oid, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("oid"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -250,13 +425,17 @@ func getMultiRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 			callData = []byte(r.FormValue("calldata"))
 		}
 
-		askCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64)
+		askCount, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("ask_count"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		minCount, err := strconv.ParseInt(oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64)
+		minCount, err := strconv.ParseInt(
+			oracleclientcommon.ValueOrDefault(r.FormValue("min_count"), "0").(string), 10, 64,
+		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -289,7 +468,12 @@ func getValidatorStatusHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryValidatorStatus, vars[validatorAddressTag]))
+		bz, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryValidatorStatus,
+			vars[validatorAddressTag],
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -308,7 +492,12 @@ func getReportersHandler(clientCtx client.Context) http.HandlerFunc {
 		}
 
 		vars := mux.Vars(r)
-		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryReporters, vars[validatorAddressTag]))
+		bz, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryReporters,
+			vars[validatorAddressTag],
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -326,7 +515,11 @@ func getActiveValidatorsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryActiveValidators))
+		bz, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryActiveValidators,
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -344,7 +537,11 @@ func dataProvidersPoolHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryDataProvidersPool))
+		bz, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryDataProvidersPool,
+		))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -353,4 +550,18 @@ func dataProvidersPoolHandler(clientCtx client.Context) http.HandlerFunc {
 		clientCtx = clientCtx.WithHeight(height)
 		rest.PostProcessResponse(w, clientCtx, bz)
 	}
+}
+
+func checkPaginationParams(w http.ResponseWriter, r *http.Request) (oracletypes.QueryPaginationParams, bool) {
+	vars := mux.Vars(r)
+	limit, err := strconv.ParseUint(vars[limitTag], 10, 64)
+	if rest.CheckBadRequestError(w, err) {
+		return oracletypes.QueryPaginationParams{}, false
+	}
+	offset, err := strconv.ParseUint(vars[offsetTag], 10, 64)
+	if rest.CheckBadRequestError(w, err) {
+		return oracletypes.QueryPaginationParams{}, false
+	}
+
+	return oracletypes.QueryPaginationParams{Offset: offset, Limit: limit}, true
 }

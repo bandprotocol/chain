@@ -192,8 +192,8 @@ func (m *QueryInflationResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInflationResponse proto.InternalMessageInfo
 
-// QueryAnnualProvisionsRequest is request type for the Query/QueryAnnualProvisions RPC
-// method.
+// QueryAnnualProvisionsRequest is request type for the
+// Query/QueryAnnualProvisions RPC method.
 type QueryAnnualProvisionsRequest struct {
 }
 
@@ -230,8 +230,8 @@ func (m *QueryAnnualProvisionsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAnnualProvisionsRequest proto.InternalMessageInfo
 
-// QueryAnnualProvisionsResponse is response type for the Query/QueryAnnualProvisions RPC
-// method.
+// QueryAnnualProvisionsResponse is response type for the
+// Query/QueryAnnualProvisions RPC method.
 type QueryAnnualProvisionsResponse struct {
 	AnnualProvisions github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=annual_provisions,json=annualProvisions,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"annual_provisions"`
 }
@@ -269,8 +269,8 @@ func (m *QueryAnnualProvisionsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAnnualProvisionsResponse proto.InternalMessageInfo
 
-// QueryEthIntegrationAddressRequest is request type for the Query/QueryEthIntegrationAddress RPC
-// method.
+// QueryEthIntegrationAddressRequest is request type for the
+// Query/QueryEthIntegrationAddress RPC method.
 type QueryEthIntegrationAddressRequest struct {
 }
 
@@ -307,8 +307,8 @@ func (m *QueryEthIntegrationAddressRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryEthIntegrationAddressRequest proto.InternalMessageInfo
 
-// QueryEthIntegrationAddressResponse is response type for the Query/QueryEthIntegrationAddress RPC
-// method.
+// QueryEthIntegrationAddressResponse is response type for the
+// Query/QueryEthIntegrationAddress RPC method.
 type QueryEthIntegrationAddressResponse struct {
 	EthIntegrationAddress string `protobuf:"bytes,1,opt,name=eth_integration_address,json=ethIntegrationAddress,proto3" json:"eth_integration_address,omitempty"`
 }
@@ -391,8 +391,8 @@ func (m *QueryTreasuryPoolRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryTreasuryPoolRequest proto.InternalMessageInfo
 
-// QueryTreasuryPoolResponse is response type for the Query/QueryTreasuryPool RPC
-// method.
+// QueryTreasuryPoolResponse is response type for the Query/QueryTreasuryPool
+// RPC method.
 type QueryTreasuryPoolResponse struct {
 	TreasuryPool github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=treasury_pool,json=treasuryPool,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"treasury_pool"`
 }

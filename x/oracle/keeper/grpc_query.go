@@ -51,6 +51,19 @@ func (k Querier) DataSource(c context.Context, req *oracletypes.QueryDataSourceR
 	return &oracletypes.QueryDataSourceResponse{DataSource: &ds}, nil
 }
 
+// DataSources queries data sources
+func (k Querier) DataSources(c context.Context, req *oracletypes.QueryDataSourcesRequest) (*oracletypes.QueryDataSourcesResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, req.Pagination.Limit, req.Pagination.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return &oracletypes.QueryDataSourcesResponse{DataSources: dataSources, Pagination: pageRes}, nil
+}
+
 // OracleScript queries oracle script info for given oracle script id.
 func (k Querier) OracleScript(c context.Context, req *oracletypes.QueryOracleScriptRequest) (*oracletypes.QueryOracleScriptResponse, error) {
 	if req == nil {
@@ -64,31 +77,78 @@ func (k Querier) OracleScript(c context.Context, req *oracletypes.QueryOracleScr
 	return &oracletypes.QueryOracleScriptResponse{OracleScript: &os}, nil
 }
 
+// OracleScripts queries all oracle scripts with pagination.
+func (k Querier) OracleScripts(c context.Context, req *oracletypes.QueryOracleScriptsRequest) (*oracletypes.QueryOracleScriptsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, req.Pagination.Limit, req.Pagination.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return &oracletypes.QueryOracleScriptsResponse{OracleScripts: oracleScripts, Pagination: pageRes}, nil
+}
+
 // Request queries request info for given request id.
 func (k Querier) Request(c context.Context, req *oracletypes.QueryRequestRequest) (*oracletypes.QueryRequestResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetResult(ctx, oracletypes.RequestID(req.RequestId))
+	result, err := k.GetResult(ctx, oracletypes.RequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Define specification on this endpoint (For test only)
-	return &oracletypes.QueryRequestResponse{RequestPacketData: &oracletypes.OracleRequestPacketData{
-		ClientID:       r.ClientID,
-		OracleScriptID: r.OracleScriptID,
-		Calldata:       r.Calldata,
-		AskCount:       r.AskCount,
-		MinCount:       r.MinCount,
-	}, ResponsePacketData: &oracletypes.OracleResponsePacketData{
-		RequestID:     r.RequestID,
-		AnsCount:      r.AnsCount,
-		RequestTime:   r.RequestTime,
-		ResolveTime:   r.ResolveTime,
-		ResolveStatus: r.ResolveStatus,
-		Result:        r.Result,
-	}}, nil
+	request := &oracletypes.RequestResult{
+		RequestPacketData: &oracletypes.OracleRequestPacketData{
+			ClientID:       result.ClientID,
+			OracleScriptID: result.OracleScriptID,
+			Calldata:       result.Calldata,
+			AskCount:       result.AskCount,
+			MinCount:       result.MinCount,
+		},
+		ResponsePacketData: &oracletypes.OracleResponsePacketData{
+			RequestID:     result.RequestID,
+			AnsCount:      result.AnsCount,
+			RequestTime:   result.RequestTime,
+			ResolveTime:   result.ResolveTime,
+			ResolveStatus: result.ResolveStatus,
+			Result:        result.Result,
+		},
+	}
+	return &oracletypes.QueryRequestResponse{Request: request}, nil
+}
+
+// Requests queries all requests with pagination.
+func (k Querier) Requests(c context.Context, req *oracletypes.QueryRequestsRequest) (*oracletypes.QueryRequestsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	requests, pageRes, err := k.GetPaginatedRequests(ctx, req.Pagination.Limit, req.Pagination.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return &oracletypes.QueryRequestsResponse{Requests: requests, Pagination: pageRes}, nil
+}
+
+// RequestReports queries all reports by the giver request id with pagination.
+func (k Querier) RequestReports(c context.Context, req *oracletypes.QueryRequestReportsRequest) (*oracletypes.QueryRequestReportsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	reports, pageRes, err := k.GetPaginatedRequestReports(
+		ctx,
+		oracletypes.RequestID(req.RequestId),
+		req.Pagination.Limit,
+		req.Pagination.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &oracletypes.QueryRequestReportsResponse{Reports: reports, Pagination: pageRes}, nil
 }
 
 // Validator queries oracle info of validator for given validator
@@ -182,8 +242,7 @@ func (k Querier) RequestSearch(c context.Context, req *oracletypes.QueryRequestS
 }
 
 // TODO:
-// RequestPrice queries the latest price on standard price reference oracle
-// script.
+// RequestPrice queries the latest price on standard price reference oracle script.
 func (k Querier) RequestPrice(c context.Context, req *oracletypes.QueryRequestPriceRequest) (*oracletypes.QueryRequestPriceResponse, error) {
 	return &oracletypes.QueryRequestPriceResponse{}, nil
 }

@@ -17,7 +17,7 @@ message MsgExchange {
 
   string from = 1;
   string to = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
   string requester = 4;
 }
 
