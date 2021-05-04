@@ -30,10 +30,14 @@ func (k Keeper) GetOracleScript(ctx sdk.Context, id oracletypes.OracleScriptID) 
 // GetPaginatedOracleScripts returns oracle scripts with pagination.
 func (k Keeper) GetPaginatedOracleScripts(
 	ctx sdk.Context,
-	pagination *query.PageRequest,
+	limit, offset uint64,
 ) ([]oracletypes.OracleScript, *query.PageResponse, error) {
 	oracleScripts := make([]oracletypes.OracleScript, 0)
 	oracleScriptsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.OracleScriptStoreKeyPrefix)
+	pagination := &query.PageRequest{
+		Limit:  limit,
+		Offset: offset,
+	}
 
 	pageRes, err := query.FilteredPaginate(
 		oracleScriptsStore,

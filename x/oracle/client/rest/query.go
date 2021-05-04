@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -110,14 +109,19 @@ func getDataSourcesHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		body, err := ioutil.ReadAll(r.Body)
-		if rest.CheckInternalServerError(w, err) {
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
 			return
 		}
 
 		res, height, err := clientCtx.QueryWithData(
 			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryDataSources),
-			body,
+			bz,
 		)
 		if rest.CheckInternalServerError(w, err) {
 			return
@@ -159,41 +163,19 @@ func getOracleScriptsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		body, err := ioutil.ReadAll(r.Body)
-		if rest.CheckInternalServerError(w, err) {
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
 			return
 		}
 
 		res, height, err := clientCtx.QueryWithData(
 			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryOracleScripts),
-			body,
-		)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		clientCtx = clientCtx.WithHeight(height)
-		rest.PostProcessResponse(w, clientCtx, res)
-	}
-}
-
-func getRequestReportsHandler(clientCtx client.Context) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-		if !ok {
-			return
-		}
-
-		body, err := ioutil.ReadAll(r.Body)
-		if rest.CheckInternalServerError(w, err) {
-			return
-		}
-
-		vars := mux.Vars(r)
-		res, height, err := clientCtx.QueryWithData(
-			fmt.Sprintf("custom/%s/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequestReports, vars[idTag]),
-			body,
+			bz,
 		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -237,14 +219,54 @@ func getRequestsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		body, err := ioutil.ReadAll(r.Body)
-		if rest.CheckInternalServerError(w, err) {
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
 			return
 		}
 
 		res, height, err := clientCtx.QueryWithData(
 			fmt.Sprintf("custom/%s/%s", oracletypes.QuerierRoute, oracletypes.QueryRequests),
-			body,
+			bz,
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getRequestReportsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params, ok := checkPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("failed to marshal params: %s", err))
+			return
+		}
+
+		res, height, err := clientCtx.QueryWithData(
+			fmt.Sprintf(
+				"custom/%s/%s/%s",
+				oracletypes.QuerierRoute,
+				oracletypes.QueryRequestReports,
+				mux.Vars(r)[idTag],
+			), bz,
 		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -528,4 +550,18 @@ func dataProvidersPoolHandler(clientCtx client.Context) http.HandlerFunc {
 		clientCtx = clientCtx.WithHeight(height)
 		rest.PostProcessResponse(w, clientCtx, bz)
 	}
+}
+
+func checkPaginationParams(w http.ResponseWriter, r *http.Request) (oracletypes.QueryPaginationParams, bool) {
+	vars := mux.Vars(r)
+	limit, err := strconv.ParseUint(vars[limitTag], 10, 64)
+	if rest.CheckBadRequestError(w, err) {
+		return oracletypes.QueryPaginationParams{}, false
+	}
+	offset, err := strconv.ParseUint(vars[offsetTag], 10, 64)
+	if rest.CheckBadRequestError(w, err) {
+		return oracletypes.QueryPaginationParams{}, false
+	}
+
+	return oracletypes.QueryPaginationParams{Offset: offset, Limit: limit}, true
 }

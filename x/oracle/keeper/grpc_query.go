@@ -57,7 +57,7 @@ func (k Querier) DataSources(c context.Context, req *oracletypes.QueryDataSource
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, req.Pagination)
+	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, req.Pagination.Limit, req.Pagination.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (k Querier) OracleScripts(c context.Context, req *oracletypes.QueryOracleSc
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, req.Pagination)
+	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, req.Pagination.Limit, req.Pagination.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (k Querier) Requests(c context.Context, req *oracletypes.QueryRequestsReque
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	requests, pageRes, err := k.GetPaginatedRequests(ctx, req.Pagination)
+	requests, pageRes, err := k.GetPaginatedRequests(ctx, req.Pagination.Limit, req.Pagination.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,12 @@ func (k Querier) RequestReports(c context.Context, req *oracletypes.QueryRequest
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	reports, pageRes, err := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(req.RequestId), req.Pagination)
+	reports, pageRes, err := k.GetPaginatedRequestReports(
+		ctx,
+		oracletypes.RequestID(req.RequestId),
+		req.Pagination.Limit,
+		req.Pagination.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

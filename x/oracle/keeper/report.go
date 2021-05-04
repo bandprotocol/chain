@@ -94,10 +94,14 @@ func (k Keeper) GetRequestReports(ctx sdk.Context, rid oracletypes.RequestID) (r
 func (k Keeper) GetPaginatedRequestReports(
 	ctx sdk.Context,
 	rid oracletypes.RequestID,
-	pagination *query.PageRequest,
+	limit, offset uint64,
 ) ([]oracletypes.Report, *query.PageResponse, error) {
 	reports := make([]oracletypes.Report, 0)
 	reportsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.ReportStoreKey(rid))
+	pagination := &query.PageRequest{
+		Limit:  limit,
+		Offset: offset,
+	}
 
 	pageRes, err := query.FilteredPaginate(
 		reportsStore,

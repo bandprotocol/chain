@@ -75,10 +75,14 @@ func (k Keeper) GetAllDataSources(ctx sdk.Context) (dataSources []oracletypes.Da
 // GetPaginatedDataSources returns the list of all data sources in the store with pagination
 func (k Keeper) GetPaginatedDataSources(
 	ctx sdk.Context,
-	pagination *query.PageRequest,
+	limit, offset uint64,
 ) ([]oracletypes.DataSource, *query.PageResponse, error) {
 	dataSources := make([]oracletypes.DataSource, 0)
 	dataSourcesStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.DataSourceStoreKeyPrefix)
+	pagination := &query.PageRequest{
+		Limit:  limit,
+		Offset: offset,
+	}
 
 	pageRes, err := query.FilteredPaginate(
 		dataSourcesStore,

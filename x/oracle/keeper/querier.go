@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"strconv"
@@ -87,12 +86,12 @@ func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, _ abci.Reques
 }
 
 func queryDataSources(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	var params oracletypes.QueryDataSourcesRequest
+	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, params.Pagination)
+	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -115,12 +114,12 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.Requ
 }
 
 func queryOracleScripts(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	var params oracletypes.QueryOracleScriptsRequest
+	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, params.Pagination)
+	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -160,12 +159,12 @@ func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery,
 }
 
 func queryRequests(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	var params oracletypes.QueryRequestsRequest
+	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	requests, pageRes, err := k.GetPaginatedRequests(ctx, params.Pagination)
+	requests, pageRes, err := k.GetPaginatedRequests(ctx, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -291,12 +290,12 @@ func queryRequestReports(ctx sdk.Context, path []string, k Keeper, req abci.Requ
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	var params query.PageRequest
+	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	reports, pageRes, err := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(requestId), &params)
+	reports, pageRes, err := k.GetPaginatedRequestReports(ctx, oracletypes.RequestID(requestId), params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}

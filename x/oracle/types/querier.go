@@ -64,3 +64,8 @@ func NewQueryRequestPricesRequest(symbol string, minCount, askCount int64) Query
 		AskCount: askCount,
 	}
 }
+
+type QueryPaginationParams struct {
+	Offset uint64 `json:"offset" yaml:"offset"`
+	Limit  uint64 `json:"limit" yaml:"limit"`
+}

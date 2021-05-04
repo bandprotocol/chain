@@ -41,10 +41,14 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id oracletypes.RequestID) oracle
 // GetPaginatedRequests returns all requests with pagination
 func (k Keeper) GetPaginatedRequests(
 	ctx sdk.Context,
-	pagination *query.PageRequest,
+	limit, offset uint64,
 ) ([]oracletypes.RequestResult, *query.PageResponse, error) {
 	requests := make([]oracletypes.RequestResult, 0)
 	requestsStore := prefix.NewStore(ctx.KVStore(k.storeKey), oracletypes.ResultStoreKeyPrefix)
+	pagination := &query.PageRequest{
+		Limit:  limit,
+		Offset: offset,
+	}
 
 	pageRes, err := query.FilteredPaginate(requestsStore, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var result oracletypes.Result
