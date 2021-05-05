@@ -21,7 +21,7 @@ const (
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
-	DefaultIBCRequestEnabled       = false
+	DefaultIBCRequestEnabled       = true
 )
 
 // nolint

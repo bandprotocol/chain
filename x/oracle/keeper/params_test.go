@@ -45,7 +45,6 @@ func TestGetSetParams(t *testing.T) {
 	}
 	k.SetParams(ctx, expectedParams)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
-	require.Equal(t, expectedParams, k.GetParams(ctx))
 	require.Equal(t, expectedParams.MaxRawRequestCount, k.MaxRawRequestCount(ctx))
 	require.Equal(t, expectedParams.MaxAskCount, k.MaxAskCount(ctx))
 	require.Equal(t, expectedParams.ExpirationBlockCount, k.ExpirationBlockCount(ctx))
