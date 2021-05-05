@@ -3,7 +3,6 @@ package emitter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -313,7 +312,6 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
 	}
-	fmt.Println("beebja", txDict)
 	// NOTE: We add txDict to the list of pending Kafka messages here, but it will still be
 	// mutated in the loop below as we know the messages won't get flushed until ABCI Commit.
 	h.Write("NEW_TRANSACTION", txDict)

@@ -325,16 +325,19 @@ func (am AppModule) OnRecvPacket(
 ) (*sdk.Result, []byte, error) {
 	var data types.OracleRequestPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal ICS-20 oracle request packet data: %s", err.Error())
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle request packet data: %s", err.Error())
 	}
+	escrowAddress := types.GetEscrowAddress(data.RequestKey, packet.DestinationPort, packet.DestinationChannel)
+	ibcChannel := types.NewIBCChannel(packet.DestinationPort, packet.DestinationChannel)
 
-	source := types.IBCSource{SourceChannel: packet.DestinationChannel, SourcePort: packet.DestinationPort}
-	id, err := am.keeper.PrepareRequest(ctx, &data, sdk.AccAddress{}, &source) // TODO: add fee payer
+	cacheCtx, writeFn := ctx.CacheContext()
+	id, err := am.keeper.PrepareRequest(cacheCtx, &data, escrowAddress, &ibcChannel)
 
 	var acknowledgement channeltypes.Acknowledgement
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
+		writeFn()
 		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 

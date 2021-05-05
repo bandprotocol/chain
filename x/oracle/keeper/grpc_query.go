@@ -157,6 +157,7 @@ func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceReq
 	return &types.QueryRequestPriceResponse{}, nil
 }
 
+// RequestVerification verifies oracle request for validation before executing data sources
 func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestVerificationRequest) (*types.QueryRequestVerificationResponse, error) {
 	// Request should not be empty
 	if req == nil {
@@ -259,4 +260,15 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		ExternalId:   req.ExternalId,
 		DataSourceId: int64(*dataSourceID),
 	}, nil
+}
+
+// RequestPool queries the request pool information
+func (k Querier) RequestPool(c context.Context, req *types.QueryRequestPoolRequest) (*types.QueryRequestPoolResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	requestPool := types.GetEscrowAddress(req.RequestKey, req.PortId, req.ChannelId)
+	b := k.bankKeeper.GetAllBalances(ctx, requestPool)
+	return &types.QueryRequestPoolResponse{RequestPoolAddress: requestPool.String(), Balance: b}, nil
 }

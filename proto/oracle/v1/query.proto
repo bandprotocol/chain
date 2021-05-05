@@ -6,6 +6,7 @@ option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -76,6 +77,13 @@ service Query {
   rpc RequestVerification(QueryRequestVerificationRequest)
       returns (QueryRequestVerificationResponse) {
     option (google.api.http).post = "/oracle/v1/verify_request";
+  }
+
+  // RequestPool queries the request pool information corresponding to the given
+  // port, channel, and request key.
+  rpc RequestPool(QueryRequestPoolRequest) returns (QueryRequestPoolResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/request_pool/{request_key}/{port_id}/{channel_id}";
   }
 }
 
@@ -268,4 +276,25 @@ message QueryRequestVerificationResponse {
   // DataSourceID is the ID of a data source that relates to the targeted
   // external ID
   int64 data_source_id = 5;
+}
+
+// QueryRequestPoolRequest is request type for the Query/RequestPool RPC method.
+message QueryRequestPoolRequest {
+  // RequestKey is a user-generated key for each request pool
+  string request_key = 1;
+  // PortID is the corresponding port to the request pool
+  string port_id = 2;
+  // ChannelID is the corresponding channel to the request pool
+  string channel_id = 3;
+}
+
+// QueryRequestPoolResponse is response type for the Query/RequestPool RPC
+// method.
+message QueryRequestPoolResponse {
+  // RequestPoolAddress is an address of a request pool
+  string request_pool_address = 1;
+  repeated cosmos.base.v1beta1.Coin balance = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }

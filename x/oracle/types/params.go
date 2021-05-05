@@ -16,7 +16,7 @@ const (
 	DefaultMaxRawRequestCount      = uint64(12)
 	DefaultMaxAskCount             = uint64(16)
 	DefaultExpirationBlockCount    = uint64(100)
-	DefaultBaseRequestGas          = uint64(150000)
+	DefaultBaseRequestGas          = uint64(20000)
 	DefaultPerValidatorRequestGas  = uint64(30000)
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)
