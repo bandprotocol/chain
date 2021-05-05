@@ -79,23 +79,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// GetParam returns the parameter as specified by key as an uint64.
-func (k Keeper) GetParam(ctx sdk.Context, key []byte) (res uint64) {
-	k.paramstore.Get(ctx, key, &res)
-	return res
-}
-
-// SetParam saves the given key-value parameter to the store.
-func (k Keeper) SetParam(ctx sdk.Context, key []byte, value uint64) {
-	k.paramstore.Set(ctx, key, value)
-}
-
-// GetParams returns all current parameters as a types.Params instance.
-func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramstore.GetParamSet(ctx, &params)
-	return params
-}
-
 // SetRollingSeed sets the rolling seed value to be provided value.
 func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
 	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
