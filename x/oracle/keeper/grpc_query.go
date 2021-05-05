@@ -248,8 +248,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// The request should not be expired
-	params := k.GetParams(ctx)
-	if request.RequestHeight+int64(params.ExpirationBlockCount) < ctx.BlockHeader().Height {
+	if request.RequestHeight+int64(k.ExpirationBlockCount(ctx)) < ctx.BlockHeader().Height {
 		return nil, status.Error(codes.DeadlineExceeded, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
 	}
 

@@ -290,7 +290,7 @@ func GetQueryActiveValidators() *cobra.Command {
 // GetQueryRequestVerification implements the query request verification command.
 func GetQueryRequestVerification() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-addr] [reporter-signature-hex]",
+		Use:  "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-pubkey] [reporter-signature-hex]",
 		Args: cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
