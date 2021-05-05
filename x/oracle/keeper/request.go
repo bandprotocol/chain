@@ -55,7 +55,7 @@ func (k Keeper) AddRequest(ctx sdk.Context, req types.Request) types.RequestID {
 func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 	currentReqID := k.GetRequestLastExpired(ctx) + 1
 	lastReqID := types.RequestID(k.GetRequestCount(ctx))
-	expirationBlockCount := int64(k.GetParam(ctx, types.KeyExpirationBlockCount))
+	expirationBlockCount := int64(k.ExpirationBlockCount(ctx))
 	// Loop through all data requests in chronological order. If a request reaches its
 	// expiration height, we will deactivate validators that didn't report data on the
 	// request. We also resolve requests to status EXPIRED if they are not yet resolved.

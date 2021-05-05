@@ -323,6 +323,13 @@ func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
+
+	if !am.keeper.IBCRequestEnabled(ctx) {
+		return &sdk.Result{
+			Events: ctx.EventManager().Events().ToABCIEvents(),
+		}, channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error()).GetBytes(), nil
+	}
+
 	var data types.OracleRequestPacketData
 	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle request packet data: %s", err.Error())

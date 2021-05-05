@@ -102,6 +102,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			var oracleGenesisV039 v039oracle.GenesisState
 			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
 
+			oracleGenesis.Params.IBCRequestEnabled = false
 			oracleGenesis.OracleScripts = oracleGenesisV039.OracleScripts
 			oracleGenesis.Reporters = oracleGenesisV039.Reporters
 			for _, dataSource := range oracleGenesisV039.DataSources {
