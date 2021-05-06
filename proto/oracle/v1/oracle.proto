@@ -114,10 +114,10 @@ message Request {
   // RawRequests is a list of raw requests specified by execution of oracle
   // script
   repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
-  // IBCSource is an IBC connection info of the other chain, which contains a
+  // IBCChannel is an IBC channel info of the other chain, which contains a
   // channel and a port to allow bandchain connect to that chain. This field
   // allows other chain be able to request data from bandchain via IBC.
-  IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
+  IBCChannel ibc_channel = 9 [ (gogoproto.customname) = "IBCChannel" ];
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 10;
 }
@@ -317,6 +317,9 @@ message Params {
   // InactivePenaltyDuration is the duration period where a validator cannot
   // activate back after missing an oracle report.
   uint64 inactive_penalty_duration = 8;
+  // IBCRequestEnabled is a flag indicating whether sending oracle request via
+  // IBC is allowed
+  bool ibc_request_enabled = 9 [ (gogoproto.customname) = "IBCRequestEnabled" ];
 }
 
 // PendingResolveList is a list of requests that are waiting to be resolved
@@ -326,13 +329,45 @@ message PendingResolveList {
   repeated int64 request_ids = 1;
 }
 
-// IBCSource is information of IBC protocol to allow communicating with other
+// IBCChannel is information of IBC protocol to allow communicating with other
 // chain
-message IBCSource {
+message IBCChannel {
   option (gogoproto.equal) = true;
 
-  // SourceChannel is channel ID used for communicating with other chains
-  string source_channel = 1;
-  // SourcePort is port ID used for communicating with other chains
-  string source_port = 2;
+  // PortID is port ID used for sending response packet when request is
+  // resolved.
+  string port_id = 1;
+  // ChannelID is channel ID used for sending response packet when request is
+  // resolved.
+  string channel_id = 2;
+}
+
+// ReportersPerValidator is list of reporters that is associated with a
+// validator
+message ReportersPerValidator {
+  // Validator a validator address
+  string validator = 1;
+  // Reporters is a list of reporter account addresses associated with the
+  // validator
+  repeated string reporters = 2 [ (gogoproto.nullable) = false ];
+}
+
+// RequestVerification is a message that is constructed and signed by a reporter
+// to be used as a part of verification of oracle request.
+message RequestVerification {
+  option (gogoproto.equal) = true;
+  // ChainID is the ID of targeted chain
+  string chain_id = 1 [ (gogoproto.customname) = "ChainID" ];
+  // Validator is an validator address
+  string validator = 2;
+  // RequestID is the targeted request ID
+  int64 request_id = 3 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // ExternalID is the oracle's external ID of data source
+  int64 external_id = 4 [
+    (gogoproto.customname) = "ExternalID",
+    (gogoproto.casttype) = "ExternalID"
+  ];
 }

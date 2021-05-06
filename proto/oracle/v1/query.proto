@@ -6,6 +6,7 @@ option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -69,6 +70,20 @@ service Query {
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
     option (google.api.http).post = "/oracle/request_prices";
+  }
+
+  // RequestVerification verifies a request to make sure that
+  // all information that will be used to report the data is valid
+  rpc RequestVerification(QueryRequestVerificationRequest)
+      returns (QueryRequestVerificationResponse) {
+    option (google.api.http).get = "/oracle/v1/verify_request";
+  }
+
+  // RequestPool queries the request pool information corresponding to the given
+  // port, channel, and request key.
+  rpc RequestPool(QueryRequestPoolRequest) returns (QueryRequestPoolResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/request_pool/{request_key}/{port_id}/{channel_id}";
   }
 }
 
@@ -225,4 +240,61 @@ message QueryRequestPriceResponse {
   int64 ask_count = 3;
   // MinCount is number of validators required to fulfill the request
   int64 min_count = 4;
+}
+
+// QueryRequestVerificationRequest is request type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationRequest {
+  // ChainID is the chain ID to identify which chain ID is used for the
+  // verification
+  string chain_id = 1;
+  // Validator is a validator address
+  string validator = 2;
+  // RequestID is oracle request ID
+  int64 request_id = 3;
+  // ExternalID is an oracle's external ID
+  int64 external_id = 4;
+  // Reporter is an bech32-encoded public key of the reporter authorized by the
+  // validator
+  string reporter = 5;
+  // Signature is a signature signed by the reporter using reporter's private
+  // key
+  bytes signature = 6;
+}
+
+// QueryRequestVerificationResponse is response type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationResponse {
+  // ChainID is the targeted chain ID
+  string chain_id = 1;
+  // Validator is the targeted validator address
+  string validator = 2;
+  // RequestID is the ID of targeted request
+  int64 request_id = 3;
+  // ExternalID is the ID of targeted oracle's external data source
+  int64 external_id = 4;
+  // DataSourceID is the ID of a data source that relates to the targeted
+  // external ID
+  int64 data_source_id = 5;
+}
+
+// QueryRequestPoolRequest is request type for the Query/RequestPool RPC method.
+message QueryRequestPoolRequest {
+  // RequestKey is a user-generated key for each request pool
+  string request_key = 1;
+  // PortID is the corresponding port to the request pool
+  string port_id = 2;
+  // ChannelID is the corresponding channel to the request pool
+  string channel_id = 3;
+}
+
+// QueryRequestPoolResponse is response type for the Query/RequestPool RPC
+// method.
+message QueryRequestPoolResponse {
+  // RequestPoolAddress is an address of a request pool
+  string request_pool_address = 1;
+  repeated cosmos.base.v1beta1.Coin balance = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
