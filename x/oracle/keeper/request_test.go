@@ -42,8 +42,10 @@ func TestSetterGetterRequest(t *testing.T) {
 	req1 := types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
 	req2 := types.NewRequest(2, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
 	// Sets id 42 with request 1 and id 42 with request 2.
-	k.SetRequest(ctx, 42, req1)
-	k.SetRequest(ctx, 43, req2)
+	req1.ID = 42
+	k.SetRequest(ctx, req1.ID, req1)
+	req2.ID = 43
+	k.SetRequest(ctx, req2.ID, req2)
 	// Checks that Get and MustGet perform correctly.
 	req1Res, err := k.GetRequest(ctx, 42)
 	require.Nil(t, err)
@@ -54,7 +56,8 @@ func TestSetterGetterRequest(t *testing.T) {
 	require.Equal(t, req2, req2Res)
 	require.Equal(t, req2, k.MustGetRequest(ctx, 43))
 	// Replaces id 42 with another request.
-	k.SetRequest(ctx, 42, req2)
+	req2.ID = 42
+	k.SetRequest(ctx, req2.ID, req2)
 	require.NotEqual(t, req1, k.MustGetRequest(ctx, 42))
 	require.Equal(t, req2, k.MustGetRequest(ctx, 42))
 }

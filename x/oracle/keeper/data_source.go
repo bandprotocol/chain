@@ -38,6 +38,7 @@ func (k Keeper) MustGetDataSource(ctx sdk.Context, id oracletypes.DataSourceID) 
 
 // SetDataSource saves the given data source to the storage without performing validation.
 func (k Keeper) SetDataSource(ctx sdk.Context, id oracletypes.DataSourceID, dataSource oracletypes.DataSource) {
+	dataSource.ID = id
 	store := ctx.KVStore(k.storeKey)
 	store.Set(oracletypes.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(&dataSource))
 }

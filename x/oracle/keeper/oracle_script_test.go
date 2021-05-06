@@ -35,8 +35,10 @@ func TestSetterGetterOracleScript(t *testing.T) {
 		testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
 	)
 	// Sets id 42 with oracle script 1 and id 42 with oracle script 2.
-	k.SetOracleScript(ctx, 42, oracleScript1)
-	k.SetOracleScript(ctx, 43, oracleScript2)
+	oracleScript1.ID = 42
+	k.SetOracleScript(ctx, oracleScript1.ID, oracleScript1)
+	oracleScript2.ID = 43
+	k.SetOracleScript(ctx, oracleScript2.ID, oracleScript2)
 	// Checks that Get and MustGet perform correctly.
 	oracleScript1Res, err := k.GetOracleScript(ctx, 42)
 	require.Nil(t, err)
@@ -47,7 +49,8 @@ func TestSetterGetterOracleScript(t *testing.T) {
 	require.Equal(t, oracleScript2, oracleScript2Res)
 	require.Equal(t, oracleScript2, k.MustGetOracleScript(ctx, 43))
 	// Replaces id 42 with another oracle script.
-	k.SetOracleScript(ctx, 42, oracleScript2)
+	oracleScript2.ID = 42
+	k.SetOracleScript(ctx, oracleScript2.ID, oracleScript2)
 	require.NotEqual(t, oracleScript1, k.MustGetOracleScript(ctx, 42))
 	require.Equal(t, oracleScript2, k.MustGetOracleScript(ctx, 42))
 }
@@ -63,6 +66,7 @@ func TestAddEditOracleScriptBasic(t *testing.T) {
 	)
 	// Adds a new oracle script to the store. We should be able to retreive it back.
 	id := k.AddOracleScript(ctx, oracleScript1)
+	oracleScript1.ID = id
 	require.Equal(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.NotEqual(t, oracleScript2, k.MustGetOracleScript(ctx, id))
 	// Edits the oracle script. We should get the updated oracle script.
@@ -74,6 +78,7 @@ func TestAddEditOracleScriptBasic(t *testing.T) {
 			oracleScript2.Schema, oracleScript2.SourceCodeURL,
 		))
 	})
+	oracleScript2.ID = id
 	require.NotEqual(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.Equal(t, oracleScript2, k.MustGetOracleScript(ctx, id))
 }
@@ -90,6 +95,7 @@ func TestAddEditOracleScriptDoNotModify(t *testing.T) {
 	)
 	// Adds a new oracle script to the store. We should be able to retreive it back.
 	id := k.AddOracleScript(ctx, oracleScript1)
+	oracleScript1.ID = id
 	require.Equal(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.NotEqual(t, oracleScript2, k.MustGetOracleScript(ctx, id))
 	// Edits the oracle script. We should get the updated oracle script.

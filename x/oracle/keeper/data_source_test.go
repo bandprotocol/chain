@@ -31,8 +31,10 @@ func TestSetterGetterDataSource(t *testing.T) {
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins)
 	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "filename2", testapp.EmptyCoins)
 	// Sets id 42 with data soure 1 and id 42 with data source 2.
-	k.SetDataSource(ctx, 42, dataSource1)
-	k.SetDataSource(ctx, 43, dataSource2)
+	dataSource1.ID = 42
+	k.SetDataSource(ctx, dataSource1.ID, dataSource1)
+	dataSource2.ID = 43
+	k.SetDataSource(ctx, dataSource2.ID, dataSource2)
 	// Checks that Get and MustGet perform correctly.
 	dataSource1Res, err := k.GetDataSource(ctx, 42)
 	require.Nil(t, err)
@@ -43,7 +45,8 @@ func TestSetterGetterDataSource(t *testing.T) {
 	require.Equal(t, dataSource2, dataSource2Res)
 	require.Equal(t, dataSource2, k.MustGetDataSource(ctx, 43))
 	// Replaces id 42 with another data source.
-	k.SetDataSource(ctx, 42, dataSource2)
+	dataSource2.ID = 42
+	k.SetDataSource(ctx, dataSource2.ID, dataSource2)
 	require.NotEqual(t, dataSource1, k.MustGetDataSource(ctx, 42))
 	require.Equal(t, dataSource2, k.MustGetDataSource(ctx, 42))
 }
@@ -55,6 +58,7 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
+	dataSource1.ID = id
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))
 	owner, err := sdk.AccAddressFromBech32(dataSource2.Owner)
@@ -63,6 +67,7 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	k.MustEditDataSource(ctx, id, types.NewDataSource(
 		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename, testapp.EmptyCoins,
 	))
+	dataSource2.ID = id
 	require.NotEqual(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.Equal(t, dataSource2, k.MustGetDataSource(ctx, id))
 }
@@ -74,10 +79,12 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins)
 	// Adds a new data source to the store. We should be able to retreive it back.
 	id := k.AddDataSource(ctx, dataSource1)
+	dataSource1.ID = id
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))
 	// Edits the data source. We should get the updated data source.
 	k.MustEditDataSource(ctx, id, dataSource2)
+	dataSource2.ID = 1
 	dataSourceRes := k.MustGetDataSource(ctx, id)
 	require.NotEqual(t, dataSourceRes, dataSource1)
 	require.NotEqual(t, dataSourceRes, dataSource2)

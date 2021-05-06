@@ -32,9 +32,12 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgCreateDataSource(name, description, executable, testapp.EmptyCoins, owner, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	ds, err := k.GetDataSource(ctx, oracletypes.DataSourceID(dsCount+1))
+	dsID := oracletypes.DataSourceID(dsCount + 1)
+	ds, err := k.GetDataSource(ctx, dsID)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins), ds)
+	expectedDS := oracletypes.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins)
+	expectedDS.ID = dsID
+	require.Equal(t, expectedDS, ds)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeCreateDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))}},
@@ -69,9 +72,12 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	ds, err := k.GetDataSource(ctx, 1)
+	dsID := oracletypes.DataSourceID(1)
+	ds, err := k.GetDataSource(ctx, dsID)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Coins1000000odin), ds)
+	expectedDS := oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Coins1000000odin)
+	expectedDS.ID = dsID
+	require.Equal(t, expectedDS, ds)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte("1")}},
@@ -117,10 +123,12 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgCreateOracleScript(name, description, schema, url, code, testapp.Owner.Address, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	os, err := k.GetOracleScript(ctx, oracletypes.OracleScriptID(osCount+1))
+	osID := oracletypes.OracleScriptID(osCount + 1)
+	os, err := k.GetOracleScript(ctx, osID)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url), os)
-
+	expectedOS := oracletypes.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url)
+	expectedOS.ID = osID
+	require.Equal(t, expectedOS, os)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))}},
@@ -142,10 +150,12 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgCreateOracleScript(name, description, schema, url, buf.Bytes(), testapp.Owner.Address, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	os, err := k.GetOracleScript(ctx, oracletypes.OracleScriptID(osCount+1))
+	osID := oracletypes.OracleScriptID(osCount + 1)
+	os, err := k.GetOracleScript(ctx, osID)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url), os)
-
+	expectedOS := oracletypes.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url)
+	expectedOS.ID = osID
+	require.Equal(t, expectedOS, os)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))}},
@@ -186,10 +196,12 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	os, err := k.GetOracleScript(ctx, 1)
+	osID := oracletypes.OracleScriptID(1)
+	os, err := k.GetOracleScript(ctx, osID)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewOracleScript(testapp.Owner.Address, newName, newDescription, testapp.WasmExtra2FileName, newSchema, newURL), os)
-
+	expectedOS := oracletypes.NewOracleScript(testapp.Owner.Address, newName, newDescription, testapp.WasmExtra2FileName, newSchema, newURL)
+	expectedOS.ID = osID
+	require.Equal(t, expectedOS, os)
 	event := abci.Event{
 		Type:       oracletypes.EventTypeEditOracleScript,
 		Attributes: []abci.EventAttribute{{Key: []byte(oracletypes.AttributeKeyID), Value: []byte("1")}},
@@ -237,7 +249,7 @@ func TestRequestDataSuccess(t *testing.T) {
 	msg := oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-	require.Equal(t, oracletypes.NewRequest(
+	expectedRequest := oracletypes.NewRequest(
 		1,
 		[]byte("beeb"),
 		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress},
@@ -252,7 +264,9 @@ func TestRequestDataSuccess(t *testing.T) {
 		},
 		nil,
 		uint64(oracletypes.DefaultExecuteGas),
-	), k.MustGetRequest(ctx, 1))
+	)
+	expectedRequest.ID = oracletypes.RequestID(1)
+	require.Equal(t, expectedRequest, k.MustGetRequest(ctx, expectedRequest.ID))
 
 	event := abci.Event{
 		Type: banktypes.EventTypeTransfer,

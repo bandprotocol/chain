@@ -71,6 +71,7 @@ func (k Keeper) MustGetOracleScript(ctx sdk.Context, id oracletypes.OracleScript
 
 // SetOracleScript saves the given oracle script to the storage without performing validation.
 func (k Keeper) SetOracleScript(ctx sdk.Context, id oracletypes.OracleScriptID, oracleScript oracletypes.OracleScript) {
+	oracleScript.ID = id
 	store := ctx.KVStore(k.storeKey)
 	store.Set(oracletypes.OracleScriptStoreKey(id), k.cdc.MustMarshalBinaryBare(&oracleScript))
 }
