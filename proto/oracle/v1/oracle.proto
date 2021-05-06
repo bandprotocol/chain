@@ -375,8 +375,10 @@ message RequestVerification {
 // OraclePacketResult is oracle request detail with its result
 message OraclePacketResult {
   option (gogoproto.equal) = true;
+  // RequestPacketData is oracle request information
   OracleRequestPacketData request_packet_data = 1
       [ (gogoproto.nullable) = false ];
+  // ResponsePacketData is oracle request's fulfillment results e.g. resolve status, aggregated report value, etc.
   OracleResponsePacketData response_packet_data = 2
       [ (gogoproto.nullable) = false ];
 }
