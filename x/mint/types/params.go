@@ -64,7 +64,7 @@ func DefaultParams() Params {
 		BlocksPerYear:         uint64(60 * 60 * 8766 / 5), // assuming 5 second block times
 		MintAir:               false,
 		EthIntegrationAddress: "0xa19Df1199CeEfd7831576f1D055E454364337633", // default value (might be invalid for actual use)
-		MaxWithdrawalPerTime:  sdk.Coins{sdk.NewCoin("loki", sdk.NewInt(100))},
+		MaxWithdrawalPerTime:  sdk.Coins{sdk.NewCoin("odin", sdk.NewInt(100))},
 		EligibleAccountsPool:  []string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 	}
 }

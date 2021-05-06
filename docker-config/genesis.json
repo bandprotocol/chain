@@ -128,7 +128,7 @@
               "amount": "100000000000000"
             },
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "10000000000000"
             }
           ]
@@ -141,7 +141,7 @@
               "amount": "100000000000000"
             },
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "10000000000000"
             }
           ]
@@ -150,7 +150,7 @@
           "address": "odin1zd9lthygtlegm2ylnganyutr0c8pg8qz3yv35p",
           "coins": [
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "1000000000"
             }
           ]
@@ -159,7 +159,7 @@
           "address": "odin1henaumsxn39sj09wcywprzh46cf2q3yzy2uvwj",
           "coins": [
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "1000000000"
             }
           ]
@@ -168,7 +168,7 @@
           "address": "odin10laadcz7k9eq2tu4ayfya2ewudgarvd7cy9zts",
           "coins": [
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "1000000000"
             }
           ]
@@ -177,7 +177,7 @@
           "address": "odin1plgvd70drhnd3tzm3a27pzkde7luh9hyhm27hf",
           "coins": [
             {
-              "denom": "loki",
+              "denom": "odin",
               "amount": "1000000000"
             }
           ]
@@ -189,7 +189,7 @@
           "amount": "1000000000000000"
         },
         {
-          "denom": "loki",
+          "denom": "odin",
           "amount": "100000000000000"
         }
       ],
@@ -205,32 +205,32 @@
         "exchanges": [
           {
             "from": "geo",
-            "to": "loki",
+            "to": "odin",
             "rate_multiplier": "1.000000000000000000"
           },
           {
-            "from": "loki",
+            "from": "odin",
             "to": "geo",
             "rate_multiplier": "1.000000000000000000"
           },
           {
-            "from": "loki",
+            "from": "odin",
             "to": "eth",
             "rate_multiplier": "1.500000000000000000"
           },
           {
             "from": "eth",
-            "to": "loki",
+            "to": "odin",
             "rate_multiplier": "2.000000000000000000"
           },
           {
-            "from": "loki",
+            "from": "odin",
             "to": "wbtc",
             "rate_multiplier": "2.000000000000000000"
           },
           {
             "from": "wbtc",
-            "to": "loki",
+            "to": "odin",
             "rate_multiplier": "3.000000000000000000"
           }
         ]
@@ -238,7 +238,7 @@
     },
     "crisis": {
       "constant_fee": {
-        "denom": "loki",
+        "denom": "odin",
         "amount": "10000000000"
       }
     },
@@ -256,7 +256,7 @@
             "amount": "800000000000000"
           },
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "29992000000000"
           }
         ]
@@ -284,7 +284,7 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "1000000000"
           }
         ],
@@ -336,7 +336,7 @@
       },
       "params": {
         "eth_integration_address": "0xa19Df1199CeEfd7831576f1D055E454364337633",
-        "mint_denom": "loki",
+        "mint_denom": "odin",
         "inflation_rate_change": "0.130000000000000000",
         "inflation_max": "0.200000000000000000",
         "inflation_min": "0.070000000000000000",
@@ -345,7 +345,7 @@
         "mint_air": false,
         "max_withdrawal_per_time": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "1000"
           }
         ],
@@ -356,7 +356,7 @@
       "mint_pool": {
         "treasury_pool": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "30000000000000"
           }
         ]
@@ -381,7 +381,7 @@
           }
         ],
         "data_requester_fee_denoms": [
-          "loki"
+          "odin"
         ]
       },
       "data_sources": [],
@@ -389,7 +389,7 @@
       "oracle_pool": {
         "data_providers_pool": [
           {
-            "denom": "loki",
+            "denom": "odin",
             "amount": "20000000000000"
           }
         ]
@@ -412,7 +412,7 @@
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 1000,
-        "bond_denom": "loki"
+        "bond_denom": "odin"
       },
       "last_total_power": "0",
       "last_validator_powers": [],

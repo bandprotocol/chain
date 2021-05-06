@@ -37,7 +37,7 @@ func GetCmdExchange() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Performs exchange of coins denominations according to current rate.
 Example:
-$ %s tx coinswap exchange geo loki 10loki --from mykey
+$ %s tx coinswap exchange geo odin 10odin --from mykey
 `,
 				version.AppName,
 			),
