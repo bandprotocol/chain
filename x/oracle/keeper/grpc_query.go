@@ -74,22 +74,22 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	ctx := sdk.UnwrapSDKContext(c)
 	rid := types.RequestID(req.RequestId)
 
-	lastReqID := types.RequestID(k.GetRequestCount(ctx))
-	if lastReqID > rid {
-		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: request id (%d) > latest request id (%d)", rid, lastReqID))
-	}
-
 	request, err := k.GetRequest(ctx, rid)
-	result := k.MustGetResult(ctx, rid)
 	if err != nil {
-		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, err
+		lastExpired := k.GetRequestLastExpired(ctx)
+		if rid > lastExpired {
+			return nil, status.Error(codes.OutOfRange, fmt.Sprintf("unable to get request from chain: request id (%d) > latest expired request id (%d)", rid, lastExpired))
+		}
+		result := k.MustGetResult(ctx, rid)
+		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
 	}
 
 	reports := k.GetReports(ctx, rid)
 	if !k.HasResult(ctx, rid) {
-		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, err
 	}
 
+	result := k.MustGetResult(ctx, rid)
 	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
 }
 
