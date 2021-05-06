@@ -85,6 +85,7 @@ func (k Keeper) GetPaginatedRequests(
 
 // SetRequest saves the given data request to the store without performing any validation.
 func (k Keeper) SetRequest(ctx sdk.Context, id oracletypes.RequestID, request oracletypes.Request) {
+	request.ID = id
 	ctx.KVStore(k.storeKey).Set(oracletypes.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
 }
 

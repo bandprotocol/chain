@@ -11,11 +11,15 @@ import "cosmos/base/v1beta1/coin.proto";
 // DataSource is the data structure for storing data sources in the storage.
 message DataSource {
   option (gogoproto.equal) = true;
-  string owner = 1;
-  string name = 2;
-  string description = 3;
-  string filename = 4;
-  repeated cosmos.base.v1beta1.Coin fee = 5 [
+  int64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.casttype) = "DataSourceID"
+  ];
+  string owner = 2;
+  string name = 3;
+  string description = 4;
+  string filename = 5;
+  repeated cosmos.base.v1beta1.Coin fee = 6 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
@@ -24,12 +28,16 @@ message DataSource {
 // OracleScript is the data structure for storing oracle scripts in the storage.
 message OracleScript {
   option (gogoproto.equal) = true;
-  string owner = 1;
-  string name = 2;
-  string description = 3;
-  string filename = 4;
-  string schema = 5;
-  string source_code_url = 6 [ (gogoproto.customname) = "SourceCodeURL" ];
+  int64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.casttype) = "OracleScriptID"
+  ];
+  string owner = 2;
+  string name = 3;
+  string description = 4;
+  string filename = 5;
+  string schema = 6;
+  string source_code_url = 7 [ (gogoproto.customname) = "SourceCodeURL" ];
 }
 
 // RawRequest is the data structure for storing raw requests in the storage.
@@ -60,19 +68,23 @@ message RawReport {
 // Request is the data structure for storing requests in the storage.
 message Request {
   option (gogoproto.equal) = true;
-  int64 oracle_script_id = 1 [
+  int64 id = 1 [
+    (gogoproto.customname) = "ID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  int64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
-  bytes calldata = 2;
-  repeated string requested_validators = 3;
-  uint64 min_count = 4;
-  int64 request_height = 5;
-  uint64 request_time = 6;
-  string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
-  repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
-  IBCSource ibc_source = 9 [ (gogoproto.customname) = "IBCSource" ];
-  uint64 execute_gas = 10;
+  bytes calldata = 3;
+  repeated string requested_validators = 4;
+  uint64 min_count = 5;
+  int64 request_height = 6;
+  uint64 request_time = 7;
+  string client_id = 8 [ (gogoproto.customname) = "ClientID" ];
+  repeated RawRequest raw_requests = 9 [ (gogoproto.nullable) = false ];
+  IBCSource ibc_source = 10 [ (gogoproto.customname) = "IBCSource" ];
+  uint64 execute_gas = 11;
 }
 
 // Report is the data structure for storing reports in the storage.
