@@ -78,7 +78,7 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	if err != nil {
 		lastExpired := k.GetRequestLastExpired(ctx)
 		if rid > lastExpired {
-			return nil, status.Error(codes.OutOfRange, fmt.Sprintf("unable to get request from chain: request id (%d) > latest expired request id (%d)", rid, lastExpired))
+			return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: request id (%d) > latest expired request id (%d)", rid, lastExpired))
 		}
 		result := k.MustGetResult(ctx, rid)
 		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
