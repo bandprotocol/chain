@@ -76,7 +76,7 @@ service Query {
   // all information that will be used to report the data is valid
   rpc RequestVerification(QueryRequestVerificationRequest)
       returns (QueryRequestVerificationResponse) {
-    option (google.api.http).post = "/oracle/v1/verify_request";
+    option (google.api.http).get = "/oracle/v1/verify_request";
   }
 
   // RequestPool queries the request pool information corresponding to the given
