@@ -86,7 +86,7 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 
 	reports := k.GetReports(ctx, rid)
 	if !k.HasResult(ctx, rid) {
-		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, err
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
 	}
 
 	result := k.MustGetResult(ctx, rid)
