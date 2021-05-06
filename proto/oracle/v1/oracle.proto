@@ -372,7 +372,7 @@ message RequestVerification {
   ];
 }
 
-// Result
+// OraclePacketResult is oracle request detail with its result
 message OraclePacketResult {
   option (gogoproto.equal) = true;
   OracleRequestPacketData request_packet_data = 1
