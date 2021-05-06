@@ -1206,15 +1206,11 @@ var (
 
 	pattern_Query_RequestSearch_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "request_search"}, "", runtime.AssumeColonVerbOpt(true)))
 
-<<<<<<< HEAD
-	pattern_Query_RequestPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "request_prices"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_RequestPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "request_prices"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_RequestVerification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "verify_request"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_RequestPool_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5}, []string{"oracle", "v1", "request_pool", "request_key", "port_id", "channel_id"}, "", runtime.AssumeColonVerbOpt(true)))
-=======
-	pattern_Query_RequestPrice_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"oracle", "v1", "request_prices"}, "", runtime.AssumeColonVerbOpt(true)))
->>>>>>> Fix grpc request endpoint
 )
 
 var (

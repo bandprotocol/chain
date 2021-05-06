@@ -373,7 +373,7 @@ message RequestVerification {
 }
 
 // Result
-message Result {
+message OraclePacketResult {
   option (gogoproto.equal) = true;
   OracleRequestPacketData request_packet_data = 1
       [ (gogoproto.nullable) = false ];
