@@ -1,3 +1,5 @@
+make install
+
 # Clear and create a new fresh DB.
 dropdb my_db
 createdb my_db
@@ -16,5 +18,5 @@ python ./flusher/main.py init bandchain test replay --db localhost:5432/my_db
 
 
 # start bandchain
-bandd unsafe-reset-all --home ~/relayer/data/bandchain
-bandd start --with-emitter test@localhost:9092 --rpc.laddr tcp://0.0.0.0:26657 --home ~/relayer/data/bandchain --pruning=nothing
+bandd unsafe-reset-all
+bandd start --with-emitter test@localhost:9092 --rpc.laddr tcp://0.0.0.0:26657 --pruning=nothing
