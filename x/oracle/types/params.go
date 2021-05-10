@@ -16,11 +16,12 @@ const (
 	DefaultMaxRawRequestCount      = uint64(12)
 	DefaultMaxAskCount             = uint64(16)
 	DefaultExpirationBlockCount    = uint64(100)
-	DefaultBaseRequestGas          = uint64(150000)
+	DefaultBaseRequestGas          = uint64(20000)
 	DefaultPerValidatorRequestGas  = uint64(30000)
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
+	DefaultIBCRequestEnabled       = true
 )
 
 // nolint
@@ -35,6 +36,7 @@ var (
 	KeySamplingTryCount        = []byte("SamplingTryCount")
 	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
 	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
+	KeyIBCRequestEnabled       = []byte("IBCRequestEnabled")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -47,7 +49,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
 	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
-	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
+	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64, ibcRequestEnabled bool,
 ) Params {
 	return Params{
 		MaxRawRequestCount:      maxRawRequestCount,
@@ -58,6 +60,7 @@ func NewParams(
 		SamplingTryCount:        samplingTryCount,
 		OracleRewardPercentage:  oracleRewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
+		IBCRequestEnabled:       ibcRequestEnabled,
 	}
 }
 
@@ -72,6 +75,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
 		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
 		paramtypes.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
+		paramtypes.NewParamSetPair(KeyIBCRequestEnabled, &p.IBCRequestEnabled, validateBool()),
 	}
 }
 
@@ -86,6 +90,7 @@ func DefaultParams() Params {
 		DefaultSamplingTryCount,
 		DefaultOracleRewardPercentage,
 		DefaultInactivePenaltyDuration,
+		DefaultIBCRequestEnabled,
 	)
 }
 
@@ -103,6 +108,16 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 		}
 		if v <= 0 && positiveOnly {
 			return fmt.Errorf("%s must be positive: %d", name, v)
+		}
+		return nil
+	}
+}
+
+func validateBool() func(interface{}) error {
+	return func(i interface{}) error {
+		_, ok := i.(bool)
+		if !ok {
+			return fmt.Errorf("invalid parameter type: %T", i)
 		}
 		return nil
 	}

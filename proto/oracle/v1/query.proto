@@ -13,63 +13,71 @@ service Query {
   // Counts queries the number of existing data sources, oracle scripts, and
   // requests.
   rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
-    option (google.api.http).get = "/oracle/counts";
+    option (google.api.http).get = "/oracle/v1/counts";
   }
 
   // Data queries content of the data source or oracle script for given SHA256
   // file hash.
   rpc Data(QueryDataRequest) returns (QueryDataResponse) {
-    option (google.api.http).get = "/oracle/data/{data_hash}";
+    option (google.api.http).get = "/oracle/v1/data/{data_hash}";
   }
 
   // DataSource queries data source summary info for given data source id.
   rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
-    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+    option (google.api.http).get = "/oracle/v1/data_sources/{data_source_id}";
   }
 
   // OracleScript queries oracle script summary info for given oracle script id.
   rpc OracleScript(QueryOracleScriptRequest)
       returns (QueryOracleScriptResponse) {
-    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+    option (google.api.http).get =
+        "/oracle/v1/oracle_scripts/{oracle_script_id}";
   }
 
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
-    option (google.api.http).get = "/oracle/request/{request_id}";
+    option (google.api.http).get = "/oracle/v1/requests/{request_id}";
   }
 
   // Validator queries properties of given validator address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
-    option (google.api.http).get = "/oracle/validators/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/validators/{validator_address}";
   }
 
   // Reporters queries all reporters associated with given validator address.
   rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
-    option (google.api.http).get = "/oracle/reporters/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/reporters/{validator_address}";
   }
 
   // ActiveValidators queries all active oracle validators.
   rpc ActiveValidators(QueryActiveValidatorsRequest)
       returns (QueryActiveValidatorsResponse) {
-    option (google.api.http).get = "/oracle/active_validators";
+    option (google.api.http).get = "/oracle/v1/active_validators";
   }
 
   // Params queries parameters used for runnning bandchain network.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/oracle/params";
+    option (google.api.http).get = "/oracle/v1/params";
   }
 
   // RequestSearch queries the latest request that match search criteria.
   rpc RequestSearch(QueryRequestSearchRequest)
       returns (QueryRequestSearchResponse) {
-    option (google.api.http).get = "/oracle/request_search";
+    option (google.api.http).get = "/oracle/v1/request_search";
   }
 
   // RequestPrice queries the latest price on standard price reference oracle
   // script.
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
-    option (google.api.http).post = "/oracle/request_prices";
+    option (google.api.http).post = "/oracle/v1/request_prices";
+  }
+
+  // RequestVerification verifies a request to make sure that
+  // all information that will be used to report the data is valid
+  rpc RequestVerification(QueryRequestVerificationRequest)
+      returns (QueryRequestVerificationResponse) {
+    option (google.api.http).get = "/oracle/v1/verify_request";
   }
 
   // RequestPool queries the request pool information corresponding to the given
@@ -140,12 +148,13 @@ message QueryRequestRequest {
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
 message QueryRequestResponse {
-  // RequestPacketData is information of oracle request submitted by a client
-  OracleRequestPacketData request_packet_data = 1;
-  // ResponsePacketData is information of oracle result that fulfilled the
-  // oracle request. The result can be empty if the request has not been
-  // fulfilled yet.
-  OracleResponsePacketData response_packet_data = 2;
+  // Request is an oracle request
+  Request request = 1;
+  // Reports is list of result data as raw reports that are fulfilled by
+  // assigned validators
+  repeated Report reports = 2 [ (gogoproto.nullable) = false ];
+  // Result is a final form of result data
+  Result result = 3;
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -233,6 +242,42 @@ message QueryRequestPriceResponse {
   int64 ask_count = 3;
   // MinCount is number of validators required to fulfill the request
   int64 min_count = 4;
+}
+
+// QueryRequestVerificationRequest is request type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationRequest {
+  // ChainID is the chain ID to identify which chain ID is used for the
+  // verification
+  string chain_id = 1;
+  // Validator is a validator address
+  string validator = 2;
+  // RequestID is oracle request ID
+  int64 request_id = 3;
+  // ExternalID is an oracle's external ID
+  int64 external_id = 4;
+  // Reporter is an bech32-encoded public key of the reporter authorized by the
+  // validator
+  string reporter = 5;
+  // Signature is a signature signed by the reporter using reporter's private
+  // key
+  bytes signature = 6;
+}
+
+// QueryRequestVerificationResponse is response type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationResponse {
+  // ChainID is the targeted chain ID
+  string chain_id = 1;
+  // Validator is the targeted validator address
+  string validator = 2;
+  // RequestID is the ID of targeted request
+  int64 request_id = 3;
+  // ExternalID is the ID of targeted oracle's external data source
+  int64 external_id = 4;
+  // DataSourceID is the ID of a data source that relates to the targeted
+  // external ID
+  int64 data_source_id = 5;
 }
 
 // QueryRequestPoolRequest is request type for the Query/RequestPool RPC method.

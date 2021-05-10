@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -71,12 +72,25 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	r, err := k.GetResult(ctx, types.RequestID(req.RequestId))
+	rid := types.RequestID(req.RequestId)
+
+	request, err := k.GetRequest(ctx, rid)
 	if err != nil {
-		return nil, err
+		lastExpired := k.GetRequestLastExpired(ctx)
+		if rid > lastExpired {
+			return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: request id (%d) > latest expired request id (%d)", rid, lastExpired))
+		}
+		result := k.MustGetResult(ctx, rid)
+		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
 	}
-	// TODO: Define specification on this endpoint (For test only)
-	return &types.QueryRequestResponse{&types.OracleRequestPacketData{}, &types.OracleResponsePacketData{Result: r.Result}}, nil
+
+	reports := k.GetReports(ctx, rid)
+	if !k.HasResult(ctx, rid) {
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
+	}
+
+	result := k.MustGetResult(ctx, rid)
+	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
 }
 
 // Validator queries oracle info of validator for given validator
@@ -154,6 +168,110 @@ func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchR
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
 	return &types.QueryRequestPriceResponse{}, nil
+}
+
+// RequestVerification verifies oracle request for validation before executing data sources
+func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestVerificationRequest) (*types.QueryRequestVerificationResponse, error) {
+	// Request should not be empty
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Provided chain ID should match current chain ID
+	if ctx.ChainID() != req.ChainId {
+		return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+	}
+
+	// Provided validator's address should be valid
+	validator, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse validator address: %s", err.Error()))
+	}
+
+	// Provided signature should be valid, which means this query request should be signed by the provided reporter
+	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
+	}
+	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
+	signByte := requestVerificationContent.GetSignBytes()
+	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
+		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
+	}
+
+	// Provided reporter should be authorized by the provided validator
+	reporters := k.GetReporters(ctx, validator)
+	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
+	isReporterAuthorizedByValidator := false
+	for _, existingReporter := range reporters {
+		if reporter.Equals(existingReporter) {
+			isReporterAuthorizedByValidator = true
+			break
+		}
+	}
+	if !isReporterAuthorizedByValidator {
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
+	}
+
+	// Provided request should exist on chain
+	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
+	if err != nil {
+		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
+	}
+
+	// Provided validator should be assigned to response to the request
+	isValidatorAssigned := false
+	for _, requestedValidator := range request.RequestedValidators {
+		v, _ := sdk.ValAddressFromBech32(requestedValidator)
+		if validator.Equals(v) {
+			isValidatorAssigned = true
+			break
+		}
+	}
+	if !isValidatorAssigned {
+		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
+	}
+
+	// Provided external ID should be required by the request determined by oracle script
+	var dataSourceID *types.DataSourceID
+	for _, rawRequest := range request.RawRequests {
+		if rawRequest.ExternalID == types.ExternalID(req.ExternalId) {
+			dataSourceID = &rawRequest.DataSourceID
+			break
+		}
+	}
+	if dataSourceID == nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("no data source required by the request %d found which relates to the external data source with ID %d.", req.RequestId, req.ExternalId))
+	}
+
+	// Provided validator should not have reported data for the request
+	reports := k.GetReports(ctx, types.RequestID(req.RequestId))
+	isValidatorReported := false
+	for _, report := range reports {
+		reportVal, _ := sdk.ValAddressFromBech32(report.Validator)
+		if reportVal.Equals(validator) {
+			isValidatorReported = true
+			break
+		}
+	}
+	if isValidatorReported {
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("validator %s already submitted data report for this request", validator))
+	}
+
+	// The request should not be expired
+	if request.RequestHeight+int64(k.ExpirationBlockCount(ctx)) < ctx.BlockHeader().Height {
+		return nil, status.Error(codes.DeadlineExceeded, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
+	}
+
+	return &types.QueryRequestVerificationResponse{
+		ChainId:      req.ChainId,
+		Validator:    req.Validator,
+		RequestId:    req.RequestId,
+		ExternalId:   req.ExternalId,
+		DataSourceId: int64(*dataSourceID),
+	}, nil
 }
 
 // RequestPool queries the request pool information
