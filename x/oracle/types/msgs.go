@@ -102,8 +102,7 @@ func (msg MsgRequestData) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgRequestData) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgReportData creates a new MsgReportData instance
@@ -162,8 +161,7 @@ func (msg MsgReportData) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgReportData) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgCreateDataSource creates a new MsgCreateDataSource instance
@@ -239,8 +237,7 @@ func (msg MsgCreateDataSource) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgCreateDataSource) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
@@ -314,8 +311,7 @@ func (msg MsgEditDataSource) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgEditDataSource) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgCreateOracleScript creates a new MsgCreateOracleScript instance
@@ -387,8 +383,7 @@ func (msg MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgCreateOracleScript) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgEditOracleScript creates a new MsgEditOracleScript instance
@@ -458,8 +453,7 @@ func (msg MsgEditOracleScript) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgEditOracleScript) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgActivate creates a new MsgActivate instance
@@ -495,8 +489,7 @@ func (msg MsgActivate) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgActivate) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgAddReporter creates a new MsgAddReporter instance
@@ -543,8 +536,7 @@ func (msg MsgAddReporter) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgAddReporter) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
 
 // NewMsgRemoveReporter creates a new MsgRemoveReporter instance
@@ -591,6 +583,5 @@ func (msg MsgRemoveReporter) GetSigners() []sdk.AccAddress {
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
 func (msg MsgRemoveReporter) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
