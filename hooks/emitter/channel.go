@@ -5,6 +5,7 @@ import (
 
 	"github.com/bandprotocol/chain/hooks/common"
 	"github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -25,12 +26,10 @@ func (h *Hook) handleMsgRecvPacket(
 
 	// TODO: Check on other packet
 	var data oracletypes.OracleRequestPacketData
-	err := h.cdc.UnmarshalJSON(msg.Packet.Data, &data)
+	err := oracletypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
 	if err == nil {
-		// TODO: Find a way to check if cannot make a new request
-		requestPassed := true
-		if requestPassed {
-			id := oracletypes.RequestID(common.Atoi(evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID][0]))
+		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
+			id := oracletypes.RequestID(common.Atoi(events[0]))
 			req := h.oracleKeeper.MustGetRequest(ctx, id)
 			h.Write("NEW_REQUEST", common.JsDict{
 				"id":               id,
@@ -73,6 +72,7 @@ func (h *Hook) handleMsgRecvPacket(
 			}
 
 		} else {
+			packet["type"] = "oracle request"
 			packet["data"] = common.JsDict{
 				"oracle_script_id": data.OracleScriptID,
 				"calldata":         parseBytes(data.Calldata),
@@ -86,12 +86,12 @@ func (h *Hook) handleMsgRecvPacket(
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"success": false,
-				"reason":  "TODO",
+				"reason":  evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck][0],
 			}
 		}
+		h.Write("NEW_PACKET", packet)
 	}
 
-	h.Write("NEW_PACKET", packet)
 }
 
 func (h *Hook) handleEventSendPacket(

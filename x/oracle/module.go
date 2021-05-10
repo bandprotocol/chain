@@ -345,6 +345,7 @@ func (am AppModule) OnRecvPacket(
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
 		writeFn()
+		ctx.EventManager().EmitEvents(cacheCtx.EventManager().Events())
 		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 
