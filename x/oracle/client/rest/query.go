@@ -1,111 +1,121 @@
 package rest
 
-// type RequestPrices struct {
-// 	Symbols  []string `json:"symbols"`
-// 	MinCount uint64   `json:"min_count"`
-// 	AskCount uint64   `json:"ask_count"`
-// }
+import (
+	"fmt"
+	"net/http"
 
-// func getParamsHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryParams))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
+)
 
-// func getCountsHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryCounts))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+type RequestPrices struct {
+	Symbols  []string `json:"symbols"`
+	MinCount uint64   `json:"min_count"`
+	AskCount uint64   `json:"ask_count"`
+}
 
-// func getDataByHashHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		res, _, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryData, vars[dataHashTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		w.Header().Set("Content-Disposition", "attachment;")
-// 		w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
-// 		w.Write(res)
-// 	}
-// }
+func getParamsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryParams))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
-// func getDataSourceByIDHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryDataSources, vars[idTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getCountsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryCounts))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
-// func getOracleScriptByIDHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryOracleScripts, vars[idTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getDataByHashHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		res, _, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryData, vars[dataHashTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		w.Header().Set("Content-Disposition", "attachment;")
+		w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+		w.Write(res)
+	}
+}
 
-// func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryRequests, vars[idTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getDataSourceByIDHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryDataSources, vars[idTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
+
+func getOracleScriptByIDHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryOracleScripts, vars[idTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
+
+func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryRequests, vars[idTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
 // func getRequestSearchHandler(clientCtx client.Context) http.HandlerFunc {
 // 	return func(w http.ResponseWriter, r *http.Request) {
@@ -214,55 +224,55 @@ package rest
 // 	}
 // }
 
-// func getValidatorStatusHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryValidatorStatus, vars[validatorAddressTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getValidatorStatusHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryValidatorStatus, vars[validatorAddressTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
-// func getReportersHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		vars := mux.Vars(r)
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryReporters, vars[validatorAddressTag]))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getReportersHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		vars := mux.Vars(r)
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s/%s", types.QueryReporters, vars[validatorAddressTag]))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
-// func getActiveValidatorsHandler(clientCtx client.Context) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryActiveValidators))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		clientCtx = clientCtx.WithHeight(height)
-// 		rest.PostProcessResponse(w, clientCtx, bz)
-// 	}
-// }
+func getActiveValidatorsHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		bz, height, err := clientCtx.Query(fmt.Sprintf("custom/oracle/%s", types.QueryActiveValidators))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, bz)
+	}
+}
 
 // type requestDetail struct {
 // 	ChainID    string           `json:"chain_id"`
