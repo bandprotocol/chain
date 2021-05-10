@@ -1,5 +1,5 @@
 ---
-ics: xx
+bois: 01
 title: Band Protocol Oracle Requests (consumer)
 stage: Strawman
 category: IBC/APP
@@ -12,7 +12,7 @@ modified: 2021-04-06
 # implements: (optional list of ics numbers)
 ---
 
-`icsxx-x` consumer side
+`bois01-1` consumer side
 
 <https://hackmd.io/@songwongtp/rye4QgYHO>
 

@@ -1,5 +1,5 @@
 ---
-ics: xx
+bois: 01
 title: Band Protocol Oracle Requests
 stage: Strawman
 category: IBC/APP
@@ -12,7 +12,7 @@ modified: 2021-04-05
 # implements: (optional list of ics numbers)
 ---
 
-TODO: Change `icsxx-x` to correct number
+TODO: Change `bois01-1` to correct number
 
 <https://hackmd.io/@ntchjb/rJQirQdS_>
 
