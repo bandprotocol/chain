@@ -7,8 +7,9 @@ import (
 )
 
 type Context struct {
-	client    rpcclient.Client
-	gasPrices sdk.DecCoins
-	keys      chan keyring.Info
-	amount    sdk.Coins
+	client                 rpcclient.Client
+	gasPrices              sdk.DecCoins
+	keys                   chan keyring.Info
+	coins                  sdk.Coins
+	maxPerPeriodWithdrawal sdk.Coins
 }

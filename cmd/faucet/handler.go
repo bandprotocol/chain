@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -15,6 +16,7 @@ import (
 )
 
 type Request struct {
+	Denom   string `json:"denom" binding:"required"`
 	Address string `json:"address" binding:"required"`
 }
 
@@ -42,7 +44,16 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	msg := banktypes.NewMsgSend(key.GetAddress(), to, c.amount)
+	if err := sdk.ValidateDenom(req.Denom); err != nil {
+		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if limitStatus, ok := limit.Allowed(req.Address, req.Denom); !ok {
+		gc.JSON(http.StatusBadRequest, gin.H{"error": "cannot withdraw more coins", "time": (cfg.Period - time.Now().Sub(limitStatus.LastWithdrawal)).String()})
+		return
+	}
+	coinsToWithdraw := sdk.NewCoins(sdk.NewCoin(req.Denom, c.coins.AmountOf(req.Denom)))
+	msg := banktypes.NewMsgSend(key.GetAddress(), to, coinsToWithdraw)
 	if err := msg.ValidateBasic(); err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -104,6 +115,16 @@ func handleRequest(gc *gin.Context, c *Context) {
 			)})
 		return
 	}
+
+	limitStatus, ok := limit.status.Load(req.Address)
+	if !ok {
+		limitStatus = &LimitStatus{
+			LastWithdrawal:    time.Now(),
+			WithdrawnInPeriod: sdk.NewCoins(),
+		}
+	}
+	limitStatus.WithdrawnInPeriod = limitStatus.WithdrawnInPeriod.Add(coinsToWithdraw...)
+	limit.status.Store(req.Address, limitStatus)
 	gc.JSON(200, Response{
 		TxHash: res.TxHash,
 	})

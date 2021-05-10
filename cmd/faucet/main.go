@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -16,24 +17,26 @@ import (
 
 const (
 	flagPort   = "port"
-	flagAmount = "amount"
 	flagCoins  = "coins"
+	flagPeriod = "period"
 )
 
 // Config data structure for faucet server.
 type Config struct {
-	ChainID   string   `mapstructure:"chain-id"`   // ChainID of the target chain
-	NodeURI   string   `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
-	GasPrices string   `mapstructure:"gas-prices"` // Gas prices of the transaction
-	Port      string   `mapstructure:"port"`       // Port of faucet service
-	Amount    int64    `mapstructure:"amount"`     // Amount of BAND for each request
-	Coins     []string `mapstructure:"coins"`
+	ChainID                string        `mapstructure:"chain-id"`   // ChainID of the target chain
+	NodeURI                string        `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
+	GasPrices              string        `mapstructure:"gas-prices"` // Gas prices of the transaction
+	Port                   string        `mapstructure:"port"`       // Port of faucet service
+	Coins                  string        `mapstructure:"coins"`
+	Period                 time.Duration `mapstructure:"period"`
+	MaxPerPeriodWithdrawal string        `mapstructrue:"max-per-period-withdrawal"`
 }
 
 // Global instances.
 var (
 	cfg     Config
 	keybase keyring.Keyring
+	limit   *Limit
 )
 
 func initConfig(cmd *cobra.Command) error {
@@ -49,15 +52,17 @@ func initConfig(cmd *cobra.Command) error {
 	return nil
 }
 
+// TODO: refactor faucet
 func main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
 	appConfig.Seal()
 
 	ctx := &Context{}
+
 	rootCmd := &cobra.Command{
 		Use:   "faucet",
-		Short: "Faucet server for devnet",
+		Short: "Faucet server for developers' network",
 	}
 
 	rootCmd.AddCommand(

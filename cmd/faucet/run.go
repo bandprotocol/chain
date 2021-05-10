@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -11,6 +12,25 @@ import (
 	"github.com/spf13/viper"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 )
+
+func runLimiter() {
+	uptimeTicker := time.NewTicker(30 * time.Second)
+
+	for {
+		select {
+		case <-uptimeTicker.C:
+			toRemove := make([]string, 0, 10)
+			for k, v := range limit.status.container {
+				if time.Now().Sub(v.LastWithdrawal) > cfg.Period {
+					toRemove = append(toRemove, k)
+				}
+			}
+			for _, k := range toRemove {
+				limit.status.Remove(k)
+			}
+		}
+	}
+}
 
 func runCmd(c *Context) *cobra.Command {
 	cmd := &cobra.Command{
@@ -41,10 +61,6 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.amount = sdk.NewCoins()
-			for _, denom := range cfg.Coins {
-				c.amount = c.amount.Add(sdk.NewCoin(denom, sdk.NewInt(cfg.Amount)))
-			}
 			r := gin.Default()
 			r.Use(func(c *gin.Context) {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -58,9 +74,23 @@ func runCmd(c *Context) *cobra.Command {
 				}
 			})
 
+			c.coins, err = sdk.ParseCoinsNormalized(cfg.Coins)
+			if err != nil {
+				panic(err)
+			}
+
+			c.maxPerPeriodWithdrawal, err = sdk.ParseCoinsNormalized(cfg.MaxPerPeriodWithdrawal)
+			if err != nil {
+				panic(err)
+			}
+
+			limit = NewLimit(c, cfg)
+
 			r.POST("/request", func(gc *gin.Context) {
 				handleRequest(gc, c)
 			})
+
+			go runLimiter()
 
 			return r.Run("0.0.0.0:" + cfg.Port)
 		},
@@ -69,13 +99,13 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
 	cmd.Flags().String(flagPort, "5005", "port of faucet service")
-	cmd.Flags().Int64(flagAmount, 10000000, "amount in odin for each request")
-	cmd.Flags().StringSlice(flagCoins, []string{"odin"}, "coins to create")
+	cmd.Flags().String(flagCoins, "10odin", "coins to create")
+	cmd.Flags().Duration(flagPeriod, 12*time.Hour, "period when can withdraw again")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagPort, cmd.Flags().Lookup(flagPort))
-	viper.BindPFlag(flagAmount, cmd.Flags().Lookup(flagAmount))
 	viper.BindPFlag(flagCoins, cmd.Flags().Lookup(flagCoins))
+	viper.BindPFlag(flagPeriod, cmd.Flags().Lookup(flagPeriod))
 	return cmd
 }
