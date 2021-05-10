@@ -1374,15 +1374,15 @@ var (
 
 	pattern_Query_Data_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "data", "data_hash"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_DataSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "data_source", "data_source_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_DataSource_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "data_sources", "data_source_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_DataSources_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "data_sources"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "oracle_script", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_OracleScript_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "oracle_scripts", "oracle_script_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_OracleScripts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "oracle_scripts"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "request", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Request_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"oracle", "requests", "request_id"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Query_Requests_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"oracle", "requests"}, "", runtime.AssumeColonVerbOpt(true)))
 

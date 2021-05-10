@@ -89,7 +89,7 @@ func getDataSourceByIDHandler(clientCtx client.Context) http.HandlerFunc {
 		res, height, err := clientCtx.Query(fmt.Sprintf(
 			"custom/%s/%s/%s",
 			oracletypes.QuerierRoute,
-			oracletypes.QueryDataSource,
+			oracletypes.QueryDataSources,
 			vars[idTag],
 		))
 		if err != nil {
@@ -143,7 +143,7 @@ func getOracleScriptByIDHandler(clientCtx client.Context) http.HandlerFunc {
 		res, height, err := clientCtx.Query(fmt.Sprintf(
 			"custom/%s/%s/%s",
 			oracletypes.QuerierRoute,
-			oracletypes.QueryOracleScript,
+			oracletypes.QueryOracleScripts,
 			vars[idTag],
 		))
 		if err != nil {
@@ -199,7 +199,7 @@ func getRequestByIDHandler(clientCtx client.Context) http.HandlerFunc {
 		res, height, err := clientCtx.Query(fmt.Sprintf(
 			"custom/%s/%s/%s",
 			oracletypes.QuerierRoute,
-			oracletypes.QueryRequest,
+			oracletypes.QueryRequests,
 			vars[idTag],
 		))
 		if err != nil {

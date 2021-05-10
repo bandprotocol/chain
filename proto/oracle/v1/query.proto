@@ -24,7 +24,7 @@ service Query {
 
   // DataSource queries data source info for given data source id.
   rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
-    option (google.api.http).get = "/oracle/data_source/{data_source_id}";
+    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
   }
 
   // DataSources queries data sources info.
@@ -35,7 +35,7 @@ service Query {
   // OracleScript queries oracle script info for given oracle script id.
   rpc OracleScript(QueryOracleScriptRequest)
       returns (QueryOracleScriptResponse) {
-    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+    option (google.api.http).get = "/oracle/oracle_scripts/{oracle_script_id}";
   }
 
   // OracleScripts queries all oracle scripts with pagination.
@@ -46,7 +46,7 @@ service Query {
 
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
-    option (google.api.http).get = "/oracle/request/{request_id}";
+    option (google.api.http).get = "/oracle/requests/{request_id}";
   }
 
   // Requests queries all requests with pagination.
