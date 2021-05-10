@@ -21,16 +21,10 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 			return queryCounts(ctx, keeper, req, cdc)
 		case oracletypes.QueryData:
 			return queryData(ctx, path[1:], keeper, req, cdc)
-		case oracletypes.QueryDataSource:
-			return queryDataSourceByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryDataSources:
 			return queryDataSources(ctx, path[1:], keeper, req, cdc)
-		case oracletypes.QueryOracleScript:
-			return queryOracleScriptByID(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryOracleScripts:
 			return queryOracleScripts(ctx, path[1:], keeper, req, cdc)
-		case oracletypes.QueryRequest:
-			return queryRequest(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequests:
 			return queryRequests(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryRequestReports:
@@ -70,6 +64,22 @@ func queryData(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cd
 	return k.fileCache.GetFile(path[0])
 }
 
+func queryDataSources(ctx sdk.Context, path []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 0 {
+		return queryDataSourceByID(ctx, path, k, req, cdc)
+	}
+	var params oracletypes.QueryPaginationParams
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	ctx, _ = ctx.CacheContext()
+	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, params.Limit, params.Offset)
+	if err != nil {
+		return nil, err
+	}
+	return commontypes.QueryOK(cdc, oracletypes.QueryDataSourcesResponse{DataSources: dataSources, Pagination: pageRes})
+}
+
 func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) != 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "data source not specified")
@@ -85,17 +95,20 @@ func queryDataSourceByID(ctx sdk.Context, path []string, k Keeper, _ abci.Reques
 	return commontypes.QueryOK(cdc, dataSource)
 }
 
-func queryDataSources(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 0 {
+		return queryOracleScriptByID(ctx, path, k, req, cdc)
+	}
 	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	dataSources, pageRes, err := k.GetPaginatedDataSources(ctx, params.Limit, params.Offset)
+	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
-	return commontypes.QueryOK(cdc, oracletypes.QueryDataSourcesResponse{DataSources: dataSources, Pagination: pageRes})
+	return commontypes.QueryOK(cdc, oracletypes.QueryOracleScriptsResponse{OracleScripts: oracleScripts, Pagination: pageRes})
 }
 
 func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
@@ -113,20 +126,23 @@ func queryOracleScriptByID(ctx sdk.Context, path []string, k Keeper, _ abci.Requ
 	return commontypes.QueryOK(cdc, oracleScript)
 }
 
-func queryOracleScripts(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryRequests(ctx sdk.Context, path []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	if len(path) != 0 {
+		return queryRequestByID(ctx, path, k, req, cdc)
+	}
 	var params oracletypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	ctx, _ = ctx.CacheContext()
-	oracleScripts, pageRes, err := k.GetPaginatedOracleScripts(ctx, params.Limit, params.Offset)
+	requests, pageRes, err := k.GetPaginatedRequests(ctx, params.Limit, params.Offset)
 	if err != nil {
 		return nil, err
 	}
-	return commontypes.QueryOK(cdc, oracletypes.QueryOracleScriptsResponse{OracleScripts: oracleScripts, Pagination: pageRes})
+	return commontypes.QueryOK(cdc, oracletypes.QueryRequestsResponse{Requests: requests, Pagination: pageRes})
 }
 
-func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+func queryRequestByID(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	if len(path) < 1 {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "request not specified")
 	}
@@ -156,19 +172,6 @@ func queryRequest(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery,
 		},
 	}
 	return commontypes.QueryOK(cdc, oracletypes.QueryRequestResponse{Request: request})
-}
-
-func queryRequests(ctx sdk.Context, _ []string, k Keeper, req abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
-	var params oracletypes.QueryPaginationParams
-	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
-	}
-	ctx, _ = ctx.CacheContext()
-	requests, pageRes, err := k.GetPaginatedRequests(ctx, params.Limit, params.Offset)
-	if err != nil {
-		return nil, err
-	}
-	return commontypes.QueryOK(cdc, oracletypes.QueryRequestsResponse{Requests: requests, Pagination: pageRes})
 }
 
 func queryValidatorStatus(ctx sdk.Context, path []string, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
