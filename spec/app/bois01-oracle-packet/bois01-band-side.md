@@ -148,7 +148,7 @@ function OnChanOpenInit(
 ) {
   abortTransactionUnless(channelSequence <= MAX_UINT32)
   abortTransactionUnless(order === "UNORDERED")
-  abortTransactionUnless(version === "icsxx-x")
+  abortTransactionUnless(version === "bois01-1")
   abortTransactionUnless(portID === "oracle")
 
   claimCapability(chanCap, `capabilities/ports/${portID}/channel/${channelID}`)
@@ -174,9 +174,9 @@ func (am AppModule) OnChanOpenTry(
   counterpartyVersion: string),
 ) {
   abortTransactionUnless(order === "UNORDERED")
-  abortTransactionUnless(version === "icsxx-x")
+  abortTransactionUnless(version === "bois01-1")
   abortTransactionUnless(portID === "oracle")
-  abortTransactionUnless(counterpartyVersion === "icsxx-x")
+  abortTransactionUnless(counterpartyVersion === "bois01-1")
   
   const capabilityPath = `capabilities/ports/${portID}/channel/${channelID}`
   if (!isCapabilityAuthenticated(capabilityPath)) {
@@ -195,11 +195,11 @@ function OnChanOpenAck(
   channelIdentifier: Identifier,
   version: string
 ) {
-  abortTransactionUnless(version === "icsxx-x")
+  abortTransactionUnless(version === "bois01-1")
 }
 ```
 
-For `OnChanOpenAck`, it only checks ICS version.
+For `OnChanOpenAck`, it only checks BOIS-01 version.
 
 ##### OnChanOpenConfirm
 
@@ -262,7 +262,7 @@ func GetEscrowAddress(requestKey, portID, channelID string) sdk.AccAddress {
 }
 ```
 
-The escrow address is the first 20 byte of SHA-256 hash of the preImage byte array, which is constructed from concatenation of ICS version and content string separated by a zero byte. The content string consists of request key, portID, and channel ID separated by slash.
+The escrow address is the first 20 byte of SHA-256 hash of the preImage byte array, which is constructed from concatenation of BOIS-01 version and content string separated by a zero byte. The content string consists of request key, portID, and channel ID separated by slash.
 
 Note that the algorithm stated above is based on [ADR-028](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses.md).
 
@@ -338,7 +338,7 @@ Not applicable.
 
 ## Forwards Compatibility
 
-This initial standard uses version "icsxx-x" in the channel handshake.
+This initial standard uses version "bois01-1" in the channel handshake.
 
 A future version of this standard could use a different version in the channel handshake, and safely alter the packet data format & packet handler semantics.
 
@@ -347,7 +347,7 @@ A future version of this standard could use a different version in the channel h
 - IBC routing callbacks of oracle module can be seen in [this link](https://github.com/bandprotocol/chain/blob/master/x/oracle/module.go).
 - All protobuf messages can be found [here](https://github.com/bandprotocol/chain/blob/master/proto/oracle/v1).
 
-Methods of handling `OracleResponsePacketData` in client chain can be done by following this [ICS](https://hackmd.io/@songwongtp/rye4QgYHO).
+Methods of handling `OracleResponsePacketData` in client chain can be done by following this [BOIS01-consumer-side](https://hackmd.io/@songwongtp/rye4QgYHO).
 
 ## Other Implementations
 

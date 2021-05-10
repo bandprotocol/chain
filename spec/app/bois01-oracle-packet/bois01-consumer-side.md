@@ -61,7 +61,7 @@ function onChanOpenInit(
     
     abortTransactionUnless(channelSequence <= MAX_UINT32)
     abortTransactionUnless(order === "UNORDERED")
-    abortTransactionUnless(version === "icsxx-x")
+    abortTransactionUnless(version === "bois01-1")
     abortTransactionUnless(portID === "portName")
 
     claimCapability(chanCap, `capabilities/ports/${portID}/channel/${channelID}`)
@@ -81,9 +81,9 @@ function onChanOpenTry(
     counterpartyVersion: string) {
     
     abortTransactionUnless(order === "UNORDERED")
-    abortTransactionUnless(version === "icsxx-x")
+    abortTransactionUnless(version === "bois01-1")
     abortTransactionUnless(portID === "portName")
-    abortTransactionUnless(counterpartyVersion === "icsxx-x")
+    abortTransactionUnless(counterpartyVersion === "bois01-1")
 
     const capabilityPath = `capabilities/ports/${portID}/channel/${channelID}`
     if (!isCapabilityAuthenticated(capabilityPath)) {
@@ -92,13 +92,13 @@ function onChanOpenTry(
 }
 ```
 
-`OnChanOpenAck` mainly checks ICS version. Additional commands can be added based on a module's specific necessities. 
+`OnChanOpenAck` mainly checks BOIS-01 version. Additional commands can be added based on a module's specific necessities. 
 ```javascript
 function onChanOpenAck(
     portIdentifier: Identifier,
     channelIdentifier: Identifier,
     version: string) {
-    abortTransactionUnless(version === "icsxx-x")
+    abortTransactionUnless(version === "bois01-1")
 }
 ```
 
@@ -176,7 +176,7 @@ function createOracleRequestPacket(
 }
 ```
 
-`OnAcknowledgePacket` below is a template of how to extract the oracle request id from the returned acknowledgement. **Note**: This method is required by ICS-20.
+`OnAcknowledgePacket` below is a template of how to extract the oracle request id from the returned acknowledgement. **Note**: This method is required by BOIS-01.
 ```javascript
 function onAcknowledgePacket(
     packet:          Packet,
@@ -196,7 +196,7 @@ function onAcknowledgePacket(
 }
 ```
 
-`OnRecvPacket` below is a template to handle oracle response packet sent from bandchain. **Note**: This method is required by ICS-20. `OracleResult` contains only a single field of type `uint64` named `price` which is the result from bandchain. 
+`OnRecvPacket` below is a template to handle oracle response packet sent from bandchain. **Note**: This method is required by BOIS-01. `OracleResult` contains only a single field of type `uint64` named `price` which is the result from bandchain. 
 
 ```javascript
 function onRecvPacket(
