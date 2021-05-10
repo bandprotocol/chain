@@ -320,8 +320,6 @@ message Params {
   // IBCRequestEnabled is a flag indicating whether sending oracle request via
   // IBC is allowed
   bool ibc_request_enabled = 9 [ (gogoproto.customname) = "IBCRequestEnabled" ];
-  // BaseRequestGas
-  uint64 base_request_gas = 10;
 }
 
 // PendingResolveList is a list of requests that are waiting to be resolved
