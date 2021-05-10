@@ -89,9 +89,9 @@ func (h *Hook) handleMsgRecvPacket(
 				"reason":  evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck][0],
 			}
 		}
+		h.Write("NEW_PACKET", packet)
 	}
 
-	h.Write("NEW_PACKET", packet)
 }
 
 func (h *Hook) handleEventSendPacket(
