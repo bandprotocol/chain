@@ -149,6 +149,7 @@ func txCommand() *cobra.Command {
 		authcmd.GetSignBatchCommand(),
 		authcmd.GetMultiSignCommand(),
 		authcmd.GetValidateSignaturesCommand(),
+		MultiSendTxCmd(),
 		flags.LineBreak,
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
