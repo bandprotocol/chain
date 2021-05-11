@@ -122,7 +122,7 @@ class Handler(object):
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
-        self.handle_set_oracle_script_request({"oracle_script_id": msg["oracle_script_id"]})
+        self.increase_oracle_script_count(msg["oracle_script_id"])
 
     def handle_update_request(self, msg):
         if "tx_hash" in msg:
@@ -141,7 +141,7 @@ class Handler(object):
         )
 
     def handle_new_raw_request(self, msg):
-        self.handle_update_data_source_request({"data_source_id": msg["data_source_id"]})
+        self.increase_data_source_count(msg["data_source_id"])
         self.handle_update_related_ds_os(
             {
                 "oracle_script_id": self.conn.execute(
@@ -307,11 +307,12 @@ class Handler(object):
             insert(data_source_requests).values(msg).on_conflict_do_nothing(constraint="data_source_requests_pkey")
         )
 
-    def handle_update_data_source_request(self, msg):
-        condition = True
-        for col in data_source_requests.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(data_source_requests.update(condition).values(count=data_source_requests.c.count + 1))
+    def increase_data_source_count(self, id):
+        self.conn.execute(
+            data_source_requests.update(data_source_requests.c.data_source_id == id).values(
+                count=data_source_requests.c.count + 1
+            )
+        )
 
     def handle_new_oracle_script_request(self, msg):
         self.conn.execute(
@@ -339,8 +340,9 @@ class Handler(object):
     def handle_new_packet(self, msg):
         self.conn.execute(insert(packets).values(**msg))
 
-    def handle_set_oracle_script_request(self, msg):
-        condition = True
-        for col in oracle_script_requests.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(oracle_script_requests.update(condition).values(count=oracle_script_requests.c.count + 1))
+    def increase_oracle_script_count(self, id):
+        self.conn.execute(
+            oracle_script_requests.update(oracle_script_requests.c.oracle_script_id == id).values(
+                count=oracle_script_requests.c.count + 1
+            )
+        )
