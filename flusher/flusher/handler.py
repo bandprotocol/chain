@@ -142,6 +142,14 @@ class Handler(object):
 
     def handle_new_raw_request(self, msg):
         self.handle_update_data_source_request({"data_source_id": msg["data_source_id"]})
+        self.handle_update_related_ds_os(
+            {
+                "oracle_script_id": self.conn.execute(
+                    select([requests.c.oracle_script_id]).where(requests.c.id == msg["request_id"])
+                ).scalar(),
+                "data_source_id": msg["data_source_id"],
+            }
+        )
         self.conn.execute(raw_requests.insert(), msg)
 
     def handle_new_val_request(self, msg):
