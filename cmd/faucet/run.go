@@ -99,7 +99,7 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
 	cmd.Flags().String(flagPort, "5005", "port of faucet service")
-	cmd.Flags().String(flagCoins, "10odin", "coins to create")
+	cmd.Flags().String(flagCoins, "10loki", "coins to create")
 	cmd.Flags().Duration(flagPeriod, 12*time.Hour, "period when can withdraw again")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))

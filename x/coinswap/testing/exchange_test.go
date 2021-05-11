@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	geo         = "geo"
-	odin        = "odin"
+	minigeo     = "minigeo"
+	loki        = "loki"
 	initialRate = 10
 )
 
@@ -20,7 +20,7 @@ func TestKeeper_ExchangeDenom(t *testing.T) {
 	app.CoinswapKeeper.SetInitialRate(ctx, sdk.NewDec(initialRate))
 	app.CoinswapKeeper.SetParams(ctx, swaptypes.DefaultParams())
 
-	err := app.CoinswapKeeper.ExchangeDenom(ctx, geo, odin, sdk.NewInt64Coin(geo, 10), testapp.Alice.Address)
+	err := app.CoinswapKeeper.ExchangeDenom(ctx, minigeo, loki, sdk.NewInt64Coin(minigeo, 10), testapp.Alice.Address)
 
 	assert.NoError(t, err, "exchange denom failed")
 }

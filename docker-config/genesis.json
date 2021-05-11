@@ -124,7 +124,7 @@
           "address": "odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x",
           "coins": [
             {
-              "denom": "geo",
+              "denom": "minigeo",
               "amount": "100000000000000"
             },
             {
@@ -137,7 +137,7 @@
           "address": "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g",
           "coins": [
             {
-              "denom": "geo",
+              "denom": "minigeo",
               "amount": "100000000000000"
             },
             {
@@ -185,7 +185,7 @@
       ],
       "supply": [
         {
-          "denom": "geo",
+          "denom": "minigeo",
           "amount": "1000000000000000"
         },
         {
@@ -204,13 +204,13 @@
       "params": {
         "exchanges": [
           {
-            "from": "geo",
+            "from": "minigeo",
             "to": "loki",
             "rate_multiplier": "1.000000000000000000"
           },
           {
             "from": "loki",
-            "to": "geo",
+            "to": "minigeo",
             "rate_multiplier": "1.000000000000000000"
           },
           {
@@ -252,7 +252,7 @@
       "fee_pool": {
         "community_pool": [
           {
-            "denom": "geo",
+            "denom": "minigeo",
             "amount": "800000000000000"
           },
           {
@@ -376,7 +376,7 @@
         "max_calldata_size": "1024",
         "data_provider_reward_per_byte": [
           {
-            "denom": "geo",
+            "denom": "minigeo",
             "amount": "1.000000000000000000"
           }
         ],
