@@ -93,7 +93,7 @@ class Handler(object):
         del msg["tx_hash"]
         if self.get_data_source_id(msg["id"]) is None:
             self.conn.execute(data_sources.insert(), msg)
-            self.handle_new_data_source_request({"data_source_id": msg["id"], "count": 0})
+            self.init_data_source_request_count(msg["id"])
         else:
             condition = True
             for col in data_sources.primary_key.columns.values():
@@ -108,7 +108,7 @@ class Handler(object):
         del msg["tx_hash"]
         if self.get_oracle_script_id(msg["id"]) is None:
             self.conn.execute(oracle_scripts.insert(), msg)
-            self.handle_new_oracle_script_request({"oracle_script_id": msg["id"], "count": 0})
+            self.init_oracle_script_request_count(msg["id"])
         else:
             condition = True
             for col in oracle_scripts.primary_key.columns.values():
@@ -302,9 +302,11 @@ class Handler(object):
             .on_conflict_do_update(constraint="historical_oracle_statuses_pkey", set_=msg)
         )
 
-    def handle_new_data_source_request(self, msg):
+    def init_data_source_request_count(self, id):
         self.conn.execute(
-            insert(data_source_requests).values(msg).on_conflict_do_nothing(constraint="data_source_requests_pkey")
+            insert(data_source_requests)
+            .values({"data_source_id": id, "count": 0})
+            .on_conflict_do_nothing(constraint="data_source_requests_pkey")
         )
 
     def increase_data_source_count(self, id):
@@ -314,9 +316,11 @@ class Handler(object):
             )
         )
 
-    def handle_new_oracle_script_request(self, msg):
+    def init_oracle_script_request_count(self, id):
         self.conn.execute(
-            insert(oracle_script_requests).values(msg).on_conflict_do_nothing(constraint="oracle_script_requests_pkey")
+            insert(oracle_script_requests)
+            .values({"oracle_script_id": id, "count": 0})
+            .on_conflict_do_nothing(constraint="oracle_script_requests_pkey")
         )
 
     def handle_update_oracle_script_request(self, msg):
