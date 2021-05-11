@@ -93,6 +93,7 @@ class Handler(object):
         del msg["tx_hash"]
         if self.get_data_source_id(msg["id"]) is None:
             self.conn.execute(data_sources.insert(), msg)
+            self.handle_new_data_source_request({"data_source_id": msg["id"], "count": 0})
         else:
             condition = True
             for col in data_sources.primary_key.columns.values():
@@ -107,6 +108,7 @@ class Handler(object):
         del msg["tx_hash"]
         if self.get_oracle_script_id(msg["id"]) is None:
             self.conn.execute(oracle_scripts.insert(), msg)
+            self.handle_new_oracle_script_request({"oracle_script_id": msg["id"], "count": 0})
         else:
             condition = True
             for col in oracle_scripts.primary_key.columns.values():
@@ -116,7 +118,11 @@ class Handler(object):
     def handle_new_request(self, msg):
         msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
+        if "timestamp" in msg:
+            self.handle_set_request_count_per_day({"date": msg["timestamp"]})
+            del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
+        self.handle_set_oracle_script_request({"oracle_script_id": msg["oracle_script_id"]})
 
     def handle_update_request(self, msg):
         if "tx_hash" in msg:
@@ -135,6 +141,7 @@ class Handler(object):
         )
 
     def handle_new_raw_request(self, msg):
+        self.handle_update_data_source_request({"data_source_id": msg["data_source_id"]})
         self.conn.execute(raw_requests.insert(), msg)
 
     def handle_new_val_request(self, msg):
@@ -151,19 +158,6 @@ class Handler(object):
         msg["reporter_id"] = self.get_account_id(msg["reporter"])
         del msg["reporter"]
         self.conn.execute(reports.insert(), msg)
-
-    def handle_update_report(self, msg):
-        if msg["tx_hash"] is not None:
-            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
-        del msg["tx_hash"]
-        msg["validator_id"] = self.get_validator_id(msg["validator"])
-        del msg["validator"]
-        msg["reporter_id"] = self.get_account_id(msg["reporter"])
-        del msg["reporter"]
-        condition = True
-        for col in reports.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(reports.update().where(condition).values(**msg))
 
     def handle_new_raw_report(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
@@ -336,3 +330,9 @@ class Handler(object):
 
     def handle_new_packet(self, msg):
         self.conn.execute(insert(packets).values(**msg))
+
+    def handle_set_oracle_script_request(self, msg):
+        condition = True
+        for col in oracle_script_requests.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(oracle_script_requests.update(condition).values(count=oracle_script_requests.c.count + 1))

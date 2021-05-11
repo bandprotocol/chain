@@ -27,6 +27,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 	}
 	rqCount := h.oracleKeeper.GetRequestCount(ctx)
 	for rid := types.RequestID(1); rid <= types.RequestID(rqCount); rid++ {
+		// TODO: revisit must get request
 		req := h.oracleKeeper.MustGetRequest(ctx, rid)
 		h.Write("NEW_REQUEST", common.JsDict{
 			"id":               rid,
