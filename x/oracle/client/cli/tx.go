@@ -47,8 +47,8 @@ func GetCmdRequest() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Make a new request via an existing oracle script with the configuration flags.
 Example:
-$ %s tx oracle request 1 4 3 -c 1234abcdef -m client-id -l 100odin -p 4000 -e 3000000 --from mykey
-$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-limit 100odin --prepare-gas 4000 --execute-gas 300000 --from mykey
+$ %s tx oracle request 1 4 3 -c 1234abcdef -m client-id -l 100loki -p 4000 -e 3000000 --from mykey
+$ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-limit 100loki --prepare-gas 4000 --execute-gas 300000 --from mykey
 `,
 				version.AppName, version.AppName,
 			),
@@ -146,7 +146,7 @@ func GetCmdCreateDataSource() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new data source that will be used by oracle scripts.
 Example:
-$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner odin15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10odin,100geo --from mykey
+$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner odin15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10loki,100geo --from mykey
 `,
 				version.AppName,
 			),
@@ -234,7 +234,7 @@ func GetCmdEditDataSource() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Edit an existing data source. The caller must be the current data source's owner.
 Example:
-$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10odin,100geo --from mykey
+$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10loki,100geo --from mykey
 `,
 				version.AppName,
 			),

@@ -24,7 +24,7 @@ yoda config rpc-poll-interval "1s"
 
 yoda keys add reporter
 
-echo "y" | bandd tx bank send $1 $(yoda keys show reporter) 1000000odin --broadcast-mode block --keyring-backend test --chain-id odin --node $2
+echo "y" | bandd tx bank send $1 $(yoda keys show reporter) 1000000loki --broadcast-mode block --keyring-backend test --chain-id odin --node $2
 
 echo "y" | bandd tx oracle add-reporters $(yoda keys show reporter) --from $1 --broadcast-mode block --keyring-backend test --chain-id odin --node $2
 
