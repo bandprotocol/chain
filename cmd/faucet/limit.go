@@ -6,8 +6,8 @@ import (
 )
 
 type LimitStatus struct {
-	LastWithdrawal    time.Time
 	WithdrawnInPeriod sdk.Coins
+	LastWithdrawals   map[string]time.Time
 }
 
 type Limit struct {
@@ -30,7 +30,7 @@ func (l *Limit) Allowed(rawAddress, denom string) (*LimitStatus, bool) {
 		return nil, true
 	}
 
-	if time.Now().Sub(limitStatus.LastWithdrawal) > l.cfg.Period {
+	if time.Now().Sub(limitStatus.LastWithdrawals[denom]) > l.cfg.Period {
 		return limitStatus, true
 	}
 

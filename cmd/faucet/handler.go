@@ -49,7 +49,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 		return
 	}
 	if limitStatus, ok := limit.Allowed(req.Address, req.Denom); !ok {
-		gc.JSON(http.StatusBadRequest, gin.H{"error": "cannot withdraw more coins", "time": (cfg.Period - time.Now().Sub(limitStatus.LastWithdrawal)).Seconds()})
+		gc.JSON(http.StatusBadRequest, gin.H{"error": "cannot withdraw more coins", "time": (cfg.Period - time.Now().Sub(limitStatus.LastWithdrawals[req.Denom])).Seconds()})
 		return
 	}
 	coinsToWithdraw := sdk.NewCoins(sdk.NewCoin(req.Denom, c.coins.AmountOf(req.Denom)))
@@ -119,10 +119,11 @@ func handleRequest(gc *gin.Context, c *Context) {
 	limitStatus, ok := limit.status.Load(req.Address)
 	if !ok {
 		limitStatus = &LimitStatus{
-			LastWithdrawal:    time.Now(),
+			LastWithdrawals:   make(map[string]time.Time),
 			WithdrawnInPeriod: sdk.NewCoins(),
 		}
 	}
+	limitStatus.LastWithdrawals[req.Denom] = time.Now()
 	limitStatus.WithdrawnInPeriod = limitStatus.WithdrawnInPeriod.Add(coinsToWithdraw...)
 	limit.status.Store(req.Address, limitStatus)
 	gc.JSON(200, Response{

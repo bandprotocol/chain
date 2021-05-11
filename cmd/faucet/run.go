@@ -21,7 +21,13 @@ func runLimiter() {
 		case <-uptimeTicker.C:
 			toRemove := make([]string, 0, 10)
 			for k, v := range limit.status.container {
-				if time.Now().Sub(v.LastWithdrawal) > cfg.Period {
+				denomsUnpend := 0
+				for _, vw := range v.LastWithdrawals {
+					if time.Now().Sub(vw) > cfg.Period {
+						denomsUnpend++
+					}
+				}
+				if denomsUnpend == len(v.LastWithdrawals) {
 					toRemove = append(toRemove, k)
 				}
 			}
