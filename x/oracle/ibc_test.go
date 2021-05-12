@@ -46,22 +46,15 @@ func (suite *OracleTestSuite) TestHandleMsgRequest() {
 	suite.Require().NotNil(channelA)
 	suite.Require().NotNil(channelB)
 
-	msg := types.NewMsgRequestData(
-		1,
-		[]byte("beeb"),
-		1,
-		1,
-		clientA,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
-		50000,
-		300000,
-		suite.chainA.SenderAccount.GetAddress(),
-	)
-
-	err := suite.coordinator.SendMsg(suite.chainA, suite.chainB, clientB, msg)
-	suite.Require().NoError(err) // message committed
-
 	timeoutHeight := clienttypes.NewHeight(25, 1000)
+
+	// deposit coin to request pool
+	err := suite.chainB.App.OracleKeeper.DepositRequestPool(suite.chainB.GetContext(), "beeb-request", channelB.PortID, channelB.ID, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))), suite.chainB.SenderAccount.GetAddress())
+	suite.Require().NoError(err)
+	treasuryBalances := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), testapp.Treasury.Address)
+	suite.Require().Equal(sdk.Coins{}, treasuryBalances)
+	poolBalances := suite.chainB.App.OracleKeeper.GetRequetPoolBalances(suite.chainB.GetContext(), "beeb-request", channelB.PortID, channelB.ID)
+	suite.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))), poolBalances)
 
 	// send from A to B
 	oracleRequestPacket := types.NewOracleRequestPacketData(
@@ -70,7 +63,7 @@ func (suite *OracleTestSuite) TestHandleMsgRequest() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -90,20 +83,20 @@ func (suite *OracleTestSuite) TestHandleMsgRequest() {
 	expectAck := channeltypes.CommitAcknowledgement(ackBytes)
 	suite.Require().Equal(expectAck, ack)
 
-	// TODO: check request is correct
-	// req := suite.chainB.App.OracleKeeper.MustGetRequest(suite.chainB.GetContext(), 1)
-	// suite.Require().Equal(nil, req)
+	poolBalances = suite.chainB.App.OracleKeeper.GetRequetPoolBalances(suite.chainB.GetContext(), "beeb-request", channelB.PortID, channelB.ID)
+	suite.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(7000000))), poolBalances)
+	treasuryBalances = suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), testapp.Treasury.Address)
+	suite.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))), treasuryBalances)
 
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2")), types.NewRawReport(3, 0, []byte("data3"))}
 	suite.chainB.SendMsgs(types.NewMsgReportData(1, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
 	suite.Require().NoError(err)
 
-	oracleResponsePacket := types.NewOracleResponsePacketData(clientA, 1, 1, 1577923405, 1577923465, types.RESOLVE_STATUS_SUCCESS, []byte("beeb"))
-	responsePacket := channeltypes.NewPacket(oracleResponsePacket.GetBytes(), 1, channelB.PortID, channelB.ID, channelA.PortID, channelA.ID, clienttypes.NewHeight(0, 0), 1577924065000000000)
+	oracleResponsePacket := types.NewOracleResponsePacketData(clientA, 1, 1, 1577923390, 1577923450, types.RESOLVE_STATUS_SUCCESS, []byte("beeb"))
+	responsePacket := channeltypes.NewPacket(oracleResponsePacket.GetBytes(), 1, channelB.PortID, channelB.ID, channelA.PortID, channelA.ID, clienttypes.NewHeight(0, 0), 1577924050000000000)
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(suite.chainB.GetContext(), channelB.PortID, channelB.ID, 1)
 	suite.Equal(expectCommitment, commitment)
-
 }
 
 func TestOracleTestSuite(t *testing.T) {

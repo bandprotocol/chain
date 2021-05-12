@@ -128,18 +128,6 @@ func fromHex(hexStr string) []byte {
 	return res
 }
 
-// // CreateTestInput creates a new test environment for unit tests.
-// func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
-// 	app := NewSimApp("BANDCHAIN", log.NewNopLogger())
-// 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
-// 	if autoActivate {
-// 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-// 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-// 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
-// 	}
-// 	return app, ctx, app.OracleKeeper
-// }
-
 // NewTestChain initializes a new TestChain instance with a single validator set using a
 // generated private key. It also creates a sender account to be used for delivering transactions.
 //
