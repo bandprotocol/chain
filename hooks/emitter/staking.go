@@ -169,12 +169,14 @@ func (h *Hook) handleMsgDelegate(
 
 // handleMsgUndelegate implements emitter handler for MsgUndelegate
 func (h *Hook) handleMsgUndelegate(
-	ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap,
+	ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap, extra common.JsDict,
 ) {
-	val, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	del, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
-	h.emitUpdateValidatorAndDelegation(ctx, val, del)
+	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
+	val := h.emitUpdateValidatorAndDelegation(ctx, valAddr, delAddr)
 	h.emitUnbondingDelegation(ctx, msg, evMap)
+	extra["moniker"] = val.Description.Moniker
+	extra["identity"] = val.Description.Identity
 }
 
 func (h *Hook) emitUnbondingDelegation(ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap) {
