@@ -40,11 +40,9 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	moduleHoldings, _ := data.OraclePool.DataProvidersPool.TruncateDecimal()
-
 	balances := k.bankKeeper.GetAllBalances(ctx, moduleAcc.GetAddress())
 	if balances.IsZero() {
-		if err := k.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), moduleHoldings); err != nil {
+		if err := k.bankKeeper.SetBalances(ctx, moduleAcc.GetAddress(), data.OraclePool.DataProvidersPool); err != nil {
 			panic(err)
 		}
 

@@ -12,13 +12,15 @@ type FeeCollector interface {
 }
 
 type RewardCollector interface {
-	Collect(sdk.Context, sdk.DecCoins, sdk.AccAddress) error
-	CalculateReward([]byte, sdk.DecCoins) sdk.DecCoins
-	Collected() sdk.DecCoins
+	Collect(sdk.Context, sdk.Coins, sdk.AccAddress) error
+	CalculateReward([]byte, sdk.Coins) sdk.Coins
+	Collected() sdk.Coins
 }
 
 // CollectFee subtract fee from fee payer and send them to treasury
-func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
+func (k Keeper) CollectFee(
+	ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest,
+) (sdk.Coins, error) {
 
 	collector := newFeeCollector(k, feeLimit, payer)
 
@@ -44,9 +46,11 @@ func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.C
 }
 
 // CollectReward subtract reward from fee pool and sends it to the data providers for reporting data
-func (k Keeper) CollectReward(ctx sdk.Context, rawReports []types.RawReport, rawRequests []types.RawRequest) (sdk.DecCoins, error) {
-
+func (k Keeper) CollectReward(
+	ctx sdk.Context, rawReports []types.RawReport, rawRequests []types.RawRequest,
+) (sdk.Coins, error) {
 	collector := newRewardCollector(k, k.bankKeeper)
+	oracleParams := k.GetParams(ctx)
 
 	rawReportsMap := make(map[types.ExternalID]types.RawReport)
 	for _, rawRep := range rawReports {
@@ -67,7 +71,27 @@ func (k Keeper) CollectReward(ctx sdk.Context, rawReports []types.RawReport, raw
 			return nil, sdkerrors.Wrapf(err, "parsing data source owner address: %s", dsOwnerAddr)
 		}
 
-		err = collector.Collect(ctx, collector.CalculateReward(rawRep.Data, dataProviderRewardPerByte), dsOwnerAddr)
+		accumulatedDataProvidersRewards := k.GetAccumulatedDataProvidersRewards(ctx).Amount
+
+		var reward sdk.Coins
+		for {
+			reward = collector.CalculateReward(rawRep.Data, dataProviderRewardPerByte)
+			if reward.Add(accumulatedDataProvidersRewards...).IsAllLT(oracleParams.DataProviderRewardThreshold.Amount) {
+				break
+			}
+
+			rewardReductionAmount, _ := sdk.NewDecCoinsFromCoins(dataProviderRewardPerByte...).MulDec(
+				oracleParams.RewardDecreasingFraction,
+			).TruncateDecimal()
+			dataProviderRewardPerByte = dataProviderRewardPerByte.Sub(rewardReductionAmount)
+			k.SetDataProviderRewardPerByteParam(ctx, dataProviderRewardPerByte)
+		}
+
+		k.SetAccumulatedDataProvidersRewards(
+			ctx,
+			types.NewDataProvidersAccumulatedRewards(accumulatedDataProvidersRewards.Add(reward...)),
+		)
+		err = collector.Collect(ctx, reward, dsOwnerAddr)
 		if err != nil {
 			return nil, err
 		}

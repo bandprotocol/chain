@@ -248,8 +248,6 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := oracletypes.DefaultGenesisState()
 
-	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewDecCoinsFromCoins(Coin1geo)
-
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 

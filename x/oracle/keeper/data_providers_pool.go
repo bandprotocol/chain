@@ -12,7 +12,7 @@ func (k Keeper) FundOraclePool(ctx sdk.Context, amount sdk.Coins, sender sdk.Acc
 	}
 
 	oraclePool := k.GetOraclePool(ctx)
-	oraclePool.DataProvidersPool = oraclePool.DataProvidersPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	oraclePool.DataProvidersPool = oraclePool.DataProvidersPool.Add(amount...)
 	k.SetOraclePool(ctx, oraclePool)
 
 	return nil
@@ -24,7 +24,7 @@ func (k Keeper) WithdrawOraclePool(ctx sdk.Context, amount sdk.Coins, recipient 
 	}
 
 	oraclePool := k.GetOraclePool(ctx)
-	diff, hasNeg := oraclePool.DataProvidersPool.SafeSub(sdk.NewDecCoinsFromCoins(amount...))
+	diff, hasNeg := oraclePool.DataProvidersPool.SafeSub(amount)
 	if hasNeg {
 		return sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "data providers pool does not have enough funds")
 	}

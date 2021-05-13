@@ -377,9 +377,19 @@
         "data_provider_reward_per_byte": [
           {
             "denom": "minigeo",
-            "amount": "1.000000000000000000"
+            "amount": "1000000"
           }
         ],
+        "data_provider_reward_threshold": {
+          "amount": [
+            {
+              "denom": "minigeo",
+              "amount": "200000000000"
+            }
+          ],
+          "blocks": "28820"
+        },
+        "reward_decreasing_fraction": "0.200000000000000000",
         "data_requester_fee_denoms": [
           "loki"
         ]

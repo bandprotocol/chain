@@ -83,8 +83,22 @@ func TestGetSetParams(t *testing.T) {
 	k.SetParamUint64(ctx, oracletypes.KeyOracleRewardPercentage, 50)
 	k.SetParamUint64(ctx, oracletypes.KeyInactivePenaltyDuration, 1000)
 	k.SetDataProviderRewardPerByteParam(ctx, oracletypes.DefaultDataProviderRewardPerByte)
+	k.SetDataProviderRewardThresholdParam(ctx, oracletypes.DefaultRewardThreshold())
+	k.SetRewardDecreasingFractionParam(ctx, oracletypes.DefaultRewardDecreasingFraction)
 	k.SetDataRequesterFeeDenomsParam(ctx, oracletypes.DefaultDataRequesterFeeDenoms)
-	require.Equal(t, oracletypes.NewParams(1, 10, 30, 50000, 3000, 3, 50, 1000, 1*1024, 1*1024, oracletypes.DefaultDataProviderRewardPerByte, oracletypes.DefaultDataRequesterFeeDenoms), k.GetParams(ctx))
+	require.Equal(
+		t,
+		oracletypes.NewParams(
+			1, 10, 30,
+			50000, 3000, 3,
+			50, 1000, 1*1024, 1*1024,
+			oracletypes.DefaultDataProviderRewardPerByte,
+			oracletypes.DefaultRewardThreshold(),
+			oracletypes.DefaultRewardDecreasingFraction,
+			oracletypes.DefaultDataRequesterFeeDenoms,
+		),
+		k.GetParams(ctx),
+	)
 	k.SetParamUint64(ctx, oracletypes.KeyMaxRawRequestCount, 2)
 	k.SetParamUint64(ctx, oracletypes.KeyMaxAskCount, 20)
 	k.SetParamUint64(ctx, oracletypes.KeyExpirationBlockCount, 40)
@@ -94,6 +108,19 @@ func TestGetSetParams(t *testing.T) {
 	k.SetParamUint64(ctx, oracletypes.KeyOracleRewardPercentage, 80)
 	k.SetParamUint64(ctx, oracletypes.KeyInactivePenaltyDuration, 10000)
 	k.SetDataProviderRewardPerByteParam(ctx, oracletypes.DefaultDataProviderRewardPerByte)
+	k.SetDataProviderRewardThresholdParam(ctx, oracletypes.DefaultRewardThreshold())
+	k.SetRewardDecreasingFractionParam(ctx, oracletypes.DefaultRewardDecreasingFraction)
 	k.SetDataRequesterFeeDenomsParam(ctx, oracletypes.DefaultDataRequesterFeeDenoms)
-	require.Equal(t, oracletypes.NewParams(2, 20, 40, 150000, 30000, 5, 80, 10000, 1*1024, 1*1024, oracletypes.DefaultDataProviderRewardPerByte, oracletypes.DefaultDataRequesterFeeDenoms), k.GetParams(ctx))
+	require.Equal(
+		t,
+		oracletypes.NewParams(
+			2, 20, 40, 150000, 30000,
+			5, 80, 10000, 1*1024, 1*1024,
+			oracletypes.DefaultDataProviderRewardPerByte,
+			oracletypes.DefaultRewardThreshold(),
+			oracletypes.DefaultRewardDecreasingFraction,
+			oracletypes.DefaultDataRequesterFeeDenoms,
+		),
+		k.GetParams(ctx),
+	)
 }

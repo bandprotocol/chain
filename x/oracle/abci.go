@@ -5,7 +5,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
 
 // handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.
@@ -24,8 +24,15 @@ func handleEndBlock(ctx sdk.Context, k oraclekeeper.Keeper) {
 		k.ResolveRequest(ctx, reqID)
 		k.AllocateRewardsToDataProviders(ctx, reqID)
 	}
+
+	rewardThresholdBlocks := k.GetDataProviderRewardThresholdParam(ctx).Blocks
+	blockHeight := uint64(ctx.BlockHeight())
+	if blockHeight%rewardThresholdBlocks == 0 {
+		k.SetAccumulatedDataProvidersRewards(ctx, oracletypes.NewDataProvidersAccumulatedRewards(sdk.NewCoins()))
+	}
+
 	// Once all the requests are resolved, we can clear the list.
-	k.SetPendingResolveList(ctx, []types.RequestID{})
+	k.SetPendingResolveList(ctx, []oracletypes.RequestID{})
 	// Lastly, we clean up data requests that are supposed to be expired.
 	k.ProcessExpiredRequests(ctx)
 	// NOTE: We can remove old requests from state to optimize space, using `k.DeleteRequest`
