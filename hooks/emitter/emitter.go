@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	odingovkeeper "github.com/GeoDB-Limited/odin-core/x/gov/keeper"
 	"strings"
 	"time"
 
@@ -15,7 +16,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -50,14 +50,14 @@ type Hook struct {
 	stakingKeeper stakingkeeper.Keeper
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
-	govKeeper     govkeeper.Keeper
+	govKeeper     odingovkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
 	cdc codec.Marshaler, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper odingovkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper, kafkaURI string, emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)

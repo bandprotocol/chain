@@ -151,6 +151,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 }
 
 // NewSimApp creates instance of our app using in test.
+// TODO implement patter :builder
 func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	// Set HomeFlag to a temp folder for simulation run.
 	dir, err := ioutil.TempDir("", "bandd")
