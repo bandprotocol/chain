@@ -2,9 +2,7 @@ package yoda
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -57,21 +55,15 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
+	pendingRequests, err := getPendingRequests(cfg.NodeGRPCURI, &types.QueryPendingRequestsRequest{
+		ValidatorAddress: c.validator.String(),
+	})
 	if err != nil {
 		return err
 	}
 
-	var result types.QueryResult
-	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
-		return err
-	}
-
-	var pendingRequests types.PendingResolveList
-	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
-
-	for _, id := range pendingRequests.RequestIds {
+	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
+	for _, id := range pendingRequests.RequestIDs {
 		c.pendingRequests[types.RequestID(id)] = true
 		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
 	}
@@ -175,6 +167,7 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Yoda will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
+	cmd.Flags().String(flagGRPCNode, "localhost:9090", "gRPC url to BandChain node")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a report transaction")
 	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
@@ -185,6 +178,7 @@ func runCmd(c *Context) *cobra.Command {
 	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
+	viper.BindPFlag(flagGRPCNode, cmd.Flags().Lookup(flagGRPCNode))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 	viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
 	return cmd
