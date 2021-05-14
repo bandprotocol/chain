@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	// sdk "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
 	// clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
@@ -264,28 +264,39 @@ func GetQueryActiveValidators() *cobra.Command {
 	return cmd
 }
 
-// // GetQueryPendingRequests implements the query pending requests command.
-// func GetQueryPendingRequests(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "pending-requests [validator]",
-// 		Args: cobra.MaximumNArgs(1),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
+// GetQueryPendingRequests implements the query pending requests command.
+func GetQueryPendingRequests() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pending-requests [validator]",
+		Short: "Get list of pending request IDs assigned to given validator",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
 
-// 			path := fmt.Sprintf("custom/%s/%s", route, types.QueryPendingRequests)
-// 			if len(args) == 1 {
-// 				path += "/" + args[0]
-// 			}
+			valAddress, err := sdk.ValAddressFromBech32(args[0])
+			if err != nil {
+				return fmt.Errorf("unable to parse given validator address: %w", err)
+			}
 
-// 			bz, _, err := cliCtx.Query(path)
-// 			if err != nil {
-// 				return err
-// 			}
+			r, err := queryClient.PendingRequests(context.Background(), &types.QueryPendingRequestsRequest{
+				ValidatorAddress: valAddress.String(),
+			})
+			if err != nil {
+				return err
+			}
 
-// 			return printOutput(cliCtx, cdc, bz, &[]types.RequestID{})
-// 		},
-// 	}
-// }
+			return clientCtx.PrintProto(r)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
 
 // GetQueryRequestVerification implements the query request verification command.
 func GetQueryRequestVerification() *cobra.Command {

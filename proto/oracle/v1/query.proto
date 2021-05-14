@@ -39,6 +39,14 @@ service Query {
     option (google.api.http).get = "/oracle/v1/requests/{request_id}";
   }
 
+  // PendingRequests queries list of pending request IDs assigned to given
+  // validator.
+  rpc PendingRequests(QueryPendingRequestsRequest)
+      returns (QueryPendingRequestsResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/pending_requests/{validator_address}";
+  }
+
   // Validator queries properties of given validator address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
     option (google.api.http).get = "/oracle/v1/validators/{validator_address}";
@@ -155,6 +163,20 @@ message QueryRequestResponse {
   repeated Report reports = 2 [ (gogoproto.nullable) = false ];
   // Result is a final form of result data
   Result result = 3;
+}
+
+// QueryPendingRequestRequest is request type for the Query/PendingRequests RPC
+// method.
+message QueryPendingRequestsRequest {
+  // ValidatorAddress is address of a validator
+  string validator_address = 1;
+}
+
+// QueryPendingRequestResponse is response type for the Query/PendingRequests
+// RPC method.
+message QueryPendingRequestsResponse {
+  // RequestIDs is a list of pending request IDs assigned to the given validator
+  repeated int64 request_ids = 1 [ (gogoproto.customname) = "RequestIDs" ];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
