@@ -254,3 +254,12 @@ func (k Querier) DataProvidersPool(c context.Context, req *oracletypes.QueryData
 		Pool: k.GetOraclePool(ctx).DataProvidersPool,
 	}, nil
 }
+
+// DataProviderRewardPerByte returns current reward per byte for data providers
+func (k Querier) DataProviderReward(
+	c context.Context, _ *oracletypes.QueryDataProviderRewardRequest,
+) (*oracletypes.QueryDataProviderRewardResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	accumulatedRewards := k.GetAccumulatedDataProvidersRewards(ctx)
+	return &oracletypes.QueryDataProviderRewardResponse{RewardPerByte: accumulatedRewards.CurrentRewardPerByte}, nil
+}

@@ -8,7 +8,7 @@ import (
 // zero oracle pool
 func InitialOraclePool() OraclePool {
 	return OraclePool{
-		DataProvidersPool: sdk.DecCoins{},
+		DataProvidersPool: sdk.Coins{},
 	}
 }
 

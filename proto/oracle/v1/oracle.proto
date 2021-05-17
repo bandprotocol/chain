@@ -37,7 +37,7 @@ message OracleScript {
   string description = 4;
   string filename = 5;
   string schema = 6;
-  string source_code_url = 7 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 7 [(gogoproto.customname) = "SourceCodeURL"];
 }
 
 // RawRequest is the data structure for storing raw requests in the storage.
@@ -81,9 +81,9 @@ message Request {
   uint64 min_count = 5;
   int64 request_height = 6;
   uint64 request_time = 7;
-  string client_id = 8 [ (gogoproto.customname) = "ClientID" ];
-  repeated RawRequest raw_requests = 9 [ (gogoproto.nullable) = false ];
-  IBCSource ibc_source = 10 [ (gogoproto.customname) = "IBCSource" ];
+  string client_id = 8 [(gogoproto.customname) = "ClientID"];
+  repeated RawRequest raw_requests = 9 [(gogoproto.nullable) = false];
+  IBCSource ibc_source = 10 [(gogoproto.customname) = "IBCSource"];
   uint64 execute_gas = 11;
 }
 
@@ -92,7 +92,7 @@ message Report {
   option (gogoproto.equal) = true;
   string validator = 1;
   bool in_before_resolve = 2;
-  repeated RawReport raw_reports = 3 [ (gogoproto.nullable) = false ];
+  repeated RawReport raw_reports = 3 [(gogoproto.nullable) = false];
 }
 
 // ResolveStatus encodes the status of an oracle request.
@@ -101,17 +101,17 @@ enum ResolveStatus {
 
   // Open - the request is not yet resolved.
   RESOLVE_STATUS_OPEN_UNSPECIFIED = 0
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN"];
   // Success - the request has been resolved successfully with no errors.
   RESOLVE_STATUS_SUCCESS = 1
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS"];
   // Failure - an error occured during the request's resolve call.
   RESOLVE_STATUS_FAILURE = 2
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE"];
   // Expired - the request does not get enough reports from validator within the
   // timeframe.
   RESOLVE_STATUS_EXPIRED = 3
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED" ];
+  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED"];
 }
 
 // OracleRequestPacketData encodes an oracle request sent from other blockchains
@@ -121,7 +121,7 @@ message OracleRequestPacketData {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
   int64 oracle_script_id = 2 [
@@ -169,7 +169,7 @@ message OracleResponsePacketData {
   option (gogoproto.equal) = true;
   // ClientID is the unique identifier matched with that of the oracle request
   // packet.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // RequestID is BandChain's unique identifier for this oracle request.
   int64 request_id = 2 [
     (gogoproto.customname) = "RequestID",
@@ -204,7 +204,7 @@ message Result {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
   int64 oracle_script_id = 2 [
@@ -247,7 +247,7 @@ message ValidatorStatus {
   option (gogoproto.equal) = true;
   bool is_active = 1;
   google.protobuf.Timestamp since = 2
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // PendingResolveList
@@ -270,8 +270,8 @@ message OraclePool {
   option (gogoproto.equal) = true;
   option (gogoproto.goproto_stringer) = true;
 
-  repeated cosmos.base.v1beta1.DecCoin data_providers_pool = 1 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+  repeated cosmos.base.v1beta1.Coin data_providers_pool = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
 }
@@ -280,8 +280,21 @@ message DataProviderAccumulatedReward {
   option (gogoproto.equal) = false;
 
   string data_provider = 1;
-  repeated cosmos.base.v1beta1.DecCoin data_provider_reward = 2 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+  repeated cosmos.base.v1beta1.Coin data_provider_reward = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message DataProvidersAccumulatedRewards {
+  option (gogoproto.equal) = false;
+
+  repeated cosmos.base.v1beta1.Coin current_reward_per_byte = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+  repeated cosmos.base.v1beta1.Coin accumulated_amount = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
 }

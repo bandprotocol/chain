@@ -39,12 +39,30 @@ message Params {
   // MaxCalldataSize is the maximum number of bytes that can be present in the
   // calldata
   uint64 max_calldata_size = 10;
-  // DataProviderRewardPerByte is the amount of tokens, user gets for the byte
-  // of data provided
-  repeated cosmos.base.v1beta1.DecCoin data_provider_reward_per_byte = 11 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+  // DataProviderRewardPerByte is the amount of tokens, user gets for the byte of data provided
+  repeated cosmos.base.v1beta1.Coin data_provider_reward_per_byte = 11 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+  // DataProviderRewardThreshold is the maximum amount of tokens that can be paid for data per time
+  RewardThreshold data_provider_reward_threshold = 12 [(gogoproto.nullable) = false];
+  // RewardDecreasingFraction is the percentage by which the cost of data per byte is reduced when the limit is reached
+  bytes reward_decreasing_fraction = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
   // Denominations that can be used for withdrawing fee from data requesters
-  repeated string data_requester_fee_denoms = 12;
+  repeated string data_requester_fee_denoms = 14;
+}
+
+// RewardThreshold
+message RewardThreshold {
+  option (gogoproto.equal) = true;
+  // Amount is the maximum amount of tokens that can be paid for data
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+  // Blocks is the number of blocks during which the sum of the reward should not exceed total_reward_amount
+  uint64 blocks = 2;
 }

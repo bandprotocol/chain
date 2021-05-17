@@ -2,7 +2,6 @@ package oraclekeeper
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -93,7 +92,7 @@ func (k Keeper) SetParamUint64(ctx sdk.Context, key []byte, value uint64) {
 	k.paramstore.Set(ctx, key, value)
 }
 
-// SetParam saves the given key-value parameter to the store.
+// SetParams saves the given key-value parameter to the store.
 func (k Keeper) SetParams(ctx sdk.Context, value oracletypes.Params) {
 	k.paramstore.SetParamSet(ctx, &value)
 }
@@ -104,12 +103,30 @@ func (k Keeper) GetParams(ctx sdk.Context) (params oracletypes.Params) {
 	return params
 }
 
-func (k Keeper) SetDataProviderRewardPerByteParam(ctx sdk.Context, value sdk.DecCoins) {
+func (k Keeper) SetDataProviderRewardPerByteParam(ctx sdk.Context, value sdk.Coins) {
 	k.paramstore.Set(ctx, oracletypes.KeyDataProviderRewardPerByte, value)
 }
 
-func (k Keeper) GetDataProviderRewardPerByteParam(ctx sdk.Context) (res sdk.DecCoins) {
+func (k Keeper) GetDataProviderRewardPerByteParam(ctx sdk.Context) (res sdk.Coins) {
 	k.paramstore.Get(ctx, oracletypes.KeyDataProviderRewardPerByte, &res)
+	return res
+}
+
+func (k Keeper) SetDataProviderRewardThresholdParam(ctx sdk.Context, value oracletypes.RewardThreshold) {
+	k.paramstore.Set(ctx, oracletypes.KeyDataProviderRewardThreshold, value)
+}
+
+func (k Keeper) GetDataProviderRewardThresholdParam(ctx sdk.Context) (res oracletypes.RewardThreshold) {
+	k.paramstore.Get(ctx, oracletypes.KeyDataProviderRewardThreshold, &res)
+	return res
+}
+
+func (k Keeper) SetRewardDecreasingFractionParam(ctx sdk.Context, value sdk.Dec) {
+	k.paramstore.Set(ctx, oracletypes.KeyRewardDecreasingFraction, value)
+}
+
+func (k Keeper) GetRewardDecreasingFractionParam(ctx sdk.Context) (res sdk.Dec) {
+	k.paramstore.Get(ctx, oracletypes.KeyRewardDecreasingFraction, &res)
 	return res
 }
 
@@ -249,4 +266,17 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+}
+
+func (k Keeper) SetAccumulatedDataProvidersRewards(ctx sdk.Context, reward oracletypes.DataProvidersAccumulatedRewards) {
+	store := ctx.KVStore(k.storeKey)
+	b := k.cdc.MustMarshalBinaryBare(&reward)
+	store.Set(oracletypes.AccumulatedDataProvidersRewardsStoreKey, b)
+}
+
+func (k Keeper) GetAccumulatedDataProvidersRewards(ctx sdk.Context) (reward oracletypes.DataProvidersAccumulatedRewards) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(oracletypes.AccumulatedDataProvidersRewardsStoreKey)
+	k.cdc.MustUnmarshalBinaryBare(bz, &reward)
+	return
 }

@@ -21,6 +21,7 @@ const (
 	QueryActiveValidators   = "active_validators"
 	QueryPendingRequests    = "pending_requests"
 	QueryDataProvidersPool  = "data_providers_pool"
+	QueryDataProviderReward = "data_provider_reward"
 )
 
 // deprecated: for legacy REST use only

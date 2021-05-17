@@ -42,6 +42,8 @@ var (
 	DataSourceCountStoreKey = append(GlobalStoreKeyPrefix, []byte("DataSourceCount")...)
 	// OracleScriptCountStoreKey is the key that keeps the total oracle sciprt count.
 	OracleScriptCountStoreKey = append(GlobalStoreKeyPrefix, []byte("OracleScriptCount")...)
+	// AccumulatedDataProvidersRewardsStoreKey the key that keeps the total allocated rewards to data providers for one day
+	AccumulatedDataProvidersRewardsStoreKey = append(GlobalStoreKeyPrefix, []byte("AllocateRewardsToDataProviders")...)
 	// OraclePoolStoreKey is the key that keeps the oracle pool
 	OraclePoolStoreKey = append(GlobalStoreKeyPrefix, []byte("OraclePool")...) // key for global oracle pool state
 
