@@ -9,8 +9,9 @@ func NewDataProviderAccumulatedReward(acc sdk.AccAddress, reward sdk.Coins) *Dat
 	}
 }
 
-func NewDataProvidersAccumulatedRewards(reward sdk.Coins) DataProvidersAccumulatedRewards {
+func NewDataProvidersAccumulatedRewards(currentRewardPerByte sdk.Coins, accumulatedAmount sdk.Coins) DataProvidersAccumulatedRewards {
 	return DataProvidersAccumulatedRewards{
-		Amount: reward,
+		CurrentRewardPerByte: currentRewardPerByte,
+		AccumulatedAmount:    accumulatedAmount,
 	}
 }

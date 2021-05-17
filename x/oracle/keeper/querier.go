@@ -39,6 +39,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 			return queryPendingRequests(ctx, path[1:], keeper, req, cdc)
 		case oracletypes.QueryDataProvidersPool:
 			return queryDataProvidersPool(ctx, keeper, req, cdc)
+		case oracletypes.QueryDataProviderReward:
+			return queryDataProvidersRewardPerByte(ctx, keeper, req, cdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown oracle query endpoint")
 		}
@@ -307,4 +309,9 @@ func queryRequestReports(ctx sdk.Context, path []string, k Keeper, req abci.Requ
 
 func queryDataProvidersPool(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
 	return commontypes.QueryOK(cdc, k.GetOraclePool(ctx).DataProvidersPool)
+}
+
+func queryDataProvidersRewardPerByte(ctx sdk.Context, k Keeper, _ abci.RequestQuery, cdc *codec.LegacyAmino) ([]byte, error) {
+	accumulatedRewards := k.GetAccumulatedDataProvidersRewards(ctx)
+	return commontypes.QueryOK(cdc, accumulatedRewards.CurrentRewardPerByte)
 }

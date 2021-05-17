@@ -1,7 +1,7 @@
 package oraclekeeper
 
 import (
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -19,7 +19,7 @@ type RewardCollector interface {
 
 // CollectFee subtract fee from fee payer and send them to treasury
 func (k Keeper) CollectFee(
-	ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest,
+	ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []oracletypes.RawRequest,
 ) (sdk.Coins, error) {
 
 	collector := newFeeCollector(k, feeLimit, payer)
@@ -47,17 +47,20 @@ func (k Keeper) CollectFee(
 
 // CollectReward subtract reward from fee pool and sends it to the data providers for reporting data
 func (k Keeper) CollectReward(
-	ctx sdk.Context, rawReports []types.RawReport, rawRequests []types.RawRequest,
+	ctx sdk.Context, rawReports []oracletypes.RawReport, rawRequests []oracletypes.RawRequest,
 ) (sdk.Coins, error) {
 	collector := newRewardCollector(k, k.bankKeeper)
 	oracleParams := k.GetParams(ctx)
 
-	rawReportsMap := make(map[types.ExternalID]types.RawReport)
+	rawReportsMap := make(map[oracletypes.ExternalID]oracletypes.RawReport)
 	for _, rawRep := range rawReports {
 		rawReportsMap[rawRep.ExternalID] = rawRep
 	}
 
-	dataProviderRewardPerByte := k.GetDataProviderRewardPerByteParam(ctx)
+	accumulatedDataProvidersRewards := k.GetAccumulatedDataProvidersRewards(ctx)
+	accumulatedAmount := accumulatedDataProvidersRewards.AccumulatedAmount
+	currentRewardPerByte := accumulatedDataProvidersRewards.CurrentRewardPerByte
+
 	for _, rawReq := range rawRequests {
 		rawRep, ok := rawReportsMap[rawReq.GetExternalID()]
 		if !ok {
@@ -71,31 +74,29 @@ func (k Keeper) CollectReward(
 			return nil, sdkerrors.Wrapf(err, "parsing data source owner address: %s", dsOwnerAddr)
 		}
 
-		accumulatedDataProvidersRewards := k.GetAccumulatedDataProvidersRewards(ctx).Amount
-
 		var reward sdk.Coins
 		for {
-			reward = collector.CalculateReward(rawRep.Data, dataProviderRewardPerByte)
-			if reward.Add(accumulatedDataProvidersRewards...).IsAllLT(oracleParams.DataProviderRewardThreshold.Amount) {
+			reward = collector.CalculateReward(rawRep.Data, currentRewardPerByte)
+			if reward.Add(accumulatedAmount...).IsAllLT(oracleParams.DataProviderRewardThreshold.Amount) {
 				break
 			}
 
-			rewardReductionAmount, _ := sdk.NewDecCoinsFromCoins(dataProviderRewardPerByte...).MulDec(
-				oracleParams.RewardDecreasingFraction,
+			currentRewardPerByte, _ = sdk.NewDecCoinsFromCoins(currentRewardPerByte...).MulDec(
+				sdk.NewDec(1).Sub(oracleParams.RewardDecreasingFraction),
 			).TruncateDecimal()
-			dataProviderRewardPerByte = dataProviderRewardPerByte.Sub(rewardReductionAmount)
-			k.SetDataProviderRewardPerByteParam(ctx, dataProviderRewardPerByte)
 		}
 
-		k.SetAccumulatedDataProvidersRewards(
-			ctx,
-			types.NewDataProvidersAccumulatedRewards(accumulatedDataProvidersRewards.Add(reward...)),
-		)
+		accumulatedAmount = accumulatedAmount.Add(reward...)
 		err = collector.Collect(ctx, reward, dsOwnerAddr)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	k.SetAccumulatedDataProvidersRewards(
+		ctx,
+		oracletypes.NewDataProvidersAccumulatedRewards(currentRewardPerByte, accumulatedAmount),
+	)
 
 	return collector.Collected(), nil
 }

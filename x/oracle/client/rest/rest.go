@@ -34,6 +34,7 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryMultiRequestSearch), getMultiRequestSearchHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryValidatorStatus, validatorAddressTag), getValidatorStatusHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryReporters, validatorAddressTag), getReportersHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryDataProviderReward), getDataProviderRewardHandler(clientCtx)).Methods("GET")
 	// TODO: maybe remove ???
 	//rtr.HandleFunc(fmt.Sprintf("/%s/proof/{%s}", oracletypes.ModuleName, proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx, storeName)).Methods("GET")
 	//rtr.HandleFunc(fmt.Sprintf("/%s/multi_proof", oracletypes.ModuleName), proof.GetMutiProofHandlerFn(cliCtx, storeName)).Methods("GET")

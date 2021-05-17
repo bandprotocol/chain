@@ -552,6 +552,26 @@ func dataProvidersPoolHandler(clientCtx client.Context) http.HandlerFunc {
 	}
 }
 
+func getDataProviderRewardHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+		res, height, err := clientCtx.Query(fmt.Sprintf(
+			"custom/%s/%s",
+			oracletypes.QuerierRoute,
+			oracletypes.QueryDataProviderReward,
+		))
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
 func checkPaginationParams(w http.ResponseWriter, r *http.Request) (oracletypes.QueryPaginationParams, bool) {
 	vars := mux.Vars(r)
 	limit, err := strconv.ParseUint(vars[limitTag], 10, 64)

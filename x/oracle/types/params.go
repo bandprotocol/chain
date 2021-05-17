@@ -198,8 +198,11 @@ func validateRewardThreshold(i interface{}) error {
 	if v.Amount.IsAnyNegative() {
 		return fmt.Errorf("reward threshold amount must be positive: %v", v.Amount)
 	}
+	if v.Amount.IsZero() {
+		return fmt.Errorf("reward threshold amount must be greater than zero: %v", v.Amount)
+	}
 	if v.Blocks <= 0 {
-		return fmt.Errorf("reward threshold blocks count must be greater than 0: %v", v.Blocks)
+		return fmt.Errorf("reward threshold blocks count must be greater than zero: %v", v.Blocks)
 	}
 	return nil
 }
