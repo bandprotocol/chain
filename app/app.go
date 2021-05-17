@@ -1,6 +1,9 @@
 package band
 
 import (
+	"github.com/GeoDB-Limited/odin-core/x/auction"
+	auctionkeeper "github.com/GeoDB-Limited/odin-core/x/auction/keeper"
+	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	"github.com/GeoDB-Limited/odin-core/x/coinswap"
 	coinswapkeeper "github.com/GeoDB-Limited/odin-core/x/coinswap/keeper"
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
@@ -128,6 +131,7 @@ var (
 		vesting.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		coinswap.AppModuleBasic{},
+		auction.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -179,6 +183,7 @@ type BandApp struct {
 	EvidenceKeeper   evidencekeeper.Keeper
 	OracleKeeper     oraclekeeper.Keeper
 	CoinswapKeeper   coinswapkeeper.Keeper
+	AuctionKeeper    auctionkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper    capabilitykeeper.ScopedKeeper
@@ -238,7 +243,8 @@ func NewBandApp(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		odinminttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, oracletypes.StoreKey, coinswaptypes.StoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey, oracletypes.StoreKey,
+		coinswaptypes.StoreKey, auctiontypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -326,7 +332,23 @@ func NewBandApp(
 		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper,
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
 	)
-	app.CoinswapKeeper = coinswapkeeper.NewKeeper(appCodec, keys[coinswaptypes.StoreKey], app.GetSubspace(coinswaptypes.ModuleName), app.BankKeeper, app.DistrKeeper, app.OracleKeeper)
+	app.CoinswapKeeper = coinswapkeeper.NewKeeper(
+		appCodec,
+		keys[coinswaptypes.StoreKey],
+		app.GetSubspace(coinswaptypes.ModuleName),
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.OracleKeeper,
+	)
+	app.AuctionKeeper = auctionkeeper.NewKeeper(
+		appCodec,
+		keys[auctiontypes.StoreKey],
+		app.GetSubspace(auctiontypes.ModuleName),
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.OracleKeeper,
+		app.CoinswapKeeper,
+	)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
@@ -371,6 +393,7 @@ func NewBandApp(
 		params.NewAppModule(app.ParamsKeeper),
 		oracleModule,
 		coinswap.NewAppModule(app.CoinswapKeeper),
+		auction.NewAppModule(app.AuctionKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -387,7 +410,7 @@ func NewBandApp(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, odinminttypes.ModuleName, oracletypes.ModuleName,
 		distrtypes.ModuleName, stakingtypes.ModuleName, slashingtypes.ModuleName, govtypes.ModuleName, crisistypes.ModuleName,
-		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, coinswaptypes.ModuleName,
+		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, coinswaptypes.ModuleName, auctiontypes.ModuleName,
 	)
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
@@ -665,6 +688,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 	paramsKeeper.Subspace(coinswaptypes.ModuleName)
+	paramsKeeper.Subspace(auctiontypes.ModuleName)
 
 	return paramsKeeper
 }

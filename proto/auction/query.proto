@@ -1,0 +1,23 @@
+syntax = "proto3";
+package auction;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/auction/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "auction/params.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/auction/params";
+  }
+}
+
+// QueryCountsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryCountsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}

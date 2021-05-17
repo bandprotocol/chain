@@ -1,0 +1,20 @@
+syntax = "proto3";
+package auction;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/auction/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "google/protobuf/any.proto";
+import "coinswap/params.proto";
+
+
+message Params {
+  option (gogoproto.equal) = false;
+
+  repeated cosmos.base.v1beta1.Coin threshold = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+  repeated coinswap.Exchange exchanges = 2 [(gogoproto.nullable) = false];
+}
