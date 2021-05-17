@@ -5,8 +5,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
-// TODO: Break into several smaller functions for clarity
-
 // Tally iterates over the votes and updates the tally of a proposal based on the voting power of the
 // voters
 func (k Keeper) Tally(ctx sdk.Context, proposal govtypes.Proposal) (passes bool, burnDeposits bool, tallyResults govtypes.TallyResult) {

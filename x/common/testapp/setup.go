@@ -2,12 +2,10 @@ package testapp
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 	"io/ioutil"
 	"math/rand"
-	"path/filepath"
 	"time"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -17,26 +15,20 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
 	bandapp "github.com/GeoDB-Limited/odin-core/app"
-	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
 	me "github.com/GeoDB-Limited/odin-core/x/oracle/keeper"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
-// Account is a data structure to store key of test account.
-type Account struct {
-	PrivKey    crypto.PrivKey
-	PubKey     crypto.PubKey
-	Address    sdk.AccAddress
-	ValAddress sdk.ValAddress
-}
+const (
+	DefaultBondDenom   = "odin"
+	DefaultHelperDenom = "geo"
+)
 
 // nolint
 var (
@@ -53,22 +45,6 @@ var (
 	DataSources        []oracletypes.DataSource
 	OracleScripts      []oracletypes.OracleScript
 	OwasmVM            *owasm.Vm
-)
-
-// nolint
-var (
-	EmptyCoins               = sdk.Coins(nil)
-	Coin1geo                 = sdk.NewInt64Coin("geo", 1)
-	Coin10odin               = sdk.NewInt64Coin("odin", 10)
-	Coin100000000geo         = sdk.NewInt64Coin("geo", 100000000)
-	Coins1000000odin         = sdk.NewCoins(sdk.NewInt64Coin("odin", 1000000))
-	Coins99999999odin        = sdk.NewCoins(sdk.NewInt64Coin("odin", 99999999))
-	Coin100000000odin        = sdk.NewInt64Coin("odin", 100000000)
-	Coin10000000000odin      = sdk.NewInt64Coin("odin", 10000000000)
-	Coins100000000odin       = sdk.NewCoins(Coin100000000odin)
-	Coins10000000000odin     = sdk.NewCoins(Coin10000000000odin)
-	DefaultDataProvidersPool = sdk.NewCoins(Coin100000000odin)
-	DefaultCommunityPool     = sdk.NewCoins(Coin100000000geo, Coin100000000odin)
 )
 
 func init() {
@@ -93,55 +69,6 @@ func init() {
 	OwasmVM = owasmVM
 }
 
-func createArbitraryAccount(r *rand.Rand) Account {
-	privkeySeed := make([]byte, 12)
-	r.Read(privkeySeed)
-	privKey := secp256k1.GenPrivKeySecp256k1(privkeySeed)
-	return Account{
-		PrivKey:    privKey,
-		PubKey:     privKey.PubKey(),
-		Address:    sdk.AccAddress(privKey.PubKey().Address()),
-		ValAddress: sdk.ValAddress(privKey.PubKey().Address()),
-	}
-}
-
-func getGenesisDataSources(homePath string) []oracletypes.DataSource {
-	dir := filepath.Join(homePath, "files")
-	fc := filecache.New(dir)
-	DataSources = []oracletypes.DataSource{{}} // 0th index should be ignored
-	for idx := 0; idx < 5; idx++ {
-		id := idx + 1
-		idxStr := fmt.Sprintf("%d", id)
-		hash := fc.AddFile([]byte("code" + idxStr))
-		ds := oracletypes.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000odin,
-		)
-		ds.ID = oracletypes.DataSourceID(id)
-		DataSources = append(DataSources, ds)
-	}
-	return DataSources[1:]
-}
-
-func getGenesisOracleScripts(homePath string) []oracletypes.OracleScript {
-	dir := filepath.Join(homePath, "files")
-	fc := filecache.New(dir)
-	OracleScripts = []oracletypes.OracleScript{{}} // 0th index should be ignored
-	wasms := [][]byte{
-		Wasm1, Wasm2, Wasm3, Wasm4, Wasm56(10), Wasm56(10000000), Wasm78(10), Wasm78(2000), Wasm9,
-	}
-	for idx := 0; idx < len(wasms); idx++ {
-		id := idx + 1
-		idxStr := fmt.Sprintf("%d", id)
-		hash := fc.AddFile(compile(wasms[idx]))
-		os := oracletypes.NewOracleScript(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
-		)
-		os.ID = oracletypes.OracleScriptID(id)
-		OracleScripts = append(OracleScripts, os)
-	}
-	return OracleScripts[1:]
-}
-
 // EmptyAppOptions is a stub implementing AppOptions
 type EmptyAppOptions struct{}
 
@@ -151,7 +78,6 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 }
 
 // NewSimApp creates instance of our app using in test.
-// TODO implement patter :builder
 func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	// Set HomeFlag to a temp folder for simulation run.
 	dir, err := ioutil.TempDir("", "bandd")
@@ -171,10 +97,10 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 		&authtypes.BaseAccount{Address: Peter.Address.String()},
 		&authtypes.BaseAccount{Address: Alice.Address.String()},
 		&authtypes.BaseAccount{Address: Bob.Address.String()},
-		&authtypes.BaseAccount{Address: Carol.Address.String()},
 		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
+		&authtypes.BaseAccount{Address: Carol.Address.String()},
 		&authtypes.BaseAccount{Address: OraclePoolProvider.Address.String()},
 		&authtypes.BaseAccount{Address: FeePoolProvider.Address.String()},
 	}
@@ -212,7 +138,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	}
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = "odin"
+	stakingParams.BondDenom = DefaultBondDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesis[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -226,10 +152,10 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 		{Address: Peter.Address.String(), Coins: Coins1000000odin},
 		{Address: Alice.Address.String(), Coins: Coins1000000odin.Add(Coin100000000geo)},
 		{Address: Bob.Address.String(), Coins: Coins1000000odin},
-		{Address: Carol.Address.String(), Coins: Coins1000000odin},
 		{Address: Validators[0].Address.String(), Coins: Coins100000000odin},
 		{Address: Validators[1].Address.String(), Coins: Coins100000000odin},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000odin},
+		{Address: Carol.Address.String(), Coins: Coins1000000odin},
 		{Address: OraclePoolProvider.Address.String(), Coins: DefaultDataProvidersPool},
 		{Address: FeePoolProvider.Address.String(), Coins: DefaultCommunityPool},
 	}
@@ -240,7 +166,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	}
 	for idx := 0; idx < len(validators); idx++ {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("odin", bamt[idx]))...)
+		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin(DefaultBondDenom, bamt[idx]))...)
 	}
 
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
@@ -269,6 +195,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 // CreateTestInput creates a new test environment for unit tests.
 // params[0] - activate;
 // params[1] - fund pools;
+// Deprecated
+//  - use TestAppBuilder instead
 func CreateTestInput(params ...bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
 	app := NewSimApp("ODINCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
