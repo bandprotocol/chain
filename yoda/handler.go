@@ -233,7 +233,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 		return
 	}
 
-	vmsg := NewVerificationMessage(cfg.ChainID, c.validator, id, req.externalID)
+	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID)
 	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
@@ -246,7 +246,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 
 	result, err := c.executor.Exec(exec, req.calldata, map[string]interface{}{
 		"BAND_CHAIN_ID":    vmsg.ChainID,
-		"BAND_VALIDATOR":   vmsg.Validator.String(),
+		"BAND_VALIDATOR":   vmsg.Validator,
 		"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
 		"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
 		"BAND_REPORTER":    sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubkey),
