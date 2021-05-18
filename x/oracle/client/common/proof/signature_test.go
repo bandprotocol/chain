@@ -1,205 +1,170 @@
 package proof
 
-// import (
-// 	"testing"
+import (
+	"testing"
 
-// 	"github.com/ethereum/go-ethereum/common"
-// 	"github.com/ethereum/go-ethereum/crypto"
-// 	"github.com/stretchr/testify/require"
-// 	"github.com/tendermint/tendermint/crypto/tmhash"
-// 	"github.com/tendermint/tendermint/types"
-// )
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/tendermint/tendermint/types"
+)
 
-// func TestGetSignaturesAndPrefix(t *testing.T) {
-// 	header := types.Header{
-// 		ChainID: "band-guanyu-poa",
-// 	}
-// 	commit := types.Commit{
-// 		Height: 3021518,
-// 		Round:  0,
-// 		BlockID: types.BlockID{
-// 			Hash:        hexToBytes("707C8E52320D12F0A27A0C35B9DB5649428FC535C4C42A73EFD9BDEB3F8A72D5"),
-// 			PartsHeader: types.PartSetHeader{Total: 1, Hash: hexToBytes("2DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA20")},
-// 		},
-// 		Signatures: []types.CommitSig{
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("3F40FBFB610AB6AB95F718609801759D4842ACE1"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.682412833Z"),
-// 				Signature:        base64ToBytes("XKdgvaA3YQtiO4PL+OD1X+yjeppiHrrRc2Dlcl+ONCU99V4jfLnR6uhyQ81NP18Qkbn/Li8WorCDko8rDwnHuw=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("57F884A0615A6797EBE3012660328603D3AEC43E"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.680999081Z"),
-// 				Signature:        base64ToBytes("Ju2Q7onU9rXRcpBN24KhhBnmgzv8dFIkFoAOOn0uOuAMLfPzBxBoYRlapBZDz22h9b4ZWxHHS5yQMp+ZseJMpw=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("A5388FC9C354B02852EE77A87BA0B63155F807EC"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.714172144Z"),
-// 				Signature:        base64ToBytes("eAcz+QE9EPiKL6k2vCeJphFGdJt3n7hHwPRiecoxVD4o62kSiLAsBtKc7MPd6jOHyxD2muyfbApR7Tl4TWZ10A=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("A9967F4A8450FEC68437F04B83FE4097BA85F1E8"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.594652250Z"),
-// 				Signature:        base64ToBytes("0JDvZUpci1nrlzRutG5gGm1X3akXTB5TXEBIX9Wo1BRHp7PlghA8Kyi409PI2bfXFdhS5ElxHHuRvfntyz962g=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("C96AE655326C9B77AB59F61BD0876DF20BFC0CE9"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.592471847Z"),
-// 				Signature:        base64ToBytes("KRRWdyjK4qvitweTOuY2YMfHl4bHuJfLhnto9nqsB6gE9oOyD2sEOgynnDndaBZ4aSYr8mLO8bHOjjC0oGsNXQ=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("F420E989F161A5E6EF54D6413DB7E32D0DB0848B"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.678118798Z"),
-// 				Signature:        base64ToBytes("mc+45oSPA5hj2YxIrJhfStaif+C2AqhzXURlTfGwbeJ1xxYvWrraNftIRg8hluU0gzTpi6Bd4SNtWdsynsLkqg=="),
-// 			},
-// 			{
-// 				BlockIDFlag:      2,
-// 				ValidatorAddress: hexToBytes("F8FB432981EAD678CD546BB6BC171E9DBC8C2A33"),
-// 				Timestamp:        parseTime("2020-11-18T17:44:01.681885579Z"),
-// 				Signature:        base64ToBytes("N0ZtmbuO2epGK2p+mIGJIkpij/qXOgWim7QBxMT8my1/0Haw4ot+ajXMgK1vpoiVjp8iCTzgDCLU/mcSTGM7BA=="),
-// 			},
-// 		},
-// 	}
-// 	sh := types.SignedHeader{
-// 		Header: &header,
-// 		Commit: &commit,
-// 	}
-// 	sig, err := GetSignaturesAndPrefix(&sh)
-// 	require.NoError(t, err)
+/*
+{
+	"commit": {
+        "height": "50000",
+        "round": 0,
+        "block_id": {
+          "hash": "253E2EF603743B5CD0C7E8B8591082190398A16032ED2FF096F854033D106F4E",
+          "parts": {
+            "total": 1,
+            "hash": "2EF12771EF64B0E04CA9C7C7DACAA483C09644D00786880620B25DBCED6A8637"
+          }
+        },
+        "signatures": [
+          {
+            "block_id_flag": 2,
+            "validator_address": "F23391B5DBF982E37FB7DADEA64AAE21CAE4C172",
+            "timestamp": "2021-05-14T12:17:12.271008775Z",
+            "signature": "mLo7n09R88zVZatlB79S9SrJY1XOdt0SmpRScYLoM+B6L8fR7nyZHu85KFFrDJ7lfEncX5FshEV1na3rS2XEXA=="
+          },
+          {
+            "block_id_flag": 2,
+            "validator_address": "F0C23921727D869745C4F9703CF33996B1D2B715",
+            "timestamp": "2021-05-14T12:17:12.271817895Z",
+            "signature": "s1hhTdXndnssshRV5S5fFdBbnuGpd0Zx2uNl9gXIY005SMb9cUYPg6bHQUv1TdTVmLNo9PdbRXPAQHdQiq/w0Q=="
+          },
+          {
+            "block_id_flag": 2,
+            "validator_address": "5179B0BB203248E03D2A1342896133B5C58E1E44",
+            "timestamp": "2021-05-14T12:17:12.260335655Z",
+            "signature": "AGKoHYRS0gFuZdUsFSAfJS8vVUmbexNtPUoo0WK1OH5JirxQdD/QRoCn+GBbc+41WLPHLcFUGFCIYmQYZElErA=="
+          },
+          {
+            "block_id_flag": 2,
+            "validator_address": "BDB6A0728C8DFE2124536F16F2BA428FE767A8F9",
+            "timestamp": "2021-05-14T12:17:12.264889675Z",
+            "signature": "X1IjZf5Hh/Uw0qDbEBVA/feVKWGnyXsrmCQxpK5OTEUGlisVuq4nkXOevWWpRFoqd4SXJDGOMlPirGMHycTWsw=="
+          }
+        ]
+	}
+}
+*/
 
-// 	expected := []TMSignature{
-// 		{
-// 			R:                hexToBytes("D090EF654A5C8B59EB97346EB46E601A6D57DDA9174C1E535C40485FD5A8D414"),
-// 			S:                hexToBytes("47A7B3E582103C2B28B8D3D3C8D9B7D715D852E449711C7B91BDF9EDCB3F7ADA"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510DAD8C69B02320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("26ED90EE89D4F6B5D172904DDB82A18419E6833BFC74522416800E3A7D2E3AE0"),
-// 			S:                hexToBytes("0C2DF3F307106861195AA41643CF6DA1F5BE195B11C74B9C90329F99B1E24CA7"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A9F1DCC402320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("5CA760BDA037610B623B83CBF8E0F55FECA37A9A621EBAD17360E5725F8E3425"),
-// 			S:                hexToBytes("3DF55E237CB9D1EAE87243CD4D3F5F1091B9FF2E2F16A2B083928F2B0F09C7BB"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A196B3C502320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("37466D99BB8ED9EA462B6A7E988189224A628FFA973A05A29BB401C4C4FC9B2D"),
-// 			S:                hexToBytes("7FD076B0E28B7E6A35CC80AD6FA688958E9F22093CE00C22D4FE67124C633B04"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD05108BFF92C502320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("99CFB8E6848F039863D98C48AC985F4AD6A27FE0B602A8735D44654DF1B06DE2"),
-// 			S:                hexToBytes("75C7162F5ABADA35FB48460F2196E5348334E98BA05DE1236D59DB329EC2E4AA"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD05108E8BADC302320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("780733F9013D10F88A2FA936BC2789A61146749B779FB847C0F46279CA31543E"),
-// 			S:                hexToBytes("28EB691288B02C06D29CECC3DDEA3387CB10F69AEC9F6C0A51ED39784D6675D0"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510F0CDC5D402320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("2914567728CAE2ABE2B707933AE63660C7C79786C7B897CB867B68F67AAC07A8"),
-// 			S:                hexToBytes("04F683B20F6B043A0CA79C39DD68167869262BF262CEF1B1CE8E30B4A06B0D5D"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A7CEC19A02320F62616E642D6775616E79752D706F61"),
-// 		},
-// 	}
-// 	require.Equal(t, expected, sig)
-// }
+/*
+{
+	"result": {
+		"block_height": "50000",
+		"validators": [
+		{
+			"address": "F23391B5DBF982E37FB7DADEA64AAE21CAE4C172",
+			"pub_key": {
+			"type": "tendermint/PubKeySecp256k1",
+			"value": "A/V/OZek6B2PMh6XEJJ+IsLm0w+22PdJqeSgevs7O3kJ"
+			},
+			"voting_power": "135",
+			"proposer_priority": "105"
+		},
+		{
+			"address": "F0C23921727D869745C4F9703CF33996B1D2B715",
+			"pub_key": {
+			"type": "tendermint/PubKeySecp256k1",
+			"value": "A9A3CPFh0Vg/SeQmCkKysI07oYbXgDojzDrNEvB02ddv"
+			},
+			"voting_power": "130",
+			"proposer_priority": "-180"
+		},
+		{
+			"address": "5179B0BB203248E03D2A1342896133B5C58E1E44",
+			"pub_key": {
+			"type": "tendermint/PubKeySecp256k1",
+			"value": "AnJK4pz+t0lwUdCe39joIjUsTINht1dkdkW3jIzHTOiF"
+			},
+			"voting_power": "108",
+			"proposer_priority": "201"
+		},
+		{
+			"address": "BDB6A0728C8DFE2124536F16F2BA428FE767A8F9",
+			"pub_key": {
+			"type": "tendermint/PubKeySecp256k1",
+			"value": "A6VP+qhMjy95h4Lei5YqhHhOKISHp0eBOghXJDpg4roz"
+			},
+			"voting_power": "101",
+			"proposer_priority": "-126"
+		}
+		],
+		"count": "4",
+		"total": "4"
+	}
+}
+*/
 
-// func TestVerifySignature(t *testing.T) {
-// 	signatures := []TMSignature{
-// 		{
-// 			R:                hexToBytes("D090EF654A5C8B59EB97346EB46E601A6D57DDA9174C1E535C40485FD5A8D414"),
-// 			S:                hexToBytes("47A7B3E582103C2B28B8D3D3C8D9B7D715D852E449711C7B91BDF9EDCB3F7ADA"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510DAD8C69B02320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("26ED90EE89D4F6B5D172904DDB82A18419E6833BFC74522416800E3A7D2E3AE0"),
-// 			S:                hexToBytes("0C2DF3F307106861195AA41643CF6DA1F5BE195B11C74B9C90329F99B1E24CA7"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A9F1DCC402320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("5CA760BDA037610B623B83CBF8E0F55FECA37A9A621EBAD17360E5725F8E3425"),
-// 			S:                hexToBytes("3DF55E237CB9D1EAE87243CD4D3F5F1091B9FF2E2F16A2B083928F2B0F09C7BB"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A196B3C502320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("37466D99BB8ED9EA462B6A7E988189224A628FFA973A05A29BB401C4C4FC9B2D"),
-// 			S:                hexToBytes("7FD076B0E28B7E6A35CC80AD6FA688958E9F22093CE00C22D4FE67124C633B04"),
-// 			V:                28,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD05108BFF92C502320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("99CFB8E6848F039863D98C48AC985F4AD6A27FE0B602A8735D44654DF1B06DE2"),
-// 			S:                hexToBytes("75C7162F5ABADA35FB48460F2196E5348334E98BA05DE1236D59DB329EC2E4AA"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD05108E8BADC302320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("780733F9013D10F88A2FA936BC2789A61146749B779FB847C0F46279CA31543E"),
-// 			S:                hexToBytes("28EB691288B02C06D29CECC3DDEA3387CB10F69AEC9F6C0A51ED39784D6675D0"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510F0CDC5D402320F62616E642D6775616E79752D706F61"),
-// 		},
-// 		{
-// 			R:                hexToBytes("2914567728CAE2ABE2B707933AE63660C7C79786C7B897CB867B68F67AAC07A8"),
-// 			S:                hexToBytes("04F683B20F6B043A0CA79C39DD68167869262BF262CEF1B1CE8E30B4A06B0D5D"),
-// 			V:                27,
-// 			SignedDataPrefix: hexToBytes("74080211CE1A2E000000000022480A20"),
-// 			SignedDataSuffix: hexToBytes("12240A202DC401225B681224CB8F597D157A5DE78EF4F04FE1C884595F2B18D941EBCA2010012A0C08E1BAD5FD0510A7CEC19A02320F62616E642D6775616E79752D706F61"),
-// 		},
-// 	}
+func TestVerifySignature(t *testing.T) {
+	header := types.Header{
+		ChainID: "bandchain",
+	}
+	commit := types.Commit{
+		Height: 50000,
+		Round:  0,
+		BlockID: types.BlockID{
+			Hash: hexToBytes("253E2EF603743B5CD0C7E8B8591082190398A16032ED2FF096F854033D106F4E"),
+			PartSetHeader: types.PartSetHeader{
+				Total: 1,
+				Hash:  hexToBytes("2EF12771EF64B0E04CA9C7C7DACAA483C09644D00786880620B25DBCED6A8637"),
+			},
+		},
+		Signatures: []types.CommitSig{
+			{
+				BlockIDFlag:      2,
+				ValidatorAddress: hexToBytes("F23391B5DBF982E37FB7DADEA64AAE21CAE4C172"),
+				Timestamp:        parseTime("2021-05-14T12:17:12.271008775Z"),
+				Signature:        base64ToBytes("mLo7n09R88zVZatlB79S9SrJY1XOdt0SmpRScYLoM+B6L8fR7nyZHu85KFFrDJ7lfEncX5FshEV1na3rS2XEXA=="),
+			},
+			{
+				BlockIDFlag:      2,
+				ValidatorAddress: hexToBytes("F0C23921727D869745C4F9703CF33996B1D2B715"),
+				Timestamp:        parseTime("2021-05-14T12:17:12.271817895Z"),
+				Signature:        base64ToBytes("s1hhTdXndnssshRV5S5fFdBbnuGpd0Zx2uNl9gXIY005SMb9cUYPg6bHQUv1TdTVmLNo9PdbRXPAQHdQiq/w0Q=="),
+			},
+			{
+				BlockIDFlag:      2,
+				ValidatorAddress: hexToBytes("5179B0BB203248E03D2A1342896133B5C58E1E44"),
+				Timestamp:        parseTime("2021-05-14T12:17:12.260335655Z"),
+				Signature:        base64ToBytes("AGKoHYRS0gFuZdUsFSAfJS8vVUmbexNtPUoo0WK1OH5JirxQdD/QRoCn+GBbc+41WLPHLcFUGFCIYmQYZElErA=="),
+			},
+			{
+				BlockIDFlag:      2,
+				ValidatorAddress: hexToBytes("BDB6A0728C8DFE2124536F16F2BA428FE767A8F9"),
+				Timestamp:        parseTime("2021-05-14T12:17:12.264889675Z"),
+				Signature:        base64ToBytes("X1IjZf5Hh/Uw0qDbEBVA/feVKWGnyXsrmCQxpK5OTEUGlisVuq4nkXOevWWpRFoqd4SXJDGOMlPirGMHycTWsw=="),
+			},
+		},
+	}
+	sh := types.SignedHeader{
+		Header: &header,
+		Commit: &commit,
+	}
+	signatures, err := GetSignaturesAndPrefix(&sh)
+	require.NoError(t, err)
 
-// 	evmAddresses := []common.Address{
-// 		common.HexToAddress("03899178B4994a3E8EA88c69b0014FDf71c656C6"),
-// 		common.HexToAddress("1c18c1Ed4ec5d1Dd39b15c26b3346Fc0b4ADb138"),
-// 		common.HexToAddress("4705e5935aCb7c6eb23A49b17767e01fB7D8Ab73"),
-// 		common.HexToAddress("53256a45877e8Cc3A868D53Dc4a4493256a01701"),
-// 		common.HexToAddress("975E60E8544bbb2945d6630553C269c5c8E72980"),
-// 		common.HexToAddress("a704058b50414C47cb2DFf32929D0830bbcb7f39"),
-// 		common.HexToAddress("eb666C2755AaA9C7e69D6e29f57d8416938c7ee6"),
-// 	}
+	evmAddresses := []common.Address{
+		common.HexToAddress("0x652D89a66Eb4eA55366c45b1f9ACfc8e2179E1c5"),
+		common.HexToAddress("0x88e1cd00710495EEB93D4f522d16bC8B87Cb00FE"),
+		common.HexToAddress("0xaAA22E077492CbaD414098EBD98AA8dc1C7AE8D9"),
+		common.HexToAddress("0xB956589b6fC5523eeD0d9eEcfF06262Ce84ff260"),
+	}
 
-// 	blockHash := hexToBytes("707C8E52320D12F0A27A0C35B9DB5649428FC535C4C42A73EFD9BDEB3F8A72D5")
+	blockHash := hexToBytes("253E2EF603743B5CD0C7E8B8591082190398A16032ED2FF096F854033D106F4E")
 
-// 	for i, sig := range signatures {
-// 		msg := append(sig.SignedDataPrefix, blockHash...)
-// 		msg = append(msg, sig.SignedDataSuffix...)
+	for i, sig := range signatures {
+		msg := append(sig.SignedDataPrefix, blockHash...)
+		msg = append(msg, sig.SignedDataSuffix...)
 
-// 		sigBytes := append(sig.R, sig.S...)
-// 		sigBytes = append(sigBytes, sig.V-27)
-// 		pub, err := crypto.SigToPub(tmhash.Sum(msg), sigBytes)
-// 		require.Nil(t, err)
-// 		require.Equal(t, evmAddresses[i], crypto.PubkeyToAddress(*pub))
-// 	}
-// }
+		sigBytes := append(sig.R, sig.S...)
+		sigBytes = append(sigBytes, sig.V-27)
+		pub, err := crypto.SigToPub(tmhash.Sum(msg), sigBytes)
+		require.Nil(t, err)
+		require.Equal(t, evmAddresses[i], crypto.PubkeyToAddress(*pub))
+	}
+}

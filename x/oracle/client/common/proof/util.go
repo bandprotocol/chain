@@ -1,10 +1,14 @@
 package proof
 
 import (
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"reflect"
+	"time"
 
 	gogotypes "github.com/gogo/protobuf/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/bytes"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
@@ -74,13 +78,13 @@ func isEmpty(o interface{}) bool {
 	}
 }
 
-// func base64ToBytes(s string) []byte {
-// 	decodedString, err := base64.StdEncoding.DecodeString(s)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return decodedString
-// }
+func base64ToBytes(s string) []byte {
+	decodedString, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		panic(err)
+	}
+	return decodedString
+}
 
 // func encodeStoreMerkleHash(key string, value []byte) []byte {
 // 	bytesKey := []byte(key)
@@ -95,11 +99,11 @@ func isEmpty(o interface{}) bool {
 // 	return buf[:n]
 // }
 
-// func encodeUvarint(value uint64) []byte {
-// 	buf := make([]byte, binary.MaxVarintLen64)
-// 	n := binary.PutUvarint(buf, value)
-// 	return buf[:n]
-// }
+func encodeUvarint(value uint64) []byte {
+	buf := make([]byte, binary.MaxVarintLen64)
+	n := binary.PutUvarint(buf, value)
+	return buf[:n]
+}
 
 // func mustParseInt64(b []byte) int64 {
 // 	i64, err := strconv.ParseInt(string(b), 10, 64)
@@ -125,33 +129,44 @@ func mustDecodeString(hexstr string) []byte {
 	return b
 }
 
-// func parseTime(str string) time.Time {
-// 	layout := "2006-01-02T15:04:05.000000000Z"
-// 	t, err := time.Parse(layout, str)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return t
-// }
+func parseTime(str string) time.Time {
+	var layout string
+	if len(str) == 29 {
+		layout = "2006-01-02T15:04:05.00000000Z"
+	} else {
+		layout = "2006-01-02T15:04:05.000000000Z"
+	}
+	t, err := time.Parse(layout, str)
+	if err != nil {
+		panic(err)
+	}
+	return t
+}
 
-// func encodeTime(t time.Time) []byte {
-// 	bz := []byte{}
-// 	s := t.Unix()
-// 	// skip if default/zero value:
-// 	if s != 0 {
-// 		bz = append(bz, encodeFieldNumberAndTyp3(1, 0)...)
-// 		bz = append(bz, encodeUvarint(uint64(s))...)
-// 	}
-// 	ns := int32(t.Nanosecond()) // this int64 -> int32 cast is safe (nanos are in [0, 999999999])
-// 	// skip if default/zero value:
-// 	if ns != 0 {
-// 		bz = append(bz, encodeFieldNumberAndTyp3(2, 0)...)
-// 		bz = append(bz, encodeUvarint(uint64(ns))...)
-// 	}
-// 	return bz
-// }
+func encodeTime(t time.Time) []byte {
+	bz := []byte{}
+	s := t.Unix()
+	// skip if default/zero value:
+	if s != 0 {
+		bz = append(bz, encodeFieldNumberAndTyp3(1, 0)...)
+		bz = append(bz, encodeUvarint(uint64(s))...)
+	}
+	ns := int32(t.Nanosecond()) // this int64 -> int32 cast is safe (nanos are in [0, 999999999])
+	// skip if default/zero value:
+	if ns != 0 {
+		bz = append(bz, encodeFieldNumberAndTyp3(2, 0)...)
+		bz = append(bz, encodeUvarint(uint64(ns))...)
+	}
+	return bz
+}
 
-// // Write field key.
-// func encodeFieldNumberAndTyp3(num uint32, typ uint8) []byte {
-// 	return encodeUvarint((uint64(num) << 3) | uint64(typ))
-// }
+// Write field key.
+func encodeFieldNumberAndTyp3(num uint32, typ uint8) []byte {
+	return encodeUvarint((uint64(num) << 3) | uint64(typ))
+}
+
+func getParentHash(path IAVLMerklePath, subtreeHash []byte) []byte {
+	preimage := append(path.Prefix, subtreeHash...)
+	preimage = append(preimage, path.Suffix...)
+	return tmhash.Sum(preimage)
+}

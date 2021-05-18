@@ -2,6 +2,7 @@ package proof
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -24,20 +25,20 @@ const (
 	RequestIDTag = "requestID"
 )
 
-// func init() {
-// 	err := json.Unmarshal(relayFormat, &relayArguments)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	err = json.Unmarshal(verifyFormat, &verifyArguments)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	err = json.Unmarshal(verifyCountFormat, &verifyCountArguments)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// }
+func init() {
+	err := json.Unmarshal(relayFormat, &relayArguments)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(verifyFormat, &verifyArguments)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(verifyCountFormat, &verifyCountArguments)
+	if err != nil {
+		panic(err)
+	}
+}
 
 type BlockRelayProof struct {
 	MultiStoreProof        MultiStoreProof        `json:"multiStoreProof"`
