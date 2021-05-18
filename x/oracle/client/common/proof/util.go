@@ -4,14 +4,47 @@ import (
 	"encoding/hex"
 	"reflect"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	gogotypes "github.com/gogo/protobuf/types"
+	"github.com/tendermint/tendermint/libs/bytes"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
 // Copied from https://github.com/tendermint/tendermint/blob/master/types/utils.go
-func cdcEncode(cdc *codec.LegacyAmino, item interface{}) []byte {
+func cdcEncode(item interface{}) tmbytes.HexBytes {
 	if item != nil && !isTypedNil(item) && !isEmpty(item) {
-		return cdc.MustMarshalBinaryBare(item)
+		switch item := item.(type) {
+		case string:
+			i := gogotypes.StringValue{
+				Value: item,
+			}
+			bz, err := i.Marshal()
+			if err != nil {
+				return nil
+			}
+			return bz
+		case int64:
+			i := gogotypes.Int64Value{
+				Value: item,
+			}
+			bz, err := i.Marshal()
+			if err != nil {
+				return nil
+			}
+			return bz
+		case bytes.HexBytes:
+			i := gogotypes.BytesValue{
+				Value: item,
+			}
+			bz, err := i.Marshal()
+			if err != nil {
+				return nil
+			}
+			return bz
+		default:
+			panic(item)
+		}
 	}
+
 	return nil
 }
 

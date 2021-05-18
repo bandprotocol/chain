@@ -1,7 +1,6 @@
 package proof
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tendermint/tendermint/crypto/merkle"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
@@ -71,31 +70,42 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 }
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
-func GetBlockHeaderMerkleParts(codec *codec.LegacyAmino, block *types.Header) BlockHeaderMerkleParts {
+func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
+	hbz, err := block.Version.Marshal()
+	if err != nil {
+		panic(err)
+	}
+
+	pbbi := block.LastBlockID.ToProto()
+	bzbi, err := pbbi.Marshal()
+	if err != nil {
+		panic(err)
+	}
+
 	return BlockHeaderMerkleParts{
 		VersionAndChainIdHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(codec, block.Version),
-			cdcEncode(codec, block.ChainID),
+			hbz,
+			cdcEncode(block.ChainID),
 		}),
 		Height:         uint64(block.Height),
 		TimeSecond:     uint64(block.Time.Unix()),
 		TimeNanoSecond: uint32(block.Time.Nanosecond()),
 		LastBlockIDAndOther: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(codec, block.LastBlockID),
-			cdcEncode(codec, block.LastCommitHash),
-			cdcEncode(codec, block.DataHash),
-			cdcEncode(codec, block.ValidatorsHash),
+			bzbi,
+			cdcEncode(block.LastCommitHash),
+			cdcEncode(block.DataHash),
+			cdcEncode(block.ValidatorsHash),
 		}),
 		NextValidatorHashAndConsensusHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(codec, block.NextValidatorsHash),
-			cdcEncode(codec, block.ConsensusHash),
+			cdcEncode(block.NextValidatorsHash),
+			cdcEncode(block.ConsensusHash),
 		}),
 		LastResultsHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(codec, block.LastResultsHash),
+			cdcEncode(block.LastResultsHash),
 		}),
 		EvidenceAndProposerHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(codec, block.EvidenceHash),
-			cdcEncode(codec, block.ProposerAddress),
+			cdcEncode(block.EvidenceHash),
+			cdcEncode(block.ProposerAddress),
 		}),
 	}
 }
