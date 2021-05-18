@@ -20,14 +20,14 @@ import (
 )
 
 type JsonMultiProof struct {
-	BlockHeight          uint64            `json:"blockHeight"`
-	OracleDataMultiProof []OracleDataProof `json:"oracleDataMultiProof"`
-	BlockRelayProof      BlockRelayProof   `json:"blockRelayProof"`
+	BlockHeight          uint64            `json:"block_height"`
+	OracleDataMultiProof []OracleDataProof `json:"oracle_data_multi_proof"`
+	BlockRelayProof      BlockRelayProof   `json:"block_relay_proof"`
 }
 
 type MultiProof struct {
-	JsonProof     JsonMultiProof   `json:"jsonProof"`
-	EVMProofBytes tmbytes.HexBytes `json:"evmProofBytes"`
+	JsonProof     JsonMultiProof   `json:"json_proof"`
+	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
 func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {

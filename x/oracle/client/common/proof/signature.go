@@ -23,8 +23,8 @@ type TMSignature struct {
 	R                tmbytes.HexBytes `json:"r"`
 	S                tmbytes.HexBytes `json:"s"`
 	V                uint8            `json:"v"`
-	SignedDataPrefix tmbytes.HexBytes `json:"signedDataPrefix"`
-	SignedDataSuffix tmbytes.HexBytes `json:"signedDataSuffix"`
+	SignedDataPrefix tmbytes.HexBytes `json:"signed_data_prefix"`
+	SignedDataSuffix tmbytes.HexBytes `json:"signed_data_suffix"`
 }
 
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.

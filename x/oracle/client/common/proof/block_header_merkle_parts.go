@@ -34,14 +34,14 @@ import (
 // root hash, since we only want to validate the correctness of [2], [3], and [A]. In fact, only
 // [1A], [2B], [1E], [B], and [2D] are needed in order to compute [BlockHeader].
 type BlockHeaderMerkleParts struct {
-	VersionAndChainIdHash             tmbytes.HexBytes `json:"versionAndChainIdHash"`
+	VersionAndChainIDHash             tmbytes.HexBytes `json:"version_and_chain_id_hash"`
 	Height                            uint64           `json:"height"`
-	TimeSecond                        uint64           `json:"timeSecond"`
-	TimeNanoSecond                    uint32           `json:"timeNanoSecond"`
-	LastBlockIDAndOther               tmbytes.HexBytes `json:"lastBlockIDAndOther"`
-	NextValidatorHashAndConsensusHash tmbytes.HexBytes `json:"nextValidatorHashAndConsensusHash"`
-	LastResultsHash                   tmbytes.HexBytes `json:"lastResultsHash"`
-	EvidenceAndProposerHash           tmbytes.HexBytes `json:"evidenceAndProposerHash"`
+	TimeSecond                        uint64           `json:"time_second"`
+	TimeNanoSecond                    uint32           `json:"time_nano_second"`
+	LastBlockIDAndOther               tmbytes.HexBytes `json:"last_block_id_and_other"`
+	NextValidatorHashAndConsensusHash tmbytes.HexBytes `json:"next_validator_hash_and_consensus_hash"`
+	LastResultsHash                   tmbytes.HexBytes `json:"last_results_hash"`
+	EvidenceAndProposerHash           tmbytes.HexBytes `json:"evidence_and_proposer_hash"`
 }
 
 // BlockHeaderMerklePartsEthereum is an Ethereum version of BlockHeaderMerkleParts for solidity ABI-encoding.
@@ -58,7 +58,7 @@ type BlockHeaderMerklePartsEthereum struct {
 
 func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthereum {
 	return BlockHeaderMerklePartsEthereum{
-		VersionAndChainIdHash:             common.BytesToHash(bp.VersionAndChainIdHash),
+		VersionAndChainIdHash:             common.BytesToHash(bp.VersionAndChainIDHash),
 		Height:                            bp.Height,
 		TimeSecond:                        bp.TimeSecond,
 		TimeNanoSecond:                    bp.TimeNanoSecond,
@@ -83,7 +83,7 @@ func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
 	}
 
 	return BlockHeaderMerkleParts{
-		VersionAndChainIdHash: merkle.HashFromByteSlices([][]byte{
+		VersionAndChainIDHash: merkle.HashFromByteSlices([][]byte{
 			hbz,
 			cdcEncode(block.ChainID),
 		}),

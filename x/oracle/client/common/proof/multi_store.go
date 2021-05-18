@@ -24,8 +24,8 @@ import (
 // root hash, since we only want to validate the correctness of [6] In fact, only
 // [7], [I3], [I5], and [I10] are needed in order to compute [AppHash].
 type MultiStoreProof struct {
-	OracleIAVLStateHash tmbytes.HexBytes `json:"oracleIAVLStateHash"`
-	MerklePaths         []IAVLMerklePath `json:"merklePaths"`
+	OracleIAVLStateHash tmbytes.HexBytes `json:"oracle_iavl_state_hash"`
+	MerklePaths         []IAVLMerklePath `json:"merkle_paths"`
 }
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.

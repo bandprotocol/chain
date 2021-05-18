@@ -19,14 +19,14 @@ import (
 )
 
 type JsonProof struct {
-	BlockHeight     uint64          `json:"blockHeight"`
-	OracleDataProof OracleDataProof `json:"oracleDataProof"`
-	BlockRelayProof BlockRelayProof `json:"blockRelayProof"`
+	BlockHeight     uint64          `json:"block_height"`
+	OracleDataProof OracleDataProof `json:"oracle_data_proof"`
+	BlockRelayProof BlockRelayProof `json:"block_relay_proof"`
 }
 
 type Proof struct {
-	JsonProof     JsonProof        `json:"jsonProof"`
-	EVMProofBytes tmbytes.HexBytes `json:"evmProofBytes"`
+	JsonProof     JsonProof        `json:"json_proof"`
+	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
 func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {

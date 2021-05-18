@@ -41,8 +41,8 @@ func init() {
 }
 
 type BlockRelayProof struct {
-	MultiStoreProof        MultiStoreProof        `json:"multiStoreProof"`
-	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"blockHeaderMerkleParts"`
+	MultiStoreProof        MultiStoreProof        `json:"multi_store_proof"`
+	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"block_header_merkle_parts"`
 	Signatures             []TMSignature          `json:"signatures"`
 }
 
@@ -62,7 +62,7 @@ func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 type OracleDataProof struct {
 	Result      types.Result     `json:"result"`
 	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []IAVLMerklePath `json:"merklePaths"`
+	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
 }
 
 func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
@@ -81,7 +81,7 @@ func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 type RequestsCountProof struct {
 	Count       uint64           `json:"count"`
 	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []IAVLMerklePath `json:"merklePaths"`
+	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
 }
 
 func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {

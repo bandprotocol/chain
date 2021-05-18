@@ -14,14 +14,14 @@ import (
 )
 
 type JsonRequestsCountProof struct {
-	BlockHeight     uint64             `json:"blockHeigh"`
-	CountProof      RequestsCountProof `json:"countProof"`
-	BlockRelayProof BlockRelayProof    `json:"blockRelayProof"`
+	BlockHeight     uint64             `json:"block_heigh"`
+	CountProof      RequestsCountProof `json:"count_proof"`
+	BlockRelayProof BlockRelayProof    `json:"block_relay_proof"`
 }
 
 type CountProof struct {
-	JsonProof     JsonRequestsCountProof `json:"jsonProof"`
-	EVMProofBytes tmbytes.HexBytes       `json:"evmProofBytes"`
+	JsonProof     JsonRequestsCountProof `json:"json_proof"`
+	EVMProofBytes tmbytes.HexBytes       `json:"evm_proof_bytes"`
 }
 
 func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {

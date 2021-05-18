@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/types"
 )
@@ -69,14 +70,14 @@ func TestBlockHeaderMerkleParts(t *testing.T) {
 		ProposerAddress:    hexToBytes("F0C23921727D869745C4F9703CF33996B1D2B715"),
 	}
 	blockMerkleParts := GetBlockHeaderMerkleParts(&header)
-	expectBlockHash := hexToBytes("253E2EF603743B5CD0C7E8B8591082190398A16032ED2FF096F854033D106F4E").Bytes()
-	appHash := hexToBytes("87E354BB1C3E363A43CAD782F331C25C3228A131A30F56CBDEE9D899AE035741")
+	expectBlockHash := hexToBytes("253E2EF603743B5CD0C7E8B8591082190398A16032ED2FF096F854033D106F4E")
+	appHash := tmbytes.HexBytes(hexToBytes("87E354BB1C3E363A43CAD782F331C25C3228A131A30F56CBDEE9D899AE035741"))
 
 	// Verify code
 	blockHash := innerHash(
 		innerHash(
 			innerHash(
-				blockMerkleParts.VersionAndChainIdHash,
+				blockMerkleParts.VersionAndChainIDHash,
 				innerHash(
 					leafHash(cdcEncode(header.Height)),
 					leafHash(encodeTime(header.Time)),

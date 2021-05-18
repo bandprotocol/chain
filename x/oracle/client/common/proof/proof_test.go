@@ -4,10 +4,9 @@ import (
 	"encoding/hex"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
-func hexToBytes(hexstr string) tmbytes.HexBytes {
+func hexToBytes(hexstr string) []byte {
 	b, err := hex.DecodeString(hexstr)
 	if err != nil {
 		panic(err)
