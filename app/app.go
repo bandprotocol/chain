@@ -138,6 +138,7 @@ var (
 		oracletypes.ModuleName:         nil,
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
+		auctiontypes.ModuleName:        nil,
 		odinminttypes.ModuleName:       {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -145,7 +146,8 @@ var (
 	}
 	// module accounts that are allowed to receive tokens.
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName: true,
+		distrtypes.ModuleName:   true,
+		auctiontypes.ModuleName: true,
 	}
 )
 
@@ -344,9 +346,7 @@ func NewBandApp(
 		appCodec,
 		keys[auctiontypes.StoreKey],
 		app.GetSubspace(auctiontypes.ModuleName),
-		app.BankKeeper,
-		app.DistrKeeper,
-		app.OracleKeeper,
+		app.AccountKeeper,
 		app.CoinswapKeeper,
 	)
 

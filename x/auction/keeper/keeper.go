@@ -5,6 +5,7 @@ import (
 	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -13,9 +14,7 @@ type Keeper struct {
 	storeKey       sdk.StoreKey
 	cdc            codec.BinaryMarshaler
 	paramstore     paramstypes.Subspace
-	bankKeeper     auctiontypes.BankKeeper
-	distrKeeper    auctiontypes.DistrKeeper
-	oracleKeeper   auctiontypes.OracleKeeper
+	authKeeper     auctiontypes.AccountKeeper
 	coinswapKeeper auctiontypes.CoinswapKeeper
 }
 
@@ -23,22 +22,23 @@ func NewKeeper(
 	cdc codec.BinaryMarshaler,
 	key sdk.StoreKey,
 	subspace paramstypes.Subspace,
-	bk auctiontypes.BankKeeper,
-	dk auctiontypes.DistrKeeper,
-	ok auctiontypes.OracleKeeper,
+	ak auctiontypes.AccountKeeper,
 	ck auctiontypes.CoinswapKeeper,
 ) Keeper {
+	// ensure auction module account is set
+	if addr := ak.GetModuleAddress(auctiontypes.ModuleName); addr == nil {
+		panic("the auction module account has not been set")
+	}
 
 	if !subspace.HasKeyTable() {
 		subspace = subspace.WithKeyTable(auctiontypes.ParamKeyTable())
 	}
+
 	return Keeper{
 		cdc:            cdc,
 		storeKey:       key,
 		paramstore:     subspace,
-		bankKeeper:     bk,
-		distrKeeper:    dk,
-		oracleKeeper:   ok,
+		authKeeper:     ak,
 		coinswapKeeper: ck,
 	}
 }
@@ -57,4 +57,27 @@ func (k Keeper) SetParams(ctx sdk.Context, value auctiontypes.Params) {
 func (k Keeper) GetParams(ctx sdk.Context) (params auctiontypes.Params) {
 	k.paramstore.GetParamSet(ctx, &params)
 	return params
+}
+
+// GetAuctionAccount returns the auction ModuleAccount
+func (k Keeper) GetAuctionAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+	return k.authKeeper.GetModuleAccount(ctx, auctiontypes.ModuleName)
+}
+
+// SetAuctionAccount sets the module account
+func (k Keeper) SetAuctionAccount(ctx sdk.Context, moduleAcc authtypes.ModuleAccountI) {
+	k.authKeeper.SetModuleAccount(ctx, moduleAcc)
+}
+
+func (k Keeper) StartAuction(ctx sdk.Context) error {
+/*	moduleAcc := k.GetAuctionAccount(ctx)
+	params := k.GetParams(ctx)
+
+*/
+	/*if err := k.coinswapKeeper.ExchangeDenom(ctx, params.ExchangePair.FromDenom, params.ExchangePair.ToDenom, params.Threshold, moduleAcc.GetAddress()); err != nil {
+		return sdkerrors.Wrap(err, "failed to exchange coins") // TODO: add more details
+	}*/
+	//params := k.GetParams(ctx)
+	//k.coinswapKeeper.ExchangeDenom()
+	return nil
 }
