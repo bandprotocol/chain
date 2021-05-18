@@ -59,7 +59,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 		}
 		blockRelay := BlockRelayProof{
 			MultiStoreProof:        GetMultiStoreProof(multiStoreEp),
-			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.LegacyAmino, commit.Header),
+			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
 			Signatures:             signatures,
 		}
 

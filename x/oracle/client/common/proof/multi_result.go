@@ -54,7 +54,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc
 		}
 
 		blockRelay := BlockRelayProof{
-			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.LegacyAmino, commit.Header),
+			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
 			Signatures:             signatures,
 		}
 
