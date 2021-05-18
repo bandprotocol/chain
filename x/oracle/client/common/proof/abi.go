@@ -6,28 +6,25 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "accToGovStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "mainAndMintStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
         "name": "oracleIAVLStateHash",
         "type": "bytes32"
       },
       {
-        "internalType": "bytes32",
-        "name": "paramsStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "slashingToUpgradeStoresMerkleHash",
-        "type": "bytes32"
+        "components": [
+          {
+            "internalType": "bytes",
+            "name": "prefix",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "suffix",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IAVLMerklePath.Data[]",
+        "name": "merklePaths",
+        "type": "tuple[]"
       }
     ],
     "internalType": "struct MultiStore.Data",
@@ -137,7 +134,7 @@ var verifyFormat = []byte(`
       },
       {
         "internalType": "bytes",
-        "name": "params",
+        "name": "callData",
         "type": "bytes"
       },
       {
@@ -149,18 +146,6 @@ var verifyFormat = []byte(`
         "internalType": "uint64",
         "name": "minCount",
         "type": "uint64"
-      }
-    ],
-    "internalType": "struct IBridge.RequestPacket",
-    "name": "_requestPacket",
-    "type": "tuple"
-  },
-  {
-    "components": [
-      {
-        "internalType": "string",
-        "name": "clientId",
-        "type": "string"
       },
       {
         "internalType": "uint64",
@@ -193,41 +178,26 @@ var verifyFormat = []byte(`
         "type": "bytes"
       }
     ],
-    "internalType": "struct IBridge.ResponsePacket",
-    "name": "_responsePacket",
+    "internalType": "struct IBridge.Result",
+    "name": "_result",
     "type": "tuple"
   },
   {
-    "internalType": "uint256",
-    "name": "_version",
-    "type": "uint256"
+    "internalType": "bytes",
+    "name": "_prefix",
+    "type": "bytes"
   },
   {
     "components": [
       {
-        "internalType": "bool",
-        "name": "isDataOnRight",
-        "type": "bool"
+        "internalType": "bytes",
+        "name": "prefix",
+        "type": "bytes"
       },
       {
-        "internalType": "uint8",
-        "name": "subtreeHeight",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeSize",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeVersion",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "siblingHash",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "suffix",
+        "type": "bytes"
       }
     ],
     "internalType": "struct IAVLMerklePath.Data[]",
@@ -250,36 +220,21 @@ var verifyCountFormat = []byte(`
     "type": "uint256"
   },
   {
-    "internalType": "uint256",
-    "name": "_version",
-    "type": "uint256"
+    "internalType": "bytes",
+    "name": "_prefix",
+    "type": "bytes"
   },
   {
     "components": [
       {
-        "internalType": "bool",
-        "name": "isDataOnRight",
-        "type": "bool"
+        "internalType": "bytes",
+        "name": "prefix",
+        "type": "bytes"
       },
       {
-        "internalType": "uint8",
-        "name": "subtreeHeight",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeSize",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeVersion",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "siblingHash",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "suffix",
+        "type": "bytes"
       }
     ],
     "internalType": "struct IAVLMerklePath.Data[]",

@@ -1,28 +1,28 @@
 package proof
 
-// import (
-// 	"encoding/json"
-// 	"fmt"
-// 	"math/big"
+import (
+	"context"
+	"fmt"
+	"math/big"
 
-// 	"github.com/cosmos/cosmos-sdk/client/context"
-// 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
-// 	"github.com/ethereum/go-ethereum/accounts/abi"
-// 	"github.com/tendermint/iavl"
-// 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+	"github.com/bandprotocol/chain/x/oracle/types"
+	ics23 "github.com/confio/ics23/go"
+	"github.com/cosmos/cosmos-sdk/client"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
+)
 
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// )
+var (
+	relayArguments       abi.Arguments
+	verifyArguments      abi.Arguments
+	verifyCountArguments abi.Arguments
+)
 
-// var (
-// 	relayArguments       abi.Arguments
-// 	verifyArguments      abi.Arguments
-// 	verifyCountArguments abi.Arguments
-// )
-
-// const (
-// 	RequestIDTag = "requestID"
-// )
+const (
+	RequestIDTag = "requestID"
+)
 
 // func init() {
 // 	err := json.Unmarshal(relayFormat, &relayArguments)
@@ -39,105 +39,115 @@ package proof
 // 	}
 // }
 
-// type BlockRelayProof struct {
-// 	MultiStoreProof        MultiStoreProof        `json:"multiStoreProof"`
-// 	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"blockHeaderMerkleParts"`
-// 	Signatures             []TMSignature          `json:"signatures"`
-// }
+type BlockRelayProof struct {
+	MultiStoreProof        MultiStoreProof        `json:"multiStoreProof"`
+	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"blockHeaderMerkleParts"`
+	Signatures             []TMSignature          `json:"signatures"`
+}
 
-// func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
-// 	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
-// 	for i, sig := range blockRelay.Signatures {
-// 		parseSignatures[i] = sig.encodeToEthFormat()
-// 	}
-// 	return relayArguments.Pack(
-// 		blockRelay.MultiStoreProof.encodeToEthFormat(),
-// 		blockRelay.BlockHeaderMerkleParts.encodeToEthFormat(),
-// 		parseSignatures,
-// 	)
-// }
+func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
+	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
+	for i, sig := range blockRelay.Signatures {
+		parseSignatures[i] = sig.encodeToEthFormat()
+	}
+	return relayArguments.Pack(
+		blockRelay.MultiStoreProof.encodeToEthFormat(),
+		blockRelay.BlockHeaderMerkleParts.encodeToEthFormat(),
+		parseSignatures,
+	)
+}
 
-// type OracleDataProof struct {
-// 	RequestPacket  types.OracleRequestPacketData  `json:"requestPacket"`
-// 	ResponsePacket types.OracleResponsePacketData `json:"responsePacket"`
-// 	Version        uint64                         `json:"version"`
-// 	MerklePaths    []IAVLMerklePath               `json:"merklePaths"`
-// }
+// TODO: Prefix is currently a dynamic-sized bytes, make it fixed
+type OracleDataProof struct {
+	Result      types.Result     `json:"result"`
+	Prefix      tmbytes.HexBytes `json:"prefix"`
+	MerklePaths []IAVLMerklePath `json:"merklePaths"`
+}
 
-// func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-// 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
-// 	for i, path := range o.MerklePaths {
-// 		parsePaths[i] = path.encodeToEthFormat()
-// 	}
-// 	return verifyArguments.Pack(
-// 		big.NewInt(int64(blockHeight)),
-// 		transformRequestPacket(o.RequestPacket),
-// 		transformResponsePacket(o.ResponsePacket),
-// 		big.NewInt(int64(o.Version)),
-// 		parsePaths,
-// 	)
-// }
+func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
+	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
+	for i, path := range o.MerklePaths {
+		parsePaths[i] = path.encodeToEthFormat()
+	}
+	return verifyArguments.Pack(
+		big.NewInt(int64(blockHeight)),
+		transformResult(o.Result),
+		o.Prefix,
+		parsePaths,
+	)
+}
 
-// type RequestsCountProof struct {
-// 	Count       uint64           `json:"count"`
-// 	Version     uint64           `json:"version"`
-// 	MerklePaths []IAVLMerklePath `json:"merklePaths"`
-// }
+type RequestsCountProof struct {
+	Count       uint64           `json:"count"`
+	Prefix      tmbytes.HexBytes `json:"prefix"`
+	MerklePaths []IAVLMerklePath `json:"merklePaths"`
+}
 
-// func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-// 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
-// 	for i, path := range o.MerklePaths {
-// 		parsePaths[i] = path.encodeToEthFormat()
-// 	}
-// 	return verifyCountArguments.Pack(
-// 		big.NewInt(int64(blockHeight)),
-// 		big.NewInt(int64(o.Count)),
-// 		big.NewInt(int64(o.Version)),
-// 		parsePaths,
-// 	)
-// }
+func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
+	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
+	for i, path := range o.MerklePaths {
+		parsePaths[i] = path.encodeToEthFormat()
+	}
+	return verifyCountArguments.Pack(
+		big.NewInt(int64(blockHeight)),
+		big.NewInt(int64(o.Count)),
+		o.Prefix,
+		parsePaths,
+	)
+}
 
-// func getProofsByKey(ctx context.CLIContext, key []byte, queryOptions rpcclient.ABCIQueryOptions) ([]byte, iavl.ValueOp, rootmulti.MultiStoreProofOp, error) {
-// 	resp, err := ctx.Client.ABCIQueryWithOptions(
-// 		"/store/oracle/key",
-// 		key,
-// 		queryOptions,
-// 	)
-// 	if err != nil {
-// 		return nil, iavl.ValueOp{}, rootmulti.MultiStoreProofOp{}, err
-// 	}
+func getProofsByKey(ctx client.Context, key []byte, queryOptions rpcclient.ABCIQueryOptions) ([]byte, *ics23.ExistenceProof, *ics23.ExistenceProof, error) {
+	resp, err := ctx.Client.ABCIQueryWithOptions(
+		context.Background(),
+		"/store/oracle/key",
+		key,
+		queryOptions,
+	)
+	if err != nil {
+		return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, err
+	}
 
-// 	proof := resp.Response.GetProof()
-// 	if proof == nil {
-// 		return nil, iavl.ValueOp{}, rootmulti.MultiStoreProofOp{}, fmt.Errorf("Proof not found")
-// 	}
+	proof := resp.Response.GetProofOps()
+	if proof == nil {
+		return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Proof not found")
+	}
 
-// 	ops := proof.GetOps()
-// 	if ops == nil {
-// 		return nil, iavl.ValueOp{}, rootmulti.MultiStoreProofOp{}, fmt.Errorf("Proof ops not found")
-// 	}
+	ops := proof.GetOps()
+	if ops == nil {
+		return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Proof ops not found")
+	}
 
-// 	// Extract iavl proof and multi store proof
-// 	var iavlProof iavl.ValueOp
-// 	var multiStoreProof rootmulti.MultiStoreProofOp
-// 	for _, op := range ops {
+	// Extract iavl proof and multistore existence proof
+	var iavlEp *ics23.ExistenceProof
+	var multiStoreEp *ics23.ExistenceProof
+	for _, op := range ops {
+		switch op.GetType() {
+		case storetypes.ProofOpIAVLCommitment:
+			proof := &ics23.CommitmentProof{}
+			err := proof.Unmarshal(op.Data)
+			if err != nil {
+				panic(err)
+			}
+			iavlOps := storetypes.NewIavlCommitmentOp(op.Key, proof)
+			iavlEp = iavlOps.Proof.GetExist()
+			if iavlEp == nil {
+				return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("iavl existence proof not found")
+			}
+		case storetypes.ProofOpSimpleMerkleCommitment:
+			proof := &ics23.CommitmentProof{}
+			err := proof.Unmarshal(op.Data)
+			if err != nil {
+				panic(err)
+			}
+			multiStoreOps := storetypes.NewSimpleMerkleCommitmentOp(op.Key, proof)
+			multiStoreEp = multiStoreOps.Proof.GetExist()
+			if multiStoreEp == nil {
+				return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("multistore existence proof not found")
+			}
+		default:
+			return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Unknown Proof ops found")
+		}
+	}
 
-// 		opType := op.GetType()
-
-// 		if opType == "iavl:v" {
-// 			err := ctx.Codec.UnmarshalBinaryLengthPrefixed(op.GetData(), &iavlProof)
-// 			if err != nil {
-// 				return nil, iavl.ValueOp{}, rootmulti.MultiStoreProofOp{}, fmt.Errorf("iavl: %s", err.Error())
-// 			}
-// 		} else if opType == "multistore" {
-// 			mp, err := rootmulti.MultiStoreProofOpDecoder(op)
-
-// 			multiStoreProof = mp.(rootmulti.MultiStoreProofOp)
-// 			if err != nil {
-// 				return nil, iavl.ValueOp{}, rootmulti.MultiStoreProofOp{}, fmt.Errorf("multiStore: %s", err.Error())
-// 			}
-// 		}
-// 	}
-
-// 	return resp.Response.GetValue(), iavlProof, multiStoreProof, nil
-// }
+	return resp.Response.GetValue(), iavlEp, multiStoreEp, nil
+}
