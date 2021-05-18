@@ -328,8 +328,9 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 
 	for idx, msg := range tx.GetMsgs() {
 		var extra = make(common.JsDict)
+		var msgJson = make(common.JsDict)
 		if res.IsOK() {
-			h.handleMsg(ctx, txHash, msg, logs[idx], extra)
+			h.handleMsg(ctx, txHash, msg, logs[idx], extra, msgJson)
 		}
 		messages = append(messages, common.JsDict{
 			"msg":   string(h.cdc.MustMarshalJSON(msg)),

@@ -7,8 +7,11 @@ import (
 )
 
 // handleMsgSend implements emitter handler for MsgSend.
-func (h *Hook) handleMsgSend(msg *types.MsgSend) {
+func (h *Hook) handleMsgSend(msg *types.MsgSend, msgJson common.JsDict) {
 	h.AddAccountsInTx(msg.ToAddress)
+	msgJson["from_address"] = msg.FromAddress
+	msgJson["to_address"] = msg.ToAddress
+	msgJson["amount"] = msg.Amount.String()
 }
 
 // handleMsgMultiSend implements emitter handler for MsgMultiSend.

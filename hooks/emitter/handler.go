@@ -27,7 +27,7 @@ func parseEvents(events sdk.StringEvents) common.EvMap {
 
 // handleMsg handles the given message by publishing relevant events and populates accounts
 // that need balance update in 'h.accs'. Also fills in extra info for this message.
-func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, extra common.JsDict) {
+func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, extra common.JsDict, msgJson common.JsDict) {
 	evMap := parseEvents(log.Events)
 	switch msg := msg.(type) {
 	case *oracletypes.MsgRequestData:
@@ -59,7 +59,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *stakingtypes.MsgBeginRedelegate:
 		h.handleMsgBeginRedelegate(ctx, msg, evMap, extra)
 	case *banktypes.MsgSend:
-		h.handleMsgSend(msg)
+		h.handleMsgSend(msg, msgJson)
 	case *banktypes.MsgMultiSend:
 		h.handleMsgMultiSend(msg)
 	case *distrtypes.MsgWithdrawDelegatorReward:
