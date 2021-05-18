@@ -35,7 +35,7 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "versionAndChainIdHash",
+        "name": "versionAndChainIDHash",
         "type": "bytes32"
       },
       {

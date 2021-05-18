@@ -34,7 +34,7 @@ func innerHash(left, right []byte) []byte {
 // 			SlashingToUpgradeStoresMerkleHash: hexToBytes("F5E26E9E91F18051F41453B5A5FC82279C364351155CEA5564B9D61BC12BE58A"),
 // 		},
 // 		BlockHeaderMerkleParts: BlockHeaderMerkleParts{
-// 			VersionAndChainIdHash:             hexToBytes("3561783E9C3BDF932A16580FC0C9CEFFEC4C509073FFF65A42871BFAB64408AE"),
+// 			VersionAndChainIDHash:             hexToBytes("3561783E9C3BDF932A16580FC0C9CEFFEC4C509073FFF65A42871BFAB64408AE"),
 // 			Height:                            3021518,
 // 			TimeSecond:                        1605721438,
 // 			TimeNanoSecond:                    605059026,

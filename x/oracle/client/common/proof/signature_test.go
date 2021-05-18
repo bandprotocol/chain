@@ -182,6 +182,6 @@ func TestVerifySignature(t *testing.T) {
 		sigBytes = append(sigBytes, sig.V-27)
 		pub, err := crypto.SigToPub(tmhash.Sum(msg), sigBytes)
 		require.Nil(t, err)
-		require.Equal(t, evmAddresses[i], pub)
+		require.Equal(t, evmAddresses[i], crypto.PubkeyToAddress(*pub))
 	}
 }
