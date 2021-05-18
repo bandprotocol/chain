@@ -137,7 +137,7 @@ var verifyFormat = []byte(`
       },
       {
         "internalType": "bytes",
-        "name": "params",
+        "name": "callData",
         "type": "bytes"
       },
       {
@@ -193,29 +193,14 @@ var verifyFormat = []byte(`
   {
     "components": [
       {
-        "internalType": "bool",
-        "name": "isDataOnRight",
-        "type": "bool"
+        "internalType": "bytes",
+        "name": "prefix",
+        "type": "bytes"
       },
       {
-        "internalType": "uint8",
-        "name": "subtreeHeight",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeSize",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeVersion",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "siblingHash",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "suffix",
+        "type": "bytes"
       }
     ],
     "internalType": "struct IAVLMerklePath.Data[]",
@@ -245,29 +230,14 @@ var verifyCountFormat = []byte(`
   {
     "components": [
       {
-        "internalType": "bool",
-        "name": "isDataOnRight",
-        "type": "bool"
+        "internalType": "bytes",
+        "name": "prefix",
+        "type": "bytes"
       },
       {
-        "internalType": "uint8",
-        "name": "subtreeHeight",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeSize",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "subtreeVersion",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "siblingHash",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "suffix",
+        "type": "bytes"
       }
     ],
     "internalType": "struct IAVLMerklePath.Data[]",

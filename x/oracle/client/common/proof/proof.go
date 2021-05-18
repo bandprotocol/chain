@@ -81,10 +81,6 @@ type RequestsCountProof struct {
 	Count       uint64           `json:"count"`
 	Version     uint64           `json:"version"`
 	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
-}
-
-func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
