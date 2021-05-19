@@ -12,15 +12,15 @@ import (
 
 // TODO: update transfer acknowledgement for fungible token packet
 
-func (h *Hook) getPacket(ctx sdk.Context, evMap common.EvMap, isIncoming bool) common.JsDict {
+func (h *Hook) getPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, isIncoming bool) common.JsDict {
 	return common.JsDict{
 		"is_incoming":  isIncoming,
 		"block_height": ctx.BlockHeight(),
-		"src_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcChannel][0],
-		"src_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcPort][0],
-		"sequence":     common.Atoui(evMap[types.EventTypeSendPacket+"."+types.AttributeKeySequence][0]),
-		"dst_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstChannel][0],
-		"dst_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstPort][0],
+		"src_channel":  srcChannel,
+		"src_port":     srcPort,
+		"sequence":     sequence,
+		"dst_channel":  dstChannel,
+		"dst_port":     dstPort,
 	}
 }
 
@@ -132,7 +132,15 @@ func (h *Hook) extractOracleRequestPacket(
 func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, extra common.JsDict,
 ) {
-	packet := h.getPacket(ctx, evMap, true)
+	packet := h.getPacket(
+		ctx,
+		msg.Packet.SourcePort,
+		msg.Packet.SourceChannel,
+		msg.Packet.Sequence,
+		msg.Packet.DestinationPort,
+		msg.Packet.DestinationChannel,
+		true,
+	)
 	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, packet, evMap, extra); ok {
 		return
 	}
@@ -167,7 +175,15 @@ func (h *Hook) extractOracleResponsePacket(
 func (h *Hook) handleEventSendPacket(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	packet := h.getPacket(ctx, evMap, false)
+	packet := h.getPacket(
+		ctx,
+		evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcPort][0],
+		evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcChannel][0],
+		common.Atoui(evMap[types.EventTypeSendPacket+"."+types.AttributeKeySequence][0]),
+		evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstPort][0],
+		evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstChannel][0],
+		false,
+	)
 	if ok := h.extractOracleResponsePacket(ctx, packet, evMap); ok {
 		return
 	}
