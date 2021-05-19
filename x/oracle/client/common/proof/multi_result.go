@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/bandprotocol/chain/pkg/obi"
-	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	ics23 "github.com/confio/ics23/go"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -69,29 +68,6 @@ func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc
 				return
 			}
 			requestID := types.RequestID(intRequestID)
-			bz, _, err := ctx.Query(fmt.Sprintf("custom/%s/%s/%d", route, types.QueryRequests, requestID))
-			if err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			var qResult types.QueryResult
-			if err := json.Unmarshal(bz, &qResult); err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			if qResult.Status != http.StatusOK {
-				clientcmn.PostProcessQueryResponse(w, ctx, bz)
-				return
-			}
-			var request types.QueryRequestResult
-			if err := ctx.LegacyAmino.UnmarshalJSON(qResult.Result, &request); err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			if request.Result == nil {
-				rest.WriteErrorResponse(w, http.StatusNotFound, "Result has not been resolved")
-				return
-			}
 
 			resp, err := ctx.Client.ABCIQueryWithOptions(
 				context.Background(),

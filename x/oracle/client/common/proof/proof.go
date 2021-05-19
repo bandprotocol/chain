@@ -62,11 +62,11 @@ func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 type OracleDataProof struct {
 	Result      types.Result     `json:"result"`
 	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
+	MerklePaths []MerklePath     `json:"merkle_paths"`
 }
 
 func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
+	parsePaths := make([]MerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
@@ -81,11 +81,11 @@ func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 type RequestsCountProof struct {
 	Count       uint64           `json:"count"`
 	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
+	MerklePaths []MerklePath     `json:"merkle_paths"`
 }
 
 func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
+	parsePaths := make([]MerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}

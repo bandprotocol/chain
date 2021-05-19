@@ -25,17 +25,17 @@ import (
 // [7], [I3], [I5], and [I10] are needed in order to compute [AppHash].
 type MultiStoreProof struct {
 	OracleIAVLStateHash tmbytes.HexBytes `json:"oracle_iavl_state_hash"`
-	MerklePaths         []IAVLMerklePath `json:"merkle_paths"`
+	MerklePaths         []MerklePath     `json:"merkle_paths"`
 }
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
 type MultiStoreProofEthereum struct {
 	OracleIAVLStateHash common.Hash
-	MerklePaths         []IAVLMerklePathEthereum
+	MerklePaths         []MerklePathEthereum
 }
 
 func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
-	parsePaths := make([]IAVLMerklePathEthereum, len(m.MerklePaths))
+	parsePaths := make([]MerklePathEthereum, len(m.MerklePaths))
 	for i, path := range m.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
@@ -47,13 +47,13 @@ func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 
 // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
 func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
-	paths := make([]IAVLMerklePath, 0)
+	paths := make([]MerklePath, 0)
 	for _, step := range multiStoreEp.Path {
 		if step.Hash != ics23.HashOp_SHA256 {
 			// Currently tendermint is using SHA256 only, so we hardcode it for now.
 			return MultiStoreProof{}
 		}
-		imp := IAVLMerklePath{
+		imp := MerklePath{
 			step.Prefix,
 			step.Suffix,
 		}

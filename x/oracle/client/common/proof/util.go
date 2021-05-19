@@ -9,7 +9,7 @@ import (
 
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/libs/bytes"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
 // Copied from https://github.com/tendermint/tendermint/blob/master/types/encoding_helper.go
@@ -34,7 +34,7 @@ func cdcEncode(item interface{}) []byte {
 				return nil
 			}
 			return bz
-		case bytes.HexBytes:
+		case tmbytes.HexBytes:
 			i := gogotypes.BytesValue{
 				Value: item,
 			}
@@ -164,7 +164,7 @@ func encodeFieldNumberAndTyp3(num uint32, typ uint8) []byte {
 	return encodeUvarint((uint64(num) << 3) | uint64(typ))
 }
 
-func getParentHash(path IAVLMerklePath, subtreeHash []byte) []byte {
+func getParentHash(path MerklePath, subtreeHash []byte) []byte {
 	preimage := append(path.Prefix, subtreeHash...)
 	preimage = append(preimage, path.Suffix...)
 	return tmhash.Sum(preimage)
