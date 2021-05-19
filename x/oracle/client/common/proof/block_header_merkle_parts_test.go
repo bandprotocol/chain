@@ -77,13 +77,13 @@ func TestBlockHeaderMerkleParts(t *testing.T) {
 	blockHash := innerHash(
 		innerHash(
 			innerHash(
-				blockMerkleParts.VersionAndChainIDHash,
+				blockMerkleParts.VersionAndChainIdHash,
 				innerHash(
 					leafHash(cdcEncode(header.Height)),
 					leafHash(encodeTime(header.Time)),
 				),
 			),
-			blockMerkleParts.LastBlockIDAndOther,
+			blockMerkleParts.LastBlockIdAndOther,
 		),
 		innerHash(
 			innerHash(

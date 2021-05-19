@@ -30,8 +30,8 @@ func GetIAVLMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
 	paths := make([]IAVLMerklePath, 0)
 	for _, step := range iavlEp.Path {
 		if step.Hash != ics23.HashOp_SHA256 {
-			// Currently tendermint is using SHA256 only, so we hardcode it for now.
-			return nil
+			// Tendermint v0.34.9 is using SHA256 only.
+			panic("Expect HashOp_SHA256")
 		}
 		imp := IAVLMerklePath{
 			step.Prefix,

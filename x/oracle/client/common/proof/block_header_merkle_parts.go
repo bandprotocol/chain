@@ -34,11 +34,11 @@ import (
 // root hash, since we only want to validate the correctness of [2], [3], and [A]. In fact, only
 // [1A], [2B], [1E], [B], and [2D] are needed in order to compute [BlockHeader].
 type BlockHeaderMerkleParts struct {
-	VersionAndChainIDHash             tmbytes.HexBytes `json:"version_and_chain_id_hash"`
+	VersionAndChainIdHash             tmbytes.HexBytes `json:"version_and_chain_id_hash"`
 	Height                            uint64           `json:"height"`
 	TimeSecond                        uint64           `json:"time_second"`
 	TimeNanoSecond                    uint32           `json:"time_nano_second"`
-	LastBlockIDAndOther               tmbytes.HexBytes `json:"last_block_id_and_other"`
+	LastBlockIdAndOther               tmbytes.HexBytes `json:"last_block_id_and_other"`
 	NextValidatorHashAndConsensusHash tmbytes.HexBytes `json:"next_validator_hash_and_consensus_hash"`
 	LastResultsHash                   tmbytes.HexBytes `json:"last_results_hash"`
 	EvidenceAndProposerHash           tmbytes.HexBytes `json:"evidence_and_proposer_hash"`
@@ -58,11 +58,11 @@ type BlockHeaderMerklePartsEthereum struct {
 
 func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthereum {
 	return BlockHeaderMerklePartsEthereum{
-		VersionAndChainIDHash:             common.BytesToHash(bp.VersionAndChainIDHash),
+		VersionAndChainIDHash:             common.BytesToHash(bp.VersionAndChainIdHash),
 		Height:                            bp.Height,
 		TimeSecond:                        bp.TimeSecond,
 		TimeNanoSecond:                    bp.TimeNanoSecond,
-		LastBlockIDAndOther:               common.BytesToHash(bp.LastBlockIDAndOther),
+		LastBlockIDAndOther:               common.BytesToHash(bp.LastBlockIdAndOther),
 		NextValidatorHashAndConsensusHash: common.BytesToHash(bp.NextValidatorHashAndConsensusHash),
 		LastResultsHash:                   common.BytesToHash(bp.LastResultsHash),
 		EvidenceAndProposerHash:           common.BytesToHash(bp.EvidenceAndProposerHash),
@@ -71,6 +71,7 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
 func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
+	// based on https://github.com/tendermint/tendermint/blob/master/types/block.go#L448
 	hbz, err := block.Version.Marshal()
 	if err != nil {
 		panic(err)
@@ -83,14 +84,14 @@ func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
 	}
 
 	return BlockHeaderMerkleParts{
-		VersionAndChainIDHash: merkle.HashFromByteSlices([][]byte{
+		VersionAndChainIdHash: merkle.HashFromByteSlices([][]byte{
 			hbz,
 			cdcEncode(block.ChainID),
 		}),
 		Height:         uint64(block.Height),
 		TimeSecond:     uint64(block.Time.Unix()),
 		TimeNanoSecond: uint32(block.Time.Nanosecond()),
-		LastBlockIDAndOther: merkle.HashFromByteSlices([][]byte{
+		LastBlockIdAndOther: merkle.HashFromByteSlices([][]byte{
 			bzbi,
 			cdcEncode(block.LastCommitHash),
 			cdcEncode(block.DataHash),
