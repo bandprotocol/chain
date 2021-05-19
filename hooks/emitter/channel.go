@@ -10,6 +10,8 @@ import (
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
+// TODO: update transfer acknowledgement for fungible token packet
+
 func (h *Hook) getPacket(ctx sdk.Context, evMap common.EvMap, isIncoming bool) common.JsDict {
 	return common.JsDict{
 		"is_incoming":  isIncoming,
@@ -23,10 +25,10 @@ func (h *Hook) getPacket(ctx sdk.Context, evMap common.EvMap, isIncoming bool) c
 }
 
 func (h *Hook) extractFungibleTokenPacket(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, dataOfPacket []byte, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data ibcxfertypes.FungibleTokenPacketData
-	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
 		packet["type"] = "fungible token"
 		packet["data"] = common.JsDict{
@@ -35,14 +37,16 @@ func (h *Hook) extractFungibleTokenPacket(
 			"sender":   data.Sender,
 			"receiver": data.Receiver,
 		}
-		// TODO: patch this line when cosmos-sdk fix AttributeKeyAckSuccess value
-		if evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckSuccess][0] == "false" {
-			packet["acknowledgement"] = common.JsDict{
-				"success": true,
-			}
-		} else {
-			packet["acknowledgement"] = common.JsDict{
-				"success": false,
+		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckSuccess]; ok {
+			// TODO: patch this line when cosmos-sdk fix AttributeKeyAckSuccess value
+			if events[0] == "false" {
+				packet["acknowledgement"] = common.JsDict{
+					"success": true,
+				}
+			} else {
+				packet["acknowledgement"] = common.JsDict{
+					"success": false,
+				}
 			}
 		}
 		h.Write("NEW_PACKET", packet)
@@ -52,10 +56,10 @@ func (h *Hook) extractFungibleTokenPacket(
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
-	err := oracletypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
+	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
 			id := oracletypes.RequestID(common.Atoi(events[0]))
@@ -67,7 +71,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"calldata":         parseBytes(data.Calldata),
 				"ask_count":        data.AskCount,
 				"min_count":        data.MinCount,
-				"sender":           msg.Signer,
+				"sender":           signer,
 				"client_id":        data.ClientID,
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
@@ -129,10 +133,10 @@ func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, extra common.JsDict,
 ) {
 	packet := h.getPacket(ctx, evMap, true)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg, packet, evMap, extra); ok {
+	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, packet, evMap, extra); ok {
 		return
 	}
-	if ok := h.extractFungibleTokenPacket(ctx, txHash, msg, packet, evMap, extra); ok {
+	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, packet, evMap); ok {
 		return
 	}
 }
