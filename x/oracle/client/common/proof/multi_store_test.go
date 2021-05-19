@@ -63,7 +63,7 @@ func TestGetMultiStoreProof(t *testing.T) {
 	leafNode = append(leafNode, tmhash.Sum(value)...)        // value on this key is a result hash
 	currentHash := tmhash.Sum(leafNode)
 
-	paths := GetIAVLMerklePaths(multistoreEp)
+	paths := GetMerklePaths(multistoreEp)
 	for _, path := range paths {
 		currentHash = getParentHash(path, currentHash)
 	}

@@ -12,7 +12,7 @@ type MerklePath struct {
 	Suffix tmbytes.HexBytes `json:"suffix"`
 }
 
-// IAVLMerklePathEthereum is an Ethereum version of IAVLMerklePath for solidity ABI-encoding.
+// MerklePathEthereum is an Ethereum version of MerklePath for solidity ABI-encoding.
 type MerklePathEthereum struct {
 	Prefix []byte
 	Suffix []byte
@@ -25,8 +25,8 @@ func (merklePath *MerklePath) encodeToEthFormat() MerklePathEthereum {
 	}
 }
 
-// GetIAVLMerklePaths returns the list of IAVLMerklePath elements from the given iAVL proof.
-func GetIAVLMerklePaths(iavlEp *ics23.ExistenceProof) []MerklePath {
+// GetMerklePaths returns the list of MerklePath elements from the given iAVL proof.
+func GetMerklePaths(iavlEp *ics23.ExistenceProof) []MerklePath {
 	paths := make([]MerklePath, 0)
 	for _, step := range iavlEp.Path {
 		if step.Hash != ics23.HashOp_SHA256 {

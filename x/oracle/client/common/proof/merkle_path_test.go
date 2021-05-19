@@ -36,7 +36,7 @@ import (
 }
 */
 
-func TestGetIAVLMerklePaths(t *testing.T) {
+func TestGetMerklePaths(t *testing.T) {
 	key := base64ToBytes("/wAAAAAAAAAB")
 	data := base64ToBytes("CtcCCgn/AAAAAAAAAAESXwAAAAAAAAAAAAAAAQAAAA8AAAADQlRDAAAAAAAAA+gAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAABginhIAAAAAGCKeEoAAAABAAAACAAAAAADOGBfGgwIARgBIAEqBAAC7gQiKggBEiYCBO4EIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9ICIqCAESJgQI7gQg7Gs6hyT0aoCv6lr/Gy++Ks8FMrTz99Ltaua4F3EzUvIgIioIARImBgzuBCA3Wh3tcSTfglD/FmGkQdAR6MBiwPIjkQ2fXYOH9fOmMyAiKggBEiYIFO4EIOsThN9b1u/lW1m2SgpRNYiSu55ZsYwhCe6uFmPhWroEICIrCAESJwoqpP0mIAeuDTGG5ahwRTqLDI/XkTi5IiiX8jYD89TY9Hj0oVjXIA==")
 
@@ -63,7 +63,7 @@ func TestGetIAVLMerklePaths(t *testing.T) {
 	leafNode = append(leafNode, tmhash.Sum(value)...)  // value on this key is a result hash
 	currentHash := tmhash.Sum(leafNode)
 
-	paths := GetIAVLMerklePaths(iavlEp)
+	paths := GetMerklePaths(iavlEp)
 	for _, path := range paths {
 		currentHash = getParentHash(path, currentHash)
 	}

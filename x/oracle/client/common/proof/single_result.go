@@ -3,10 +3,12 @@ package proof
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/bandprotocol/chain/pkg/obi"
+	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -47,6 +49,31 @@ func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
 		}
 		requestID := types.RequestID(intRequestID)
 
+		// Get Request and proof
+		bz, _, err := ctx.Query(fmt.Sprintf("custom/%s/%s/%d", route, types.QueryRequests, requestID))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		var qResult types.QueryResult
+		if err := json.Unmarshal(bz, &qResult); err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if qResult.Status != http.StatusOK {
+			clientcmn.PostProcessQueryResponse(w, ctx, bz)
+			return
+		}
+		var request types.QueryRequestResult
+		if err := ctx.LegacyAmino.UnmarshalJSON(qResult.Result, &request); err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if request.Result == nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, "Result has not been resolved")
+			return
+		}
+
 		commit, err := ctx.Client.Commit(context.Background(), height)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -80,7 +107,7 @@ func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
 		oracleData := OracleDataProof{
 			Result:      rs,
 			Prefix:      iavlEp.Leaf.Prefix,
-			MerklePaths: GetIAVLMerklePaths(iavlEp),
+			MerklePaths: GetMerklePaths(iavlEp),
 		}
 
 		// Calculate byte for proofbytes

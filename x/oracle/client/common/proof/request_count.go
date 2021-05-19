@@ -70,7 +70,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 		requestsCountProof := RequestsCountProof{
 			Count:       uint64(rs),
 			Prefix:      iavlEp.Leaf.Prefix,
-			MerklePaths: GetIAVLMerklePaths(iavlEp),
+			MerklePaths: GetMerklePaths(iavlEp),
 		}
 
 		// Calculate byte for proofbytes
