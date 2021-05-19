@@ -5,6 +5,7 @@ import (
 	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -59,6 +60,12 @@ func (k Keeper) GetParams(ctx sdk.Context) (params auctiontypes.Params) {
 	return params
 }
 
+// GetThreshold returns auction threshold parameter
+func (k Keeper) GetThreshold(ctx sdk.Context) sdk.Coins {
+	params := k.GetParams(ctx)
+	return params.Threshold
+}
+
 // GetAuctionAccount returns the auction ModuleAccount
 func (k Keeper) GetAuctionAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, auctiontypes.ModuleName)
@@ -69,15 +76,11 @@ func (k Keeper) SetAuctionAccount(ctx sdk.Context, moduleAcc authtypes.ModuleAcc
 	k.authKeeper.SetModuleAccount(ctx, moduleAcc)
 }
 
-func (k Keeper) StartAuction(ctx sdk.Context) error {
-/*	moduleAcc := k.GetAuctionAccount(ctx)
+// BuyCoins buys geo for odin from data providers pool
+func (k Keeper) BuyCoins(ctx sdk.Context) error {
+	moduleAcc := k.GetAuctionAccount(ctx)
 	params := k.GetParams(ctx)
-
-*/
-	/*if err := k.coinswapKeeper.ExchangeDenom(ctx, params.ExchangePair.FromDenom, params.ExchangePair.ToDenom, params.Threshold, moduleAcc.GetAddress()); err != nil {
-		return sdkerrors.Wrap(err, "failed to exchange coins") // TODO: add more details
-	}*/
-	//params := k.GetParams(ctx)
-	//k.coinswapKeeper.ExchangeDenom()
-	return nil
+	exchangeAmt := sdk.NewCoin(params.ExchangeRate.From, params.Threshold.AmountOf(params.ExchangeRate.From))
+	err := k.coinswapKeeper.Exchange(ctx, exchangeAmt, params.ExchangeRate, moduleAcc.GetAddress())
+	return sdkerrors.Wrap(err, "failed to exchange coins")
 }

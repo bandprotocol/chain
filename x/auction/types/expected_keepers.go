@@ -2,6 +2,7 @@ package types
 
 import (
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -12,8 +13,10 @@ type AccountKeeper interface {
 	GetModuleAccount(ctx sdk.Context, moduleName string) types.ModuleAccountI
 }
 
+type OracleKeeper interface {
+	GetOraclePool(ctx sdk.Context) (oraclePool oracletypes.OraclePool)
+}
+
 type CoinswapKeeper interface {
-	SetParams(ctx sdk.Context, value coinswaptypes.Params)
-	GetParams(ctx sdk.Context) (params coinswaptypes.Params)
-	ExchangeDenom(ctx sdk.Context, fromDenom, toDenom string, amt sdk.Coin, requester sdk.AccAddress) error
+	Exchange(ctx sdk.Context, amt sdk.Coin, pair coinswaptypes.Exchange, requester sdk.AccAddress) error
 }

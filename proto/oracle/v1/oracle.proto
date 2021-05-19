@@ -298,3 +298,12 @@ message DataProvidersAccumulatedRewards {
     (gogoproto.nullable) = false
   ];
 }
+
+message AccumulatedPaymentsForData {
+  option (gogoproto.equal) = false;
+
+  repeated cosmos.base.v1beta1.Coin accumulated_amount = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}

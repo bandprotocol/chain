@@ -240,17 +240,15 @@
       "params": {
         "threshold": [
           {
-            "denom": "minigeo",
+            "denom": "loki",
             "amount": "10000000000"
           }
         ],
-        "exchanges": [
-          {
-            "from": "loki",
-            "to": "minigeo",
-            "rate_multiplier": "1.000000000000000000"
-          }
-        ]
+        "exchange_rate": {
+          "from": "loki",
+          "to": "minigeo",
+          "rate_multiplier": "1.000000000000000000"
+        }
       }
     },
     "crisis": {

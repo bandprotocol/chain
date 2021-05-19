@@ -40,6 +40,18 @@ func (k Keeper) CollectFee(
 		if err := collector.Collect(ctx, fee); err != nil {
 			return nil, err
 		}
+
+		accumulatedPaymentsForData := k.GetAccumulatedPaymentsForData(ctx)
+		accumulatedAmount := accumulatedPaymentsForData.AccumulatedAmount.Add(fee...)
+		auctionThreshold := k.auctionKeeper.GetThreshold(ctx)
+		for accumulatedAmount.IsAllGTE(auctionThreshold) {
+			if err := k.auctionKeeper.BuyCoins(ctx); err != nil {
+				return nil, sdkerrors.Wrapf(err, "failed to process auction")
+			}
+			accumulatedAmount = accumulatedAmount.Sub(auctionThreshold)
+		}
+		accumulatedPaymentsForData.AccumulatedAmount = accumulatedAmount
+		k.SetAccumulatedPaymentsForData(ctx, accumulatedPaymentsForData)
 	}
 
 	return collector.Collected(), nil

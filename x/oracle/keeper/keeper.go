@@ -16,10 +16,6 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 )
 
-const (
-	RollingSeedSizeInBytes = 32
-)
-
 type Keeper struct {
 	storeKey         sdk.StoreKey
 	cdc              codec.BinaryMarshaler
@@ -32,6 +28,7 @@ type Keeper struct {
 	bankKeeper    oracletypes.BankKeeper
 	distrKeeper   oracletypes.DistrKeeper
 	stakingKeeper oracletypes.StakingKeeper
+	auctionKeeper oracletypes.AuctionKeeper
 	channelKeeper oracletypes.ChannelKeeper
 	portKeeper    oracletypes.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
@@ -75,6 +72,11 @@ func NewKeeper(
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
 	}
+}
+
+// SetAuctionKeeper sets auction module keeper
+func (k *Keeper) SetAuctionKeeper(ak oracletypes.AuctionKeeper) {
+	k.auctionKeeper = ak
 }
 
 // Logger returns a module-specific logger.
@@ -278,5 +280,18 @@ func (k Keeper) GetAccumulatedDataProvidersRewards(ctx sdk.Context) (reward orac
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(oracletypes.AccumulatedDataProvidersRewardsStoreKey)
 	k.cdc.MustUnmarshalBinaryBare(bz, &reward)
+	return
+}
+
+func (k Keeper) SetAccumulatedPaymentsForData(ctx sdk.Context, payments oracletypes.AccumulatedPaymentsForData) {
+	store := ctx.KVStore(k.storeKey)
+	b := k.cdc.MustMarshalBinaryBare(&payments)
+	store.Set(oracletypes.AccumulatedPaymentsForDataStoreKey, b)
+}
+
+func (k Keeper) GetAccumulatedPaymentsForData(ctx sdk.Context) (payments oracletypes.AccumulatedPaymentsForData) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(oracletypes.AccumulatedPaymentsForDataStoreKey)
+	k.cdc.MustUnmarshalBinaryBare(bz, &payments)
 	return
 }

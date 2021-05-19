@@ -349,6 +349,7 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.CoinswapKeeper,
 	)
+	app.OracleKeeper.SetAuctionKeeper(&app.AuctionKeeper)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 

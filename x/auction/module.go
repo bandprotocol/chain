@@ -108,8 +108,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-}
+func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {}
 
 // EndBlock processes ABCI end block message for this oracle module (SDK AppModule interface).
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {

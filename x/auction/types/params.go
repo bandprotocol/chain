@@ -8,14 +8,15 @@ import (
 )
 
 const (
-	DefaultFromExchange   = "minigeo"
-	DefaultToExchange     = "loki"
 	DefaultThresholdDenom = "minigeo"
+
+	DefaultFromExchange   = "loki"
+	DefaultToExchange     = DefaultThresholdDenom
 )
 
 var (
-	KeyThreshold = []byte("Threshold")
-	KeyExchanges = []byte("Exchanges")
+	KeyThreshold    = []byte("Threshold")
+	KeyExchangeRate = []byte("ExchangeRate")
 )
 
 var (
@@ -29,45 +30,39 @@ func ParamKeyTable() paramstypes.KeyTable {
 
 func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
-		paramstypes.NewParamSetPair(KeyExchanges, &p.Exchanges, validateExchanges),
+		paramstypes.NewParamSetPair(KeyExchangeRate, &p.ExchangeRate, validateExchangeRate),
 		paramstypes.NewParamSetPair(KeyThreshold, &p.Threshold, validateThreshold),
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		Exchanges: []coinswaptypes.Exchange{
-			{
-				From:           DefaultFromExchange,
-				To:             DefaultToExchange,
-				RateMultiplier: sdk.NewDec(1),
-			},
+		ExchangeRate: coinswaptypes.Exchange{
+			From:           DefaultFromExchange,
+			To:             DefaultToExchange,
+			RateMultiplier: sdk.NewDec(1),
 		},
 		Threshold: DefaultThreshold,
 	}
 }
 
 func (p Params) Validate() error {
-	if err := validateExchanges(p.Exchanges); err != nil {
+	if err := validateExchangeRate(p.ExchangeRate); err != nil {
 		return err
 	}
 	return validateThreshold(p.Threshold)
 }
 
-func validateExchanges(i interface{}) error {
-	exchanges, ok := i.([]coinswaptypes.Exchange)
+func validateExchangeRate(i interface{}) error {
+	ex, ok := i.(coinswaptypes.Exchange)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	for _, ex := range exchanges {
-		if !ex.RateMultiplier.IsPositive() && !ex.RateMultiplier.IsZero() {
-			return fmt.Errorf("rate multiplier %s must be positive or zero", ex)
-		}
-
-		if ex.From == "" || ex.To == "" {
-			return fmt.Errorf("one or both denoms are empty. From: %s, To: %s", ex.From, ex.To)
-		}
+	if !ex.RateMultiplier.IsPositive() && !ex.RateMultiplier.IsZero() {
+		return fmt.Errorf("rate multiplier %s must be positive or zero", ex)
+	}
+	if ex.From == "" || ex.To == "" {
+		return fmt.Errorf("one or both denoms are empty. From: %s, To: %s", ex.From, ex.To)
 	}
 
 	return nil

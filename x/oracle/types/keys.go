@@ -44,6 +44,8 @@ var (
 	OracleScriptCountStoreKey = append(GlobalStoreKeyPrefix, []byte("OracleScriptCount")...)
 	// AccumulatedDataProvidersRewardsStoreKey the key that keeps the total allocated rewards to data providers for one day
 	AccumulatedDataProvidersRewardsStoreKey = append(GlobalStoreKeyPrefix, []byte("AllocateRewardsToDataProviders")...)
+	// AccumulatedPaymentsForDataStoreKey the key that keeps the accumulated payments for data
+	AccumulatedPaymentsForDataStoreKey = append(GlobalStoreKeyPrefix, []byte("AccumulatedPaymentsForData")...)
 	// OraclePoolStoreKey is the key that keeps the oracle pool
 	OraclePoolStoreKey = append(GlobalStoreKeyPrefix, []byte("OraclePool")...) // key for global oracle pool state
 
