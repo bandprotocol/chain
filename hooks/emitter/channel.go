@@ -10,11 +10,23 @@ import (
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
-func (h *Hook) handleFungibleTokenPacket(
+func (h *Hook) getPacket(ctx sdk.Context, evMap common.EvMap, isIncoming bool) common.JsDict {
+	return common.JsDict{
+		"is_incoming":  isIncoming,
+		"block_height": ctx.BlockHeight(),
+		"src_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcChannel][0],
+		"src_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcPort][0],
+		"sequence":     common.Atoui(evMap[types.EventTypeSendPacket+"."+types.AttributeKeySequence][0]),
+		"dst_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstChannel][0],
+		"dst_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstPort][0],
+	}
+}
+
+func (h *Hook) extractFungibleTokenPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
 ) bool {
 	var data ibcxfertypes.FungibleTokenPacketData
-	err := oracletypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
 	if err == nil {
 		packet["type"] = "fungible token"
 		packet["data"] = common.JsDict{
@@ -39,7 +51,7 @@ func (h *Hook) handleFungibleTokenPacket(
 	return false
 }
 
-func (h *Hook) handleOracleRequestPacket(
+func (h *Hook) extractOracleRequestPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
@@ -116,29 +128,20 @@ func (h *Hook) handleOracleRequestPacket(
 func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, extra common.JsDict,
 ) {
-	packet := common.JsDict{
-		"is_incoming":  true,
-		"block_height": ctx.BlockHeight(),
-		"src_channel":  msg.Packet.SourceChannel,
-		"src_port":     msg.Packet.SourcePort,
-		"sequence":     msg.Packet.Sequence,
-		"dst_channel":  msg.Packet.DestinationChannel,
-		"dst_port":     msg.Packet.DestinationPort,
-	}
-
-	if ok := h.handleOracleRequestPacket(ctx, txHash, msg, packet, evMap, extra); ok {
+	packet := h.getPacket(ctx, evMap, true)
+	if ok := h.extractOracleRequestPacket(ctx, txHash, msg, packet, evMap, extra); ok {
 		return
 	}
-	if ok := h.handleFungibleTokenPacket(ctx, txHash, msg, packet, evMap, extra); ok {
+	if ok := h.extractFungibleTokenPacket(ctx, txHash, msg, packet, evMap, extra); ok {
 		return
 	}
 }
 
-func (h *Hook) handleOracleResponsePacket(
+func (h *Hook) extractOracleResponsePacket(
 	ctx sdk.Context, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data oracletypes.OracleResponsePacketData
-	err := h.cdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
+	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
 	if err == nil {
 		req := h.oracleKeeper.MustGetRequest(ctx, data.RequestID)
 		os := h.oracleKeeper.MustGetOracleScript(ctx, req.OracleScriptID)
@@ -160,17 +163,8 @@ func (h *Hook) handleOracleResponsePacket(
 func (h *Hook) handleEventSendPacket(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	packet := common.JsDict{
-		"is_incoming":  false,
-		"block_height": ctx.BlockHeight(),
-		"src_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcChannel][0],
-		"src_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcPort][0],
-		"sequence":     common.Atoui(evMap[types.EventTypeSendPacket+"."+types.AttributeKeySequence][0]),
-		"dst_channel":  evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstChannel][0],
-		"dst_port":     evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstPort][0],
-	}
-
-	if ok := h.handleOracleResponsePacket(ctx, packet, evMap); ok {
+	packet := h.getPacket(ctx, evMap, false)
+	if ok := h.extractOracleResponsePacket(ctx, packet, evMap); ok {
 		return
 	}
 }

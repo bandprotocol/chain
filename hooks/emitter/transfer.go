@@ -12,18 +12,10 @@ import (
 // handleMsgTransfer implements emitter handler for msgTransfer.
 func (h *Hook) handleMsgTransfer(ctx sdk.Context, msg *types.MsgTransfer, evMap common.EvMap) {
 	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyData]; ok {
+		packet := h.getPacket(ctx, evMap, false)
 		var data ibcxfertypes.FungibleTokenPacketData
-		err := h.cdc.UnmarshalJSON([]byte(events[0]), &data)
+		err := ibcxfertypes.ModuleCdc.UnmarshalJSON([]byte(events[0]), &data)
 		if err == nil {
-			packet := common.JsDict{
-				"is_incoming":  false,
-				"block_height": ctx.BlockHeight(),
-				"src_channel":  evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcChannel][0],
-				"src_port":     evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],
-				"sequence":     common.Atoui(evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySequence][0]),
-				"dst_channel":  evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstChannel][0],
-				"dst_port":     evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstPort][0],
-			}
 			packet["type"] = "fungible token"
 			packet["data"] = common.JsDict{
 				"denom":    data.Denom,
