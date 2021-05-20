@@ -138,7 +138,7 @@ var (
 		oracletypes.ModuleName:         nil,
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
-		auctiontypes.ModuleName:        nil,
+		auctiontypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 		odinminttypes.ModuleName:       {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -348,6 +348,7 @@ func NewBandApp(
 		app.GetSubspace(auctiontypes.ModuleName),
 		app.AccountKeeper,
 		app.CoinswapKeeper,
+		app.BankKeeper,
 	)
 	app.OracleKeeper.SetAuctionKeeper(&app.AuctionKeeper)
 

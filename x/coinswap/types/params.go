@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	DefaultFromExchange = "geo"
-	DefaultToExchange   = "odin"
+	DefaultFromExchange = "minigeo"
+	DefaultToExchange   = "loki"
 )
 
 var KeyExchanges = []byte("Exchanges")

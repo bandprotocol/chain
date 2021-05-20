@@ -17,6 +17,7 @@ type Keeper struct {
 	paramstore     paramstypes.Subspace
 	authKeeper     auctiontypes.AccountKeeper
 	coinswapKeeper auctiontypes.CoinswapKeeper
+	bankKeeper     auctiontypes.BankKeeper
 }
 
 func NewKeeper(
@@ -25,6 +26,7 @@ func NewKeeper(
 	subspace paramstypes.Subspace,
 	ak auctiontypes.AccountKeeper,
 	ck auctiontypes.CoinswapKeeper,
+	bk auctiontypes.BankKeeper,
 ) Keeper {
 	// ensure auction module account is set
 	if addr := ak.GetModuleAddress(auctiontypes.ModuleName); addr == nil {
@@ -41,6 +43,7 @@ func NewKeeper(
 		paramstore:     subspace,
 		authKeeper:     ak,
 		coinswapKeeper: ck,
+		bankKeeper:     bk,
 	}
 }
 
@@ -76,11 +79,26 @@ func (k Keeper) SetAuctionAccount(ctx sdk.Context, moduleAcc authtypes.ModuleAcc
 	k.authKeeper.SetModuleAccount(ctx, moduleAcc)
 }
 
-// BuyCoins buys geo for odin from data providers pool
-func (k Keeper) BuyCoins(ctx sdk.Context) error {
+// ExchangeCoinsFromDataProvidersPool buys minigeo for loki from data providers pool
+func (k Keeper) ExchangeCoinsFromDataProvidersPool(ctx sdk.Context) error {
 	moduleAcc := k.GetAuctionAccount(ctx)
-	params := k.GetParams(ctx)
-	exchangeAmt := sdk.NewCoin(params.ExchangeRate.From, params.Threshold.AmountOf(params.ExchangeRate.From))
-	err := k.coinswapKeeper.Exchange(ctx, exchangeAmt, params.ExchangeRate, moduleAcc.GetAddress())
-	return sdkerrors.Wrap(err, "failed to exchange coins")
+	auctionParams := k.GetParams(ctx)
+
+	// loki
+	exchangeAmt := sdk.NewCoin(
+		auctionParams.ExchangeRate.From,
+		auctionParams.Threshold.AmountOf(auctionParams.ExchangeRate.From),
+	)
+	// minigeo
+	convertedAmt, err := k.coinswapKeeper.Convert(ctx, exchangeAmt, auctionParams.ExchangeRate)
+	if err := k.bankKeeper.MintCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(convertedAmt)); err != nil {
+		return sdkerrors.Wrapf(err, "failed to mint coins for %s module", auctiontypes.ModuleName)
+	}
+
+	if err := k.coinswapKeeper.Exchange(ctx, convertedAmt, exchangeAmt, moduleAcc.GetAddress()); err != nil {
+		return sdkerrors.Wrap(err, "failed to exchange coins")
+	}
+
+	err = k.bankKeeper.BurnCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(exchangeAmt))
+	return sdkerrors.Wrapf(err, "failed to burn coins for %s module", auctiontypes.ModuleName)
 }

@@ -71,5 +71,5 @@ type PortKeeper interface {
 // AuctionKeeper defines the expected auction keeper.
 type AuctionKeeper interface {
 	GetThreshold(ctx sdk.Context) sdk.Coins
-	BuyCoins(ctx sdk.Context) error
+	ExchangeCoinsFromDataProvidersPool(ctx sdk.Context) error
 }

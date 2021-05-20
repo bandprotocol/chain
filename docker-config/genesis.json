@@ -247,7 +247,7 @@
         "exchange_rate": {
           "from": "loki",
           "to": "minigeo",
-          "rate_multiplier": "1.000000000000000000"
+          "rate_multiplier": "0.100000000000000000"
         }
       }
     },

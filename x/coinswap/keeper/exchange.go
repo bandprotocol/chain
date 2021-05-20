@@ -15,36 +15,37 @@ func (k Keeper) ExchangeDenom(ctx sdk.Context, fromDenom, toDenom string, amt sd
 	if err != nil {
 		return sdkerrors.Wrapf(err, "failed to get exchange rate")
 	}
-
-	return k.Exchange(ctx, amt, pair, requester)
+	convertedAmt, err := k.Convert(ctx, amt, pair)
+	if err != nil {
+		return sdkerrors.Wrap(err, "failed to convert coins")
+	}
+	return k.Exchange(ctx, amt, convertedAmt, requester)
 }
 
-func (k Keeper) Exchange(ctx sdk.Context, amt sdk.Coin, pair coinswaptypes.Exchange, requester sdk.AccAddress) error {
-	rate, err := k.CalculateRate(ctx, pair.RateMultiplier)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "failed to calculate the exchange rate")
-	}
-	if rate.GT(amt.Amount.ToDec()) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "current rate: %s is higher then amount provided: %s", rate.String(), amt.String())
-	}
-
-	convertedAmt := sdk.NewDecCoinFromDec(pair.To, amt.Amount.ToDec().QuoRoundUp(rate))
-
+// Exchange withdraws coins to community pool
+func (k Keeper) Exchange(ctx sdk.Context, initialAmt sdk.Coin, convertedAmt sdk.Coin, requester sdk.AccAddress) error {
 	// first send source tokens to module
-	if err := k.distrKeeper.FundCommunityPool(ctx, sdk.NewCoins(amt), requester); err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, sdk.NewCoins(initialAmt), requester); err != nil {
 		return sdkerrors.Wrapf(err, "sending coins from account: %s, to module: %s", requester.String(), distrtypes.ModuleName)
 	}
+	if err := k.oracleKeeper.WithdrawOraclePool(ctx, sdk.NewCoins(convertedAmt), requester); err != nil {
+		return sdkerrors.Wrapf(err, "sending coins from module: %s, to account: %s", oracletypes.ModuleName, requester.String())
+	}
+	return nil
+}
 
-	toSend, remainder := convertedAmt.TruncateDecimal()
+// Convert converts coins with the given exchange rate
+func (k Keeper) Convert(ctx sdk.Context, amt sdk.Coin, pair coinswaptypes.Exchange) (sdk.Coin, error) {
+	rate := k.CalculateRate(ctx, pair.RateMultiplier)
+	if rate.GT(amt.Amount.ToDec()) {
+		return sdk.Coin{}, sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "current rate: %s is higher then amount provided: %s", rate.String(), amt.String())
+	}
+	convertedAmt := sdk.NewDecCoinFromDec(pair.To, amt.Amount.ToDec().QuoRoundUp(rate))
+	base, remainder := convertedAmt.TruncateDecimal()
 	if !remainder.IsZero() {
 		k.Logger(ctx).With("coins", remainder.String()).Info("performing exchange according to limited precision some coins are lost")
 	}
-
-	if err := k.oracleKeeper.WithdrawOraclePool(ctx, sdk.NewCoins(toSend), requester); err != nil {
-		return sdkerrors.Wrapf(err, "sending coins from module: %s, to account: %s", oracletypes.ModuleName, requester.String())
-	}
-
-	return nil
+	return base, nil
 }
 
 // GetRate returns the exchange rate for the given pair
@@ -53,13 +54,13 @@ func (k Keeper) GetRate(ctx sdk.Context, fromDenom, toDenom string) (sdk.Dec, er
 	if err != nil {
 		return sdk.Dec{}, sdkerrors.Wrapf(err, "failed to get rate from: %s, to: %s", fromDenom, toDenom)
 	}
-	return k.CalculateRate(ctx, pair.RateMultiplier)
+	return k.CalculateRate(ctx, pair.RateMultiplier), nil
 }
 
 // CalculateRate calculates the exchange rate for the given rate multiplier
-func (k Keeper) CalculateRate(ctx sdk.Context, rateMultiplier sdk.Dec) (sdk.Dec, error) {
+func (k Keeper) CalculateRate(ctx sdk.Context, rateMultiplier sdk.Dec) sdk.Dec {
 	initialRate := k.GetInitialRate(ctx)
-	return initialRate.Mul(rateMultiplier), nil
+	return initialRate.Mul(rateMultiplier)
 }
 
 // GetExchangePair returns rate multiplier for the given denoms

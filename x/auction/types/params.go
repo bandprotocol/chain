@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	DefaultThresholdDenom = "minigeo"
+	DefaultThresholdDenom = "loki"
 
-	DefaultFromExchange   = "loki"
-	DefaultToExchange     = DefaultThresholdDenom
+	DefaultFromExchange = DefaultThresholdDenom
+	DefaultToExchange   = "minigeo"
 )
 
 var (
@@ -20,7 +20,7 @@ var (
 )
 
 var (
-	DefaultThreshold = sdk.NewCoins(sdk.NewInt64Coin(DefaultThresholdDenom, 1000000))
+	DefaultThreshold = sdk.NewCoins(sdk.NewInt64Coin(DefaultThresholdDenom, 100000000000000))
 )
 
 // ParamKeyTable param table for auction module.

@@ -45,7 +45,7 @@ func (k Keeper) CollectFee(
 		accumulatedAmount := accumulatedPaymentsForData.AccumulatedAmount.Add(fee...)
 		auctionThreshold := k.auctionKeeper.GetThreshold(ctx)
 		for accumulatedAmount.IsAllGTE(auctionThreshold) {
-			if err := k.auctionKeeper.BuyCoins(ctx); err != nil {
+			if err := k.auctionKeeper.ExchangeCoinsFromDataProvidersPool(ctx); err != nil {
 				return nil, sdkerrors.Wrapf(err, "failed to process auction")
 			}
 			accumulatedAmount = accumulatedAmount.Sub(auctionThreshold)
