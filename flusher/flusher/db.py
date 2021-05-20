@@ -184,6 +184,7 @@ requests = sa.Table(
     Column("resolve_time", sa.Integer, nullable=True),
     Column("result", CustomBase64, nullable=True),
     sa.Index("ix_requests_oracle_script_id", "oracle_script_id", "id"),
+    sa.Index("ix_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
 )
 
 raw_requests = sa.Table(
