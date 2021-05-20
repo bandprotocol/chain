@@ -22,20 +22,20 @@ var relayFormat = []byte(`
             "type": "bytes"
           }
         ],
-        "internalType": "struct IAVLMerklePath.Data[]",
+        "internalType": "struct MerklePath.Data[]",
         "name": "merklePaths",
         "type": "tuple[]"
       }
     ],
     "internalType": "struct MultiStore.Data",
-    "name": "_multiStore",
+    "name": "multiStore",
     "type": "tuple"
   },
   {
     "components": [
       {
         "internalType": "bytes32",
-        "name": "versionAndChainIDHash",
+        "name": "versionAndChainIdHash",
         "type": "bytes32"
       },
       {
@@ -55,7 +55,7 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes32",
-        "name": "lastBlockIDAndOther",
+        "name": "lastBlockIdAndOther",
         "type": "bytes32"
       },
       {
@@ -75,7 +75,7 @@ var relayFormat = []byte(`
       }
     ],
     "internalType": "struct BlockHeaderMerkleParts.Data",
-    "name": "_merkleParts",
+    "name": "merkleParts",
     "type": "tuple"
   },
   {
@@ -107,7 +107,7 @@ var relayFormat = []byte(`
       }
     ],
     "internalType": "struct TMSignature.Data[]",
-    "name": "_signatures",
+    "name": "signatures",
     "type": "tuple[]"
   }
 ]
@@ -117,24 +117,24 @@ var verifyFormat = []byte(`
 [
   {
     "internalType": "uint256",
-    "name": "_blockHeight",
+    "name": "blockHeight",
     "type": "uint256"
   },
   {
     "components": [
       {
         "internalType": "string",
-        "name": "clientId",
+        "name": "clientID",
         "type": "string"
       },
       {
         "internalType": "uint64",
-        "name": "oracleScriptId",
+        "name": "oracleScriptID",
         "type": "uint64"
       },
       {
         "internalType": "bytes",
-        "name": "callData",
+        "name": "params",
         "type": "bytes"
       },
       {
@@ -149,7 +149,7 @@ var verifyFormat = []byte(`
       },
       {
         "internalType": "uint64",
-        "name": "requestId",
+        "name": "requestID",
         "type": "uint64"
       },
       {
@@ -179,12 +179,12 @@ var verifyFormat = []byte(`
       }
     ],
     "internalType": "struct IBridge.Result",
-    "name": "_result",
+    "name": "result",
     "type": "tuple"
   },
   {
     "internalType": "bytes",
-    "name": "_prefix",
+    "name": "prefix",
     "type": "bytes"
   },
   {
@@ -200,8 +200,8 @@ var verifyFormat = []byte(`
         "type": "bytes"
       }
     ],
-    "internalType": "struct IAVLMerklePath.Data[]",
-    "name": "_merklePaths",
+    "internalType": "struct MerklePath.Data[]",
+    "name": "merklePaths",
     "type": "tuple[]"
   }
 ]
@@ -216,12 +216,12 @@ var verifyCountFormat = []byte(`
   },
   {
     "internalType": "uint256",
-    "name": "_count",
+    "name": "count",
     "type": "uint256"
   },
   {
     "internalType": "bytes",
-    "name": "_prefix",
+    "name": "prefix",
     "type": "bytes"
   },
   {
@@ -237,8 +237,8 @@ var verifyCountFormat = []byte(`
         "type": "bytes"
       }
     ],
-    "internalType": "struct IAVLMerklePath.Data[]",
-    "name": "_merklePaths",
+    "internalType": "struct MerklePath.Data[]",
+    "name": "merklePaths",
     "type": "tuple[]"
   }
 ]
