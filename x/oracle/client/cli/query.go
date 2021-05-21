@@ -36,7 +36,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
 		// GetQueryCmdRequestSearch(storeKey, cdc),
-		// GetQueryCmdValidatorStatus(),
+		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
 		// GetQueryPendingRequests(storeKey, cdc),
@@ -49,8 +49,9 @@ func GetQueryCmd() *cobra.Command {
 // GetQueryCmdParams implements the query parameters command.
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "params",
-		Args: cobra.NoArgs,
+		Use:   "params",
+		Short: "Get current parameters of Bandchain's oracle module",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -73,8 +74,9 @@ func GetQueryCmdParams() *cobra.Command {
 // GetQueryCmdCounts implements the query counts command.
 func GetQueryCmdCounts() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "counts",
-		Args: cobra.NoArgs,
+		Use:   "counts",
+		Short: "Get number of requests, oracle scripts, and data source scripts currently deployed on Bandchain",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -97,8 +99,9 @@ func GetQueryCmdCounts() *cobra.Command {
 // GetQueryCmdDataSource implements the query data source command.
 func GetQueryCmdDataSource() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "data-source [id]",
-		Args: cobra.ExactArgs(1),
+		Use:   "data-source [id]",
+		Short: "Get summary information of a data source",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -125,8 +128,9 @@ func GetQueryCmdDataSource() *cobra.Command {
 // GetQueryCmdOracleScript implements the query oracle script command.
 func GetQueryCmdOracleScript() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "oracle-script [id]",
-		Args: cobra.ExactArgs(1),
+		Use:   "oracle-script [id]",
+		Short: "Get summary information of an oracle script",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -153,8 +157,9 @@ func GetQueryCmdOracleScript() *cobra.Command {
 // GetQueryCmdRequest implements the query request command.
 func GetQueryCmdRequest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "request [id]",
-		Args: cobra.ExactArgs(1),
+		Use:   "request [id]",
+		Short: "Get an oracle request details",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -196,31 +201,43 @@ func GetQueryCmdRequest() *cobra.Command {
 // 	}
 // }
 
-// // GetQueryCmdValidatorStatus implements the query reporter list of validator command.
-// func GetQueryCmdValidatorStatus() *cobra.Command {
-// 	cmd := &cobra.Command{
-// 		Use:  "validator [validator]",
-// 		Args: cobra.ExactArgs(1),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
+// GetQueryCmdValidatorStatus implements the query of validator status.
+func GetQueryCmdValidatorStatus() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "validator [validator-address]",
+		Short: "Get active status of a validator",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := cliCtx.Query(fmt.Sprintf("custom/%s/%s/%s", route, types.QueryValidatorStatus, args[0]))
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.ValidatorStatus{})
-// 		},
-// 	}
-// 	flags.AddQueryFlagsToCmd(cmd)
+			valAddress, err := sdk.ValAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
 
-// 	return cmd
-// }
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.Validator(context.Background(), &types.QueryValidatorRequest{ValidatorAddress: valAddress.String()})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
 
 // GetQueryCmdReporters implements the query reporter list of validator command.
 func GetQueryCmdReporters() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "reporters [validator]",
-		Args: cobra.ExactArgs(1),
+		Use:   "reporters [validator-address]",
+		Short: "Get list of reporters owned by given validator",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -243,8 +260,9 @@ func GetQueryCmdReporters() *cobra.Command {
 // GetQueryActiveValidators implements the query active validators command.
 func GetQueryActiveValidators() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "active-validators",
-		Args: cobra.NoArgs,
+		Use:   "active-validators",
+		Short: "Get number of active validators",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -301,8 +319,9 @@ func GetQueryPendingRequests() *cobra.Command {
 // GetQueryRequestVerification implements the query request verification command.
 func GetQueryRequestVerification() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-pubkey] [reporter-signature-hex]",
-		Args: cobra.ExactArgs(6),
+		Use:   "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-pubkey] [reporter-signature-hex]",
+		Short: "Verify validity of pending oracle requests",
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -346,8 +365,9 @@ func GetQueryRequestVerification() *cobra.Command {
 // GetQueryRequestPool implements the query request pool command.
 func GetQueryRequestPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "request-pool [request-key] [port-id] [channel-id]",
-		Args: cobra.ExactArgs(3),
+		Use:   "request-pool [request-key] [port-id] [channel-id]",
+		Short: "Get account information of request pool",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
