@@ -63,7 +63,7 @@ func runImpl(c *Context, l *Logger) error {
 	bz := protoCodec.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
-	resBz, err := c.client.ABCIQuery(context.Background(), "oracle.v1.Query/PendingRequests", bz)
+	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
