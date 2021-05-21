@@ -128,7 +128,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 day' :: interval
+  WHERE  requests.request_time >= CAST(EXTRACT(epoch FROM NOW()) AS INT) - 86400
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
         """
@@ -144,7 +144,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 week' :: interval
+  WHERE  requests.request_time >= CAST(EXTRACT(epoch FROM NOW()) AS INT) - 604800
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
 """
@@ -160,7 +160,7 @@ AS
   FROM   oracle_scripts
          join requests
            ON oracle_scripts.id = requests.oracle_script_id
-  WHERE  TO_TIMESTAMP(requests.request_time) >= Now() - '1 month' :: interval
+  WHERE  requests.request_time >= CAST(EXTRACT(epoch FROM NOW()) AS INT) - 2592000
   GROUP  BY oracle_scripts.id,
             requests.resolve_status;
 """
@@ -221,4 +221,3 @@ CREATE TRIGGER validator_report_count_trigger BEFORE INSERT OR DELETE ON reports
 COMMIT;
 """
     )
-
