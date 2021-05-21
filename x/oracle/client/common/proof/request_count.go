@@ -69,7 +69,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 
 		requestsCountProof := RequestsCountProof{
 			Count:       uint64(rs),
-			Prefix:      iavlEp.Leaf.Prefix,
+			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 			MerklePaths: GetMerklePaths(iavlEp),
 		}
 

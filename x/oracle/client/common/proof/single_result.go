@@ -106,7 +106,7 @@ func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
 
 		oracleData := OracleDataProof{
 			Result:      rs,
-			Prefix:      iavlEp.Leaf.Prefix,
+			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 			MerklePaths: GetMerklePaths(iavlEp),
 		}
 

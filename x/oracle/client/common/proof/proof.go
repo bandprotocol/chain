@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
@@ -61,38 +60,38 @@ func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 // TODO: Prefix is currently a dynamic-sized bytes, make it fixed
 type OracleDataProof struct {
 	Result      types.Result     `json:"result"`
-	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []MerklePath     `json:"merkle_paths"`
+	Version     uint64           `json:"version"`
+	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
 }
 
 func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-	parsePaths := make([]MerklePathEthereum, len(o.MerklePaths))
+	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
 	return verifyArguments.Pack(
 		big.NewInt(int64(blockHeight)),
 		transformResult(o.Result),
-		o.Prefix,
+		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
 }
 
 type RequestsCountProof struct {
 	Count       uint64           `json:"count"`
-	Prefix      tmbytes.HexBytes `json:"prefix"`
-	MerklePaths []MerklePath     `json:"merkle_paths"`
+	Version     uint64           `json:"version"`
+	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
 }
 
 func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
-	parsePaths := make([]MerklePathEthereum, len(o.MerklePaths))
+	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
 	return verifyCountArguments.Pack(
 		big.NewInt(int64(blockHeight)),
 		big.NewInt(int64(o.Count)),
-		o.Prefix,
+		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
 }

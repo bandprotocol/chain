@@ -59,20 +59,26 @@ func TestGetMultiStoreProof(t *testing.T) {
 	expectAppHash, err = multistoreEp.Calculate()
 	require.Nil(t, err)
 
-	value := multistoreEp.Value
+	m := GetMultiStoreProof(multistoreEp)
 
-	leafNode := []byte{}
-	leafNode = append(leafNode, multistoreEp.Leaf.Prefix...) // leaf prefix
-	leafNode = append(leafNode, uint8(len(key)))             // key length
-	leafNode = append(leafNode, key...)                      // key to result of request #1
-	leafNode = append(leafNode, 32)                          // size of result hash must be 32
-	leafNode = append(leafNode, tmhash.Sum(value)...)        // value on this key is a result hash
-	currentHash := tmhash.Sum(leafNode)
+	prefix := []byte{}
+	prefix = append(prefix, uint8(len(key))) // key length
+	prefix = append(prefix, key...)          // key to result of request #1
+	prefix = append(prefix, 32)              // size of result hash must be 32
 
-	paths := GetMerklePaths(multistoreEp)
-	for _, path := range paths {
-		currentHash = getParentHash(path, currentHash)
-	}
+	apphash := innerHash(
+		m.AuthToIbcTransferStoresMerkleHash,
+		innerHash(
+			innerHash(
+				innerHash(
+					m.MintStoreMerkleHash,
+					leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
+				),
+				m.ParamsToSlashStoresMerkleHash,
+			),
+			m.StakingToUpgradeStoresMerkleHash,
+		),
+	)
 
-	require.Equal(t, expectAppHash, currentHash)
+	require.Equal(t, expectAppHash, apphash)
 }

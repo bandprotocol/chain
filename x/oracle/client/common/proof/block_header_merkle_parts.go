@@ -46,11 +46,11 @@ type BlockHeaderMerkleParts struct {
 
 // BlockHeaderMerklePartsEthereum is an Ethereum version of BlockHeaderMerkleParts for solidity ABI-encoding.
 type BlockHeaderMerklePartsEthereum struct {
-	VersionAndChainIDHash             common.Hash
+	VersionAndChainIdHash             common.Hash
 	Height                            uint64
 	TimeSecond                        uint64
 	TimeNanoSecond                    uint32
-	LastBlockIDAndOther               common.Hash
+	LastBlockIdAndOther               common.Hash
 	NextValidatorHashAndConsensusHash common.Hash
 	LastResultsHash                   common.Hash
 	EvidenceAndProposerHash           common.Hash
@@ -58,11 +58,11 @@ type BlockHeaderMerklePartsEthereum struct {
 
 func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthereum {
 	return BlockHeaderMerklePartsEthereum{
-		VersionAndChainIDHash:             common.BytesToHash(bp.VersionAndChainIdHash),
+		VersionAndChainIdHash:             common.BytesToHash(bp.VersionAndChainIdHash),
 		Height:                            bp.Height,
 		TimeSecond:                        bp.TimeSecond,
 		TimeNanoSecond:                    bp.TimeNanoSecond,
-		LastBlockIDAndOther:               common.BytesToHash(bp.LastBlockIdAndOther),
+		LastBlockIdAndOther:               common.BytesToHash(bp.LastBlockIdAndOther),
 		NextValidatorHashAndConsensusHash: common.BytesToHash(bp.NextValidatorHashAndConsensusHash),
 		LastResultsHash:                   common.BytesToHash(bp.LastResultsHash),
 		EvidenceAndProposerHash:           common.BytesToHash(bp.EvidenceAndProposerHash),

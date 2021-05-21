@@ -143,7 +143,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc
 
 					oracleData := OracleDataProof{
 						Result:      rs,
-						Prefix:      iavlEp.Leaf.Prefix,
+						Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 						MerklePaths: GetMerklePaths(iavlEp),
 					}
 					oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))

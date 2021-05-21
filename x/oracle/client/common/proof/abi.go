@@ -6,25 +6,28 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
+        "name": "authToIbcTransferStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "mintStoreMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
         "name": "oracleIAVLStateHash",
         "type": "bytes32"
       },
       {
-        "components": [
-          {
-            "internalType": "bytes",
-            "name": "prefix",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "suffix",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct MerklePath.Data[]",
-        "name": "merklePaths",
-        "type": "tuple[]"
+        "internalType": "bytes32",
+        "name": "paramsToSlashStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "stakingToUpgradeStoresMerkleHash",
+        "type": "bytes32"
       }
     ],
     "internalType": "struct MultiStore.Data",
@@ -183,24 +186,39 @@ var verifyFormat = []byte(`
     "type": "tuple"
   },
   {
-    "internalType": "bytes",
-    "name": "prefix",
-    "type": "bytes"
+    "internalType": "uint256",
+    "name": "version",
+    "type": "uint256"
   },
   {
     "components": [
       {
-        "internalType": "bytes",
-        "name": "prefix",
-        "type": "bytes"
+        "internalType": "bool",
+        "name": "isDataOnRight",
+        "type": "bool"
       },
       {
-        "internalType": "bytes",
-        "name": "suffix",
-        "type": "bytes"
+        "internalType": "uint8",
+        "name": "subtreeHeight",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeVersion",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "siblingHash",
+        "type": "bytes32"
       }
     ],
-    "internalType": "struct MerklePath.Data[]",
+    "internalType": "struct IAVLMerklePath.Data[]",
     "name": "merklePaths",
     "type": "tuple[]"
   }
@@ -211,7 +229,7 @@ var verifyCountFormat = []byte(`
 [
   {
     "internalType": "uint256",
-    "name": "_blockHeight",
+    "name": "blockHeight",
     "type": "uint256"
   },
   {
@@ -220,24 +238,39 @@ var verifyCountFormat = []byte(`
     "type": "uint256"
   },
   {
-    "internalType": "bytes",
-    "name": "prefix",
-    "type": "bytes"
+    "internalType": "uint256",
+    "name": "version",
+    "type": "uint256"
   },
   {
     "components": [
       {
-        "internalType": "bytes",
-        "name": "prefix",
-        "type": "bytes"
+        "internalType": "bool",
+        "name": "isDataOnRight",
+        "type": "bool"
       },
       {
-        "internalType": "bytes",
-        "name": "suffix",
-        "type": "bytes"
+        "internalType": "uint8",
+        "name": "subtreeHeight",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subtreeVersion",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "siblingHash",
+        "type": "bytes32"
       }
     ],
-    "internalType": "struct MerklePath.Data[]",
+    "internalType": "struct IAVLMerklePath.Data[]",
     "name": "merklePaths",
     "type": "tuple[]"
   }

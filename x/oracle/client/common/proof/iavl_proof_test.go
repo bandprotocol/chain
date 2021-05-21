@@ -59,19 +59,22 @@ func TestGetMerklePaths(t *testing.T) {
 	expectOracleMerkleHash, err = iavlEp.Calculate()
 	require.Nil(t, err)
 
+	version := decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix)
 	value := iavlEp.Value
 
 	leafNode := []byte{}
-	leafNode = append(leafNode, iavlEp.Leaf.Prefix...) // leaf prefix
-	leafNode = append(leafNode, uint8(len(key)))       // key length
-	leafNode = append(leafNode, key...)                // key to result of request #1
-	leafNode = append(leafNode, 32)                    // size of result hash must be 32
-	leafNode = append(leafNode, tmhash.Sum(value)...)  // value on this key is a result hash
+	leafNode = append(leafNode, convertVarIntToBytes(0)...)
+	leafNode = append(leafNode, convertVarIntToBytes(1)...)
+	leafNode = append(leafNode, convertVarIntToBytes(int64(version))...)
+	leafNode = append(leafNode, uint8(len(key)))      // key length
+	leafNode = append(leafNode, key...)               // key to result of request #1
+	leafNode = append(leafNode, 32)                   // size of result hash must be 32
+	leafNode = append(leafNode, tmhash.Sum(value)...) // value on this key is a result hash
 	currentHash := tmhash.Sum(leafNode)
 
 	paths := GetMerklePaths(iavlEp)
 	for _, path := range paths {
-		currentHash = getParentHash(path, currentHash)
+		currentHash = getIAVLParentHash(path, currentHash)
 	}
 	require.Equal(t, expectOracleMerkleHash, currentHash)
 }

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	gogotypes "github.com/gogo/protobuf/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
@@ -164,8 +163,8 @@ func encodeFieldNumberAndTyp3(num uint32, typ uint8) []byte {
 	return encodeUvarint((uint64(num) << 3) | uint64(typ))
 }
 
-func getParentHash(path MerklePath, subtreeHash []byte) []byte {
-	preimage := append(path.Prefix, subtreeHash...)
-	preimage = append(preimage, path.Suffix...)
-	return tmhash.Sum(preimage)
+func convertVarIntToBytes(orig int64) []byte {
+	var buf [binary.MaxVarintLen64]byte
+	n := binary.PutVarint(buf[:], orig)
+	return buf[:n]
 }
