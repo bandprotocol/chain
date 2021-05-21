@@ -15,6 +15,7 @@ import (
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
+	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/pkg/filecache"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/bandprotocol/chain/yoda/executor"
@@ -25,6 +26,10 @@ const (
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
+)
+
+var (
+	protoCodec = band.MakeEncodingConfig().Marshaler
 )
 
 func runImpl(c *Context, l *Logger) error {
@@ -55,12 +60,15 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	pendingRequests, err := getPendingRequests(cfg.NodeGRPCURI, &types.QueryPendingRequestsRequest{
+	bz := protoCodec.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
+	resBz, err := c.client.ABCIQuery(context.Background(), "oracle.v1.Query/PendingRequests", bz)
 	if err != nil {
-		return err
+		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
+	pendingRequests := types.QueryPendingRequestsResponse{}
+	protoCodec.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
@@ -167,7 +175,6 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Yoda will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
-	cmd.Flags().String(flagGRPCNode, "localhost:9090", "gRPC url to BandChain node")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a report transaction")
 	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
@@ -178,7 +185,6 @@ func runCmd(c *Context) *cobra.Command {
 	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-	viper.BindPFlag(flagGRPCNode, cmd.Flags().Lookup(flagGRPCNode))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 	viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
 	return cmd
