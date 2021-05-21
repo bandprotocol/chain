@@ -55,7 +55,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *stakingtypes.MsgDelegate:
 		h.handleMsgDelegate(ctx, msg, extra)
 	case *stakingtypes.MsgUndelegate:
-		h.handleMsgUndelegate(ctx, msg, evMap)
+		h.handleMsgUndelegate(ctx, msg, evMap, extra)
 	case *stakingtypes.MsgBeginRedelegate:
 		h.handleMsgBeginRedelegate(ctx, msg, evMap, extra)
 	case *banktypes.MsgSend:
@@ -71,11 +71,11 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *slashingtypes.MsgUnjail:
 		h.handleMsgUnjail(ctx, msg)
 	case *govtypes.MsgSubmitProposal:
-		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap)
+		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, extra)
 	case *govtypes.MsgVote:
-		h.handleMsgVote(txHash, msg)
+		h.handleMsgVote(ctx, txHash, msg, extra)
 	case *govtypes.MsgDeposit:
-		h.handleMsgDeposit(ctx, txHash, msg)
+		h.handleMsgDeposit(ctx, txHash, msg, extra)
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, extra)
 	}

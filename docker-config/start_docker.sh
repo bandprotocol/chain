@@ -13,8 +13,8 @@ bandd init node-validator --chain-id bandchain
 
 # add data sources to genesis
 
-chmod +x $DIR/add_os_ds.sh
-$DIR/add_os_ds.sh
+# chmod +x $DIR/add_os_ds.sh
+# $DIR/add_os_ds.sh
 
 # create acccounts
 echo "lock nasty suffer dirt dream fine fall deal curtain plate husband sound tower mom crew crawl guard rack snake before fragile course bacon range" \

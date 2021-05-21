@@ -46,29 +46,30 @@ services:
     networks:
       bandchain:
         ipv4_address: 172.18.0.15
-    command: sh -c "chmod +x ./run.sh && ./run.sh query-node"
+    command:
+      sh -c "chmod +x ./run.sh && ./run.sh query-node"
 
-  #   rest-server:
-  #     image: band-validator:latest
-  #     networks:
-  #       bandchain:
-  #         ipv4_address: 172.18.0.20
-  #     restart: always
-  #     ports:
-  #       - 1317:1317
-  #     command: bandcli rest-server --laddr tcp://0.0.0.0:1317 --node tcp://172.18.0.15:26657 --chain-id bandchain --trust-node
+      # rest-server:
+      #   image: band-validator:latest
+      #   networks:
+      #     bandchain:
+      #       ipv4_address: 172.18.0.20
+      #   restart: always
+      #   ports:
+      #     - 1317:1317
+      #   command: bandcli rest-server --laddr tcp://0.0.0.0:1317 --node tcp://172.18.0.15:26657 --chain-id bandchain --trust-node
 
-  #   proxy-server:
-  #     build:
-  #       context: scan/proxy
-  #     image: proxy-server:latest
-  #     networks:
-  #       bandchain:
-  #         ipv4_address: 172.18.0.99
-  #     depends_on:
-  #       - rest-server
-  #     ports:
-  #       - 80:80
+  proxy-server:
+    build:
+      context: ./proxy
+    image: proxy-server:latest
+    networks:
+      bandchain:
+        ipv4_address: 172.18.0.99
+    depends_on:
+      - query-node
+    ports:
+      - 80:80
 
   postgres:
     image: postgres:12
