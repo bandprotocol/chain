@@ -151,7 +151,6 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
 	if err != nil {
-		ctx.Logger().Error("SUPER ERROR owasm", "err", err)
 		k.ResolveFailure(ctx, reqID, err.Error())
 		// TODO: send response to IBC module on fail request
 	} else if env.Retdata == nil {
