@@ -117,38 +117,36 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 		}
 
 		// Skip if validator hasn't been assigned or has been reported.
-		if valAddress != nil {
-			// If the validator isn't in requested validators set, then skip it.
-			isInValidatorSet := false
-			for _, v := range oracleReq.RequestedValidators {
-				val, err := sdk.ValAddressFromBech32(v)
-				if err != nil {
-					return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", v, err))
-				}
-				if valAddress.Equals(val) {
-					isInValidatorSet = true
-					break
-				}
+		// If the validator isn't in requested validators set, then skip it.
+		isInValidatorSet := false
+		for _, v := range oracleReq.RequestedValidators {
+			val, err := sdk.ValAddressFromBech32(v)
+			if err != nil {
+				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", v, err))
 			}
-			if !isInValidatorSet {
-				continue
+			if valAddress.Equals(val) {
+				isInValidatorSet = true
+				break
 			}
+		}
+		if !isInValidatorSet {
+			continue
+		}
 
-			// If the validator has reported, then skip it.
-			reported := false
-			for _, r := range reports {
-				val, err := sdk.ValAddressFromBech32(r.Validator)
-				if err != nil {
-					return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", r.Validator, err))
-				}
-				if valAddress.Equals(val) {
-					reported = true
-					break
-				}
+		// If the validator has reported, then skip it.
+		reported := false
+		for _, r := range reports {
+			val, err := sdk.ValAddressFromBech32(r.Validator)
+			if err != nil {
+				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", r.Validator, err))
 			}
-			if reported {
-				continue
+			if valAddress.Equals(val) {
+				reported = true
+				break
 			}
+		}
+		if reported {
+			continue
 		}
 
 		pendingIDs = append(pendingIDs, int64(id))
