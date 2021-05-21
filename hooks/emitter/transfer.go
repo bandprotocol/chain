@@ -11,7 +11,7 @@ import (
 // handleMsgTransfer implements emitter handler for msgTransfer.
 func (h *Hook) handleMsgTransfer(ctx sdk.Context, msg *types.MsgTransfer, evMap common.EvMap) {
 	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyData]; ok {
-		packet := h.getPacket(
+		packet := newPacket(
 			ctx,
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcChannel][0],
@@ -20,6 +20,7 @@ func (h *Hook) handleMsgTransfer(ctx sdk.Context, msg *types.MsgTransfer, evMap 
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstChannel][0],
 			false,
 		)
-		h.extractFungibleTokenPacket(ctx, []byte(events[0]), packet, evMap)
+		h.extractFungibleTokenPacket(ctx, []byte(events[0]), evMap, packet)
+		h.Write("NEW_PACKET", packet)
 	}
 }

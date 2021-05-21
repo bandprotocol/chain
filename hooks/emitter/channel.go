@@ -12,7 +12,7 @@ import (
 
 // TODO: update transfer acknowledgement for fungible token packet
 
-func (h *Hook) getPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, isIncoming bool) common.JsDict {
+func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, isIncoming bool) common.JsDict {
 	return common.JsDict{
 		"is_incoming":  isIncoming,
 		"block_height": ctx.BlockHeight(),
@@ -25,7 +25,7 @@ func (h *Hook) getPacket(ctx sdk.Context, srcPort string, srcChannel string, seq
 }
 
 func (h *Hook) extractFungibleTokenPacket(
-	ctx sdk.Context, dataOfPacket []byte, packet common.JsDict, evMap common.EvMap,
+	ctx sdk.Context, dataOfPacket []byte, evMap common.EvMap, packet common.JsDict,
 ) bool {
 	var data ibcxfertypes.FungibleTokenPacketData
 	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -49,14 +49,13 @@ func (h *Hook) extractFungibleTokenPacket(
 				}
 			}
 		}
-		h.Write("NEW_PACKET", packet)
 		return true
 	}
 	return false
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, packet common.JsDict, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, extra common.JsDict, packet common.JsDict,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -122,7 +121,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"reason":  evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck][0],
 			}
 		}
-		h.Write("NEW_PACKET", packet)
 		return true
 	}
 	return false
@@ -132,7 +130,7 @@ func (h *Hook) extractOracleRequestPacket(
 func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, extra common.JsDict,
 ) {
-	packet := h.getPacket(
+	packet := newPacket(
 		ctx,
 		msg.Packet.SourcePort,
 		msg.Packet.SourceChannel,
@@ -141,10 +139,11 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		true,
 	)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, packet, evMap, extra); ok {
+	h.Write("NEW_PACKET", packet)
+	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, extra, packet); ok {
 		return
 	}
-	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, packet, evMap); ok {
+	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, packet); ok {
 		return
 	}
 }
@@ -166,7 +165,6 @@ func (h *Hook) extractOracleResponsePacket(
 			"resolve_status":       data.ResolveStatus,
 			"result":               parseBytes(data.Result),
 		}
-		h.Write("NEW_PACKET", packet)
 		return true
 	}
 	return false
@@ -175,7 +173,7 @@ func (h *Hook) extractOracleResponsePacket(
 func (h *Hook) handleEventSendPacket(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	packet := h.getPacket(
+	packet := newPacket(
 		ctx,
 		evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcPort][0],
 		evMap[types.EventTypeSendPacket+"."+types.AttributeKeySrcChannel][0],
@@ -184,6 +182,7 @@ func (h *Hook) handleEventSendPacket(
 		evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDstChannel][0],
 		false,
 	)
+	h.Write("NEW_PACKET", packet)
 	if ok := h.extractOracleResponsePacket(ctx, packet, evMap); ok {
 		return
 	}
