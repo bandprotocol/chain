@@ -14,6 +14,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case auctiontypes.QueryParams:
 			return queryParameters(ctx, keeper, cdc)
+		case auctiontypes.QueryAuctionStatus:
+			return queryAuctionStatus(ctx, keeper, cdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown auction query endpoint")
 		}
@@ -22,4 +24,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 
 func queryParameters(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
 	return commontypes.QueryOK(cdc, k.GetParams(ctx))
+}
+
+func queryAuctionStatus(ctx sdk.Context, k Keeper, cdc *codec.LegacyAmino) ([]byte, error) {
+	return commontypes.QueryOK(cdc, k.GetAuctionStatus(ctx))
 }

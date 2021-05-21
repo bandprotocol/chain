@@ -138,7 +138,6 @@ var (
 		oracletypes.ModuleName:         nil,
 		authtypes.FeeCollectorName:     nil,
 		distrtypes.ModuleName:          nil,
-		auctiontypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 		odinminttypes.ModuleName:       {authtypes.Minter},
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
@@ -146,8 +145,7 @@ var (
 	}
 	// module accounts that are allowed to receive tokens.
 	allowedReceivingModAcc = map[string]bool{
-		distrtypes.ModuleName:   true,
-		auctiontypes.ModuleName: true,
+		distrtypes.ModuleName: true,
 	}
 )
 
@@ -346,11 +344,9 @@ func NewBandApp(
 		appCodec,
 		keys[auctiontypes.StoreKey],
 		app.GetSubspace(auctiontypes.ModuleName),
-		app.AccountKeeper,
+		app.OracleKeeper,
 		app.CoinswapKeeper,
-		app.BankKeeper,
 	)
-	app.OracleKeeper.SetAuctionKeeper(&app.AuctionKeeper)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
@@ -401,11 +397,12 @@ func NewBandApp(
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
 	// over in the validator fee pool, so as to keep the CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, odinminttypes.ModuleName, oracletypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
-		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
+		upgradetypes.ModuleName, odinminttypes.ModuleName, oracletypes.ModuleName, distrtypes.ModuleName,
+		auctiontypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName, stakingtypes.ModuleName,
+		ibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, oracletypes.ModuleName,
+		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, oracletypes.ModuleName, auctiontypes.ModuleName,
 	)
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.

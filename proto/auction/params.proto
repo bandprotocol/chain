@@ -12,11 +12,13 @@ import "coinswap/params.proto";
 // Params is the data structure that keeps the parameters of the auction module.
 message Params {
   option (gogoproto.equal) = false;
-  // Threshold is the threshold at which the auction starts
-  repeated cosmos.base.v1beta1.Coin threshold = 1 [
+  // AuctionStartThreshold is the threshold at which the auction starts
+  repeated cosmos.base.v1beta1.Coin auction_start_threshold = 1 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable) = false
   ];
   // ExchangeRate is a rate for buying coins throw the auction
   coinswap.Exchange exchange_rate = 2 [(gogoproto.nullable) = false];
+  // BlocksAuctionDuration is a duration of the auction
+  uint64 blocks_auction_duration = 3 ;
 }

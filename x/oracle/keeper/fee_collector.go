@@ -33,7 +33,6 @@ func (coll *feeCollector) Collected() sdk.Coins {
 }
 
 func newFeeCollector(oracleKeeper Keeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-
 	return &feeCollector{
 		oracleKeeper: oracleKeeper,
 		payer:        payer,

@@ -15,12 +15,15 @@ const (
 )
 
 var (
-	KeyThreshold    = []byte("Threshold")
-	KeyExchangeRate = []byte("ExchangeRate")
+	KeyAuctionStartThreshold = []byte("AuctionStartThreshold")
+	KeyExchangeRate          = []byte("ExchangeRate")
+	KeyBlocksAuctionDuration = []byte("BlocksAuctionDuration")
 )
 
 var (
-	DefaultThreshold = sdk.NewCoins(sdk.NewInt64Coin(DefaultThresholdDenom, 100000000000000))
+	DefaultAuctionStartThreshold = sdk.NewCoins(sdk.NewInt64Coin(DefaultThresholdDenom, 100000000000000))
+
+	DefaultAuctionDuration uint64 = 3600
 )
 
 // ParamKeyTable param table for auction module.
@@ -31,7 +34,8 @@ func ParamKeyTable() paramstypes.KeyTable {
 func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
 		paramstypes.NewParamSetPair(KeyExchangeRate, &p.ExchangeRate, validateExchangeRate),
-		paramstypes.NewParamSetPair(KeyThreshold, &p.Threshold, validateThreshold),
+		paramstypes.NewParamSetPair(KeyBlocksAuctionDuration, &p.BlocksAuctionDuration, validateBlocksAuctionDuration),
+		paramstypes.NewParamSetPair(KeyAuctionStartThreshold, &p.AuctionStartThreshold, validateAuctionStartThreshold),
 	}
 }
 
@@ -42,7 +46,8 @@ func DefaultParams() Params {
 			To:             DefaultToExchange,
 			RateMultiplier: sdk.NewDec(1),
 		},
-		Threshold: DefaultThreshold,
+		AuctionStartThreshold: DefaultAuctionStartThreshold,
+		BlocksAuctionDuration:       DefaultAuctionDuration,
 	}
 }
 
@@ -50,7 +55,10 @@ func (p Params) Validate() error {
 	if err := validateExchangeRate(p.ExchangeRate); err != nil {
 		return err
 	}
-	return validateThreshold(p.Threshold)
+	if err := validateBlocksAuctionDuration(p.BlocksAuctionDuration); err != nil {
+		return err
+	}
+	return validateAuctionStartThreshold(p.AuctionStartThreshold)
 }
 
 func validateExchangeRate(i interface{}) error {
@@ -68,7 +76,7 @@ func validateExchangeRate(i interface{}) error {
 	return nil
 }
 
-func validateThreshold(i interface{}) error {
+func validateAuctionStartThreshold(i interface{}) error {
 	v, ok := i.(sdk.Coins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -80,5 +88,16 @@ func validateThreshold(i interface{}) error {
 		return fmt.Errorf("threshold amount must be greater than zero: %v", v)
 	}
 
+	return nil
+}
+
+func validateBlocksAuctionDuration(i interface{}) error {
+	v, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if v == 0 {
+		return fmt.Errorf("threshold amount must be greater than zero: %v", v)
+	}
 	return nil
 }

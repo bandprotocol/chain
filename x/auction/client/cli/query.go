@@ -18,6 +18,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 	auctionCmd.AddCommand(
 		GetQueryCmdParams(),
+		GetQueryCmdAuctionStatus(),
 	)
 	return auctionCmd
 }
@@ -35,6 +36,30 @@ func GetQueryCmdParams() *cobra.Command {
 
 			queryClient := auctiontypes.NewQueryClient(clientCtx)
 			res, err := queryClient.Params(cmd.Context(), &auctiontypes.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdAuctionStatus implements the query auction status command.
+func GetQueryCmdAuctionStatus() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "status",
+		Args: cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := auctiontypes.NewQueryClient(clientCtx)
+			res, err := queryClient.AuctionStatus(cmd.Context(), &auctiontypes.QueryAuctionStatusRequest{})
 			if err != nil {
 				return err
 			}

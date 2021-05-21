@@ -28,7 +28,6 @@ type Keeper struct {
 	bankKeeper    oracletypes.BankKeeper
 	distrKeeper   oracletypes.DistrKeeper
 	stakingKeeper oracletypes.StakingKeeper
-	auctionKeeper oracletypes.AuctionKeeper
 	channelKeeper oracletypes.ChannelKeeper
 	portKeeper    oracletypes.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
@@ -72,11 +71,6 @@ func NewKeeper(
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
 	}
-}
-
-// SetAuctionKeeper sets auction module keeper
-func (k *Keeper) SetAuctionKeeper(ak oracletypes.AuctionKeeper) {
-	k.auctionKeeper = ak
 }
 
 // Logger returns a module-specific logger.

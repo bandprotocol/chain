@@ -3,10 +3,11 @@ package keeper
 import (
 	"fmt"
 	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
+	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -15,24 +16,17 @@ type Keeper struct {
 	storeKey       sdk.StoreKey
 	cdc            codec.BinaryMarshaler
 	paramstore     paramstypes.Subspace
-	authKeeper     auctiontypes.AccountKeeper
+	oracleKeeper   auctiontypes.OracleKeeper
 	coinswapKeeper auctiontypes.CoinswapKeeper
-	bankKeeper     auctiontypes.BankKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryMarshaler,
 	key sdk.StoreKey,
 	subspace paramstypes.Subspace,
-	ak auctiontypes.AccountKeeper,
+	ok auctiontypes.OracleKeeper,
 	ck auctiontypes.CoinswapKeeper,
-	bk auctiontypes.BankKeeper,
 ) Keeper {
-	// ensure auction module account is set
-	if addr := ak.GetModuleAddress(auctiontypes.ModuleName); addr == nil {
-		panic("the auction module account has not been set")
-	}
-
 	if !subspace.HasKeyTable() {
 		subspace = subspace.WithKeyTable(auctiontypes.ParamKeyTable())
 	}
@@ -41,9 +35,8 @@ func NewKeeper(
 		cdc:            cdc,
 		storeKey:       key,
 		paramstore:     subspace,
-		authKeeper:     ak,
+		oracleKeeper:   ok,
 		coinswapKeeper: ck,
-		bankKeeper:     bk,
 	}
 }
 
@@ -63,42 +56,75 @@ func (k Keeper) GetParams(ctx sdk.Context) (params auctiontypes.Params) {
 	return params
 }
 
-// GetThreshold returns auction threshold parameter
-func (k Keeper) GetThreshold(ctx sdk.Context) sdk.Coins {
-	params := k.GetParams(ctx)
-	return params.Threshold
+// GetAuctionStartThreshold returns auction threshold parameter
+func (k Keeper) GetAuctionStartThreshold(ctx sdk.Context) (res sdk.Coins) {
+	k.paramstore.Get(ctx, auctiontypes.KeyAuctionStartThreshold, &res)
+	return res
 }
 
-// GetAuctionAccount returns the auction ModuleAccount
-func (k Keeper) GetAuctionAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, auctiontypes.ModuleName)
+// GetBlocksAuctionDuration returns auction duration parameter
+func (k Keeper) GetBlocksAuctionDuration(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, auctiontypes.KeyBlocksAuctionDuration, &res)
+	return res
 }
 
-// SetAuctionAccount sets the module account
-func (k Keeper) SetAuctionAccount(ctx sdk.Context, moduleAcc authtypes.ModuleAccountI) {
-	k.authKeeper.SetModuleAccount(ctx, moduleAcc)
+// GetExchangeRate returns auction exchange parameter
+func (k Keeper) GetExchangeRate(ctx sdk.Context) (res coinswaptypes.Exchange) {
+	k.paramstore.Get(ctx, auctiontypes.KeyExchangeRate, &res)
+	return res
 }
 
-// ExchangeCoinsFromDataProvidersPool buys minigeo for loki from data providers pool
-func (k Keeper) ExchangeCoinsFromDataProvidersPool(ctx sdk.Context) error {
-	moduleAcc := k.GetAuctionAccount(ctx)
-	auctionParams := k.GetParams(ctx)
+func (k Keeper) SetAuctionStatus(ctx sdk.Context, status auctiontypes.AuctionStatus) {
+	store := ctx.KVStore(k.storeKey)
+	b := k.cdc.MustMarshalBinaryBare(&status)
+	store.Set(auctiontypes.AuctionStatusStoreKey, b)
+}
 
-	// loki
-	exchangeAmt := sdk.NewCoin(
-		auctionParams.ExchangeRate.From,
-		auctionParams.Threshold.AmountOf(auctionParams.ExchangeRate.From),
-	)
-	// minigeo
-	convertedAmt, err := k.coinswapKeeper.Convert(ctx, exchangeAmt, auctionParams.ExchangeRate)
-	if err := k.bankKeeper.MintCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(convertedAmt)); err != nil {
-		return sdkerrors.Wrapf(err, "failed to mint coins for %s module", auctiontypes.ModuleName)
+func (k Keeper) GetAuctionStatus(ctx sdk.Context) (payments auctiontypes.AuctionStatus) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(auctiontypes.AuctionStatusStoreKey)
+	k.cdc.MustUnmarshalBinaryBare(bz, &payments)
+	return
+}
+
+// GetAccumulatedPaymentsForData returns accumulated payments for data
+func (k Keeper) GetAccumulatedPaymentsForData(ctx sdk.Context) sdk.Coins {
+	accumulatedPaymentsForData := k.oracleKeeper.GetAccumulatedPaymentsForData(ctx)
+	return accumulatedPaymentsForData.AccumulatedAmount
+}
+
+// SetAccumulatedPaymentsForData updates accumulated payments for data
+func (k Keeper) SetAccumulatedPaymentsForData(ctx sdk.Context, amt sdk.Coins) {
+	newAmt := oracletypes.AccumulatedPaymentsForData{
+		AccumulatedAmount: amt,
+	}
+	k.oracleKeeper.SetAccumulatedPaymentsForData(ctx, newAmt)
+}
+
+// StartAuction resolves to sell minigeo
+func (k Keeper) StartAuction(ctx sdk.Context) error {
+	status := k.GetAuctionStatus(ctx)
+	auctionDuration := k.GetBlocksAuctionDuration(ctx)
+	status.FinishBlock = uint64(ctx.BlockHeight()) + auctionDuration
+
+	if !status.Pending {
+		status.Pending = true
+		if err := k.coinswapKeeper.AddExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
+			return sdkerrors.Wrap(err, "failed to start auction")
+		}
 	}
 
-	if err := k.coinswapKeeper.Exchange(ctx, convertedAmt, exchangeAmt, moduleAcc.GetAddress()); err != nil {
-		return sdkerrors.Wrap(err, "failed to exchange coins")
-	}
+	k.SetAuctionStatus(ctx, status)
+	return nil
+}
 
-	err = k.bankKeeper.BurnCoins(ctx, auctiontypes.ModuleName, sdk.NewCoins(exchangeAmt))
-	return sdkerrors.Wrapf(err, "failed to burn coins for %s module", auctiontypes.ModuleName)
+// FinishAuction prohibits selling minigeo
+func (k Keeper) FinishAuction(ctx sdk.Context) error {
+	if err := k.coinswapKeeper.RemoveExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
+		return sdkerrors.Wrap(err, "failed to finish auction")
+	}
+	status := k.GetAuctionStatus(ctx)
+	status.Pending = false
+	k.SetAuctionStatus(ctx, status)
+	return nil
 }

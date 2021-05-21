@@ -16,4 +16,10 @@ func (q Querier) Params(c context.Context, _ *auctiontypes.QueryParamsRequest) (
 	return &auctiontypes.QueryParamsResponse{Params: params}, nil
 }
 
+func (q Querier) AuctionStatus(c context.Context, _ *auctiontypes.QueryAuctionStatusRequest) (*auctiontypes.QueryAuctionStatusResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	status := q.GetAuctionStatus(ctx)
+	return &auctiontypes.QueryAuctionStatusResponse{AuctionStatus: status}, nil
+}
+
 var _ auctiontypes.QueryServer = Querier{}

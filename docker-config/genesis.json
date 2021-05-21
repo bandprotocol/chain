@@ -238,15 +238,16 @@
     },
     "auction": {
       "params": {
-        "threshold": [
+        "auction_start_threshold": [
           {
             "denom": "loki",
             "amount": "10000000000"
           }
         ],
+        "blocks_auction_duration": "7205",
         "exchange_rate": {
-          "from": "loki",
-          "to": "minigeo",
+          "from": "minigeo",
+          "to": "loki",
           "rate_multiplier": "0.100000000000000000"
         }
       }

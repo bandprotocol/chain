@@ -67,9 +67,3 @@ type ConnectionKeeper interface {
 type PortKeeper interface {
 	BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability
 }
-
-// AuctionKeeper defines the expected auction keeper.
-type AuctionKeeper interface {
-	GetThreshold(ctx sdk.Context) sdk.Coins
-	ExchangeCoinsFromDataProvidersPool(ctx sdk.Context) error
-}
