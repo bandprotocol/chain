@@ -2,7 +2,7 @@ package yoda
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -50,7 +50,7 @@ const (
 	writePendingListGas      = (pendingResolveListByteLength+pendingRequestIDByteLength)*writeGasPerByte + writeFlatGas
 )
 
-func getTxByteLength(msgs []sdk.Msg) uint64 {
+func getTxByteLength(msgs []codec.ProtoMarshaler) uint64 {
 	// base tx + reports
 	size := baseTransactionSize
 
@@ -80,11 +80,11 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 	return size
 }
 
-func getReportMsgByteLength(msg sdk.Msg) uint64 {
+func getReportMsgByteLength(msg codec.ProtoMarshaler) uint64 {
 	return uint64(len(cdc.MustMarshalBinaryBare(msg)))
 }
 
-func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
+func estimateReportHandlerGas(msg codec.ProtoMarshaler, f FeeEstimationData) uint64 {
 	reportByteLength := getReportMsgByteLength(msg)
 	requestByteLength := getRequestMsgByteLength(f)
 
@@ -102,7 +102,7 @@ func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
 	return cost
 }
 
-func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
+func estimateAuthAnteHandlerGas(c *Context, msgs []codec.ProtoMarshaler, acc client.Account) uint64 {
 	gas := uint64(baseAuthAnteGas)
 
 	if acc.GetPubKey() == nil {
@@ -121,7 +121,7 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) 
 	return gas
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
+func estimateGas(c *Context, msgs []codec.ProtoMarshaler, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
 	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
 
 	for i := range msgs {

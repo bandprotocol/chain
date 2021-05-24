@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -21,7 +22,7 @@ import (
 
 var (
 	// Use this as codec to legacy msg
-	cdc = band.MakeEncodingConfig().Amino
+	cdc = band.MakeEncodingConfig().Marshaler
 )
 
 func signAndBroadcast(
@@ -81,7 +82,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 
 	// Summarize execute version
 	versionMap := make(map[string]bool)
-	msgs := make([]sdk.Msg, len(reports))
+	msgs := make([]*types.MsgReportData, len(reports))
 	ids := make([]types.RequestID, len(reports))
 	feeEstimations := make([]FeeEstimationData, len(reports))
 
@@ -119,14 +120,21 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		return
 	}
 
-	gasLimit := estimateGas(c, msgs, feeEstimations, acc, l)
+	gasEstimationMsgs := make([]codec.ProtoMarshaler, len(msgs))
+	broadcastingMsgs := make([]sdk.Msg, len(msgs))
+	for _, msg := range msgs {
+		gasEstimationMsgs = append(gasEstimationMsgs, msg)
+		broadcastingMsgs = append(broadcastingMsgs, msg)
+	}
+
+	gasLimit := estimateGas(c, gasEstimationMsgs, feeEstimations, acc, l)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, acc, gasLimit, memo)
+			hash, err := signAndBroadcast(c, key, broadcastingMsgs, acc, gasLimit, memo)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())

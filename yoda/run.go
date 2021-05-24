@@ -15,7 +15,6 @@ import (
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/pkg/filecache"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/bandprotocol/chain/yoda/executor"
@@ -26,10 +25,6 @@ const (
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
-)
-
-var (
-	protoCodec = band.MakeEncodingConfig().Marshaler
 )
 
 func runImpl(c *Context, l *Logger) error {
@@ -60,7 +55,7 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	bz := protoCodec.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
+	bz := cdc.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
@@ -68,7 +63,7 @@ func runImpl(c *Context, l *Logger) error {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
 	pendingRequests := types.QueryPendingRequestsResponse{}
-	protoCodec.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
+	cdc.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
