@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	// Use this as codec to legacy msg
+	// Proto codec for encoding/decoding proto message
 	cdc = band.MakeEncodingConfig().Marshaler
 )
 
