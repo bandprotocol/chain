@@ -152,10 +152,8 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
-		// TODO: send response to IBC module on fail request
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
-		// TODO: send response to IBC module on fail request
 	} else {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}
