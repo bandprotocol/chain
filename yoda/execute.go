@@ -122,9 +122,9 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 
 	gasEstimationMsgs := make([]codec.ProtoMarshaler, len(msgs))
 	broadcastingMsgs := make([]sdk.Msg, len(msgs))
-	for _, msg := range msgs {
-		gasEstimationMsgs = append(gasEstimationMsgs, msg)
-		broadcastingMsgs = append(broadcastingMsgs, msg)
+	for i, msg := range msgs {
+		gasEstimationMsgs[i] = msg
+		broadcastingMsgs[i] = msg
 	}
 
 	gasLimit := estimateGas(c, gasEstimationMsgs, feeEstimations, acc, l)
