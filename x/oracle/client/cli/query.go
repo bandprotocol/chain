@@ -39,7 +39,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
-		// GetQueryPendingRequests(storeKey, cdc),
+		GetQueryPendingRequests(),
 		GetQueryRequestVerification(),
 		GetQueryRequestPool(),
 	)
@@ -285,7 +285,7 @@ func GetQueryActiveValidators() *cobra.Command {
 // GetQueryPendingRequests implements the query pending requests command.
 func GetQueryPendingRequests() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pending-requests [validator]",
+		Use:   "pending-requests [validator-address]",
 		Short: "Get list of pending request IDs assigned to given validator",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -310,7 +310,6 @@ func GetQueryPendingRequests() *cobra.Command {
 			return clientCtx.PrintProto(r)
 		},
 	}
-
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
