@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	gogotypes "github.com/gogo/protobuf/types"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
@@ -64,11 +65,11 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 		}
 
 		// Parse requests count
-		var rs int64
-		ctx.LegacyAmino.MustUnmarshalBinaryLengthPrefixed(value, &rs)
+		rs := gogotypes.Int64Value{}
+		types.ModuleCdc.MustUnmarshalBinaryLengthPrefixed(value, &rs)
 
 		requestsCountProof := RequestsCountProof{
-			Count:       uint64(rs),
+			Count:       uint64(rs.GetValue()),
 			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 			MerklePaths: GetMerklePaths(iavlEp),
 		}

@@ -70,10 +70,10 @@ func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
 		prefixLength := n1 + n2 + n3 + 1
 		if prefixLength != len(step.Prefix) {
 			imp.IsDataOnRight = true
-			imp.SiblingHash = step.Prefix[prefixLength : len(step.Prefix)-1]
+			imp.SiblingHash = step.Prefix[prefixLength : len(step.Prefix)-1] // remove 0x20
 		} else {
 			imp.IsDataOnRight = false
-			imp.SiblingHash = step.Suffix[1:]
+			imp.SiblingHash = step.Suffix[1:] // remove 0x20
 		}
 		paths = append(paths, imp)
 	}
