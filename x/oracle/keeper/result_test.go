@@ -70,7 +70,7 @@ func TestResolveFailure(t *testing.T) {
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveFailure(ctx, 42, "REASON")
 	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
-	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
+	require.Equal(t, []byte(nil), k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
@@ -85,7 +85,7 @@ func TestResolveExpired(t *testing.T) {
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveExpired(ctx, 42)
 	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
-	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
+	require.Equal(t, []byte(nil), k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
