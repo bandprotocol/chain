@@ -290,6 +290,14 @@ message ValidatorStatus {
       [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
+// ActiveValidator is information of currently active validator
+message ActiveValidator {
+  // Address is a validator address
+  string address = 1;
+  // Power is an amount of token that the validator is holding
+  uint64 power = 2;
+}
+
 // Params is the data structure that keeps the parameters of the oracle module.
 message Params {
   option (gogoproto.equal) = true;
