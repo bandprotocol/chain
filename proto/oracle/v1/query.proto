@@ -219,8 +219,8 @@ message QueryActiveValidatorsRequest {}
 // QueryActiveValidatorsResponse is response type for the Query/ActiveValidators
 // RPC method.
 message QueryActiveValidatorsResponse {
-  // Count is number of active validators
-  int64 count = 1;
+  // Validators is a list of active validators
+  repeated ActiveValidator validators = 1;
 }
 
 // QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
