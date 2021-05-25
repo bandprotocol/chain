@@ -124,12 +124,12 @@
           "address": "odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x",
           "coins": [
             {
-              "denom": "minigeo",
-              "amount": "100000000000000"
-            },
-            {
               "denom": "loki",
               "amount": "10000000000000"
+            },
+            {
+              "denom": "minigeo",
+              "amount": "100000000000000"
             }
           ]
         },
@@ -137,12 +137,12 @@
           "address": "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g",
           "coins": [
             {
-              "denom": "minigeo",
-              "amount": "100000000000000"
-            },
-            {
               "denom": "loki",
               "amount": "10000000000000"
+            },
+            {
+              "denom": "minigeo",
+              "amount": "100000000000000"
             }
           ]
         },
@@ -185,12 +185,12 @@
       ],
       "supply": [
         {
-          "denom": "minigeo",
-          "amount": "1000000000000000"
-        },
-        {
           "denom": "loki",
           "amount": "100000000000000"
+        },
+        {
+          "denom": "minigeo",
+          "amount": "1000000000000000"
         }
       ],
       "denom_metadata": []
@@ -252,12 +252,12 @@
       "fee_pool": {
         "community_pool": [
           {
-            "denom": "minigeo",
-            "amount": "800000000000000"
-          },
-          {
             "denom": "loki",
             "amount": "29992000000000"
+          },
+          {
+            "denom": "minigeo",
+            "amount": "800000000000000"
           }
         ]
       },
