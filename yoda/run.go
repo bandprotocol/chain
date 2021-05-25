@@ -2,9 +2,7 @@ package yoda
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -57,21 +55,18 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
+	bz := cdc.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
+		ValidatorAddress: c.validator.String(),
+	})
+	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
 	if err != nil {
-		return err
+		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
+	pendingRequests := types.QueryPendingRequestsResponse{}
+	cdc.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
 
-	var result types.QueryResult
-	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
-		return err
-	}
-
-	var pendingRequests types.PendingResolveList
-	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
-
-	for _, id := range pendingRequests.RequestIds {
+	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
+	for _, id := range pendingRequests.RequestIDs {
 		c.pendingRequests[types.RequestID(id)] = true
 		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
 	}
