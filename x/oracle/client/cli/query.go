@@ -42,6 +42,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryPendingRequests(),
 		GetQueryRequestVerification(),
 		GetQueryRequestPool(),
+		GetQueryRequestPrice(),
 	)
 	return oracleCmd
 }
@@ -381,6 +382,44 @@ func GetQueryRequestPool() *cobra.Command {
 					ChannelId:  args[2],
 				},
 			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryRequestPrice() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "request-price [symbol] [ask-count] [min-count]",
+		Short: "Query the latest price on standard price reference database",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			symbol := args[0]
+			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse ask count: %w", err)
+			}
+			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse min count: %w", err)
+			}
+
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.RequestPrice(context.Background(), &types.QueryRequestPriceRequest{
+				Symbol:   symbol,
+				AskCount: askCount,
+				MinCount: minCount,
+			})
 			if err != nil {
 				return err
 			}
