@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	// Use this as codec to legacy msg
-	cdc = band.MakeEncodingConfig().Amino
+	// Proto codec for encoding/decoding proto message
+	cdc = band.MakeEncodingConfig().Marshaler
 )
 
 func signAndBroadcast(
