@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -396,11 +397,12 @@ func GetQueryRequestPool() *cobra.Command {
 
 func GetQueryRequestPrice() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request-price [symbol] [ask-count] [min-count]",
-		Short: "Query the latest price on standard price reference database",
-		Args:  cobra.ExactArgs(3),
+		Use:     "request-price [symbols-comma-separated] [ask-count] [min-count]",
+		Short:   "Query the latest price on standard price reference database",
+		Example: "request-price ETH,BAND,BTC 10 16",
+		Args:    cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			symbol := args[0]
+			symbols := strings.Split(args[0], ",")
 			askCount, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse ask count: %w", err)
@@ -416,7 +418,7 @@ func GetQueryRequestPrice() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 			r, err := queryClient.RequestPrice(context.Background(), &types.QueryRequestPriceRequest{
-				Symbol:   symbol,
+				Symbols:  symbols,
 				AskCount: askCount,
 				MinCount: minCount,
 			})
