@@ -1,13 +1,13 @@
 package request
 
 import (
-	"database/sql"
-	"fmt"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/go-gorp/gorp"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"gorm.io/gorm"
 
 	// DB driver
 	_ "github.com/go-sql-driver/mysql"
@@ -16,6 +16,7 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	band "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/hooks/common"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -23,57 +24,27 @@ import (
 
 // Hook inherits from Band app hook to save latest request into SQL database.
 type Hook struct {
-	cdc          *codec.LegacyAmino
+	cdc          codec.Marshaler
 	oracleKeeper keeper.Keeper
-	dbMap        *gorp.DbMap
-	trans        *gorp.Transaction
+	db           *gorm.DB
+	trans        *gorm.DB
+	baseApp      *baseapp.BaseApp
 }
 
-func getDB(driverName string, dataSourceName string) *sql.DB {
-	db, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-func initDb(connStr string) *gorp.DbMap {
-	connStrs := strings.Split(connStr, "://")
-	if len(connStrs) != 2 {
-		panic("failed to parse connection string")
-	}
-	var dbMap *gorp.DbMap
-	fmt.Println(connStrs)
-	switch connStrs[0] {
-	case "sqlite3":
-		dbMap = &gorp.DbMap{Db: getDB(connStrs[0], connStrs[1]), Dialect: gorp.SqliteDialect{}}
-	case "postgres":
-		dbMap = &gorp.DbMap{Db: getDB(connStrs[0], connStrs[1]), Dialect: gorp.PostgresDialect{}}
-	case "mysql":
-		dbMap = &gorp.DbMap{Db: getDB(connStrs[0], connStrs[1]), Dialect: gorp.MySQLDialect{}}
-	default:
-		panic(fmt.Sprintf("unknown driver %s", connStrs[0]))
-	}
-	indexName := "ix_calldata_min_count_ask_count_oracle_script_id_resolve_time"
-	dbMap.AddTableWithName(Request{}, "request").AddIndex(indexName, "Btree", []string{"calldata", "min_count", "ask_count", "oracle_script_id", "resolve_time"})
-	err := dbMap.CreateTablesIfNotExists()
-	if err != nil {
-		panic(err)
-	}
-	err = dbMap.CreateIndex()
-	// Check error if it's not creating existed index, panic the process.
-	if err != nil && err.Error() != fmt.Sprintf("index %s already exists", indexName) {
-		panic(err)
-	}
-	return dbMap
-}
+var _ band.Hook = &Hook{}
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc *codec.LegacyAmino, oracleKeeper keeper.Keeper, connStr string) *Hook {
+func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, baseApp *baseapp.BaseApp) *Hook {
+	dbConnStr := strings.SplitN(connStr, ":", 2)
+	for i := range dbConnStr {
+		dbConnStr[i] = strings.TrimSpace(dbConnStr[i])
+	}
+
 	return &Hook{
 		cdc:          cdc,
 		oracleKeeper: oracleKeeper,
-		dbMap:        initDb(connStr),
+		db:           initDb(dbConnStr[0], dbConnStr[1]),
+		baseApp:      baseApp,
 	}
 }
 
@@ -83,10 +54,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
 func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
-	trans, err := h.dbMap.Begin()
-	if err != nil {
-		panic(err)
-	}
+	trans := h.db.Begin()
 	h.trans = trans
 }
 
@@ -102,43 +70,45 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 		switch event.Type {
 		case types.EventTypeResolve:
 			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
+
 			result := h.oracleKeeper.MustGetResult(ctx, reqID)
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
-				h.insertRequest(
-					reqID, result.OracleScriptID, result.Calldata,
-					result.AskCount, result.MinCount, result.ResolveTime,
-				)
+				request := h.oracleKeeper.MustGetRequest(ctx, reqID)
+				reports := h.oracleKeeper.GetReports(ctx, reqID)
+				h.insertRequest(request, reports, result)
 			}
-		default:
-			break
 		}
 	}
 }
 
 // ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
 func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	paths := strings.Split(req.Path, "/")
-	if paths[0] == "band" {
-		switch paths[1] {
-		case "latest_request":
-			if len(paths) != 7 {
-				return common.QueryResultError(fmt.Errorf("expect 7 arguments given %d", len(paths))), true
-			}
-			oid := types.OracleScriptID(common.Atoi(paths[2]))
-			calldata := paths[3]
-			askCount := common.Atoui(paths[4])
-			minCount := common.Atoui(paths[5])
-			limit := common.Atoi(paths[6])
-			requestIDs := h.getMultiRequestID(oid, calldata, askCount, minCount, limit)
-			bz, err := h.cdc.MarshalBinaryBare(requestIDs)
-			if err != nil {
-				return common.QueryResultError(err), true
-			}
-			return common.QueryResultSuccess(bz, req.Height), true
-		default:
-			return abci.ResponseQuery{}, false
+	switch req.Path {
+	case "/oracle.v1.Query/RequestSearch":
+		var request types.QueryRequestSearchRequest
+		if err := h.cdc.UnmarshalBinaryBare(req.Data, &request); err != nil {
+			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request data")), true
 		}
-	} else {
+
+		requests, err := h.getMultiRequests(
+			types.OracleScriptID(request.OracleScriptId),
+			request.Calldata,
+			request.AskCount,
+			request.MinCount,
+			request.Limit,
+		)
+		if err != nil {
+			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query multiple requests from database")), true
+		}
+
+		finalResult := requests.QueryRequestSearchResponse()
+
+		bz, err := h.cdc.MarshalBinaryBare(&finalResult)
+		if err != nil {
+			return common.QueryResultError(err), true
+		}
+		return common.QueryResultSuccess(bz, req.Height), true
+	default:
 		return abci.ResponseQuery{}, false
 	}
 }

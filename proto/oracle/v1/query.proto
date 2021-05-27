@@ -231,15 +231,19 @@ message QueryRequestSearchRequest {
   // Calldata is OBI-encoded data as argument params for the oracle script
   bytes calldata = 2;
   // AskCount is number of validators allowed for fulfilling the request
-  int64 ask_count = 3;
+  uint64 ask_count = 3;
   // MinCount is number of validators required for fulfilling the request
-  int64 min_count = 4;
+  uint64 min_count = 4;
+  // Limit is maximum number of oracle requests to be included in the response
+  // set limit to 1 to get latest request
+  uint64 limit = 5;
 }
 
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
 message QueryRequestSearchResponse {
-  // TODO: add fields
+  // Requests is a list of requests
+  repeated QueryRequestResponse requests = 1;
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC

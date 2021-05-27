@@ -221,7 +221,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	connStr, _ := appOpts.Get(flagWithRequestSearch).(string)
 	if connStr != "" {
 		bandApp.AddHook(request.NewHook(
-			bandApp.LegacyAmino(), bandApp.OracleKeeper, connStr))
+			bandApp.AppCodec(), bandApp.OracleKeeper, connStr, bandApp.BaseApp))
 	}
 
 	connStr, _ = appOpts.Get(flagWithEmitter).(string)
