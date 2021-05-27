@@ -246,7 +246,7 @@ message QueryRequestSearchResponse {
 // method.
 message QueryRequestPriceRequest {
   // Symbol is unit of data indicating what the data is
-  string symbol = 1;
+  repeated string symbols = 1;
   // AskCount is number of validators allowed for fulfilling the request
   int64 ask_count = 2;
   // MinCount is number of validators required for fulfilling the request
@@ -256,22 +256,8 @@ message QueryRequestPriceRequest {
 // QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
 // method.
 message QueryRequestPriceResponse {
-  // Symbol is unit of data indicating what the data is. It is price currencies
-  // for this case.
-  string symbol = 1;
-  // Multiplier is a number used for left-shifting value to eliminate decimal
-  // digits
-  uint64 multiplier = 2;
-  // Rate is the actual data, which is rate number multiplied by the multiplier.
-  uint64 rate = 3;
-  // RequestID is oracle request ID that contains this price
-  int64 request_id = 4 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
-  // ResolveTime is epoch timestamp indicating the time when the request had
-  // been resolved
-  int64 resolve_time = 5;
+  // PriceResult is a list of price results for given symbols
+  repeated PriceResult price_results = 1;
 }
 
 // QueryRequestVerificationRequest is request type for the

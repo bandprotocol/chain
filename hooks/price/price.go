@@ -74,10 +74,10 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 					obi.MustDecode(result.Calldata, &input)
 					obi.MustDecode(result.Result, &output)
 					for idx, symbol := range input.Symbols {
-						price := types.QueryRequestPriceResponse{
+						price := types.PriceResult{
 							Symbol:      symbol,
 							Multiplier:  input.Multiplier,
-							Rate:        output.Rates[idx],
+							Px:          output.Rates[idx],
 							RequestID:   result.RequestID,
 							ResolveTime: result.ResolveTime,
 						}
@@ -102,17 +102,27 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request of RequestPrice query")), true
 		}
 
-		bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, request.Symbol)), nil)
-		if err != nil {
-			return sdkerrors.QueryResult(
-				sdkerrors.Wrapf(err,
-					"cannot get price of %s with %d/%d counts",
-					request.Symbol,
-					request.MinCount,
-					request.AskCount,
-				),
-			), true
+		var response types.QueryRequestPriceResponse
+		for _, symbol := range request.Symbols {
+			var priceResult types.PriceResult
+			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
+			if err != nil {
+				return sdkerrors.QueryResult(
+					sdkerrors.Wrapf(err,
+						"cannot get price of %s with %d/%d counts",
+						symbol,
+						request.MinCount,
+						request.AskCount,
+					),
+				), true
+			}
+
+			h.cdc.MustUnmarshalBinaryBare(bz, &priceResult)
+			response.PriceResults = append(response.PriceResults, &priceResult)
 		}
+
+		bz := h.cdc.MustMarshalBinaryBare(&response)
+
 		return abci.ResponseQuery{
 			Height: req.Height,
 			Value:  bz,
