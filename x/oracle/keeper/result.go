@@ -11,7 +11,6 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 
-	"github.com/bandprotocol/chain/pkg/obi"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -22,8 +21,7 @@ func (k Keeper) HasResult(ctx sdk.Context, id types.RequestID) bool {
 
 // SetResult sets result to the store.
 func (k Keeper) SetResult(ctx sdk.Context, reqID types.RequestID, result types.Result) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.ResultStoreKey(reqID), obi.MustEncode(result))
+	ctx.KVStore(k.storeKey).Set(types.ResultStoreKey(reqID), k.cdc.MustMarshalBinaryBare(&result))
 }
 
 // GetResult returns the result for the given request ID or error if not exists.
@@ -33,7 +31,7 @@ func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, er
 		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
 	}
 	var result types.Result
-	obi.MustDecode(bz, &result)
+	k.cdc.MustUnmarshalBinaryBare(bz, &result)
 	return result, nil
 }
 
