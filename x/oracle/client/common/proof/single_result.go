@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bandprotocol/chain/pkg/obi"
 	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -102,7 +101,7 @@ func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
 		}
 
 		var rs types.Result
-		obi.MustDecode(value, &rs)
+		types.ModuleCdc.MustUnmarshalBinaryBare(value, &rs)
 
 		oracleData := OracleDataProof{
 			Result:      rs,

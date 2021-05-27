@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bandprotocol/chain/pkg/obi"
 	clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	ics23 "github.com/confio/ics23/go"
@@ -139,7 +138,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc
 					resValue := resp.Response.GetValue()
 
 					var rs types.Result
-					obi.MustDecode(resValue, &rs)
+					types.ModuleCdc.MustUnmarshalBinaryBare(resValue, &rs)
 
 					oracleData := OracleDataProof{
 						Result:      rs,
