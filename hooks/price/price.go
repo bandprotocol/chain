@@ -106,7 +106,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		if err != nil {
 			return sdkerrors.QueryResult(
 				sdkerrors.Wrapf(err,
-					"cannot get price of %s with %d/%d counts with error: %s",
+					"cannot get price of %s with %d/%d counts",
 					request.Symbol,
 					request.MinCount,
 					request.AskCount,
