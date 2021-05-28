@@ -58,7 +58,7 @@ var (
 
 // nolint
 var (
-	EmptyCoins          = sdk.NewCoins()
+	EmptyCoins          = sdk.Coins(nil)
 	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
 	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
@@ -303,7 +303,6 @@ func setup(withGenesis bool, invCheckPeriod uint) (*bandapp.BandApp, bandapp.Gen
 // account. A Nop logger is set in SimApp.
 func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *bandapp.BandApp {
 	app, genesisState, dir := setup(true, 5)
-	fmt.Println(dir)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)

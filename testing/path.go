@@ -40,7 +40,6 @@ func (path *Path) SetChannelOrdered() {
 // if a relay step fails or the packet commitment does not exist on either endpoint.
 func (path *Path) RelayPacket(packet channeltypes.Packet, ack []byte) error {
 	pc := path.EndpointA.Chain.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(path.EndpointA.Chain.GetContext(), packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
-	fmt.Println(pc)
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointA.Chain.App.AppCodec(), packet)) {
 
 		// packet found, relay from A to B
@@ -58,7 +57,6 @@ func (path *Path) RelayPacket(packet channeltypes.Packet, ack []byte) error {
 	}
 
 	pc = path.EndpointB.Chain.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(path.EndpointB.Chain.GetContext(), packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
-	fmt.Println(pc)
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointB.Chain.App.AppCodec(), packet)) {
 
 		// packet found, relay B to A
