@@ -77,6 +77,18 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 				reports := h.oracleKeeper.GetReports(ctx, reqID)
 				h.insertRequest(request, reports, result)
 			}
+		case types.EventTypeReport:
+			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeReport+"."+types.AttributeKeyID][0]))
+			validator := evMap[types.EventTypeReport+"."+types.AttributeKeyValidator][0]
+			iter := h.oracleKeeper.GetReportIterator(ctx, reqID)
+			defer iter.Close()
+			for ; iter.Valid(); iter.Next() {
+				var rep types.Report
+				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
+				if !rep.InBeforeResolve && rep.Validator == validator {
+					h.addReport(reqID, rep)
+				}
+			}
 		}
 	}
 }

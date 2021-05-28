@@ -210,15 +210,18 @@ func (h *Hook) insertRequest(request types.Request, reports []types.Report, resu
 		ResultCallData: base64.StdEncoding.EncodeToString(result.Calldata),
 		Result:         base64.StdEncoding.EncodeToString(result.Result),
 	}
+
 	if request.IBCChannel != nil {
 		dbData.IBCChannelID = request.IBCChannel.ChannelId
 		dbData.IBCPortID = request.IBCChannel.PortId
 	}
+
 	for _, reqVal := range request.RequestedValidators {
 		dbData.RequestedValidators = append(dbData.RequestedValidators, RequestedValidator{
 			Address: reqVal,
 		})
 	}
+
 	for _, rawReq := range request.RawRequests {
 		dbData.RawRequests = append(dbData.RawRequests, RawRequest{
 			ExternalID:   int64(rawReq.ExternalID),
@@ -226,6 +229,7 @@ func (h *Hook) insertRequest(request types.Request, reports []types.Report, resu
 			CallData:     base64.StdEncoding.EncodeToString(rawReq.Calldata),
 		})
 	}
+
 	for _, report := range reports {
 		var rawReports []RawReport
 		for _, rawReport := range report.RawReports {
@@ -243,6 +247,23 @@ func (h *Hook) insertRequest(request types.Request, reports []types.Report, resu
 	}
 
 	h.trans.Create(&dbData)
+}
+
+func (h *Hook) addReport(requestIDs types.RequestID, report types.Report) {
+	result := Report{
+		RequestID:       uint(requestIDs),
+		Validator:       report.Validator,
+		InBeforeResolve: report.InBeforeResolve,
+	}
+
+	for _, rawReport := range report.RawReports {
+		result.RawReports = append(result.RawReports, RawReport{
+			ExternalID: int64(rawReport.ExternalID),
+			Data:       base64.StdEncoding.EncodeToString(rawReport.Data),
+			ExitCode:   rawReport.ExitCode,
+		})
+	}
+	h.trans.Model(&Report{}).Create(&result)
 }
 
 func (h *Hook) getMultiRequests(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64, limit uint64) (Requests, error) {
