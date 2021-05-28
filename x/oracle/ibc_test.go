@@ -37,19 +37,7 @@ func NewOraclePath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	return path
 }
 
-func (suite *OracleTestSuite) checkChainBTreasuryBalances(path *ibctesting.Path, expect sdk.Coins) {
-	treasuryBalances := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.Treasury)
-	suite.Require().Equal(expect, treasuryBalances)
-}
-
-func (suite *OracleTestSuite) checkChainBPoolBalances(path *ibctesting.Path, requestKey string, expect sdk.Coins) {
-	poolBalances := suite.chainB.App.OracleKeeper.GetRequetPoolBalances(suite.chainB.GetContext(), requestKey, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID)
-	suite.Require().Equal(expect, poolBalances)
-}
-
-// constructs a send from chainA to chainB on the established channel/connection
-// and sends the same coin back from chainB to chainA.
-func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
+func (suite *OracleTestSuite) setupAndDepositPoolRequest() *ibctesting.Path {
 	// setup between chainA and chainB
 	path := NewOraclePath(suite.chainA, suite.chainB)
 	suite.coordinator.Setup(path)
@@ -66,7 +54,25 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	suite.Require().True(suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.Treasury).Empty())
 	suite.checkChainBPoolBalances(path, "beeb-request", sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))))
 
-	// send from A to B
+	return path
+}
+
+func (suite *OracleTestSuite) checkChainBTreasuryBalances(path *ibctesting.Path, expect sdk.Coins) {
+	treasuryBalances := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.Treasury)
+	suite.Require().Equal(expect, treasuryBalances)
+}
+
+func (suite *OracleTestSuite) checkChainBPoolBalances(path *ibctesting.Path, requestKey string, expect sdk.Coins) {
+	poolBalances := suite.chainB.App.OracleKeeper.GetRequetPoolBalances(suite.chainB.GetContext(), requestKey, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID)
+	suite.Require().Equal(expect, poolBalances)
+}
+
+// constructs a send from chainA to chainB on the established channel/connection
+// and sends the same coin back from chainB to chainA.
+func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
@@ -89,7 +95,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		timeoutHeight,
 		0,
 	)
-	err = path.EndpointA.SendPacket(packet)
+	err := path.EndpointA.SendPacket(packet)
 	suite.Require().NoError(err)
 
 	ack := channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)))
