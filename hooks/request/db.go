@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -67,15 +69,19 @@ type Request struct {
 type Requests []Request
 
 func (r Request) QueryRequestResponse() types.QueryRequestResponse {
+	// Request's calldata
 	callData, err := base64.StdEncoding.DecodeString(r.CallData)
 	if err != nil {
 		panic(err)
 	}
 
+	// Requested validators
 	var requestedValidators []string
 	for _, rVal := range r.RequestedValidators {
 		requestedValidators = append(requestedValidators, rVal.Address)
 	}
+
+	// Raw requests
 	var rawRequests []types.RawRequest
 	for _, rr := range r.RawRequests {
 		callData, err := base64.StdEncoding.DecodeString(r.CallData)
@@ -88,17 +94,23 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 			Calldata:     callData,
 		})
 	}
+
+	// Result's calldata
 	resultCallData, err := base64.StdEncoding.DecodeString(r.ResultCallData)
 	if err != nil {
 		panic(err)
 	}
+
+	// Result data
 	requestResult, err := base64.StdEncoding.DecodeString(r.Result)
 	if err != nil {
 		panic(err)
 	}
 
+	// Reports
 	var reports []types.Report
 	for _, dbReport := range r.Reports {
+		// Raw reports
 		var rawReports []types.RawReport
 		for _, rr := range dbReport.RawReports {
 			data, err := base64.StdEncoding.DecodeString(rr.Data)
@@ -119,6 +131,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		reports = append(reports, report)
 	}
 
+	// IBC Channel
 	var ibcChannel *types.IBCChannel
 	if len(r.IBCChannelID) > 0 {
 		ibcChannel = &types.IBCChannel{
@@ -127,6 +140,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		}
 	}
 
+	// The whole response
 	request := types.QueryRequestResponse{
 		Request: &types.Request{
 			OracleScriptID:      types.OracleScriptID(r.OracleScriptID),
@@ -181,6 +195,21 @@ func initDb(driverName, dataSourceName string) *gorm.DB {
 		if err != nil {
 			panic(fmt.Errorf("failed to connect to SQLite: %w", err))
 		}
+	case "postgres":
+		db, err = gorm.Open(postgres.Open(dataSourceName), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("failed to connect to PostgreSQL: %w", err))
+		}
+	case "mysql":
+		db, err = gorm.Open(mysql.Open(dataSourceName), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("failed to connect to MySQL: %w", err))
+		}
+
 	default:
 		panic(fmt.Sprintf("unknown driver %s", driverName))
 	}
