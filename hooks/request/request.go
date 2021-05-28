@@ -60,6 +60,27 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 
 // AfterDeliverTx specify actions need to do after transaction has been processed (app.Hook interface).
 func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+	for _, event := range res.Events {
+		events := sdk.StringifyEvents([]abci.Event{event})
+		evMap := common.ParseEvents(events)
+
+		switch event.Type {
+		case types.EventTypeReport:
+			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeReport+"."+types.AttributeKeyID][0]))
+			validator := evMap[types.EventTypeReport+"."+types.AttributeKeyValidator][0]
+			iter := h.oracleKeeper.GetReportIterator(ctx, reqID)
+			defer iter.Close()
+
+			for ; iter.Valid(); iter.Next() {
+				var rep types.Report
+				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
+
+				if !rep.InBeforeResolve && rep.Validator == validator {
+					h.addReport(reqID, rep)
+				}
+			}
+		}
+	}
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
@@ -76,18 +97,6 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 				request := h.oracleKeeper.MustGetRequest(ctx, reqID)
 				reports := h.oracleKeeper.GetReports(ctx, reqID)
 				h.insertRequest(request, reports, result)
-			}
-		case types.EventTypeReport:
-			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeReport+"."+types.AttributeKeyID][0]))
-			validator := evMap[types.EventTypeReport+"."+types.AttributeKeyValidator][0]
-			iter := h.oracleKeeper.GetReportIterator(ctx, reqID)
-			defer iter.Close()
-			for ; iter.Valid(); iter.Next() {
-				var rep types.Report
-				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
-				if !rep.InBeforeResolve && rep.Validator == validator {
-					h.addReport(reqID, rep)
-				}
 			}
 		}
 	}
