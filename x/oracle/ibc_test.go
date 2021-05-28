@@ -8,6 +8,7 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/bandprotocol/chain/pkg/obi"
 	ibctesting "github.com/bandprotocol/chain/testing"
 	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
@@ -57,6 +58,22 @@ func (suite *OracleTestSuite) setupAndDepositPoolRequest() *ibctesting.Path {
 	return path
 }
 
+func (suite *OracleTestSuite) sendOracleRequetPacket(path *ibctesting.Path, seq uint64, oracleRequestPacket types.OracleRequestPacketData, timeoutHeight clienttypes.Height) channeltypes.Packet {
+	packet := channeltypes.NewPacket(
+		oracleRequestPacket.GetBytes(),
+		seq,
+		path.EndpointA.ChannelConfig.PortID,
+		path.EndpointA.ChannelID,
+		path.EndpointB.ChannelConfig.PortID,
+		path.EndpointB.ChannelID,
+		timeoutHeight,
+		0,
+	)
+	err := path.EndpointA.SendPacket(packet)
+	suite.Require().NoError(err)
+	return packet
+}
+
 func (suite *OracleTestSuite) checkChainBTreasuryBalances(path *ibctesting.Path, expect sdk.Coins) {
 	treasuryBalances := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.Treasury)
 	suite.Require().Equal(expect, treasuryBalances)
@@ -85,21 +102,10 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := channeltypes.NewPacket(
-		oracleRequestPacket.GetBytes(),
-		1,
-		path.EndpointA.ChannelConfig.PortID,
-		path.EndpointA.ChannelID,
-		path.EndpointB.ChannelConfig.PortID,
-		path.EndpointB.ChannelID,
-		timeoutHeight,
-		0,
-	)
-	err := path.EndpointA.SendPacket(packet)
-	suite.Require().NoError(err)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)))
-	err = path.RelayPacket(packet, ack.GetBytes())
+	err := path.RelayPacket(packet, ack.GetBytes())
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(path, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))))
@@ -123,6 +129,319 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(suite.chainB.GetContext(), path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, 1)
 	suite.Equal(expectCommitment, commitment)
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestSuccessBasicNotEnoughFund() {
+	// setup between chainA and chainB
+	path := NewOraclePath(suite.chainA, suite.chainB)
+	suite.coordinator.Setup(path)
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("0uband is smaller than 1000000uband: insufficient funds")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		100,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		17,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("got: 17, max: 16: invalid ask count")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+
+	oracleRequestPacket = types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		2,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet = suite.sendOracleRequetPacket(path, 2, oracleRequestPacket, timeoutHeight)
+
+	ack = channeltypes.NewErrorAcknowledgement("1 < 2: insufficent available validators")
+	err = path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
+	path := suite.setupAndDepositPoolRequest()
+
+	params := suite.chainB.App.OracleKeeper.GetParams(suite.chainB.GetContext())
+	params.BaseOwasmGas = 100000000
+	params.PerValidatorRequestGas = 0
+	suite.chainB.App.OracleKeeper.SetParams(suite.chainB.GetContext(), params)
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	// TODO: add comment to explain this
+	ack := channeltypes.NewErrorAcknowledgement("")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().Contains(err.Error(), "BASE_OWASM_FEE; gasWanted: 1000000")
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic() {
+	path := suite.setupAndDepositPoolRequest()
+
+	params := suite.chainB.App.OracleKeeper.GetParams(suite.chainB.GetContext())
+	params.PerValidatorRequestGas = 100000000
+	suite.chainB.App.OracleKeeper.SetParams(suite.chainB.GetContext(), params)
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	// TODO: add comment to explain this
+	ack := channeltypes.NewErrorAcknowledgement("")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().Contains(err.Error(), "PER_VALIDATOR_REQUEST_FEE; gasWanted: 1000000")
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		100,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("id: 100: oracle script not found")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		2,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("OEI action to invoke is not available: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		3,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("empty raw requests")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		4,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("runtime error while executing the Wasm script: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
+	path := suite.setupAndDepositPoolRequest()
+
+	params := suite.chainB.App.OracleKeeper.GetParams(suite.chainB.GetContext())
+	params.MaxRawRequestCount = 3
+	suite.chainB.App.OracleKeeper.SetParams(suite.chainB.GetContext(), params)
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		4,
+		obi.MustEncode(testapp.Wasm4Input{
+			IDs:      []int64{1, 2, 3, 4},
+			Calldata: "beeb",
+		}),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("too many external data requests: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		6,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		8,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("span to write is too small: bad wasm execution")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
 }
 
 func TestTransferTestSuite(t *testing.T) {
