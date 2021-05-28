@@ -97,12 +97,12 @@
           "address": "odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x",
           "coins": [
             {
-              "denom": "minigeo",
-              "amount": "100000000000000"
-            },
-            {
               "denom": "loki",
               "amount": "10000000000000"
+            },
+            {
+              "denom": "minigeo",
+              "amount": "100000000000000"
             }
           ]
         },
@@ -110,12 +110,12 @@
           "address": "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g",
           "coins": [
             {
-              "denom": "minigeo",
-              "amount": "100000000000000"
-            },
-            {
               "denom": "loki",
               "amount": "10000000000000"
+            },
+            {
+              "denom": "minigeo",
+              "amount": "100000000000000"
             }
           ]
         },
@@ -158,12 +158,12 @@
       ],
       "supply": [
         {
-          "denom": "minigeo",
-          "amount": "1000000000000000"
-        },
-        {
           "denom": "loki",
           "amount": "100000000000000"
+        },
+        {
+          "denom": "minigeo",
+          "amount": "1000000000000000"
         }
       ],
       "denom_metadata": []
@@ -176,16 +176,6 @@
       "initial_rate": "10.000000000000000000",
       "params": {
         "exchanges": [
-          {
-            "from": "minigeo",
-            "to": "loki",
-            "rate_multiplier": "1.000000000000000000"
-          },
-          {
-            "from": "loki",
-            "to": "minigeo",
-            "rate_multiplier": "1.000000000000000000"
-          },
           {
             "from": "loki",
             "to": "eth",
@@ -217,7 +207,6 @@
             "amount": "10000000000"
           }
         ],
-        "blocks_auction_duration": "7205",
         "exchange_rate": {
           "from": "minigeo",
           "to": "loki",
@@ -241,12 +230,12 @@
       "fee_pool": {
         "community_pool": [
           {
-            "denom": "minigeo",
-            "amount": "800000000000000"
-          },
-          {
             "denom": "loki",
             "amount": "29995000000000"
+          },
+          {
+            "denom": "minigeo",
+            "amount": "800000000000000"
           }
         ]
       },

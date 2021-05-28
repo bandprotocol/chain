@@ -99,7 +99,7 @@ func (k Keeper) RemoveExchangeRate(ctx sdk.Context, exchange coinswaptypes.Excha
 	exchanges := k.GetExchanges(ctx)
 	newExchanges, err := coinswaptypes.RemoveExchange(exchanges, exchange)
 	if err != nil {
-		return sdkerrors.Wrapf(err, "failed to remove exchange rate to %s module params", coinswaptypes.ModuleName)
+		return sdkerrors.Wrapf(err, "failed to remove exchange rate from %s module params", coinswaptypes.ModuleName)
 	}
 	k.SetExchanges(ctx, newExchanges)
 	return nil

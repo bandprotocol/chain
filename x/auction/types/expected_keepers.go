@@ -8,7 +8,6 @@ import (
 
 // OracleKeeper defines the expected oracle Keeper.
 type OracleKeeper interface {
-	SetAccumulatedPaymentsForData(ctx sdk.Context, payments oracletypes.AccumulatedPaymentsForData)
 	GetAccumulatedPaymentsForData(ctx sdk.Context) (payments oracletypes.AccumulatedPaymentsForData)
 }
 

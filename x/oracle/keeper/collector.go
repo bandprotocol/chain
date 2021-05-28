@@ -23,8 +23,6 @@ func (k Keeper) CollectFee(
 ) (sdk.Coins, error) {
 
 	collector := newFeeCollector(k, feeLimit, payer)
-	accumulatedPaymentsForData := k.GetAccumulatedPaymentsForData(ctx)
-	accumulatedAmount := accumulatedPaymentsForData.AccumulatedAmount
 
 	for _, r := range rawRequests {
 
@@ -42,15 +40,12 @@ func (k Keeper) CollectFee(
 		if err := collector.Collect(ctx, fee); err != nil {
 			return nil, err
 		}
-
-		accumulatedAmount = accumulatedAmount.Add(fee...)
 	}
-
-	accumulatedPaymentsForData.AccumulatedAmount = accumulatedAmount
-	k.SetAccumulatedPaymentsForData(ctx, accumulatedPaymentsForData)
 
 	return collector.Collected(), nil
 }
+
+
 
 // CollectReward subtract reward from fee pool and sends it to the data providers for reporting data
 func (k Keeper) CollectReward(

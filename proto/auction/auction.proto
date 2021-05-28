@@ -10,6 +10,4 @@ message AuctionStatus {
   option (gogoproto.equal) = false;
   // Pending is the status of the auction (active or not)
   bool pending = 1;
-  // FinishBlock is the number of last block of auction duration
-  uint64 finish_block = 2;
 }

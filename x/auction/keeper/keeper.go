@@ -4,7 +4,6 @@ import (
 	"fmt"
 	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
-	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -62,12 +61,6 @@ func (k Keeper) GetAuctionStartThreshold(ctx sdk.Context) (res sdk.Coins) {
 	return res
 }
 
-// GetBlocksAuctionDuration returns auction duration parameter
-func (k Keeper) GetBlocksAuctionDuration(ctx sdk.Context) (res uint64) {
-	k.paramstore.Get(ctx, auctiontypes.KeyBlocksAuctionDuration, &res)
-	return res
-}
-
 // GetExchangeRate returns auction exchange parameter
 func (k Keeper) GetExchangeRate(ctx sdk.Context) (res coinswaptypes.Exchange) {
 	k.paramstore.Get(ctx, auctiontypes.KeyExchangeRate, &res)
@@ -93,38 +86,36 @@ func (k Keeper) GetAccumulatedPaymentsForData(ctx sdk.Context) sdk.Coins {
 	return accumulatedPaymentsForData.AccumulatedAmount
 }
 
-// SetAccumulatedPaymentsForData updates accumulated payments for data
-func (k Keeper) SetAccumulatedPaymentsForData(ctx sdk.Context, amt sdk.Coins) {
-	newAmt := oracletypes.AccumulatedPaymentsForData{
-		AccumulatedAmount: amt,
-	}
-	k.oracleKeeper.SetAccumulatedPaymentsForData(ctx, newAmt)
-}
-
 // StartAuction resolves to sell minigeo
 func (k Keeper) StartAuction(ctx sdk.Context) error {
 	status := k.GetAuctionStatus(ctx)
-	auctionDuration := k.GetBlocksAuctionDuration(ctx)
-	status.FinishBlock = uint64(ctx.BlockHeight()) + auctionDuration
-
-	if !status.Pending {
-		status.Pending = true
-		if err := k.coinswapKeeper.AddExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
-			return sdkerrors.Wrap(err, "failed to start auction")
-		}
+	if status.Pending {
+		return sdkerrors.Wrap(auctiontypes.ErrAuctionHasStarted, "the auction is pending")
 	}
 
+	if err := k.coinswapKeeper.AddExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
+		return sdkerrors.Wrap(err, "failed to start auction")
+	}
+
+	status.Pending = true
 	k.SetAuctionStatus(ctx, status)
+
 	return nil
 }
 
 // FinishAuction prohibits selling minigeo
 func (k Keeper) FinishAuction(ctx sdk.Context) error {
-	if err := k.coinswapKeeper.RemoveExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
-		return sdkerrors.Wrap(err, "failed to finish auction")
-	}
 	status := k.GetAuctionStatus(ctx)
+	if !status.Pending {
+		return sdkerrors.Wrap(auctiontypes.ErrAuctionHasClosed, "the auction is closed")
+	}
+
+	if err := k.coinswapKeeper.RemoveExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
+		return sdkerrors.Wrap(err, "failed to remove auction exchange rate")
+	}
+
 	status.Pending = false
 	k.SetAuctionStatus(ctx, status)
+
 	return nil
 }
