@@ -78,7 +78,7 @@ service Query {
   // script.
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
-    option (google.api.http).post = "/oracle/v1/request_prices";
+    option (google.api.http).get = "/oracle/v1/request_prices";
   }
 
   // RequestVerification verifies a request to make sure that
@@ -246,7 +246,7 @@ message QueryRequestSearchResponse {
 // method.
 message QueryRequestPriceRequest {
   // Symbol is unit of data indicating what the data is
-  string symbol = 1;
+  repeated string symbols = 1;
   // AskCount is number of validators allowed for fulfilling the request
   int64 ask_count = 2;
   // MinCount is number of validators required for fulfilling the request
@@ -256,14 +256,8 @@ message QueryRequestPriceRequest {
 // QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
 // method.
 message QueryRequestPriceResponse {
-  // OracleScriptID is ID of an oracle script
-  int64 oracle_script_id = 1;
-  // Calldata is OBI-encoded data as argument params for the oracle script
-  bytes calldata = 2;
-  // AskCount is number of validators allowed for fulfilling the request
-  int64 ask_count = 3;
-  // MinCount is number of validators required to fulfill the request
-  int64 min_count = 4;
+  // PriceResult is a list of price results for given symbols
+  repeated PriceResult price_results = 1;
 }
 
 // QueryRequestVerificationRequest is request type for the
