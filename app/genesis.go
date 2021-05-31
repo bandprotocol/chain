@@ -2,6 +2,8 @@ package band
 
 import (
 	"encoding/json"
+	"github.com/GeoDB-Limited/odin-core/x/auction"
+	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	"github.com/GeoDB-Limited/odin-core/x/coinswap"
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"time"
@@ -37,7 +39,7 @@ type GenesisState map[string]json.RawMessage
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	cdc := MakeEncodingConfig().Marshaler
-	denom := "odin"
+	denom := "loki"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
@@ -77,5 +79,6 @@ func NewDefaultGenesisState() GenesisState {
 		evidencetypes.ModuleName:   evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:     oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		coinswaptypes.ModuleName:   coinswap.AppModuleBasic{}.DefaultGenesis(cdc),
+		auctiontypes.ModuleName:    auction.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

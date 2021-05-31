@@ -45,6 +45,8 @@ func (k Keeper) CollectFee(
 	return collector.Collected(), nil
 }
 
+
+
 // CollectReward subtract reward from fee pool and sends it to the data providers for reporting data
 func (k Keeper) CollectReward(
 	ctx sdk.Context, rawReports []oracletypes.RawReport, rawRequests []oracletypes.RawRequest,

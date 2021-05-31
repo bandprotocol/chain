@@ -16,7 +16,7 @@ func getGenesisDataSources(homePath string) []oracletypes.DataSource {
 		idxStr := fmt.Sprintf("%d", id)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		ds := oracletypes.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000odin,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000loki,
 		)
 		ds.ID = oracletypes.DataSourceID(id)
 		DataSources = append(DataSources, ds)

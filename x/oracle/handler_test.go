@@ -75,7 +75,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	dsID := oracletypes.DataSourceID(1)
 	ds, err := k.GetDataSource(ctx, dsID)
 	require.NoError(t, err)
-	expectedDS := oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Coins1000000odin)
+	expectedDS := oracletypes.NewDataSource(testapp.Owner.Address, newName, newDescription, newFilename, testapp.Coins1000000loki)
 	expectedDS.ID = dsID
 	require.Equal(t, expectedDS, ds)
 	event := abci.Event{
@@ -246,7 +246,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	app, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address)
+	msg := oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins10000000000loki, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	expectedRequest := oracletypes.NewRequest(
@@ -273,7 +273,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		Attributes: []abci.EventAttribute{
 			{Key: []byte(banktypes.AttributeKeyRecipient), Value: []byte(app.AccountKeeper.GetModuleAddress(oracletypes.ModuleName).String())},
 			{Key: []byte(banktypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000odin")},
+			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000loki")},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -339,25 +339,25 @@ func TestRequestDataSuccess(t *testing.T) {
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
+	res, err := oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000loki, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "0 < 2: insufficent available validators")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000loki, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "2 < 3: insufficent available validators")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000loki, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
 	require.EqualError(t, err, "id: 999: oracle script not found")
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "require: 2000000odin, max: 0odin: not enough fee")
+	require.EqualError(t, err, "require: 2000000loki, max: 0loki: not enough fee")
 	require.Nil(t, res)
 	// Too large calldata
-	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(999, []byte(strings.Repeat("a", 2000)), 2, 2, "CID", testapp.Coins100000000odin, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.Alice.Address))
+	res, err = oracle.NewHandler(k)(ctx, oracletypes.NewMsgRequestData(999, []byte(strings.Repeat("a", 2000)), 2, 2, "CID", testapp.Coins100000000loki, oracletypes.DefaultPrepareGas, oracletypes.DefaultExecuteGas, testapp.Alice.Address))
 	require.EqualError(t, err, "got: 2000, max: 1024: too large calldata")
 	require.Nil(t, res)
 }

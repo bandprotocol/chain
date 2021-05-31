@@ -15,6 +15,11 @@ func (k Keeper) FundOraclePool(ctx sdk.Context, amount sdk.Coins, sender sdk.Acc
 	oraclePool.DataProvidersPool = oraclePool.DataProvidersPool.Add(amount...)
 	k.SetOraclePool(ctx, oraclePool)
 
+	// store the changes in DPP
+	accumulatedPaymentsForData := k.GetAccumulatedPaymentsForData(ctx)
+	accumulatedPaymentsForData.AccumulatedAmount = accumulatedPaymentsForData.AccumulatedAmount.Add(amount...)
+
+	k.SetAccumulatedPaymentsForData(ctx, accumulatedPaymentsForData)
 	return nil
 }
 
@@ -30,5 +35,11 @@ func (k Keeper) WithdrawOraclePool(ctx sdk.Context, amount sdk.Coins, recipient 
 	}
 	oraclePool.DataProvidersPool = diff
 	k.SetOraclePool(ctx, oraclePool)
+
+	// store the changes in DPP
+	accumulatedPaymentsForData := k.GetAccumulatedPaymentsForData(ctx)
+	accumulatedPaymentsForData.AccumulatedAmount, _ = accumulatedPaymentsForData.AccumulatedAmount.SafeSub(amount)
+
+	k.SetAccumulatedPaymentsForData(ctx, accumulatedPaymentsForData)
 	return nil
 }

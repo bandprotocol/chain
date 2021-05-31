@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	DefaultBondDenom   = "odin"
-	DefaultHelperDenom = "geo"
+	DefaultBondDenom   = "loki"
+	DefaultHelperDenom = "minigeo"
 )
 
 // nolint
@@ -109,7 +109,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000odin[0].Amount, Coins1000000odin[0].Amount, Coins99999999odin[0].Amount}
+	bamt := []sdk.Int{Coins100000000loki[0].Amount, Coins1000000loki[0].Amount, Coins99999999loki[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -146,16 +146,16 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	balances := []banktypes.Balance{
 		{
 			Address: Owner.Address.String(),
-			Coins:   Coins1000000odin,
+			Coins:   Coins1000000loki,
 		},
-		{Address: FeePayer.Address.String(), Coins: Coins100000000odin},
-		{Address: Peter.Address.String(), Coins: Coins1000000odin},
-		{Address: Alice.Address.String(), Coins: Coins1000000odin.Add(Coin100000000geo)},
-		{Address: Bob.Address.String(), Coins: Coins1000000odin},
-		{Address: Validators[0].Address.String(), Coins: Coins100000000odin},
-		{Address: Validators[1].Address.String(), Coins: Coins100000000odin},
-		{Address: Validators[2].Address.String(), Coins: Coins100000000odin},
-		{Address: Carol.Address.String(), Coins: Coins1000000odin},
+		{Address: FeePayer.Address.String(), Coins: Coins100000000loki},
+		{Address: Peter.Address.String(), Coins: Coins1000000loki},
+		{Address: Alice.Address.String(), Coins: Coins1000000loki.Add(Coin100000000minigeo)},
+		{Address: Bob.Address.String(), Coins: Coins1000000loki},
+		{Address: Validators[0].Address.String(), Coins: Coins100000000loki},
+		{Address: Validators[1].Address.String(), Coins: Coins100000000loki},
+		{Address: Validators[2].Address.String(), Coins: Coins100000000loki},
+		{Address: Carol.Address.String(), Coins: Coins1000000loki},
 		{Address: OraclePoolProvider.Address.String(), Coins: DefaultDataProvidersPool},
 		{Address: FeePoolProvider.Address.String(), Coins: DefaultCommunityPool},
 	}

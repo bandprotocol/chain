@@ -65,7 +65,7 @@ func CreateDefaultGenesisApp(accountsCount int) TestAppBuilder {
 	builder.SetStakingBuilder(stakingBuilder)
 
 	// bank
-	bankBuilder := NewBankBuilder(accountsCount, fillBalances(authBuilder.Accounts, Coins10000000000odin), initialSupply)
+	bankBuilder := NewBankBuilder(accountsCount, fillBalances(authBuilder.Accounts, Coins10000000000loki), initialSupply)
 	balances, totalSupply := bankBuilder.Build()
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultParams(), balances, totalSupply, []banktypes.Metadata{})
 	builder.SetBankBuilder(bankBuilder)
@@ -74,7 +74,8 @@ func CreateDefaultGenesisApp(accountsCount int) TestAppBuilder {
 	oracleBuilder := NewOracleBuilder(dir)
 	oracleScripts, dataSources := oracleBuilder.Build()
 	oracleGenesis := oracletypes.DefaultGenesisState()
-	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewCoins(Coin1geo)
+	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewCoins(Coin1minigeo)
+
 	oracleGenesis.OracleScripts = oracleScripts
 	oracleGenesis.DataSources = dataSources
 	builder.SetOracleBuilder(oracleBuilder)

@@ -32,13 +32,13 @@ func defaultVotes() []abci.VoteInfo {
 // 	app, ctx, k := testapp.CreateTestInput(false)
 // 	// Set collected fee to 1000000odin and 70% oracle reward proportion.
 // 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000odin)
+// 	feeCollector.SetCoins(Coins1000000loki)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000loki, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// No active oracle validators so nothing should happen.
 // 	k.AllocateTokens(ctx, defaultVotes())
-// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000loki, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	require.Equal(t, sdk.Coins(nil), app.SupplyKeeper.GetModuleAccount(ctx, distribution.ModuleName).GetCoins())
 // }
 
@@ -46,10 +46,10 @@ func defaultVotes() []abci.VoteInfo {
 // 	app, ctx, k := testapp.CreateTestInput(false)
 // 	// Set collected fee to 1000000odin + 70% oracle reward proportion.
 // 	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000odin)
+// 	feeCollector.SetCoins(Coins1000000loki)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000loki, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// From 70% of fee, 2% should go to community pool, the rest goes to the only active validator.
 // 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 // 	k.AllocateTokens(ctx, defaultVotes())
@@ -65,10 +65,10 @@ func defaultVotes() []abci.VoteInfo {
 // 	app, ctx, k := testapp.CreateTestInput(true)
 // 	// Set collected fee to 1000000odin + 70% oracle reward proportion.
 // 	feeCollector := app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName)
-// 	feeCollector.SetCoins(Coins1000000odin)
+// 	feeCollector.SetCoins(Coins1000000loki)
 // 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 // 	k.SetParam(ctx, types.KeyOracleRewardPercentage, 70)
-// 	require.Equal(t, Coins1000000odin, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
+// 	require.Equal(t, Coins1000000loki, app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())
 // 	// From 70% of fee, 2% should go to community pool, the rest get split to validators.
 // 	k.AllocateTokens(ctx, defaultVotes())
 // 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("odin", 300000)), app.SupplyKeeper.GetModuleAccount(ctx, auth.FeeCollectorName).GetCoins())

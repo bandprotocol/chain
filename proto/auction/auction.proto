@@ -1,0 +1,13 @@
+syntax = "proto3";
+package auction;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/auction/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
+message AuctionStatus {
+  option (gogoproto.equal) = false;
+  // Pending is the status of the auction (active or not)
+  bool pending = 1;
+}
