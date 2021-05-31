@@ -229,7 +229,7 @@ func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchR
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return &types.QueryRequestPriceResponse{}, nil
+	return nil, status.Errorf(codes.Unimplemented, "Request price method should be called by hooks")
 }
 
 // RequestVerification verifies oracle request for validation before executing data sources
