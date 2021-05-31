@@ -34,6 +34,11 @@ import (
 
 	bandapp "github.com/bandprotocol/chain/app"
 	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/x/oracle/types"
+)
+
+var (
+	valSize uint64 = 2
 )
 
 // TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI
@@ -59,6 +64,8 @@ type TestChain struct {
 
 	senderPrivKey cryptotypes.PrivKey
 	SenderAccount authtypes.AccountI
+
+	senders map[string]*authtypes.BaseAccount
 }
 
 // NewTestChain initializes a new TestChain instance with a single validator set using a
@@ -71,25 +78,34 @@ type TestChain struct {
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 	// TODO: change sender
-	// generate validator private/public key
-	privVal := mock.PV{testapp.Validators[0].PrivKey}
-	tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[0].PubKey)
-	require.NoError(t, err)
+	signers := make([]tmtypes.PrivValidator, valSize)
+	validators := make([]*tmtypes.Validator, valSize)
+	genesisAccount := make([]authtypes.GenesisAccount, valSize)
+	balances := make([]banktypes.Balance, valSize)
+	senders := make(map[string]*authtypes.BaseAccount)
 
-	// create validator set with single validator
-	validator := tmtypes.NewValidator(tmPub, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-	signers := []tmtypes.PrivValidator{privVal}
+	for i := uint64(0); i < valSize; i++ {
+		// generate validator private/public key
+		privVal := mock.PV{testapp.Validators[i].PrivKey}
+		tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[i].PubKey)
+		require.NoError(t, err)
 
-	// generate genesis account
-	// senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(testapp.Validators[0].PubKey.Address().Bytes(), testapp.Validators[0].PubKey, 0, 0)
-	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100000000000000))),
+		// create validator set with two validators
+		validators[i] = tmtypes.NewValidator(tmPub, 1)
+
+		signers[i] = privVal
+
+		senders[testapp.Validators[i].Address.String()] = authtypes.NewBaseAccount(testapp.Validators[i].PubKey.Address().Bytes(), testapp.Validators[i].PubKey, i, 0)
+		genesisAccount[i] = senders[testapp.Validators[i].Address.String()]
+		balances[i] = banktypes.Balance{
+			Address: genesisAccount[i].GetAddress().String(),
+			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100000000000000))),
+		}
 	}
 
-	app := testapp.SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	valSet := tmtypes.NewValidatorSet(validators)
+
+	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, balances...)
 	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
 	for _, v := range vals {
 		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
@@ -117,8 +133,9 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Vals:          valSet,
 		Signers:       signers,
 		senderPrivKey: testapp.Validators[0].PrivKey,
-		SenderAccount: acc,
+		SenderAccount: genesisAccount[0],
 		Treasury:      testapp.Treasury.Address,
+		senders:       senders,
 	}
 
 	coord.CommitBlock(chain)
@@ -265,6 +282,41 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 
 	// increment sequence for successful transaction execution
 	chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+
+	chain.Coordinator.IncrementTime()
+
+	return r, nil
+}
+
+// SendMsgs delivers a transaction through the application. It updates the senders sequence
+// number and updates the TestChain's headers. It returns the result and error if one
+// occurred.
+func (chain *TestChain) SendReport(rid types.RequestID, rawReps []types.RawReport, sender testapp.Account) (*sdk.Result, error) {
+	senderAccount := chain.senders[sender.Address.String()]
+
+	// ensure the chain has the latest time
+	chain.Coordinator.UpdateTimeForChain(chain)
+
+	_, r, err := testapp.SignAndDeliver(
+		chain.t,
+		chain.TxConfig,
+		chain.App.GetBaseApp(),
+		chain.GetContext().BlockHeader(),
+		[]sdk.Msg{types.NewMsgReportData(rid, rawReps, sender.ValAddress, sender.Address)},
+		chain.ChainID,
+		[]uint64{senderAccount.GetAccountNumber()},
+		[]uint64{senderAccount.GetSequence()},
+		true, true, sender.PrivKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// SignAndDeliver calls app.Commit()
+	chain.NextBlock()
+
+	// increment sequence for successful transaction execution
+	senderAccount.SetSequence(senderAccount.GetSequence() + 1)
 
 	chain.Coordinator.IncrementTime()
 
