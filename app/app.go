@@ -191,7 +191,7 @@ type BandApp struct {
 	DeliverContext sdk.Context
 
 	// List of hooks
-	hooks []Hook
+	hooks Hooks
 }
 
 func init() {
@@ -472,27 +472,24 @@ func (app *BandApp) Name() string { return app.BaseApp.Name() }
 func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	app.DeliverContext = ctx
 	res := app.mm.BeginBlock(ctx, req)
-	for _, hook := range app.hooks {
-		hook.AfterBeginBlock(ctx, req, res)
-	}
+	app.hooks.AfterBeginBlock(ctx, req, res)
+
 	return res
 }
 
 // EndBlocker application updates every end block.
 func (app *BandApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	res := app.mm.EndBlock(ctx, req)
-	for _, hook := range app.hooks {
-		hook.AfterEndBlock(ctx, req, res)
-	}
+	app.hooks.AfterEndBlock(ctx, req, res)
+
 	return res
 }
 
 // Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
 func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	for _, hook := range app.hooks {
-		hook.BeforeCommit()
-	}
+	app.hooks.BeforeCommit()
 	app.DeliverContext = sdk.Context{}
+
 	return app.BaseApp.Commit()
 }
 
@@ -503,18 +500,16 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 		panic(err)
 	}
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	for _, hook := range app.hooks {
-		hook.AfterInitChain(ctx, req, res)
-	}
+	app.hooks.AfterInitChain(ctx, req, res)
+
 	return res
 }
 
 // DeliverTx overwrite DeliverTx to apply afterDeliverTx hook
 func (app *BandApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx {
 	res := app.BaseApp.DeliverTx(req)
-	for _, hook := range app.hooks {
-		hook.AfterDeliverTx(app.DeliverContext, req, res)
-	}
+	app.hooks.AfterDeliverTx(app.DeliverContext, req, res)
+
 	return res
 }
 
@@ -526,12 +521,11 @@ func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
 		hookReq.Height = app.LastBlockHeight()
 	}
 
-	for _, hook := range app.hooks {
-		res, stop := hook.ApplyQuery(hookReq)
-		if stop {
-			return res
-		}
+	res, stop := app.hooks.ApplyQuery(req)
+	if stop {
+		return res
 	}
+
 	return app.BaseApp.Query(req)
 }
 
