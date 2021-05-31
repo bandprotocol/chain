@@ -1,6 +1,10 @@
 package yoda
 
 import (
+	"encoding/hex"
+	"math"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -68,20 +72,47 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 }
 
 func getRequestMsgByteLength(f FeeEstimationData) uint64 {
-	size := baseRequestSize
-	size += uint64(len(f.callData))
-	size += uint64(f.askCount) * addressSize
-	size += uint64(len(f.clientID))
-
-	for _, r := range f.rawRequests {
-		size += baseRawRequestSize + uint64(len(r.calldata))
+	var requestedValidator []sdk.ValAddress
+	for i := 0; i < int(f.askCount); i++ {
+		addr := []byte{200, 199, 198, 197, 196, 195, 194, 193, 192, 191, 190, 189, 188, 187, 176, 165, 154, 143, 132, 181}
+		requestedValidator = append(requestedValidator, addr)
+	}
+	var rawRequest []types.RawRequest
+	for _, rreq := range f.rawRequests {
+		calldata, _ := hex.DecodeString(rreq.calldata)
+		rawRequest = append(rawRequest, types.RawRequest{
+			ExternalID:   rreq.externalID,
+			DataSourceID: rreq.dataSourceID,
+			Calldata:     calldata,
+		})
 	}
 
-	return size
+	request := types.NewRequest(
+		types.OracleScriptID(math.MaxInt64),
+		f.callData,
+		requestedValidator,
+		uint64(f.minCount),
+		math.MaxInt64,
+		time.Now(),
+		f.clientID,
+		rawRequest,
+		&types.IBCChannel{
+			PortId:    "mockPortIDmockPortIDmockPortIDmockPortIDmockPortIDmockPortID",
+			ChannelId: "mockChannelIDmockChannelIDmockChannelIDmockChannelIDmockChannelID",
+		},
+		math.MaxInt64,
+	)
+
+	return uint64(len(cdc.MustMarshalBinaryBare(&request)))
 }
 
 func getReportMsgByteLength(msg *types.MsgReportData) uint64 {
-	return uint64(len(cdc.MustMarshalBinaryBare(msg)))
+	report := types.NewReport(
+		sdk.ValAddress(msg.Validator),
+		true,
+		msg.RawReports,
+	)
+	return uint64(len(cdc.MustMarshalBinaryBare(&report)))
 }
 
 func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
