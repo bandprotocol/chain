@@ -75,6 +75,7 @@ func CreateDefaultGenesisApp(accountsCount int) TestAppBuilder {
 	oracleScripts, dataSources := oracleBuilder.Build()
 	oracleGenesis := oracletypes.DefaultGenesisState()
 	oracleGenesis.Params.DataProviderRewardPerByte = sdk.NewCoins(Coin1minigeo)
+
 	oracleGenesis.OracleScripts = oracleScripts
 	oracleGenesis.DataSources = dataSources
 	builder.SetOracleBuilder(oracleBuilder)
