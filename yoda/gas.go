@@ -77,10 +77,10 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 		addr := []byte{200, 199, 198, 197, 196, 195, 194, 193, 192, 191, 190, 189, 188, 187, 176, 165, 154, 143, 132, 181}
 		requestedValidator = append(requestedValidator, addr)
 	}
-	var rawRequest []types.RawRequest
+	var rawRequests []types.RawRequest
 	for _, rreq := range f.rawRequests {
 		calldata, _ := hex.DecodeString(rreq.calldata)
-		rawRequest = append(rawRequest, types.RawRequest{
+		rawRequests = append(rawRequests, types.RawRequest{
 			ExternalID:   rreq.externalID,
 			DataSourceID: rreq.dataSourceID,
 			Calldata:     calldata,
@@ -95,7 +95,7 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 		math.MaxInt64,
 		time.Now(),
 		f.clientID,
-		rawRequest,
+		rawRequests,
 		&types.IBCChannel{
 			PortId:    "mockPortIDmockPortIDmockPortIDmockPortIDmockPortIDmockPortID",
 			ChannelId: "mockChannelIDmockChannelIDmockChannelIDmockChannelIDmockChannelID",
