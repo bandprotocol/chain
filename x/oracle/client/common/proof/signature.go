@@ -48,7 +48,7 @@ func (signature *TMSignature) encodeToEthFormat() TMSignatureEthereum {
 
 func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 	for i := uint8(0); i < 2; i++ {
-		pubuc, err := crypto.SigToPub(tmhash.Sum(msg), append(sig, byte(i)))
+		pubuc, err := crypto.SigToPub(tmhash.Sum(msg), append(sig, i))
 		if err != nil {
 			return nil, 0, err
 		}
@@ -65,7 +65,7 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 
 // GetSignaturesAndPrefix returns a list of TMSignature from Tendermint signed header.
 func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, error) {
-	addrs := []string{}
+	var addrs []string
 	mapAddrs := map[string]TMSignature{}
 	for i, vote := range info.Commit.Signatures {
 		if !vote.ForBlock() {

@@ -84,40 +84,11 @@ func base64ToBytes(s string) []byte {
 	return decodedString
 }
 
-// func encodeStoreMerkleHash(key string, value []byte) []byte {
-// 	bytesKey := []byte(key)
-// 	keyBytes := append([]byte{uint8(len(bytesKey))}, bytesKey...)
-// 	valueBytes := append([]byte{32}, tmhash.Sum(tmhash.Sum(value))...)
-// 	return append(keyBytes, valueBytes...)
-// }
-
-// func encodeVarint(value int64) []byte {
-// 	buf := make([]byte, binary.MaxVarintLen64)
-// 	n := binary.PutVarint(buf, value)
-// 	return buf[:n]
-// }
-
 func encodeUvarint(value uint64) []byte {
 	buf := make([]byte, binary.MaxVarintLen64)
 	n := binary.PutUvarint(buf, value)
 	return buf[:n]
 }
-
-// func mustParseInt64(b []byte) int64 {
-// 	i64, err := strconv.ParseInt(string(b), 10, 64)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return i64
-// }
-
-// func mustParseUint64(b []byte) uint64 {
-// 	u64, err := strconv.ParseUint(string(b), 10, 64)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return u64
-// }
 
 func mustDecodeString(hexstr string) []byte {
 	b, err := hex.DecodeString(hexstr)

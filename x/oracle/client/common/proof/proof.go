@@ -57,7 +57,6 @@ func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 	)
 }
 
-// TODO: Prefix is currently a dynamic-sized bytes, make it fixed
 type OracleDataProof struct {
 	Result      oracletypes.Result `json:"result"`
 	Version     uint64             `json:"version"`

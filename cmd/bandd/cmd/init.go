@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"os"
 	"path/filepath"
 	"time"
@@ -66,7 +66,7 @@ func displayInfo(info printInfo) error {
 
 func genFilePVIfNotExists(keyFilePath, stateFilePath string) error {
 	if !tmos.FileExists(keyFilePath) {
-		pv := privval.NewFilePV(ed25519.GenPrivKey(), keyFilePath, stateFilePath)
+		pv := privval.NewFilePV(secp256k1.GenPrivKey(), keyFilePath, stateFilePath)
 		// privKey :=
 
 		// pv := &privval.FilePV{
@@ -169,7 +169,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			// genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
 			genDoc.ConsensusParams.Block.MaxGas = 40000000 // 40M gas
 			genDoc.ConsensusParams.Block.TimeIotaMs = 1000 // 1 second
-			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeEd25519}
+			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
 
 			if _, err := os.Stat(genFile); err != nil {
 				if !os.IsNotExist(err) {

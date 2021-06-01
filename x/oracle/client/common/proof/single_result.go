@@ -64,7 +64,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 		var request oracletypes.QueryRequestResponse
-		if err := ctx.LegacyAmino.UnmarshalJSON(qResult.Result, &request); err != nil {
+		if err := json.Unmarshal(qResult.Result, &request); err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}

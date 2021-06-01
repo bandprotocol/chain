@@ -32,7 +32,7 @@ const (
 
 // QueryResult wraps querier result with HTTP status to return to application.
 type QueryResult struct {
-	Status int             `json:"status"`
+	Status int             `json:"status,string"`
 	Result json.RawMessage `json:"result"`
 }
 
@@ -41,14 +41,6 @@ type QueryResult struct {
 type QueryActiveValidatorResult struct {
 	Address sdk.ValAddress `json:"address"`
 	Power   uint64         `json:"power"`
-}
-
-// deprecated: for legacy REST use only
-// QueryRequestResult is the struct for the result of request query.
-type QueryRequestResult struct {
-	Request Request  `json:"request"`
-	Reports []Report `json:"reports"`
-	Result  *Result  `json:"result"`
 }
 
 func NewQueryRequestSearchRequest(oid int64, callData []byte, askCount, minCount int64) *QueryRequestSearchRequest {
