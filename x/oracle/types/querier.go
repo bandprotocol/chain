@@ -1,6 +1,9 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"encoding/json"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // Query endpoints supported by the oracle Querier.
 const (
@@ -22,7 +25,16 @@ const (
 	QueryPendingRequests    = "pending_requests"
 	QueryDataProvidersPool  = "data_providers_pool"
 	QueryDataProviderReward = "data_provider_reward"
+	QueryProof              = "proof"
+	QueryMultiProof         = "multi_proof"
+	QueryRequestsCountProof = "requests_count_proof"
 )
+
+// QueryResult wraps querier result with HTTP status to return to application.
+type QueryResult struct {
+	Status int             `json:"status"`
+	Result json.RawMessage `json:"result"`
+}
 
 // deprecated: for legacy REST use only
 // QueryActiveValidatorResult is the struct for the result of request active validators.
