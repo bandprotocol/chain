@@ -71,10 +71,14 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 	return size
 }
 
-func getRequestMsgByteLength(f FeeEstimationData) uint64 {
+func getRequestByteLength(f FeeEstimationData) uint64 {
 	var requestedValidator []sdk.ValAddress
 	for i := 0; i < int(f.askCount); i++ {
-		addr := []byte{200, 199, 198, 197, 196, 195, 194, 193, 192, 191, 190, 189, 188, 187, 176, 165, 154, 143, 132, 181}
+		// mock of a validator address (20 bytes)
+		addr := []byte{
+			200, 199, 198, 197, 196, 195, 194, 193, 192, 191,
+			190, 189, 188, 187, 176, 165, 154, 143, 132, 181,
+		}
 		requestedValidator = append(requestedValidator, addr)
 	}
 	var rawRequests []types.RawRequest
@@ -106,7 +110,7 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 	return uint64(len(cdc.MustMarshalBinaryBare(&request)))
 }
 
-func getReportMsgByteLength(msg *types.MsgReportData) uint64 {
+func getReportByteLength(msg *types.MsgReportData) uint64 {
 	report := types.NewReport(
 		sdk.ValAddress(msg.Validator),
 		true,
@@ -116,8 +120,8 @@ func getReportMsgByteLength(msg *types.MsgReportData) uint64 {
 }
 
 func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
-	reportByteLength := getReportMsgByteLength(msg)
-	requestByteLength := getRequestMsgByteLength(f)
+	reportByteLength := getReportByteLength(msg)
+	requestByteLength := getRequestByteLength(f)
 
 	cost := 2*readGasPerByte*requestByteLength + writeGasPerByte*reportByteLength + baseReportDataHandlerGas
 
