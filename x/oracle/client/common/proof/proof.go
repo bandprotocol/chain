@@ -95,7 +95,7 @@ func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error)
 	)
 }
 
-func getProofsByKey(ctx client.Context, key []byte, queryOptions rpcclient.ABCIQueryOptions) ([]byte, *ics23.ExistenceProof, *ics23.ExistenceProof, error) {
+func getProofsByKey(ctx client.Context, key []byte, queryOptions rpcclient.ABCIQueryOptions, getMultiStoreEp bool) ([]byte, *ics23.ExistenceProof, *ics23.ExistenceProof, error) {
 	resp, err := ctx.Client.ABCIQueryWithOptions(
 		context.Background(),
 		"/store/oracle/key",
@@ -130,21 +130,23 @@ func getProofsByKey(ctx client.Context, key []byte, queryOptions rpcclient.ABCIQ
 			iavlOps := storetypes.NewIavlCommitmentOp(op.Key, proof)
 			iavlEp = iavlOps.Proof.GetExist()
 			if iavlEp == nil {
-				return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("iavl existence proof not found")
+				return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("IAVL existence proof not found")
 			}
 		case storetypes.ProofOpSimpleMerkleCommitment:
-			proof := &ics23.CommitmentProof{}
-			err := proof.Unmarshal(op.Data)
-			if err != nil {
-				panic(err)
-			}
-			multiStoreOps := storetypes.NewSimpleMerkleCommitmentOp(op.Key, proof)
-			multiStoreEp = multiStoreOps.Proof.GetExist()
-			if multiStoreEp == nil {
-				return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("multistore existence proof not found")
+			if getMultiStoreEp {
+				proof := &ics23.CommitmentProof{}
+				err := proof.Unmarshal(op.Data)
+				if err != nil {
+					panic(err)
+				}
+				multiStoreOps := storetypes.NewSimpleMerkleCommitmentOp(op.Key, proof)
+				multiStoreEp = multiStoreOps.Proof.GetExist()
+				if multiStoreEp == nil {
+					return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("MultiStore existence proof not found")
+				}
 			}
 		default:
-			return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Unknown Proof ops found")
+			return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Unknown proof ops found")
 		}
 	}
 

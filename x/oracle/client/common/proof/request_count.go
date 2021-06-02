@@ -46,6 +46,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 			ctx,
 			types.RequestCountStoreKey,
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+			true,
 		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
