@@ -1,10 +1,6 @@
 package yoda
 
 import (
-	"encoding/hex"
-	"math"
-	"time"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -22,8 +18,8 @@ const (
 	hasFlatGas      = 1000
 
 	// Request components
-	baseRequestSize    = uint64(32)
-	addressSize        = uint64(20)
+	baseRequestSize    = uint64(170)
+	addressSize        = uint64(52)
 	baseRawRequestSize = uint64(16)
 
 	// Auth's ante handlers keepers operations
@@ -72,42 +68,16 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 }
 
 func getRequestByteLength(f FeeEstimationData) uint64 {
-	var requestedValidator []sdk.ValAddress
-	for i := 0; i < int(f.askCount); i++ {
-		// mock of a validator address (20 bytes)
-		addr := []byte{
-			200, 199, 198, 197, 196, 195, 194, 193, 192, 191,
-			190, 189, 188, 187, 176, 165, 154, 143, 132, 181,
-		}
-		requestedValidator = append(requestedValidator, addr)
-	}
-	var rawRequests []types.RawRequest
-	for _, rreq := range f.rawRequests {
-		calldata, _ := hex.DecodeString(rreq.calldata)
-		rawRequests = append(rawRequests, types.RawRequest{
-			ExternalID:   rreq.externalID,
-			DataSourceID: rreq.dataSourceID,
-			Calldata:     calldata,
-		})
+	size := baseRequestSize
+	size += uint64(len(f.callData))
+	size += uint64(f.askCount) * addressSize
+	size += uint64(len(f.clientID))
+
+	for _, r := range f.rawRequests {
+		size += baseRawRequestSize + uint64(len(r.calldata))
 	}
 
-	request := types.NewRequest(
-		types.OracleScriptID(math.MaxInt64),
-		f.callData,
-		requestedValidator,
-		uint64(f.minCount),
-		math.MaxInt64,
-		time.Now(),
-		f.clientID,
-		rawRequests,
-		&types.IBCChannel{
-			PortId:    "mockPortIDmockPortIDmockPortIDmockPortIDmockPortIDmockPortID",
-			ChannelId: "mockChannelIDmockChannelIDmockChannelIDmockChannelIDmockChannelID",
-		},
-		math.MaxInt64,
-	)
-
-	return uint64(len(cdc.MustMarshalBinaryBare(&request)))
+	return size
 }
 
 func getReportByteLength(msg *types.MsgReportData) uint64 {
