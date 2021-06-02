@@ -125,6 +125,6 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	suite.Equal(expectCommitment, commitment)
 }
 
-func TestTransferTestSuite(t *testing.T) {
+func TestOracleTestSuite(t *testing.T) {
 	suite.Run(t, new(OracleTestSuite))
 }
