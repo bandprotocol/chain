@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -32,6 +33,9 @@ import (
 	me "github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 // Account is a data structure to store key of test account.
@@ -93,6 +97,34 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 			tmtypes.ABCIPubKeyTypeSecp256k1,
 		},
 	},
+}
+
+type TestingApp struct {
+	*bandapp.BandApp
+}
+
+func (app *TestingApp) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *TestingApp) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *TestingApp) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *TestingApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *TestingApp) GetTxConfig() client.TxConfig {
+	return bandapp.MakeEncodingConfig().TxConfig
 }
 
 func init() {
@@ -283,14 +315,16 @@ func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keepe
 	return app, ctx, app.OracleKeeper
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*bandapp.BandApp, bandapp.GenesisState, string) {
+func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
 	dir, err := ioutil.TempDir("", "bandibc")
 	if err != nil {
 		panic(err)
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
-	app := bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0)
+	app := &TestingApp{
+		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
@@ -301,7 +335,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*bandapp.BandApp, bandapp.Gen
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *bandapp.BandApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *TestingApp {
 	app, genesisState, dir := setup(true, 5)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)

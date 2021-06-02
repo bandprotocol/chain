@@ -10,7 +10,7 @@ package oracle_test
 // 	abci "github.com/tendermint/tendermint/abci/types"
 
 // 	"github.com/bandprotocol/chain/x/oracle"
-// 	"github.com/bandprotocol/chain/x/oracle/testapp"
+// 	"github.com/bandprotocol/chain/testing/testapp"
 // 	"github.com/bandprotocol/chain/x/oracle/types"
 // )
 

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	ibctesting "github.com/bandprotocol/chain/testing"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 

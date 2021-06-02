@@ -33,7 +33,7 @@ import (
 	tmversion "github.com/tendermint/tendermint/version"
 
 	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 )
 
 // TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI
@@ -45,7 +45,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           *bandapp.BandApp
+	App           *testapp.TestingApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
