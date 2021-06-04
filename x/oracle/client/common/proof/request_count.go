@@ -38,7 +38,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 
 		commit, err := ctx.Client.Commit(context.Background(), height)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
@@ -56,7 +56,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		// Produce block relay proof
 		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 		blockRelay := BlockRelayProof{
