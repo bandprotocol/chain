@@ -72,7 +72,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 				idx == 0,
 			)
 			if err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+				rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 				return
 			}
 

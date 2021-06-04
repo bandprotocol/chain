@@ -48,7 +48,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 
 		commit, err := ctx.Client.Commit(context.Background(), height)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -59,7 +59,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			true,
 		)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
