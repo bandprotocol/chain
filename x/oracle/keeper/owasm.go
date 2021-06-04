@@ -116,7 +116,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
-		sdk.NewAttribute(types.AttributeKeyDataSourceFeeCollected, totalFees.String()),
+		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)
 	for _, val := range req.RequestedValidators {
 		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
@@ -139,7 +139,7 @@ func (k Keeper) PrepareRequest(
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, ds.Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, fmt.Sprintf("%d", rawReq.ExternalID)),
 			sdk.NewAttribute(types.AttributeKeyCalldata, string(rawReq.Calldata)),
-			sdk.NewAttribute(types.AttributeKeyDataSourceFeeCollected, ds.Fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFee, ds.Fee.String()),
 		))
 	}
 	return id, nil
