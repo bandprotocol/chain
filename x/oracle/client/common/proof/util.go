@@ -4,11 +4,10 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
-	"reflect"
-	"time"
-
 	gogotypes "github.com/gogo/protobuf/types"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	"reflect"
+	"time"
 )
 
 // Copied from https://github.com/tendermint/tendermint/blob/master/types/encoding_helper.go

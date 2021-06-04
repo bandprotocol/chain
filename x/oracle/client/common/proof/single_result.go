@@ -3,11 +3,10 @@ package proof
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/GeoDB-Limited/odin-core/pkg/obi"
 	"net/http"
 	"strconv"
 
-	clientcmn "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -48,34 +47,9 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 		requestID := oracletypes.RequestID(intRequestID)
 
-		// Get Request and proof
-		bz, _, err := ctx.Query(fmt.Sprintf("custom/%s/%s/%d", oracletypes.QuerierRoute, oracletypes.QueryRequests, requestID))
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		var qResult oracletypes.QueryResult
-		if err := json.Unmarshal(bz, &qResult); err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		if qResult.Status != http.StatusOK {
-			clientcmn.PostProcessQueryResponse(w, ctx, bz)
-			return
-		}
-		var request oracletypes.QueryRequestResponse
-		if err := json.Unmarshal(qResult.Result, &request); err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		if request.Request.ResponsePacketData.Result == nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, "Result has not been resolved")
-			return
-		}
-
 		commit, err := ctx.Client.Commit(context.Background(), height)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
@@ -83,6 +57,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			ctx,
 			oracletypes.ResultStoreKey(requestID),
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+			true,
 		)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -101,7 +76,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var rs oracletypes.Result
-		oracletypes.ModuleCdc.MustUnmarshalBinaryBare(value, &rs)
+		obi.MustDecode(value, &rs)
 
 		oracleData := OracleDataProof{
 			Result:      rs,

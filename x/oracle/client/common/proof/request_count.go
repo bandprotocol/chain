@@ -46,9 +46,10 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			ctx,
 			oracletypes.RequestCountStoreKey,
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+			true,
 		)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 

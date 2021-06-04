@@ -3,15 +3,12 @@ package proof
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"github.com/GeoDB-Limited/odin-core/pkg/obi"
 	"net/http"
 	"strconv"
 
-	clientcmn "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
-	ics23 "github.com/confio/ics23/go"
 	"github.com/cosmos/cosmos-sdk/client"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
@@ -60,7 +57,6 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		oracleDataBytesList := make([][]byte, len(requestIDs))
 		oracleDataList := make([]OracleDataProof, len(requestIDs))
 
-		isFirstRequest := true
 		for idx, requestID := range requestIDs {
 			intRequestID, err := strconv.ParseUint(requestID, 10, 64)
 			if err != nil {
@@ -68,118 +64,38 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 				return
 			}
 			requestID := oracletypes.RequestID(intRequestID)
-			bz, _, err := ctx.Query(fmt.Sprintf("custom/%s/%s/%d", oracletypes.QuerierRoute, oracletypes.QueryRequests, requestID))
-			if err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			var qResult oracletypes.QueryResult
-			if err := json.Unmarshal(bz, &qResult); err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			if qResult.Status != http.StatusOK {
-				clientcmn.PostProcessQueryResponse(w, ctx, bz)
-				return
-			}
-			var request oracletypes.QueryRequestResponse
-			if err := json.Unmarshal(qResult.Result, &request); err != nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			if request.Request.ResponsePacketData.Result == nil {
-				rest.WriteErrorResponse(w, http.StatusNotFound, "Result has not been resolved")
-				return
-			}
 
-			resp, err := ctx.Client.ABCIQueryWithOptions(
-				context.Background(),
-				fmt.Sprintf("/store/%s/key", oracletypes.StoreKey),
+			// Extract multiStoreEp in the first iteration only, since multiStoreEp is the same for all requests.
+			value, iavlEp, multiStoreEp, err := getProofsByKey(
+				ctx,
 				oracletypes.ResultStoreKey(requestID),
 				rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+				idx == 0,
 			)
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
 
-			proof := resp.Response.GetProofOps()
-			if proof == nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, "Proof not found")
+			var rs oracletypes.Result
+			obi.MustDecode(value, &rs)
+
+			oracleData := OracleDataProof{
+				Result:      rs,
+				Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
+				MerklePaths: GetMerklePaths(iavlEp),
+			}
+			oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
+			// Append oracle data proof to list
+			oracleDataBytesList[idx] = oracleDataBytes
+			oracleDataList[idx] = oracleData
 
-			ops := proof.GetOps()
-			if ops == nil {
-				rest.WriteErrorResponse(w, http.StatusInternalServerError, "proof ops not found")
-				return
-			}
-
-			var iavlEp *ics23.ExistenceProof
-			var multiStoreEp *ics23.ExistenceProof
-			for _, op := range ops {
-				switch op.GetType() {
-				case storetypes.ProofOpIAVLCommitment:
-					proof := &ics23.CommitmentProof{}
-					err := proof.Unmarshal(op.Data)
-					if err != nil {
-						rest.WriteErrorResponse(w, http.StatusInternalServerError,
-							fmt.Sprintf("iavl: %s", err.Error()),
-						)
-						return
-					}
-					iavlOps := storetypes.NewIavlCommitmentOp(op.Key, proof)
-					iavlEp = iavlOps.Proof.GetExist()
-					if iavlEp == nil {
-						rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
-						return
-					}
-
-					resValue := resp.Response.GetValue()
-
-					var rs oracletypes.Result
-					oracletypes.ModuleCdc.MustUnmarshalBinaryBare(resValue, &rs)
-
-					oracleData := OracleDataProof{
-						Result:      rs,
-						Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
-						MerklePaths: GetMerklePaths(iavlEp),
-					}
-					oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
-					if err != nil {
-						rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-						return
-					}
-					// Append oracle data proof to list
-					oracleDataBytesList[idx] = oracleDataBytes
-					oracleDataList[idx] = oracleData
-				case storetypes.ProofOpSimpleMerkleCommitment:
-					if isFirstRequest {
-						// Only create multi store proof in the first request.
-						isFirstRequest = false
-						proof := &ics23.CommitmentProof{}
-						err := proof.Unmarshal(op.Data)
-						if err != nil {
-							rest.WriteErrorResponse(w, http.StatusInternalServerError,
-								fmt.Sprintf("multiStore: %s", err.Error()),
-							)
-							return
-						}
-						multiStoreOps := storetypes.NewSimpleMerkleCommitmentOp(op.Key, proof)
-						multiStoreEp = multiStoreOps.Proof.GetExist()
-						if multiStoreEp == nil {
-							rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
-							return
-						}
-
-						blockRelay.MultiStoreProof = GetMultiStoreProof(multiStoreEp)
-					}
-				default:
-					rest.WriteErrorResponse(w, http.StatusInternalServerError,
-						fmt.Sprintf("Unknown proof type %s", op.GetType()),
-					)
-					return
-				}
+			if idx == 0 {
+				blockRelay.MultiStoreProof = GetMultiStoreProof(multiStoreEp)
 			}
 		}
 

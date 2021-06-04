@@ -255,7 +255,7 @@ func (k Querier) DataProvidersPool(c context.Context, req *oracletypes.QueryData
 	}, nil
 }
 
-// DataProviderRewardPerByte returns current reward per byte for data providers
+// DataProviderReward returns current reward per byte for data providers
 func (k Querier) DataProviderReward(
 	c context.Context, _ *oracletypes.QueryDataProviderRewardRequest,
 ) (*oracletypes.QueryDataProviderRewardResponse, error) {
