@@ -49,7 +49,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.Ha
 			true,
 		)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
 		}
 
