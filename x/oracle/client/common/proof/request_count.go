@@ -25,7 +25,7 @@ type CountProof struct {
 	EVMProofBytes tmbytes.HexBytes       `json:"evm_proof_bytes"`
 }
 
-func GetRequestsCountProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
+func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {

@@ -26,7 +26,7 @@ type Proof struct {
 	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
-func GetProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
+func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {

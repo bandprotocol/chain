@@ -25,7 +25,7 @@ type MultiProof struct {
 	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
-func GetMutiProofHandlerFn(cliCtx client.Context, route string) http.HandlerFunc {
+func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestIDs := r.URL.Query()["id"]
 		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
