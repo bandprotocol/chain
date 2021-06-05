@@ -253,7 +253,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 		chain.ChainID,
 		[]uint64{chain.SenderAccount.GetAccountNumber()},
 		[]uint64{chain.SenderAccount.GetSequence()},
-		true, chain.senderPrivKey,
+		chain.senderPrivKey,
 	)
 	if err != nil {
 		return nil, err
