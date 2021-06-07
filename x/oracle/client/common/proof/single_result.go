@@ -15,14 +15,14 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
-type JsonProof struct {
+type SingleProof struct {
 	BlockHeight     uint64          `json:"block_height"`
 	OracleDataProof OracleDataProof `json:"oracle_data_proof"`
 	BlockRelayProof BlockRelayProof `json:"block_relay_proof"`
 }
 
-type Proof struct {
-	JsonProof     JsonProof        `json:"json_proof"`
+type SingleProofResponse struct {
+	Proof         SingleProof      `json:"proof"`
 	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
@@ -109,8 +109,8 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		rest.PostProcessResponse(w, ctx, Proof{
-			JsonProof: JsonProof{
+		rest.PostProcessResponse(w, ctx, SingleProofResponse{
+			Proof: SingleProof{
 				BlockHeight:     uint64(commit.Height),
 				OracleDataProof: oracleData,
 				BlockRelayProof: blockRelay,

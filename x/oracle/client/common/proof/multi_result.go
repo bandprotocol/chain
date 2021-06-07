@@ -14,14 +14,14 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
-type JsonMultiProof struct {
+type MultiProof struct {
 	BlockHeight          uint64            `json:"block_height"`
 	OracleDataMultiProof []OracleDataProof `json:"oracle_data_multi_proof"`
 	BlockRelayProof      BlockRelayProof   `json:"block_relay_proof"`
 }
 
-type MultiProof struct {
-	JsonProof     JsonMultiProof   `json:"json_proof"`
+type MultiProofResponse struct {
+	Proof         MultiProof       `json:"proof"`
 	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
@@ -118,8 +118,8 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		rest.PostProcessResponse(w, ctx, MultiProof{
-			JsonProof: JsonMultiProof{
+		rest.PostProcessResponse(w, ctx, MultiProofResponse{
+			Proof: MultiProof{
 				BlockHeight:          uint64(commit.Height),
 				OracleDataMultiProof: oracleDataList,
 				BlockRelayProof:      blockRelay,

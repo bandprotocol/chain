@@ -14,15 +14,15 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
-type JsonRequestsCountProof struct {
+type CountProof struct {
 	BlockHeight     uint64             `json:"block_heigh"`
 	CountProof      RequestsCountProof `json:"count_proof"`
 	BlockRelayProof BlockRelayProof    `json:"block_relay_proof"`
 }
 
-type CountProof struct {
-	JsonProof     JsonRequestsCountProof `json:"json_proof"`
-	EVMProofBytes tmbytes.HexBytes       `json:"evm_proof_bytes"`
+type CountProofResponse struct {
+	Proof         CountProof       `json:"proof"`
+	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
 }
 
 func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
@@ -101,8 +101,8 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		rest.PostProcessResponse(w, ctx, CountProof{
-			JsonProof: JsonRequestsCountProof{
+		rest.PostProcessResponse(w, ctx, CountProofResponse{
+			Proof: CountProof{
 				BlockHeight:     uint64(commit.Height - 1),
 				CountProof:      requestsCountProof,
 				BlockRelayProof: blockRelay,
