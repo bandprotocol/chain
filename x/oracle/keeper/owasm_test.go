@@ -141,6 +141,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
@@ -148,18 +149,21 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		)}, ctx.EventManager().Events())
 
 	// assert gas consumation
