@@ -44,7 +44,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
