@@ -37,8 +37,7 @@ func (m msgServer) Exchange(goCtx context.Context, msg *coinswaptypes.MsgExchang
 	return &coinswaptypes.MsgExchangeResponse{}, nil
 }
 
-// NewMsgServerImpl returns an implementation of the bank MsgServer interface
-// for the provided Keeper.
+// NewMsgServerImpl returns an implementation of the coinswap MsgServer interface for the provided Keeper.
 func NewMsgServerImpl(keeper Keeper) coinswaptypes.MsgServer {
 	return &msgServer{Keeper: keeper}
 }

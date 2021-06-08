@@ -61,9 +61,9 @@ func (k Keeper) GetAuctionStartThreshold(ctx sdk.Context) (res sdk.Coins) {
 	return res
 }
 
-// GetExchangeRate returns auction exchange parameter
-func (k Keeper) GetExchangeRate(ctx sdk.Context) (res coinswaptypes.Exchange) {
-	k.paramstore.Get(ctx, auctiontypes.KeyExchangeRate, &res)
+// GetExchangeRates returns auction exchange parameter
+func (k Keeper) GetExchangeRates(ctx sdk.Context) (res []coinswaptypes.Exchange) {
+	k.paramstore.Get(ctx, auctiontypes.KeyExchangeRates, &res)
 	return res
 }
 
@@ -90,13 +90,8 @@ func (k Keeper) GetAccumulatedPaymentsForData(ctx sdk.Context) sdk.Coins {
 func (k Keeper) StartAuction(ctx sdk.Context) error {
 	status := k.GetAuctionStatus(ctx)
 	if status.Pending {
-		return sdkerrors.Wrap(auctiontypes.ErrAuctionHasStarted, "the auction is pending")
+		return sdkerrors.Wrap(auctiontypes.ErrAuctionIsAlreadyOpened, "the auction is pending")
 	}
-
-	if err := k.coinswapKeeper.AddExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
-		return sdkerrors.Wrap(err, "failed to start auction")
-	}
-
 	status.Pending = true
 	k.SetAuctionStatus(ctx, status)
 
@@ -107,13 +102,8 @@ func (k Keeper) StartAuction(ctx sdk.Context) error {
 func (k Keeper) FinishAuction(ctx sdk.Context) error {
 	status := k.GetAuctionStatus(ctx)
 	if !status.Pending {
-		return sdkerrors.Wrap(auctiontypes.ErrAuctionHasClosed, "the auction is closed")
+		return sdkerrors.Wrap(auctiontypes.ErrAuctionIsAlreadyClosed, "the auction is closed")
 	}
-
-	if err := k.coinswapKeeper.RemoveExchangeRate(ctx, k.GetExchangeRate(ctx)); err != nil {
-		return sdkerrors.Wrap(err, "failed to remove auction exchange rate")
-	}
-
 	status.Pending = false
 	k.SetAuctionStatus(ctx, status)
 

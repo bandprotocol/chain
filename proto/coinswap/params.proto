@@ -19,5 +19,5 @@ message Exchange {
 message Params {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_stringer) = true;
-  repeated Exchange exchanges = 1 [ (gogoproto.nullable) = false ];
+  repeated Exchange exchange_rates = 1 [ (gogoproto.nullable) = false ];
 }

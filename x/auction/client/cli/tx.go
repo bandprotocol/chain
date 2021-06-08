@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
+	auctiontypes "github.com/GeoDB-Limited/odin-core/x/auction/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -14,30 +14,30 @@ import (
 
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd() *cobra.Command {
-	coinswapCmd := &cobra.Command{
-		Use:                        coinswaptypes.ModuleName,
-		Short:                      "coinswap transaction subcommands",
+	auctionCmd := &cobra.Command{
+		Use:                        auctiontypes.ModuleName,
+		Short:                      "auction transaction subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	coinswapCmd.AddCommand(
-		GetCmdExchange(),
+	auctionCmd.AddCommand(
+		GetCmdBuyCoins(),
 	)
 
-	return coinswapCmd
+	return auctionCmd
 }
 
-// GetCmdExchange implements the request command handler.
-func GetCmdExchange() *cobra.Command {
+// GetCmdBuyCoins implements the request command handler.
+func GetCmdBuyCoins() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "exchange [from-denom] [to-denom] [amount]",
-		Short: "Exchange the specific amount of one token to another",
+		Use:   "buy-coins [from-denom] [to-denom] [amount]",
+		Short: "Buy amount of coins for another coins",
 		Args:  cobra.ExactArgs(3),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Performs exchange of coins denominations according to current rate.
 Example:
-$ %s tx coinswap exchange minigeo loki 10minigeo --from mykey
+$ %s tx auction buy-coins minigeo loki 10minigeo --from mykey
 `,
 				version.AppName,
 			),
@@ -63,7 +63,7 @@ $ %s tx coinswap exchange minigeo loki 10minigeo --from mykey
 				return err
 			}
 
-			msg := coinswaptypes.NewMsgExchange(
+			msg := auctiontypes.NewMsgBuyCoins(
 				args[0],
 				args[1],
 				amt,
