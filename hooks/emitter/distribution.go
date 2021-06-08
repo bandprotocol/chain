@@ -46,7 +46,7 @@ func (h *Hook) emitUpdateValidatorReward(ctx sdk.Context, addr sdk.ValAddress) {
 
 // handleMsgWithdrawDelegatorReward implements emitter handler for MsgWithdrawDelegatorReward.
 func (h *Hook) handleMsgWithdrawDelegatorReward(
-	ctx sdk.Context, msg *types.MsgWithdrawDelegatorReward, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgWithdrawDelegatorReward, evMap common.EvMap, msgJson common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
@@ -55,21 +55,21 @@ func (h *Hook) handleMsgWithdrawDelegatorReward(
 	h.emitUpdateValidatorReward(ctx, valAddr)
 	h.emitDelegationAfterWithdrawReward(ctx, valAddr, withdrawAddr)
 	val, _ := h.stakingKeeper.GetValidator(ctx, valAddr)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
-	extra["reward_amount"] = evMap[types.EventTypeWithdrawRewards+"."+sdk.AttributeKeyAmount][0]
+	msgJson["moniker"] = val.Description.Moniker
+	msgJson["identity"] = val.Description.Identity
+	msgJson["reward_amount"] = evMap[types.EventTypeWithdrawRewards+"."+sdk.AttributeKeyAmount][0]
 }
 
 // handleMsgSetWithdrawAddress implements emitter handler for MsgSetWithdrawAddress.
-func (h *Hook) handleMsgSetWithdrawAddress(msg *types.MsgSetWithdrawAddress, extra common.JsDict) {
+func (h *Hook) handleMsgSetWithdrawAddress(msg *types.MsgSetWithdrawAddress, msgJson common.JsDict) {
 	h.AddAccountsInTx(msg.WithdrawAddress)
-	extra["delegator_address"] = msg.DelegatorAddress
-	extra["withdraw_address"] = msg.WithdrawAddress
+	msgJson["delegator_address"] = msg.DelegatorAddress
+	msgJson["withdraw_address"] = msg.WithdrawAddress
 }
 
 // handleMsgWithdrawValidatorCommission implements emitter handler for MsgWithdrawValidatorCommission.
 func (h *Hook) handleMsgWithdrawValidatorCommission(
-	ctx sdk.Context, msg *types.MsgWithdrawValidatorCommission, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgWithdrawValidatorCommission, evMap common.EvMap, msgJson common.JsDict,
 ) {
 	delAddr, _ := sdk.AccAddressFromBech32(msg.ValidatorAddress)
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
@@ -77,7 +77,7 @@ func (h *Hook) handleMsgWithdrawValidatorCommission(
 	h.AddAccountsInTx(withdrawAddr.String())
 	h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, valAddr)
 	val, _ := h.stakingKeeper.GetValidator(ctx, valAddr)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
-	extra["commission_amount"] = evMap[types.EventTypeWithdrawCommission+"."+sdk.AttributeKeyAmount][0]
+	msgJson["moniker"] = val.Description.Moniker
+	msgJson["identity"] = val.Description.Identity
+	msgJson["commission_amount"] = evMap[types.EventTypeWithdrawCommission+"."+sdk.AttributeKeyAmount][0]
 }

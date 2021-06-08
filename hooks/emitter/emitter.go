@@ -325,16 +325,15 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	h.Write("NEW_TRANSACTION", txDict)
 	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
-
 	for idx, msg := range tx.GetMsgs() {
-		var extra = make(common.JsDict)
+		var msgJson = make(common.JsDict)
+		h.decodeMsgJson(ctx, msg, msgJson)
 		if res.IsOK() {
-			h.handleMsg(ctx, txHash, msg, logs[idx], extra)
+			h.handleMsg(ctx, txHash, msg, logs[idx], msgJson)
 		}
 		messages = append(messages, common.JsDict{
-			"msg":   string(h.cdc.MustMarshalJSON(msg)),
-			"type":  msg.Type(),
-			"extra": extra,
+			"msg":  msgJson,
+			"type": msg.Type(),
 		})
 	}
 	signers := tx.GetMsgs()[0].GetSigners()

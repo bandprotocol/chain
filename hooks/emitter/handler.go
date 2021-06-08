@@ -28,57 +28,57 @@ func parseEvents(events sdk.StringEvents) common.EvMap {
 
 // handleMsg handles the given message by publishing relevant events and populates accounts
 // that need balance update in 'h.accs'. Also fills in extra info for this message.
-func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, extra common.JsDict) {
+func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, msgJson common.JsDict) {
 	evMap := parseEvents(log.Events)
 	switch msg := msg.(type) {
 	case *oracletypes.MsgRequestData:
-		h.handleMsgRequestData(ctx, txHash, msg, evMap, extra)
+		h.handleMsgRequestData(ctx, txHash, msg, evMap, msgJson)
 	case *oracletypes.MsgReportData:
-		h.handleMsgReportData(ctx, txHash, msg, evMap, extra)
+		h.handleMsgReportData(ctx, txHash, msg, evMap)
 	case *oracletypes.MsgCreateDataSource:
-		h.handleMsgCreateDataSource(ctx, txHash, evMap, extra)
+		h.handleMsgCreateDataSource(ctx, txHash, evMap, msgJson)
 	case *oracletypes.MsgCreateOracleScript:
-		h.handleMsgCreateOracleScript(ctx, txHash, evMap, extra)
+		h.handleMsgCreateOracleScript(ctx, txHash, evMap, msgJson)
 	case *oracletypes.MsgEditDataSource:
 		h.handleMsgEditDataSource(ctx, txHash, msg)
 	case *oracletypes.MsgEditOracleScript:
 		h.handleMsgEditOracleScript(ctx, txHash, msg)
 	case *oracletypes.MsgAddReporter:
-		h.handleMsgAddReporter(ctx, msg, extra)
+		h.handleMsgAddReporter(ctx, msg, msgJson)
 	case *oracletypes.MsgRemoveReporter:
-		h.handleMsgRemoveReporter(ctx, msg, extra)
+		h.handleMsgRemoveReporter(ctx, msg, msgJson)
 	case *oracletypes.MsgActivate:
 		h.handleMsgActivate(ctx, msg)
 	case *stakingtypes.MsgCreateValidator:
-		h.handleMsgCreateValidator(ctx, msg, extra)
+		h.handleMsgCreateValidator(ctx, msg, msgJson)
 	case *stakingtypes.MsgEditValidator:
-		h.handleMsgEditValidator(ctx, msg, extra)
+		h.handleMsgEditValidator(ctx, msg, msgJson)
 	case *stakingtypes.MsgDelegate:
-		h.handleMsgDelegate(ctx, msg, extra)
+		h.handleMsgDelegate(ctx, msg, msgJson)
 	case *stakingtypes.MsgUndelegate:
-		h.handleMsgUndelegate(ctx, msg, evMap, extra)
+		h.handleMsgUndelegate(ctx, msg, evMap, msgJson)
 	case *stakingtypes.MsgBeginRedelegate:
-		h.handleMsgBeginRedelegate(ctx, msg, evMap, extra)
+		h.handleMsgBeginRedelegate(ctx, msg, evMap, msgJson)
 	case *banktypes.MsgSend:
 		h.handleMsgSend(msg)
 	case *banktypes.MsgMultiSend:
 		h.handleMsgMultiSend(msg)
 	case *distrtypes.MsgWithdrawDelegatorReward:
-		h.handleMsgWithdrawDelegatorReward(ctx, msg, evMap, extra)
+		h.handleMsgWithdrawDelegatorReward(ctx, msg, evMap, msgJson)
 	case *distrtypes.MsgSetWithdrawAddress:
-		h.handleMsgSetWithdrawAddress(msg, extra)
+		h.handleMsgSetWithdrawAddress(msg, msgJson)
 	case *distrtypes.MsgWithdrawValidatorCommission:
-		h.handleMsgWithdrawValidatorCommission(ctx, msg, evMap, extra)
+		h.handleMsgWithdrawValidatorCommission(ctx, msg, evMap, msgJson)
 	case *slashingtypes.MsgUnjail:
 		h.handleMsgUnjail(ctx, msg)
 	case *govtypes.MsgSubmitProposal:
-		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, extra)
+		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, msgJson)
 	case *govtypes.MsgVote:
-		h.handleMsgVote(ctx, txHash, msg, extra)
+		h.handleMsgVote(ctx, txHash, msg, msgJson)
 	case *govtypes.MsgDeposit:
-		h.handleMsgDeposit(ctx, txHash, msg, extra)
+		h.handleMsgDeposit(ctx, txHash, msg, msgJson)
 	case *channeltypes.MsgRecvPacket:
-		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, extra)
+		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, msgJson)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, msg, evMap)
 	}
@@ -106,6 +106,31 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	default:
+		break
+	}
+}
+
+func (h *Hook) decodeMsgJson(ctx sdk.Context, msg sdk.Msg, msgJson common.JsDict) {
+	switch msg := msg.(type) {
+	case *oracletypes.MsgRequestData:
+		decodeMsgRequestData(msg, msgJson)
+	case *oracletypes.MsgReportData:
+		decodeMsgReportData(msg, msgJson)
+	case *oracletypes.MsgCreateDataSource:
+		decodeMsgCreateDataSource(msg, msgJson)
+	case *oracletypes.MsgCreateOracleScript:
+		decodeMsgCreateOracleScript(msg, msgJson)
+	case *oracletypes.MsgEditDataSource:
+		decodeMsgEditDataSource(msg, msgJson)
+	case *oracletypes.MsgEditOracleScript:
+		decodeMsgEditOracleScript(msg, msgJson)
+	case *oracletypes.MsgAddReporter:
+		decodeMsgAddReporter(msg, msgJson)
+	case *oracletypes.MsgRemoveReporter:
+		decodeMsgRemoveReporter(msg, msgJson)
+	case *oracletypes.MsgActivate:
+		decodeMsgActivate(msg, msgJson)
 	default:
 		break
 	}

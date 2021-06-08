@@ -136,7 +136,7 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID) {
 
 // handleMsgRequestData implements emitter handler for MsgRequestData.
 func (h *Hook) handleMsgRequestData(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRequestData, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgRequestData, evMap common.EvMap, msgJson common.JsDict,
 ) {
 	id := types.RequestID(common.Atoi(evMap[types.EventTypeRequest+"."+types.AttributeKeyID][0]))
 	req := h.oracleKeeper.MustGetRequest(ctx, id)
@@ -157,14 +157,14 @@ func (h *Hook) handleMsgRequestData(
 	})
 	h.emitRawRequestAndValRequest(id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)
-	extra["id"] = id
-	extra["name"] = os.Name
-	extra["schema"] = os.Schema
+	msgJson["id"] = id
+	msgJson["name"] = os.Name
+	msgJson["schema"] = os.Schema
 }
 
 // handleMsgReportData implements emitter handler for MsgReportData.
 func (h *Hook) handleMsgReportData(
-	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap,
 ) {
 	val, _ := sdk.ValAddressFromBech32(msg.Validator)
 	rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
@@ -173,22 +173,22 @@ func (h *Hook) handleMsgReportData(
 
 // handleMsgCreateDataSource implements emitter handler for MsgCreateDataSource.
 func (h *Hook) handleMsgCreateDataSource(
-	ctx sdk.Context, txHash []byte, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, evMap common.EvMap, msgJson common.JsDict,
 ) {
 	id := types.DataSourceID(common.Atoi(evMap[types.EventTypeCreateDataSource+"."+types.AttributeKeyID][0]))
 	ds := h.oracleKeeper.MustGetDataSource(ctx, id)
 	h.emitSetDataSource(id, ds, txHash)
-	extra["id"] = id
+	msgJson["id"] = id
 }
 
 // handleMsgCreateOracleScript implements emitter handler for MsgCreateOracleScript.
 func (h *Hook) handleMsgCreateOracleScript(
-	ctx sdk.Context, txHash []byte, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, txHash []byte, evMap common.EvMap, msgJson common.JsDict,
 ) {
 	id := types.OracleScriptID(common.Atoi(evMap[types.EventTypeCreateOracleScript+"."+types.AttributeKeyID][0]))
 	os := h.oracleKeeper.MustGetOracleScript(ctx, id)
 	h.emitSetOracleScript(id, os, txHash)
-	extra["id"] = id
+	msgJson["id"] = id
 }
 
 // handleMsgEditDataSource implements emitter handler for MsgEditDataSource.
@@ -216,11 +216,11 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 
 // handleMsgAddReporter implements emitter handler for MsgAddReporter.
 func (h *Hook) handleMsgAddReporter(
-	ctx sdk.Context, msg *types.MsgAddReporter, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgAddReporter, msgJson common.JsDict,
 ) {
 	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
 	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	extra["validator_moniker"] = val.GetMoniker()
+	msgJson["validator_moniker"] = val.GetMoniker()
 	h.AddAccountsInTx(msg.Reporter)
 	h.Write("SET_REPORTER", common.JsDict{
 		"reporter":  msg.Reporter,
@@ -230,11 +230,11 @@ func (h *Hook) handleMsgAddReporter(
 
 // handleMsgRemoveReporter implements emitter handler for MsgRemoveReporter.
 func (h *Hook) handleMsgRemoveReporter(
-	ctx sdk.Context, msg *types.MsgRemoveReporter, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgRemoveReporter, msgJson common.JsDict,
 ) {
 	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
 	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	extra["validator_moniker"] = val.GetMoniker()
+	msgJson["validator_moniker"] = val.GetMoniker()
 	h.AddAccountsInTx(msg.Reporter)
 	h.Write("REMOVE_REPORTER", common.JsDict{
 		"reporter":  msg.Reporter,
@@ -256,4 +256,79 @@ func (h *Hook) handleEventDeactivate(ctx sdk.Context, evMap common.EvMap) {
 	addr, _ := sdk.ValAddressFromBech32(evMap[types.EventTypeDeactivate+"."+types.AttributeKeyValidator][0])
 	h.emitUpdateValidatorStatus(ctx, addr)
 	h.emitHistoricalValidatorStatus(ctx, addr)
+}
+
+func decodeMsgRequestData(msg *types.MsgRequestData, msgJson common.JsDict) {
+	msgJson["oracle_script_id"] = msg.GetOracleScriptID()
+	msgJson["calldata"] = msg.GetCalldata()
+	msgJson["ask_count"] = msg.GetAskCount()
+	msgJson["min_count"] = msg.GetMinCount()
+	msgJson["client_id"] = msg.GetClientID()
+	msgJson["fee_limit"] = msg.GetFeeLimit()
+	msgJson["prepare_gas"] = msg.GetPrepareGas()
+	msgJson["execute_gas"] = msg.GetExecuteGas()
+	msgJson["sender"] = msg.GetSender()
+}
+
+func decodeMsgReportData(msg *types.MsgReportData, msgJson common.JsDict) {
+	msgJson["request_id"] = msg.GetRequestID()
+	msgJson["raw_reports"] = msg.GetRawReports()
+	msgJson["validator"] = msg.GetValidator()
+	msgJson["reporter"] = msg.GetReporter()
+}
+
+func decodeMsgCreateDataSource(msg *types.MsgCreateDataSource, msgJson common.JsDict) {
+	msgJson["name"] = msg.GetName()
+	msgJson["description"] = msg.GetDescription()
+	msgJson["executable"] = msg.GetExecutable()
+	msgJson["fee"] = msg.GetFee()
+	msgJson["treasury"] = msg.GetTreasury()
+	msgJson["owner"] = msg.GetOwner()
+	msgJson["sender"] = msg.GetSender()
+}
+
+func decodeMsgCreateOracleScript(msg *types.MsgCreateOracleScript, msgJson common.JsDict) {
+	msgJson["name"] = msg.GetName()
+	msgJson["description"] = msg.GetDescription()
+	msgJson["schema"] = msg.GetSchema()
+	msgJson["source_code_url"] = msg.GetSourceCodeURL()
+	msgJson["code"] = msg.GetCode()
+	msgJson["owner"] = msg.GetOwner()
+	msgJson["sender"] = msg.GetSender()
+}
+
+func decodeMsgEditDataSource(msg *types.MsgEditDataSource, msgJson common.JsDict) {
+	msgJson["data_source_id"] = msg.GetDataSourceID()
+	msgJson["name"] = msg.GetName()
+	msgJson["description"] = msg.GetDescription()
+	msgJson["executable"] = msg.GetExecutable()
+	msgJson["fee"] = msg.GetFee()
+	msgJson["treasury"] = msg.GetTreasury()
+	msgJson["owner"] = msg.GetOwner()
+	msgJson["sender"] = msg.GetSender()
+}
+
+func decodeMsgEditOracleScript(msg *types.MsgEditOracleScript, msgJson common.JsDict) {
+	msgJson["oracle_script_id"] = msg.GetOracleScriptID()
+	msgJson["name"] = msg.GetName()
+	msgJson["description"] = msg.GetDescription()
+	msgJson["schema"] = msg.GetSchema()
+	msgJson["source_code_url"] = msg.GetSourceCodeURL()
+	msgJson["code"] = msg.GetCode()
+	msgJson["owner"] = msg.GetOwner()
+	msgJson["sender"] = msg.GetSender()
+}
+
+func decodeMsgAddReporter(msg *types.MsgAddReporter, msgJson common.JsDict) {
+	msgJson["validator"] = msg.GetValidator()
+	msgJson["reporter"] = msg.GetReporter()
+}
+
+func decodeMsgRemoveReporter(msg *types.MsgRemoveReporter, msgJson common.JsDict) {
+	msgJson["validator"] = msg.GetValidator()
+	msgJson["reporter"] = msg.GetReporter()
+}
+
+func decodeMsgActivate(msg *types.MsgActivate, msgJson common.JsDict) {
+	msgJson["validator"] = msg.GetValidator()
 }
