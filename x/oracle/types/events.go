@@ -28,6 +28,8 @@ const (
 	AttributeKeyMinCount       = "min_count"
 	AttributeKeyResolveStatus  = "resolve_status"
 	AttributeKeyGasUsed        = "gas_used"
+	AttributeKeyTotalFees      = "total_fees"
+	AttributeKeyFee            = "fee"
 	AttributeKeyResult         = "result"
 	AttributeKeyReason         = "reason"
 )
