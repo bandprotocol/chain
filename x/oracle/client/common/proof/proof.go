@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
 	ics23 "github.com/confio/ics23/go"
 	"github.com/cosmos/cosmos-sdk/client"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
+
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 var (
