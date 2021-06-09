@@ -290,6 +290,14 @@ message ValidatorStatus {
       [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
 }
 
+// ActiveValidator is information of currently active validator
+message ActiveValidator {
+  // Address is a validator address
+  string address = 1;
+  // Power is an amount of token that the validator is holding
+  uint64 power = 2;
+}
+
 // Params is the data structure that keeps the parameters of the oracle module.
 message Params {
   option (gogoproto.equal) = true;
@@ -370,4 +378,24 @@ message RequestVerification {
     (gogoproto.customname) = "ExternalID",
     (gogoproto.casttype) = "ExternalID"
   ];
+}
+
+// PriceResult is a result from standard price reference
+message PriceResult {
+  // Symbol is unit of data indicating what the data is. It is price currencies
+  // for this case.
+  string symbol = 1;
+  // Multiplier is a number used for left-shifting value to eliminate decimal
+  // digits
+  uint64 multiplier = 2;
+  // Px is the actual data, which is rate number multiplied by the multiplier.
+  uint64 px = 3;
+  // RequestID is oracle request ID that contains this price
+  int64 request_id = 4 [
+    (gogoproto.customname) = "RequestID",
+    (gogoproto.casttype) = "RequestID"
+  ];
+  // ResolveTime is epoch timestamp indicating the time when the request had
+  // been resolved
+  int64 resolve_time = 5;
 }
