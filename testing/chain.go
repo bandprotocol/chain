@@ -33,7 +33,7 @@ import (
 	tmversion "github.com/tendermint/tendermint/version"
 
 	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -50,7 +50,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           *bandapp.BandApp
+	App           *testapp.TestingApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
@@ -145,7 +145,6 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 // GetContext returns the current context for the application.
 func (chain *TestChain) GetContext() sdk.Context {
-
 	return chain.App.GetBaseApp().NewContext(false, chain.CurrentHeader)
 }
 
@@ -271,7 +270,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 		chain.ChainID,
 		[]uint64{chain.SenderAccount.GetAccountNumber()},
 		[]uint64{chain.SenderAccount.GetSequence()},
-		true, true, chain.senderPrivKey,
+		chain.senderPrivKey,
 	)
 	if err != nil {
 		return nil, err
@@ -306,7 +305,7 @@ func (chain *TestChain) SendReport(rid types.RequestID, rawReps []types.RawRepor
 		chain.ChainID,
 		[]uint64{senderAccount.GetAccountNumber()},
 		[]uint64{senderAccount.GetSequence()},
-		true, true, sender.PrivKey,
+		sender.PrivKey,
 	)
 	if err != nil {
 		return nil, err

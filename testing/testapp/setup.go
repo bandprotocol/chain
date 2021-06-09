@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,6 +21,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -33,6 +35,9 @@ import (
 	me "github.com/bandprotocol/chain/x/oracle/keeper"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 // Account is a data structure to store key of test account.
@@ -94,6 +99,34 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 			tmtypes.ABCIPubKeyTypeSecp256k1,
 		},
 	},
+}
+
+type TestingApp struct {
+	*bandapp.BandApp
+}
+
+func (app *TestingApp) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *TestingApp) GetStakingKeeper() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *TestingApp) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *TestingApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *TestingApp) GetTxConfig() client.TxConfig {
+	return bandapp.MakeEncodingConfig().TxConfig
 }
 
 func init() {
@@ -172,8 +205,8 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 	return nil
 }
 
-// NewSimApp creates instance of our app using in test.
-func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
+// NewTestApp creates instance of our app using in test.
+func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// Set HomeFlag to a temp folder for simulation run.
 	dir, err := ioutil.TempDir("", "bandd")
 	if err != nil {
@@ -181,7 +214,9 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
-	app := bandapp.NewBandApp(logger, db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0)
+	app := &TestingApp{
+		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+	}
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
@@ -197,6 +232,7 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	genesis[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
 
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
+	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
 	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
@@ -226,7 +262,13 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
+		consAddr, err := validator.GetConsAddr()
+		validatorSigningInfo := slashingtypes.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0)
+		if err != nil {
+			panic(err)
+		}
 		validators = append(validators, validator)
+		signingInfos = append(signingInfos, slashingtypes.SigningInfo{Address: consAddr.String(), ValidatorSigningInfo: validatorSigningInfo})
 		delegations = append(delegations, stakingtypes.NewDelegation(acc[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 	}
 	// set validators and delegations
@@ -234,6 +276,10 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 	stakingParams.BondDenom = "uband"
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesis[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	slashingParams := slashingtypes.DefaultParams()
+	slashingGenesis := slashingtypes.NewGenesisState(slashingParams, signingInfos, nil)
+	genesis[slashingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(slashingGenesis)
 
 	// Fund seed accounts and validators with 1000000uband and 100000000uband initially.
 	balances := []banktypes.Balance{
@@ -279,8 +325,8 @@ func NewSimApp(chainID string, logger log.Logger) *bandapp.BandApp {
 }
 
 // CreateTestInput creates a new test environment for unit tests.
-func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keeper) {
-	app := NewSimApp("BANDCHAIN", log.NewNopLogger())
+func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, me.Keeper) {
+	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
@@ -290,14 +336,16 @@ func CreateTestInput(autoActivate bool) (*bandapp.BandApp, sdk.Context, me.Keepe
 	return app, ctx, app.OracleKeeper
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*bandapp.BandApp, bandapp.GenesisState, string) {
+func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
 	dir, err := ioutil.TempDir("", "bandibc")
 	if err != nil {
 		panic(err)
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
-	app := bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0)
+	app := &TestingApp{
+		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
@@ -308,7 +356,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*bandapp.BandApp, bandapp.Gen
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *bandapp.BandApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *TestingApp {
 	app, genesisState, dir := setup(true, 5)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
@@ -396,7 +444,7 @@ const (
 // ibc testing package causes checkState and deliverState to diverge in block time.
 func SignAndDeliver(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...cryptotypes.PrivKey,
+	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
 
 	tx, err := helpers.GenTx(
@@ -414,14 +462,6 @@ func SignAndDeliver(
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(abci.RequestBeginBlock{Header: header, Hash: header.AppHash})
 	gInfo, res, err := app.Deliver(txCfg.TxEncoder(), tx)
-
-	// if expPass {
-	// 	require.NoError(t, err)
-	// 	require.NotNil(t, res)
-	// } else {
-	// 	require.Error(t, err)
-	// 	require.Nil(t, res)
-	// }
 
 	app.EndBlock(abci.RequestEndBlock{})
 	app.Commit()

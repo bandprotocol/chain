@@ -593,32 +593,6 @@ func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	return subspace
 }
 
-// TestingApp functions
-// GetBaseApp implements the TestingApp interface.
-func (app *BandApp) GetBaseApp() *baseapp.BaseApp {
-	return app.BaseApp
-}
-
-// GetStakingKeeper implements the TestingApp interface.
-func (app *BandApp) GetStakingKeeper() stakingkeeper.Keeper {
-	return app.StakingKeeper
-}
-
-// GetIBCKeeper implements the TestingApp interface.
-func (app *BandApp) GetIBCKeeper() *ibckeeper.Keeper {
-	return app.IBCKeeper
-}
-
-// GetScopedIBCKeeper implements the TestingApp interface.
-func (app *BandApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
-	return app.ScopedIBCKeeper
-}
-
-// GetTxConfig implements the TestingApp interface.
-func (app *BandApp) GetTxConfig() client.TxConfig {
-	return MakeEncodingConfig().TxConfig
-}
-
 // SimulationManager implements the SimulationApp interface
 func (app *BandApp) SimulationManager() *module.SimulationManager {
 	return app.sm

@@ -10,7 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/pkg/obi"
 	ibctesting "github.com/bandprotocol/chain/testing"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -652,6 +652,6 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 	suite.Equal(expectCommitment, commitment)
 }
 
-func TestTransferTestSuite(t *testing.T) {
+func TestOracleTestSuite(t *testing.T) {
 	suite.Run(t, new(OracleTestSuite))
 }
