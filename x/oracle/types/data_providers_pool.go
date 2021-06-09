@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// zero oracle pool
+// InitialOraclePool returns zero oracle pool
 func InitialOraclePool() OraclePool {
 	return OraclePool{
 		DataProvidersPool: sdk.Coins{},

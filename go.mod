@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/Masterminds/squirrel v1.5.0
 	github.com/bandprotocol/go-owasm v0.0.0-20210311072328-a6859c27139c
+	github.com/confio/ics23/go v0.6.3
 	github.com/cosmos/cosmos-sdk v0.42.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.10.1

@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"github.com/GeoDB-Limited/odin-core/x/oracle/client/common/proof"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
 
@@ -35,10 +36,10 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryValidatorStatus, validatorAddressTag), getValidatorStatusHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryReporters, validatorAddressTag), getReportersHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryDataProviderReward), getDataProviderRewardHandler(clientCtx)).Methods("GET")
-	// TODO: maybe remove ???
-	//rtr.HandleFunc(fmt.Sprintf("/%s/proof/{%s}", oracletypes.ModuleName, proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx, storeName)).Methods("GET")
-	//rtr.HandleFunc(fmt.Sprintf("/%s/multi_proof", oracletypes.ModuleName), proof.GetMutiProofHandlerFn(cliCtx, storeName)).Methods("GET")
-	//rtr.HandleFunc(fmt.Sprintf("/%s/verify_request", oracletypes.ModuleName), verifyRequest(clientCtx)).Methods("POST")
+
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryProof, proof.RequestIDTag), proof.GetProofHandlerFn(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryMultiProof), proof.GetMutiProofHandlerFn(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryRequestsCountProof), proof.GetRequestsCountProofHandlerFn(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryActiveValidators), getActiveValidatorsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryDataProvidersPool), dataProvidersPoolHandler(clientCtx)).Methods("GET")
 	// TODO: add pending request REST API
