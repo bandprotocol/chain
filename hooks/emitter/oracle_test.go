@@ -45,7 +45,7 @@ func TestDecodeReportData(t *testing.T) {
 		"reporter":    ReporterAddress.String(),
 	})
 	testCompareJson(t, msg,
-		"{\"request_id\":1,\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"validator\":\"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767\",\"reporter\":\"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4\"}",
+		"{\"request_id\":1,\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\"}",
 	)
 }
 
