@@ -16,7 +16,7 @@ const (
 
 var (
 	KeyAuctionStartThreshold = []byte("AuctionStartThreshold")
-	KeyExchangeRate          = []byte("ExchangeRate")
+	KeyExchangeRates         = []byte("ExchangeRates")
 )
 
 var (
@@ -30,39 +30,45 @@ func ParamKeyTable() paramstypes.KeyTable {
 
 func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
-		paramstypes.NewParamSetPair(KeyExchangeRate, &p.ExchangeRate, validateExchangeRate),
+		paramstypes.NewParamSetPair(KeyExchangeRates, &p.ExchangeRates, validateExchangeRates),
 		paramstypes.NewParamSetPair(KeyAuctionStartThreshold, &p.AuctionStartThreshold, validateAuctionStartThreshold),
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		ExchangeRate: coinswaptypes.Exchange{
-			From:           DefaultFromExchange,
-			To:             DefaultToExchange,
-			RateMultiplier: sdk.NewDec(1),
+		ExchangeRates: []coinswaptypes.Exchange{
+			{
+				From:           DefaultFromExchange,
+				To:             DefaultToExchange,
+				RateMultiplier: sdk.NewDec(1),
+			},
 		},
 		AuctionStartThreshold: DefaultAuctionStartThreshold,
 	}
 }
 
 func (p Params) Validate() error {
-	if err := validateExchangeRate(p.ExchangeRate); err != nil {
+	if err := validateExchangeRates(p.ExchangeRates); err != nil {
 		return err
 	}
 	return validateAuctionStartThreshold(p.AuctionStartThreshold)
 }
 
-func validateExchangeRate(i interface{}) error {
-	ex, ok := i.(coinswaptypes.Exchange)
+func validateExchangeRates(i interface{}) error {
+	exchanges, ok := i.([]coinswaptypes.Exchange)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	if !ex.RateMultiplier.IsPositive() && !ex.RateMultiplier.IsZero() {
-		return fmt.Errorf("rate multiplier %s must be positive or zero", ex)
-	}
-	if ex.From == "" || ex.To == "" {
-		return fmt.Errorf("one or both denoms are empty. From: %s, To: %s", ex.From, ex.To)
+
+	for _, ex := range exchanges {
+		if !ex.RateMultiplier.IsPositive() && !ex.RateMultiplier.IsZero() {
+			return fmt.Errorf("rate multiplier %s must be positive or zero", ex)
+		}
+
+		if ex.From == "" || ex.To == "" {
+			return fmt.Errorf("one or both denoms are empty. From: %s, To: %s", ex.From, ex.To)
+		}
 	}
 
 	return nil

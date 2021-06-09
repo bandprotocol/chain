@@ -5,7 +5,6 @@ import (
 	coinswaptypes "github.com/GeoDB-Limited/odin-core/x/coinswap/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -64,11 +63,11 @@ func (k Keeper) GetParams(ctx sdk.Context) (params coinswaptypes.Params) {
 }
 
 func (k Keeper) SetExchanges(ctx sdk.Context, value []coinswaptypes.Exchange) {
-	k.paramstore.Set(ctx, coinswaptypes.KeyExchanges, value)
+	k.paramstore.Set(ctx, coinswaptypes.KeyExchangeRates, value)
 }
 
 func (k Keeper) GetExchanges(ctx sdk.Context) (res []coinswaptypes.Exchange) {
-	k.paramstore.Get(ctx, coinswaptypes.KeyExchanges, &res)
+	k.paramstore.Get(ctx, coinswaptypes.KeyExchangeRates, &res)
 	return res
 }
 
@@ -83,24 +82,4 @@ func (k Keeper) GetInitialRate(ctx sdk.Context) (rate sdk.Dec) {
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &rawRate)
 	rate = sdk.MustNewDecFromStr(rawRate.Value)
 	return rate
-}
-
-func (k Keeper) AddExchangeRate(ctx sdk.Context, exchange coinswaptypes.Exchange) error {
-	exchanges := k.GetExchanges(ctx)
-	newExchanges, err := coinswaptypes.AddExchange(exchanges, exchange)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "failed to add exchange rate to %s module params", coinswaptypes.ModuleName)
-	}
-	k.SetExchanges(ctx, newExchanges)
-	return nil
-}
-
-func (k Keeper) RemoveExchangeRate(ctx sdk.Context, exchange coinswaptypes.Exchange) error {
-	exchanges := k.GetExchanges(ctx)
-	newExchanges, err := coinswaptypes.RemoveExchange(exchanges, exchange)
-	if err != nil {
-		return sdkerrors.Wrapf(err, "failed to remove exchange rate from %s module params", coinswaptypes.ModuleName)
-	}
-	k.SetExchanges(ctx, newExchanges)
-	return nil
 }

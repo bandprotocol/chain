@@ -46,7 +46,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(coinswapkeeper.DefaultGenesisState())
 }
 
-// Validation check of the Genesis
+// ValidateGenesis checks of the Genesis
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var gs types.GenesisState
 	err := cdc.UnmarshalJSON(bz, &gs)

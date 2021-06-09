@@ -1,17 +1,17 @@
 syntax = "proto3";
-package coinswap;
+package auction;
 
-option go_package = "github.com/GeoDB-Limited/odin-core/x/coinswap/types";
+option go_package = "github.com/GeoDB-Limited/odin-core/x/auction/types";
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-// Msg defines the coinswap Msg service.
+// Msg defines the auction Msg service.
 service Msg {
-  rpc Exchange(MsgExchange) returns (MsgExchangeResponse);
+  rpc BuyCoins(MsgBuyCoins) returns (MsgBuyCoinsResponse);
 }
 
-message MsgExchange {
+message MsgBuyCoins {
   option (gogoproto.equal) = true;
 
   string from = 1;
@@ -20,4 +20,4 @@ message MsgExchange {
   string requester = 4;
 }
 
-message MsgExchangeResponse {}
+message MsgBuyCoinsResponse {}

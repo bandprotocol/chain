@@ -201,7 +201,7 @@
     "coinswap": {
       "initial_rate": "10.000000000000000000",
       "params": {
-        "exchanges": [
+        "exchange_rates": [
           {
             "from": "loki",
             "to": "eth",
@@ -233,11 +233,13 @@
             "amount": "10000000000"
           }
         ],
-        "exchange_rate": {
-          "from": "minigeo",
-          "to": "loki",
-          "rate_multiplier": "0.100000000000000000"
-        }
+        "exchange_rates": [
+          {
+            "from": "minigeo",
+            "to": "loki",
+            "rate_multiplier": "0.100000000000000000"
+          }
+        ]
       }
     },
     "crisis": {

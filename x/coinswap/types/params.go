@@ -11,7 +11,7 @@ const (
 	DefaultToExchange   = "loki"
 )
 
-var KeyExchanges = []byte("Exchanges")
+var KeyExchangeRates = []byte("ExchangeRates")
 
 // ParamKeyTable param table for coinswap module.
 func ParamKeyTable() paramstypes.KeyTable {
@@ -20,13 +20,13 @@ func ParamKeyTable() paramstypes.KeyTable {
 
 func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 	return paramstypes.ParamSetPairs{
-		paramstypes.NewParamSetPair(KeyExchanges, &p.Exchanges, validateExchanges),
+		paramstypes.NewParamSetPair(KeyExchangeRates, &p.ExchangeRates, validateExchangeRates),
 	}
 }
 
 func DefaultParams() Params {
 	return Params{
-		Exchanges: []Exchange{
+		ExchangeRates: []Exchange{
 			{
 				From:           DefaultFromExchange,
 				To:             DefaultToExchange,
@@ -36,7 +36,7 @@ func DefaultParams() Params {
 	}
 }
 
-func validateExchanges(i interface{}) error {
+func validateExchangeRates(i interface{}) error {
 	exchanges, ok := i.([]Exchange)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

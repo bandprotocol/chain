@@ -32,10 +32,14 @@ func (AppModuleBasic) Name() string {
 }
 
 // RegisterLegacyAminoCodec registers the staking module's types on the given LegacyAmino codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(_ *codec.LegacyAmino) {}
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	auctiontypes.RegisterLegacyAminoCodec(cdc)
+}
 
 // RegisterInterfaces registers the module's interface types
-func (b AppModuleBasic) RegisterInterfaces(_ cdctypes.InterfaceRegistry) {}
+func (AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+	auctiontypes.RegisterInterfaces(registry)
+}
 
 // DefaultGenesis returns the default genesis state as raw bytes.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
@@ -65,7 +69,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return &cobra.Command{}
+	return auctioncli.GetTxCmd()
 }
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
@@ -90,7 +94,9 @@ func NewAppModule(k auctionkeeper.Keeper) AppModule {
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // Route returns the module's path for message route (SDK AppModule interface).
-func (AppModule) Route() sdk.Route { return sdk.Route{} }
+func (am AppModule) Route() sdk.Route {
+	return sdk.NewRoute(auctiontypes.RouterKey, NewHandler(am.keeper))
+}
 
 // QuerierRoute returns the oracle module's querier route name.
 func (AppModule) QuerierRoute() string {
@@ -104,6 +110,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	auctiontypes.RegisterMsgServer(cfg.MsgServer(), auctionkeeper.NewMsgServerImpl(am.keeper))
 	auctiontypes.RegisterQueryServer(cfg.QueryServer(), auctionkeeper.Querier{Keeper: am.keeper})
 }
 

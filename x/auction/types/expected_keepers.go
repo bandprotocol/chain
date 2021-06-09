@@ -13,6 +13,11 @@ type OracleKeeper interface {
 
 // CoinswapKeeper defines the expected coinswap Keeper.
 type CoinswapKeeper interface {
-	AddExchangeRate(ctx sdk.Context, exchange coinswaptypes.Exchange) error
-	RemoveExchangeRate(ctx sdk.Context, exchange coinswaptypes.Exchange) error
+	ExchangeDenom(
+		ctx sdk.Context,
+		fromDenom, toDenom string,
+		amt sdk.Coin,
+		requester sdk.AccAddress,
+		additionalExchanges ...coinswaptypes.Exchange,
+	) error
 }

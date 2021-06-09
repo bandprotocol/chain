@@ -18,7 +18,5 @@ message Params {
     (gogoproto.nullable) = false
   ];
   // ExchangeRate is a rate for buying coins throw the auction
-  coinswap.Exchange exchange_rate = 2 [(gogoproto.nullable) = false];
-  // BlocksAuctionDuration is a duration of the auction
-  uint64 blocks_auction_duration = 3 ;
+  repeated coinswap.Exchange exchange_rates = 2 [(gogoproto.nullable) = false];
 }
