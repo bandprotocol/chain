@@ -110,28 +110,3 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		break
 	}
 }
-
-func (h *Hook) decodeMsgJson(ctx sdk.Context, msg sdk.Msg, msgJson common.JsDict) {
-	switch msg := msg.(type) {
-	case *oracletypes.MsgRequestData:
-		decodeMsgRequestData(msg, msgJson)
-	case *oracletypes.MsgReportData:
-		decodeMsgReportData(msg, msgJson)
-	case *oracletypes.MsgCreateDataSource:
-		decodeMsgCreateDataSource(msg, msgJson)
-	case *oracletypes.MsgCreateOracleScript:
-		decodeMsgCreateOracleScript(msg, msgJson)
-	case *oracletypes.MsgEditDataSource:
-		decodeMsgEditDataSource(msg, msgJson)
-	case *oracletypes.MsgEditOracleScript:
-		decodeMsgEditOracleScript(msg, msgJson)
-	case *oracletypes.MsgAddReporter:
-		decodeMsgAddReporter(msg, msgJson)
-	case *oracletypes.MsgRemoveReporter:
-		decodeMsgRemoveReporter(msg, msgJson)
-	case *oracletypes.MsgActivate:
-		decodeMsgActivate(msg, msgJson)
-	default:
-		break
-	}
-}

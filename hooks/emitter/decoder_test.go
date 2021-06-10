@@ -1,25 +1,42 @@
 package emitter
 
 import (
+	"encoding/json"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/hooks/common"
 	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
 var (
-	Calldata = []byte("Calldata")
+	SenderAddress   = sdk.AccAddress(genAddresFromString("Sender"))
+	ValAddress      = sdk.ValAddress(genAddresFromString("Validator"))
+	TreasuryAddress = sdk.AccAddress(genAddresFromString("Treasury"))
+	OwnerAddress    = sdk.AccAddress(genAddresFromString("Owner"))
+	ReporterAddress = sdk.AccAddress(genAddresFromString("Reporter"))
 )
 
+func genAddresFromString(s string) []byte {
+	var b [20]byte
+	copy(b[:], s)
+	return b[:]
+}
+
+func testCompareJson(t *testing.T, msg sdk.Msg, expect string) {
+	res, err := json.Marshal(msg)
+	require.NoError(t, err)
+	require.Equal(t, expect, string(res))
+}
 func TestDecodeMsgRequestData(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgRequestData(1, []byte("calldata"), 1, 1, "cleint_id", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, SenderAddress)
+	msg := oracletypes.NewMsgRequestData(1, []byte("calldata"), 1, 1, "cleint_id", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, SenderAddress)
 	decodeMsgRequestData(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
-		"oracle_script_id": types.OracleScriptID(1),
+		"oracle_script_id": oracletypes.OracleScriptID(1),
 		"calldata":         []byte("calldata"),
 		"ask_count":        uint64(1),
 		"min_count":        uint64(1),
@@ -36,11 +53,11 @@ func TestDecodeMsgRequestData(t *testing.T) {
 
 func TestDecodeReportData(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgReportData(1, []types.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress, ReporterAddress)
+	msg := oracletypes.NewMsgReportData(1, []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress, ReporterAddress)
 	decodeMsgReportData(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
-		"request_id":  types.RequestID(1),
-		"raw_reports": []types.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
+		"request_id":  oracletypes.RequestID(1),
+		"raw_reports": []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
 		"validator":   ValAddress.String(),
 		"reporter":    ReporterAddress.String(),
 	})
@@ -51,7 +68,7 @@ func TestDecodeReportData(t *testing.T) {
 
 func TestDecodeMsgCreateDataSource(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgCreateDataSource("name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
+	msg := oracletypes.NewMsgCreateDataSource("name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
 	decodeMsgCreateDataSource(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
 		"name":        "name",
@@ -69,7 +86,7 @@ func TestDecodeMsgCreateDataSource(t *testing.T) {
 
 func TestDecodeCreateOracleScript(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
+	msg := oracletypes.NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
 	decodeMsgCreateOracleScript(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
 		"name":            "name",
@@ -87,10 +104,10 @@ func TestDecodeCreateOracleScript(t *testing.T) {
 
 func TestDecodeMsgEditDataSource(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgEditDataSource(1, "name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
+	msg := oracletypes.NewMsgEditDataSource(1, "name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
 	decodeMsgEditDataSource(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
-		"data_source_id": types.DataSourceID(1),
+		"data_source_id": oracletypes.DataSourceID(1),
 		"name":           "name",
 		"description":    "desc",
 		"executable":     []byte("exec"),
@@ -106,10 +123,10 @@ func TestDecodeMsgEditDataSource(t *testing.T) {
 
 func TestDecodeMsgEditOracleScript(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
+	msg := oracletypes.NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
 	decodeMsgEditOracleScript(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
-		"oracle_script_id": types.OracleScriptID(1),
+		"oracle_script_id": oracletypes.OracleScriptID(1),
 		"name":             "name",
 		"description":      "desc",
 		"schema":           "schema",
@@ -125,7 +142,7 @@ func TestDecodeMsgEditOracleScript(t *testing.T) {
 
 func TestDecodeMsgAddReporter(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgAddReporter(ValAddress, ReporterAddress)
+	msg := oracletypes.NewMsgAddReporter(ValAddress, ReporterAddress)
 	decodeMsgAddReporter(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
 		"validator": ValAddress.String(),
@@ -138,7 +155,7 @@ func TestDecodeMsgAddReporter(t *testing.T) {
 
 func TestDecodeMsgRemoveReporter(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgRemoveReporter(ValAddress, ReporterAddress)
+	msg := oracletypes.NewMsgRemoveReporter(ValAddress, ReporterAddress)
 	decodeMsgRemoveReporter(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
 		"validator": ValAddress.String(),
@@ -151,7 +168,7 @@ func TestDecodeMsgRemoveReporter(t *testing.T) {
 
 func TestDecodeMsgActivate(t *testing.T) {
 	msgJson := make(common.JsDict)
-	msg := types.NewMsgActivate(ValAddress)
+	msg := oracletypes.NewMsgActivate(ValAddress)
 	decodeMsgActivate(msg, msgJson)
 	require.Equal(t, msgJson, common.JsDict{
 		"validator": ValAddress.String(),
