@@ -4,7 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
+
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -28,6 +29,8 @@ func (h *Hook) decodeMsgJson(ctx sdk.Context, msg sdk.Msg, msgJson common.JsDict
 		decodeMsgRemoveReporter(msg, msgJson)
 	case *oracletypes.MsgActivate:
 		decodeMsgActivate(msg, msgJson)
+	case *clienttypes.MsgCreateClient:
+		decodeMsgCreateClient(msg, msgJson)
 	default:
 		break
 	}
@@ -99,11 +102,20 @@ func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, msgJson common.JsDict
 	msgJson["reporter"] = msg.GetReporter()
 }
 
-func decodeMsgRemoveReporter(msg *types.MsgRemoveReporter, msgJson common.JsDict) {
+func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, msgJson common.JsDict) {
 	msgJson["validator"] = msg.GetValidator()
 	msgJson["reporter"] = msg.GetReporter()
 }
 
-func decodeMsgActivate(msg *types.MsgActivate, msgJson common.JsDict) {
+func decodeMsgActivate(msg *oracletypes.MsgActivate, msgJson common.JsDict) {
 	msgJson["validator"] = msg.GetValidator()
+}
+
+func decodeMsgCreateClient(msg *clienttypes.MsgCreateClient, msgJson common.JsDict) {
+	clientState, _ := clienttypes.UnpackClientState(msg.ClientState)
+	consensusState, _ := clienttypes.UnpackConsensusState(msg.ConsensusState)
+
+	msgJson["client_state"] = clientState
+	msgJson["consensus_state"] = consensusState
+	msgJson["signer"] = msg.Signer
 }
