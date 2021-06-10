@@ -55,7 +55,7 @@ func (h *Hook) extractFungibleTokenPacket(
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, msgJson common.JsDict, packet common.JsDict,
+	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -80,9 +80,9 @@ func (h *Hook) extractOracleRequestPacket(
 			})
 			h.emitRawRequestAndValRequest(id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
-			msgJson["id"] = id
-			msgJson["name"] = os.Name
-			msgJson["schema"] = os.Schema
+			detail["id"] = id
+			detail["name"] = os.Name
+			detail["schema"] = os.Schema
 
 			packet["type"] = "oracle request"
 			packet["data"] = common.JsDict{
@@ -128,7 +128,7 @@ func (h *Hook) extractOracleRequestPacket(
 
 // handleMsgRequestData implements emitter handler for MsgRequestData.
 func (h *Hook) handleMsgRecvPacket(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, msgJson common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, detail common.JsDict,
 ) {
 	packet := newPacket(
 		ctx,
@@ -140,7 +140,7 @@ func (h *Hook) handleMsgRecvPacket(
 		true,
 	)
 	h.Write("NEW_PACKET", packet)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, msgJson, packet); ok {
+	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet); ok {
 		return
 	}
 	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, packet); ok {

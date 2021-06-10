@@ -326,13 +326,13 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
 	for idx, msg := range tx.GetMsgs() {
-		var msgJson = make(common.JsDict)
-		h.decodeMsgJson(ctx, msg, msgJson)
+		var detail = make(common.JsDict)
+		h.decodeMsg(ctx, msg, detail)
 		if res.IsOK() {
-			h.handleMsg(ctx, txHash, msg, logs[idx], msgJson)
+			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
 		}
 		messages = append(messages, common.JsDict{
-			"msg":  msgJson,
+			"msg":  detail,
 			"type": msg.Type(),
 		})
 	}

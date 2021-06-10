@@ -79,7 +79,7 @@ func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
 
 // handleMsgSubmitProposal implements emitter handler for MsgSubmitProposal.
 func (app *Hook) handleMsgSubmitProposal(
-	ctx sdk.Context, txHash []byte, msg *types.MsgSubmitProposal, evMap common.EvMap, msgJson common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
 	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
@@ -100,23 +100,23 @@ func (app *Hook) handleMsgSubmitProposal(
 	})
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
 	app.emitSetDeposit(ctx, txHash, proposalId, proposer)
-	msgJson["proposal_id"] = proposalId
+	detail["proposal_id"] = proposalId
 }
 
 // handleMsgDeposit implements emitter handler for MsgDeposit.
 func (h *Hook) handleMsgDeposit(
-	ctx sdk.Context, txHash []byte, msg *types.MsgDeposit, msgJson common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgDeposit, detail common.JsDict,
 ) {
 	depositor, _ := sdk.AccAddressFromBech32(msg.Depositor)
 	h.emitSetDeposit(ctx, txHash, msg.ProposalId, depositor)
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	msgJson["title"] = proposal.GetTitle()
+	detail["title"] = proposal.GetTitle()
 }
 
 // handleMsgVote implements emitter handler for MsgVote.
 func (h *Hook) handleMsgVote(
-	ctx sdk.Context, txHash []byte, msg *types.MsgVote, msgJson common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *types.MsgVote, detail common.JsDict,
 ) {
 	h.Write("SET_VOTE", common.JsDict{
 		"proposal_id": msg.ProposalId,
@@ -125,7 +125,7 @@ func (h *Hook) handleMsgVote(
 		"tx_hash":     txHash,
 	})
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	msgJson["title"] = proposal.GetTitle()
+	detail["title"] = proposal.GetTitle()
 
 }
 
