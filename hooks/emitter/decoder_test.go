@@ -10,7 +10,6 @@ import (
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/hooks/common"
@@ -53,152 +52,85 @@ func genAddresFromString(s string) []byte {
 
 func (suite *DecoderTestSuite) testCompareJson(msg common.JsDict, expect string) {
 	res, _ := json.Marshal(msg)
-	fmt.Println(string(res))
 	suite.Require().Equal(expect, string(res))
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgRequestData(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgRequestData(1, []byte("calldata"), 1, 1, "cleint_id", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, SenderAddress)
 	decodeMsgRequestData(msg, msgJson)
-	suite.Require().Equal(t, msgJson, common.JsDict{
-		"oracle_script_id": oracletypes.OracleScriptID(1),
-		"calldata":         []byte("calldata"),
-		"ask_count":        uint64(1),
-		"min_count":        uint64(1),
-		"client_id":        "cleint_id",
-		"fee_limit":        testapp.Coins100000000uband,
-		"prepare_gas":      testapp.TestDefaultPrepareGas,
-		"execute_gas":      testapp.TestDefaultExecuteGas,
-		"sender":           SenderAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"ask_count\":1,\"calldata\":\"Y2FsbGRhdGE=\",\"client_id\":\"cleint_id\",\"execute_gas\":300000,\"fee_limit\":[{\"denom\":\"uband\",\"amount\":\"100000000\"}],\"min_count\":1,\"oracle_script_id\":1,\"prepare_gas\":40000,\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeReportData(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeReportData() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgReportData(1, []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress, ReporterAddress)
 	decodeMsgReportData(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"request_id":  oracletypes.RequestID(1),
-		"raw_reports": []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
-		"validator":   ValAddress.String(),
-		"reporter":    ReporterAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"request_id\":1,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgCreateDataSource("name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
 	decodeMsgCreateDataSource(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"name":        "name",
-		"description": "desc",
-		"executable":  []byte("exec"),
-		"fee":         testapp.Coins1000000uband,
-		"treasury":    TreasuryAddress.String(),
-		"owner":       OwnerAddress.String(),
-		"sender":      SenderAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"description\":\"desc\",\"executable\":\"ZXhlYw==\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"name\":\"name\",\"owner\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"treasury\":\"band123ex2ctnw4e8jqqqqqqqqqqqqqqqqqqqrmzwp0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeCreateOracleScript(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeCreateOracleScript() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
 	decodeMsgCreateOracleScript(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"name":            "name",
-		"description":     "desc",
-		"schema":          "schema",
-		"source_code_url": "url",
-		"code":            []byte("code"),
-		"owner":           OwnerAddress.String(),
-		"sender":          SenderAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"code\":\"Y29kZQ==\",\"description\":\"desc\",\"name\":\"name\",\"owner\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"schema\":\"schema\",\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"source_code_url\":\"url\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgEditDataSource(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgEditDataSource() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgEditDataSource(1, "name", "desc", []byte("exec"), testapp.Coins1000000uband, TreasuryAddress, OwnerAddress, SenderAddress)
 	decodeMsgEditDataSource(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"data_source_id": oracletypes.DataSourceID(1),
-		"name":           "name",
-		"description":    "desc",
-		"executable":     []byte("exec"),
-		"fee":            testapp.Coins1000000uband,
-		"treasury":       TreasuryAddress.String(),
-		"owner":          OwnerAddress.String(),
-		"sender":         SenderAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"data_source_id\":1,\"description\":\"desc\",\"executable\":\"ZXhlYw==\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"name\":\"name\",\"owner\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"treasury\":\"band123ex2ctnw4e8jqqqqqqqqqqqqqqqqqqqrmzwp0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgEditOracleScript(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgEditOracleScript() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), OwnerAddress, SenderAddress)
 	decodeMsgEditOracleScript(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"oracle_script_id": oracletypes.OracleScriptID(1),
-		"name":             "name",
-		"description":      "desc",
-		"schema":           "schema",
-		"source_code_url":  "url",
-		"code":             []byte("code"),
-		"owner":            OwnerAddress.String(),
-		"sender":           SenderAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"code\":\"Y29kZQ==\",\"description\":\"desc\",\"name\":\"name\",\"oracle_script_id\":1,\"owner\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"schema\":\"schema\",\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"source_code_url\":\"url\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgAddReporter(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgAddReporter() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgAddReporter(ValAddress, ReporterAddress)
 	decodeMsgAddReporter(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"validator": ValAddress.String(),
-		"reporter":  ReporterAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgRemoveReporter(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgRemoveReporter() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgRemoveReporter(ValAddress, ReporterAddress)
 	decodeMsgRemoveReporter(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"validator": ValAddress.String(),
-		"reporter":  ReporterAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgActivate(t *testing.T) {
+func (suite *DecoderTestSuite) TestDecodeMsgActivate() {
 	msgJson := make(common.JsDict)
 	msg := oracletypes.NewMsgActivate(ValAddress)
 	decodeMsgActivate(msg, msgJson)
-	require.Equal(t, msgJson, common.JsDict{
-		"validator": ValAddress.String(),
-	})
 	suite.testCompareJson(msgJson,
 		"{\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
