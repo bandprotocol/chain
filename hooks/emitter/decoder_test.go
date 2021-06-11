@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
@@ -27,6 +28,8 @@ var (
 	Signer          = sdk.AccAddress(genAddresFromString("Signer"))
 
 	clientHeight = clienttypes.NewHeight(0, 10)
+
+	content = govtypes.ContentFromProposalType("Title", "Desc", "Text")
 )
 
 type DecoderTestSuite struct {
@@ -151,6 +154,34 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 	)
 	// msgCreateClient example
 	// {"client_state":{"chain_id":"testchain0","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+	detail := make(common.JsDict)
+	msg, _ := govtypes.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
+	decodeMsgSubmitProposal(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"content\":{\"title\":\"Title\",\"description\":\"Desc\"},\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+		)
+
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
+	detail := make(common.JsDict)
+	msg := govtypes.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	decodeMsgDeposit(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"depositor\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"proposal_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgVote() {
+	detail := make(common.JsDict)
+	msg := govtypes.NewMsgVote(SenderAddress, 1, 0)
+	decodeMsgVote(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+		)
 }
 
 func TestDecoderTestSuite(t *testing.T) {

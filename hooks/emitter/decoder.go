@@ -7,6 +7,7 @@ import (
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
@@ -31,6 +32,12 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgActivate(msg, detail)
 	case *clienttypes.MsgCreateClient:
 		decodeMsgCreateClient(msg, detail)
+	case *govtypes.MsgSubmitProposal:
+		decodeMsgSubmitProposal(msg, detail)
+	case *govtypes.MsgDeposit:
+		decodeMsgDeposit(msg, detail)
+	case *govtypes.MsgVote:
+		decodeMsgVote(msg, detail)
 	default:
 		break
 	}
@@ -118,4 +125,22 @@ func decodeMsgCreateClient(msg *clienttypes.MsgCreateClient, detail common.JsDic
 	detail["client_state"] = clientState
 	detail["consensus_state"] = consensusState
 	detail["signer"] = msg.Signer
+}
+
+func decodeMsgSubmitProposal(msg *govtypes.MsgSubmitProposal, detail common.JsDict) {
+	detail["content"] = msg.GetContent()
+	detail["initial_deposit"] = msg.GetInitialDeposit()
+	detail["proposer"] = msg.GetProposer()
+}
+
+func decodeMsgDeposit(msg *govtypes.MsgDeposit, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["depositor"] = msg.Depositor
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["voter"] = msg.Voter
+	detail["option"] = msg.Option
 }
