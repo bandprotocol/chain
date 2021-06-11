@@ -47,7 +47,7 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 	case *stakingtypes.MsgDelegate:
 		decodeMsgDelegate(msg, detail)
 	case *stakingtypes.MsgUndelegate:
-		decodeMsgUndelegat(msg, detail)
+		decodeMsgUndelegate(msg, detail)
 	case *stakingtypes.MsgBeginRedelegate:
 		decodeMsgBeginRedelegate(msg, detail)
 
@@ -184,7 +184,7 @@ func decodeMsgDelegate(msg *stakingtypes.MsgDelegate, detail common.JsDict) {
 	detail["amount"] = msg.Amount
 }
 
-func decodeMsgUndelegat(msg *stakingtypes.MsgUndelegate, detail common.JsDict) {
+func decodeMsgUndelegate(msg *stakingtypes.MsgUndelegate, detail common.JsDict) {
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
 	detail["amount"] = msg.Amount

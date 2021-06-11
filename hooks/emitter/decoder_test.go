@@ -239,11 +239,11 @@ func (suite *DecoderTestSuite) TestDecodeMsgDelegate() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgUndelegat() {
+func (suite *DecoderTestSuite) TestDecodeMsgUndelegate() {
 	detail := make(common.JsDict)
 	msg := stakingtypes.NewMsgUndelegate(DelegatorAddress, ValAddress, Amount)
 
-	decodeMsgUndelegat(msg, detail)
+	decodeMsgUndelegate(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
