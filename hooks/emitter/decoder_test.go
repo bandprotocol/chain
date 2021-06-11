@@ -2,15 +2,19 @@ package emitter
 
 import (
 	b64 "encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
 	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/hooks/common"
@@ -20,16 +24,26 @@ import (
 )
 
 var (
-	SenderAddress   = sdk.AccAddress(genAddresFromString("Sender"))
-	ValAddress      = sdk.ValAddress(genAddresFromString("Validator"))
-	TreasuryAddress = sdk.AccAddress(genAddresFromString("Treasury"))
-	OwnerAddress    = sdk.AccAddress(genAddresFromString("Owner"))
-	ReporterAddress = sdk.AccAddress(genAddresFromString("Reporter"))
-	Signer          = sdk.AccAddress(genAddresFromString("Signer"))
+	SenderAddress    = sdk.AccAddress(genAddresFromString("Sender"))
+	ValAddress       = sdk.ValAddress(genAddresFromString("Validator"))
+	TreasuryAddress  = sdk.AccAddress(genAddresFromString("Treasury"))
+	OwnerAddress     = sdk.AccAddress(genAddresFromString("Owner"))
+	ReporterAddress  = sdk.AccAddress(genAddresFromString("Reporter"))
+	Signer           = sdk.AccAddress(genAddresFromString("Signer"))
+	DelegatorAddress = sdk.AccAddress(genAddresFromString("Delegator"))
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
 	content = govtypes.ContentFromProposalType("Title", "Desc", "Text")
+
+	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
+	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
+	MinSelfDelegation = sdk.NewInt(1)
+	Description       = stakingtypes.NewDescription("moniker", "identity", "website", "securityContact", "details")
+	CommissionRate    = stakingtypes.NewCommissionRates(sdk.NewDec(1), sdk.NewDec(5), sdk.NewDec(5))
+	NewRate           = sdk.NewDec(1)
+	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
+	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
 )
 
 type DecoderTestSuite struct {
@@ -51,6 +65,17 @@ func genAddresFromString(s string) []byte {
 	var b [20]byte
 	copy(b[:], s)
 	return b[:]
+}
+
+func newPubKey(pk string) (res cryptotypes.PubKey) {
+	pkBytes, err := hex.DecodeString(pk)
+	if err != nil {
+		panic(err)
+	}
+
+	pubkey := &ed25519.PubKey{Key: pkBytes}
+
+	return pubkey
 }
 
 func (suite *DecoderTestSuite) testCompareJson(msg common.JsDict, expect string) {
@@ -162,7 +187,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 	decodeMsgSubmitProposal(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"content\":{\"title\":\"Title\",\"description\":\"Desc\"},\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
-		)
+	)
 
 }
 
@@ -181,7 +206,57 @@ func (suite *DecoderTestSuite) TestDecodeMsgVote() {
 	decodeMsgVote(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
-		)
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
+	detail := make(common.JsDict)
+	msg, _ := stakingtypes.NewMsgCreateValidator(ValAddress, PubKey, SelfDelegation, Description, CommissionRate, MinSelfDelegation)
+
+	decodeMsgCreateValidator(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"commission_rates\":\"1.000000000000000000\",\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"moniker\":\"moniker\",\"identity\":\"identity\",\"website\":\"website\",\"security_contact\":\"securityContact\",\"details\":\"details\"},\"min_self_delegation\":\"1\",\"pubkey\":\"bandvalconspub1zcjduepqpdy9elqwanrpj3qyfppklr7fmaq9vmerd8njgqpgz32vk4f2ldgqjrvpk6\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgEditValidator() {
+	detail := make(common.JsDict)
+	msg := stakingtypes.NewMsgEditValidator(ValAddress, Description, &NewRate, &MinSelfDelegation)
+
+	decodeMsgEditValidator(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"commission_rates\":\"1.000000000000000000\",\"description\":{\"moniker\":\"moniker\",\"identity\":\"identity\",\"website\":\"website\",\"security_contact\":\"securityContact\",\"details\":\"details\"},\"min_self_delegation\":\"1\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgDelegate() {
+	detail := make(common.JsDict)
+	msg := stakingtypes.NewMsgDelegate(DelegatorAddress, ValAddress, Amount)
+
+	decodeMsgDelegate(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUndelegat() {
+	detail := make(common.JsDict)
+	msg := stakingtypes.NewMsgUndelegate(DelegatorAddress, ValAddress, Amount)
+
+	decodeMsgUndelegat(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgBeginRedelegate() {
+	detail := make(common.JsDict)
+	msg := stakingtypes.NewMsgBeginRedelegate(DelegatorAddress, ValAddress, ValAddress, Amount)
+
+	decodeMsgBeginRedelegate(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_dst_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"validator_src_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
 }
 
 func TestDecoderTestSuite(t *testing.T) {
