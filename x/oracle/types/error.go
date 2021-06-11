@@ -45,7 +45,7 @@ var (
 	ErrRequestAlreadyExpired    = sdkerrors.Register(ModuleName, 39, "request already expired")
 	ErrBadDrbgInitialization    = sdkerrors.Register(ModuleName, 40, "bad drbg initialization")
 	ErrMaxOracleChannels        = sdkerrors.Register(ModuleName, 41, "max oracle channels")
-	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid ICS20 version")
+	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid BOIS01 version")
 	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
 	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
 	ErrIBCRequestDisabled       = sdkerrors.Register(ModuleName, 45, "sending oracle request via IBC is disabled")
