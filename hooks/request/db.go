@@ -317,10 +317,10 @@ func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
 }
 
 func (h *Hook) removeOldRecords() {
-	subQuery := h.trans.Select("id").Order("id").Table("requests")
 	if h.dbMaxRecords <= 0 {
-		subQuery = subQuery.Limit(h.dbMaxRecords)
+		return
 	}
+	subQuery := h.trans.Select("id").Order("id desc").Table("requests").Limit(h.dbMaxRecords)
 	h.trans.Unscoped().Not("id IN (?)", subQuery).Delete(&Request{})
 }
 
