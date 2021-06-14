@@ -25,22 +25,22 @@ func GetRawRequests(c *Context, l *Logger, log sdk.ABCIMessageLog) ([]rawRequest
 	calldataList := GetEventValues(log, types.EventTypeRawRequest, types.AttributeKeyCalldata)
 
 	if len(dataSourceIDs) != len(externalIDs) {
-		return nil, fmt.Errorf("Inconsistent data source count and external ID count")
+		return nil, fmt.Errorf("inconsistent data source count and external ID count")
 	}
 	if len(dataSourceIDs) != len(calldataList) {
-		return nil, fmt.Errorf("Inconsistent data source count and calldata count")
+		return nil, fmt.Errorf("inconsistent data source count and calldata count")
 	}
 
 	var reqs []rawRequest
 	for idx := range dataSourceIDs {
 		dataSourceID, err := strconv.Atoi(dataSourceIDs[idx])
 		if err != nil {
-			return nil, fmt.Errorf("Failed to parse data source id: %s", err.Error())
+			return nil, fmt.Errorf("failed to parse data source id: %s", err.Error())
 		}
 
 		externalID, err := strconv.Atoi(externalIDs[idx])
 		if err != nil {
-			return nil, fmt.Errorf("Failed to parse external id: %s", err.Error())
+			return nil, fmt.Errorf("failed to parse external id: %s", err.Error())
 		}
 
 		ds, err := GetDataSource(c, l, types.DataSourceID(dataSourceID))
@@ -79,10 +79,10 @@ func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []
 func GetEventValue(log sdk.ABCIMessageLog, evType string, evKey string) (string, error) {
 	values := GetEventValues(log, evType, evKey)
 	if len(values) == 0 {
-		return "", fmt.Errorf("Cannot find event with type: %s, key: %s", evType, evKey)
+		return "", fmt.Errorf("cannot find event with type: %s, key: %s", evType, evKey)
 	}
 	if len(values) > 1 {
-		return "", fmt.Errorf("Found more than one event with type: %s, key: %s", evType, evKey)
+		return "", fmt.Errorf("found more than one event with type: %s, key: %s", evType, evKey)
 	}
 	return values[0], nil
 }

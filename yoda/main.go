@@ -2,6 +2,7 @@ package yoda
 
 import (
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"os"
 	"path"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	band "github.com/GeoDB-Limited/odin-core/app"
+	odin "github.com/GeoDB-Limited/odin-core/app"
 )
 
 const (
@@ -27,7 +28,7 @@ const (
 // Config data structure for yoda daemon.
 type Config struct {
 	ChainID           string `mapstructure:"chain-id"`            // ChainID of the target chain
-	NodeURI           string `mapstructure:"node"`                // Remote RPC URI of BandChain node to connect to
+	NodeURI           string `mapstructure:"node"`                // Remote RPC URI of Odin node to connect to
 	Validator         string `mapstructure:"validator"`           // The validator address that I'm responsible for
 	GasPrices         string `mapstructure:"gas-prices"`          // Gas prices of the transaction
 	LogLevel          string `mapstructure:"log-level"`           // Log level of the logger
@@ -41,9 +42,14 @@ type Config struct {
 
 // Global instances.
 var (
-	cfg Config
-	kb  keyring.Keyring
+	yoda Yoda
 )
+
+type Yoda struct {
+	config  Config
+	keybase keyring.Keyring
+}
+
 
 func initConfig(cmd *cobra.Command) error {
 	home, err := cmd.PersistentFlags().GetString(flags.FlagHome)
@@ -52,40 +58,39 @@ func initConfig(cmd *cobra.Command) error {
 	}
 	viper.SetConfigFile(path.Join(home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return err
+	if err := viper.Unmarshal(&yoda.config); err != nil {
+		return sdkerrors.Wrap(err, "failed to unmarshal config")
 	}
 	return nil
 }
 
 func Main() {
 	appConfig := sdk.GetConfig()
-	band.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
+	odin.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
 	appConfig.Seal()
 
 	ctx := &Context{}
 	rootCmd := &cobra.Command{
 		Use:   "yoda",
-		Short: "BandChain oracle daemon to subscribe and response to oracle requests",
+		Short: "Odin oracle daemon to subscribe and response to oracle requests",
 	}
 
 	rootCmd.AddCommand(
 		configCmd(),
-		keysCmd(ctx),
+		keysCmd(),
 		runCmd(ctx),
-		// version.Cmd
 	)
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
-			return err
+			return sdkerrors.Wrap(err, "failed to parse home directory flag")
 		}
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		kb, err = keyring.New("band", "test", home, nil)
+		yoda.keybase, err = keyring.New("odin", "test", home, nil)
 		if err != nil {
-			return err
+			return sdkerrors.Wrap(err, "failed to create a new keyring")
 		}
 		return initConfig(rootCmd)
 	}

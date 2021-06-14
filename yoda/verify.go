@@ -16,7 +16,10 @@ type VerificationMessage struct {
 }
 
 func NewVerificationMessage(
-	chainID string, validator sdk.ValAddress, requestID types.RequestID, externalID types.ExternalID,
+	chainID string,
+	validator sdk.ValAddress,
+	requestID types.RequestID,
+	externalID types.ExternalID,
 ) VerificationMessage {
 	return VerificationMessage{
 		ChainID:    chainID,

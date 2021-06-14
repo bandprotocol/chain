@@ -1,6 +1,7 @@
 package yoda
 
 import (
+	"github.com/GeoDB-Limited/odin-core/yoda/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
@@ -11,7 +12,7 @@ const (
 	// cosmos
 	baseFixedGas        = uint64(37764)
 	baseTransactionSize = uint64(200)
-	txCostPerByte       = uint64(5) // Using DefaultTxSizeCostPerByte of BandChain
+	txCostPerByte       = uint64(5) // Using DefaultTxSizeCostPerByte of Odin
 
 	readingBaseCost = uint64(1000)
 	writingBaseCost = uint64(2000)
@@ -21,7 +22,7 @@ const (
 
 	payingFeeCost = uint64(16500)
 
-	// band
+	// odin
 	baseReportCost    = uint64(4024)
 	addingPendingCost = uint64(4500)
 
@@ -40,7 +41,7 @@ func estimateTxSize(msgs []sdk.Msg) uint64 {
 	for _, msg := range msgs {
 		msg, ok := msg.(*types.MsgReportData)
 		if !ok {
-			panic("Don't support non-report data message")
+			panic(errors.ErrNotReportedDataMsg)
 		}
 
 		ser := cdc.MustMarshalBinaryBare(msg)
@@ -85,6 +86,7 @@ func estimateReadingDataSourceCost(f FeeEstimationData) uint64 {
 	for _, rawRep := range f.reports {
 		cost += uint64(len(cdc.MustMarshalBinaryBare(dataSourceMap[rawRep.ExternalID]))) * readingCostPerByte
 	}
+
 	return cost
 }
 

@@ -3,6 +3,8 @@ package executor
 import (
 	"bytes"
 	"context"
+	"github.com/GeoDB-Limited/odin-core/yoda/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -56,7 +58,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 	err = cmd.Run()
 	if ctx.Err() == context.DeadlineExceeded {
 		exec.Command("docker", "kill", name).Start()
-		return ExecResult{}, ErrExecutionimeout
+		return ExecResult{}, sdkerrors.Wrap(errors.ErrExecutionTimeout, "execution failed")
 	}
 	exitCode := uint32(0)
 	if err != nil {

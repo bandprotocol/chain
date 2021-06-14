@@ -14,7 +14,7 @@ func creatDefaultServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		ret := externalExecutionResponse{
-			Returncode: 0,
+			ReturnCode: 0,
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}
@@ -39,7 +39,7 @@ func creatExecuteFailSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		ret := externalExecutionResponse{
-			Returncode: 1,
+			ReturnCode: 1,
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}
