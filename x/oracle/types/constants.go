@@ -7,7 +7,7 @@ const (
 	MaxNameLength        = 128
 	MaxDescriptionLength = 4096
 	MaxClientIDLength    = 128
-	MaxRequestIDLength   = 128
+	MaxRequestKeyLength  = 128
 	MaxSchemaLength      = 512
 	MaxURLLength         = 128
 

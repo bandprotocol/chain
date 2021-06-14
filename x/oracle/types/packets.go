@@ -53,8 +53,8 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 	if strings.Contains(p.RequestKey, "/") {
 		return sdkerrors.Wrapf(ErrInvalidRequestKey, "got: %s", p.RequestKey)
 	}
-	if len(p.RequestKey) > MaxRequestIDLength {
-		return WrapMaxError(ErrTooLongRequestKey, len(p.RequestKey), MaxRequestIDLength)
+	if len(p.RequestKey) > MaxRequestKeyLength {
+		return WrapMaxError(ErrTooLongRequestKey, len(p.RequestKey), MaxRequestKeyLength)
 	}
 	return nil
 }
