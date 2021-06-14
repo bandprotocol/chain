@@ -82,7 +82,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	// Raw requests
 	var rawRequests []types.RawRequest
 	for _, rr := range r.RawRequests {
-		callData, err := base64.StdEncoding.DecodeString(r.CallData)
+		callData, err := base64.StdEncoding.DecodeString(rr.CallData)
 		if err != nil {
 			panic(err)
 		}
