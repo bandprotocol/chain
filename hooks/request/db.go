@@ -46,20 +46,20 @@ type RequestedValidator struct {
 
 type Request struct {
 	gorm.Model
-	OracleScriptID      int64  `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
-	CallData            string `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
-	RequestedValidators []RequestedValidator
-	MinCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
-	AskCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	OracleScriptID      int64                `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	CallData            string               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
+	RequestedValidators []RequestedValidator `gorm:"constraint:OnDelete:CASCADE"`
+	MinCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	AskCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	AnsCount            uint64
 	RequestHeight       int64
 	RequestTime         time.Time
 	ClientID            string
-	RawRequests         []RawRequest
+	RawRequests         []RawRequest `gorm:"constraint:OnDelete:CASCADE"`
 	IBCPortID           string
 	IBCChannelID        string
 	ExecuteGas          uint64
-	Reports             []Report
+	Reports             []Report  `gorm:"constraint:OnDelete:CASCADE"`
 	ResolveTime         time.Time `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	ResolveStatus       string    `gorm:"size:64"`
 	ResultCallData      string    `gorm:"size:1024"`
@@ -320,6 +320,7 @@ func (h *Hook) removeOldRecords() {
 	if h.dbMaxRecords <= 0 {
 		return
 	}
+
 	subQuery := h.trans.Select("id").Order("id desc").Table("requests").Limit(h.dbMaxRecords)
 	h.trans.Unscoped().Not("id IN (?)", subQuery).Delete(&Request{})
 }
