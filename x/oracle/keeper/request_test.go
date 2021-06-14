@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -204,7 +204,7 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.Equal(t, types.NewResult(
 		BasicClientID, req3.OracleScriptID, req3.Calldata, uint64(len(req3.RequestedValidators)), req3.MinCount,
 		3, 1, int64(req3.RequestTime), testapp.ParseTime(9000).Unix(),
-		types.RESOLVE_STATUS_EXPIRED, []byte{},
+		types.RESOLVE_STATUS_EXPIRED, nil,
 	), k.MustGetResult(ctx, 3))
 	testRequest(t, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
 	testRequest(t, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)

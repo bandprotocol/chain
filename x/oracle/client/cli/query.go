@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -39,9 +40,10 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
-		// GetQueryPendingRequests(storeKey, cdc),
+		GetQueryPendingRequests(),
 		GetQueryRequestVerification(),
 		GetQueryRequestPool(),
+		GetQueryRequestPrice(),
 	)
 	return oracleCmd
 }
@@ -282,28 +284,38 @@ func GetQueryActiveValidators() *cobra.Command {
 	return cmd
 }
 
-// // GetQueryPendingRequests implements the query pending requests command.
-// func GetQueryPendingRequests(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "pending-requests [validator]",
-// 		Args: cobra.MaximumNArgs(1),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
+// GetQueryPendingRequests implements the query pending requests command.
+func GetQueryPendingRequests() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pending-requests [validator-address]",
+		Short: "Get list of pending request IDs assigned to given validator",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
 
-// 			path := fmt.Sprintf("custom/%s/%s", route, types.QueryPendingRequests)
-// 			if len(args) == 1 {
-// 				path += "/" + args[0]
-// 			}
+			valAddress, err := sdk.ValAddressFromBech32(args[0])
+			if err != nil {
+				return fmt.Errorf("unable to parse given validator address: %w", err)
+			}
 
-// 			bz, _, err := cliCtx.Query(path)
-// 			if err != nil {
-// 				return err
-// 			}
+			r, err := queryClient.PendingRequests(context.Background(), &types.QueryPendingRequestsRequest{
+				ValidatorAddress: valAddress.String(),
+			})
+			if err != nil {
+				return err
+			}
 
-// 			return printOutput(cliCtx, cdc, bz, &[]types.RequestID{})
-// 		},
-// 	}
-// }
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
 
 // GetQueryRequestVerification implements the query request verification command.
 func GetQueryRequestVerification() *cobra.Command {
@@ -371,6 +383,45 @@ func GetQueryRequestPool() *cobra.Command {
 					ChannelId:  args[2],
 				},
 			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryRequestPrice() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "request-price [symbols-comma-separated] [ask-count] [min-count]",
+		Short:   "Query the latest price on standard price reference database",
+		Example: "request-price ETH,BAND,BTC 10 16",
+		Args:    cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			symbols := strings.Split(args[0], ",")
+			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse ask count: %w", err)
+			}
+			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse min count: %w", err)
+			}
+
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.RequestPrice(context.Background(), &types.QueryRequestPriceRequest{
+				Symbols:  symbols,
+				AskCount: askCount,
+				MinCount: minCount,
+			})
 			if err != nil {
 				return err
 			}

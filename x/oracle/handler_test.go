@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -288,6 +288,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("785")},
+			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
 		},
@@ -300,6 +301,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[1].Filename)},
 			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("1")},
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[7])
@@ -310,6 +312,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[2].Filename)},
 			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[8])
@@ -320,6 +323,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[3].Filename)},
 			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("3")},
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
+			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[9])

@@ -99,7 +99,8 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	if _, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests); err != nil {
+	totalFees, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests)
+	if err != nil {
 		return 0, err
 	}
 	// We now have everything we need to the request, so let's add it to the store.
@@ -115,6 +116,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
+		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)
 	for _, val := range req.RequestedValidators {
 		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyValidator, val))
@@ -137,6 +139,7 @@ func (k Keeper) PrepareRequest(
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, ds.Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, fmt.Sprintf("%d", rawReq.ExternalID)),
 			sdk.NewAttribute(types.AttributeKeyCalldata, string(rawReq.Calldata)),
+			sdk.NewAttribute(types.AttributeKeyFee, ds.Fee.String()),
 		))
 	}
 	return id, nil
@@ -152,10 +155,8 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
-		// TODO: send response to IBC module on fail request
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
-		// TODO: send response to IBC module on fail request
 	} else {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
 	}

@@ -80,11 +80,11 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 	return size
 }
 
-func getReportMsgByteLength(msg sdk.Msg) uint64 {
+func getReportMsgByteLength(msg *types.MsgReportData) uint64 {
 	return uint64(len(cdc.MustMarshalBinaryBare(msg)))
 }
 
-func estimateReportHandlerGas(msg sdk.Msg, f FeeEstimationData) uint64 {
+func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
 	reportByteLength := getReportMsgByteLength(msg)
 	requestByteLength := getRequestMsgByteLength(f)
 
@@ -124,8 +124,12 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) 
 func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
 	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
 
-	for i := range msgs {
-		gas += estimateReportHandlerGas(msgs[i], feeEstimations[i])
+	for i, msg := range msgs {
+		msg, ok := msg.(*types.MsgReportData)
+		if !ok {
+			panic("Don't support non-report data message")
+		}
+		gas += estimateReportHandlerGas(msg, feeEstimations[i])
 	}
 
 	l.Debug(":fuel_pump: Estimated gas is %d", gas)

@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/stretchr/testify/require"
 )

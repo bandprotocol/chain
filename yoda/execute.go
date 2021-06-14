@@ -20,18 +20,22 @@ import (
 )
 
 var (
-	// Use this as codec to legacy msg
-	cdc = band.MakeEncodingConfig().Amino
+	// Proto codec for encoding/decoding proto message
+	cdc = band.MakeEncodingConfig().Marshaler
 )
 
 func signAndBroadcast(
-	c *Context, key keyring.Info, msgs []sdk.Msg, acc client.Account, gasLimit uint64, memo string,
+	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "async",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+	acc, err := queryAccount(clientCtx, key)
+	if err != nil {
+		return "", fmt.Errorf("unable to get account: %w", err)
 	}
 
 	txf := tx.Factory{}.
@@ -70,6 +74,16 @@ func signAndBroadcast(
 	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
 	// }
 	return res.TxHash, nil
+}
+
+func queryAccount(clientCtx client.Context, key keyring.Info) (client.Account, error) {
+	accountRetriever := authtypes.AccountRetriever{}
+	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+
+	return acc, nil
 }
 
 func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {
@@ -111,11 +125,9 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
-
-	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
-		l.Debug(":warning: Failed to query account with error: %s", err.Error())
+		l.Error(":warning: Failed to query account with error: %s", c, err.Error())
 		return
 	}
 
@@ -126,7 +138,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, acc, gasLimit, memo)
+			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())

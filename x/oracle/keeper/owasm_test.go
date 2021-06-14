@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/pkg/obi"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -141,6 +141,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
@@ -148,18 +149,21 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		)}, ctx.EventManager().Events())
 
 	// assert gas consumation
@@ -466,7 +470,7 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 	result := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
 		42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 }
@@ -535,7 +539,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -564,7 +568,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -589,7 +593,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 
 	result := types.NewResult(
 		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
-		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, []byte{},
+		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 

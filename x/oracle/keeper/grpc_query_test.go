@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -287,6 +287,131 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
 	suite.assert.Nil(res, "response should be nil")
 }
 
+type PendingRequestsTestSuite struct {
+	suite.Suite
+
+	assert  *require.Assertions
+	querier keeper.Querier
+
+	ctx sdk.Context
+}
+
+func (suite *PendingRequestsTestSuite) SetupTest() {
+	suite.assert = require.New(suite.T())
+	_, ctx, k := testapp.CreateTestInput(true)
+
+	suite.querier = keeper.Querier{
+		Keeper: k,
+	}
+	suite.ctx = ctx
+}
+
+func (suite *PendingRequestsTestSuite) TestSuccess() {
+	assignedButPendingReq := types.NewRequest(
+		1,
+		BasicCalldata,
+		[]sdk.ValAddress{testapp.Validators[0].ValAddress},
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("testdata")),
+			types.NewRawRequest(2, 2, []byte("testdata")),
+			types.NewRawRequest(3, 3, []byte("testdata")),
+		},
+		nil,
+		0,
+	)
+	notBeAssignedReq := types.NewRequest(
+		1,
+		BasicCalldata,
+		[]sdk.ValAddress{testapp.Validators[1].ValAddress},
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("testdata")),
+			types.NewRawRequest(2, 2, []byte("testdata")),
+			types.NewRawRequest(3, 3, []byte("testdata")),
+		},
+		nil,
+		0,
+	)
+	alreadyReportAllReq := types.NewRequest(
+		1,
+		BasicCalldata,
+		[]sdk.ValAddress{
+			testapp.Validators[0].ValAddress,
+			testapp.Validators[1].ValAddress,
+		},
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("testdata")),
+			types.NewRawRequest(2, 2, []byte("testdata")),
+			types.NewRawRequest(3, 3, []byte("testdata")),
+		},
+		nil,
+		0,
+	)
+	assignedButReportedReq := types.NewRequest(
+		1,
+		BasicCalldata,
+		[]sdk.ValAddress{
+			testapp.Validators[0].ValAddress,
+			testapp.Validators[1].ValAddress,
+		},
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("testdata")),
+			types.NewRawRequest(2, 2, []byte("testdata")),
+			types.NewRawRequest(3, 3, []byte("testdata")),
+		},
+		nil,
+		0,
+	)
+
+	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(3), assignedButPendingReq)
+	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(4), notBeAssignedReq)
+	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(5), alreadyReportAllReq)
+	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(6), assignedButReportedReq)
+	suite.querier.Keeper.SetRequestCount(suite.ctx, 4)
+	suite.querier.Keeper.SetRequestLastExpired(suite.ctx, 2)
+	suite.querier.Keeper.SetReport(suite.ctx, 5, types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+		types.NewRawReport(1, 0, []byte("testdata")),
+		types.NewRawReport(2, 0, []byte("testdata")),
+		types.NewRawReport(3, 0, []byte("testdata")),
+	}))
+	suite.querier.Keeper.SetReport(suite.ctx, 5, types.NewReport(testapp.Validators[1].ValAddress, true, []types.RawReport{
+		types.NewRawReport(1, 0, []byte("testdata")),
+		types.NewRawReport(2, 0, []byte("testdata")),
+		types.NewRawReport(3, 0, []byte("testdata")),
+	}))
+	suite.querier.Keeper.SetReport(suite.ctx, 6, types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+		types.NewRawReport(1, 0, []byte("testdata")),
+		types.NewRawReport(2, 0, []byte("testdata")),
+		types.NewRawReport(3, 0, []byte("testdata")),
+	}))
+
+	r, err := suite.querier.PendingRequests(sdk.WrapSDKContext(suite.ctx), &types.QueryPendingRequestsRequest{
+		ValidatorAddress: sdk.ValAddress(testapp.Validators[0].Address).String(),
+	})
+
+	suite.assert.Equal(&types.QueryPendingRequestsResponse{RequestIDs: []int64{3}}, r)
+	suite.assert.NoError(err)
+}
+
 func TestRequestVerification(t *testing.T) {
 	suite.Run(t, new(RequestVerificationTestSuite))
+}
+
+func TestPendingRequests(t *testing.T) {
+	suite.Run(t, new(PendingRequestsTestSuite))
 }
