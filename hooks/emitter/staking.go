@@ -130,24 +130,24 @@ func (h *Hook) emitDelegation(ctx sdk.Context, operatorAddress sdk.ValAddress, d
 
 // handleMsgCreateValidator implements emitter handler for MsgCreateValidator.
 func (h *Hook) handleMsgCreateValidator(
-	ctx sdk.Context, msg *types.MsgCreateValidator, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgCreateValidator, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	val := h.emitSetValidator(ctx, valAddr)
 	h.emitDelegation(ctx, valAddr, delAddr)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
+	detail["moniker"] = val.Description.Moniker
+	detail["identity"] = val.Description.Identity
 }
 
 // handleMsgEditValidator implements emitter handler for MsgEditValidator.
 func (h *Hook) handleMsgEditValidator(
-	ctx sdk.Context, msg *types.MsgEditValidator, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgEditValidator, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	val := h.emitSetValidator(ctx, valAddr)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
+	detail["moniker"] = val.Description.Moniker
+	detail["identity"] = val.Description.Identity
 }
 
 func (h *Hook) emitUpdateValidatorAndDelegation(ctx sdk.Context, operatorAddress sdk.ValAddress, delegatorAddress sdk.AccAddress) types.Validator {
@@ -158,25 +158,25 @@ func (h *Hook) emitUpdateValidatorAndDelegation(ctx sdk.Context, operatorAddress
 
 // handleMsgDelegate implements emitter handler for MsgDelegate
 func (h *Hook) handleMsgDelegate(
-	ctx sdk.Context, msg *types.MsgDelegate, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgDelegate, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	val := h.emitUpdateValidatorAndDelegation(ctx, valAddr, delAddr)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
+	detail["moniker"] = val.Description.Moniker
+	detail["identity"] = val.Description.Identity
 }
 
 // handleMsgUndelegate implements emitter handler for MsgUndelegate
 func (h *Hook) handleMsgUndelegate(
-	ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	val := h.emitUpdateValidatorAndDelegation(ctx, valAddr, delAddr)
 	h.emitUnbondingDelegation(ctx, msg, evMap)
-	extra["moniker"] = val.Description.Moniker
-	extra["identity"] = val.Description.Identity
+	detail["moniker"] = val.Description.Moniker
+	detail["identity"] = val.Description.Identity
 }
 
 func (h *Hook) emitUnbondingDelegation(ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap) {
@@ -192,7 +192,7 @@ func (h *Hook) emitUnbondingDelegation(ctx sdk.Context, msg *types.MsgUndelegate
 
 // handleMsgBeginRedelegate implements emitter handler for MsgBeginRedelegate
 func (h *Hook) handleMsgBeginRedelegate(
-	ctx sdk.Context, msg *types.MsgBeginRedelegate, evMap common.EvMap, extra common.JsDict,
+	ctx sdk.Context, msg *types.MsgBeginRedelegate, evMap common.EvMap, detail common.JsDict,
 ) {
 	src, _ := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
 	dst, _ := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
@@ -200,10 +200,10 @@ func (h *Hook) handleMsgBeginRedelegate(
 	valSrc := h.emitUpdateValidatorAndDelegation(ctx, src, del)
 	valDst := h.emitUpdateValidatorAndDelegation(ctx, dst, del)
 	h.emitUpdateRedelation(src, dst, del, evMap)
-	extra["val_src_moniker"] = valSrc.Description.Moniker
-	extra["val_src_identity"] = valDst.Description.Identity
-	extra["val_dst_moniker"] = valDst.Description.Moniker
-	extra["val_dst_identity"] = valDst.Description.Identity
+	detail["val_src_moniker"] = valSrc.Description.Moniker
+	detail["val_src_identity"] = valDst.Description.Identity
+	detail["val_dst_moniker"] = valDst.Description.Moniker
+	detail["val_dst_identity"] = valDst.Description.Identity
 }
 
 func (h *Hook) emitUpdateRedelation(operatorSrcAddress sdk.ValAddress, operatorDstAddress sdk.ValAddress, delegatorAddress sdk.AccAddress, evMap common.EvMap) {
