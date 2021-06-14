@@ -80,7 +80,7 @@ func (suite *OracleTestSuite) checkChainBTreasuryBalances(path *ibctesting.Path,
 }
 
 func (suite *OracleTestSuite) checkChainBPoolBalances(path *ibctesting.Path, requestKey string, expect sdk.Coins) {
-	poolBalances := suite.chainB.App.OracleKeeper.GetRequetPoolBalances(suite.chainB.GetContext(), requestKey, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID)
+	poolBalances := suite.chainB.App.OracleKeeper.GetRequestPoolBalances(suite.chainB.GetContext(), requestKey, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID)
 	suite.Require().Equal(expect, poolBalances)
 }
 
