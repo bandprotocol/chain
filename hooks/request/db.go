@@ -316,12 +316,18 @@ func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
 	h.trans.Model(&Report{}).Create(&results)
 }
 
-func (h *Hook) removeOldRecords() {
+func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 	if h.dbMaxRecords <= 0 {
 		return
 	}
+	dbRequest := generateRequestModel(request)
 
-	subQuery := h.trans.Select("id").Order("id desc").Table("requests").Limit(h.dbMaxRecords)
+	subQuery := h.trans.Select("id").Where(&Request{
+		OracleScriptID: dbRequest.OracleScriptID,
+		CallData:       dbRequest.CallData,
+		MinCount:       dbRequest.MinCount,
+		AskCount:       dbRequest.AskCount,
+	}).Order("id desc").Table("requests").Limit(h.dbMaxRecords)
 	h.trans.Unscoped().Not("id IN (?)", subQuery).Delete(&Request{})
 }
 

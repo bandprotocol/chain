@@ -115,7 +115,9 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 	if len(requests) > 0 {
 		h.insertRequests(requests)
-		h.removeOldRecords()
+		for _, request := range requests {
+			h.removeOldRecords(request)
+		}
 	}
 }
 
