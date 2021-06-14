@@ -1,38 +1,38 @@
-package main
+package config
 
 import (
 	"bufio"
 	"fmt"
-
+	band "github.com/GeoDB-Limited/odin-core/app"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
-
-	band "github.com/GeoDB-Limited/odin-core/app"
 )
 
 const (
-	flagAccount  = "account"
-	flagIndex    = "index"
-	flagCoinType = "coin-type"
-	flagRecover  = "recover"
+	flagAccount = "account"
+	flagIndex   = "index"
+	flagRecover = "recover"
 )
 
-func keysCmd(c *Context) *cobra.Command {
+// KeysCmd defines the list of commands to manage context keybase.
+func KeysCmd(cfg *Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
 		Short:   "Manage key held by the oracle process",
 	}
-	cmd.AddCommand(keysAddCmd(c))
-	cmd.AddCommand(keysDeleteCmd(c))
-	cmd.AddCommand(keysListCmd(c))
-	cmd.AddCommand(keysShowCmd(c))
+	cmd.AddCommand(keysAddCmd(cfg))
+	cmd.AddCommand(keysDeleteCmd(cfg))
+	cmd.AddCommand(keysListCmd(cfg))
+	cmd.AddCommand(keysShowCmd(cfg))
+
 	return cmd
 }
 
-func keysAddCmd(c *Context) *cobra.Command {
+// keysAddCmd adds new key to the keybase.
+func keysAddCmd(cfg *Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
 		Aliases: []string{"a"},
@@ -62,10 +62,6 @@ func keysAddCmd(c *Context) *cobra.Command {
 				}
 				fmt.Printf("Mnemonic: %s\n", mnemonic)
 			}
-
-			if err != nil {
-				return err
-			}
 			account, err := cmd.Flags().GetUint32(flagAccount)
 			if err != nil {
 				return err
@@ -75,7 +71,7 @@ func keysAddCmd(c *Context) *cobra.Command {
 				return err
 			}
 			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
-			info, err := keybase.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
+			info, err := cfg.Keyring.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
 			if err != nil {
 				return err
 			}
@@ -89,7 +85,8 @@ func keysAddCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysDeleteCmd(c *Context) *cobra.Command {
+// keysDeleteCmd removes key form the keybase by the given key.
+func keysDeleteCmd(cfg *Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
 		Aliases: []string{"d"},
@@ -97,7 +94,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
-			_, err := keybase.Key(name)
+			_, err := cfg.Keyring.Key(name)
 			if err != nil {
 				return err
 			}
@@ -112,7 +109,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 				fmt.Println("Cancel")
 				return nil
 			}
-			if err := keybase.Delete(name); err != nil {
+			if err := cfg.Keyring.Delete(name); err != nil {
 				return err
 			}
 
@@ -123,14 +120,15 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysListCmd(c *Context) *cobra.Command {
+// keysListCmd prints all values from the keybase.
+func keysListCmd(cfg *Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
 		Short:   "List all the keys in the keychain",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			keys, err := keybase.List()
+			keys, err := cfg.Keyring.List()
 			if err != nil {
 				return err
 			}
@@ -143,7 +141,8 @@ func keysListCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysShowCmd(c *Context) *cobra.Command {
+// keysShowCmd prints value by the given key.
+func keysShowCmd(cfg *Config) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
 		Aliases: []string{"s"},
@@ -152,7 +151,7 @@ func keysShowCmd(c *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			key, err := keybase.Key(name)
+			key, err := cfg.Keyring.Key(name)
 			if err != nil {
 				return err
 			}

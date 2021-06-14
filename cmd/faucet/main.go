@@ -2,89 +2,57 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"time"
-
+	band "github.com/GeoDB-Limited/odin-core/app"
+	"github.com/GeoDB-Limited/odin-core/cmd/faucet/config"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	band "github.com/GeoDB-Limited/odin-core/app"
+	"os"
 )
 
 const (
-	flagPort   = "port"
-	flagCoins  = "coins"
-	flagPeriod = "period"
+	DefaultKeyringBackend = "test"
+	DefaultHomeEnv        = "$HOME/.faucet"
 )
 
-// Config data structure for faucet server.
-type Config struct {
-	ChainID                string        `mapstructure:"chain-id"`   // ChainID of the target chain
-	NodeURI                string        `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
-	GasPrices              string        `mapstructure:"gas-prices"` // Gas prices of the transaction
-	Port                   string        `mapstructure:"port"`       // Port of faucet service
-	Coins                  string        `mapstructure:"coins"`
-	Period                 time.Duration `mapstructure:"period"`
-	MaxPerPeriodWithdrawal string        `mapstructrue:"max-per-period-withdrawal"`
-}
-
-// Global instances.
-var (
-	cfg     Config
-	keybase keyring.Keyring
-	limit   *Limit
-)
-
-func initConfig(cmd *cobra.Command) error {
-	home, err := cmd.PersistentFlags().GetString(flags.FlagHome)
-	if err != nil {
-		return err
-	}
-	viper.SetConfigFile(path.Join(home, "config.yaml"))
-	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return err
-	}
-	return nil
-}
-
-// TODO: refactor faucet
 func main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
 	appConfig.Seal()
 
-	ctx := &Context{}
+	cfg := &config.Config{}
 
 	rootCmd := &cobra.Command{
 		Use:   "faucet",
 		Short: "Faucet server for developers' network",
 	}
-
 	rootCmd.AddCommand(
-		configCmd(),
-		keysCmd(ctx),
-		runCmd(ctx),
+		runCmd(cfg),
+		config.SetParamCmd(),
+		config.KeysCmd(cfg),
 	)
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
 			return err
 		}
-		if err := os.MkdirAll(home, os.ModePerm); err != nil {
-			return err
-		}
-		keybase, err = keyring.New("band", "test", home, nil)
+		keyringBackend, err := rootCmd.Flags().GetString(flags.FlagKeyringBackend)
 		if err != nil {
 			return err
 		}
-		return initConfig(rootCmd)
+		if err := os.MkdirAll(home, os.ModePerm); err != nil {
+			return err
+		}
+		cfg.Keyring, err = keyring.New(sdk.KeyringServiceName(), keyringBackend, home, nil)
+		if err != nil {
+			return err
+		}
+		return config.InitConfig(rootCmd, cfg)
 	}
-	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv("$HOME/.faucet"), "home directory")
+	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv(DefaultHomeEnv), "home directory")
+	rootCmd.PersistentFlags().String(flags.FlagKeyringBackend, DefaultKeyringBackend, "keyring backend")
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

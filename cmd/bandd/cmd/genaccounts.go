@@ -34,7 +34,7 @@ func AddGenesisAccountCmd(defaultNodeHome string) *cobra.Command {
 		Short: "Add a genesis account to genesis.json",
 		Long: `Add a genesis account to genesis.json. The provided account must specify
 the account address or key name and a list of initial coins. If a key name is given,
-the address will be looked up in the local Keybase. The list of initial tokens must
+the address will be looked up in the local Keyring. The list of initial tokens must
 contain valid denominations. Accounts may optionally be supplied with vesting parameters.
 `,
 		Args: cobra.ExactArgs(2),
@@ -56,7 +56,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 					return err
 				}
 
-				// attempt to lookup address from Keybase if no address was provided
+				// attempt to lookup address from Keyring if no address was provided
 				kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, clientCtx.HomeDir, inBuf)
 				if err != nil {
 					return err
@@ -64,7 +64,7 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 				info, err := kb.Key(args[0])
 				if err != nil {
-					return fmt.Errorf("failed to get address from Keybase: %w", err)
+					return fmt.Errorf("failed to get address from Keyring: %w", err)
 				}
 
 				addr = info.GetAddress()

@@ -1,37 +1,42 @@
-package main
+package limiter
 
 import (
 	"fmt"
-	"net/http"
-	"time"
-
+	"github.com/GeoDB-Limited/odin-core/cmd/faucet/store"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"time"
 
-	band "github.com/GeoDB-Limited/odin-core/app"
+	odin "github.com/GeoDB-Limited/odin-core/app"
 )
 
+const (
+	GasAmount     = 200000
+	GasAdjustment = 1
+)
+
+// Request defines request of faucet withdrawal.
 type Request struct {
 	Denom   string `json:"denom" binding:"required"`
 	Address string `json:"address" binding:"required"`
 }
 
+// Response defines response of faucet withdrawal.
 type Response struct {
 	TxHash string `json:"txHash"`
 }
 
-var (
-	cdc, _ = band.MakeCodecs()
-)
-
-func handleRequest(gc *gin.Context, c *Context) {
-	key := <-c.keys
+// HandleRequest handles faucet withdrawal.
+func (l *Limiter) HandleRequest(gc *gin.Context) {
+	key := <-l.keys
 	defer func() {
-		c.keys <- key
+		l.keys <- key
 	}()
 
 	var req Request
@@ -48,11 +53,17 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if limitStatus, ok := limit.Allowed(req.Address, req.Denom); !ok {
-		gc.JSON(http.StatusBadRequest, gin.H{"error": "cannot withdraw more coins", "time": (cfg.Period - time.Now().Sub(limitStatus.LastWithdrawals[req.Denom])).Seconds()})
+	if limitStatus, ok := l.Allowed(req.Address, req.Denom); !ok {
+		gc.JSON(
+			http.StatusForbidden,
+			gin.H{
+				"error": "cannot withdraw more coins",
+				"time":  (l.cfg.Period - time.Now().Sub(limitStatus.LastWithdrawals[req.Denom])).Seconds(),
+			},
+		)
 		return
 	}
-	coinsToWithdraw := sdk.NewCoins(sdk.NewCoin(req.Denom, c.coins.AmountOf(req.Denom)))
+	coinsToWithdraw := sdk.NewCoins(sdk.NewCoin(req.Denom, l.cfg.Coins.AmountOf(req.Denom)))
 	msg := banktypes.NewMsgSend(key.GetAddress(), to, coinsToWithdraw)
 	if err := msg.ValidateBasic(); err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -60,10 +71,10 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	clientCtx := client.Context{
-		Client:            c.client,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		BroadcastMode:     "async",
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+		Client:            l.client,
+		TxConfig:          odin.MakeEncodingConfig().TxConfig,
+		BroadcastMode:     flags.BroadcastAsync,
+		InterfaceRegistry: odin.MakeEncodingConfig().InterfaceRegistry,
 	}
 	accountRetriever := authtypes.AccountRetriever{}
 	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
@@ -75,12 +86,12 @@ func handleRequest(gc *gin.Context, c *Context) {
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
-		WithTxConfig(band.MakeEncodingConfig().TxConfig).
-		WithGas(200000).WithGasAdjustment(1).
-		WithChainID(cfg.ChainID).
+		WithTxConfig(odin.MakeEncodingConfig().TxConfig).
+		WithGas(GasAmount).WithGasAdjustment(GasAdjustment).
+		WithChainID(l.cfg.ChainID).
 		WithMemo("").
-		WithGasPrices(c.gasPrices.String()).
-		WithKeybase(keybase).
+		WithGasPrices(l.cfg.GasPrices.String()).
+		WithKeybase(l.cfg.Keyring).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
 	txb, err := tx.BuildUnsignedTx(txf, msg)
@@ -109,25 +120,30 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	if res.Code != 0 {
-		gc.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s",
-				res.Code, res.RawLog, res.TxHash,
-			)})
+		gc.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"error": fmt.Sprintf(
+					":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s",
+					res.Code,
+					res.RawLog,
+					res.TxHash,
+				),
+			},
+		)
 		return
 	}
 
-	limitStatus, ok := limit.status.Load(req.Address)
+	withdrawalLimit, ok := l.store.Get(req.Address)
 	if !ok {
-		limitStatus = &LimitStatus{
-			LastWithdrawals:   make(map[string]time.Time),
-			WithdrawnInPeriod: sdk.NewCoins(),
+		withdrawalLimit = &store.WithdrawalLimit{
+			LastWithdrawals:  make(map[string]time.Time),
+			WithdrawalPeriod: sdk.NewCoins(),
 		}
 	}
-	limitStatus.LastWithdrawals[req.Denom] = time.Now()
-	limitStatus.WithdrawnInPeriod = limitStatus.WithdrawnInPeriod.Add(coinsToWithdraw...)
-	limit.status.Store(req.Address, limitStatus)
-	gc.JSON(200, Response{
-		TxHash: res.TxHash,
-	})
+	withdrawalLimit.LastWithdrawals[req.Denom] = time.Now()
+	withdrawalLimit.WithdrawalPeriod = withdrawalLimit.WithdrawalPeriod.Add(coinsToWithdraw...)
+	l.store.Set(req.Address, withdrawalLimit)
 
+	gc.JSON(http.StatusOK, Response{TxHash: res.TxHash})
 }
