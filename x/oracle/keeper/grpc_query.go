@@ -221,9 +221,9 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// RequestSearch queries the latest request that match the given input.
-func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Query searching requests should be received by hooks")
+// LatestRequest queries the latest request that match the given input.
+func (k Querier) LatestRequest(c context.Context, req *types.QueryLatestRequestRequest) (*types.QueryLatestRequestResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "Query latest request should be received by hooks")
 }
 
 // RequestPrice queries the latest price on standard price reference oracle

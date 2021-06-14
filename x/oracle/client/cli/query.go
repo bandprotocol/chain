@@ -36,7 +36,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		GetQueryCmdRequestSearch(),
+		GetQueryCmdLatestRequest(),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
@@ -187,11 +187,11 @@ func GetQueryCmdRequest() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdRequestSearch() *cobra.Command {
+func GetQueryCmdLatestRequest() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "search-request [oracle-script-id] [calldata-hex] [ask-count] [min-count] [limit]",
-		Short: "Search requests based on given properties",
-		Args:  cobra.RangeArgs(4, 5),
+		Use:   "latest-request [oracle-script-id] [calldata-hex] [ask-count] [min-count]",
+		Short: "Query latest request based on given properties",
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -214,21 +214,13 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("unable to parse min count: %w", err)
 			}
-			limit := uint64(1)
-			if len(args) >= 5 {
-				limit, err = strconv.ParseUint(args[4], 10, 64)
-				if err != nil {
-					return fmt.Errorf("unable to parse limit: %w", err)
-				}
-			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.RequestSearch(context.Background(), &types.QueryRequestSearchRequest{
+			r, err := queryClient.LatestRequest(context.Background(), &types.QueryLatestRequestRequest{
 				OracleScriptId: int64(oracleScriptID),
 				Calldata:       calldata,
 				AskCount:       askCount,
 				MinCount:       minCount,
-				Limit:          limit,
 			})
 			if err != nil {
 				return err

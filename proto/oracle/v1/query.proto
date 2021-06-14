@@ -68,10 +68,10 @@ service Query {
     option (google.api.http).get = "/oracle/v1/params";
   }
 
-  // RequestSearch queries the latest request that match search criteria.
-  rpc RequestSearch(QueryRequestSearchRequest)
-      returns (QueryRequestSearchResponse) {
-    option (google.api.http).get = "/oracle/v1/request_search";
+  // LatestRequest queries the latest request that match search criteria.
+  rpc LatestRequest(QueryLatestRequestRequest)
+      returns (QueryLatestRequestResponse) {
+    option (google.api.http).get = "/oracle/v1/latest_request";
   }
 
   // RequestPrice queries the latest price on standard price reference oracle
@@ -223,9 +223,9 @@ message QueryActiveValidatorsResponse {
   repeated ActiveValidator validators = 1;
 }
 
-// QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
+// QueryLatestRequestRequest is request type for the Query/LatestRequest RPC
 // method.
-message QueryRequestSearchRequest {
+message QueryLatestRequestRequest {
   // OracleScriptID is ID of an oracle script
   int64 oracle_script_id = 1;
   // Calldata is OBI-encoded data as argument params for the oracle script
@@ -234,16 +234,13 @@ message QueryRequestSearchRequest {
   uint64 ask_count = 3;
   // MinCount is number of validators required for fulfilling the request
   uint64 min_count = 4;
-  // Limit is maximum number of oracle requests to be included in the response
-  // set limit to 1 to get latest request
-  uint64 limit = 5;
 }
 
-// QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
+// QueryLatestRequestResponse is response type for the Query/LatestRequest RPC
 // method.
-message QueryRequestSearchResponse {
-  // Requests is a list of requests
-  repeated QueryRequestResponse requests = 1;
+message QueryLatestRequestResponse {
+  // Request is details of an oracle request
+  QueryRequestResponse request = 1;
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC

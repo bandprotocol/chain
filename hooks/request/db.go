@@ -66,8 +66,6 @@ type Request struct {
 	Result              string    `gorm:"size:1024"`
 }
 
-type Requests []Request
-
 func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	// Request's calldata
 	callData, err := base64.StdEncoding.DecodeString(r.CallData)
@@ -173,16 +171,6 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	return request
 }
 
-func (r Requests) QueryRequestSearchResponse() types.QueryRequestSearchResponse {
-	var finalResult types.QueryRequestSearchResponse
-	for _, dbReq := range r {
-		request := dbReq.QueryRequestResponse()
-		finalResult.Requests = append(finalResult.Requests, &request)
-	}
-
-	return finalResult
-}
-
 func initDb(driverName, dataSourceName string) *gorm.DB {
 	var db *gorm.DB
 	var err error
@@ -220,8 +208,12 @@ func initDb(driverName, dataSourceName string) *gorm.DB {
 	return db
 }
 
-func (h *Hook) insertRequest(request types.Request, reports []types.Report, result types.Result) {
-	dbData := Request{
+func generateRequestModel(data types.QueryRequestResponse) Request {
+	request := data.Request
+	reports := data.Reports
+	result := data.Result
+
+	dbRequest := Request{
 		Model: gorm.Model{
 			ID: uint(result.RequestID),
 		},
@@ -241,18 +233,18 @@ func (h *Hook) insertRequest(request types.Request, reports []types.Report, resu
 	}
 
 	if request.IBCChannel != nil {
-		dbData.IBCChannelID = request.IBCChannel.ChannelId
-		dbData.IBCPortID = request.IBCChannel.PortId
+		dbRequest.IBCChannelID = request.IBCChannel.ChannelId
+		dbRequest.IBCPortID = request.IBCChannel.PortId
 	}
 
 	for _, reqVal := range request.RequestedValidators {
-		dbData.RequestedValidators = append(dbData.RequestedValidators, RequestedValidator{
+		dbRequest.RequestedValidators = append(dbRequest.RequestedValidators, RequestedValidator{
 			Address: reqVal,
 		})
 	}
 
 	for _, rawReq := range request.RawRequests {
-		dbData.RawRequests = append(dbData.RawRequests, RawRequest{
+		dbRequest.RawRequests = append(dbRequest.RawRequests, RawRequest{
 			ExternalID:   int64(rawReq.ExternalID),
 			DataSourceID: int64(rawReq.DataSourceID),
 			CallData:     base64.StdEncoding.EncodeToString(rawReq.Calldata),
@@ -268,19 +260,19 @@ func (h *Hook) insertRequest(request types.Request, reports []types.Report, resu
 				ExitCode:   rawReport.ExitCode,
 			})
 		}
-		dbData.Reports = append(dbData.Reports, Report{
+		dbRequest.Reports = append(dbRequest.Reports, Report{
 			Validator:       report.Validator,
 			RawReports:      rawReports,
 			InBeforeResolve: report.InBeforeResolve,
 		})
 	}
 
-	h.trans.Create(&dbData)
+	return dbRequest
 }
 
-func (h *Hook) addReport(requestIDs types.RequestID, report types.Report) {
+func generateReportModel(requestID types.RequestID, report types.Report) Report {
 	result := Report{
-		RequestID:       uint(requestIDs),
+		RequestID:       uint(requestID),
 		Validator:       report.Validator,
 		InBeforeResolve: report.InBeforeResolve,
 	}
@@ -292,20 +284,56 @@ func (h *Hook) addReport(requestIDs types.RequestID, report types.Report) {
 			ExitCode:   rawReport.ExitCode,
 		})
 	}
-	h.trans.Model(&Report{}).Create(&result)
+
+	return result
 }
 
-func (h *Hook) getMultiRequests(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64, limit uint64) (Requests, error) {
+func (h *Hook) insertRequests(requests []types.QueryRequestResponse) {
+	var dbRequests []Request
+	for _, request := range requests {
+		dbRequests = append(dbRequests, generateRequestModel(request))
+	}
+
+	h.trans.Create(&dbRequests)
+}
+
+func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
+	var results []Report
+
+	for requestID, reports := range reportMap {
+		for _, report := range reports {
+			results = append(results, generateReportModel(requestID, report))
+		}
+	}
+
+	h.trans.Model(&Report{}).Create(&results)
+}
+
+func (h *Hook) removeOldRecords() {
+	subQuery := h.trans.Select("id").Order("id").Table("requests")
+	if h.dbMaxRecords <= 0 {
+		subQuery = subQuery.Limit(h.dbMaxRecords)
+	}
+	h.trans.Unscoped().Not("id IN (?)", subQuery).Delete(&Request{})
+}
+
+func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (*Request, error) {
 	queryCondition := Request{
 		OracleScriptID: int64(oid),
 		CallData:       base64.StdEncoding.EncodeToString(calldata),
 		AskCount:       askCount,
 		MinCount:       minCount,
 	}
-	var result []Request
-	queryResult := h.db.Model(&Request{}).Limit(int(limit)).Preload("Reports.RawReports").Preload(clause.Associations).Where(&queryCondition).Order("resolve_time desc").Find(&result)
+	var result Request
+	queryResult := h.db.Model(&Request{}).
+		Limit(1).
+		Preload("Reports.RawReports").
+		Preload(clause.Associations).
+		Where(&queryCondition).
+		Order("resolve_time desc").
+		Find(&result)
 	if queryResult.Error != nil {
 		return nil, fmt.Errorf("unable to query requests from searching database: %w", queryResult.Error)
 	}
-	return result, nil
+	return &result, nil
 }

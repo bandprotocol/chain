@@ -1,6 +1,7 @@
 package request
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -27,6 +28,7 @@ type Hook struct {
 	cdc          codec.Marshaler
 	oracleKeeper keeper.Keeper
 	db           *gorm.DB
+	dbMaxRecords int
 	trans        *gorm.DB
 	baseApp      *baseapp.BaseApp
 }
@@ -34,7 +36,7 @@ type Hook struct {
 var _ band.Hook = &Hook{}
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, baseApp *baseapp.BaseApp) *Hook {
+func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, numRecords int, baseApp *baseapp.BaseApp) *Hook {
 	dbConnStr := strings.SplitN(connStr, ":", 2)
 	for i := range dbConnStr {
 		dbConnStr[i] = strings.TrimSpace(dbConnStr[i])
@@ -44,6 +46,7 @@ func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, ba
 		cdc:          cdc,
 		oracleKeeper: oracleKeeper,
 		db:           initDb(dbConnStr[0], dbConnStr[1]),
+		dbMaxRecords: numRecords,
 		baseApp:      baseApp,
 	}
 }
@@ -60,6 +63,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 
 // AfterDeliverTx specify actions need to do after transaction has been processed (app.Hook interface).
 func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+	reports := make(map[types.RequestID][]types.Report)
 	for _, event := range res.Events {
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
@@ -76,15 +80,18 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
 
 				if !rep.InBeforeResolve && rep.Validator == validator {
-					h.addReport(reqID, rep)
+					reports[reqID] = append(reports[reqID], rep)
 				}
 			}
 		}
 	}
+
+	h.insertReports(reports)
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
 func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+	var requests []types.QueryRequestResponse
 	for _, event := range res.Events {
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
@@ -96,33 +103,44 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 				request := h.oracleKeeper.MustGetRequest(ctx, reqID)
 				reports := h.oracleKeeper.GetReports(ctx, reqID)
-				h.insertRequest(request, reports, result)
+				requests = append(requests, types.QueryRequestResponse{
+					Request: &request,
+					Reports: reports,
+					Result:  &result,
+				})
 			}
 		}
 	}
+	h.insertRequests(requests)
+	h.removeOldRecords()
 }
 
 // ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
 func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
 	switch req.Path {
-	case "/oracle.v1.Query/RequestSearch":
-		var request types.QueryRequestSearchRequest
-		if err := h.cdc.UnmarshalBinaryBare(req.Data, &request); err != nil {
+	case "/oracle.v1.Query/LatestRequest":
+		var queryReq types.QueryLatestRequestRequest
+		if err := h.cdc.UnmarshalBinaryBare(req.Data, &queryReq); err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request data")), true
 		}
 
-		requests, err := h.getMultiRequests(
-			types.OracleScriptID(request.OracleScriptId),
-			request.Calldata,
-			request.AskCount,
-			request.MinCount,
-			request.Limit,
+		oracleReq, err := h.getLatestRequest(
+			types.OracleScriptID(queryReq.OracleScriptId),
+			queryReq.Calldata,
+			queryReq.AskCount,
+			queryReq.MinCount,
 		)
-		if err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query multiple requests from database")), true
+		var qReqRes *types.QueryRequestResponse
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
+		} else if err == nil {
+			result := oracleReq.QueryRequestResponse()
+			qReqRes = &result
 		}
 
-		finalResult := requests.QueryRequestSearchResponse()
+		finalResult := types.QueryLatestRequestResponse{
+			Request: qReqRes,
+		}
 
 		bz, err := h.cdc.MarshalBinaryBare(&finalResult)
 		if err != nil {
