@@ -304,6 +304,13 @@ func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
 		for _, report := range reports {
 			results = append(results, generateReportModel(requestID, report))
 		}
+		h.trans.
+			Model(&Request{
+				Model: gorm.Model{
+					ID: uint(requestID),
+				},
+			}).
+			Update("ans_count", gorm.Expr("ans_count + ?", len(reports)))
 	}
 
 	h.trans.Model(&Report{}).Create(&results)
@@ -326,12 +333,11 @@ func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCo
 	}
 	var result Request
 	queryResult := h.db.Model(&Request{}).
-		Limit(1).
 		Preload("Reports.RawReports").
 		Preload(clause.Associations).
 		Where(&queryCondition).
 		Order("resolve_time desc").
-		Find(&result)
+		First(&result)
 	if queryResult.Error != nil {
 		return nil, fmt.Errorf("unable to query requests from searching database: %w", queryResult.Error)
 	}
