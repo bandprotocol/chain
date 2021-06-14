@@ -18,6 +18,8 @@ const (
 	TypeMsgActivate           = "activate"
 	TypeMsgAddReporter        = "add_reporter"
 	TypeMsgRemoveReporter     = "remove_reporter"
+
+	maximumOwasmGas = 20000000 // The half of block gas limit
 )
 
 var (
@@ -87,6 +89,9 @@ func (msg MsgRequestData) ValidateBasic() error {
 	}
 	if msg.ExecuteGas <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", msg.ExecuteGas)
+	}
+	if msg.PrepareGas+msg.ExecuteGas > maximumOwasmGas {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "sum of prepare gas and execute gas (%d) exceed %d", msg.PrepareGas+msg.ExecuteGas, maximumOwasmGas)
 	}
 	if !msg.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())
