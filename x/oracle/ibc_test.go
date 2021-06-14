@@ -58,7 +58,7 @@ func (suite *OracleTestSuite) setupAndDepositPoolRequest() *ibctesting.Path {
 	return path
 }
 
-func (suite *OracleTestSuite) sendOracleRequetPacket(path *ibctesting.Path, seq uint64, oracleRequestPacket types.OracleRequestPacketData, timeoutHeight clienttypes.Height) channeltypes.Packet {
+func (suite *OracleTestSuite) sendOracleRequestPacket(path *ibctesting.Path, seq uint64, oracleRequestPacket types.OracleRequestPacketData, timeoutHeight clienttypes.Height) channeltypes.Packet {
 	packet := channeltypes.NewPacket(
 		oracleRequestPacket.GetBytes(),
 		seq,
@@ -102,7 +102,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)))
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -153,7 +153,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestSuccessBasicNotEnoughFund() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("0uband is smaller than 1000000uband: insufficient funds")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -176,7 +176,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		100,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -199,7 +199,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("got: 17, max: 16: invalid ask count")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -216,7 +216,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet = suite.sendOracleRequetPacket(path, 2, oracleRequestPacket, timeoutHeight)
+	packet = suite.sendOracleRequestPacket(path, 2, oracleRequestPacket, timeoutHeight)
 
 	ack = channeltypes.NewErrorAcknowledgement("2 < 3: insufficent available validators")
 	err = path.RelayPacket(packet, ack.GetBytes())
@@ -244,7 +244,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	// ConsumeGas panics due to insufficient gas, so ErrAcknowledgement is not created.
 	ack := channeltypes.NewErrorAcknowledgement("")
@@ -272,7 +272,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	// ConsumeGas panics due to insufficient gas, so ErrAcknowledgement is not created.
 	ack := channeltypes.NewErrorAcknowledgement("")
@@ -296,7 +296,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("id: 100: oracle script not found")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -319,7 +319,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("OEI action to invoke is not available: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -342,7 +342,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("empty raw requests")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -365,7 +365,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("runtime error while executing the Wasm script: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -395,7 +395,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("too many external data requests: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -418,7 +418,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -441,7 +441,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewErrorAcknowledgement("span to write is too small: bad wasm execution")
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -464,7 +464,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		testapp.TestDefaultPrepareGas,
 		0,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)))
 	err := path.RelayPacket(packet, ack.GetBytes())
@@ -509,7 +509,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
-	packet := suite.sendOracleRequetPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	ack := channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)))
 	err := path.RelayPacket(packet, ack.GetBytes())
