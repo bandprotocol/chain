@@ -86,7 +86,9 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		}
 	}
 
-	h.insertReports(reports)
+	if len(reports) > 0 {
+		h.insertReports(reports)
+	}
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
@@ -111,8 +113,10 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			}
 		}
 	}
-	h.insertRequests(requests)
-	h.removeOldRecords()
+	if len(requests) > 0 {
+		h.insertRequests(requests)
+		h.removeOldRecords()
+	}
 }
 
 // ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
