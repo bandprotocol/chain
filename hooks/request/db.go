@@ -26,7 +26,7 @@ type Report struct {
 	gorm.Model
 	RequestID       uint
 	Validator       string
-	RawReports      []RawReport
+	RawReports      []RawReport `gorm:"constraint:OnDelete:CASCADE"`
 	InBeforeResolve bool
 }
 
