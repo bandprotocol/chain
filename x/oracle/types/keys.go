@@ -12,8 +12,7 @@ const (
 	ModuleName = "oracle"
 
 	// Version defines the current version the IBC oracle module supports
-	// TODO: Using our new version for oracle packet (new ics?)
-	Version = "ics20-1"
+	Version = "bandchain-1"
 
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
