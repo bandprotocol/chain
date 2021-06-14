@@ -178,7 +178,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
 }
 
-func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
+func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
@@ -200,7 +200,7 @@ func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
 	require.Equal(t, types.RequestID(1), id)
 }
 
-func TestPrepareRequestSuccessBasicNotEnoughFund(t *testing.T) {
+func TestPrepareRequestNotEnoughFund(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
