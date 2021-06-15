@@ -80,7 +80,10 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
 
 				if !rep.InBeforeResolve && rep.Validator == validator {
-					reports[reqID] = append(reports[reqID], rep)
+					res := h.oracleKeeper.MustGetResult(ctx, reqID)
+					if res.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
+						reports[reqID] = append(reports[reqID], rep)
+					}
 				}
 			}
 		}
