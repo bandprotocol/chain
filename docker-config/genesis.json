@@ -78,7 +78,7 @@
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g",
+          "address": "odin1przt59yskc69ssl3730f2ue4g2he3qxtg0a2mm",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
@@ -133,7 +133,7 @@
           ]
         },
         {
-          "address": "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g",
+          "address": "odin1przt59yskc69ssl3730f2ue4g2he3qxtg0a2mm",
           "coins": [
             {
               "denom": "loki",
@@ -356,7 +356,7 @@
           }
         ],
         "eligible_accounts_pool": [
-          "odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"
+          "odin1przt59yskc69ssl3730f2ue4g2he3qxtg0a2mm"
         ]
       },
       "mint_pool": {
