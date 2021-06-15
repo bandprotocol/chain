@@ -14,6 +14,10 @@ import (
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
+const (
+	packetExpireTime = int64(10 * time.Minute)
+)
+
 // HasResult checks if the result of this request ID exists in the storage.
 func (k Keeper) HasResult(ctx sdk.Context, id types.RequestID) bool {
 	return ctx.KVStore(k.storeKey).Has(types.ResultStoreKey(id))
@@ -129,7 +133,7 @@ func (k Keeper) SaveResult(
 			destinationPort,
 			destinationChannel,
 			clienttypes.NewHeight(0, 0),
-			uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), // TODO: Find what time out will be used on response packet
+			uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
 		)
 
 		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
