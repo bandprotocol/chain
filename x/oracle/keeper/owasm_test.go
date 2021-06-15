@@ -238,7 +238,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 
 	m := types.NewMsgRequestData(1, BasicCalldata, 10, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	// require.EqualError(t, err, "invalid ask count: got: 10, max: 5")
+	require.ErrorIs(t, err, types.ErrInvalidAskCount)
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
@@ -246,7 +246,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 
 	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
@@ -340,7 +340,7 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	// require.EqualError(t, err, "bad wasm execution: too many external data requests")
+	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",

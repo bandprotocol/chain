@@ -56,9 +56,7 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	sender := testapp.Alice.Address
 	msg := types.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, treasury, owner, sender)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	fmt.Println(err)
-	// TODO: Revisit
-	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
+	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	require.Nil(t, res)
 }
 
@@ -90,12 +88,12 @@ func TestEditDataSourceFail(t *testing.T) {
 	// Bad ID
 	msg := types.NewMsgEditDataSource(42, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "data source not found: id: 42")
+	require.ErrorIs(t, err, types.ErrDataSourceNotFound)
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Bob.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "editor not authorized")
+	require.ErrorIs(t, err, types.ErrEditorNotAuthorized)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -104,7 +102,7 @@ func TestEditDataSourceFail(t *testing.T) {
 	zw.Close()
 	msg = types.NewMsgEditDataSource(1, newName, newDescription, buf.Bytes()[:5], testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
+	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	_ = err
 	require.Nil(t, res)
 }
@@ -165,7 +163,7 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg := types.NewMsgCreateOracleScript(name, description, schema, url, []byte("BAD"), testapp.Owner.Address, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "owasm compilation failed: with error: wasm code does not pass basic validation")
+	require.ErrorIs(t, err, types.ErrOwasmCompilation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -174,7 +172,7 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	zw.Close()
 	msg = types.NewMsgCreateOracleScript(name, description, schema, url, buf.Bytes()[:5], testapp.Owner.Address, testapp.Alice.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
+	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	_ = err
 	require.Nil(t, res)
 }
@@ -210,7 +208,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad ID
 	msg := types.NewMsgEditOracleScript(999, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "oracle script not found: id: 999")
+	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Bob.Address)
@@ -220,7 +218,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, []byte("BAD_CODE"), testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "owasm compilation failed: with error: wasm code does not pass basic validation")
+	require.ErrorIs(t, err, types.ErrOwasmCompilation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -229,7 +227,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	zw.Close()
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, buf.Bytes()[:5], testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "uncompression failed: unexpected EOF")
+	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	_ = err
 	require.Nil(t, res)
 }
@@ -333,21 +331,21 @@ func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "0 < 2: insufficent available validators")
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "2 < 3: insufficent available validators")
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	require.Nil(t, res)
 	// Bad oracle script ID
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "id: 999: oracle script not found")
+	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "require: 2000000uband, max: 0uband: not enough fee")
+	require.ErrorIs(t, err, types.ErrNotEnoughFee)
 	require.Nil(t, res)
 }
 
@@ -410,9 +408,10 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// require.Equal(t, k.GetReports(ctx, 42)[0], types.NewReport(testapp.Validators[0].ValAddress, false, reports))
 	// Check the reports of this request. We should see 3 reports, with report from Validators[2] comes after resolve.
-	require.Contains(t, k.GetReports(ctx, 42), types.NewReport(testapp.Validators[0].ValAddress, true, reports))
-	require.Contains(t, k.GetReports(ctx, 42), types.NewReport(testapp.Validators[1].ValAddress, true, reports))
-	require.Contains(t, k.GetReports(ctx, 42), types.NewReport(testapp.Validators[2].ValAddress, false, reports))
+	finalReport := k.GetReports(ctx, 42)
+	require.Contains(t, finalReport, types.NewReport(testapp.Validators[0].ValAddress, true, reports))
+	require.Contains(t, finalReport, types.NewReport(testapp.Validators[1].ValAddress, true, reports))
+	require.Contains(t, finalReport, types.NewReport(testapp.Validators[2].ValAddress, false, reports))
 }
 
 func TestReportFail(t *testing.T) {
@@ -437,28 +436,28 @@ func TestReportFail(t *testing.T) {
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Bad ID
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	// require.EqualError(t, err, "request not found: id: 999")
+	require.ErrorIs(t, err, types.ErrRequestNotFound)
 	require.Nil(t, res)
 	// Not-asked validator
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress, testapp.Alice.Address))
-	// require.EqualError(t, err, fmt.Sprintf("validator not requested: reqID: 42, val: %s", testapp.Alice.ValAddress.String()))
+	require.ErrorIs(t, err, types.ErrValidatorNotRequested)
 	require.Nil(t, res)
 	// Not an authorized reporter
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Alice.Address))
-	// require.EqualError(t, err, "reporter not authorized")
+	require.ErrorIs(t, err, types.ErrReporterNotAuthorized)
 	require.Nil(t, res)
 	// Not having all raw reports
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1"))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	// require.EqualError(t, err, "invalid report size")
+	require.ErrorIs(t, err, types.ErrInvalidReportSize)
 	require.Nil(t, res)
 	// Incorrect external IDs
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	// require.EqualError(t, err, "raw request not found: reqID: 42, extID: 42")
+	require.ErrorIs(t, err, types.ErrRawRequestNotFound)
 	require.Nil(t, res)
 	// Request already expired
 	k.SetRequestLastExpired(ctx, 42)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	// require.EqualError(t, err, "request already expired")
+	require.ErrorIs(t, err, types.ErrRequestAlreadyExpired)
 	require.Nil(t, res)
 	_ = err
 }
@@ -491,14 +490,14 @@ func TestActivateFail(t *testing.T) {
 	msg := types.NewMsgActivate(testapp.Validators[0].ValAddress)
 	// Already active.
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "validator already active")
+	require.ErrorIs(t, err, types.ErrValidatorAlreadyActive)
 	require.Nil(t, res)
 	// Too soon to activate.
 	ctx = ctx.WithBlockTime(testapp.ParseTime(100000))
 	k.MissReport(ctx, testapp.Validators[0].ValAddress, testapp.ParseTime(99999))
 	ctx = ctx.WithBlockTime(testapp.ParseTime(100001))
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, "too soon to activate")
+	require.ErrorIs(t, err, types.ErrTooSoonToActivate)
 	require.Nil(t, res)
 	// OK
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200000))
@@ -529,7 +528,7 @@ func TestAddReporterFail(t *testing.T) {
 	// Should fail when you try to add yourself as your reporter.
 	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, fmt.Sprintf("reporter already exists: val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String()))
+	require.ErrorIs(t, err, types.ErrReporterAlreadyExists)
 	_ = err
 	require.Nil(t, res)
 }
@@ -560,7 +559,7 @@ func TestRemoveReporterFail(t *testing.T) {
 	// Should fail because testapp.Bob isn't testapp.Alice validator's reporter.
 	msg := types.NewMsgRemoveReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	// require.EqualError(t, err, fmt.Sprintf("reporter not found: val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Bob.Address.String()))
+	require.ErrorIs(t, err, types.ErrReporterNotFound)
 	_ = err
 	require.Nil(t, res)
 }
