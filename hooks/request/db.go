@@ -304,13 +304,6 @@ func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
 		for _, report := range reports {
 			results = append(results, generateReportModel(requestID, report))
 		}
-		h.trans.
-			Model(&Request{
-				Model: gorm.Model{
-					ID: uint(requestID),
-				},
-			}).
-			Update("ans_count", gorm.Expr("ans_count + ?", len(reports)))
 	}
 
 	h.trans.Model(&Report{}).Create(&results)
