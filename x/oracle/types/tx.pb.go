@@ -458,7 +458,7 @@ type MsgEditDataSource struct {
 	// Fee is the data source fee per ask_count that data provider will receive
 	// from requester.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
-	// Treasury is the address who recive data source fee from requester.
+	// Treasury is the address who receive data source fee from requester.
 	Treasury string `protobuf:"bytes,6,opt,name=treasury,proto3" json:"treasury,omitempty"`
 	// Owner is the address who is allowed to make further changes to the data
 	// source.
