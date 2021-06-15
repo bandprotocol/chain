@@ -298,7 +298,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenInit() {
 	decodeMsgChannelOpenInit(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel\":{\"state\":1,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\"},\"connection_hops\":[\"connection-0\"],\"version\":\"ics20-1\"},\"port_id\":\"oracle\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel\":{\"state\":1,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"port_id\":\"oracle\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -322,7 +322,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenTry() {
 	decodeMsgChannelOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"ics20-1\"},\"counterparty_version\":\"ics20-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"oracle\",\"proof_height\":{\"revision_height\":10},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"counterparty_version\":\"bandchain-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"oracle\",\"proof_height\":{\"revision_height\":10},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
