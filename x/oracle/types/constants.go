@@ -16,8 +16,6 @@ const (
 	MaxCompiledWasmCodeSize = 1 * 1024 * 1024 // 1MB
 	MaxDataSize             = 256             // 256B
 
-	WasmPrepareGas  = 1000000
-	WasmExecuteGas  = 5000000
 	MaximumOwasmGas = 20000000 // The half of block gas limit
 )
 
