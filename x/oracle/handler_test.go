@@ -17,6 +17,7 @@ import (
 	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle"
 	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/go-owasm/api"
 )
 
 func TestCreateDataSourceSuccess(t *testing.T) {
@@ -162,7 +163,7 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg := types.NewMsgCreateOracleScript(name, description, schema, url, []byte("BAD"), testapp.Owner.Address, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrOwasmCompilation)
+	require.EqualError(t, err, fmt.Sprintf("caused by %s: %s", api.ErrValidation, types.ErrOwasmCompilation))
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -216,7 +217,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, []byte("BAD_CODE"), testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrOwasmCompilation)
+	require.EqualError(t, err, fmt.Sprintf("caused by %s: %s", api.ErrValidation, types.ErrOwasmCompilation))
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -328,13 +329,13 @@ func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.ErrorIs(t, err, types.ErrInsufficientValidators)
+	require.EqualError(t, err, fmt.Sprintf("0 < 2: %s", types.ErrInsufficientValidators))
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.ErrorIs(t, err, types.ErrInsufficientValidators)
+	require.EqualError(t, err, fmt.Sprintf("2 < 3: %s", types.ErrInsufficientValidators))
 	require.Nil(t, res)
 	// Bad oracle script ID
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
@@ -342,7 +343,7 @@ func TestRequestDataFail(t *testing.T) {
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.ErrorIs(t, err, types.ErrNotEnoughFee)
+	require.EqualError(t, err, fmt.Sprintf("require: 2000000uband, max: 0uband: %s", types.ErrNotEnoughFee))
 	require.Nil(t, res)
 }
 
@@ -403,7 +404,6 @@ func TestReportSuccess(t *testing.T) {
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
-	// require.Equal(t, k.GetReports(ctx, 42)[0], types.NewReport(testapp.Validators[0].ValAddress, false, reports))
 	// Check the reports of this request. We should see 3 reports, with report from Validators[2] comes after resolve.
 	finalReport := k.GetReports(ctx, 42)
 	require.Contains(t, finalReport, types.NewReport(testapp.Validators[0].ValAddress, true, reports))
