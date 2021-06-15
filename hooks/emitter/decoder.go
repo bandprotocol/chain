@@ -1,12 +1,15 @@
 package emitter
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/bandprotocol/chain/hooks/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	transfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
@@ -67,6 +70,20 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgTimeout(msg, detail)
 	case *channeltypes.MsgTimeoutOnClose:
 		decodeMsgTimeoutOnClose(msg, detail)
+	case *banktypes.MsgSend:
+		decodeMsgSend(msg, detail)
+	case *banktypes.MsgMultiSend:
+		decodeMsgMultiSend(msg, detail)
+	case *distrtypes.MsgSetWithdrawAddress:
+		decodeMsgSetWithdrawAddress(msg, detail)
+	case *distrtypes.MsgWithdrawDelegatorReward:
+		decodeMsgWithdrawDelegatorReward(msg, detail)
+	case *distrtypes.MsgWithdrawValidatorCommission:
+		decodeMsgWithdrawValidatorCommission(msg, detail)
+	case *slashingtypes.MsgUnjail:
+		decodeMsgUnjail(msg, detail)
+	case *transfertypes.MsgTransfer:
+		decodeMsgTransfer(msg, detail)
 	default:
 		break
 	}
@@ -304,4 +321,43 @@ func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.
 	detail["proof_height"] = msg.ProofHeight
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
+}
+
+func decodeMsgSend(msg *banktypes.MsgSend, detail common.JsDict) {
+	detail["from_address"] = msg.FromAddress
+	detail["to_address"] = msg.ToAddress
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgMultiSend(msg *banktypes.MsgMultiSend, detail common.JsDict) {
+	detail["inputs"] = msg.Inputs
+	detail["outputs"] = msg.Outputs
+}
+
+func decodeMsgSetWithdrawAddress(msg *distrtypes.MsgSetWithdrawAddress, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["withdraw_address"] = msg.WithdrawAddress
+}
+
+func decodeMsgWithdrawDelegatorReward(msg *distrtypes.MsgWithdrawDelegatorReward, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgWithdrawValidatorCommission(msg *distrtypes.MsgWithdrawValidatorCommission, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgUnjail(msg *slashingtypes.MsgUnjail, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddr
+}
+
+func decodeMsgTransfer(msg *transfertypes.MsgTransfer, detail common.JsDict) {
+	detail["source_port"] = msg.SourcePort
+	detail["source_channel"] = msg.SourceChannel
+	detail["token"] = msg.Token
+	detail["sender"] = msg.Sender
+	detail["receiver"] = msg.Receiver
+	detail["timeout_height"] = msg.TimeoutHeight
+	detail["timeout_timestamp"] = msg.TimeoutTimestamp
 }
