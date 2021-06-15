@@ -321,14 +321,24 @@ func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 		return
 	}
 	dbRequest := generateRequestModel(request)
-
-	subQuery := h.trans.Select("id").Where(&Request{
+	queryCondition := Request{
 		OracleScriptID: dbRequest.OracleScriptID,
 		CallData:       dbRequest.CallData,
 		MinCount:       dbRequest.MinCount,
 		AskCount:       dbRequest.AskCount,
-	}).Order("id desc").Table("requests").Limit(h.dbMaxRecords)
-	h.trans.Unscoped().Not("id IN (?)", subQuery).Delete(&Request{})
+	}
+
+	subQuery := h.trans.
+		Select("id").
+		Where(&queryCondition).
+		Order("id desc").
+		Table("requests").
+		Limit(h.dbMaxRecords)
+	h.trans.
+		Unscoped().
+		Where(&queryCondition).
+		Not("id IN (?)", subQuery).
+		Delete(&Request{})
 }
 
 func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (*Request, error) {
