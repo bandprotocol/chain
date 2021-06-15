@@ -50,9 +50,9 @@ func TestGetRandomValidatorsTooBigSize(t *testing.T) {
 	_, err = k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(t, err)
 	_, err = k.GetRandomValidators(ctx, 4, 1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	_, err = k.GetRandomValidators(ctx, 9999, 1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 }
 
 func TestGetRandomValidatorsWithActivate(t *testing.T) {
@@ -60,7 +60,7 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_WITH_LONG_ENOUGH_ENTROPY"))
 	// If no validators are active, you must not be able to get random validators
 	_, err := k.GetRandomValidators(ctx, 1, 1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	// If we activate 2 validators, we should be able to get at most 2 from the function.
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
@@ -71,14 +71,14 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, vals)
 	_, err = k.GetRandomValidators(ctx, 3, 1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	// After we deactivate 1 validator due to missing a report, we can only get at most 1 validator.
 	k.MissReport(ctx, testapp.Validators[0].ValAddress, time.Now())
 	vals, err = k.GetRandomValidators(ctx, 1, 1)
 	require.NoError(t, err)
 	require.Equal(t, []sdk.ValAddress{testapp.Validators[1].ValAddress}, vals)
 	_, err = k.GetRandomValidators(ctx, 2, 1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 }
 
 func TestPrepareRequestSuccessBasic(t *testing.T) {
@@ -218,7 +218,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 
 	m := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.EmptyCoins, 100, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	require.Contains(t, err.Error(), "out-of-gas")
 
 	params := k.GetParams(ctx)
@@ -717,11 +717,11 @@ func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
 	})
 
 	coins, err := k.CollectFee(ctx, testapp.FeePayer.Address, testapp.EmptyCoins, 1, raws)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrNotEnoughFee)
 	require.Nil(t, coins)
 
 	coins, err = k.CollectFee(ctx, testapp.FeePayer.Address, testapp.Coins1000000uband, 1, raws)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrNotEnoughFee)
 	require.Nil(t, coins)
 }
 

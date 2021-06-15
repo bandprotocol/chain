@@ -82,7 +82,7 @@ func TestExecuteResponseNotOk(t *testing.T) {
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
 	_, err := executor.Exec([]byte("executable"), "calldata", nil)
-	require.Error(t, err)
+	require.ErrorIs(t, err, ErrRestNotOk)
 }
 
 func TestExecuteFail(t *testing.T) {

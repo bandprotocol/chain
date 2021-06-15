@@ -25,7 +25,7 @@ func TestSetterGetterDataSource(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Getting a non-existent data source should return error.
 	_, err := k.GetDataSource(ctx, 42)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrDataSourceNotFound)
 	require.Panics(t, func() { _ = k.MustGetDataSource(ctx, 42) })
 	// Creates some basic data sources.
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins, testapp.Treasury.Address)

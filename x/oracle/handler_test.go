@@ -103,7 +103,6 @@ func TestEditDataSourceFail(t *testing.T) {
 	msg = types.NewMsgEditDataSource(1, newName, newDescription, buf.Bytes()[:5], testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
-	_ = err
 	require.Nil(t, res)
 }
 
@@ -173,7 +172,6 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	msg = types.NewMsgCreateOracleScript(name, description, schema, url, buf.Bytes()[:5], testapp.Owner.Address, testapp.Alice.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
-	_ = err
 	require.Nil(t, res)
 }
 
@@ -228,7 +226,6 @@ func TestEditOracleScriptFail(t *testing.T) {
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, buf.Bytes()[:5], testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
-	_ = err
 	require.Nil(t, res)
 }
 
@@ -459,7 +456,6 @@ func TestReportFail(t *testing.T) {
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
 	require.ErrorIs(t, err, types.ErrRequestAlreadyExpired)
 	require.Nil(t, res)
-	_ = err
 }
 
 func TestActivateSuccess(t *testing.T) {
@@ -529,7 +525,6 @@ func TestAddReporterFail(t *testing.T) {
 	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrReporterAlreadyExists)
-	_ = err
 	require.Nil(t, res)
 }
 
@@ -560,6 +555,5 @@ func TestRemoveReporterFail(t *testing.T) {
 	msg := types.NewMsgRemoveReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrReporterNotFound)
-	_ = err
 	require.Nil(t, res)
 }

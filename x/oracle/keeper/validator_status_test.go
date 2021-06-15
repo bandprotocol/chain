@@ -135,7 +135,7 @@ func TestFailActivateAlreadyActive(t *testing.T) {
 	err := k.Activate(ctx, testapp.Validators[0].ValAddress)
 	require.NoError(t, err)
 	err = k.Activate(ctx, testapp.Validators[0].ValAddress)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrValidatorAlreadyActive)
 }
 
 func TestFailActivateTooSoon(t *testing.T) {
@@ -145,8 +145,8 @@ func TestFailActivateTooSoon(t *testing.T) {
 	k.SetValidatorStatus(ctx, testapp.Validators[0].ValAddress, types.NewValidatorStatus(false, now))
 	// You can't activate until it's been at least InactivePenaltyDuration nanosec.
 	penaltyDuration := k.GetParams(ctx).InactivePenaltyDuration
-	require.Error(t, k.Activate(ctx.WithBlockTime(now), testapp.Validators[0].ValAddress))
-	require.Error(t, k.Activate(ctx.WithBlockTime(now.Add(time.Duration(penaltyDuration/2))), testapp.Validators[0].ValAddress))
+	require.ErrorIs(t, k.Activate(ctx.WithBlockTime(now), testapp.Validators[0].ValAddress), types.ErrTooSoonToActivate)
+	require.ErrorIs(t, k.Activate(ctx.WithBlockTime(now.Add(time.Duration(penaltyDuration/2))), testapp.Validators[0].ValAddress), types.ErrTooSoonToActivate)
 	// So far there must be no changes to the validator's status.
 	vs := k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress)
 	require.Equal(t, types.NewValidatorStatus(false, now), vs)
