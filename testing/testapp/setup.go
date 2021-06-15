@@ -71,6 +71,7 @@ var (
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
 	Port1               = "port-1"
 	Port2               = "port-2"
 	Channel1            = "channel-1"

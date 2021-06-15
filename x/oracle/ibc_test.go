@@ -1,6 +1,7 @@
 package oracle_test
 
 import (
+	"strings"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -135,7 +136,51 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	suite.Equal(expectCommitment, commitment)
 }
 
-func (suite *OracleTestSuite) TestIBCPrepareRequestSuccessBasicNotEnoughFund() {
+func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
+	// setup between chainA and chainB
+	path := NewOraclePath(suite.chainA, suite.chainB)
+	suite.coordinator.Setup(path)
+
+	clientID := path.EndpointA.ClientID
+	coins := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000)))
+	requestKey := "beeb-request"
+
+	oracleRequestPackets := []types.OracleRequestPacketData{
+		types.NewOracleRequestPacketData(clientID, 1, []byte(strings.Repeat("beeb", 65)), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 0, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 2, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(strings.Repeat(clientID, 9), 1, []byte("beeb"), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, 0, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, 0),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, types.MaximumOwasmGas, types.MaximumOwasmGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, testapp.BadCoins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, "beeb/request", testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, strings.Repeat(requestKey, 11), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+	}
+	expectedErrs := []string{
+		"got: 260, max: 256: too large calldata",
+		"got: 0: invalid min count",
+		"got: 1, min count: 2: invalid ask count",
+		"got: 135, max: 128: too long client id",
+		"invalid prepare gas: 0: invalid owasm gas",
+		"invalid execute gas: 0: invalid owasm gas",
+		"sum of prepare gas and execute gas (40000000) exceed 20000000: invalid owasm gas",
+		"-1uband: invalid coins",
+		"got: beeb/request: invalid request key",
+		"got: 132, max: 128: too long request key",
+	}
+
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	for i, requestPacket := range oracleRequestPackets {
+		packet := suite.sendOracleRequestPacket(path, uint64(i)+1, requestPacket, timeoutHeight)
+
+		ack := channeltypes.NewErrorAcknowledgement(expectedErrs[i])
+		err := path.RelayPacket(packet, ack.GetBytes())
+		suite.Require().NoError(err) // relay committed
+	}
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 	// setup between chainA and chainB
 	path := NewOraclePath(suite.chainA, suite.chainB)
 	suite.coordinator.Setup(path)
@@ -462,7 +507,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
 		"beeb-request",
 		testapp.TestDefaultPrepareGas,
-		0,
+		1,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
