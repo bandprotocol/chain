@@ -107,7 +107,10 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			// Collect resolved successful requests
 			result := h.oracleKeeper.MustGetResult(ctx, reqID)
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
-				request := h.oracleKeeper.MustGetRequest(ctx, reqID)
+				request, err := h.oracleKeeper.GetRequest(ctx, reqID)
+				if err != nil {
+					continue
+				}
 				reports := h.oracleKeeper.GetReports(ctx, reqID)
 				requests = append(requests, types.QueryRequestResponse{
 					Request: &request,
