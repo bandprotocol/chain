@@ -114,7 +114,7 @@ message MsgCreateDataSource {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // Treasury is the account address who recive data source fee from requester.
+  // Treasury is the account address who receive data source fee from requester.
   string treasury = 5;
   // Owner is the account address who is allowed to make further changes to the
   // data source.
@@ -148,7 +148,7 @@ message MsgEditDataSource {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // Treasury is the address who recive data source fee from requester.
+  // Treasury is the address who receive data source fee from requester.
   string treasury = 6;
   // Owner is the address who is allowed to make further changes to the data
   // source.
