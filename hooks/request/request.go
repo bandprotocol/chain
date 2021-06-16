@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -30,13 +29,12 @@ type Hook struct {
 	db           *gorm.DB
 	dbMaxRecords int
 	trans        *gorm.DB
-	baseApp      *baseapp.BaseApp
 }
 
 var _ band.Hook = &Hook{}
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, numRecords int, baseApp *baseapp.BaseApp) *Hook {
+func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, numRecords int) *Hook {
 	dbConnStr := strings.SplitN(connStr, ":", 2)
 	for i := range dbConnStr {
 		dbConnStr[i] = strings.TrimSpace(dbConnStr[i])
@@ -47,7 +45,6 @@ func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, nu
 		oracleKeeper: oracleKeeper,
 		db:           initDb(dbConnStr[0], dbConnStr[1]),
 		dbMaxRecords: numRecords,
-		baseApp:      baseApp,
 	}
 }
 

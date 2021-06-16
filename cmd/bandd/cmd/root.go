@@ -224,7 +224,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	if connStr != "" {
 		requestSearchCacheSize := appOpts.Get(flagRequestSearchCacheSize).(int)
 		bandApp.AddHook(request.NewHook(
-			bandApp.AppCodec(), bandApp.OracleKeeper, connStr, requestSearchCacheSize, bandApp.BaseApp))
+			bandApp.AppCodec(), bandApp.OracleKeeper, connStr, requestSearchCacheSize))
 	}
 
 	connStr, _ = appOpts.Get(flagWithEmitter).(string)
