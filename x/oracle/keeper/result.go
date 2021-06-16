@@ -106,7 +106,14 @@ func (k Keeper) SaveResult(
 		sourcePort := r.IBCChannel.PortId
 		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 		if !found {
-			panic(fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(
+					types.AttributeKeyReason,
+					fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel),
+				),
+			))
+			return
 		}
 		destinationPort := sourceChannelEnd.Counterparty.PortId
 		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
@@ -114,11 +121,22 @@ func (k Keeper) SaveResult(
 			ctx, sourcePort, sourceChannel,
 		)
 		if !found {
-			panic(fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(
+					types.AttributeKeyReason,
+					fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel),
+				),
+			))
+			return
 		}
 		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 		if !ok {
-			panic("Module does not own channel capability")
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(types.AttributeKeyReason, "Module does not own channel capability"),
+			))
+			return
 		}
 
 		packetData := types.NewOracleResponsePacketData(
@@ -137,7 +155,10 @@ func (k Keeper) SaveResult(
 		)
 
 		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
-			panic(err)
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
+			))
 		}
 	}
 }
