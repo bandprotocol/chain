@@ -9,7 +9,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -36,14 +35,12 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		// GetQueryCmdRequestSearch(storeKey, cdc),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
 		GetQueryPendingRequests(),
 		GetQueryRequestVerification(),
 		GetQueryRequestPool(),
-		GetQueryRequestPrice(),
 	)
 	return oracleCmd
 }
@@ -186,22 +183,6 @@ func GetQueryCmdRequest() *cobra.Command {
 
 	return cmd
 }
-
-// // GetQueryCmdRequestSearch implements the search request command.
-// func GetQueryCmdRequestSearch(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
-// 		Args: cobra.ExactArgs(4),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := clientcmn.QuerySearchLatestRequest(route, cliCtx, args[0], args[1], args[2], args[3])
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.QueryRequestResult{})
-// 		},
-// 	}
-// }
 
 // GetQueryCmdValidatorStatus implements the query of validator status.
 func GetQueryCmdValidatorStatus() *cobra.Command {
@@ -383,45 +364,6 @@ func GetQueryRequestPool() *cobra.Command {
 					ChannelId:  args[2],
 				},
 			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(r)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func GetQueryRequestPrice() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "request-price [symbols-comma-separated] [ask-count] [min-count]",
-		Short:   "Query the latest price on standard price reference database",
-		Example: "request-price ETH,BAND,BTC 10 16",
-		Args:    cobra.ExactArgs(3),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			symbols := strings.Split(args[0], ",")
-			askCount, err := strconv.ParseInt(args[1], 10, 64)
-			if err != nil {
-				return fmt.Errorf("unable to parse ask count: %w", err)
-			}
-			minCount, err := strconv.ParseInt(args[2], 10, 64)
-			if err != nil {
-				return fmt.Errorf("unable to parse min count: %w", err)
-			}
-
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.RequestPrice(context.Background(), &types.QueryRequestPriceRequest{
-				Symbols:  symbols,
-				AskCount: askCount,
-				MinCount: minCount,
-			})
 			if err != nil {
 				return err
 			}
