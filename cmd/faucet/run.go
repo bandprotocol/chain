@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/GeoDB-Limited/odin-core/cmd/faucet/config"
-	"github.com/GeoDB-Limited/odin-core/cmd/faucet/limiter"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -29,11 +28,11 @@ const (
 )
 
 // runCmd runs the faucet.
-func runCmd(cfg *config.Config) *cobra.Command {
+func runCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
-		Short:   "Run the oracle process",
+		Short:   "Run the faucet process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			engine := gin.Default()
@@ -54,37 +53,48 @@ func runCmd(cfg *config.Config) *cobra.Command {
 				},
 			)
 
-			l := limiter.NewLimiter(cfg)
-			go l.RunCleaner()
+			ctx := &Context{}
+			if err := ctx.initCtx(); err != nil {
+				return err
+			}
 
-			engine.POST("/request", func(ginCtx *gin.Context) { l.HandleRequest(ginCtx) })
-			return engine.Run(fmt.Sprintf(":%s", cfg.Port))
+			lim := NewLimiter(ctx)
+			go lim.runCleaner()
+
+			engine.POST(
+				"/request",
+				func(ginCtx *gin.Context) {
+					lim.HandleRequest(ginCtx)
+				},
+			)
+
+			return engine.Run(fmt.Sprintf(":%s", faucet.config.Port))
 		},
 	}
 
-	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "chain ID of BandChain network")
+	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "chain ID of Odin network")
 	if err := viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagChainID))
 	}
 	cmd.Flags().String(flags.FlagNode, DefaultNodeURI, "RPC url to Odin node")
 	if err := viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagNode))
 	}
 	cmd.Flags().String(flags.FlagGasPrices, DefaultGasPrices, "gas prices for report transaction")
 	if err := viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagGasPrices))
 	}
 	cmd.Flags().String(flagPort, DefaultFaucetPort, "port of faucet service")
 	if err := viper.BindPFlag(flagPort, cmd.Flags().Lookup(flagPort)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagPort))
 	}
 	cmd.Flags().String(flagCoins, DefaultWithdrawalAmount, "coins to create")
 	if err := viper.BindPFlag(flagCoins, cmd.Flags().Lookup(flagCoins)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagCoins))
 	}
 	cmd.Flags().Duration(flagPeriod, DefaultFaucetPeriod, "period when can withdraw again")
 	if err := viper.BindPFlag(flagPeriod, cmd.Flags().Lookup(flagPeriod)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagPeriod))
 	}
 
 	return cmd

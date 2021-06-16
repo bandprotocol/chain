@@ -1,4 +1,4 @@
-package store
+package main
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -26,7 +26,7 @@ type limitStore struct {
 
 // WithdrawalLimit defines a store of faucet withdrawals.
 type WithdrawalLimit struct {
-	WithdrawalPeriod sdk.Coins
+	WithdrawalAmount sdk.Coins
 	LastWithdrawals  map[string]time.Time
 }
 
