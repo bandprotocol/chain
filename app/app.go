@@ -92,6 +92,8 @@ import (
 
 	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	owasm "github.com/bandprotocol/go-owasm/api"
+
+	bandclient "github.com/bandprotocol/chain/client"
 )
 
 const (
@@ -180,12 +182,6 @@ type BandApp struct {
 	// Module manager.
 	mm *module.Manager
 
-	// Deliver context, set during InitGenesis/BeginBlock and cleared during Commit. It allows
-	// anyone with access to BandApp to read/mutate consensus state anytime. USE WITH CARE!
-	DeliverContext sdk.Context
-
-	// List of hooks
-	hooks Hooks
 }
 
 func init() {
@@ -442,9 +438,7 @@ func (app *BandApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block.
 func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	app.DeliverContext = ctx
 	res := app.mm.BeginBlock(ctx, req)
-	app.hooks.AfterBeginBlock(ctx, req, res)
 
 	return res
 }
@@ -452,17 +446,8 @@ func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) ab
 // EndBlocker application updates every end block.
 func (app *BandApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	res := app.mm.EndBlock(ctx, req)
-	app.hooks.AfterEndBlock(ctx, req, res)
 
 	return res
-}
-
-// Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
-func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	app.hooks.BeforeCommit()
-	app.DeliverContext = sdk.Context{}
-
-	return app.BaseApp.Commit()
 }
 
 // InitChainer application update at chain initialization
@@ -472,33 +457,8 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 		panic(err)
 	}
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	app.hooks.AfterInitChain(ctx, req, res)
 
 	return res
-}
-
-// DeliverTx overwrite DeliverTx to apply afterDeliverTx hook
-func (app *BandApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx {
-	res := app.BaseApp.DeliverTx(req)
-	app.hooks.AfterDeliverTx(app.DeliverContext, req, res)
-
-	return res
-}
-
-func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
-	hookReq := req
-
-	// when a client did not provide a query height, manually inject the latest
-	if hookReq.Height == 0 {
-		hookReq.Height = app.LastBlockHeight()
-	}
-
-	res, stop := app.hooks.ApplyQuery(req)
-	if stop {
-		return res
-	}
-
-	return app.BaseApp.Query(req)
 }
 
 // LoadHeight loads a particular height
@@ -581,6 +541,9 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
+	// Register BandChain rpc routes
+	bandclient.RegisterRoutes(clientCtx, apiSvr.Router)
+
 	// register swagger API from root so that other applications can override easily
 	if apiConfig.Swagger {
 		RegisterSwaggerAPI(apiSvr.Router)
@@ -634,9 +597,4 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
-}
-
-// AddHook appends hook that will be call after process abci request
-func (app *BandApp) AddHook(hook Hook) {
-	app.hooks = append(app.hooks, hook)
 }
