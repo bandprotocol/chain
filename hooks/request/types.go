@@ -36,8 +36,8 @@ type RawRequest struct {
 	RequestID    uint
 	ExternalID   int64
 	DataSourceID int64
-	// CallData is proto's RawRequest.calldata field encoded in base64
-	CallData string `gorm:"size:1024"`
+	// Calldata is proto's RawRequest.calldata field encoded in base64
+	Calldata string `gorm:"size:1024"`
 }
 
 // RequestedValidator is GORM model of Request.requested_validators proto message
@@ -52,8 +52,8 @@ type RequestedValidator struct {
 type Request struct {
 	gorm.Model
 	OracleScriptID int64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
-	// CallData is proto's Request.calldata field encoded in base64
-	CallData            string               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
+	// Calldata is proto's Request.calldata field encoded in base64
+	Calldata            string               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
 	RequestedValidators []RequestedValidator `gorm:"constraint:OnDelete:CASCADE"`
 	MinCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	AskCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
@@ -69,8 +69,8 @@ type Request struct {
 	ResolveTime         time.Time `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// ResolveStatus is proto's resolve_status but as enum string
 	ResolveStatus string `gorm:"size:64"`
-	// ResultCallData proto's Result.calldata field encoded in base64
-	ResultCallData string `gorm:"size:1024"`
+	// ResultCalldata proto's Result.calldata field encoded in base64
+	ResultCalldata string `gorm:"size:1024"`
 	// Result is proto's Result.result field encoded in OBI and base64
 	Result string `gorm:"size:1024"`
 }
@@ -78,7 +78,7 @@ type Request struct {
 // QueryRequestResponse convert GORM's Request model to proto's QueryRequestResponse
 func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	// Request's calldata
-	callData, err := base64.StdEncoding.DecodeString(r.CallData)
+	calldata, err := base64.StdEncoding.DecodeString(r.Calldata)
 	if err != nil {
 		panic(err)
 	}
@@ -92,19 +92,19 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	// Raw requests
 	var rawRequests []types.RawRequest
 	for _, rr := range r.RawRequests {
-		callData, err := base64.StdEncoding.DecodeString(rr.CallData)
+		calldata, err := base64.StdEncoding.DecodeString(rr.Calldata)
 		if err != nil {
 			panic(err)
 		}
 		rawRequests = append(rawRequests, types.RawRequest{
 			ExternalID:   types.ExternalID(rr.ExternalID),
 			DataSourceID: types.DataSourceID(rr.DataSourceID),
-			Calldata:     callData,
+			Calldata:     calldata,
 		})
 	}
 
 	// Result's calldata
-	resultCallData, err := base64.StdEncoding.DecodeString(r.ResultCallData)
+	resultCalldata, err := base64.StdEncoding.DecodeString(r.ResultCalldata)
 	if err != nil {
 		panic(err)
 	}
@@ -152,7 +152,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	request := types.QueryRequestResponse{
 		Request: &types.Request{
 			OracleScriptID:      types.OracleScriptID(r.OracleScriptID),
-			Calldata:            callData,
+			Calldata:            calldata,
 			MinCount:            r.MinCount,
 			RequestHeight:       r.RequestHeight,
 			RequestTime:         uint64(r.RequestTime.Unix()),
@@ -165,7 +165,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		Result: &types.Result{
 			ClientID:       r.ClientID,
 			OracleScriptID: types.OracleScriptID(r.OracleScriptID),
-			Calldata:       resultCallData,
+			Calldata:       resultCalldata,
 			AskCount:       r.AskCount,
 			MinCount:       r.MinCount,
 			AnsCount:       r.AnsCount,
@@ -193,7 +193,7 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 			ID: uint(result.RequestID),
 		},
 		OracleScriptID: int64(request.OracleScriptID),
-		CallData:       base64.StdEncoding.EncodeToString(request.Calldata),
+		Calldata:       base64.StdEncoding.EncodeToString(request.Calldata),
 		MinCount:       result.MinCount,
 		AskCount:       result.AskCount,
 		AnsCount:       result.AnsCount,
@@ -203,7 +203,7 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 		ResolveTime:    time.Unix(result.ResolveTime, 0),
 		ResolveStatus:  result.ResolveStatus.String(),
 		ExecuteGas:     request.ExecuteGas,
-		ResultCallData: base64.StdEncoding.EncodeToString(result.Calldata),
+		ResultCalldata: base64.StdEncoding.EncodeToString(result.Calldata),
 		Result:         base64.StdEncoding.EncodeToString(result.Result),
 	}
 
@@ -225,7 +225,7 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 		dbRequest.RawRequests = append(dbRequest.RawRequests, RawRequest{
 			ExternalID:   int64(rawReq.ExternalID),
 			DataSourceID: int64(rawReq.DataSourceID),
-			CallData:     base64.StdEncoding.EncodeToString(rawReq.Calldata),
+			Calldata:     base64.StdEncoding.EncodeToString(rawReq.Calldata),
 		})
 	}
 

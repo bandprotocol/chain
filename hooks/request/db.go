@@ -78,7 +78,7 @@ func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 	dbRequest := GenerateRequestModel(request)
 	queryCondition := Request{
 		OracleScriptID: dbRequest.OracleScriptID,
-		CallData:       dbRequest.CallData,
+		Calldata:       dbRequest.Calldata,
 		MinCount:       dbRequest.MinCount,
 		AskCount:       dbRequest.AskCount,
 	}
@@ -102,7 +102,7 @@ func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCo
 	var result Request
 	queryCondition := Request{
 		OracleScriptID: int64(oid),
-		CallData:       base64.StdEncoding.EncodeToString(calldata),
+		Calldata:       base64.StdEncoding.EncodeToString(calldata),
 		AskCount:       askCount,
 		MinCount:       minCount,
 	}
