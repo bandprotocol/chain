@@ -69,8 +69,6 @@ type Request struct {
 	ResolveTime         time.Time `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// ResolveStatus is proto's resolve_status but as enum string
 	ResolveStatus string `gorm:"size:64"`
-	// ResultCalldata proto's Result.calldata field encoded in base64
-	ResultCalldata string `gorm:"size:1024"`
 	// Result is proto's Result.result field encoded in OBI and base64
 	Result string `gorm:"size:1024"`
 }
@@ -101,12 +99,6 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 			DataSourceID: types.DataSourceID(rr.DataSourceID),
 			Calldata:     calldata,
 		})
-	}
-
-	// Result's calldata
-	resultCalldata, err := base64.StdEncoding.DecodeString(r.ResultCalldata)
-	if err != nil {
-		panic(err)
 	}
 
 	// Result data
@@ -165,7 +157,7 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		Result: &types.Result{
 			ClientID:       r.ClientID,
 			OracleScriptID: types.OracleScriptID(r.OracleScriptID),
-			Calldata:       resultCalldata,
+			Calldata:       calldata,
 			AskCount:       r.AskCount,
 			MinCount:       r.MinCount,
 			AnsCount:       r.AnsCount,
@@ -203,7 +195,6 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 		ResolveTime:    time.Unix(result.ResolveTime, 0),
 		ResolveStatus:  result.ResolveStatus.String(),
 		ExecuteGas:     request.ExecuteGas,
-		ResultCalldata: base64.StdEncoding.EncodeToString(result.Calldata),
 		Result:         base64.StdEncoding.EncodeToString(result.Result),
 	}
 
