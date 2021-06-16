@@ -10,6 +10,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
+	"github.com/bandprotocol/chain/hooks/common"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -17,14 +18,6 @@ type processingResult struct {
 	rawReport types.RawReport
 	version   string
 	err       error
-}
-
-func MustAtoi(num string) int64 {
-	result, err := strconv.ParseInt(num, 10, 64)
-	if err != nil {
-		panic(err)
-	}
-	return result
 }
 
 func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
@@ -115,13 +108,13 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	if len(rawAskCount) != 1 {
 		panic("Fail to get ask count")
 	}
-	askCount := MustAtoi(rawAskCount[0])
+	askCount := common.Atoi(rawAskCount[0])
 
 	rawMinCount := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyMinCount)
 	if len(rawMinCount) != 1 {
 		panic("Fail to get min count")
 	}
-	minCount := MustAtoi(rawMinCount[0])
+	minCount := common.Atoi(rawMinCount[0])
 
 	rawCallData := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyCalldata)
 	if len(rawCallData) != 1 {
