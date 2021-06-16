@@ -72,10 +72,12 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 			iter := h.oracleKeeper.GetReportIterator(ctx, reqID)
 			defer iter.Close()
 
+			// Check all reports related to given request ID
 			for ; iter.Valid(); iter.Next() {
 				var rep types.Report
 				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
 
+				// Collect reports which are submitted after the request successfully resolved
 				if !rep.InBeforeResolve && rep.Validator == validator {
 					res := h.oracleKeeper.MustGetResult(ctx, reqID)
 					if res.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
@@ -86,6 +88,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		}
 	}
 
+	// Add collected reports to database
 	if len(reports) > 0 {
 		h.insertReports(reports)
 	}
@@ -101,6 +104,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 		case types.EventTypeResolve:
 			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
 
+			// Collect resolved successful requests
 			result := h.oracleKeeper.MustGetResult(ctx, reqID)
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 				request := h.oracleKeeper.MustGetRequest(ctx, reqID)
@@ -113,6 +117,8 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			}
 		}
 	}
+
+	// Add collected requsts to database
 	if len(requests) > 0 {
 		h.insertRequests(requests)
 		for _, request := range requests {
@@ -130,12 +136,15 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request data")), true
 		}
 
+		// Query oracle requests from database
 		oracleReq, err := h.getLatestRequest(
 			types.OracleScriptID(queryReq.OracleScriptId),
 			queryReq.Calldata,
 			queryReq.AskCount,
 			queryReq.MinCount,
 		)
+
+		// If no result from database, use default value of qReqRes, which is nil
 		var qReqRes *types.QueryRequestResponse
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
