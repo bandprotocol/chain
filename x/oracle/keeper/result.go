@@ -157,7 +157,7 @@ func (k Keeper) SaveResult(
 		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeSendPacketFail,
-				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+				sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
 			))
 		}
 	}
