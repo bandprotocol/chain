@@ -113,6 +113,7 @@ func (k Keeper) SaveResult(
 					fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel),
 				),
 			))
+			return
 		}
 		destinationPort := sourceChannelEnd.Counterparty.PortId
 		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
@@ -127,6 +128,7 @@ func (k Keeper) SaveResult(
 					fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel),
 				),
 			))
+			return
 		}
 		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 		if !ok {
@@ -134,6 +136,7 @@ func (k Keeper) SaveResult(
 				types.EventTypeSendPacketFail,
 				sdk.NewAttribute(types.AttributeKeyReason, "Module does not own channel capability"),
 			))
+			return
 		}
 
 		packetData := types.NewOracleResponsePacketData(
