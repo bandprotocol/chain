@@ -36,7 +36,6 @@ import (
 
 const (
 	flagDisableFeelessReports = "disable-feeless-reports"
-	flagEnableFastSync        = "enable-fast-sync"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
 )
 
