@@ -185,10 +185,6 @@ type BandApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
-
-	// Deliver context, set during InitGenesis/BeginBlock and cleared during Commit. It allows
-	// anyone with access to BandApp to read/mutate consensus state anytime. USE WITH CARE!
-	DeliverContext sdk.Context
 }
 
 func init() {
@@ -467,7 +463,6 @@ func (app *BandApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block.
 func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	app.DeliverContext = ctx
 	res := app.mm.BeginBlock(ctx, req)
 
 	return res
@@ -482,8 +477,6 @@ func (app *BandApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.R
 
 // Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
 func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	app.DeliverContext = sdk.Context{}
-
 	return app.BaseApp.Commit()
 }
 
