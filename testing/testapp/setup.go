@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"path/filepath"
+	"sort"
 	"testing"
 	"time"
 
@@ -70,6 +71,7 @@ var (
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
 	Port1               = "port-1"
 	Port2               = "port-2"
 	Channel1            = "channel-1"
@@ -140,6 +142,12 @@ func init() {
 	for i := 0; i < 3; i++ {
 		Validators = append(Validators, createArbitraryAccount(r))
 	}
+
+	// Sorted list of validators is needed for ibctest when signing a commit block
+	sort.Slice(Validators, func(i, j int) bool {
+		return Validators[i].PubKey.Address().String() < Validators[j].PubKey.Address().String()
+	})
+
 	owasmVM, err := owasm.NewVm(10)
 	if err != nil {
 		panic(err)

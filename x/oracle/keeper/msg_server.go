@@ -155,9 +155,14 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 		}
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
+		newOwner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -238,8 +243,13 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	k.MustEditOracleScript(ctx, msg.OracleScriptID, types.NewOracleScript(
-		owner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
+		newOwner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
