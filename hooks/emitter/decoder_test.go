@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -73,7 +73,7 @@ func newPubKey(pk string) (res cryptotypes.PubKey) {
 		panic(err)
 	}
 
-	pubkey := &ed25519.PubKey{Key: pkBytes}
+	pubkey := &secp256k1.PubKey{Key: pkBytes}
 
 	return pubkey
 }
@@ -215,7 +215,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
 
 	decodeMsgCreateValidator(msg, detail)
 	suite.testCompareJson(detail,
-		"{\"commission_rates\":\"1.000000000000000000\",\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"moniker\":\"moniker\",\"identity\":\"identity\",\"website\":\"website\",\"security_contact\":\"securityContact\",\"details\":\"details\"},\"min_self_delegation\":\"1\",\"pubkey\":\"bandvalconspub1zcjduepqpdy9elqwanrpj3qyfppklr7fmaq9vmerd8njgqpgz32vk4f2ldgqjrvpk6\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
+		"{\"commission_rates\":\"1.000000000000000000\",\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"moniker\":\"moniker\",\"identity\":\"identity\",\"website\":\"website\",\"security_contact\":\"securityContact\",\"details\":\"details\"},\"min_self_delegation\":\"1\",\"pubkey\":\"bandvalconspub1addwnpeqpdy9elqwanrpj3qyfppklr7fmaq9vmerd8njgqpgz3\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
 	)
 }
 
