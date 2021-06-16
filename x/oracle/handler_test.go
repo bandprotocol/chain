@@ -89,7 +89,7 @@ func TestEditDataSourceFail(t *testing.T) {
 	// Bad ID
 	msg := types.NewMsgEditDataSource(42, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrDataSourceNotFound)
+	testapp.CheckErrorf(t, err, types.ErrDataSourceNotFound, "id: 42")
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Bob.Address)
@@ -207,7 +207,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad ID
 	msg := types.NewMsgEditOracleScript(999, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Owner.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
+	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Bob.Address)
@@ -217,7 +217,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, []byte("BAD_CODE"), testapp.Owner.Address, testapp.Owner.Address)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	require.EqualError(t, err, fmt.Sprintf("caused by %s: %s", api.ErrValidation, types.ErrOwasmCompilation))
+	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
@@ -329,21 +329,21 @@ func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, fmt.Sprintf("0 < 2: %s", types.ErrInsufficientValidators))
+	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, fmt.Sprintf("2 < 3: %s", types.ErrInsufficientValidators))
+	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
 	require.Nil(t, res)
 	// Bad oracle script ID
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
+	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, fmt.Sprintf("require: 2000000uband, max: 0uband: %s", types.ErrNotEnoughFee))
+	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "require: 2000000uband, max: 0uband")
 	require.Nil(t, res)
 }
 
@@ -433,11 +433,11 @@ func TestReportFail(t *testing.T) {
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Bad ID
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	require.ErrorIs(t, err, types.ErrRequestNotFound)
+	testapp.CheckErrorf(t, err, types.ErrRequestNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not-asked validator
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress, testapp.Alice.Address))
-	require.ErrorIs(t, err, types.ErrValidatorNotRequested)
+	testapp.CheckErrorf(t, err, types.ErrValidatorNotRequested, "reqID: 42, val: %s", testapp.Alice.ValAddress.String())
 	require.Nil(t, res)
 	// Not an authorized reporter
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Alice.Address))
@@ -449,7 +449,7 @@ func TestReportFail(t *testing.T) {
 	require.Nil(t, res)
 	// Incorrect external IDs
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
-	require.ErrorIs(t, err, types.ErrRawRequestNotFound)
+	testapp.CheckErrorf(t, err, types.ErrRawRequestNotFound, "reqID: 42, extID: 42")
 	require.Nil(t, res)
 	// Request already expired
 	k.SetRequestLastExpired(ctx, 42)
@@ -524,7 +524,7 @@ func TestAddReporterFail(t *testing.T) {
 	// Should fail when you try to add yourself as your reporter.
 	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrReporterAlreadyExists)
+	testapp.CheckErrorf(t, err, types.ErrReporterAlreadyExists, "val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String())
 	require.Nil(t, res)
 }
 
@@ -554,6 +554,6 @@ func TestRemoveReporterFail(t *testing.T) {
 	// Should fail because testapp.Bob isn't testapp.Alice validator's reporter.
 	msg := types.NewMsgRemoveReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.ErrorIs(t, err, types.ErrReporterNotFound)
+	testapp.CheckErrorf(t, err, types.ErrReporterNotFound, "val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Bob.Address.String())
 	require.Nil(t, res)
 }
