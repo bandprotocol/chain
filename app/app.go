@@ -189,9 +189,6 @@ type BandApp struct {
 	// Deliver context, set during InitGenesis/BeginBlock and cleared during Commit. It allows
 	// anyone with access to BandApp to read/mutate consensus state anytime. USE WITH CARE!
 	DeliverContext sdk.Context
-
-	// List of hooks
-	hooks Hooks
 }
 
 func init() {
@@ -472,7 +469,6 @@ func (app *BandApp) Name() string { return app.BaseApp.Name() }
 func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	app.DeliverContext = ctx
 	res := app.mm.BeginBlock(ctx, req)
-	app.hooks.AfterBeginBlock(ctx, req, res)
 
 	return res
 }
@@ -480,14 +476,12 @@ func (app *BandApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) ab
 // EndBlocker application updates every end block.
 func (app *BandApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	res := app.mm.EndBlock(ctx, req)
-	app.hooks.AfterEndBlock(ctx, req, res)
 
 	return res
 }
 
 // Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
 func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	app.hooks.BeforeCommit()
 	app.DeliverContext = sdk.Context{}
 
 	return app.BaseApp.Commit()
@@ -500,32 +494,18 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 		panic(err)
 	}
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
-	app.hooks.AfterInitChain(ctx, req, res)
 
 	return res
 }
 
-// DeliverTx overwrite DeliverTx to apply afterDeliverTx hook
+// DeliverTx overwrite baseapp's DeliverTx
 func (app *BandApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx {
 	res := app.BaseApp.DeliverTx(req)
-	app.hooks.AfterDeliverTx(app.DeliverContext, req, res)
 
 	return res
 }
 
 func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
-	hookReq := req
-
-	// when a client did not provide a query height, manually inject the latest
-	if hookReq.Height == 0 {
-		hookReq.Height = app.LastBlockHeight()
-	}
-
-	res, stop := app.hooks.ApplyQuery(req)
-	if stop {
-		return res
-	}
-
 	return app.BaseApp.Query(req)
 }
 
@@ -667,9 +647,4 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
-}
-
-// AddHook appends hook that will be call after process abci request
-func (app *BandApp) AddHook(hook Hook) {
-	app.hooks = append(app.hooks, hook)
 }
