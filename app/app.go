@@ -475,11 +475,6 @@ func (app *BandApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.R
 	return res
 }
 
-// Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
-func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	return app.BaseApp.Commit()
-}
-
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
@@ -489,17 +484,6 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 
 	return res
-}
-
-// DeliverTx overwrite baseapp's DeliverTx
-func (app *BandApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx {
-	res := app.BaseApp.DeliverTx(req)
-
-	return res
-}
-
-func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
-	return app.BaseApp.Query(req)
 }
 
 // LoadHeight loads a particular height
