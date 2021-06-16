@@ -94,6 +94,8 @@ import (
 
 	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	owasm "github.com/bandprotocol/go-owasm/api"
+
+	bandclient "github.com/bandprotocol/chain/client"
 )
 
 const (
@@ -570,6 +572,9 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 	// Register legacy and grpc-gateway routes for all modules.
 	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+
+	// Register BandChain rpc routes
+	bandclient.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	// register swagger API from root so that other applications can override easily
 	if apiConfig.Swagger {
