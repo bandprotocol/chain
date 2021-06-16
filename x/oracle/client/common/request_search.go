@@ -46,32 +46,6 @@ package common
 // 	return reqResult, height, nil
 // }
 
-// func QuerySearchLatestRequest(
-// 	clientCtx client.Context, oid, calldata, askCount, minCount string,
-// ) ([]byte, int64, error) {
-// 	id, err := queryLatestRequest(clientCtx, oid, calldata, askCount, minCount)
-// 	if err != nil {
-// 		bz, err := types.QueryNotFound(clientCtx.LegacyAmino, "request with specified specification not found")
-// 		return bz, 0, err
-// 	}
-// 	out, h, err := queryRequest(clientCtx, id)
-// 	bz, err := types.QueryOK(clientCtx.LegacyAmino, out)
-// 	return bz, h, err
-// }
-
-// func queryMultitRequest(clientCtx client.Context, oid, calldata, askCount, minCount string, limit int) ([]types.RequestID, error) {
-// 	bz, _, err := clientCtx.Query(fmt.Sprintf("band/latest_request/%s/%s/%s/%s/%d", oid, calldata, askCount, minCount, limit))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var reqIDs []types.RequestID
-// 	err = clientCtx.LegacyAmino.UnmarshalBinaryBare(bz, &reqIDs)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return reqIDs, nil
-// }
-
 // func queryRequests(
 // 	clientCtx client.Context, requestIDs []types.RequestID,
 // ) ([]types.QueryRequestResult, int64, error) {
@@ -113,26 +87,4 @@ package common
 // 	})
 
 // 	return requests, height, nil
-// }
-
-// func QueryMultiSearchLatestRequest(
-// 	clientCtx client.Context, oid, calldata, askCount, minCount string, limit int,
-// ) ([]byte, int64, error) {
-// 	requestIDs, err := queryMultitRequest(clientCtx, oid, calldata, askCount, minCount, limit)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-// 	queryRequestResults, h, err := queryRequests(clientCtx, requestIDs)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-// 	if len(queryRequestResults) == 0 {
-// 		bz, err := types.QueryNotFound(clientCtx.LegacyAmino, "request with specified specification not found")
-// 		return bz, 0, err
-// 	}
-// 	if len(queryRequestResults) > limit {
-// 		queryRequestResults = queryRequestResults[:limit]
-// 	}
-// 	bz, err := types.QueryOK(clientCtx.LegacyAmino, queryRequestResults)
-// 	return bz, h, err
 // }

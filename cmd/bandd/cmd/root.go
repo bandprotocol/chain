@@ -37,7 +37,6 @@ import (
 	"github.com/bandprotocol/chain/app/params"
 	"github.com/bandprotocol/chain/hooks/emitter"
 	"github.com/bandprotocol/chain/hooks/price"
-	"github.com/bandprotocol/chain/hooks/request"
 	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -46,7 +45,6 @@ const (
 	flagDisableFeelessReports = "disable-feeless-reports"
 	flagEnableFastSync        = "enable-fast-sync"
 	flagWithPricer            = "with-pricer"
-	flagWithRequestSearch     = "with-request-search"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
 )
 
@@ -108,7 +106,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		keys.Commands(band.DefaultNodeHome),
 	)
 
-	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
 	rootCmd.PersistentFlags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
 	rootCmd.PersistentFlags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
@@ -218,13 +215,8 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
-	connStr, _ := appOpts.Get(flagWithRequestSearch).(string)
-	if connStr != "" {
-		bandApp.AddHook(request.NewHook(
-			bandApp.LegacyAmino(), bandApp.OracleKeeper, connStr))
-	}
 
-	connStr, _ = appOpts.Get(flagWithEmitter).(string)
+	connStr, _ := appOpts.Get(flagWithEmitter).(string)
 	if connStr != "" {
 		bandApp.AddHook(
 			emitter.NewHook(bandApp.AppCodec(), bandApp.LegacyAmino(), band.MakeEncodingConfig(), bandApp.AccountKeeper, bandApp.BankKeeper,

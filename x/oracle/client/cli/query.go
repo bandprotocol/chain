@@ -36,7 +36,6 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		// GetQueryCmdRequestSearch(storeKey, cdc),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
@@ -186,22 +185,6 @@ func GetQueryCmdRequest() *cobra.Command {
 
 	return cmd
 }
-
-// // GetQueryCmdRequestSearch implements the search request command.
-// func GetQueryCmdRequestSearch(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
-// 		Args: cobra.ExactArgs(4),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := clientcmn.QuerySearchLatestRequest(route, cliCtx, args[0], args[1], args[2], args[3])
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.QueryRequestResult{})
-// 		},
-// 	}
-// }
 
 // GetQueryCmdValidatorStatus implements the query of validator status.
 func GetQueryCmdValidatorStatus() *cobra.Command {

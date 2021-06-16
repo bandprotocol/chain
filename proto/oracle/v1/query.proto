@@ -68,12 +68,6 @@ service Query {
     option (google.api.http).get = "/oracle/v1/params";
   }
 
-  // RequestSearch queries the latest request that match search criteria.
-  rpc RequestSearch(QueryRequestSearchRequest)
-      returns (QueryRequestSearchResponse) {
-    option (google.api.http).get = "/oracle/v1/request_search";
-  }
-
   // RequestPrice queries the latest price on standard price reference oracle
   // script.
   rpc RequestPrice(QueryRequestPriceRequest)
@@ -221,25 +215,6 @@ message QueryActiveValidatorsRequest {}
 message QueryActiveValidatorsResponse {
   // Validators is a list of active validators
   repeated ActiveValidator validators = 1;
-}
-
-// QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
-// method.
-message QueryRequestSearchRequest {
-  // OracleScriptID is ID of an oracle script
-  int64 oracle_script_id = 1;
-  // Calldata is OBI-encoded data as argument params for the oracle script
-  bytes calldata = 2;
-  // AskCount is number of validators allowed for fulfilling the request
-  int64 ask_count = 3;
-  // MinCount is number of validators required for fulfilling the request
-  int64 min_count = 4;
-}
-
-// QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
-// method.
-message QueryRequestSearchResponse {
-  // TODO: add fields
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC

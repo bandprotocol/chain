@@ -221,11 +221,6 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// RequestSearch queries the latest request that match the given input.
-func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return &types.QueryRequestSearchResponse{}, nil
-}
-
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
