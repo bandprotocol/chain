@@ -221,8 +221,8 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 	return &types.QueryParamsResponse{Params: params}, nil
 }
 
-// LatestRequest queries the latest request that match the given input.
-func (k Querier) LatestRequest(c context.Context, req *types.QueryLatestRequestRequest) (*types.QueryLatestRequestResponse, error) {
+// RequestSearch queries the latest request that match the given input.
+func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
