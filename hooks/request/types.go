@@ -228,7 +228,7 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 	return dbRequest
 }
 
-// GenerateRequestModel converts proto's Report to GORM's Report model
+// GenerateReportModel converts proto's Report to GORM's Report model
 func GenerateReportModel(requestID types.RequestID, report types.Report) Report {
 	result := Report{
 		RequestID:       uint(requestID),
