@@ -53,7 +53,7 @@ func TestAddDataSourceEditDataSourceBasic(t *testing.T) {
 	// Creates some basic data sources.
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
 	dataSource2 := types.NewDataSource(testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
-	// Adds a new data source to the store. We should be able to retreive it back.
+	// Adds a new data source to the store. We should be able to retrieve it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))
@@ -74,7 +74,7 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 	// Creates some basic data sources.
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", testapp.EmptyCoins, testapp.Treasury.Address)
 	dataSource2 := types.NewDataSource(testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2", testapp.EmptyCoins, testapp.Treasury.Address)
-	// Adds a new data source to the store. We should be able to retreive it back.
+	// Adds a new data source to the store. We should be able to retrieve it back.
 	id := k.AddDataSource(ctx, dataSource1)
 	require.Equal(t, dataSource1, k.MustGetDataSource(ctx, id))
 	require.NotEqual(t, dataSource2, k.MustGetDataSource(ctx, id))

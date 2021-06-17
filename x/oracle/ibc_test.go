@@ -263,7 +263,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 	)
 	packet = suite.sendOracleRequestPacket(path, 2, oracleRequestPacket, timeoutHeight)
 
-	ack = channeltypes.NewErrorAcknowledgement("2 < 3: insufficent available validators")
+	ack = channeltypes.NewErrorAcknowledgement("2 < 3: insufficient available validators")
 	err = path.RelayPacket(packet, ack.GetBytes())
 	suite.Require().NoError(err) // relay committed
 }

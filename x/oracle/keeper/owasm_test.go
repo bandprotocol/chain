@@ -166,7 +166,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		)}, ctx.EventManager().Events())
 
-	// assert gas consumation
+	// assert gas consumption
 	params := k.GetParams(ctx)
 	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))

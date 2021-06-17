@@ -64,7 +64,7 @@ var (
 	PortKey = []byte{0xf0}
 )
 
-// RequestStoreKey returns the key to retrieve a specfic request from the store.
+// RequestStoreKey returns the key to retrieve a specific request from the store.
 func RequestStoreKey(requestID RequestID) []byte {
 	return append(RequestStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
 }

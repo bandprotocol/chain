@@ -106,9 +106,10 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 	valSet := tmtypes.NewValidatorSet(validators)
 
 	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, balances...)
-	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
+	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
+	vals := app.StakingKeeper.GetAllValidators(ctx)
 	for _, v := range vals {
-		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+		app.OracleKeeper.Activate(ctx, v.GetOperator())
 	}
 
 	// create current header and call begin block
