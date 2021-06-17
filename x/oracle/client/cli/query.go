@@ -36,7 +36,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		GetQueryCmdLatestRequest(),
+		GetQueryCmdRequestSearch(),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
@@ -187,9 +187,9 @@ func GetQueryCmdRequest() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdLatestRequest() *cobra.Command {
+func GetQueryCmdRequestSearch() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "latest-request [oracle-script-id] [calldata-hex] [ask-count] [min-count]",
+		Use:   "request-search [oracle-script-id] [calldata-hex] [ask-count] [min-count]",
 		Short: "Query latest request based on given properties",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -216,7 +216,7 @@ func GetQueryCmdLatestRequest() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.LatestRequest(context.Background(), &types.QueryLatestRequestRequest{
+			r, err := queryClient.RequestSearch(context.Background(), &types.QueryRequestSearchRequest{
 				OracleScriptId: int64(oracleScriptID),
 				Calldata:       calldata,
 				AskCount:       askCount,

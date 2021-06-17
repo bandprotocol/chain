@@ -133,8 +133,8 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 // ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
 func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
 	switch req.Path {
-	case "/oracle.v1.Query/LatestRequest":
-		var queryReq types.QueryLatestRequestRequest
+	case "/oracle.v1.Query/RequestSearch":
+		var queryReq types.QueryRequestSearchRequest
 		if err := h.cdc.UnmarshalBinaryBare(req.Data, &queryReq); err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request data")), true
 		}
@@ -156,7 +156,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			qReqRes = &result
 		}
 
-		finalResult := types.QueryLatestRequestResponse{
+		finalResult := types.QueryRequestSearchResponse{
 			Request: qReqRes,
 		}
 
