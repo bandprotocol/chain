@@ -31,6 +31,32 @@ func TestHasReport(t *testing.T) {
 	require.True(t, k.HasReport(ctx, 42, testapp.Alice.ValAddress))
 }
 
+func TestGetReportSuccess(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	k.SetRequest(ctx, 1, defaultRequest())
+	expectedReport := types.NewReport(
+		testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(42, 0, []byte("data1/1")),
+			types.NewRawReport(43, 1, []byte("data2/1")),
+		},
+	)
+	err := k.AddReport(ctx, 1, expectedReport)
+	require.NoError(t, err)
+
+	report, err := k.GetReport(ctx, 1, testapp.Validators[0].ValAddress)
+	require.NoError(t, err)
+	require.Equal(t, expectedReport, report)
+}
+
+func TestGetReportNotFound(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	k.SetRequest(ctx, 1, defaultRequest())
+
+	report, err := k.GetReport(ctx, 1, testapp.Validators[0].ValAddress)
+	require.Empty(t, report)
+	require.ErrorIs(t, err, types.ErrReportNotFound)
+}
+
 func TestAddReportSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())

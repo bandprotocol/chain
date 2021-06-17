@@ -69,20 +69,21 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		case types.EventTypeReport:
 			reqID := types.RequestID(common.Atoi(evMap[types.EventTypeReport+"."+types.AttributeKeyID][0]))
 			validator := evMap[types.EventTypeReport+"."+types.AttributeKeyValidator][0]
-			iter := h.oracleKeeper.GetReportIterator(ctx, reqID)
-			defer iter.Close()
-
-			// Check all reports related to given request ID
-			for ; iter.Valid(); iter.Next() {
-				var rep types.Report
-				h.cdc.MustUnmarshalBinaryBare(iter.Value(), &rep)
-
-				// Collect reports which are submitted after the request successfully resolved
-				if !rep.InBeforeResolve && rep.Validator == validator {
-					res := h.oracleKeeper.MustGetResult(ctx, reqID)
-					if res.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
-						reports[reqID] = append(reports[reqID], rep)
-					}
+			valAddr, err := sdk.ValAddressFromBech32(validator)
+			if err != nil {
+				ctx.Logger().Error("Unable to parse validator address got from EventTypeReport for request search", "error", err)
+				continue
+			}
+			report, err := h.oracleKeeper.GetReport(ctx, reqID, valAddr)
+			if err != nil {
+				ctx.Logger().Error("Unable to get report for request search", "error", err)
+				continue
+			}
+			// Collect reports which are submitted AFTER the request successfully resolved
+			if !report.InBeforeResolve && report.Validator == validator {
+				res := h.oracleKeeper.MustGetResult(ctx, reqID)
+				if res.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
+					reports[reqID] = append(reports[reqID], report)
 				}
 			}
 		}
@@ -109,6 +110,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 				request, err := h.oracleKeeper.GetRequest(ctx, reqID)
 				if err != nil {
+					ctx.Logger().Error("Unable to get request for request search", "reqID", reqID, "err", err)
 					continue
 				}
 				reports := h.oracleKeeper.GetReports(ctx, reqID)
