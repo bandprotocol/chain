@@ -7,7 +7,7 @@ import (
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/drbg"
 )
 
-// Rng implements a simple determinisic random number generator. Starting from an initial entropy,
+// Rng implements a simple deterministic random number generator. Starting from an initial entropy,
 // nonce, and personalizationString, it utilizes HMAC_DRBG construct as per NIST Special
 // Publication 800-90A to produce a stream of random uint64 integers.
 type Rng struct {
