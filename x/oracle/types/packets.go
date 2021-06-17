@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -35,6 +37,24 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 	}
 	if len(p.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(p.ClientID), MaxClientIDLength)
+	}
+	if p.PrepareGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", p.PrepareGas)
+	}
+	if p.ExecuteGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", p.ExecuteGas)
+	}
+	if p.PrepareGas+p.ExecuteGas > MaximumOwasmGas {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "sum of prepare gas and execute gas (%d) exceed %d", p.PrepareGas+p.ExecuteGas, MaximumOwasmGas)
+	}
+	if !p.FeeLimit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, p.FeeLimit.String())
+	}
+	if strings.Contains(p.RequestKey, "/") {
+		return sdkerrors.Wrapf(ErrInvalidRequestKey, "got: %s", p.RequestKey)
+	}
+	if len(p.RequestKey) > MaxRequestKeyLength {
+		return WrapMaxError(ErrTooLongRequestKey, len(p.RequestKey), MaxRequestKeyLength)
 	}
 	return nil
 }

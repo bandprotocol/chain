@@ -1,117 +1,114 @@
 package proof
 
-// import (
-// 	"encoding/json"
-// 	"net/http"
+import (
+	"context"
+	"encoding/json"
+	"net/http"
 
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// 	"github.com/cosmos/cosmos-sdk/client/context"
-// 	"github.com/cosmos/cosmos-sdk/types/rest"
-// 	"github.com/ethereum/go-ethereum/accounts/abi"
-// 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-// 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-// )
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	gogotypes "github.com/gogo/protobuf/types"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
-// type JsonRequestsCountProof struct {
-// 	BlockHeight     uint64             `json:"blockHeigh"`
-// 	CountProof      RequestsCountProof `json:"countProof"`
-// 	BlockRelayProof BlockRelayProof    `json:"blockRelayProof"`
-// }
+	"github.com/bandprotocol/chain/x/oracle/types"
+)
 
-// type CountProof struct {
-// 	JsonProof     JsonRequestsCountProof `json:"jsonProof"`
-// 	EVMProofBytes tmbytes.HexBytes       `json:"evmProofBytes"`
-// }
+type CountProof struct {
+	BlockHeight     uint64             `json:"block_heigh"`
+	CountProof      RequestsCountProof `json:"count_proof"`
+	BlockRelayProof BlockRelayProof    `json:"block_relay_proof"`
+}
 
-// func GetRequestsCountProofHandlerFn(cliCtx context.CLIContext, route string) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
-// 		if !ok {
-// 			return
-// 		}
-// 		height := &ctx.Height
-// 		if ctx.Height == 0 {
-// 			height = nil
-// 		}
+type CountProofResponse struct {
+	Proof         CountProof       `json:"proof"`
+	EVMProofBytes tmbytes.HexBytes `json:"evm_proof_bytes"`
+}
 
-// 		commit, err := ctx.Client.Commit(height)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		if !ok {
+			return
+		}
+		height := &ctx.Height
+		if ctx.Height == 0 {
+			height = nil
+		}
 
-// 		value, iavlProof, multiStoreProof, err := getProofsByKey(
-// 			ctx,
-// 			types.RequestCountStoreKey,
-// 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
-// 		)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+		commit, err := ctx.Client.Commit(context.Background(), height)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
 
-// 		if iavlProof.Proof == nil {
-// 			rest.WriteErrorResponse(w, http.StatusNotFound, "Proof has not been ready.")
-// 			return
-// 		}
+		value, iavlEp, multiStoreEp, err := getProofsByKey(
+			ctx,
+			types.RequestCountStoreKey,
+			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
+			true,
+		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
 
-// 		eventHeight := iavlProof.Proof.Leaves[0].Version
+		// Produce block relay proof
+		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		blockRelay := BlockRelayProof{
+			MultiStoreProof:        GetMultiStoreProof(multiStoreEp),
+			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
+			Signatures:             signatures,
+		}
 
-// 		// Produce block relay proof
-// 		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-// 		blockRelay := BlockRelayProof{
-// 			MultiStoreProof:        GetMultiStoreProof(multiStoreProof),
-// 			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(ctx.Codec, commit.Header),
-// 			Signatures:             signatures,
-// 		}
+		// Parse requests count
+		rs := gogotypes.Int64Value{}
+		types.ModuleCdc.MustUnmarshalBinaryLengthPrefixed(value, &rs)
 
-// 		// Parse requests count
-// 		var rs int64
-// 		ctx.Codec.MustUnmarshalBinaryLengthPrefixed(value, &rs)
+		requestsCountProof := RequestsCountProof{
+			Count:       uint64(rs.GetValue()),
+			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
+			MerklePaths: GetMerklePaths(iavlEp),
+		}
 
-// 		requestsCountProof := RequestsCountProof{
-// 			Count:       uint64(rs),
-// 			Version:     uint64(eventHeight),
-// 			MerklePaths: GetIAVLMerklePaths(&iavlProof),
-// 		}
+		// Calculate byte for proofbytes
+		var relayAndVerifyCountArguments abi.Arguments
+		format := `[{"type":"bytes"},{"type":"bytes"}]`
+		err = json.Unmarshal([]byte(format), &relayAndVerifyCountArguments)
+		if err != nil {
+			panic(err)
+		}
 
-// 		// Calculate byte for proofbytes
-// 		var relayAndVerifyCountArguments abi.Arguments
-// 		format := `[{"type":"bytes"},{"type":"bytes"}]`
-// 		err = json.Unmarshal([]byte(format), &relayAndVerifyCountArguments)
-// 		if err != nil {
-// 			panic(err)
-// 		}
+		blockRelayBytes, err := blockRelay.encodeToEthData()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-// 		blockRelayBytes, err := blockRelay.encodeToEthData()
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+		requestsCountBytes, err := requestsCountProof.encodeToEthData(uint64(commit.Height))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-// 		requestsCountBytes, err := requestsCountProof.encodeToEthData(uint64(commit.Height))
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
+		evmProofBytes, err := relayAndVerifyCountArguments.Pack(blockRelayBytes, requestsCountBytes)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-// 		evmProofBytes, err := relayAndVerifyCountArguments.Pack(blockRelayBytes, requestsCountBytes)
-// 		if err != nil {
-// 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-// 			return
-// 		}
-
-// 		rest.PostProcessResponse(w, ctx, CountProof{
-// 			JsonProof: JsonRequestsCountProof{
-// 				BlockHeight:     uint64(commit.Height - 1),
-// 				CountProof:      requestsCountProof,
-// 				BlockRelayProof: blockRelay,
-// 			},
-// 			EVMProofBytes: evmProofBytes,
-// 		})
-// 	}
-// }
+		rest.PostProcessResponse(w, ctx, CountProofResponse{
+			Proof: CountProof{
+				BlockHeight:     uint64(commit.Height - 1),
+				CountProof:      requestsCountProof,
+				BlockRelayProof: blockRelay,
+			},
+			EVMProofBytes: evmProofBytes,
+		})
+	}
+}

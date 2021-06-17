@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"

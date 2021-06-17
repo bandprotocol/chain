@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -38,7 +38,6 @@ func TestSaveResultOK(t *testing.T) {
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
-	// TODO: Fix this test when change fee limit and request key.
 	expect := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
 		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,

@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/pkg/obi"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -141,6 +141,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
@@ -148,21 +149,24 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[1].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "1"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "2"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[2].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "2"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		), sdk.NewEvent(
 			types.EventTypeRawRequest,
 			sdk.NewAttribute(types.AttributeKeyDataSourceID, "3"),
 			sdk.NewAttribute(types.AttributeKeyDataSourceHash, testapp.DataSources[3].Filename),
 			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
+			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		)}, ctx.EventManager().Events())
 
-	// assert gas consumation
+	// assert gas consumption
 	params := k.GetParams(ctx)
 	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
@@ -174,7 +178,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
 }
 
-func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
+func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
@@ -196,7 +200,7 @@ func TestPrepareRequestSuccessBasicNotEnoughMaxFee(t *testing.T) {
 	require.Equal(t, types.RequestID(1), id)
 }
 
-func TestPrepareRequestSuccessBasicNotEnoughFund(t *testing.T) {
+func TestPrepareRequestNotEnoughFund(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
@@ -242,7 +246,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 
 	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
+	// require.EqualError(t, err, "insufficient available validators: 3 < 4")
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))

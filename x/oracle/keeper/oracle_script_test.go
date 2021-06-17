@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
+	"github.com/bandprotocol/chain/testing/testapp"
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
@@ -61,7 +61,7 @@ func TestAddEditOracleScriptBasic(t *testing.T) {
 	oracleScript2 := types.NewOracleScript(
 		testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
 	)
-	// Adds a new oracle script to the store. We should be able to retreive it back.
+	// Adds a new oracle script to the store. We should be able to retrieve it back.
 	id := k.AddOracleScript(ctx, oracleScript1)
 	require.Equal(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.NotEqual(t, oracleScript2, k.MustGetOracleScript(ctx, id))
@@ -88,7 +88,7 @@ func TestAddEditOracleScriptDoNotModify(t *testing.T) {
 		testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2",
 		types.DoNotModify, types.DoNotModify,
 	)
-	// Adds a new oracle script to the store. We should be able to retreive it back.
+	// Adds a new oracle script to the store. We should be able to retrieve it back.
 	id := k.AddOracleScript(ctx, oracleScript1)
 	require.Equal(t, oracleScript1, k.MustGetOracleScript(ctx, id))
 	require.NotEqual(t, oracleScript2, k.MustGetOracleScript(ctx, id))

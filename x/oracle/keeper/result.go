@@ -14,6 +14,10 @@ import (
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
+const (
+	packetExpireTime = int64(10 * time.Minute)
+)
+
 // HasResult checks if the result of this request ID exists in the storage.
 func (k Keeper) HasResult(ctx sdk.Context, id types.RequestID) bool {
 	return ctx.KVStore(k.storeKey).Has(types.ResultStoreKey(id))
@@ -102,7 +106,14 @@ func (k Keeper) SaveResult(
 		sourcePort := r.IBCChannel.PortId
 		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
 		if !found {
-			panic(fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(
+					types.AttributeKeyReason,
+					fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel),
+				),
+			))
+			return
 		}
 		destinationPort := sourceChannelEnd.Counterparty.PortId
 		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
@@ -110,11 +121,22 @@ func (k Keeper) SaveResult(
 			ctx, sourcePort, sourceChannel,
 		)
 		if !found {
-			panic(fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(
+					types.AttributeKeyReason,
+					fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel),
+				),
+			))
+			return
 		}
 		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 		if !ok {
-			panic("Module does not own channel capability")
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(types.AttributeKeyReason, "Module does not own channel capability"),
+			))
+			return
 		}
 
 		packetData := types.NewOracleResponsePacketData(
@@ -129,11 +151,14 @@ func (k Keeper) SaveResult(
 			destinationPort,
 			destinationChannel,
 			clienttypes.NewHeight(0, 0),
-			uint64(ctx.BlockTime().UnixNano()+int64(10*time.Minute)), // TODO: Find what time out will be used on response packet
+			uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
 		)
 
 		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
-			panic(err)
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSendPacketFail,
+				sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
+			))
 		}
 	}
 }

@@ -155,9 +155,14 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 		}
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
+		newOwner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -238,8 +243,13 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	k.MustEditOracleScript(ctx, msg.OracleScriptID, types.NewOracleScript(
-		owner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
+		newOwner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -282,7 +292,6 @@ func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter)
 	if err != nil {
 		return nil, err
 	}
-	ctx.KVStore(k.storeKey).Set(types.ReporterStoreKey(valAddr, repAddr), []byte{1})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeAddReporter,
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
@@ -305,7 +314,6 @@ func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveRep
 	if err != nil {
 		return nil, err
 	}
-	ctx.KVStore(k.storeKey).Delete(types.ReporterStoreKey(valAddr, repAddr))
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeRemoveReporter,
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),

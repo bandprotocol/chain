@@ -20,7 +20,7 @@ message DataSource {
   // Filename is string of file name used as reference for locating
   // data source file stored in bandchain nodes
   string filename = 4;
-  // Treasury is the account address who recive data source fee from requester.
+  // Treasury is the account address who receive data source fee from requester.
   string treasury = 5;
   // Fee is the data source fee per ask_count that data provider will receive
   // from requester.
