@@ -36,7 +36,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdDataSource(),
 		GetQueryCmdOracleScript(),
 		GetQueryCmdRequest(),
-		// GetQueryCmdRequestSearch(storeKey, cdc),
+		GetQueryCmdRequestSearch(),
 		GetQueryCmdValidatorStatus(),
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
@@ -187,21 +187,52 @@ func GetQueryCmdRequest() *cobra.Command {
 	return cmd
 }
 
-// // GetQueryCmdRequestSearch implements the search request command.
-// func GetQueryCmdRequestSearch(route string, cdc *codec.Codec) *cobra.Command {
-// 	return &cobra.Command{
-// 		Use:  "request-search [oracle-script-id] [calldata] [ask-count] [min-count]",
-// 		Args: cobra.ExactArgs(4),
-// 		RunE: func(cmd *cobra.Command, args []string) error {
-// 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-// 			bz, _, err := clientcmn.QuerySearchLatestRequest(route, cliCtx, args[0], args[1], args[2], args[3])
-// 			if err != nil {
-// 				return err
-// 			}
-// 			return printOutput(cliCtx, cdc, bz, &types.QueryRequestResult{})
-// 		},
-// 	}
-// }
+func GetQueryCmdRequestSearch() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "request-search [oracle-script-id] [calldata-hex] [ask-count] [min-count]",
+		Short: "Query latest request based on given properties",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			oracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse oracle script ID: %w", err)
+			}
+			calldata, err := hex.DecodeString(args[1])
+			if err != nil {
+				return fmt.Errorf("unable to parse calldata: %w", err)
+			}
+			askCount, err := strconv.ParseUint(args[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse ask count: %w", err)
+			}
+			minCount, err := strconv.ParseUint(args[3], 10, 64)
+			if err != nil {
+				return fmt.Errorf("unable to parse min count: %w", err)
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.RequestSearch(context.Background(), &types.QueryRequestSearchRequest{
+				OracleScriptId: oracleScriptID,
+				Calldata:       calldata,
+				AskCount:       askCount,
+				MinCount:       minCount,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
 
 // GetQueryCmdValidatorStatus implements the query of validator status.
 func GetQueryCmdValidatorStatus() *cobra.Command {

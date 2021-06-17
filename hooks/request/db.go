@@ -1,44 +1,125 @@
 package request
 
 import (
-	"encoding/hex"
+	"encoding/base64"
+	"fmt"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
-type Request struct {
-	RequestID      types.RequestID      `db:"request_id, primarykey" json:"request_id"`
-	OracleScriptID types.OracleScriptID `db:"oracle_script_id" json:"oracle_script_id"`
-	Calldata       string               `db:"calldata" json:"calldata"`
-	MinCount       uint64               `db:"min_count" json:"min_count"`
-	AskCount       uint64               `db:"ask_count" json:"ask_count"`
-	ResolveTime    int64                `db:"resolve_time" json:"resolve_time"`
+func initDb(driverName, dataSourceName string) *gorm.DB {
+	var db *gorm.DB
+	var err error
+
+	switch driverName {
+	case "sqlite3":
+		db, err = gorm.Open(sqlite.Open(dataSourceName), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("failed to connect to SQLite: %w", err))
+		}
+	case "postgres":
+		db, err = gorm.Open(postgres.Open(dataSourceName), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("failed to connect to PostgreSQL: %w", err))
+		}
+	case "mysql":
+		db, err = gorm.Open(mysql.Open(dataSourceName), &gorm.Config{
+			SkipDefaultTransaction: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("failed to connect to MySQL: %w", err))
+		}
+
+	default:
+		panic(fmt.Sprintf("unknown driver %s", driverName))
+	}
+	if err = db.AutoMigrate(&Request{}, &RequestedValidator{}, &RawReport{}, &RawRequest{}, &Report{}); err != nil {
+		panic(fmt.Errorf("unable to auto-migrate DB: %w", err))
+	}
+
+	return db
 }
 
-func (h *Hook) insertRequest(requestID types.RequestID, oracleScriptID types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64, resolveTime int64) {
-	err := h.trans.Insert(&Request{
-		RequestID:      requestID,
-		OracleScriptID: oracleScriptID,
-		Calldata:       hex.EncodeToString(calldata),
-		MinCount:       minCount,
+func (h *Hook) insertRequests(requests []types.QueryRequestResponse) {
+	var dbRequests []Request
+	for _, request := range requests {
+		dbRequests = append(dbRequests, GenerateRequestModel(request))
+	}
+
+	h.trans.Create(&dbRequests)
+}
+
+func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
+	var results []Report
+	for requestID, reports := range reportMap {
+		for _, report := range reports {
+			if dbRequest := h.trans.Select("id").First(&Request{}, requestID); dbRequest.RowsAffected > 0 {
+				results = append(results, GenerateReportModel(requestID, report))
+			}
+		}
+	}
+
+	h.trans.Model(&Report{}).Create(&results)
+}
+
+func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
+	if h.dbMaxRecords <= 0 {
+		return
+	}
+
+	dbRequest := GenerateRequestModel(request)
+	queryCondition := Request{
+		OracleScriptID: dbRequest.OracleScriptID,
+		Calldata:       dbRequest.Calldata,
+		MinCount:       dbRequest.MinCount,
+		AskCount:       dbRequest.AskCount,
+	}
+
+	// Keep the top `dbMaxRecords` records and delete the rest from database
+	// under given search query
+	subQuery := h.trans.
+		Select("id").
+		Where(&queryCondition).
+		Order("id desc").
+		Table("requests").
+		Limit(h.dbMaxRecords)
+	h.trans.
+		Unscoped().
+		Where(&queryCondition).
+		Not("id IN (?)", subQuery).
+		Delete(&Request{})
+}
+
+func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (*Request, error) {
+	var result Request
+	queryCondition := Request{
+		OracleScriptID: int64(oid),
+		Calldata:       base64.StdEncoding.EncodeToString(calldata),
 		AskCount:       askCount,
-		ResolveTime:    resolveTime,
-	})
-	if err != nil {
-		panic(err)
+		MinCount:       minCount,
 	}
-}
 
-func (h *Hook) getMultiRequestID(oid types.OracleScriptID, calldata string, askCount uint64, minCount uint64, limit int64) []types.RequestID {
-	var requests []Request
-	h.dbMap.Select(&requests,
-		`select * from request
-where oracle_script_id = ? and calldata = ? and min_count = ? and ask_count = ?
-order by resolve_time desc limit ?`,
-		oid, calldata, minCount, askCount, limit)
-	requestIDs := make([]types.RequestID, len(requests))
-	for idx, request := range requests {
-		requestIDs[idx] = request.RequestID
+	// Query latest request based on given search query
+	queryResult := h.db.Model(&Request{}).
+		Preload("Reports.RawReports").
+		Preload(clause.Associations).
+		Where(&queryCondition).
+		Order("resolve_time desc").
+		First(&result)
+
+	if queryResult.Error != nil {
+		return nil, fmt.Errorf("unable to query requests from searching database: %w", queryResult.Error)
 	}
-	return requestIDs
+
+	return &result, nil
 }

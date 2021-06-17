@@ -12,6 +12,16 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 	return ctx.KVStore(k.storeKey).Has(types.ReportsOfValidatorPrefixKey(rid, val))
 }
 
+func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) (types.Report, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ReportsOfValidatorPrefixKey(rid, val))
+	if bz == nil {
+		return types.Report{}, sdkerrors.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
+	}
+	var report types.Report
+	k.cdc.MustUnmarshalBinaryBare(bz, &report)
+	return report, nil
+}
+
 // SetDataReport saves the report to the storage without performing validation.
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)

@@ -231,9 +231,9 @@ message QueryRequestSearchRequest {
   // Calldata is OBI-encoded data as argument params for the oracle script
   bytes calldata = 2;
   // AskCount is number of validators allowed for fulfilling the request
-  int64 ask_count = 3;
+  uint64 ask_count = 3;
   // MinCount is number of validators required for fulfilling the request
-  int64 min_count = 4;
+  uint64 min_count = 4;
 }
 
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
