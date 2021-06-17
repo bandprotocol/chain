@@ -149,11 +149,15 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			queryReq.MinCount,
 		)
 
-		// If no result from database, use default value of qReqRes, which is nil
+		// check query results
 		var qReqRes *types.QueryRequestResponse
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
-		} else if err == nil {
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				qReqRes = nil
+			} else {
+				return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
+			}
+		} else {
 			result := oracleReq.QueryRequestResponse()
 			qReqRes = &result
 		}
