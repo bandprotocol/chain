@@ -18,8 +18,8 @@ const (
 	hasFlatGas      = 1000
 
 	// Request components
-	baseRequestSize    = uint64(32)
-	addressSize        = uint64(20)
+	baseRequestSize    = uint64(170)
+	addressSize        = uint64(52)
 	baseRawRequestSize = uint64(16)
 
 	// Auth's ante handlers keepers operations
@@ -67,7 +67,7 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 	return size
 }
 
-func getRequestMsgByteLength(f FeeEstimationData) uint64 {
+func getRequestByteLength(f FeeEstimationData) uint64 {
 	size := baseRequestSize
 	size += uint64(len(f.callData))
 	size += uint64(f.askCount) * addressSize
@@ -80,13 +80,18 @@ func getRequestMsgByteLength(f FeeEstimationData) uint64 {
 	return size
 }
 
-func getReportMsgByteLength(msg *types.MsgReportData) uint64 {
-	return uint64(len(cdc.MustMarshalBinaryBare(msg)))
+func getReportByteLength(msg *types.MsgReportData) uint64 {
+	report := types.NewReport(
+		sdk.ValAddress(msg.Validator),
+		true,
+		msg.RawReports,
+	)
+	return uint64(len(cdc.MustMarshalBinaryBare(&report)))
 }
 
 func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
-	reportByteLength := getReportMsgByteLength(msg)
-	requestByteLength := getRequestMsgByteLength(f)
+	reportByteLength := getReportByteLength(msg)
+	requestByteLength := getRequestByteLength(f)
 
 	cost := 2*readGasPerByte*requestByteLength + writeGasPerByte*reportByteLength + baseReportDataHandlerGas
 
