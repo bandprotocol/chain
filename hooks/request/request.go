@@ -80,7 +80,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 				continue
 			}
 			// Collect reports which are submitted AFTER the request successfully resolved
-			if !report.InBeforeResolve && report.Validator == validator {
+			if !report.InBeforeResolve {
 				res := h.oracleKeeper.MustGetResult(ctx, reqID)
 				if res.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 					reports[reqID] = append(reports[reqID], report)
