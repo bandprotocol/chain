@@ -6,29 +6,29 @@ import (
 
 // GenerateRequestModel converts proto's QueryRequestResponse to GORM's Request model
 func GenerateRequestModel(data types.QueryRequestResponse) Request {
-	oRequest := data.Request
-	oReports := data.Reports
-	oResult := data.Result
+	pbRequest := data.Request
+	pbReports := data.Reports
+	pbResult := data.Result
 
-	requestID := oResult.RequestID
+	requestID := pbResult.RequestID
 
 	// Requested validators
 	var requestedValidators []RequestedValidator
-	for _, reqVal := range oRequest.RequestedValidators {
+	for _, reqVal := range pbRequest.RequestedValidators {
 		requestedValidators = append(requestedValidators, NewRequestedValidator(requestID, reqVal))
 	}
 
 	// IBC Channel & Port
 	var ibcChannel string
 	var ibcPort string
-	if oRequest.IBCChannel != nil {
-		ibcChannel = oRequest.IBCChannel.ChannelId
-		ibcPort = oRequest.IBCChannel.PortId
+	if pbRequest.IBCChannel != nil {
+		ibcChannel = pbRequest.IBCChannel.ChannelId
+		ibcPort = pbRequest.IBCChannel.PortId
 	}
 
 	// Raw requests
 	var rawRequests []RawRequest
-	for _, rawReq := range oRequest.RawRequests {
+	for _, rawReq := range pbRequest.RawRequests {
 		rawRequests = append(rawRequests, NewRawRequest(
 			requestID,
 			rawReq.ExternalID,
@@ -39,30 +39,30 @@ func GenerateRequestModel(data types.QueryRequestResponse) Request {
 
 	// Reports
 	var reports []Report
-	for _, report := range oReports {
+	for _, report := range pbReports {
 		reports = append(reports, GenerateReportModel(requestID, report))
 	}
 
 	// Oracle request
 	dbRequest := NewRequest(
 		requestID,
-		oRequest.OracleScriptID,
-		oRequest.Calldata,
+		pbRequest.OracleScriptID,
+		pbRequest.Calldata,
 		requestedValidators,
-		oResult.MinCount,
-		oResult.AskCount,
-		oResult.ClientID,
-		oResult.AnsCount,
-		oRequest.RequestHeight,
-		oRequest.RequestTime,
+		pbResult.MinCount,
+		pbResult.AskCount,
+		pbResult.ClientID,
+		pbResult.AnsCount,
+		pbRequest.RequestHeight,
+		pbRequest.RequestTime,
 		rawRequests,
 		reports,
 		ibcChannel,
 		ibcPort,
-		oRequest.ExecuteGas,
-		oResult.ResolveTime,
-		oResult.ResolveStatus,
-		oResult.Result,
+		pbRequest.ExecuteGas,
+		pbResult.ResolveTime,
+		pbResult.ResolveStatus,
+		pbResult.Result,
 	)
 
 	return dbRequest
