@@ -150,25 +150,22 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		)
 
 		// check query results
-		var qReqRes *types.QueryRequestResponse
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")), true
-		}
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")), true
+			}
 			return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")), true
-		} else {
-			result := oracleReq.QueryRequestResponse()
-			qReqRes = &result
 		}
 
+		queryResponse := oracleReq.QueryRequestResponse()
 		finalResult := types.QueryRequestSearchResponse{
-			Request: qReqRes,
+			Request: &queryResponse,
 		}
-
 		bz, err := h.cdc.MarshalBinaryBare(&finalResult)
 		if err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to marshal response: %s", err)), true
 		}
+
 		return common.QueryResultSuccess(bz, req.Height), true
 	default:
 		return abci.ResponseQuery{}, false
