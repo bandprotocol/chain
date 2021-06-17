@@ -166,7 +166,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
 		)}, ctx.EventManager().Events())
 
-	// assert gas consumation
+	// assert gas consumption
 	params := k.GetParams(ctx)
 	require.Equal(t, 2, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
@@ -246,7 +246,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 
 	m = types.NewMsgRequestData(1, BasicCalldata, 4, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	// require.EqualError(t, err, "insufficent available validators: 3 < 4")
+	// require.EqualError(t, err, "insufficient available validators: 3 < 4")
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
