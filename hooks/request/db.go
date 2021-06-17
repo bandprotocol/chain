@@ -63,7 +63,9 @@ func (h *Hook) insertReports(reportMap map[types.RequestID][]types.Report) {
 	var results []Report
 	for requestID, reports := range reportMap {
 		for _, report := range reports {
-			results = append(results, GenerateReportModel(requestID, report))
+			if dbRequest := h.trans.Select("id").First(&Request{}, requestID); dbRequest.RowsAffected > 0 {
+				results = append(results, GenerateReportModel(requestID, report))
+			}
 		}
 	}
 

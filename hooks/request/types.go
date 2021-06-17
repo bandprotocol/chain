@@ -4,8 +4,10 @@ import (
 	"encoding/base64"
 	"time"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gorm.io/gorm"
+
+	"github.com/bandprotocol/chain/x/oracle/types"
 )
 
 // RawReport is GORM model of RawReport proto message
@@ -73,6 +75,89 @@ type Request struct {
 	Result string `gorm:"size:1024"`
 }
 
+// NewRawReport creates new instance of RawReport
+func NewRawReport(requestID types.RequestID, externalID types.ExternalID, data []byte, exitCode uint32) RawReport {
+	return RawReport{
+		ReportID:   uint(requestID),
+		ExternalID: int64(externalID),
+		Data:       base64.StdEncoding.EncodeToString(data),
+		ExitCode:   exitCode,
+	}
+}
+
+// NewReport creates new instance of Report
+func NewReport(requestID types.RequestID, valAddr string, rawReports []RawReport, inBeforeResolve bool) Report {
+	return Report{
+		RequestID:       uint(requestID),
+		Validator:       valAddr,
+		RawReports:      rawReports,
+		InBeforeResolve: inBeforeResolve,
+	}
+}
+
+// NewRawRequest creates new instance of RawRequest
+func NewRawRequest(requestID types.RequestID, externalID types.ExternalID, dataSourceID types.DataSourceID, calldata []byte) RawRequest {
+	return RawRequest{
+		RequestID:    uint(requestID),
+		ExternalID:   int64(externalID),
+		DataSourceID: int64(dataSourceID),
+		Calldata:     base64.StdEncoding.EncodeToString(calldata),
+	}
+}
+
+// NewRequestedValidator creates new instance of RequestedValidator
+func NewRequestedValidator(requestID types.RequestID, address string) RequestedValidator {
+	return RequestedValidator{
+		RequestID: uint(requestID),
+		Address:   address,
+	}
+}
+
+// NewRequest creates new instance of Request
+func NewRequest(
+	id types.RequestID,
+	oracleScriptID types.OracleScriptID,
+	calldata []byte,
+	requestedValidators []RequestedValidator,
+	minCount uint64,
+	askCount uint64,
+	clientID string,
+	ansCount uint64,
+	requestHeight int64,
+	requestTimeUnix uint64,
+	rawRequests []RawRequest,
+	reports []Report,
+	ibcChannel string,
+	ibcPort string,
+	executeGas uint64,
+	resolveTimeUnix int64,
+	resolveStatus types.ResolveStatus,
+	result []byte,
+) Request {
+	return Request{
+		Model: gorm.Model{
+			ID: uint(id),
+		},
+		OracleScriptID:      int64(oracleScriptID),
+		Calldata:            base64.StdEncoding.EncodeToString(calldata),
+		RequestedValidators: requestedValidators,
+		MinCount:            minCount,
+		AskCount:            askCount,
+		AnsCount:            ansCount,
+		RequestHeight:       requestHeight,
+		RequestTime:         time.Unix(int64(requestTimeUnix), 0),
+		ClientID:            clientID,
+		RawRequests:         rawRequests,
+		Reports:             reports,
+		IBCChannelID:        ibcChannel,
+		IBCPortID:           ibcPort,
+		ExecuteGas:          executeGas,
+		ResolveTime:         time.Unix(resolveTimeUnix, 0),
+		ResolveStatus:       resolveStatus.String(),
+		Result:              base64.StdEncoding.EncodeToString(result),
+	}
+}
+
 // QueryRequestResponse convert GORM's Request model to proto's QueryRequestResponse
 func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	// Request's calldata
@@ -82,9 +167,13 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 	}
 
 	// Requested validators
-	var requestedValidators []string
+	var requestedValidators []sdk.ValAddress
 	for _, rVal := range r.RequestedValidators {
-		requestedValidators = append(requestedValidators, rVal.Address)
+		valAddr, err := sdk.ValAddressFromBech32(rVal.Address)
+		if err != nil {
+			panic(err)
+		}
+		requestedValidators = append(requestedValidators, valAddr)
 	}
 
 	// Raw requests
@@ -94,11 +183,11 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		if err != nil {
 			panic(err)
 		}
-		rawRequests = append(rawRequests, types.RawRequest{
-			ExternalID:   types.ExternalID(rr.ExternalID),
-			DataSourceID: types.DataSourceID(rr.DataSourceID),
-			Calldata:     calldata,
-		})
+		rawRequests = append(rawRequests, types.NewRawRequest(
+			types.ExternalID(rr.ExternalID),
+			types.DataSourceID(rr.DataSourceID),
+			calldata,
+		))
 	}
 
 	// Result data
@@ -117,132 +206,65 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 			if err != nil {
 				panic(err)
 			}
-			rawReports = append(rawReports, types.RawReport{
-				ExternalID: types.ExternalID(rr.ExternalID),
-				Data:       data,
-				ExitCode:   rr.ExitCode,
-			})
+			rawReports = append(rawReports, types.NewRawReport(
+				types.ExternalID(rr.ExternalID),
+				rr.ExitCode,
+				data,
+			))
 		}
-		report := types.Report{
-			Validator:       dbReport.Validator,
-			InBeforeResolve: dbReport.InBeforeResolve,
-			RawReports:      rawReports,
+		valAddr, err := sdk.ValAddressFromBech32(dbReport.Validator)
+		if err != nil {
+			panic(err)
 		}
-		reports = append(reports, report)
+		reports = append(reports, types.NewReport(
+			valAddr,
+			dbReport.InBeforeResolve,
+			rawReports,
+		))
 	}
 
 	// IBC Channel
 	var ibcChannel *types.IBCChannel
 	if len(r.IBCChannelID) > 0 {
-		ibcChannel = &types.IBCChannel{
-			PortId:    r.IBCPortID,
-			ChannelId: r.IBCChannelID,
-		}
+		channelAndPort := types.NewIBCChannel(r.IBCPortID, r.IBCChannelID)
+		ibcChannel = &channelAndPort
 	}
+
+	// Oracle request
+	oracleRequest := types.NewRequest(
+		types.OracleScriptID(r.OracleScriptID),
+		calldata,
+		requestedValidators,
+		r.MinCount,
+		r.RequestHeight,
+		r.RequestTime,
+		r.ClientID,
+		rawRequests,
+		ibcChannel,
+		r.ExecuteGas,
+	)
+
+	// Oracle result for the above request
+	oracleResult := types.NewResult(
+		r.ClientID,
+		types.OracleScriptID(r.OracleScriptID),
+		calldata,
+		r.AskCount,
+		r.MinCount,
+		types.RequestID(r.ID),
+		r.AnsCount,
+		r.RequestTime.Unix(),
+		r.ResolveTime.Unix(),
+		types.ResolveStatus(types.ResolveStatus_value[r.ResolveStatus]),
+		requestResult,
+	)
 
 	// The whole response
 	request := types.QueryRequestResponse{
-		Request: &types.Request{
-			OracleScriptID:      types.OracleScriptID(r.OracleScriptID),
-			Calldata:            calldata,
-			MinCount:            r.MinCount,
-			RequestHeight:       r.RequestHeight,
-			RequestTime:         uint64(r.RequestTime.Unix()),
-			ClientID:            r.ClientID,
-			IBCChannel:          ibcChannel,
-			ExecuteGas:          r.ExecuteGas,
-			RequestedValidators: requestedValidators,
-			RawRequests:         rawRequests,
-		},
-		Result: &types.Result{
-			ClientID:       r.ClientID,
-			OracleScriptID: types.OracleScriptID(r.OracleScriptID),
-			Calldata:       calldata,
-			AskCount:       r.AskCount,
-			MinCount:       r.MinCount,
-			AnsCount:       r.AnsCount,
-			RequestID:      types.RequestID(r.ID),
-			RequestTime:    r.RequestTime.Unix(),
-			ResolveTime:    r.ResolveTime.Unix(),
-			ResolveStatus:  types.ResolveStatus(types.ResolveStatus_value[r.ResolveStatus]),
-			Result:         requestResult,
-		},
+		Request: &oracleRequest,
+		Result:  &oracleResult,
 		Reports: reports,
 	}
 
 	return request
-}
-
-// GenerateRequestModel converts proto's QueryRequestResponse to GORM's Request model
-func GenerateRequestModel(data types.QueryRequestResponse) Request {
-	request := data.Request
-	reports := data.Reports
-	result := data.Result
-
-	// Oracle requests
-	dbRequest := Request{
-		Model: gorm.Model{
-			ID: uint(result.RequestID),
-		},
-		OracleScriptID: int64(request.OracleScriptID),
-		Calldata:       base64.StdEncoding.EncodeToString(request.Calldata),
-		MinCount:       result.MinCount,
-		AskCount:       result.AskCount,
-		AnsCount:       result.AnsCount,
-		RequestHeight:  request.RequestHeight,
-		RequestTime:    time.Unix(int64(request.RequestTime), 0),
-		ClientID:       result.ClientID,
-		ResolveTime:    time.Unix(result.ResolveTime, 0),
-		ResolveStatus:  result.ResolveStatus.String(),
-		ExecuteGas:     request.ExecuteGas,
-		Result:         base64.StdEncoding.EncodeToString(result.Result),
-	}
-
-	// IBC channel
-	if request.IBCChannel != nil {
-		dbRequest.IBCChannelID = request.IBCChannel.ChannelId
-		dbRequest.IBCPortID = request.IBCChannel.PortId
-	}
-
-	// Requested validators
-	for _, reqVal := range request.RequestedValidators {
-		dbRequest.RequestedValidators = append(dbRequest.RequestedValidators, RequestedValidator{
-			Address: reqVal,
-		})
-	}
-
-	// Raw requests
-	for _, rawReq := range request.RawRequests {
-		dbRequest.RawRequests = append(dbRequest.RawRequests, RawRequest{
-			ExternalID:   int64(rawReq.ExternalID),
-			DataSourceID: int64(rawReq.DataSourceID),
-			Calldata:     base64.StdEncoding.EncodeToString(rawReq.Calldata),
-		})
-	}
-
-	// Reports
-	for _, report := range reports {
-		dbRequest.Reports = append(dbRequest.Reports, GenerateReportModel(result.RequestID, report))
-	}
-
-	return dbRequest
-}
-
-// GenerateReportModel converts proto's Report to GORM's Report model
-func GenerateReportModel(requestID types.RequestID, report types.Report) Report {
-	result := Report{
-		RequestID:       uint(requestID),
-		Validator:       report.Validator,
-		InBeforeResolve: report.InBeforeResolve,
-	}
-
-	for _, rawReport := range report.RawReports {
-		result.RawReports = append(result.RawReports, RawReport{
-			ExternalID: int64(rawReport.ExternalID),
-			Data:       base64.StdEncoding.EncodeToString(rawReport.Data),
-			ExitCode:   rawReport.ExitCode,
-		})
-	}
-
-	return result
 }
