@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/GeoDB-Limited/odin-core/yoda/errors"
+	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"strconv"
 
@@ -277,12 +278,12 @@ func handleRawRequest(
 		exec,
 		fmt.Sprintf("\"%s\" %s", req.dataSource.Owner, req.calldata),
 		map[string]interface{}{
-			"BAND_CHAIN_ID":    vmsg.ChainID,
-			"BAND_VALIDATOR":   vmsg.Validator.String(),
-			"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
-			"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
-			"BAND_REPORTER":    sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubkey),
-			"BAND_SIGNATURE":   sig,
+			executor.EnvVarChainID:    vmsg.ChainID,
+			executor.EnvVarValidator:  vmsg.Validator.String(),
+			executor.EnvVarRequestID:  strconv.Itoa(int(vmsg.RequestID)),
+			executor.EnvVarExternalID: strconv.Itoa(int(vmsg.ExternalID)),
+			executor.EnvVarReporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubkey),
+			executor.EnvVarSignature:  sig,
 		},
 	)
 

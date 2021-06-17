@@ -24,17 +24,18 @@ import (
 )
 
 const (
+	// TODO: We can subscribe only for txs that contain request messages
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
 )
 
 const (
-	DefaultChainID          = ""
+	DefaultChainID          = "odin"
 	DefaultNodeURL          = "tcp://localhost:26657"
 	DefaultValidator        = ""
 	DefaultExecutor         = ""
-	DefaultGasPrices        = ""
+	DefaultGasPrices        = "10loki"
 	DefaultLogLevel         = "info"
 	DefaultBroadcastTimeout = "5m"
 	DefaultRPCPollInterval  = "1s"
@@ -140,7 +141,6 @@ func runCmd(ctx *Context) *cobra.Command {
 			if len(keys) == 0 {
 				return sdkerrors.Wrap(errors.ErrNoKeyAvailable, "failed to get keys from keyring")
 			}
-			ctx.keys = keys
 			ctx.validator, err = sdk.ValAddressFromBech32(yoda.config.Validator)
 			if err != nil {
 				return sdkerrors.Wrap(err, "failed to parse validator address")
@@ -149,9 +149,6 @@ func runCmd(ctx *Context) *cobra.Command {
 			if err != nil {
 				return sdkerrors.Wrap(err, "failed to verify address format")
 			}
-
-			ctx.gasPrices = yoda.config.GasPrices
-
 			allowLevel, err := log.AllowLevel(yoda.config.LogLevel)
 			if err != nil {
 				return sdkerrors.Wrap(err, "failed to get log level")
@@ -172,6 +169,8 @@ func runCmd(ctx *Context) *cobra.Command {
 			if err != nil {
 				return sdkerrors.Wrap(err, "failed to parse broadcast timeout")
 			}
+			ctx.keys = keys
+			ctx.gasPrices = yoda.config.GasPrices
 			ctx.maxTry = yoda.config.MaxTry
 			ctx.maxReport = yoda.config.MaxReport
 			ctx.rpcPollInterval, err = time.ParseDuration(yoda.config.RPCPollInterval)

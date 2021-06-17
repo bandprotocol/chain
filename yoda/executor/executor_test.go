@@ -29,15 +29,15 @@ func TestParseExecutor(t *testing.T) {
 
 func TestParseExecutorWithoutRawQuery(t *testing.T) {
 	_, _, _, err := parseExecutor("beeb:www.beebprotocol.com")
-	require.EqualError(t, err, "Invalid timeout, executor requires query timeout")
+	require.EqualError(t, err, "executor requires query timeout: Execution timeout")
 }
 
 func TestParseExecutorInvalidExecutorError(t *testing.T) {
 	_, _, _, err := parseExecutor("beeb")
-	require.EqualError(t, err, "Invalid executor, cannot parse executor: beeb")
+	require.EqualError(t, err, "cannot parse executor: beeb: The executor is not supported")
 }
 
 func TestParseExecutorInvalidTimeoutError(t *testing.T) {
 	_, _, _, err := parseExecutor("beeb:www.beebprotocol.com?timeout=beeb")
-	require.EqualError(t, err, "Invalid timeout, cannot parse duration with error: time: invalid duration \"beeb\"")
+	require.EqualError(t, err,  "invalid timeout, cannot parse duration: time: invalid duration \"beeb\"")
 }

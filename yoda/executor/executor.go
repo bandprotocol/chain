@@ -15,6 +15,15 @@ const (
 	DockerExecutorType = "docker"
 )
 
+const (
+	EnvVarReporter    = "ODIN_REPORTER"
+	EnvVarChainID     = "ODIN_CHAIN_ID"
+	EnvVarValidator   = "ODIN_VALIDATOR"
+	EnvVarRequestID   = "ODIN_REQUEST_ID"
+	EnvVarExternalID  = "ODIN_EXTERNAL_ID"
+	EnvVarSignature   = "ODIN_SIGNATURE"
+)
+
 type ExecResult struct {
 	Output  []byte
 	Code    uint32
@@ -24,8 +33,6 @@ type ExecResult struct {
 type Executor interface {
 	Exec(exec []byte, arg string, env interface{}) (ExecResult, error)
 }
-
-var testProgram = []byte("#!/usr/bin/env python3\nimport os\nimport sys\nprint(sys.argv[1], os.getenv('BAND_CHAIN_ID'))")
 
 // NewExecutor returns executor by name and executor URL
 func NewExecutor(executor string) (exec Executor, err error) {
@@ -40,29 +47,6 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		return nil, sdkerrors.Wrap(errors.ErrNotSupportedExecutor, "docker executor is currently not supported")
 	default:
 		return nil, sdkerrors.Wrapf(errors.ErrNotSupportedExecutor, "executor name: %s, base: %s", name, base)
-	}
-
-	// TODO: Remove hardcode in test execution
-	res, err := exec.Exec(
-		testProgram,
-		"TEST_ARG", map[string]interface{}{
-			"BAND_CHAIN_ID":    "test-chain-id",
-			"BAND_VALIDATOR":   "test-validator",
-			"BAND_REQUEST_ID":  "test-request-id",
-			"BAND_EXTERNAL_ID": "test-external-id",
-			"BAND_REPORTER":    "test-reporter",
-			"BAND_SIGNATURE":   "test-signature",
-		},
-	)
-
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to run test program")
-	}
-	if res.Code != 0 {
-		return nil, sdkerrors.Wrapf(errors.ErrInvalidExecutionResult, "program returned nonzero code: %d", res.Code)
-	}
-	if string(res.Output) != "TEST_ARG test-chain-id\n" {
-		return nil, sdkerrors.Wrapf(errors.ErrWrongOutput, "test program output: %s", res.Output)
 	}
 	return exec, nil
 }
