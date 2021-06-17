@@ -3,6 +3,7 @@ package yoda
 import (
 	"github.com/GeoDB-Limited/odin-core/yoda/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
 )
@@ -41,7 +42,7 @@ func estimateTxSize(msgs []sdk.Msg) uint64 {
 	for _, msg := range msgs {
 		msg, ok := msg.(*types.MsgReportData)
 		if !ok {
-			panic(errors.ErrNotReportedDataMsg)
+			panic(sdkerrors.Wrap(errors.ErrNotReportedDataMsg, "failed to estimate tx size"))
 		}
 
 		ser := cdc.MustMarshalBinaryBare(msg)

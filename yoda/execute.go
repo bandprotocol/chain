@@ -25,11 +25,9 @@ var (
 	cdc = odin.MakeEncodingConfig().Amino
 )
 
-func signAndBroadcast(
-	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
-) (string, error) {
+func signAndBroadcast(ctx *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string) (string, error) {
 	clientCtx := client.Context{
-		Client:            c.client,
+		Client:            ctx.client,
 		TxConfig:          odin.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     flags.BroadcastAsync,
 		InterfaceRegistry: odin.MakeEncodingConfig().InterfaceRegistry,
@@ -37,7 +35,7 @@ func signAndBroadcast(
 	accountRetriever := authtypes.AccountRetriever{}
 	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
 	if err != nil {
-		return "", fmt.Errorf("failed to retreive account with error: %s", err.Error())
+		return "", sdkerrors.Wrap(err, "failed to retrieve account")
 	}
 
 	txf := tx.Factory{}.
@@ -47,29 +45,29 @@ func signAndBroadcast(
 		WithGas(gasLimit).WithGasAdjustment(1).
 		WithChainID(yoda.config.ChainID).
 		WithMemo(memo).
-		WithGasPrices(c.gasPrices).
+		WithGasPrices(ctx.gasPrices).
 		WithKeybase(yoda.keybase).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
 	txb, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
-		return "", err
+		return "", sdkerrors.Wrap(err, "failed to build unsigned tx")
 	}
 
 	err = tx.Sign(txf, key.GetName(), txb, true)
 	if err != nil {
-		return "", err
+		return "", sdkerrors.Wrap(err, "failed to sign transaction")
 	}
 
 	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
 	if err != nil {
-		return "", err
+		return "", sdkerrors.Wrap(err, "failed to encode transaction")
 	}
 
 	// broadcast to a Tendermint node
 	res, err := clientCtx.BroadcastTx(txBytes)
 	if err != nil {
-		return "", err
+		return "", sdkerrors.Wrap(err, "failed to broadcast transaction")
 	}
 
 	return res.TxHash, nil
@@ -194,7 +192,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 		)
 		if err != nil {
 			l.Error(":exploding_head: Failed to get data source with error: %s", c, err.Error())
-			return nil, err
+			return nil, sdkerrors.Wrap(err, "failed to get data source")
 		}
 		resValue = res.Response.GetValue()
 		c.fileCache.AddFile(resValue)
@@ -214,14 +212,14 @@ func GetDataSource(c *Context, l *Logger, id types.DataSourceID) (types.DataSour
 	)
 	if err != nil {
 		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
-		return types.DataSource{}, err
+		return types.DataSource{}, sdkerrors.Wrap(err, "failed to get data source")
 	}
 
-	var d types.DataSource
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+	var dataSource types.DataSource
+	cdc.MustUnmarshalBinaryBare(res.Response.Value, &dataSource)
 
-	_, _ = c.dataSourceCache.LoadOrStore(id, d.Filename) // just put hash
-	return d, nil
+	_, _ = c.dataSourceCache.LoadOrStore(id, dataSource.Filename) // just put hash
+	return dataSource, nil
 }
 
 // GetRequest fetches request by id
@@ -233,7 +231,7 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	)
 	if err != nil {
 		l.Debug(":skull: Failed to get request with error: %s", err.Error())
-		return types.Request{}, err
+		return types.Request{}, sdkerrors.Wrap(err, "failed to get request")
 	}
 
 	var r types.Request

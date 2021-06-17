@@ -153,7 +153,7 @@ func keysListCmd() *cobra.Command {
 	}
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
 	if err := viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to parse %s flag", flagAddress))
 	}
 
 	return cmd

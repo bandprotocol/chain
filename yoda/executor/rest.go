@@ -46,7 +46,7 @@ func (e *RestExec) Exec(code []byte, arg string, env interface{}) (ExecResult, e
 	if err != nil {
 		urlErr, ok := err.(*url.Error)
 		if !ok || !urlErr.Timeout() {
-			return ExecResult{}, err
+			return ExecResult{}, sdkerrors.Wrap(err, "execution failed")
 		}
 		// Return timeout code
 		return ExecResult{Output: []byte{}, Code: 111}, nil

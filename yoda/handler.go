@@ -3,6 +3,8 @@ package yoda
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/GeoDB-Limited/odin-core/yoda/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -107,19 +109,19 @@ func handleRequestLog(ctx *Context, logger *Logger, msgLog sdk.ABCIMessageLog) {
 
 	rawAskCount := GetEventValues(msgLog, types.EventTypeRequest, types.AttributeKeyAskCount)
 	if len(rawAskCount) != 1 {
-		panic("Fail to get ask count")
+		panic(sdkerrors.Wrap(errors.ErrEventValueDoesNotExist, "failed to get ask count"))
 	}
 	askCount := common.Atoi(rawAskCount[0])
 
 	rawMinCount := GetEventValues(msgLog, types.EventTypeRequest, types.AttributeKeyMinCount)
 	if len(rawMinCount) != 1 {
-		panic("Fail to get min count")
+		panic(sdkerrors.Wrap(errors.ErrEventValueDoesNotExist, "failed to get min count"))
 	}
 	minCount := common.Atoi(rawMinCount[0])
 
 	rawCallData := GetEventValues(msgLog, types.EventTypeRequest, types.AttributeKeyCalldata)
 	if len(rawCallData) != 1 {
-		panic("Fail to get call data")
+		panic(sdkerrors.Wrap(errors.ErrEventValueDoesNotExist, "failed to get call data"))
 	}
 	callData, err := hex.DecodeString(rawCallData[0])
 	if err != nil {
@@ -163,7 +165,6 @@ func handlePendingRequest(ctx *Context, logger *Logger, id types.RequestID) {
 
 	// prepare raw requests
 	for _, raw := range req.RawRequests {
-
 		ds, err := GetDataSource(ctx, logger, raw.DataSourceID)
 		if err != nil {
 			logger.Error(":skull: Failed to get data source hash with error: %s", ctx, err.Error())
@@ -173,7 +174,7 @@ func handlePendingRequest(ctx *Context, logger *Logger, id types.RequestID) {
 		hash, ok := ctx.dataSourceCache.Load(raw.DataSourceID)
 		if !ok {
 			logger.Error(":skull: couldn't load data source id from cache", ctx)
-			panic(fmt.Errorf("couldn't load data source id from cache"))
+			panic(sdkerrors.Wrap(errors.ErrInvalidCacheLoading, "couldn't load data source id from cache"))
 		}
 
 		rawRequests = append(rawRequests, rawRequest{
@@ -189,7 +190,7 @@ func handlePendingRequest(ctx *Context, logger *Logger, id types.RequestID) {
 	reports, execVersions := handleRawRequests(ctx, logger, id, rawRequests, key)
 
 	ctx.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, ctx.validator, key.GetAddress()),
+		msg:         types.NewMsgReportData(id, reports, ctx.validator, key.GetAddress()),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{

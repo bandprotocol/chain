@@ -1,7 +1,8 @@
 package yoda
 
 import (
-	"fmt"
+	"github.com/GeoDB-Limited/odin-core/yoda/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,11 +11,11 @@ import (
 )
 
 type rawRequest struct {
-	dataSourceID   types.DataSourceID
-	dataSourceHash string
-	externalID     types.ExternalID
-	calldata       string
 	dataSource     types.DataSource
+	dataSourceID   types.DataSourceID
+	externalID     types.ExternalID
+	dataSourceHash string
+	calldata       string
 }
 
 // GetRawRequests returns the list of all raw data requests in the given log.
@@ -25,27 +26,27 @@ func GetRawRequests(c *Context, l *Logger, log sdk.ABCIMessageLog) ([]rawRequest
 	calldataList := GetEventValues(log, types.EventTypeRawRequest, types.AttributeKeyCalldata)
 
 	if len(dataSourceIDs) != len(externalIDs) {
-		return nil, fmt.Errorf("inconsistent data source count and external ID count")
+		return nil, sdkerrors.Wrap(errors.ErrInconsistentCount, "inconsistent data source count and external ID count")
 	}
 	if len(dataSourceIDs) != len(calldataList) {
-		return nil, fmt.Errorf("inconsistent data source count and calldata count")
+		return nil, sdkerrors.Wrap(errors.ErrInconsistentCount, "inconsistent data source count and calldata count")
 	}
 
 	var reqs []rawRequest
 	for idx := range dataSourceIDs {
 		dataSourceID, err := strconv.Atoi(dataSourceIDs[idx])
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse data source id: %s", err.Error())
+			return nil, sdkerrors.Wrap(err, "failed to parse data source id")
 		}
 
 		externalID, err := strconv.Atoi(externalIDs[idx])
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse external id: %s", err.Error())
+			return nil, sdkerrors.Wrap(err, "failed to parse external id")
 		}
 
 		ds, err := GetDataSource(c, l, types.DataSourceID(dataSourceID))
 		if err != nil {
-			return nil, fmt.Errorf("failed to get data source by id: %s", err.Error())
+			return nil, sdkerrors.Wrap(err, "failed to get data source by id")
 		}
 
 		reqs = append(reqs, rawRequest{
@@ -56,6 +57,7 @@ func GetRawRequests(c *Context, l *Logger, log sdk.ABCIMessageLog) ([]rawRequest
 			dataSource:     ds,
 		})
 	}
+
 	return reqs, nil
 }
 
@@ -79,10 +81,10 @@ func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []
 func GetEventValue(log sdk.ABCIMessageLog, evType string, evKey string) (string, error) {
 	values := GetEventValues(log, evType, evKey)
 	if len(values) == 0 {
-		return "", fmt.Errorf("cannot find event with type: %s, key: %s", evType, evKey)
+		return "", sdkerrors.Wrapf(errors.ErrUnknownEventType, "cannot find event with type: %s, key: %s", evType, evKey)
 	}
 	if len(values) > 1 {
-		return "", fmt.Errorf("found more than one event with type: %s, key: %s", evType, evKey)
+		return "", sdkerrors.Wrapf(errors.ErrInvalidEventsCount, "found more than one event with type: %s, key: %s", evType, evKey)
 	}
 	return values[0], nil
 }

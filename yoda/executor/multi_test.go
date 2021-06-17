@@ -21,7 +21,7 @@ func newMockExec(output []byte, code uint32, err error) *mockExec {
 	}
 }
 
-func (e *mockExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
+func (e *mockExec) Exec(_ []byte, _ string, _ interface{}) (ExecResult, error) {
 	e.called++
 	return e.result, e.err
 }

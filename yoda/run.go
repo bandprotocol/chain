@@ -23,7 +23,6 @@ import (
 	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 )
 
-// TODO: refactor yoda to more consistent errors
 const (
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
@@ -191,43 +190,43 @@ func runCmd(ctx *Context) *cobra.Command {
 
 	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "chain ID of Odin network")
 	if err := viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to parse %s flag", flags.FlagChainID))
 	}
 	cmd.Flags().String(flags.FlagNode, DefaultNodeURL, "RPC url to Odin node")
 	if err := viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagNode))
 	}
 	cmd.Flags().String(flagValidator, DefaultValidator, "validator address")
 	if err := viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagValidator))
 	}
 	cmd.Flags().String(flagExecutor, DefaultExecutor, "executor name and url for executing the data source script")
-	if err := viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices)); err != nil {
-		panic(err)
+	if err := viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagExecutor))
 	}
 	cmd.Flags().String(flags.FlagGasPrices, DefaultGasPrices, "gas prices for report transaction")
-	if err := viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel)); err != nil {
-		panic(err)
+	if err := viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagGasPrices))
 	}
 	cmd.Flags().String(flagLogLevel, DefaultLogLevel, "set the logger level")
-	if err := viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor)); err != nil {
-		panic(err)
+	if err := viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagLogLevel))
 	}
 	cmd.Flags().String(flagBroadcastTimeout, DefaultBroadcastTimeout, "The time that Yoda will wait for tx commit")
 	if err := viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagBroadcastTimeout))
 	}
 	cmd.Flags().String(flagRPCPollInterval, DefaultRPCPollInterval, "The duration of rpc poll interval")
 	if err := viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagRPCPollInterval))
 	}
 	cmd.Flags().Uint64(flagMaxTry, DefaultMaxTry, "The maximum number of tries to submit a report transaction")
 	if err := viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagMaxTry))
 	}
 	cmd.Flags().Uint64(flagMaxReport, DefaultMaxReport, "The maximum number of reports in one transaction")
 	if err := viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport)); err != nil {
-		panic(err)
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagMaxReport))
 	}
 
 	return cmd

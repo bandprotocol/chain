@@ -1,7 +1,6 @@
 package executor
 
 import (
-	"fmt"
 	"github.com/GeoDB-Limited/odin-core/yoda/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"net/url"
@@ -32,15 +31,15 @@ var testProgram = []byte("#!/usr/bin/env python3\nimport os\nimport sys\nprint(s
 func NewExecutor(executor string) (exec Executor, err error) {
 	name, base, timeout, err := parseExecutor(executor)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(err, "failed to parse executor")
 	}
 	switch name {
 	case RestExecutorType:
 		exec = NewRestExec(base, timeout)
 	case DockerExecutorType:
-		return nil, fmt.Errorf("docker executor is currently not supported")
+		return nil, sdkerrors.Wrap(errors.ErrNotSupportedExecutor, "docker executor is currently not supported")
 	default:
-		return nil, sdkerrors.Wrapf(errors.ErrUnknownExecutor, "executor name: %s, base: %s", name, base)
+		return nil, sdkerrors.Wrapf(errors.ErrNotSupportedExecutor, "executor name: %s, base: %s", name, base)
 	}
 
 	// TODO: Remove hardcode in test execution
@@ -57,10 +56,10 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
+		return nil, sdkerrors.Wrap(err, "failed to run test program")
 	}
 	if res.Code != 0 {
-		return nil, fmt.Errorf("test program returned nonzero code: %d", res.Code)
+		return nil, sdkerrors.Wrapf(errors.ErrInvalidExecutionResult, "program returned nonzero code: %d", res.Code)
 	}
 	if string(res.Output) != "TEST_ARG test-chain-id\n" {
 		return nil, sdkerrors.Wrapf(errors.ErrWrongOutput, "test program output: %s", res.Output)
@@ -73,18 +72,18 @@ func parseExecutor(executorStr string) (name string, base string, timeout time.D
 	executor := strings.SplitN(executorStr, ":", 2)
 	if len(executor) != 2 {
 		return "", "", 0,
-		sdkerrors.Wrapf(errors.ErrUnknownExecutor, "cannot parse executor: %s", executorStr)
+			sdkerrors.Wrapf(errors.ErrNotSupportedExecutor, "cannot parse executor: %s", executorStr)
 	}
 	u, err := url.Parse(executor[1])
 	if err != nil {
 		return "", "", 0,
-		sdkerrors.Wrapf(err, "invalid url, cannot parse %s to url", executor[1])
+			sdkerrors.Wrapf(err, "invalid url, cannot parse %s to url", executor[1])
 	}
 
 	query := u.Query()
 	timeoutStr := query.Get(flagQueryTimeout)
 	if timeoutStr == "" {
-		return "", "", 0, fmt.Errorf("invalid timeout, executor requires query timeout")
+		return "", "", 0, sdkerrors.Wrap(errors.ErrExecutionTimeout, "executor requires query timeout")
 	}
 	// Remove timeout from query because we need to return `base`
 	query.Del(flagQueryTimeout)
