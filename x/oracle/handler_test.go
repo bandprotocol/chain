@@ -163,7 +163,7 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	// Bad Owasm code
 	msg := types.NewMsgCreateOracleScript(name, description, schema, url, []byte("BAD"), testapp.Owner.Address, testapp.Alice.Address)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.EqualError(t, err, fmt.Sprintf("caused by %s: %s", api.ErrValidation, types.ErrOwasmCompilation))
+	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
