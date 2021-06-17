@@ -138,7 +138,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 	case "/oracle.v1.Query/RequestSearch":
 		var queryReq types.QueryRequestSearchRequest
 		if err := h.cdc.UnmarshalBinaryBare(req.Data, &queryReq); err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request data")), true
+			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request data: %s", err)), true
 		}
 
 		// Query oracle requests from database
@@ -155,7 +155,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")), true
 		}
 		if err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrapf(err, "unable to query latest request from database")), true
+			return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")), true
 		} else {
 			result := oracleReq.QueryRequestResponse()
 			qReqRes = &result
@@ -167,7 +167,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 
 		bz, err := h.cdc.MarshalBinaryBare(&finalResult)
 		if err != nil {
-			return common.QueryResultError(err), true
+			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to marshal response: %s", err)), true
 		}
 		return common.QueryResultSuccess(bz, req.Height), true
 	default:
