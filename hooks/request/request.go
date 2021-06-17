@@ -1,7 +1,6 @@
 package request
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -152,11 +151,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		// check query results
 		var qReqRes *types.QueryRequestResponse
 		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				qReqRes = nil
-			} else {
-				return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
-			}
+			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to query latest request from database")), true
 		} else {
 			result := oracleReq.QueryRequestResponse()
 			qReqRes = &result
