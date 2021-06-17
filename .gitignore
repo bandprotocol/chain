@@ -13,3 +13,5 @@ vendor
 **/target/
 /pkg/owasm/res/*.wasm
 /docker-config/genesis.json
+/docker-config/files
+/files

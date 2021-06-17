@@ -223,13 +223,13 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 
 // RequestSearch queries the latest request that match the given input.
 func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Query latest request should be received by hooks")
+	return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
 func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "Request price method should be called by hooks")
+	return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
 // RequestVerification verifies oracle request for validation before executing data sources
