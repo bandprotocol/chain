@@ -218,7 +218,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0, nil),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
@@ -355,7 +355,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0, nil),
 	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir

@@ -1,6 +1,7 @@
 package ante
 
 import (
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -137,6 +138,35 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keep
 				newCtx, err := ante(ctx.WithMinGasPrices(sdk.DecCoins{}), tx, simulate)
 				// Set minimum gas price context and return context to caller.
 				return newCtx.WithMinGasPrices(minGas), err
+			}
+		}
+		return ante(ctx, tx, simulate)
+	}
+}
+
+// NewWhiteListAnteHandler returns a new ante handler that filter requests from external addresses out
+func NewWhiteListAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper, requesters []string) sdk.AnteHandler {
+	whiteList := make(map[string]bool)
+	for _, addr := range requesters {
+		whiteList[addr] = true
+	}
+
+	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
+		if ctx.IsCheckTx() && !simulate {
+
+			for _, msg := range tx.GetMsgs() {
+
+				if req, ok := msg.(*types.MsgRequestData); ok {
+					// is a whitelisted request
+					if _, found := whiteList[req.Sender]; !found {
+						return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Request is in valid")
+					}
+				} else if _, ok = msg.(*types.MsgReportData); ok {
+					// TODO: check if this is our report
+				} else {
+					// reject all other msg type
+					return ctx, errors.New("Msg type is not allowed")
+				}
 			}
 		}
 		return ante(ctx, tx, simulate)
