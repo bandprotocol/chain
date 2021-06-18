@@ -60,7 +60,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(oracletypes.DefaultGenesisState())
 }
 
-// Validation check of the Genesis
+// ValidateGenesis validates genesis
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var gs oracletypes.GenesisState
 	err := cdc.UnmarshalJSON(bz, &gs)

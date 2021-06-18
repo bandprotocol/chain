@@ -2,6 +2,7 @@ package oraclekeeper
 
 import (
 	"context"
+	"fmt"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -262,4 +263,67 @@ func (k Querier) DataProviderReward(
 	ctx := sdk.UnwrapSDKContext(c)
 	accumulatedRewards := k.GetAccumulatedDataProvidersRewards(ctx)
 	return &oracletypes.QueryDataProviderRewardResponse{RewardPerByte: accumulatedRewards.CurrentRewardPerByte}, nil
+}
+
+
+func (k Querier) PendingRequests(c context.Context, req *oracletypes.QueryPendingRequestsRequest) (*oracletypes.QueryPendingRequestsResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	valAddress, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse given validator address: %v", err))
+	}
+
+	lastExpired := k.GetRequestLastExpired(ctx)
+	requestCount := k.GetRequestCount(ctx)
+
+	var pendingIDs []int64
+	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+		oracleReq := k.MustGetRequest(ctx, id)
+
+		// If all validators reported on this request, then skip it.
+		reports := k.GetRequestReports(ctx, id)
+		if len(reports) == len(oracleReq.RequestedValidators) {
+			continue
+		}
+
+		// Skip if validator hasn't been assigned or has been reported.
+		// If the validator isn't in requested validators set, then skip it.
+		isInValidatorSet := false
+		for _, v := range oracleReq.RequestedValidators {
+			val, err := sdk.ValAddressFromBech32(v)
+			if err != nil {
+				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", v, err))
+			}
+			if valAddress.Equals(val) {
+				isInValidatorSet = true
+				break
+			}
+		}
+		if !isInValidatorSet {
+			continue
+		}
+
+		// If the validator has reported, then skip it.
+		reported := false
+		for _, r := range reports {
+			val, err := sdk.ValAddressFromBech32(r.Validator)
+			if err != nil {
+				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", r.Validator, err))
+			}
+			if valAddress.Equals(val) {
+				reported = true
+				break
+			}
+		}
+		if reported {
+			continue
+		}
+
+		pendingIDs = append(pendingIDs, int64(id))
+	}
+
+	return &oracletypes.QueryPendingRequestsResponse{RequestIDs: pendingIDs}, nil
 }

@@ -2,8 +2,6 @@ package yoda
 
 import (
 	"context"
-	"fmt"
-	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
 	"github.com/GeoDB-Limited/odin-core/yoda/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"path/filepath"
@@ -19,7 +17,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 )
 
@@ -28,6 +26,8 @@ const (
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
+
+	PendingRequestsQueryPath = "/oracle.v1.Query/PendingRequests"
 )
 
 const (
@@ -50,13 +50,13 @@ func runImpl(c *Context, l *Logger) error {
 		return sdkerrors.Wrap(err, "failed to start websocket subscriber")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cxl()
 
 	l.Info(":ear: Subscribing to events with query: %s...", TxQuery)
 	eventChan, err := c.client.Subscribe(ctx, "", TxQuery, EventChannelCapacity)
 	if err != nil {
-		return sdkerrors.Wrap(err, "failed to subscribe to events")
+		return err
 	}
 
 	if c.metricsEnabled {
@@ -64,36 +64,27 @@ func runImpl(c *Context, l *Logger) error {
 		go metricsListen(yoda.config.MetricsListenAddr, c)
 	}
 
-	availableKeys := make([]bool, len(c.keys))
+	availiableKeys := make([]bool, len(c.keys))
 	waitingMsgs := make([][]ReportMsgWithKey, len(c.keys))
-	for i := range availableKeys {
-		availableKeys[i] = true
+	for i := range availiableKeys {
+		availiableKeys[i] = true
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQuery(
-		context.Background(),
-		fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()),
-		nil,
-	)
+	bz := cdc.MustMarshalBinaryBare(&oracletypes.QueryPendingRequestsRequest{
+		ValidatorAddress: c.validator.String(),
+	})
+	resBz, err := c.client.ABCIQuery(context.Background(), PendingRequestsQueryPath, bz)
 	if err != nil {
-		return sdkerrors.Wrap(err, "failed to get pending requests")
+		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
+	pendingRequests := oracletypes.QueryPendingRequestsResponse{}
+	cdc.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
 
-	var result commontypes.QueryResult
-	if err := cdc.UnmarshalJSON(rawPendingRequests.Response.GetValue(), &result); err != nil {
-		return sdkerrors.Wrap(err, "failed to unmarshal query result")
-	}
-
-	var pendingRequests types.PendingResolveList
-	if result.Result != nil {
-		cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
-	}
-
-	for _, id := range pendingRequests.RequestIds {
-		c.pendingRequests[types.RequestID(id)] = true
-		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
+	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
+	for _, id := range pendingRequests.RequestIDs {
+		c.pendingRequests[oracletypes.RequestID(id)] = true
+		go handlePendingRequest(c, l.With("rid", id), oracletypes.RequestID(id))
 	}
 
 	for {
@@ -110,12 +101,12 @@ func runImpl(c *Context, l *Logger) error {
 					waitingMsgs[keyIndex] = []ReportMsgWithKey{}
 				}
 			} else {
-				availableKeys[keyIndex] = true
+				availiableKeys[keyIndex] = true
 			}
 		case pm := <-c.pendingMsgs:
 			c.updatePendingGauge(1)
-			if availableKeys[pm.keyIndex] {
-				availableKeys[pm.keyIndex] = false
+			if availiableKeys[pm.keyIndex] {
+				availiableKeys[pm.keyIndex] = false
 				go SubmitReport(c, l, pm.keyIndex, []ReportMsgWithKey{pm})
 			} else {
 				waitingMsgs[pm.keyIndex] = append(waitingMsgs[pm.keyIndex], pm)
@@ -181,7 +172,7 @@ func runCmd(ctx *Context) *cobra.Command {
 			ctx.freeKeys = make(chan int64, len(keys))
 			ctx.keyRoundRobinIndex = -1
 			ctx.dataSourceCache = new(sync.Map)
-			ctx.pendingRequests = make(map[types.RequestID]bool)
+			ctx.pendingRequests = make(map[oracletypes.RequestID]bool)
 			ctx.metricsEnabled = yoda.config.MetricsListenAddr != ""
 			return runImpl(ctx, logger)
 		},

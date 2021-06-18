@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -51,6 +52,7 @@ func Main() {
 		configCmd(),
 		keysCmd(),
 		runCmd(ctx),
+		version.NewVersionCommand(),
 	)
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
