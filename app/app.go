@@ -181,7 +181,6 @@ type BandApp struct {
 
 	// Module manager.
 	mm *module.Manager
-
 }
 
 func init() {
@@ -208,7 +207,7 @@ func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
+	disableFeelessReports bool, owasmCacheSize uint32, requesters []string, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 
 	appCodec := encodingConfig.Marshaler
@@ -399,6 +398,9 @@ func NewBandApp(
 	anteHandler := ante.NewAnteHandler(app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer, encodingConfig.TxConfig.SignModeHandler())
 	if !disableFeelessReports {
 		anteHandler = bandante.NewFeelessReportsAnteHandler(anteHandler, app.OracleKeeper)
+	}
+	if len(requesters) > 0 {
+		anteHandler = bandante.NewWhiteListAnteHandler(anteHandler, app.OracleKeeper, requesters)
 	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)

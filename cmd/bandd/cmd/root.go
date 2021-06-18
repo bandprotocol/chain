@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"io"
 	"os"
 	"path/filepath"
@@ -37,6 +38,7 @@ import (
 const (
 	flagDisableFeelessReports = "disable-feeless-reports"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagWhiteListRequesters   = "whitelist-requesters"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -169,6 +171,22 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		skipUpgradeHeights[int64(h)] = true
 	}
 
+	var requesters []string
+	whitelistFile := cast.ToString(appOpts.Get(flagWhiteListRequesters))
+	if len(whitelistFile) != 0 {
+		f, err := os.Open(whitelistFile)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			addr := scanner.Text()
+			requesters = append(requesters, addr)
+		}
+	}
+
 	pruningOpts, err := server.GetPruningOptionsFromFlags(appOpts)
 	if err != nil {
 		panic(err)
@@ -192,6 +210,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		appOpts,
 		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		requesters,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -216,13 +235,13 @@ func createSimappAndExport(
 	encCfg.Marshaler = codec.NewProtoCodec(encCfg.InterfaceRegistry)
 	var bandConsumerApp *band.BandApp
 	if height != -1 {
-		bandConsumerApp = band.NewBandApp(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)))
+		bandConsumerApp = band.NewBandApp(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)), nil)
 
 		if err := bandConsumerApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		bandConsumerApp = band.NewBandApp(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)))
+		bandConsumerApp = band.NewBandApp(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)), nil)
 	}
 
 	return bandConsumerApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
