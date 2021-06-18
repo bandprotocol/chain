@@ -1,6 +1,7 @@
 package price
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -99,7 +100,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 	case "/oracle.v1.Query/RequestPrice":
 		var request types.QueryRequestPriceRequest
 		if err := h.cdc.UnmarshalBinaryBare(req.Data, &request); err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrap(err, "unable to parse request of RequestPrice query")), true
+			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request of RequestPrice query: %s", err)), true
 		}
 
 		var response types.QueryRequestPriceResponse
@@ -107,9 +108,18 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			var priceResult types.PriceResult
 			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
 			if err != nil {
+				if errors.Is(err, leveldb.ErrNotFound) {
+					return sdkerrors.QueryResult(sdkerrors.Wrapf(
+						sdkerrors.ErrKeyNotFound,
+						"price not found for %s with %d/%d counts",
+						symbol,
+						request.MinCount,
+						request.AskCount,
+					)), true
+				}
 				return sdkerrors.QueryResult(
-					sdkerrors.Wrapf(err,
-						"cannot get price of %s with %d/%d counts",
+					sdkerrors.Wrapf(sdkerrors.ErrLogic,
+						"unable to get price of %s with %d/%d counts",
 						symbol,
 						request.MinCount,
 						request.AskCount,
@@ -123,10 +133,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 
 		bz := h.cdc.MustMarshalBinaryBare(&response)
 
-		return abci.ResponseQuery{
-			Height: req.Height,
-			Value:  bz,
-		}, true
+		return common.QueryResultSuccess(bz, req.Height), true
 	default:
 		return
 	}
