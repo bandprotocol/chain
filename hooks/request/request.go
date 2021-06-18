@@ -1,6 +1,7 @@
 package request
 
 import (
+	"encoding/hex"
 	"errors"
 	"strings"
 
@@ -141,10 +142,15 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request data: %s", err)), true
 		}
 
+		calldata, err := hex.DecodeString(queryReq.Calldata)
+		if err != nil {
+			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)), true
+		}
+
 		// Query oracle requests from database
 		oracleReq, err := h.getLatestRequest(
 			types.OracleScriptID(queryReq.OracleScriptId),
-			queryReq.Calldata,
+			calldata,
 			queryReq.AskCount,
 			queryReq.MinCount,
 		)

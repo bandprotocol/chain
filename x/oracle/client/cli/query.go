@@ -202,10 +202,7 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("unable to parse oracle script ID: %w", err)
 			}
-			calldata, err := hex.DecodeString(args[1])
-			if err != nil {
-				return fmt.Errorf("unable to parse calldata: %w", err)
-			}
+			calldataHex := args[1]
 			askCount, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse ask count: %w", err)
@@ -218,7 +215,7 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 			r, err := queryClient.RequestSearch(context.Background(), &types.QueryRequestSearchRequest{
 				OracleScriptId: oracleScriptID,
-				Calldata:       calldata,
+				Calldata:       calldataHex,
 				AskCount:       askCount,
 				MinCount:       minCount,
 			})
