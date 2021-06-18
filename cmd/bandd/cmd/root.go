@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"os"
@@ -37,6 +38,7 @@ import (
 const (
 	flagDisableFeelessReports = "disable-feeless-reports"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagWhiteListRequesters   = "whitelist-requesters"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -200,6 +202,22 @@ func (ac appCreator) newApp(
 		skipUpgradeHeights[int64(h)] = true
 	}
 
+	var requesters []string
+	whitelistFile := cast.ToString(appOpts.Get(flagWhiteListRequesters))
+	if len(whitelistFile) != 0 {
+		f, err := os.Open(whitelistFile)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			addr := scanner.Text()
+			requesters = append(requesters, addr)
+		}
+	}
+
 	pruningOpts, err := server.GetPruningOptionsFromFlags(appOpts)
 	if err != nil {
 		panic(err)
@@ -223,6 +241,7 @@ func (ac appCreator) newApp(
 		appOpts,
 		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		requesters,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -264,6 +283,7 @@ func (ac appCreator) appExport(
 		appOpts,
 		false,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		nil,
 	)
 
 	if height != -1 {
