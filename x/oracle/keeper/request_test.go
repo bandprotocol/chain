@@ -51,7 +51,7 @@ func TestDeleteRequest(t *testing.T) {
 	k.DeleteRequest(ctx, 42)
 	require.False(t, k.HasRequest(ctx, 42))
 	_, err := k.GetRequest(ctx, 42)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrRequestNotFound)
 	require.Panics(t, func() { _ = k.MustGetRequest(ctx, 42) })
 }
 
@@ -59,7 +59,7 @@ func TestSetterGetterRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Getting a non-existent request should return error.
 	_, err := k.GetRequest(ctx, 42)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrRequestNotFound)
 	require.Panics(t, func() { _ = k.MustGetRequest(ctx, 42) })
 	// Creates some basic requests.
 	req1 := types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)

@@ -25,7 +25,7 @@ func TestResultBasicFunctions(t *testing.T) {
 	require.Equal(t, result, result)
 	// GetResult of another request should return error.
 	_, err = k.GetResult(ctx, 2)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrResultNotFound)
 	require.Panics(t, func() { k.MustGetResult(ctx, 2) })
 	// HasResult should also perform correctly.
 	require.True(t, k.HasResult(ctx, 1))
