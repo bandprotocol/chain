@@ -83,7 +83,7 @@ func TestReportOnNonExistingRequest(t *testing.T) {
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrRequestNotFound)
 }
 
 func TestReportByNotRequestedValidator(t *testing.T) {
@@ -95,7 +95,7 @@ func TestReportByNotRequestedValidator(t *testing.T) {
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrValidatorNotRequested)
 }
 
 func TestDuplicateReport(t *testing.T) {
@@ -114,7 +114,7 @@ func TestDuplicateReport(t *testing.T) {
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrValidatorAlreadyReported)
 }
 
 func TestReportInvalidDataSourceCount(t *testing.T) {
@@ -125,7 +125,7 @@ func TestReportInvalidDataSourceCount(t *testing.T) {
 			types.NewRawReport(42, 0, []byte("data1/1")),
 		},
 	))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrInvalidReportSize)
 }
 
 func TestReportInvalidExternalIDs(t *testing.T) {
@@ -137,7 +137,7 @@ func TestReportInvalidExternalIDs(t *testing.T) {
 			types.NewRawReport(44, 1, []byte("data2/1")), // BAD EXTERNAL ID!
 		},
 	))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrRawRequestNotFound)
 }
 
 func TestGetReportCount(t *testing.T) {

@@ -80,7 +80,7 @@ func (k Keeper) AddOracleScriptFile(file []byte) (string, error) {
 	}
 	compiledFile, err := k.owasmVM.Compile(file, types.MaxCompiledWasmCodeSize)
 	if err != nil {
-		return "", sdkerrors.Wrapf(types.ErrOwasmCompilation, "with error: %s", err.Error())
+		return "", sdkerrors.Wrapf(types.ErrOwasmCompilation, "caused by %s", err.Error())
 	}
 	return k.fileCache.AddFile(compiledFile), nil
 }

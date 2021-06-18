@@ -137,14 +137,14 @@ func TestGetExternalData(t *testing.T) {
 	require.Equal(t, api.ErrBadValidatorIndex, err)
 
 	_, err = env.GetExternalData(1, -1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadValidatorIndex)
 	_, err = env.GetExternalDataStatus(1, -1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadValidatorIndex)
 
 	_, err = env.GetExternalData(100, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadExternalID)
 	_, err = env.GetExternalDataStatus(100, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadExternalID)
 }
 
 func TestFailedGetExternalData(t *testing.T) {
