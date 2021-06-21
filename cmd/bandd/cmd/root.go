@@ -101,7 +101,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestions")
+	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
 }
 
 func queryCommand() *cobra.Command {
