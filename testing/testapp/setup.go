@@ -21,7 +21,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -30,14 +33,12 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/pkg/filecache"
-	me "github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	owasm "github.com/bandprotocol/go-owasm/api"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	bandapp "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -326,7 +327,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 }
 
 // CreateTestInput creates a new test environment for unit tests.
-func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, me.Keeper) {
+func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {

@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type rawRequest struct {

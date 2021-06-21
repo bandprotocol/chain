@@ -1,7 +1,7 @@
 package proof
 
 import (
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // ResultEthereum is an Ethereum version of Result for solidity ABI-encoding.

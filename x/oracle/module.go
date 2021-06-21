@@ -21,10 +21,10 @@ import (
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/x/oracle/client/cli"
-	"github.com/bandprotocol/chain/x/oracle/client/rest"
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
+	"github.com/bandprotocol/chain/v2/x/oracle/client/rest"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (

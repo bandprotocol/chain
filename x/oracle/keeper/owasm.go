@@ -8,8 +8,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/pkg/bandrng"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/bandrng"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // 1 cosmos gas is equal to 7 owasm gas

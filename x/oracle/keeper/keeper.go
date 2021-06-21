@@ -12,9 +12,10 @@ import (
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
+
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const (

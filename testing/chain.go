@@ -32,9 +32,9 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/version"
 
-	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	bandapp "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (
