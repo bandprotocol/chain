@@ -108,17 +108,15 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		keys.Commands(band.DefaultNodeHome),
 	)
-
-	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
-	rootCmd.PersistentFlags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
-	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
-	rootCmd.PersistentFlags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
-	rootCmd.PersistentFlags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
 	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
+	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
+	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
 }
 
 func queryCommand() *cobra.Command {
