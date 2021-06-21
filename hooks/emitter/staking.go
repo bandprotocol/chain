@@ -3,9 +3,10 @@ package emitter
 import (
 	"time"
 
-	"github.com/bandprotocol/chain/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
+	
+	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 var (

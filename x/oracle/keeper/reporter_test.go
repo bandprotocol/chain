@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 )
 
 func TestCheckSelfReporter(t *testing.T) {

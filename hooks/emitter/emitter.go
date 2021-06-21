@@ -23,13 +23,13 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
-	bandapp "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/app/params"
-	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	bandapp "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/app/params"
+	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.

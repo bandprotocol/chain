@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func (k Keeper) DepositRequestPool(ctx sdk.Context, requestKey string, portID string, channelID string, amount sdk.Coins, sender sdk.AccAddress) error {

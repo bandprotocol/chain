@@ -17,10 +17,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/hooks/common"
-	ibctesting "github.com/bandprotocol/chain/testing"
-	"github.com/bandprotocol/chain/testing/testapp"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/hooks/common"
+	ibctesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (

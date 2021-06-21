@@ -33,12 +33,12 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/app/params"
-	"github.com/bandprotocol/chain/hooks/emitter"
-	"github.com/bandprotocol/chain/hooks/price"
-	"github.com/bandprotocol/chain/hooks/request"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/app/params"
+	"github.com/bandprotocol/chain/v2/hooks/emitter"
+	"github.com/bandprotocol/chain/v2/hooks/price"
+	"github.com/bandprotocol/chain/v2/hooks/request"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const (

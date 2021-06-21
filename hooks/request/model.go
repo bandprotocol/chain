@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // GenerateRequestModel converts proto's QueryRequestResponse to GORM's Request model
