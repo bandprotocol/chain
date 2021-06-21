@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/google/shlex"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type DockerExec struct {

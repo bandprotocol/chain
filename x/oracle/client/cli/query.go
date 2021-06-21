@@ -1,10 +1,6 @@
 package cli
 
 import (
-	// "encoding/json"
-	// "fmt"
-	// "net/http"
-
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -13,12 +9,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	// clientcmn "github.com/bandprotocol/chain/x/oracle/client/common"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module.

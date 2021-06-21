@@ -5,8 +5,9 @@ import (
 	gz "compress/gzip"
 	"testing"
 
-	"github.com/bandprotocol/chain/pkg/gzip"
 	"github.com/stretchr/testify/require"
+
+	"github.com/bandprotocol/chain/v2/pkg/gzip"
 )
 
 func TestUncompress(t *testing.T) {

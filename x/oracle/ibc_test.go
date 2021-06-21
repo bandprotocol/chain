@@ -9,10 +9,11 @@ import (
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/pkg/obi"
-	ibctesting "github.com/bandprotocol/chain/testing"
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/obi"
+
+	ibctesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type OracleTestSuite struct {

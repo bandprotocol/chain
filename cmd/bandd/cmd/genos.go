@@ -15,9 +15,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/go-owasm/api"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // AddGenesisOracleScriptCmd returns add-oracle-script cobra Command.

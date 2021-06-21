@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 )
 
 func fromHex(hexStr string) []byte {

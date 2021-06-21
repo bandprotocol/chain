@@ -1,4 +1,4 @@
-module github.com/bandprotocol/chain
+module github.com/bandprotocol/chain/v2
 
 go 1.15
 
