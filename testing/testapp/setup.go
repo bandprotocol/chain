@@ -33,11 +33,11 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	me "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -327,7 +327,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 }
 
 // CreateTestInput creates a new test environment for unit tests.
-func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, me.Keeper) {
+func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {

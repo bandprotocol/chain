@@ -83,17 +83,15 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	bandappparams "github.com/bandprotocol/chain/v2/app/params"
+	owasm "github.com/bandprotocol/go-owasm/api"
 
+	bandappparams "github.com/bandprotocol/chain/v2/app/params"
+	bandclient "github.com/bandprotocol/chain/v2/client"
+	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-
-	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
-	owasm "github.com/bandprotocol/go-owasm/api"
-
-	bandclient "github.com/bandprotocol/chain/v2/client"
 )
 
 const (
