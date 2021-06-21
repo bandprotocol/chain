@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func getParamsHandler(clientCtx client.Context) http.HandlerFunc {

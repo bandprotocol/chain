@@ -27,8 +27,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.

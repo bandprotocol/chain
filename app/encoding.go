@@ -3,7 +3,7 @@ package band
 import (
 	"github.com/cosmos/cosmos-sdk/std"
 
-	"github.com/bandprotocol/chain/app/params"
+	"github.com/bandprotocol/chain/v2/app/params"
 )
 
 // MakeEncodingConfig creates an EncodingConfig for testing

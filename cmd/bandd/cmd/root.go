@@ -30,8 +30,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/app/params"
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/app/params"
 )
 
 const (

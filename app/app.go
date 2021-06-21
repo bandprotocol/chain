@@ -83,17 +83,17 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	bandappparams "github.com/bandprotocol/chain/app/params"
+	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 
-	"github.com/bandprotocol/chain/x/oracle"
-	bandante "github.com/bandprotocol/chain/x/oracle/ante"
-	oraclekeeper "github.com/bandprotocol/chain/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle"
+	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 
-	bandbankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
+	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	owasm "github.com/bandprotocol/go-owasm/api"
 
-	bandclient "github.com/bandprotocol/chain/client"
+	bandclient "github.com/bandprotocol/chain/v2/client"
 )
 
 const (
@@ -181,7 +181,6 @@ type BandApp struct {
 
 	// Module manager.
 	mm *module.Manager
-
 }
 
 func init() {

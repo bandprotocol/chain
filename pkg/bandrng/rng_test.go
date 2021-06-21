@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/pkg/bandrng"
+	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 )
 
 func TestRngRandom(t *testing.T) {
