@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 func (h *Hook) getCurrentRewardAndCurrentRatio(ctx sdk.Context, addr sdk.ValAddress) (string, string) {

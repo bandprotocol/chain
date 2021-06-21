@@ -17,10 +17,10 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // Hook inherits from Band app hook to save latest request into SQL database.

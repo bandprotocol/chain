@@ -3,12 +3,12 @@ package emitter
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 

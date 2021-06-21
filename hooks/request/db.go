@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func initDb(driverName, dataSourceName string) *gorm.DB {

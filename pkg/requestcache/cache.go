@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/peterbourgon/diskv"
 )
 

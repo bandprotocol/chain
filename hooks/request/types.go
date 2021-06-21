@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gorm.io/gorm"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // RawReport is GORM model of RawReport proto message

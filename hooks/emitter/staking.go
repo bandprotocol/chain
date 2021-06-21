@@ -3,7 +3,7 @@ package emitter
 import (
 	"time"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
