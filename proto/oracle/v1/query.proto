@@ -239,7 +239,8 @@ message QueryRequestSearchRequest {
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
 message QueryRequestSearchResponse {
-  // TODO: add fields
+  // Request is details of an oracle request
+  QueryRequestResponse request = 1;
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC

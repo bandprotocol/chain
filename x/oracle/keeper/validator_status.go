@@ -43,7 +43,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	if err != nil {
 		panic(err)
 	}
-	// Convert the transfered tokens back to DecCoins for internal distr allocations.
+	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	oracleReward := sdk.NewDecCoinsFromCoins(oracleRewardInt...)
 	remaining := oracleReward
 	rewardMultiplier := sdk.OneDec().Sub(k.distrKeeper.GetCommunityTax(ctx))

@@ -333,13 +333,13 @@ func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
 	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "0 < 2: insufficent available validators")
+	require.EqualError(t, err, "0 < 2: insufficient available validators")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too high ask count
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	require.EqualError(t, err, "2 < 3: insufficent available validators")
+	require.EqualError(t, err, "2 < 3: insufficient available validators")
 	require.Nil(t, res)
 	// Bad oracle script ID
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
