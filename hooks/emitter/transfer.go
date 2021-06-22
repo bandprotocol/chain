@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 // handleMsgTransfer implements emitter handler for msgTransfer.

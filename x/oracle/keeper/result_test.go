@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestResultBasicFunctions(t *testing.T) {
@@ -25,7 +25,7 @@ func TestResultBasicFunctions(t *testing.T) {
 	require.Equal(t, result, result)
 	// GetResult of another request should return error.
 	_, err = k.GetResult(ctx, 2)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrResultNotFound)
 	require.Panics(t, func() { k.MustGetResult(ctx, 2) })
 	// HasResult should also perform correctly.
 	require.True(t, k.HasResult(ctx, 1))

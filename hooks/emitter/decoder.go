@@ -13,7 +13,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -103,7 +103,40 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgUndelegate(msg, detail)
 	case *stakingtypes.MsgBeginRedelegate:
 		decodeMsgBeginRedelegate(msg, detail)
-
+	case *clienttypes.MsgUpdateClient:
+		decodeMsgUpdateClient(msg, detail)
+	case *clienttypes.MsgUpgradeClient:
+		decodeMsgUpgradeClient(msg, detail)
+	case *clienttypes.MsgSubmitMisbehaviour:
+		decodeMsgSubmitMisbehaviour(msg, detail)
+	case *connectiontypes.MsgConnectionOpenInit:
+		decodeMsgConnectionOpenInit(msg, detail)
+	case *connectiontypes.MsgConnectionOpenTry:
+		decodeMsgConnectionOpenTry(msg, detail)
+	case *connectiontypes.MsgConnectionOpenAck:
+		decodeMsgConnectionOpenAck(msg, detail)
+	case *connectiontypes.MsgConnectionOpenConfirm:
+		decodeMsgConnectionOpenConfirm(msg, detail)
+	case *channeltypes.MsgChannelOpenInit:
+		decodeMsgChannelOpenInit(msg, detail)
+	case *channeltypes.MsgChannelOpenTry:
+		decodeMsgChannelOpenTry(msg, detail)
+	case *channeltypes.MsgChannelOpenAck:
+		decodeMsgChannelOpenAck(msg, detail)
+	case *channeltypes.MsgChannelOpenConfirm:
+		decodeMsgChannelOpenConfirm(msg, detail)
+	case *channeltypes.MsgChannelCloseInit:
+		decodeMsgChannelCloseInit(msg, detail)
+	case *channeltypes.MsgChannelCloseConfirm:
+		decodeMsgChannelCloseConfirm(msg, detail)
+	case *channeltypes.MsgRecvPacket:
+		decodeMsgRecvPacket(msg, detail)
+	case *channeltypes.MsgAcknowledgement:
+		decodeMsgAcknowledgement(msg, detail)
+	case *channeltypes.MsgTimeout:
+		decodeMsgTimeout(msg, detail)
+	case *channeltypes.MsgTimeoutOnClose:
+		decodeMsgTimeoutOnClose(msg, detail)
 	default:
 		break
 	}
@@ -437,4 +470,154 @@ func decodeMsgBeginRedelegate(msg *stakingtypes.MsgBeginRedelegate, detail commo
 	detail["validator_src_address"] = msg.ValidatorSrcAddress
 	detail["validator_dst_address"] = msg.ValidatorDstAddress
 	detail["amount"] = msg.Amount
+}
+
+func decodeMsgUpdateClient(msg *clienttypes.MsgUpdateClient, detail common.JsDict) {
+	header, _ := clienttypes.UnpackHeader(msg.Header)
+	detail["client_id"] = msg.ClientId
+	detail["header"] = header
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgUpgradeClient(msg *clienttypes.MsgUpgradeClient, detail common.JsDict) {
+	clientState, _ := clienttypes.UnpackClientState(msg.ClientState)
+	consensusState, _ := clienttypes.UnpackConsensusState(msg.ConsensusState)
+	detail["client_id"] = msg.ClientId
+	detail["client_state"] = clientState
+	detail["consensus_state"] = consensusState
+	detail["proof_upgrade_client"] = msg.ProofUpgradeClient
+	detail["proof_upgrade_consensus_state"] = msg.ProofUpgradeConsensusState
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail common.JsDict) {
+	misbehaviour, _ := clienttypes.UnpackMisbehaviour(msg.Misbehaviour)
+	detail["client_id"] = msg.ClientId
+	detail["misbehaviour"] = misbehaviour
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgConnectionOpenInit(msg *connectiontypes.MsgConnectionOpenInit, detail common.JsDict) {
+	detail["client_id"] = msg.ClientId
+	detail["counterpart"] = msg.Counterparty
+	detail["version"] = msg.Version
+	detail["delay_period"] = msg.DelayPeriod
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgConnectionOpenTry(msg *connectiontypes.MsgConnectionOpenTry, detail common.JsDict) {
+	clientState, _ := clienttypes.UnpackClientState(msg.ClientState)
+	detail["client_id"] = msg.ClientId
+	detail["previous_connection_id"] = msg.PreviousConnectionId
+	detail["client_state"] = clientState
+	detail["counterparty"] = msg.Counterparty
+	detail["delay_period"] = msg.DelayPeriod
+	detail["counterparty_versions"] = msg.CounterpartyVersions
+	detail["proof_height"] = msg.ProofHeight
+	detail["proof_init"] = msg.ProofInit
+	detail["proof_client"] = msg.ProofClient
+	detail["proof_consensus"] = msg.ProofConsensus
+	detail["consensus_height"] = msg.ConsensusHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgConnectionOpenAck(msg *connectiontypes.MsgConnectionOpenAck, detail common.JsDict) {
+	clientState, _ := clienttypes.UnpackClientState(msg.ClientState)
+	detail["connection_id"] = msg.ConnectionId
+	detail["counterparty_connection_id"] = msg.CounterpartyConnectionId
+	detail["version"] = msg.Version
+	detail["client_state"] = clientState
+	detail["proof_height"] = msg.ProofHeight
+	detail["proof_try"] = msg.ProofTry
+	detail["proof_client"] = msg.ProofClient
+	detail["proof_consensus"] = msg.ProofConsensus
+	detail["consensus_height"] = msg.ConsensusHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgConnectionOpenConfirm(msg *connectiontypes.MsgConnectionOpenConfirm, detail common.JsDict) {
+	detail["connection_id"] = msg.ConnectionId
+	detail["proof_ack"] = msg.ProofAck
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelOpenInit(msg *channeltypes.MsgChannelOpenInit, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["channel"] = msg.Channel
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelOpenTry(msg *channeltypes.MsgChannelOpenTry, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["previous_channel_id"] = msg.PreviousChannelId
+	detail["channel"] = msg.Channel
+	detail["counterparty_version"] = msg.CounterpartyVersion
+	detail["proof_init"] = msg.ProofInit
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelOpenAck(msg *channeltypes.MsgChannelOpenAck, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["channel_id"] = msg.ChannelId
+	detail["counterparty_channel_id"] = msg.CounterpartyChannelId
+	detail["counterparty_version"] = msg.CounterpartyVersion
+	detail["proof_try"] = msg.ProofTry
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelOpenConfirm(msg *channeltypes.MsgChannelOpenConfirm, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["channel_id"] = msg.ChannelId
+	detail["proof_ack"] = msg.ProofAck
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelCloseInit(msg *channeltypes.MsgChannelCloseInit, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["channel_id"] = msg.ChannelId
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgChannelCloseConfirm(msg *channeltypes.MsgChannelCloseConfirm, detail common.JsDict) {
+	detail["port_id"] = msg.PortId
+	detail["channel_id"] = msg.ChannelId
+	detail["proof_init"] = msg.ProofInit
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgRecvPacket(msg *channeltypes.MsgRecvPacket, detail common.JsDict) {
+	detail["packet"] = msg.Packet
+	detail["proof_commitment"] = msg.ProofCommitment
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgAcknowledgement(msg *channeltypes.MsgAcknowledgement, detail common.JsDict) {
+	detail["packet"] = msg.Packet
+	detail["acknowledgement"] = msg.Acknowledgement
+	detail["proof_acked"] = msg.ProofAcked
+	detail["proof_height"] = msg.ProofHeight
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgTimeout(msg *channeltypes.MsgTimeout, detail common.JsDict) {
+	detail["packet"] = msg.Packet
+	detail["proof_unreceived"] = msg.ProofUnreceived
+	detail["proof_height"] = msg.ProofHeight
+	detail["next_sequence_recv"] = msg.NextSequenceRecv
+	detail["signer"] = msg.Signer
+}
+
+func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.JsDict) {
+	detail["packet"] = msg.Packet
+	detail["proof_unreceived"] = msg.ProofUnreceived
+	detail["proof_close"] = msg.ProofClose
+	detail["proof_height"] = msg.ProofHeight
+	detail["next_sequence_recv"] = msg.NextSequenceRecv
+	detail["signer"] = msg.Signer
 }

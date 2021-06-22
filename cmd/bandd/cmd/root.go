@@ -33,21 +33,22 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/app/params"
-	"github.com/bandprotocol/chain/hooks/emitter"
-	"github.com/bandprotocol/chain/hooks/price"
-	"github.com/bandprotocol/chain/hooks/request"
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/app/params"
+	"github.com/bandprotocol/chain/v2/hooks/emitter"
+	"github.com/bandprotocol/chain/v2/hooks/price"
+	"github.com/bandprotocol/chain/v2/hooks/request"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const (
-	flagWithEmitter           = "with-emitter"
-	flagDisableFeelessReports = "disable-feeless-reports"
-	flagEnableFastSync        = "enable-fast-sync"
-	flagWithPricer            = "with-pricer"
-	flagWithRequestSearch     = "with-request-search"
-	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagWithEmitter            = "with-emitter"
+	flagDisableFeelessReports  = "disable-feeless-reports"
+	flagEnableFastSync         = "enable-fast-sync"
+	flagWithPricer             = "with-pricer"
+	flagWithRequestSearch      = "with-request-search"
+	flagRequestSearchCacheSize = "request-search-cache-size"
+	flagWithOwasmCacheSize     = "oracle-script-cache-size"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -107,14 +108,15 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		txCommand(),
 		keys.Commands(band.DefaultNodeHome),
 	)
-
-	rootCmd.PersistentFlags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
-	rootCmd.PersistentFlags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
-	rootCmd.PersistentFlags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
-	rootCmd.PersistentFlags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
 }
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
+	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
+	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
+	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
+	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
 }
 
 func queryCommand() *cobra.Command {
@@ -220,8 +222,9 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	)
 	connStr, _ := appOpts.Get(flagWithRequestSearch).(string)
 	if connStr != "" {
+		requestSearchCacheSize := appOpts.Get(flagRequestSearchCacheSize).(int)
 		bandApp.AddHook(request.NewHook(
-			bandApp.LegacyAmino(), bandApp.OracleKeeper, connStr))
+			bandApp.AppCodec(), bandApp.OracleKeeper, connStr, requestSearchCacheSize))
 	}
 
 	connStr, _ = appOpts.Get(flagWithEmitter).(string)

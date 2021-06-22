@@ -15,9 +15,10 @@ import (
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
-	"github.com/bandprotocol/chain/yoda/executor"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/yoda/executor"
 )
 
 const (

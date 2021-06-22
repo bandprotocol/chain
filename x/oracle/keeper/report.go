@@ -4,12 +4,22 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // HasReport checks if the report of this ID triple exists in the storage.
 func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) bool {
 	return ctx.KVStore(k.storeKey).Has(types.ReportsOfValidatorPrefixKey(rid, val))
+}
+
+func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) (types.Report, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ReportsOfValidatorPrefixKey(rid, val))
+	if bz == nil {
+		return types.Report{}, sdkerrors.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
+	}
+	var report types.Report
+	k.cdc.MustUnmarshalBinaryBare(bz, &report)
+	return report, nil
 }
 
 // SetDataReport saves the report to the storage without performing validation.

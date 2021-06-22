@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // HasOracleScript checks if the oracle script of this ID exists in the storage.
@@ -80,7 +80,7 @@ func (k Keeper) AddOracleScriptFile(file []byte) (string, error) {
 	}
 	compiledFile, err := k.owasmVM.Compile(file, types.MaxCompiledWasmCodeSize)
 	if err != nil {
-		return "", sdkerrors.Wrapf(types.ErrOwasmCompilation, "with error: %s", err.Error())
+		return "", sdkerrors.Wrapf(types.ErrOwasmCompilation, "caused by %s", err.Error())
 	}
 	return k.fileCache.AddFile(compiledFile), nil
 }

@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestHasOracleScript(t *testing.T) {
@@ -25,7 +25,7 @@ func TestSetterGetterOracleScript(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Getting a non-existent oracle script should return error.
 	_, err := k.GetOracleScript(ctx, 42)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
 	require.Panics(t, func() { _ = k.MustGetOracleScript(ctx, 42) })
 	// Creates some basic oracle scripts.
 	oracleScript1 := types.NewOracleScript(
@@ -156,5 +156,5 @@ func TestAddOracleScriptFile(t *testing.T) {
 	require.Equal(t, types.DoNotModify, filename)
 	// We should not be able to add a non-wasm file.
 	_, err = k.AddOracleScriptFile([]byte("code"))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrOwasmCompilation)
 }

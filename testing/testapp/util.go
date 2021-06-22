@@ -1,14 +1,16 @@
 package testapp
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
-	bankkeeper "github.com/bandprotocol/chain/x/bank/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
+
+	bankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 )
 
 // ParseTime is a helper function to parse from number to time.Time with UTC locale.
@@ -79,4 +81,13 @@ func CheckBalances(
 	require.NoError(t, err)
 
 	require.True(t, expected.IsEqual(balancesRes.Balances))
+}
+
+// CheckErrorf checks whether
+// - error type is wrapped inside the given error
+// - error match given message string combined with error type
+func CheckErrorf(t *testing.T, err error, errType error, msg string, a ...interface{}) {
+	require.ErrorIs(t, err, errType)
+	formattedMsg := fmt.Sprintf(msg, a...)
+	require.EqualError(t, err, fmt.Sprintf("%s: %s", formattedMsg, errType))
 }

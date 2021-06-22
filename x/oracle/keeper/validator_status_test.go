@@ -4,16 +4,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func defaultVotes() []abci.VoteInfo {
@@ -135,7 +134,7 @@ func TestFailActivateAlreadyActive(t *testing.T) {
 	err := k.Activate(ctx, testapp.Validators[0].ValAddress)
 	require.NoError(t, err)
 	err = k.Activate(ctx, testapp.Validators[0].ValAddress)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrValidatorAlreadyActive)
 }
 
 func TestFailActivateTooSoon(t *testing.T) {
@@ -145,8 +144,8 @@ func TestFailActivateTooSoon(t *testing.T) {
 	k.SetValidatorStatus(ctx, testapp.Validators[0].ValAddress, types.NewValidatorStatus(false, now))
 	// You can't activate until it's been at least InactivePenaltyDuration nanosec.
 	penaltyDuration := k.GetParams(ctx).InactivePenaltyDuration
-	require.Error(t, k.Activate(ctx.WithBlockTime(now), testapp.Validators[0].ValAddress))
-	require.Error(t, k.Activate(ctx.WithBlockTime(now.Add(time.Duration(penaltyDuration/2))), testapp.Validators[0].ValAddress))
+	require.ErrorIs(t, k.Activate(ctx.WithBlockTime(now), testapp.Validators[0].ValAddress), types.ErrTooSoonToActivate)
+	require.ErrorIs(t, k.Activate(ctx.WithBlockTime(now.Add(time.Duration(penaltyDuration/2))), testapp.Validators[0].ValAddress), types.ErrTooSoonToActivate)
 	// So far there must be no changes to the validator's status.
 	vs := k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress)
 	require.Equal(t, types.NewValidatorStatus(false, now), vs)

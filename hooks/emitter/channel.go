@@ -1,13 +1,13 @@
 package emitter
 
 import (
-	"github.com/bandprotocol/chain/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibcxfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	"github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 
-	oracletypes "github.com/bandprotocol/chain/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // TODO: update transfer acknowledgement for fungible token packet

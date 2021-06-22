@@ -11,7 +11,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/gin-gonic/gin"
 
-	band "github.com/bandprotocol/chain/app"
+	band "github.com/bandprotocol/chain/v2/app"
 )
 
 type Request struct {

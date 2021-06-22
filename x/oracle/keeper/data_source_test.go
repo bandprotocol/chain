@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/testing/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestHasDataSource(t *testing.T) {
@@ -25,7 +25,7 @@ func TestSetterGetterDataSource(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Getting a non-existent data source should return error.
 	_, err := k.GetDataSource(ctx, 42)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrDataSourceNotFound)
 	require.Panics(t, func() { _ = k.MustGetDataSource(ctx, 42) })
 	// Creates some basic data sources.
 	dataSource1 := types.NewDataSource(testapp.Alice.Address, "NAME1", "DESCRIPTION1", "filename1", testapp.EmptyCoins, testapp.Treasury.Address)
