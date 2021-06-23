@@ -87,37 +87,16 @@ func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 
 	// Keep the top `dbMaxRecords` records and delete the rest from database
 	// under given search query
-	var targetRequests []Request
-	h.trans.
+	subQuery := h.trans.
 		Select("id").
 		Where(&queryCondition).
-		Not("id IN (?)", h.trans.Select("id").
-			Table("requests").
-			Where(&queryCondition).
-			Order("id desc").
-			Limit(h.dbMaxRecords),
-		).
-		Find(&targetRequests)
-
-	if len(targetRequests) == 0 {
-		return
-	}
-
-	var requestIDs []uint
-	for _, req := range targetRequests {
-		requestIDs = append(requestIDs, req.ID)
-	}
-
+		Order("id desc").
+		Table("requests").
+		Limit(h.dbMaxRecords)
 	h.trans.
-		Where("report_id IN (?)", h.trans.Select("id").
-			Where("request_id IN ?", requestIDs).
-			Table("reports"),
-		).
-		Delete(&RawReport{})
-
-	h.trans.
-		Select(clause.Associations).
-		Delete(&targetRequests)
+		Where(&queryCondition).
+		Not("id IN (?)", subQuery).
+		Delete(&Request{})
 }
 
 func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (*Request, error) {
@@ -130,13 +109,10 @@ func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCo
 	}
 
 	// Query latest request based on given search query
-	queryResult := h.db.
-		Model(&Request{}).
-		Where(&queryCondition).
-		Preload("RequestedValidators").
-		Preload("RawRequests").
-		Preload("Reports").
+	queryResult := h.db.Model(&Request{}).
 		Preload("Reports.RawReports").
+		Preload(clause.Associations).
+		Where(&queryCondition).
 		Order("resolve_time desc").
 		First(&result)
 
