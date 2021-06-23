@@ -402,7 +402,7 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 func decodeDescription(des stakingtypes.Description) common.JsDict {
 	return common.JsDict{
 		"details":          des.GetDetails(),
-		"indentity":        des.GetIdentity(),
+		"identity":         des.GetIdentity(),
 		"moniker":          des.GetMoniker(),
 		"security_contact": des.GetSecurityContact(),
 		"website":          des.GetWebsite(),
