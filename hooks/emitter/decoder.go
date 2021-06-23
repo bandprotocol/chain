@@ -425,7 +425,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
 	detail["description"] = decodeDescription(msg.Description)
 	detail["validator_address"] = msg.ValidatorAddress
-	detail["commission_rates"] = msg.CommissionRate
+	detail["commission_rate"] = msg.CommissionRate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 }
 
