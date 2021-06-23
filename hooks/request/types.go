@@ -5,16 +5,15 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"gorm.io/gorm"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // RawReport is GORM model of RawReport proto message
 type RawReport struct {
-	gorm.Model
+	ID uint `gorm:"primarykey"`
 	// ReportID is a foreign key of Report model
-	ReportID   uint
+	ReportID   uint `gorm:"index:idx_raw_report_report_id"`
 	ExternalID int64
 	// Data is proto's RawReport.data field encoded in base64
 	Data     string `gorm:"size:1024"`
@@ -23,19 +22,19 @@ type RawReport struct {
 
 // Report is GORM model of Report proto message
 type Report struct {
-	gorm.Model
+	ID uint `gorm:"primarykey"`
 	// RequestID is a foreign key of Request model
-	RequestID       uint
+	RequestID       uint `gorm:"index:idx_report_request_id"`
 	Validator       string
-	RawReports      []RawReport `gorm:"constraint:OnDelete:CASCADE"`
+	RawReports      []RawReport
 	InBeforeResolve bool
 }
 
 // RawRequest is GORM model of RawRequest proto message
 type RawRequest struct {
-	gorm.Model
+	ID uint `gorm:"primarykey"`
 	// RequestID is a foreign key of Request model
-	RequestID    uint
+	RequestID    uint `gorm:"index:idx_raw_request_request_id"`
 	ExternalID   int64
 	DataSourceID int64
 	// Calldata is proto's RawRequest.calldata field encoded in base64
@@ -44,30 +43,30 @@ type RawRequest struct {
 
 // RequestedValidator is GORM model of Request.requested_validators proto message
 type RequestedValidator struct {
-	gorm.Model
+	ID uint `gorm:"primarykey"`
 	// RequestID is a foreign key of Request model
-	RequestID uint
+	RequestID uint `gorm:"index:idx_requested_validator_request_id"`
 	Address   string
 }
 
 // Request is GORM model of Request proto message combined with Result proto message
 type Request struct {
-	gorm.Model
+	ID             uint  `gorm:"primarykey"`
 	OracleScriptID int64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// Calldata is proto's Request.calldata field encoded in base64
-	Calldata            string               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
-	RequestedValidators []RequestedValidator `gorm:"constraint:OnDelete:CASCADE"`
-	MinCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
-	AskCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	Calldata            string `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
+	RequestedValidators []RequestedValidator
+	MinCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	AskCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	AnsCount            uint64
 	RequestHeight       int64
 	RequestTime         time.Time
 	ClientID            string
-	RawRequests         []RawRequest `gorm:"constraint:OnDelete:CASCADE"`
+	RawRequests         []RawRequest
 	IBCPortID           string
 	IBCChannelID        string
 	ExecuteGas          uint64
-	Reports             []Report  `gorm:"constraint:OnDelete:CASCADE"`
+	Reports             []Report
 	ResolveTime         time.Time `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// ResolveStatus is proto's resolve_status but as enum string
 	ResolveStatus string `gorm:"size:64"`
@@ -135,9 +134,7 @@ func NewRequest(
 	result []byte,
 ) Request {
 	return Request{
-		Model: gorm.Model{
-			ID: uint(id),
-		},
+		ID:                  uint(id),
 		OracleScriptID:      int64(oracleScriptID),
 		Calldata:            base64.StdEncoding.EncodeToString(calldata),
 		RequestedValidators: requestedValidators,
