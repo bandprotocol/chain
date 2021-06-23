@@ -414,7 +414,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
 
 	detail["description"] = decodeDescription(msg.Description)
-	detail["commission_rates"] = msg.Commission
+	detail["commission"] = msg.Commission
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
