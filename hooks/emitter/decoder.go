@@ -399,11 +399,13 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 	detail["option"] = msg.Option
 }
 
-func decodeCommission(commission stakingtypes.CommissionRates) stakingtypes.CommissionRates {
-	return stakingtypes.CommissionRates{
-		Rate:          commission.Rate,
-		MaxRate:       commission.MaxRate,
-		MaxChangeRate: commission.MaxChangeRate,
+func decodeDescription(des stakingtypes.Description) stakingtypes.Description {
+	return stakingtypes.Description{
+		Moniker:         des.GetMoniker(),
+		Identity:        des.GetIdentity(),
+		Website:         des.GetWebsite(),
+		SecurityContact: des.GetSecurityContact(),
+		Details:         des.GetDetails(),
 	}
 }
 
@@ -411,8 +413,8 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
 	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
 
-	detail["description"] = msg.Description
-	detail["commission_rates"] = decodeCommission(msg.Commission)
+	detail["description"] = decodeDescription(msg.Description)
+	detail["commission_rates"] = msg.Commission
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
@@ -421,7 +423,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 }
 
 func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
-	detail["description"] = msg.Description
+	detail["description"] = decodeDescription(msg.Description)
 	detail["validator_address"] = msg.ValidatorAddress
 	detail["commission_rates"] = msg.CommissionRate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
