@@ -399,13 +399,13 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 	detail["option"] = msg.Option
 }
 
-func decodeDescription(des stakingtypes.Description) stakingtypes.Description {
-	return stakingtypes.Description{
-		Moniker:         des.GetMoniker(),
-		Identity:        des.GetIdentity(),
-		Website:         des.GetWebsite(),
-		SecurityContact: des.GetSecurityContact(),
-		Details:         des.GetDetails(),
+func decodeDescription(des stakingtypes.Description) common.JsDict {
+	return common.JsDict{
+		"moniker":          des.GetMoniker(),
+		"indentity":        des.GetIdentity(),
+		"website":          des.GetWebsite(),
+		"security_contact": des.GetSecurityContact(),
+		"details":          des.GetDetails(),
 	}
 }
 
