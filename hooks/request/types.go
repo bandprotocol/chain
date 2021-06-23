@@ -26,7 +26,7 @@ type Report struct {
 	// RequestID is a foreign key of Request model
 	RequestID       uint `gorm:"index:idx_report_request_id"`
 	Validator       string
-	RawReports      []RawReport
+	RawReports      []RawReport `gorm:"constraint:OnDelete:CASCADE"`
 	InBeforeResolve bool
 }
 
@@ -54,19 +54,19 @@ type Request struct {
 	ID             uint  `gorm:"primarykey"`
 	OracleScriptID int64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// Calldata is proto's Request.calldata field encoded in base64
-	Calldata            string `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
-	RequestedValidators []RequestedValidator
-	MinCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
-	AskCount            uint64 `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	Calldata            string               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata;size:1024"`
+	RequestedValidators []RequestedValidator `gorm:"constraint:OnDelete:CASCADE"`
+	MinCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
+	AskCount            uint64               `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	AnsCount            uint64
 	RequestHeight       int64
 	RequestTime         time.Time
 	ClientID            string
-	RawRequests         []RawRequest
+	RawRequests         []RawRequest `gorm:"constraint:OnDelete:CASCADE"`
 	IBCPortID           string
 	IBCChannelID        string
 	ExecuteGas          uint64
-	Reports             []Report
+	Reports             []Report  `gorm:"constraint:OnDelete:CASCADE"`
 	ResolveTime         time.Time `gorm:"index:idx_min_count_ask_count_oracle_script_id_calldata"`
 	// ResolveStatus is proto's resolve_status but as enum string
 	ResolveStatus string `gorm:"size:64"`
