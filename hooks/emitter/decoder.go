@@ -399,12 +399,20 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 	detail["option"] = msg.Option
 }
 
+func decodeCommission(commission stakingtypes.CommissionRates) stakingtypes.CommissionRates {
+	return stakingtypes.CommissionRates{
+		Rate:          commission.Rate,
+		MaxRate:       commission.MaxRate,
+		MaxChangeRate: commission.MaxChangeRate,
+	}
+}
+
 func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
 	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
 	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
 
 	detail["description"] = msg.Description
-	detail["commission_rates"] = msg.Commission.Rate
+	detail["commission_rates"] = decodeCommission(msg.Commission)
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
