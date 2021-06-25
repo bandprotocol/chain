@@ -31,6 +31,9 @@ from .db import (
     oracle_script_requests,
     request_count_per_days,
     packets,
+    counterparty_chains,
+    connections,
+    channels,
 )
 
 
@@ -375,3 +378,18 @@ class Handler(object):
             .values(**msg)
             .on_conflict_do_update(constraint="historical_bonded_token_on_validators_pkey", set_=msg)
         )
+
+    def handle_set_counterparty_chain(self, msg):
+        self.conn.execute(
+            insert(counterparty_chains)
+            .values(**msg)
+            .on_conflict_do_update(constraint="counterparty_chains_pkey", set_=msg)
+        )
+
+    def handle_set_connection(self, msg):
+        self.conn.execute(
+            insert(connections).values(**msg).on_conflict_do_update(constraint="connections_pkey", set_=msg)
+        )
+
+    def handle_set_channel(self, msg):
+        self.conn.execute(insert(channels).values(**msg).on_conflict_do_update(constraint="channels_pkey", set_=msg))

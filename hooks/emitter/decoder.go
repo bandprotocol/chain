@@ -8,6 +8,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	transfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
+	types1 "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -105,6 +106,13 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgBeginRedelegate(msg, detail)
 	default:
 		break
+	}
+}
+
+func decodeHeight(h types1.Height) common.JsDict {
+	return common.JsDict{
+		"revision_number": h.GetRevisionNumber(),
+		"revision_height": h.GetRevisionHeight(),
 	}
 }
 
@@ -219,7 +227,7 @@ func decodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail 
 
 func decodeMsgConnectionOpenInit(msg *connectiontypes.MsgConnectionOpenInit, detail common.JsDict) {
 	detail["client_id"] = msg.ClientId
-	detail["counterpart"] = msg.Counterparty
+	detail["counterparty"] = msg.Counterparty
 	detail["version"] = msg.Version
 	detail["delay_period"] = msg.DelayPeriod
 	detail["signer"] = msg.Signer
@@ -233,11 +241,11 @@ func decodeMsgConnectionOpenTry(msg *connectiontypes.MsgConnectionOpenTry, detai
 	detail["counterparty"] = msg.Counterparty
 	detail["delay_period"] = msg.DelayPeriod
 	detail["counterparty_versions"] = msg.CounterpartyVersions
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["proof_init"] = msg.ProofInit
 	detail["proof_client"] = msg.ProofClient
 	detail["proof_consensus"] = msg.ProofConsensus
-	detail["consensus_height"] = msg.ConsensusHeight
+	detail["consensus_height"] = decodeHeight(msg.ConsensusHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -247,18 +255,18 @@ func decodeMsgConnectionOpenAck(msg *connectiontypes.MsgConnectionOpenAck, detai
 	detail["counterparty_connection_id"] = msg.CounterpartyConnectionId
 	detail["version"] = msg.Version
 	detail["client_state"] = clientState
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["proof_try"] = msg.ProofTry
 	detail["proof_client"] = msg.ProofClient
 	detail["proof_consensus"] = msg.ProofConsensus
-	detail["consensus_height"] = msg.ConsensusHeight
+	detail["consensus_height"] = decodeHeight(msg.ConsensusHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgConnectionOpenConfirm(msg *connectiontypes.MsgConnectionOpenConfirm, detail common.JsDict) {
 	detail["connection_id"] = msg.ConnectionId
 	detail["proof_ack"] = msg.ProofAck
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -274,7 +282,7 @@ func decodeMsgChannelOpenTry(msg *channeltypes.MsgChannelOpenTry, detail common.
 	detail["channel"] = msg.Channel
 	detail["counterparty_version"] = msg.CounterpartyVersion
 	detail["proof_init"] = msg.ProofInit
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -284,7 +292,7 @@ func decodeMsgChannelOpenAck(msg *channeltypes.MsgChannelOpenAck, detail common.
 	detail["counterparty_channel_id"] = msg.CounterpartyChannelId
 	detail["counterparty_version"] = msg.CounterpartyVersion
 	detail["proof_try"] = msg.ProofTry
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -292,7 +300,7 @@ func decodeMsgChannelOpenConfirm(msg *channeltypes.MsgChannelOpenConfirm, detail
 	detail["port_id"] = msg.PortId
 	detail["channel_id"] = msg.ChannelId
 	detail["proof_ack"] = msg.ProofAck
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -306,14 +314,14 @@ func decodeMsgChannelCloseConfirm(msg *channeltypes.MsgChannelCloseConfirm, deta
 	detail["port_id"] = msg.PortId
 	detail["channel_id"] = msg.ChannelId
 	detail["proof_init"] = msg.ProofInit
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgRecvPacket(msg *channeltypes.MsgRecvPacket, detail common.JsDict) {
 	detail["packet"] = msg.Packet
 	detail["proof_commitment"] = msg.ProofCommitment
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -321,14 +329,14 @@ func decodeMsgAcknowledgement(msg *channeltypes.MsgAcknowledgement, detail commo
 	detail["packet"] = msg.Packet
 	detail["acknowledgement"] = msg.Acknowledgement
 	detail["proof_acked"] = msg.ProofAcked
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgTimeout(msg *channeltypes.MsgTimeout, detail common.JsDict) {
 	detail["packet"] = msg.Packet
 	detail["proof_unreceived"] = msg.ProofUnreceived
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
 }
@@ -337,7 +345,7 @@ func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.
 	detail["packet"] = msg.Packet
 	detail["proof_unreceived"] = msg.ProofUnreceived
 	detail["proof_close"] = msg.ProofClose
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
 }
@@ -377,7 +385,7 @@ func decodeMsgTransfer(msg *transfertypes.MsgTransfer, detail common.JsDict) {
 	detail["token"] = msg.Token
 	detail["sender"] = msg.Sender
 	detail["receiver"] = msg.Receiver
-	detail["timeout_height"] = msg.TimeoutHeight
+	detail["timeout_height"] = decodeHeight(msg.TimeoutHeight)
 	detail["timeout_timestamp"] = msg.TimeoutTimestamp
 }
 

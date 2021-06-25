@@ -15,6 +15,9 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	clientkeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -52,13 +55,18 @@ type Hook struct {
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+
+	//ibc keeper
+	clientkeeper     clientkeeper.Keeper
+	connectionkeeper connectionkeeper.Keeper
+	channelkeeper    channelkeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
 	cdc codec.Marshaler, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper, kafkaURI string, emitStartState bool,
+	oracleKeeper keeper.Keeper, clientkeeper clientkeeper.Keeper, connectionkeeper connectionkeeper.Keeper, channelkeeper channelkeeper.Keeper, kafkaURI string, emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
@@ -72,14 +80,17 @@ func NewHook(
 			BatchTimeout: 1 * time.Millisecond,
 			// Async:    true, // TODO: We may be able to enable async mode on replay
 		}),
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
-		stakingKeeper:  stakingKeeper,
-		mintKeeper:     mintKeeper,
-		distrKeeper:    distrKeeper,
-		govKeeper:      govKeeper,
-		oracleKeeper:   oracleKeeper,
-		emitStartState: emitStartState,
+		accountKeeper:    accountKeeper,
+		bankKeeper:       bankKeeper,
+		stakingKeeper:    stakingKeeper,
+		mintKeeper:       mintKeeper,
+		distrKeeper:      distrKeeper,
+		govKeeper:        govKeeper,
+		oracleKeeper:     oracleKeeper,
+		clientkeeper:     clientkeeper,
+		connectionkeeper: connectionkeeper,
+		channelkeeper:    channelkeeper,
+		emitStartState:   emitStartState,
 	}
 }
 

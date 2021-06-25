@@ -6,6 +6,8 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	transfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
+	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -81,6 +83,26 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, detail)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, msg, evMap)
+	case *clienttypes.MsgCreateClient:
+		h.handleMsgCreatClient(ctx, msg, detail)
+	case *connectiontypes.MsgConnectionOpenConfirm:
+		h.handleMsgConnectionOpenConfirm(ctx, msg)
+	case *connectiontypes.MsgConnectionOpenAck:
+		h.handleMsgConnectionOpenAck(ctx, msg)
+	case *channeltypes.MsgChannelOpenInit:
+		h.handleMsgChannelOpenInit(ctx, msg, evMap)
+	case *channeltypes.MsgChannelOpenTry:
+		h.handleMsgChannelOpenTry(ctx, msg, evMap)
+	case *channeltypes.MsgChannelOpenAck:
+		h.handleMsgChannelOpenAck(ctx, msg)
+	case *channeltypes.MsgChannelOpenConfirm:
+		h.handleMsgChannelOpenConfirm(ctx, msg)
+	case *channeltypes.MsgChannelCloseInit:
+		h.handleMsgChannelCloseInit(ctx, msg)
+	case *channeltypes.MsgChannelCloseConfirm:
+		h.handleMsgChannelCloseConfirm(ctx, msg)
+	default:
+		break
 	}
 }
 
