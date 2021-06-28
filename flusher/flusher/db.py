@@ -391,3 +391,26 @@ packets = sa.Table(
     Column("data", sa.JSON),
     Column("acknowledgement", sa.JSON, nullable=True),
 )
+
+counterparty_chains = sa.Table("counterparty_chains", metadata, Column("chain_id", sa.String, primary_key=True))
+
+connections = sa.Table(
+    "connections",
+    metadata,
+    Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True),
+    Column("counterparty_connection_id", sa.String),
+    Column("client_id", sa.String),
+    Column("connection_id", sa.String, primary_key=True, unique=True),
+)
+
+channels = sa.Table(
+    "channels",
+    metadata,
+    Column("connection_id", sa.String, sa.ForeignKey("connections.connection_id")),
+    Column("port", sa.String, primary_key=True),
+    Column("counterparty_port", sa.String),
+    Column("channel", sa.String, primary_key=True),
+    Column("counterparty_channel", sa.String),
+    Column("state", sa.Integer),
+    Column("order", sa.String),
+)

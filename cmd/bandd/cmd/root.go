@@ -232,7 +232,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		bandApp.AddHook(
 			emitter.NewHook(bandApp.AppCodec(), bandApp.LegacyAmino(), band.MakeEncodingConfig(), bandApp.AccountKeeper, bandApp.BankKeeper,
 				bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
-				bandApp.OracleKeeper, connStr, false))
+				bandApp.OracleKeeper, bandApp.IBCKeeper.ClientKeeper, bandApp.IBCKeeper.ConnectionKeeper, bandApp.IBCKeeper.ChannelKeeper, connStr, false))
 	}
 
 	pricerStr, _ := appOpts.Get(flagWithPricer).(string)

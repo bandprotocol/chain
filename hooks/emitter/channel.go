@@ -10,6 +10,44 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
+func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
+	channel, _ := h.channelkeeper.GetChannel(ctx, portId, channelId)
+	hop := channel.ConnectionHops[0]
+	h.Write("SET_CHANNEL", common.JsDict{
+		"connection_id":        hop,
+		"port":                 portId,
+		"counterparty_port":    channel.Counterparty.PortId,
+		"channel":              channelId,
+		"counterparty_channel": channel.Counterparty.ChannelId,
+		"state":                channel.State,
+		"order":                channel.Ordering,
+	})
+}
+
+func (h *Hook) handleMsgChannelOpenInit(ctx sdk.Context, msg *types.MsgChannelOpenInit, evMap common.EvMap) {
+	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
+}
+
+func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
+}
+
+func (h *Hook) handleMsgChannelOpenAck(ctx sdk.Context, msg *types.MsgChannelOpenAck) {
+	h.emitSetChannel(ctx, msg.PortId, msg.ChannelId)
+}
+
+func (h *Hook) handleMsgChannelOpenConfirm(ctx sdk.Context, msg *types.MsgChannelOpenConfirm) {
+	h.emitSetChannel(ctx, msg.PortId, msg.ChannelId)
+}
+
+func (h *Hook) handleMsgChannelCloseInit(ctx sdk.Context, msg *types.MsgChannelCloseInit) {
+	h.emitSetChannel(ctx, msg.PortId, msg.ChannelId)
+}
+
+func (h *Hook) handleMsgChannelCloseConfirm(ctx sdk.Context, msg *types.MsgChannelCloseConfirm) {
+	h.emitSetChannel(ctx, msg.PortId, msg.ChannelId)
+}
+
 // TODO: update transfer acknowledgement for fungible token packet
 
 func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, isIncoming bool) common.JsDict {
