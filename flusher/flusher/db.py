@@ -377,16 +377,29 @@ request_count_per_days = sa.Table(
     "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
 )
 
-packets = sa.Table(
-    "packets",
+incoming_packets = sa.Table(
+    "incoming_packets",
     metadata,
-    Column("is_incoming", sa.Boolean),
-    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
     Column("src_channel", sa.String),
     Column("src_port", sa.String),
-    Column("sequence", sa.Integer),
+    Column("sequence", sa.Integer, primary_key=True),
+    Column("dst_channel", sa.String, sa.ForeignKey("channels.channel"), primary_key=True),
+    Column("dst_port", sa.String, sa.ForeignKey("channels.port"), primary_key=True),
+    Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("type", sa.String),
+    Column("data", sa.JSON),
+    Column("acknowledgement", sa.JSON, nullable=True),
+)
+
+outgoing_packets = sa.Table(
+    "outgoing_packets",
+    metadata,
+    Column("src_channel", sa.String, sa.ForeignKey("channels.channel"), primary_key=True),
+    Column("src_port", sa.String, sa.ForeignKey("channels.port"), primary_key=True),
+    Column("sequence", sa.Integer, primary_key=True),
     Column("dst_channel", sa.String),
     Column("dst_port", sa.String),
+    Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
     Column("type", sa.String),
     Column("data", sa.JSON),
     Column("acknowledgement", sa.JSON, nullable=True),

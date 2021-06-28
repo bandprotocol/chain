@@ -30,7 +30,8 @@ from .db import (
     data_source_requests,
     oracle_script_requests,
     request_count_per_days,
-    packets,
+    incoming_packets,
+    outgoing_packets,
     counterparty_chains,
     connections,
     channels,
@@ -364,6 +365,20 @@ class Handler(object):
 
     def handle_new_packet(self, msg):
         self.conn.execute(insert(packets).values(**msg))
+
+    def handle_new_incoming_packet(self, msg):
+        tx_id = self.get_transaction_id(msg["hash"])
+        self.conn.execute(insert(incoming_packets).values(**msg))
+
+    def handle_new_outgoing_packet(self, msg):
+        tx_id = self.get_transaction_id(msg["hash"])
+        self.conn.execute(insert(outgoing_packets).values(**msg))
+
+    def handle_set_outgoing_packet(self, msg):
+        condition = True
+        for col in outgoing_packets.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(outgoing_packets.update(condition).values(**msg))
 
     def increase_oracle_script_count(self, id):
         self.conn.execute(

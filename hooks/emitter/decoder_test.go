@@ -348,7 +348,7 @@ func (suite *DecoderTestSuite) TestDecodedecodeMsgConnectionOpenInit() {
 	decodeMsgConnectionOpenInit(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_id\":\"\",\"counterpart\":{\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"delay_period\":0,\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
+		"{\"client_id\":\"\",\"counterparty\":{\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"delay_period\":0,\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
 	)
 }
 
