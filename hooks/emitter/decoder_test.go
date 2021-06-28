@@ -348,7 +348,7 @@ func (suite *DecoderTestSuite) TestDecodedecodeMsgConnectionOpenInit() {
 	decodeMsgConnectionOpenInit(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_id\":\"\",\"counterpart\":{\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"delay_period\":0,\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
+		"{\"client_id\":\"\",\"counterparty\":{\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"delay_period\":0,\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
 	)
 }
 
@@ -364,7 +364,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 	decodeMsgConnectionOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"connection-0\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"connection-0\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -380,7 +380,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 	decodeMsgConnectionOpenAck(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"connection_id\":\"\",\"consensus_height\":{\"revision_height\":10},\"counterparty_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
+		"{\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"connection_id\":\"\",\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
 	)
 }
 
@@ -391,7 +391,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenConfirm() {
 	decodeMsgConnectionOpenConfirm(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"connection_id\":\"\",\"proof_ack\":\"\",\"proof_height\":{\"revision_height\":10},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"connection_id\":\"\",\"proof_ack\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -427,7 +427,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenTry() {
 	decodeMsgChannelOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"counterparty_version\":\"bandchain-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"oracle\",\"proof_height\":{\"revision_height\":10},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"counterparty_version\":\"bandchain-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"oracle\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -447,7 +447,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenAck() {
 	decodeMsgChannelOpenAck(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel_id\":\"channel-0\",\"counterparty_channel_id\":\"channel-0\",\"counterparty_version\":\"cpv\",\"port_id\":\"oracle\",\"proof_height\":{\"revision_height\":10},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel_id\":\"channel-0\",\"counterparty_channel_id\":\"channel-0\",\"counterparty_version\":\"cpv\",\"port_id\":\"oracle\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -465,7 +465,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenConfirm() {
 	decodeMsgChannelOpenConfirm(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel_id\":\"channel-0\",\"port_id\":\"oracle\",\"proof_ack\":\"\",\"proof_height\":{\"revision_height\":10},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel_id\":\"channel-0\",\"port_id\":\"oracle\",\"proof_ack\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -499,7 +499,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelCloseConfirm() {
 	decodeMsgChannelCloseConfirm(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel_id\":\"channel-0\",\"port_id\":\"oracle\",\"proof_height\":{\"revision_height\":10},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel_id\":\"channel-0\",\"port_id\":\"oracle\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -518,7 +518,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRecvPacket() {
 	decodeMsgRecvPacket(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_commitment\":\"\",\"proof_height\":{\"revision_height\":10},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_commitment\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -543,7 +543,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgAcknowledgement() {
 	decodeMsgAcknowledgement(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"acknowledgement\":\"\",\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_acked\":\"\",\"proof_height\":{\"revision_height\":10},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"acknowledgement\":\"\",\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_acked\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -568,7 +568,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeout() {
 	decodeMsgTimeout(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_height\":{\"revision_height\":10},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -595,7 +595,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	decodeMsgTimeoutOnClose(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
