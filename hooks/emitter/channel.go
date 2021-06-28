@@ -115,6 +115,8 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":      data.PrepareGas,
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
+				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
+				"is_ibc":           req.IBCChannel != nil,
 			})
 			h.emitRawRequestAndValRequest(id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)

@@ -154,6 +154,8 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas":      msg.PrepareGas,
 		"execute_gas":      msg.ExecuteGas,
 		"fee_limit":        msg.FeeLimit.String(),
+		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
+		"is_ibc":           req.IBCChannel != nil,
 	})
 	h.emitRawRequestAndValRequest(id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)
