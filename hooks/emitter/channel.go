@@ -194,12 +194,12 @@ func (h *Hook) extractOracleResponsePacket(
 	var data oracletypes.OracleResponsePacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
 	if err == nil {
-		req := h.oracleKeeper.MustGetRequest(ctx, data.RequestID)
-		os := h.oracleKeeper.MustGetOracleScript(ctx, req.OracleScriptID)
+		result := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
+		os := h.oracleKeeper.MustGetOracleScript(ctx, result.OracleScriptID)
 		packet["type"] = "oracle response"
 		packet["data"] = common.JsDict{
 			"request_id":           data.RequestID,
-			"oracle_script_id":     req.OracleScriptID,
+			"oracle_script_id":     result.OracleScriptID,
 			"oracle_script_name":   os.Name,
 			"oracle_script_schema": os.Schema,
 			"resolve_status":       data.ResolveStatus,

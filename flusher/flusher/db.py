@@ -182,6 +182,8 @@ requests = sa.Table(
     Column("request_time", sa.Integer, nullable=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
+    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
+    Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
