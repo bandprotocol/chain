@@ -493,12 +493,15 @@ func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
 		hookReq.Height = app.LastBlockHeight()
 	}
 
-	res, stop := app.hooks.ApplyQuery(req)
-	if stop {
-		return res
+	// Since we have to always run BaseApp.Query() to remember gRPC's return types
+	// (for more information, see Cosmos SDK's baseapp/gorouter.go file),
+	// We run both from baseApp and hooks, then choose the result later.
+	baseRes := app.BaseApp.Query(hookReq)
+	hookRes, match := app.hooks.ApplyQuery(hookReq)
+	if match {
+		return hookRes
 	}
-
-	return app.BaseApp.Query(req)
+	return baseRes
 }
 
 // LoadHeight loads a particular height
