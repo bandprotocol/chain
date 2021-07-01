@@ -108,7 +108,7 @@ Tendermint configuration file.
 
 ```bash
 # Download genesis file from the repository.
-wget <todo-genesis-raw-link>
+wget https://raw.githubusercontent.com/GeoDB-Limited/odin-core/master/testnets/odin-testnet-{name}/genesis.json
 # Check genesis hash
 sudo apt-get install jq
 # Move the genesis file to the proper location
