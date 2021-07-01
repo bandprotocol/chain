@@ -56,31 +56,31 @@ type Context struct {
 	submittedCount int64
 }
 
-func (c *Context) nextKeyIndex() int64 {
-	keyIndex := atomic.AddInt64(&c.keyRoundRobinIndex, 1) % int64(len(c.keys))
+func (ctx *Context) nextKeyIndex() int64 {
+	keyIndex := atomic.AddInt64(&ctx.keyRoundRobinIndex, 1) % int64(len(ctx.keys))
 	return keyIndex
 }
 
-func (c *Context) updateHandlingGauge(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.handlingGauge, amount)
+func (ctx *Context) updateHandlingGauge(amount int64) {
+	if ctx.metricsEnabled {
+		atomic.AddInt64(&ctx.handlingGauge, amount)
 	}
 }
 
-func (c *Context) updatePendingGauge(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.pendingGauge, amount)
+func (ctx *Context) updatePendingGauge(amount int64) {
+	if ctx.metricsEnabled {
+		atomic.AddInt64(&ctx.pendingGauge, amount)
 	}
 }
 
-func (c *Context) updateErrorCount(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.errorCount, amount)
+func (ctx *Context) updateErrorCount(amount int64) {
+	if ctx.metricsEnabled {
+		atomic.AddInt64(&ctx.errorCount, amount)
 	}
 }
 
-func (c *Context) updateSubmittedCount(amount int64) {
-	if c.metricsEnabled {
-		atomic.AddInt64(&c.submittedCount, amount)
+func (ctx *Context) updateSubmittedCount(amount int64) {
+	if ctx.metricsEnabled {
+		atomic.AddInt64(&ctx.submittedCount, amount)
 	}
 }

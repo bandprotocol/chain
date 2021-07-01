@@ -44,5 +44,5 @@ After we have `BandChain` and `Yoda` running, now we can request data on BandCha
 Example of requesting data on BandChain
 
 ```
-bandd tx oracle request 1 -c 0000000342544300000000000003e8 1 1  --from requester --chain-id bandchain --gas 3000000 --keyring-backend test  --from requester
+bandd tx oracle request 1 -c 0000000342544300000000000003e8 1 1  --chain-id bandchain --gas 3000000 --keyring-backend test  --fee-limit 10uband  --from requester
 ```

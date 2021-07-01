@@ -12,9 +12,9 @@ import (
 
 func creatDefaultServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		res.WriteHeader(200)
+		res.WriteHeader(http.StatusOK)
 		ret := externalExecutionResponse{
-			Returncode: 0,
+			ReturnCode: 0,
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}
@@ -24,22 +24,22 @@ func creatDefaultServer() *httptest.Server {
 
 func createResponseNotOkSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		res.WriteHeader(500)
+		res.WriteHeader(http.StatusInternalServerError)
 	}))
 }
 
 func createCannotDecodeJsonSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		res.WriteHeader(200)
+		res.WriteHeader(http.StatusOK)
 		res.Write([]byte("invalid bytes"))
 	}))
 }
 
 func creatExecuteFailSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		res.WriteHeader(200)
+		res.WriteHeader(http.StatusOK)
 		ret := externalExecutionResponse{
-			Returncode: 1,
+			ReturnCode: 1,
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}

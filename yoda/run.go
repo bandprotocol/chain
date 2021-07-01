@@ -2,9 +2,8 @@ package yoda
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	commontypes "github.com/GeoDB-Limited/odin-core/x/common/types"
+	"github.com/GeoDB-Limited/odin-core/yoda/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"path/filepath"
 	"sync"
 	"time"
@@ -18,23 +17,37 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/GeoDB-Limited/odin-core/pkg/filecache"
-	"github.com/GeoDB-Limited/odin-core/x/oracle/types"
+	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/GeoDB-Limited/odin-core/yoda/executor"
 )
 
-// TODO: refactor yoda to more consistent errors
 const (
 	// TODO: We can subscribe only for txs that contain request messages
 	TxQuery = "tm.event = 'Tx'"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
+
+	PendingRequestsQueryPath = "/oracle.v1.Query/PendingRequests"
+)
+
+const (
+	DefaultChainID          = "odin"
+	DefaultNodeURL          = "tcp://localhost:26657"
+	DefaultValidator        = ""
+	DefaultExecutor         = ""
+	DefaultGasPrices        = "10loki"
+	DefaultLogLevel         = "info"
+	DefaultBroadcastTimeout = "5m"
+	DefaultRPCPollInterval  = "1s"
+	DefaultMaxTry           = 5
+	DefaultMaxReport        = 10
 )
 
 func runImpl(c *Context, l *Logger) error {
 	l.Info(":rocket: Starting WebSocket subscriber")
 	err := c.client.Start()
 	if err != nil {
-		return err
+		return sdkerrors.Wrap(err, "failed to start websocket subscriber")
 	}
 
 	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
@@ -48,7 +61,7 @@ func runImpl(c *Context, l *Logger) error {
 
 	if c.metricsEnabled {
 		l.Info(":eyes: Starting Prometheus listener")
-		go metricsListen(cfg.MetricsListenAddr, c)
+		go metricsListen(yoda.config.MetricsListenAddr, c)
 	}
 
 	availiableKeys := make([]bool, len(c.keys))
@@ -58,26 +71,20 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
+	bz := cdc.MustMarshalBinaryBare(&oracletypes.QueryPendingRequestsRequest{
+		ValidatorAddress: c.validator.String(),
+	})
+	resBz, err := c.client.ABCIQuery(context.Background(), PendingRequestsQueryPath, bz)
 	if err != nil {
-		return err
+		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
+	pendingRequests := oracletypes.QueryPendingRequestsResponse{}
+	cdc.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
 
-	var result commontypes.QueryResult
-	if err := cdc.UnmarshalJSON(rawPendingRequests.Response.GetValue(), &result); err != nil {
-		return err
-	}
-
-	var pendingRequests types.PendingResolveList
-
-	if result.Result != nil {
-		cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
-	}
-
-	for _, id := range pendingRequests.RequestIds {
-		c.pendingRequests[types.RequestID(id)] = true
-		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
+	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
+	for _, id := range pendingRequests.RequestIDs {
+		c.pendingRequests[oracletypes.RequestID(id)] = true
+		go handlePendingRequest(c, l.With("rid", id), oracletypes.RequestID(id))
 	}
 
 	for {
@@ -108,88 +115,109 @@ func runImpl(c *Context, l *Logger) error {
 	}
 }
 
-func runCmd(c *Context) *cobra.Command {
+func runCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
 		Short:   "Run the oracle process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cfg.ChainID == "" {
-				return errors.New("Chain ID must not be empty")
+			if yoda.config.ChainID == "" {
+				return sdkerrors.Wrap(errors.ErrEmptyChainIDParam, "failed to parse chain in")
 			}
-			keys, err := kb.List()
+			keys, err := yoda.keybase.List()
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to get keys from keyring")
 			}
 			if len(keys) == 0 {
-				return errors.New("No key available")
+				return sdkerrors.Wrap(errors.ErrNoKeyAvailable, "failed to get keys from keyring")
 			}
-			c.keys = keys
-			c.validator, err = sdk.ValAddressFromBech32(cfg.Validator)
+			ctx.validator, err = sdk.ValAddressFromBech32(yoda.config.Validator)
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to parse validator address")
 			}
-			err = sdk.VerifyAddressFormat(c.validator)
+			err = sdk.VerifyAddressFormat(ctx.validator)
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to verify address format")
 			}
+			allowLevel, err := log.AllowLevel(yoda.config.LogLevel)
+			if err != nil {
+				return sdkerrors.Wrap(err, "failed to get log level")
+			}
+			logger := NewLogger(allowLevel)
+			ctx.executor, err = executor.NewExecutor(yoda.config.Executor)
+			if err != nil {
+				return sdkerrors.Wrap(err, "failed to create a new executor")
+			}
+			logger.Info(":star: Creating HTTP client with node URI: %s", yoda.config.NodeURI)
 
-			c.gasPrices = cfg.GasPrices
-
-			allowLevel, err := log.AllowLevel(cfg.LogLevel)
+			ctx.client, err = httpclient.New(yoda.config.NodeURI, "/websocket")
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to create rpc client")
 			}
-			l := NewLogger(allowLevel)
-			c.executor, err = executor.NewExecutor(cfg.Executor)
+			ctx.fileCache = filecache.New(filepath.Join(viper.GetString(flags.FlagHome), "files"))
+			ctx.broadcastTimeout, err = time.ParseDuration(yoda.config.BroadcastTimeout)
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to parse broadcast timeout")
 			}
-			l.Info(":star: Creating HTTP client with node URI: %s", cfg.NodeURI)
-			c.client, err = httpclient.New(cfg.NodeURI, "/websocket")
+			ctx.keys = keys
+			ctx.gasPrices = yoda.config.GasPrices
+			ctx.maxTry = yoda.config.MaxTry
+			ctx.maxReport = yoda.config.MaxReport
+			ctx.rpcPollInterval, err = time.ParseDuration(yoda.config.RPCPollInterval)
 			if err != nil {
-				return err
+				return sdkerrors.Wrap(err, "failed to parse rpc poll interval")
 			}
-			c.fileCache = filecache.New(filepath.Join(viper.GetString(flags.FlagHome), "files"))
-			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
-			if err != nil {
-				return err
-			}
-			c.maxTry = cfg.MaxTry
-			c.maxReport = cfg.MaxReport
-			c.rpcPollInterval, err = time.ParseDuration(cfg.RPCPollInterval)
-			if err != nil {
-				return err
-			}
-			c.pendingMsgs = make(chan ReportMsgWithKey)
-			c.freeKeys = make(chan int64, len(keys))
-			c.keyRoundRobinIndex = -1
-			c.dataSourceCache = new(sync.Map)
-			c.pendingRequests = make(map[types.RequestID]bool)
-			c.metricsEnabled = cfg.MetricsListenAddr != ""
-			return runImpl(c, l)
+			ctx.pendingMsgs = make(chan ReportMsgWithKey)
+			ctx.freeKeys = make(chan int64, len(keys))
+			ctx.keyRoundRobinIndex = -1
+			ctx.dataSourceCache = new(sync.Map)
+			ctx.pendingRequests = make(map[oracletypes.RequestID]bool)
+			ctx.metricsEnabled = yoda.config.MetricsListenAddr != ""
+			return runImpl(ctx, logger)
 		},
 	}
-	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
-	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
-	cmd.Flags().String(flagValidator, "", "validator address")
-	cmd.Flags().String(flagExecutor, "", "executor name and url for executing the data source script")
-	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
-	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
-	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Yoda will wait for tx commit")
-	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
-	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a report transaction")
-	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
-	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
-	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
-	viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
+
+	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "chain ID of Odin network")
+	if err := viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to parse %s flag", flags.FlagChainID))
+	}
+	cmd.Flags().String(flags.FlagNode, DefaultNodeURL, "RPC url to Odin node")
+	if err := viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagNode))
+	}
+	cmd.Flags().String(flagValidator, DefaultValidator, "validator address")
+	if err := viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagValidator))
+	}
+	cmd.Flags().String(flagExecutor, DefaultExecutor, "executor name and url for executing the data source script")
+	if err := viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagExecutor))
+	}
+	cmd.Flags().String(flags.FlagGasPrices, DefaultGasPrices, "gas prices for report transaction")
+	if err := viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flags.FlagGasPrices))
+	}
+	cmd.Flags().String(flagLogLevel, DefaultLogLevel, "set the logger level")
+	if err := viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagLogLevel))
+	}
+	cmd.Flags().String(flagBroadcastTimeout, DefaultBroadcastTimeout, "The time that Yoda will wait for tx commit")
+	if err := viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagBroadcastTimeout))
+	}
+	cmd.Flags().String(flagRPCPollInterval, DefaultRPCPollInterval, "The duration of rpc poll interval")
+	if err := viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagRPCPollInterval))
+	}
+	cmd.Flags().Uint64(flagMaxTry, DefaultMaxTry, "The maximum number of tries to submit a report transaction")
+	if err := viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagMaxTry))
+	}
+	cmd.Flags().Uint64(flagMaxReport, DefaultMaxReport, "The maximum number of reports in one transaction")
+	if err := viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport)); err != nil {
+		panic(sdkerrors.Wrapf(err, "failed to bind %s flag", flagMaxReport))
+	}
+
 	return cmd
 }
