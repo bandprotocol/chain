@@ -493,17 +493,12 @@ func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
 		hookReq.Height = app.LastBlockHeight()
 	}
 
-	res, stop := app.hooks.ApplyQuery(req)
-	if stop {
-		// Since gRPC server unmarshal returning data before sending it back
-		// to client, but remembering data type is handled in baseapp's query method.
-		// so, we need to call this to let it remember return type.
-		// See, baseapp/grpcrouter.go and baseapp/grpcserver.go in Cosmos SDK repository
-		// for more information.
-		app.BaseApp.Query(req)
-		return res
+      baseRes := app.BaseApp.Query(req)
+	hookRes, match := app.hooks.ApplyQuery(req)
+	if match {
+		return hookRes
 	}
-
+	return baseRes
 	return app.BaseApp.Query(req)
 }
 
