@@ -182,7 +182,11 @@ requests = sa.Table(
     Column("request_time", sa.Integer, nullable=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
+    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
+    Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
+    Column("total_fees", sa.String),
+    Column("is_ibc", sa.Boolean),
     sa.Index("ix_requests_oracle_script_id", "oracle_script_id", "id"),
     sa.Index("ix_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
 )

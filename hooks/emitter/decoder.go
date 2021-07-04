@@ -116,6 +116,19 @@ func decodeHeight(h types1.Height) common.JsDict {
 	}
 }
 
+func decodePacket(packet channeltypes.Packet) common.JsDict {
+	return common.JsDict{
+		"sequence":            packet.GetSequence(),
+		"source_port":         packet.GetSourcePort(),
+		"source_channel":      packet.GetSourceChannel(),
+		"destination_port":    packet.GetDestPort(),
+		"destination_channel": packet.GetDestChannel(),
+		"data":                packet.GetData(),
+		"timeout_height":      decodeHeight(types1.NewHeight(packet.GetTimeoutHeight().GetRevisionNumber(), packet.GetTimeoutHeight().GetRevisionHeight())),
+		"timeout_timestamp":   packet.GetTimeoutTimestamp(),
+	}
+}
+
 func decodeMsgRequestData(msg *oracletypes.MsgRequestData, detail common.JsDict) {
 	detail["oracle_script_id"] = msg.GetOracleScriptID()
 	detail["calldata"] = msg.GetCalldata()
@@ -319,14 +332,14 @@ func decodeMsgChannelCloseConfirm(msg *channeltypes.MsgChannelCloseConfirm, deta
 }
 
 func decodeMsgRecvPacket(msg *channeltypes.MsgRecvPacket, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_commitment"] = msg.ProofCommitment
 	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgAcknowledgement(msg *channeltypes.MsgAcknowledgement, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["acknowledgement"] = msg.Acknowledgement
 	detail["proof_acked"] = msg.ProofAcked
 	detail["proof_height"] = decodeHeight(msg.ProofHeight)
@@ -334,7 +347,7 @@ func decodeMsgAcknowledgement(msg *channeltypes.MsgAcknowledgement, detail commo
 }
 
 func decodeMsgTimeout(msg *channeltypes.MsgTimeout, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_unreceived"] = msg.ProofUnreceived
 	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
@@ -342,7 +355,7 @@ func decodeMsgTimeout(msg *channeltypes.MsgTimeout, detail common.JsDict) {
 }
 
 func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_unreceived"] = msg.ProofUnreceived
 	detail["proof_close"] = msg.ProofClose
 	detail["proof_height"] = decodeHeight(msg.ProofHeight)

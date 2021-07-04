@@ -29,7 +29,7 @@ func (h *Hook) handleMsgChannelOpenInit(ctx sdk.Context, msg *types.MsgChannelOp
 }
 
 func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
-	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
+	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenTry+"."+types.AttributeKeyChannelID][0])
 }
 
 func (h *Hook) handleMsgChannelOpenAck(ctx sdk.Context, msg *types.MsgChannelOpenAck) {
@@ -145,6 +145,8 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":      data.PrepareGas,
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
+				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
+				"is_ibc":           req.IBCChannel != nil,
 			})
 			h.emitRawRequestAndValRequest(id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
@@ -224,12 +226,12 @@ func (h *Hook) extractOracleResponsePacket(
 	var data oracletypes.OracleResponsePacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
 	if err == nil {
-		req := h.oracleKeeper.MustGetRequest(ctx, data.RequestID)
-		os := h.oracleKeeper.MustGetOracleScript(ctx, req.OracleScriptID)
+		result := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
+		os := h.oracleKeeper.MustGetOracleScript(ctx, result.OracleScriptID)
 		packet["type"] = "oracle response"
 		packet["data"] = common.JsDict{
 			"request_id":           data.RequestID,
-			"oracle_script_id":     req.OracleScriptID,
+			"oracle_script_id":     result.OracleScriptID,
 			"oracle_script_name":   os.Name,
 			"oracle_script_schema": os.Schema,
 			"resolve_status":       data.ResolveStatus,
