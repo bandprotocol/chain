@@ -30,11 +30,6 @@ type ValidatorWithPower struct {
 	Power *big.Int
 }
 
-func getGasPrice() int64 {
-	// return gasPrice in wei. Currently a fixed constant for kovan testing.
-	return 10000000000
-}
-
 func getValidators(nodeURI string) []ValidatorWithPower {
 	node, err := rpchttp.New(nodeURI, "/websocket")
 	if err != nil {
@@ -98,13 +93,16 @@ func updateValidators(rpcURI string, address string, node string, privateKey str
 	if err != nil {
 		panic(err)
 	}
-	gasPrice := getGasPrice()
+	gasPrice, err := evmClient.SuggestGasPrice(backgroundCtx)
+	if err != nil {
+		panic(err)
+	}
 	tx := ethtypes.NewTransaction(
 		nonce,
 		contractAddress,
 		big.NewInt(0),
 		12000000,
-		big.NewInt(gasPrice),
+		gasPrice,
 		data,
 	)
 
