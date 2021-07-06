@@ -30,6 +30,11 @@ type ValidatorWithPower struct {
 	Power *big.Int
 }
 
+func getGasPrice() int64 {
+	// return gasPrice in wei. Currently a fixed constant for kovan testing.
+	return 10000000000
+}
+
 func getValidators(nodeURI string) []ValidatorWithPower {
 	node, err := rpchttp.New(nodeURI, "/websocket")
 	if err != nil {
@@ -63,7 +68,7 @@ func getValidators(nodeURI string) []ValidatorWithPower {
 	return vals
 }
 
-func updateValidators(rpcURI string, address string, node string, privateKey string, gasPrice int64) string {
+func updateValidators(rpcURI string, address string, node string, privateKey string) string {
 	vals := getValidators(node)
 	backgroundCtx := context.Background()
 	contractAddress := common.HexToAddress(address)
@@ -93,6 +98,7 @@ func updateValidators(rpcURI string, address string, node string, privateKey str
 	if err != nil {
 		panic(err)
 	}
+	gasPrice := getGasPrice()
 	tx := ethtypes.NewTransaction(
 		nonce,
 		contractAddress,
@@ -127,13 +133,13 @@ const (
 func main() {
 
 	cmd := &cobra.Command{
-		Use:   "(--rpc-uri [rpc-uri]) (--contract-address [contract-address]) (--node-uri [node-uri]) (--priv-key [priv-key]) (--gas-price [gas-price]) (--poll-interval [poll-interval])",
+		Use:   "(--rpc-uri [rpc-uri]) (--contract-address [contract-address]) (--node-uri [node-uri]) (--priv-key [priv-key]) (--poll-interval [poll-interval])",
 		Short: "Periodically update validator set to the destination EVM blockchain",
 		Args:  cobra.ExactArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Periodically update validator set to the destination EVM blockchain
 	Example:
-	$ --rpc-uri https://kovan.infura.io/v3/d3301689638b40dabad8395bf00d3945 --contract-address 0x0d8152D22a05A3Cf2cE1c5bEfCc2F8658f75a59d --node-uri http://d3n-debug.bandprotocol.com:26657 --priv-key AA0C65C16D4B8511C58122966F94192F6963D0EB7896435430BCDFF56E9F13B9 --gas-price 1000000 --poll-interval 24
+	$ --rpc-uri https://kovan.infura.io/v3/d3301689638b40dabad8395bf00d3945 --contract-address 0x0d8152D22a05A3Cf2cE1c5bEfCc2F8658f75a59d --node-uri http://d3n-debug.bandprotocol.com:26657 --priv-key AA0C65C16D4B8511C58122966F94192F6963D0EB7896435430BCDFF56E9F13B9 --poll-interval 24
 	`),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -154,14 +160,6 @@ func main() {
 			if err != nil {
 				return err
 			}
-			rawGasPrice, err := cmd.Flags().GetString(flagGasPrice)
-			if err != nil {
-				return err
-			}
-			gasPrice, err := strconv.ParseInt(rawGasPrice, 10, 64)
-			if err != nil {
-				return err
-			}
 			rawInterval, err := cmd.Flags().GetString(flagPollInterval)
 			if err != nil {
 				return err
@@ -172,7 +170,7 @@ func main() {
 			}
 
 			for {
-				txHash := updateValidators(rpcURI, contractAddress, nodeURI, privateKey, int64(gasPrice))
+				txHash := updateValidators(rpcURI, contractAddress, nodeURI, privateKey)
 				fmt.Println("finish round w/ tx:", txHash)
 				time.Sleep(time.Duration(interval) * time.Hour)
 			}
