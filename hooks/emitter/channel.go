@@ -98,6 +98,7 @@ func (h *Hook) extractFungibleTokenPacket(
 			"receiver": data.Receiver,
 		}
 		detail["decoded_data"] = data
+		detail["type"] = "fungible token"
 
 		packet["type"] = "fungible token"
 		packet["data"] = data
@@ -167,6 +168,7 @@ func (h *Hook) extractOracleRequestPacket(
 			detail["name"] = os.Name
 			detail["schema"] = os.Schema
 			detail["decoded_data"] = data
+			detail["type"] = "oracle request"
 
 			packet["type"] = "oracle request"
 			packet["data"] = data
