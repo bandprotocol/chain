@@ -178,7 +178,7 @@ func (h *Hook) extractOracleRequestPacket(
 			}
 
 		} else {
-			packet["type"] = "oracle request"
+			packet["type"] = "oracle_request"
 			packet["data"] = common.JsDict{
 				"oracle_script_id": data.OracleScriptID,
 				"calldata":         parseBytes(data.Calldata),
@@ -230,7 +230,7 @@ func (h *Hook) extractOracleResponsePacket(
 	if err == nil {
 		result := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
 		os := h.oracleKeeper.MustGetOracleScript(ctx, result.OracleScriptID)
-		packet["type"] = "oracle response"
+		packet["type"] = "oracle_response"
 		packet["data"] = common.JsDict{
 			"request_id":           data.RequestID,
 			"oracle_script_id":     result.OracleScriptID,
