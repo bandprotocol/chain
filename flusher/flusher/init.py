@@ -21,7 +21,7 @@ def init(chain_id, topic, replay_topic, db):
     metadata.create_all(engine)
     engine.execute(
         tracking.insert(),
-        {"chain_id": chain_id, "topic": topic, "replay_topic": replay_topic, "kafka_offset": -1, "replay_offset": -1},
+        {"chain_id": chain_id, "topic": topic, "replay_topic": replay_topic, "kafka_offset": -1, "replay_offset": -2},
     )
     engine.execute(
         """

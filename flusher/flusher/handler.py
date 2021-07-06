@@ -367,11 +367,13 @@ class Handler(object):
         self.conn.execute(insert(packets).values(**msg))
 
     def handle_new_incoming_packet(self, msg):
-        tx_id = self.get_transaction_id(msg["hash"])
+        msg["tx_id"] = self.get_transaction_id(msg["hash"])
+        del msg["hash"]
         self.conn.execute(insert(incoming_packets).values(**msg))
 
     def handle_new_outgoing_packet(self, msg):
-        tx_id = self.get_transaction_id(msg["hash"])
+        msg["tx_id"] = self.get_transaction_id(msg["hash"])
+        del msg["hash"]
         self.conn.execute(insert(outgoing_packets).values(**msg))
 
     def handle_set_outgoing_packet(self, msg):

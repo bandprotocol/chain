@@ -387,19 +387,20 @@ incoming_packets = sa.Table(
     Column("src_channel", sa.String),
     Column("src_port", sa.String),
     Column("sequence", sa.Integer, primary_key=True),
-    Column("dst_channel", sa.String, sa.ForeignKey("channels.channel"), primary_key=True),
-    Column("dst_port", sa.String, sa.ForeignKey("channels.port"), primary_key=True),
+    Column("dst_channel", sa.String, primary_key=True),
+    Column("dst_port", sa.String, primary_key=True),
     Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
     Column("type", sa.String),
     Column("data", sa.JSON),
     Column("acknowledgement", sa.JSON, nullable=True),
+    sa.ForeignKeyConstraint(["dst_port", "dst_channel"], ["channels.port", "channels.channel"]),
 )
 
 outgoing_packets = sa.Table(
     "outgoing_packets",
     metadata,
-    Column("src_channel", sa.String, sa.ForeignKey("channels.channel"), primary_key=True),
-    Column("src_port", sa.String, sa.ForeignKey("channels.port"), primary_key=True),
+    Column("src_channel", sa.String, primary_key=True),
+    Column("src_port", sa.String, primary_key=True),
     Column("sequence", sa.Integer, primary_key=True),
     Column("dst_channel", sa.String),
     Column("dst_port", sa.String),
@@ -407,6 +408,7 @@ outgoing_packets = sa.Table(
     Column("type", sa.String),
     Column("data", sa.JSON),
     Column("acknowledgement", sa.JSON, nullable=True),
+    sa.ForeignKeyConstraint(["src_port", "src_channel"], ["channels.port", "channels.channel"]),
 )
 
 counterparty_chains = sa.Table("counterparty_chains", metadata, Column("chain_id", sa.String, primary_key=True))
