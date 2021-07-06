@@ -112,7 +112,7 @@ func updateValidators(rpcURI string, address string, node string, privateKey str
 		panic(err)
 	}
 
-	return tx.Hash().Hex()
+	return signTx.Hash().Hex()
 }
 
 const (
