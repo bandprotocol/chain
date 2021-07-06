@@ -98,9 +98,9 @@ func (h *Hook) extractFungibleTokenPacket(
 			"receiver": data.Receiver,
 		}
 		detail["decoded_data"] = data
-		detail["type"] = "fungible token"
+		detail["packet_type"] = "fungible_token"
 
-		packet["type"] = "fungible token"
+		packet["type"] = "fungible_token"
 		packet["data"] = data
 		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckSuccess]; ok {
 			// TODO: patch this line when cosmos-sdk fix AttributeKeyAckSuccess value
@@ -168,9 +168,9 @@ func (h *Hook) extractOracleRequestPacket(
 			detail["name"] = os.Name
 			detail["schema"] = os.Schema
 			detail["decoded_data"] = data
-			detail["type"] = "oracle request"
+			detail["packet_type"] = "oracle_request"
 
-			packet["type"] = "oracle request"
+			packet["type"] = "oracle_request"
 			packet["data"] = data
 			packet["acknowledgement"] = common.JsDict{
 				"status":     "success",
