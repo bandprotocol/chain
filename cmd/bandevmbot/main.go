@@ -10,8 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	crypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -28,6 +30,33 @@ var (
 type ValidatorWithPower struct {
 	Addr  common.Address
 	Power *big.Int
+}
+
+// WaitMined waits for tx to be mined on the blockchain.
+// It stops waiting when the context is canceled.
+func WaitMined(ctx context.Context, cli *ethclient.Client, tx *types.Transaction) (*types.Receipt, error) {
+	queryTicker := time.NewTicker(time.Second)
+	defer queryTicker.Stop()
+
+	fmt.Println("=> hash:", tx.Hash())
+	for {
+		receipt, err := cli.TransactionReceipt(ctx, tx.Hash())
+		if receipt != nil {
+			fmt.Println("==> Transaction successfully mined")
+			return receipt, nil
+		}
+		if err != ethereum.NotFound {
+			fmt.Println("!!! Receipt retrieval failed", "err :", err)
+		} else {
+			fmt.Println("--> Transaction not yet mined")
+		}
+		// Wait for the next round.
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-queryTicker.C:
+		}
+	}
 }
 
 func getValidators(nodeURI string) []ValidatorWithPower {
@@ -116,7 +145,11 @@ func updateValidators(rpcURI string, address string, node string, privateKey str
 		panic(err)
 	}
 
-	return signTx.Hash().Hex()
+	receipt, err := WaitMined(backgroundCtx, evmClient, signTx)
+	if err != nil {
+		panic(err)
+	}
+	return receipt.TxHash.Hex()
 }
 
 const (
