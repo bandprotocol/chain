@@ -13,6 +13,7 @@ func (h *Hook) emitConnection(ctx sdk.Context, connectionId string) {
 		"counterparty_chain_id":      chainId,
 		"client_id":                  conn.GetClientID(),
 		"connection_id":              connectionId,
+		"counterparty_client_id":     conn.Counterparty.GetClientID(),
 		"counterparty_connection_id": conn.Counterparty.ConnectionId,
 	})
 }

@@ -419,6 +419,7 @@ connections = sa.Table(
     Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True),
     Column("counterparty_connection_id", sa.String),
     Column("client_id", sa.String),
+    Column("counterparty_client_id", sa.String),
     Column("connection_id", sa.String, primary_key=True, unique=True),
 )
 
