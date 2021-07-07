@@ -71,8 +71,6 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 	}
 }
 
-// TODO: update transfer acknowledgement for fungible token packet
-
 func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, txHash []byte) common.JsDict {
 	return common.JsDict{
 		// "block_height": ctx.BlockHeight(),
