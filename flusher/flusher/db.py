@@ -384,6 +384,7 @@ request_count_per_days = sa.Table(
 incoming_packets = sa.Table(
     "incoming_packets",
     metadata,
+    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
     Column("src_channel", sa.String),
     Column("src_port", sa.String),
     Column("sequence", sa.Integer, primary_key=True),
@@ -399,6 +400,7 @@ incoming_packets = sa.Table(
 outgoing_packets = sa.Table(
     "outgoing_packets",
     metadata,
+    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
     Column("src_channel", sa.String, primary_key=True),
     Column("src_port", sa.String, primary_key=True),
     Column("sequence", sa.Integer, primary_key=True),

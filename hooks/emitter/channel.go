@@ -73,12 +73,13 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 
 func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, txHash []byte) common.JsDict {
 	return common.JsDict{
-		"src_channel": srcChannel,
-		"src_port":    srcPort,
-		"sequence":    sequence,
-		"dst_channel": dstChannel,
-		"dst_port":    dstPort,
-		"hash":        txHash,
+		"block_height": ctx.BlockHeight(),
+		"src_channel":  srcChannel,
+		"src_port":     srcPort,
+		"sequence":     sequence,
+		"dst_channel":  dstChannel,
+		"dst_port":     dstPort,
+		"hash":         txHash,
 	}
 }
 
