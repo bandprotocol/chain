@@ -43,7 +43,7 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 		if h.oracleKeeper.HasResult(ctx, rid) {
 			h.emitUpdateResult(ctx, rid, "")
 		}
-		h.emitRawRequestAndValRequest(rid, req)
+		h.emitRawRequestAndValRequest(ctx, rid, req)
 		reps := h.oracleKeeper.GetReports(ctx, rid)
 		for _, rep := range reps {
 			h.emitReportAndRawReport(nil, rid, sdk.ValAddress(rep.Validator), nil, rep.RawReports)
@@ -86,7 +86,7 @@ func (h *Hook) emitHistoricalValidatorStatus(ctx sdk.Context, operatorAddress sd
 	})
 }
 
-func (h *Hook) emitRawRequestAndValRequest(requestID types.RequestID, req types.Request) {
+func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request) {
 	for _, raw := range req.RawRequests {
 		h.Write("NEW_RAW_REQUEST", common.JsDict{
 			"request_id":     requestID,
@@ -94,6 +94,8 @@ func (h *Hook) emitRawRequestAndValRequest(requestID types.RequestID, req types.
 			"data_source_id": raw.DataSourceID,
 			"calldata":       parseBytes(raw.Calldata),
 		})
+		ds := h.oracleKeeper.MustGetDataSource(ctx, raw.DataSourceID)
+		h.AddAccountsInTx(ds.Treasury)
 	}
 	for _, val := range req.RequestedValidators {
 		h.Write("NEW_VAL_REQUEST", common.JsDict{
@@ -159,7 +161,7 @@ func (h *Hook) handleMsgRequestData(
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
 	})
-	h.emitRawRequestAndValRequest(id, req)
+	h.emitRawRequestAndValRequest(ctx, id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)
 	detail["id"] = id
 	detail["name"] = os.Name

@@ -121,7 +121,7 @@ func (h *Hook) extractFungibleTokenPacket(
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict,
+	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict, port string, channel string,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -146,8 +146,10 @@ func (h *Hook) extractOracleRequestPacket(
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,
 			})
-			h.emitRawRequestAndValRequest(id, req)
+			h.emitRawRequestAndValRequest(ctx, id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
+			payer := oracletypes.GetEscrowAddress(data.RequestKey, port, channel)
+			h.AddAccountsInTx(payer.String())
 			data := common.JsDict{
 				"oracle_script_id":     data.OracleScriptID,
 				"oracle_script_name":   os.Name,
@@ -160,6 +162,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"execute_gas":          data.ExecuteGas,
 				"fee_limit":            data.FeeLimit.String(),
 				"request_key":          data.RequestKey,
+				"payer":                payer.String(),
 			}
 			detail["id"] = id
 			detail["name"] = os.Name
@@ -211,7 +214,7 @@ func (h *Hook) handleMsgRecvPacket(
 		txHash,
 	)
 	h.Write("NEW_INCOMING_PACKET", packet)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet); ok {
+	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
 		return
 	}
 	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
