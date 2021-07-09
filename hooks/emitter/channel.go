@@ -55,8 +55,8 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 		"sequence":    msg.Packet.Sequence,
 	}
 	var data ibcxfertypes.FungibleTokenPacketData
-	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.Data, &data)
-	if err != nil {
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
+	if err == nil {
 		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckError]; ok {
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
@@ -67,7 +67,7 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 				"status": "success",
 			}
 		}
-		h.Write("UPDATE_OUTGOING_PACKETS", packet)
+		h.Write("UPDATE_OUTGOING_PACKET", packet)
 	}
 }
 
@@ -109,6 +109,7 @@ func (h *Hook) extractFungibleTokenPacket(
 			} else {
 				packet["acknowledgement"] = common.JsDict{
 					"status": "failure",
+					"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAck][0],
 				}
 			}
 		} else {

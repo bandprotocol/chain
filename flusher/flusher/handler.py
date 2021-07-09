@@ -376,7 +376,7 @@ class Handler(object):
         del msg["hash"]
         self.conn.execute(insert(outgoing_packets).values(**msg))
 
-    def handle_set_outgoing_packet(self, msg):
+    def handle_update_outgoing_packet(self, msg):
         condition = True
         for col in outgoing_packets.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
