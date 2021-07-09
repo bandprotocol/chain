@@ -518,7 +518,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRecvPacket() {
 	decodeMsgRecvPacket(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_commitment\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_commitment\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -543,7 +543,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgAcknowledgement() {
 	decodeMsgAcknowledgement(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"acknowledgement\":\"\",\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_acked\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"acknowledgement\":\"\",\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_acked\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -568,7 +568,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeout() {
 	decodeMsgTimeout(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -595,7 +595,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	decodeMsgTimeoutOnClose(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"next_sequence_recv\":1,\"packet\":{\"sequence\":1,\"source_port\":\"oracle\",\"source_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"destination_channel\":\"channel-0\",\"timeout_height\":{\"revision_height\":10}},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 

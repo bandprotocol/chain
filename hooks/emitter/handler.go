@@ -82,7 +82,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, detail)
 	case *transfertypes.MsgTransfer:
-		h.handleMsgTransfer(ctx, msg, evMap)
+		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:
 		h.handleMsgCreatClient(ctx, msg, detail)
 	case *connectiontypes.MsgConnectionOpenConfirm:
@@ -101,6 +101,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgChannelCloseInit(ctx, msg)
 	case *channeltypes.MsgChannelCloseConfirm:
 		h.handleMsgChannelCloseConfirm(ctx, msg)
+	case *channeltypes.MsgAcknowledgement:
+		h.handleMsgAcknowledgement(ctx, msg, evMap)
 	default:
 		break
 	}
