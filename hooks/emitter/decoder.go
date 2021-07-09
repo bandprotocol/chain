@@ -1,17 +1,20 @@
 package emitter
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	transfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
@@ -36,22 +39,6 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgActivate(msg, detail)
 	case *clienttypes.MsgCreateClient:
 		decodeMsgCreateClient(msg, detail)
-	case *govtypes.MsgSubmitProposal:
-		decodeMsgSubmitProposal(msg, detail)
-	case *govtypes.MsgDeposit:
-		decodeMsgDeposit(msg, detail)
-	case *govtypes.MsgVote:
-		decodeMsgVote(msg, detail)
-	case *stakingtypes.MsgCreateValidator:
-		decodeMsgCreateValidator(msg, detail)
-	case *stakingtypes.MsgEditValidator:
-		decodeMsgEditValidator(msg, detail)
-	case *stakingtypes.MsgDelegate:
-		decodeMsgDelegate(msg, detail)
-	case *stakingtypes.MsgUndelegate:
-		decodeMsgUndelegate(msg, detail)
-	case *stakingtypes.MsgBeginRedelegate:
-		decodeMsgBeginRedelegate(msg, detail)
 	case *clienttypes.MsgUpdateClient:
 		decodeMsgUpdateClient(msg, detail)
 	case *clienttypes.MsgUpgradeClient:
@@ -86,6 +73,36 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgTimeout(msg, detail)
 	case *channeltypes.MsgTimeoutOnClose:
 		decodeMsgTimeoutOnClose(msg, detail)
+	case *banktypes.MsgSend:
+		decodeMsgSend(msg, detail)
+	case *banktypes.MsgMultiSend:
+		decodeMsgMultiSend(msg, detail)
+	case *distrtypes.MsgSetWithdrawAddress:
+		decodeMsgSetWithdrawAddress(msg, detail)
+	case *distrtypes.MsgWithdrawDelegatorReward:
+		decodeMsgWithdrawDelegatorReward(msg, detail)
+	case *distrtypes.MsgWithdrawValidatorCommission:
+		decodeMsgWithdrawValidatorCommission(msg, detail)
+	case *slashingtypes.MsgUnjail:
+		decodeMsgUnjail(msg, detail)
+	case *transfertypes.MsgTransfer:
+		decodeMsgTransfer(msg, detail)
+	case *govtypes.MsgSubmitProposal:
+		decodeMsgSubmitProposal(msg, detail)
+	case *govtypes.MsgDeposit:
+		decodeMsgDeposit(msg, detail)
+	case *govtypes.MsgVote:
+		decodeMsgVote(msg, detail)
+	case *stakingtypes.MsgCreateValidator:
+		decodeMsgCreateValidator(msg, detail)
+	case *stakingtypes.MsgEditValidator:
+		decodeMsgEditValidator(msg, detail)
+	case *stakingtypes.MsgDelegate:
+		decodeMsgDelegate(msg, detail)
+	case *stakingtypes.MsgUndelegate:
+		decodeMsgUndelegate(msg, detail)
+	case *stakingtypes.MsgBeginRedelegate:
+		decodeMsgBeginRedelegate(msg, detail)
 	default:
 		break
 	}
@@ -173,63 +190,6 @@ func decodeMsgCreateClient(msg *clienttypes.MsgCreateClient, detail common.JsDic
 	detail["client_state"] = clientState
 	detail["consensus_state"] = consensusState
 	detail["signer"] = msg.Signer
-}
-
-func decodeMsgSubmitProposal(msg *govtypes.MsgSubmitProposal, detail common.JsDict) {
-	detail["content"] = msg.GetContent()
-	detail["initial_deposit"] = msg.GetInitialDeposit()
-	detail["proposer"] = msg.GetProposer()
-}
-
-func decodeMsgDeposit(msg *govtypes.MsgDeposit, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["depositor"] = msg.Depositor
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["voter"] = msg.Voter
-	detail["option"] = msg.Option
-}
-
-func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
-	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
-	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
-
-	detail["description"] = msg.Description
-	detail["commission_rates"] = msg.Commission.Rate
-	detail["min_self_delegation"] = msg.MinSelfDelegation
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["pubkey"] = bechConsPubKey
-	detail["value"] = msg.Value
-}
-
-func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
-	detail["description"] = msg.Description
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["commission_rates"] = msg.CommissionRate
-	detail["min_self_delegation"] = msg.MinSelfDelegation
-}
-
-func decodeMsgDelegate(msg *stakingtypes.MsgDelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgUndelegate(msg *stakingtypes.MsgUndelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgBeginRedelegate(msg *stakingtypes.MsgBeginRedelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_src_address"] = msg.ValidatorSrcAddress
-	detail["validator_dst_address"] = msg.ValidatorDstAddress
-	detail["amount"] = msg.Amount
 }
 
 func decodeMsgUpdateClient(msg *clienttypes.MsgUpdateClient, detail common.JsDict) {
@@ -380,4 +340,110 @@ func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.
 	detail["proof_height"] = msg.ProofHeight
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
+}
+
+func decodeMsgSend(msg *banktypes.MsgSend, detail common.JsDict) {
+	detail["from_address"] = msg.FromAddress
+	detail["to_address"] = msg.ToAddress
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgMultiSend(msg *banktypes.MsgMultiSend, detail common.JsDict) {
+	detail["inputs"] = msg.Inputs
+	detail["outputs"] = msg.Outputs
+}
+
+func decodeMsgSetWithdrawAddress(msg *distrtypes.MsgSetWithdrawAddress, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["withdraw_address"] = msg.WithdrawAddress
+}
+
+func decodeMsgWithdrawDelegatorReward(msg *distrtypes.MsgWithdrawDelegatorReward, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgWithdrawValidatorCommission(msg *distrtypes.MsgWithdrawValidatorCommission, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgUnjail(msg *slashingtypes.MsgUnjail, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddr
+}
+
+func decodeMsgTransfer(msg *transfertypes.MsgTransfer, detail common.JsDict) {
+	detail["source_port"] = msg.SourcePort
+	detail["source_channel"] = msg.SourceChannel
+	detail["token"] = msg.Token
+	detail["sender"] = msg.Sender
+	detail["receiver"] = msg.Receiver
+	detail["timeout_height"] = msg.TimeoutHeight
+	detail["timeout_timestamp"] = msg.TimeoutTimestamp
+}
+
+func decodeMsgSubmitProposal(msg *govtypes.MsgSubmitProposal, detail common.JsDict) {
+	detail["content"] = msg.GetContent()
+	detail["initial_deposit"] = msg.GetInitialDeposit()
+	detail["proposer"] = msg.GetProposer()
+}
+
+func decodeMsgDeposit(msg *govtypes.MsgDeposit, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["depositor"] = msg.Depositor
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["voter"] = msg.Voter
+	detail["option"] = msg.Option
+}
+
+func decodeDescription(des stakingtypes.Description) common.JsDict {
+	return common.JsDict{
+		"details":          des.GetDetails(),
+		"identity":         des.GetIdentity(),
+		"moniker":          des.GetMoniker(),
+		"security_contact": des.GetSecurityContact(),
+		"website":          des.GetWebsite(),
+	}
+}
+
+func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
+	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
+	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
+
+	detail["description"] = decodeDescription(msg.Description)
+	detail["commission"] = msg.Commission
+	detail["min_self_delegation"] = msg.MinSelfDelegation
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+	detail["pubkey"] = bechConsPubKey
+	detail["value"] = msg.Value
+}
+
+func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
+	detail["description"] = decodeDescription(msg.Description)
+	detail["validator_address"] = msg.ValidatorAddress
+	detail["commission_rate"] = msg.CommissionRate
+	detail["min_self_delegation"] = msg.MinSelfDelegation
+}
+
+func decodeMsgDelegate(msg *stakingtypes.MsgDelegate, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgUndelegate(msg *stakingtypes.MsgUndelegate, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgBeginRedelegate(msg *stakingtypes.MsgBeginRedelegate, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_src_address"] = msg.ValidatorSrcAddress
+	detail["validator_dst_address"] = msg.ValidatorDstAddress
+	detail["amount"] = msg.Amount
 }
