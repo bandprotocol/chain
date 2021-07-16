@@ -4,6 +4,7 @@ import (
 	"fmt"
 	hookscommon "github.com/GeoDB-Limited/odin-core/hooks/common"
 	hookprice "github.com/GeoDB-Limited/odin-core/hooks/price"
+	commonrest "github.com/GeoDB-Limited/odin-core/x/common/client/rest"
 	oracleclientcommon "github.com/GeoDB-Limited/odin-core/x/oracle/client/common"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -109,7 +110,7 @@ func getDataSourcesHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params, ok := checkPaginationParams(w, r)
+		params, ok := commonrest.СheckPaginationParams(w, r)
 		if !ok {
 			return
 		}
@@ -163,7 +164,7 @@ func getOracleScriptsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params, ok := checkPaginationParams(w, r)
+		params, ok := commonrest.СheckPaginationParams(w, r)
 		if !ok {
 			return
 		}
@@ -219,7 +220,7 @@ func getRequestsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params, ok := checkPaginationParams(w, r)
+		params, ok := commonrest.СheckPaginationParams(w, r)
 		if !ok {
 			return
 		}
@@ -250,7 +251,7 @@ func getRequestReportsHandler(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params, ok := checkPaginationParams(w, r)
+		params, ok := commonrest.СheckPaginationParams(w, r)
 		if !ok {
 			return
 		}
@@ -570,18 +571,4 @@ func getDataProviderRewardHandler(clientCtx client.Context) http.HandlerFunc {
 		clientCtx = clientCtx.WithHeight(height)
 		rest.PostProcessResponse(w, clientCtx, res)
 	}
-}
-
-func checkPaginationParams(w http.ResponseWriter, r *http.Request) (oracletypes.QueryPaginationParams, bool) {
-	vars := mux.Vars(r)
-	limit, err := strconv.ParseUint(vars[limitTag], 10, 64)
-	if rest.CheckBadRequestError(w, err) {
-		return oracletypes.QueryPaginationParams{}, false
-	}
-	offset, err := strconv.ParseUint(vars[offsetTag], 10, 64)
-	if rest.CheckBadRequestError(w, err) {
-		return oracletypes.QueryPaginationParams{}, false
-	}
-
-	return oracletypes.QueryPaginationParams{Offset: offset, Limit: limit}, true
 }

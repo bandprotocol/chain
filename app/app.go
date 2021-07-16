@@ -10,6 +10,8 @@ import (
 	odingovkeeper "github.com/GeoDB-Limited/odin-core/x/gov/keeper"
 	odinmintkeeper "github.com/GeoDB-Limited/odin-core/x/mint/keeper"
 	odinminttypes "github.com/GeoDB-Limited/odin-core/x/mint/types"
+	"github.com/GeoDB-Limited/odin-core/x/telemetry"
+	telemetrykeeper "github.com/GeoDB-Limited/odin-core/x/telemetry/keeper"
 	"io"
 	stdlog "log"
 	"net/http"
@@ -132,6 +134,7 @@ var (
 		oracle.AppModuleBasic{},
 		coinswap.AppModuleBasic{},
 		auction.AppModuleBasic{},
+		telemetry.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -184,6 +187,7 @@ type BandApp struct {
 	OracleKeeper     oraclekeeper.Keeper
 	CoinswapKeeper   coinswapkeeper.Keeper
 	AuctionKeeper    auctionkeeper.Keeper
+	TelemetryKeeper  telemetrykeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper    capabilitykeeper.ScopedKeeper
@@ -348,6 +352,8 @@ func NewBandApp(
 		app.CoinswapKeeper,
 	)
 
+	app.TelemetryKeeper = telemetrykeeper.NewKeeper(appCodec, app.BankKeeper)
+
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -356,7 +362,6 @@ func NewBandApp(
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router.
-	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
@@ -392,6 +397,7 @@ func NewBandApp(
 		oracleModule,
 		coinswap.NewAppModule(app.CoinswapKeeper),
 		auction.NewAppModule(app.AuctionKeeper),
+		telemetry.NewAppModule(app.TelemetryKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left

@@ -70,7 +70,7 @@ func queryDataSources(ctx sdk.Context, path []string, k Keeper, req abci.Request
 	if len(path) != 0 {
 		return queryDataSourceByID(ctx, path, k, req, cdc)
 	}
-	var params oracletypes.QueryPaginationParams
+	var params commontypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -101,7 +101,7 @@ func queryOracleScripts(ctx sdk.Context, path []string, k Keeper, req abci.Reque
 	if len(path) != 0 {
 		return queryOracleScriptByID(ctx, path, k, req, cdc)
 	}
-	var params oracletypes.QueryPaginationParams
+	var params commontypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -132,7 +132,7 @@ func queryRequests(ctx sdk.Context, path []string, k Keeper, req abci.RequestQue
 	if len(path) != 0 {
 		return queryRequestByID(ctx, path, k, req, cdc)
 	}
-	var params oracletypes.QueryPaginationParams
+	var params commontypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -295,7 +295,7 @@ func queryRequestReports(ctx sdk.Context, path []string, k Keeper, req abci.Requ
 	if err != nil {
 		return commontypes.QueryBadRequest(cdc, err.Error())
 	}
-	var params oracletypes.QueryPaginationParams
+	var params commontypes.QueryPaginationParams
 	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}

@@ -35,3 +35,9 @@ func QueryNotFound(legacyQuerierCdc *codec.LegacyAmino, result interface{}) ([]b
 		Result: codec.MustMarshalJSONIndent(legacyQuerierCdc, result),
 	})
 }
+
+type QueryPaginationParams struct {
+	Offset uint64 `json:"offset" yaml:"offset"`
+	Limit  uint64 `json:"limit" yaml:"limit"`
+	Desc   bool   `json:"desc" yaml:"desc"`
+}

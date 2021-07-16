@@ -1,0 +1,36 @@
+syntax = "proto3";
+package telemetry;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/telemetry/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/base/v1beta1/balance.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  // TopBalances returns all the system balances for specific denom.
+  rpc TopBalances(QueryTopBalancesRequest) returns (QueryTopBalancesResponse) {
+    option (google.api.http).get = "/telemetry/top_balances";
+  }
+}
+
+// QueryParamsRequest is request type for the Query/QueryParams RPC
+// method.
+message QueryTopBalancesRequest {
+  string denom = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+  bool desc = 3;
+}
+// QueryParamsResponse is response type for the Query/QueryParams RPC
+// method.
+message QueryTopBalancesResponse {
+  repeated cosmos.base.v1beta1.Balance balances = 1 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/bank/types.Balance",
+    (gogoproto.nullable) = false
+  ];
+
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

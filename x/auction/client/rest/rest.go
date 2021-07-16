@@ -8,6 +8,6 @@ import (
 )
 
 func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rtr.HandleFunc(fmt.Sprintf("%s/params", auctiontypes.ModuleName), getParamsHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("%s/status", auctiontypes.ModuleName), getAuctionStatusHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/params", auctiontypes.ModuleName), getParamsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/status", auctiontypes.ModuleName), getAuctionStatusHandler(clientCtx)).Methods("GET")
 }

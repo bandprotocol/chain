@@ -1,0 +1,21 @@
+syntax = "proto3";
+package cosmos.base.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/types";
+option (gogoproto.goproto_stringer_all) = false;
+option (gogoproto.stringer_all) = false;
+
+message Balance {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // address is the address of the balance holder.
+  string address = 1;
+
+  // coins defines the different coins this balance holds.
+  repeated cosmos.base.v1beta1.Coin coins = 2
+  [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+}
