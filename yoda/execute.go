@@ -221,7 +221,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 	}
 
 	var d types.DataSource
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+	cdc.MustUnmarshal(res.Response.Value, &d)
 
 	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
 
@@ -237,7 +237,7 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	}
 
 	var r types.Request
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
+	cdc.MustUnmarshal(res.Response.Value, &r)
 
 	return r, nil
 }

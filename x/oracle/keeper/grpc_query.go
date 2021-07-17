@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/grpc/codes"
@@ -254,7 +255,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
-	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
+	bz, err := sdk.GetFromBech32(req.Reporter, sdk.Bech32PrefixAccPub)
+	if err != nil {
+		return nil, err
+	}
+
+	reporterPubKey, err := legacy.PubKeyFromBytes(bz)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
 	}

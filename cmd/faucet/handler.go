@@ -23,7 +23,7 @@ type Response struct {
 }
 
 var (
-	cdc, _ = band.MakeCodecs()
+	//cdc, _ = band.MakeCodecs()
 )
 
 func handleRequest(gc *gin.Context, c *Context) {

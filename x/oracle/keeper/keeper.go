@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -24,7 +24,7 @@ const (
 
 type Keeper struct {
 	storeKey         sdk.StoreKey
-	cdc              codec.BinaryMarshaler
+	cdc              codec.BinaryCodec
 	fileCache        filecache.Cache
 	feeCollectorName string
 	paramstore       paramtypes.Subspace
@@ -41,7 +41,7 @@ type Keeper struct {
 
 // NewKeeper creates a new oracle Keeper instance.
 func NewKeeper(
-	cdc codec.BinaryMarshaler,
+	cdc codec.BinaryCodec,
 	key sdk.StoreKey,
 	ps paramtypes.Subspace,
 	fileDir string,
@@ -93,42 +93,42 @@ func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
 // SetRequestCount sets the number of request count to the given value. Useful for genesis state.
 func (k Keeper) SetRequestCount(ctx sdk.Context, count int64) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.RequestCountStoreKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count}))
+	store.Set(types.RequestCountStoreKey, k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: count}))
 }
 
 // GetRequestCount returns the current number of all requests ever exist.
 func (k Keeper) GetRequestCount(ctx sdk.Context) int64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestCountStoreKey)
 	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
+	k.cdc.MustUnmarshalLengthPrefixed(bz, &intV)
 	return intV.GetValue()
 }
 
 // SetRequestLastExpired sets the ID of the last expired request.
 func (k Keeper) SetRequestLastExpired(ctx sdk.Context, id types.RequestID) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.RequestLastExpiredStoreKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+	store.Set(types.RequestLastExpiredStoreKey, k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
 }
 
 // GetRequestLastExpired returns the ID of the last expired request.
 func (k Keeper) GetRequestLastExpired(ctx sdk.Context) types.RequestID {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestLastExpiredStoreKey)
 	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
+	k.cdc.MustUnmarshalLengthPrefixed(bz, &intV)
 	return types.RequestID(intV.GetValue())
 }
 
 // GetNextRequestID increments and returns the current number of requests.
 func (k Keeper) GetNextRequestID(ctx sdk.Context) types.RequestID {
 	requestNumber := k.GetRequestCount(ctx)
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: requestNumber + 1})
+	bz := k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: requestNumber + 1})
 	ctx.KVStore(k.storeKey).Set(types.RequestCountStoreKey, bz)
 	return types.RequestID(requestNumber + 1)
 }
 
 // SetDataSourceCount sets the number of data source count to the given value.
 func (k Keeper) SetDataSourceCount(ctx sdk.Context, count int64) {
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count})
+	bz := k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: count})
 	ctx.KVStore(k.storeKey).Set(types.DataSourceCountStoreKey, bz)
 }
 
@@ -136,7 +136,7 @@ func (k Keeper) SetDataSourceCount(ctx sdk.Context, count int64) {
 func (k Keeper) GetDataSourceCount(ctx sdk.Context) int64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.DataSourceCountStoreKey)
 	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
+	k.cdc.MustUnmarshalLengthPrefixed(bz, &intV)
 	return intV.GetValue()
 }
 
@@ -149,7 +149,7 @@ func (k Keeper) GetNextDataSourceID(ctx sdk.Context) types.DataSourceID {
 
 // SetOracleScriptCount sets the number of oracle script count to the given value.
 func (k Keeper) SetOracleScriptCount(ctx sdk.Context, count int64) {
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count})
+	bz := k.cdc.MustMarshalLengthPrefixed(&gogotypes.Int64Value{Value: count})
 	ctx.KVStore(k.storeKey).Set(types.OracleScriptCountStoreKey, bz)
 }
 
@@ -157,7 +157,7 @@ func (k Keeper) SetOracleScriptCount(ctx sdk.Context, count int64) {
 func (k Keeper) GetOracleScriptCount(ctx sdk.Context) int64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.OracleScriptCountStoreKey)
 	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
+	k.cdc.MustUnmarshalLengthPrefixed(bz, &intV)
 	return intV.GetValue()
 }
 

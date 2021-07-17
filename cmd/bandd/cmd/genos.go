@@ -15,8 +15,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/go-owasm/api"
+
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -29,8 +30,8 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			depCdc := clientCtx.JSONMarshaler
-			cdc := depCdc.(codec.Marshaler)
+			depCdc := clientCtx.JSONCodec
+			cdc := depCdc.(codec.Codec)
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
