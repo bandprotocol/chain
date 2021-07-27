@@ -79,7 +79,8 @@ func (k Keeper) PrepareRequest(
 	)
 
 	// Create an execution environment and call Owasm prepare function.
-	env := types.NewPrepareEnv(req, int64(k.MaxRawRequestCount(ctx)))
+	maxCalldataSize := int64(k.MaxCalldataSize(ctx))
+	env := types.NewPrepareEnv(req, maxCalldataSize, int64(k.MaxRawRequestCount(ctx)))
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
 		return 0, err
@@ -89,7 +90,7 @@ func (k Keeper) PrepareRequest(
 	ctx.GasMeter().ConsumeGas(k.BaseOwasmGas(ctx), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), types.MaxDataSize, env)
+	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), maxCalldataSize, env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
@@ -153,7 +154,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), types.MaxDataSize, env)
+	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), int64(k.MaxReportDataSize(ctx)), env)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 	} else if env.Retdata == nil {

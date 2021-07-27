@@ -307,27 +307,33 @@ message Params {
   uint64 max_raw_request_count = 1;
   // MaxAskCount is the maximum number of validators a request can target.
   uint64 max_ask_count = 2;
+  // MaxCalldataSize is the maximum size limit of calldata (bytes) in a request.
+  uint64 max_calldata_size = 3;
+  // MaxReportDataSize is the maximum size limit of report data (bytes) in a
+  // report.
+  uint64 max_report_data_size = 4;
   // ExpirationBlockCount is the number of blocks a request stays valid before
   // it gets expired due to insufficient reports.
-  uint64 expiration_block_count = 3;
+  uint64 expiration_block_count = 5;
   // BaseOwasmGas is the base amount of Cosmos-SDK gas charged for owasm
   // execution.
-  uint64 base_owasm_gas = 4;
+  uint64 base_owasm_gas = 6;
   // PerValidatorRequestGas is the amount of Cosmos-SDK gas charged per
   // requested validator.
-  uint64 per_validator_request_gas = 5;
+  uint64 per_validator_request_gas = 7;
   // SamplingTryCount the number of validator sampling tries to pick the highest
   // voting power subset of validators to perform an oracle task.
-  uint64 sampling_try_count = 6;
+  uint64 sampling_try_count = 8;
   // OracleRewardPercentage is the percentage of block rewards allocated to
   // active oracle validators.
-  uint64 oracle_reward_percentage = 7;
+  uint64 oracle_reward_percentage = 9;
   // InactivePenaltyDuration is the duration period where a validator cannot
   // activate back after missing an oracle report.
-  uint64 inactive_penalty_duration = 8;
+  uint64 inactive_penalty_duration = 10;
   // IBCRequestEnabled is a flag indicating whether sending oracle request via
   // IBC is allowed
-  bool ibc_request_enabled = 9 [ (gogoproto.customname) = "IBCRequestEnabled" ];
+  bool ibc_request_enabled = 11
+      [ (gogoproto.customname) = "IBCRequestEnabled" ];
 }
 
 // PendingResolveList is a list of requests that are waiting to be resolved

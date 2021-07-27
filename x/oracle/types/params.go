@@ -15,6 +15,8 @@ const (
 	// genesis file. See comments in types.proto for explanation for each parameter.
 	DefaultMaxRawRequestCount      = uint64(12)
 	DefaultMaxAskCount             = uint64(16)
+	DefaultMaxCalldataSize         = uint64(256) // 256B
+	DefaultMaxReportDataSize       = uint64(512) // 512B
 	DefaultExpirationBlockCount    = uint64(100)
 	DefaultBaseRequestGas          = uint64(20000)
 	DefaultPerValidatorRequestGas  = uint64(30000)
@@ -30,6 +32,8 @@ var (
 	// in types.proto for explanation for each parameter.
 	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
 	KeyMaxAskCount             = []byte("MaxAskCount")
+	KeyMaxCalldataSize         = []byte("MaxCalldataSize")
+	KeyMaxReportDataSize       = []byte("MaxReportDataSize")
 	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
 	KeyBaseOwasmGas            = []byte("BaseOwasmGas")
 	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
@@ -48,12 +52,14 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
-	maxRawRequestCount, maxAskCount, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
+	maxRawRequestCount, maxAskCount, maxCalldataSize, maxReportDataSize, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
 	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64, ibcRequestEnabled bool,
 ) Params {
 	return Params{
 		MaxRawRequestCount:      maxRawRequestCount,
 		MaxAskCount:             maxAskCount,
+		MaxCalldataSize:         maxCalldataSize,
+		MaxReportDataSize:       maxReportDataSize,
 		ExpirationBlockCount:    expirationBlockCount,
 		BaseOwasmGas:            baseRequestGas,
 		PerValidatorRequestGas:  perValidatorRequestGas,
@@ -84,6 +90,8 @@ func DefaultParams() Params {
 	return NewParams(
 		DefaultMaxRawRequestCount,
 		DefaultMaxAskCount,
+		DefaultMaxCalldataSize,
+		DefaultMaxReportDataSize,
 		DefaultExpirationBlockCount,
 		DefaultBaseRequestGas,
 		DefaultPerValidatorRequestGas,

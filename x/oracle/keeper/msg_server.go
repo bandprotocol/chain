@@ -26,6 +26,11 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	maxCalldataSize := int(k.MaxCalldataSize(ctx))
+	if len(msg.Calldata) > maxCalldataSize {
+		return nil, types.WrapMaxError(types.ErrTooLargeCalldata, len(msg.Calldata), maxCalldataSize)
+	}
+
 	payer, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
@@ -40,6 +45,13 @@ func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData)
 
 func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (*types.MsgReportDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	maxReportDataSize := int(k.MaxReportDataSize(ctx))
+	for _, r := range msg.RawReports {
+		if len(r.Data) > maxReportDataSize {
+			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), maxReportDataSize)
+		}
+	}
 
 	validator, err := sdk.ValAddressFromBech32(msg.Validator)
 	if err != nil {
