@@ -13,10 +13,6 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 	if err := data.ValidateBasic(); err != nil {
 		return 0, err
 	}
-	maxCalldataSize := int(k.MaxCalldataSize(ctx))
-	if len(data.Calldata) > maxCalldataSize {
-		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, len(data.Calldata), maxCalldataSize)
-	}
 
 	escrowAddress := types.GetEscrowAddress(data.RequestKey, packet.DestinationPort, packet.DestinationChannel)
 	ibcChannel := types.NewIBCChannel(packet.DestinationPort, packet.DestinationChannel)

@@ -50,7 +50,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
 	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
-	env := NewPrepareEnv(request, 3, int64(DefaultMaxCalldataSize))
+	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
 	return env
 }
 

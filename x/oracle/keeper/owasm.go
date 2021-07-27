@@ -58,9 +58,14 @@ func (k Keeper) PrepareRequest(
 	feePayer sdk.AccAddress,
 	ibcChannel *types.IBCChannel,
 ) (types.RequestID, error) {
+	calldataSize := len(r.GetCalldata())
+	if calldataSize > int(k.MaxCalldataSize(ctx)) {
+		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, calldataSize, int(k.MaxCalldataSize(ctx)))
+	}
+
 	askCount := r.GetAskCount()
 	if askCount > k.MaxAskCount(ctx) {
-		return 0, sdkerrors.Wrapf(types.ErrInvalidAskCount, "got: %d, max: %d", askCount, k.MaxAskCount(ctx))
+		return 0, types.WrapMaxError(types.ErrInvalidAskCount, int(askCount), int(k.MaxAskCount(ctx)))
 	}
 
 	// Consume gas for data requests.
@@ -79,8 +84,7 @@ func (k Keeper) PrepareRequest(
 	)
 
 	// Create an execution environment and call Owasm prepare function.
-	maxCalldataSize := int64(k.MaxCalldataSize(ctx))
-	env := types.NewPrepareEnv(req, maxCalldataSize, int64(k.MaxRawRequestCount(ctx)))
+	env := types.NewPrepareEnv(req, int64(k.MaxCalldataSize(ctx)), int64(k.MaxRawRequestCount(ctx)))
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
 		return 0, err
@@ -90,7 +94,7 @@ func (k Keeper) PrepareRequest(
 	ctx.GasMeter().ConsumeGas(k.BaseOwasmGas(ctx), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), maxCalldataSize, env)
+	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), int64(k.MaxCalldataSize(ctx)), env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}

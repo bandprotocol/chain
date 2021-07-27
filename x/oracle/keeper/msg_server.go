@@ -26,11 +26,6 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	maxCalldataSize := int(k.MaxCalldataSize(ctx))
-	if len(msg.Calldata) > maxCalldataSize {
-		return nil, types.WrapMaxError(types.ErrTooLargeCalldata, len(msg.Calldata), maxCalldataSize)
-	}
-
 	payer, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, err
