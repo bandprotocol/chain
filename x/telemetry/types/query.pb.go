@@ -12,19 +12,23 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -32,8 +36,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryParamsRequest is request type for the Query/QueryParams RPC
-// method.
+// QueryTopBalancesRequest is request type for the Query/TopBalances RPC method.
 type QueryTopBalancesRequest struct {
 	Denom      string             `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -94,8 +97,7 @@ func (m *QueryTopBalancesRequest) GetDesc() bool {
 	return false
 }
 
-// QueryParamsResponse is response type for the Query/QueryParams RPC
-// method.
+// QueryTopBalancesResponse is response type for the Query/TopBalances RPC method.
 type QueryTopBalancesResponse struct {
 	Balances   []github_com_cosmos_cosmos_sdk_x_bank_types.Balance `protobuf:"bytes,1,rep,name=balances,proto3,casttype=github.com/cosmos/cosmos-sdk/x/bank/types.Balance" json:"balances"`
 	Pagination *query.PageResponse                                 `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -148,43 +150,595 @@ func (m *QueryTopBalancesResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+// QueryAvgBlockSizeRequest is request type for the Query/AvgBlockSize RPC method.
+type QueryAvgBlockSizeRequest struct {
+	StartDate time.Time `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
+	EndDate   time.Time `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3,stdtime" json:"end_date"`
+}
+
+func (m *QueryAvgBlockSizeRequest) Reset()         { *m = QueryAvgBlockSizeRequest{} }
+func (m *QueryAvgBlockSizeRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgBlockSizeRequest) ProtoMessage()    {}
+func (*QueryAvgBlockSizeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{2}
+}
+func (m *QueryAvgBlockSizeRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgBlockSizeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgBlockSizeRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgBlockSizeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgBlockSizeRequest.Merge(m, src)
+}
+func (m *QueryAvgBlockSizeRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgBlockSizeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgBlockSizeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgBlockSizeRequest proto.InternalMessageInfo
+
+func (m *QueryAvgBlockSizeRequest) GetStartDate() time.Time {
+	if m != nil {
+		return m.StartDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryAvgBlockSizeRequest) GetEndDate() time.Time {
+	if m != nil {
+		return m.EndDate
+	}
+	return time.Time{}
+}
+
+// QueryAvgBlockSizeResponse is response type for the Query/AvgBlockSize RPC method.
+type QueryAvgBlockSizeResponse struct {
+	AvgBlockSizePerDay []AverageBlockSizePerDay `protobuf:"bytes,1,rep,name=avg_block_size_per_day,json=avgBlockSizePerDay,proto3" json:"avg_block_size_per_day"`
+}
+
+func (m *QueryAvgBlockSizeResponse) Reset()         { *m = QueryAvgBlockSizeResponse{} }
+func (m *QueryAvgBlockSizeResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgBlockSizeResponse) ProtoMessage()    {}
+func (*QueryAvgBlockSizeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{3}
+}
+func (m *QueryAvgBlockSizeResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgBlockSizeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgBlockSizeResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgBlockSizeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgBlockSizeResponse.Merge(m, src)
+}
+func (m *QueryAvgBlockSizeResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgBlockSizeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgBlockSizeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgBlockSizeResponse proto.InternalMessageInfo
+
+func (m *QueryAvgBlockSizeResponse) GetAvgBlockSizePerDay() []AverageBlockSizePerDay {
+	if m != nil {
+		return m.AvgBlockSizePerDay
+	}
+	return nil
+}
+
+// QueryAvgBlockTimeRequest is request type for the Query/AvgBlockTime RPC method.
+type QueryAvgBlockTimeRequest struct {
+	StartDate time.Time `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
+	EndDate   time.Time `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3,stdtime" json:"end_date"`
+}
+
+func (m *QueryAvgBlockTimeRequest) Reset()         { *m = QueryAvgBlockTimeRequest{} }
+func (m *QueryAvgBlockTimeRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgBlockTimeRequest) ProtoMessage()    {}
+func (*QueryAvgBlockTimeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{4}
+}
+func (m *QueryAvgBlockTimeRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgBlockTimeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgBlockTimeRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgBlockTimeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgBlockTimeRequest.Merge(m, src)
+}
+func (m *QueryAvgBlockTimeRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgBlockTimeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgBlockTimeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgBlockTimeRequest proto.InternalMessageInfo
+
+func (m *QueryAvgBlockTimeRequest) GetStartDate() time.Time {
+	if m != nil {
+		return m.StartDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryAvgBlockTimeRequest) GetEndDate() time.Time {
+	if m != nil {
+		return m.EndDate
+	}
+	return time.Time{}
+}
+
+// QueryAvgBlockTimeResponse is response type for the Query/AvgBlockTime RPC method.
+type QueryAvgBlockTimeResponse struct {
+	AvgBlockTimePerDay []AverageBlockTimePerDay `protobuf:"bytes,1,rep,name=avg_block_time_per_day,json=avgBlockTimePerDay,proto3" json:"avg_block_time_per_day"`
+}
+
+func (m *QueryAvgBlockTimeResponse) Reset()         { *m = QueryAvgBlockTimeResponse{} }
+func (m *QueryAvgBlockTimeResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgBlockTimeResponse) ProtoMessage()    {}
+func (*QueryAvgBlockTimeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{5}
+}
+func (m *QueryAvgBlockTimeResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgBlockTimeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgBlockTimeResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgBlockTimeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgBlockTimeResponse.Merge(m, src)
+}
+func (m *QueryAvgBlockTimeResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgBlockTimeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgBlockTimeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgBlockTimeResponse proto.InternalMessageInfo
+
+func (m *QueryAvgBlockTimeResponse) GetAvgBlockTimePerDay() []AverageBlockTimePerDay {
+	if m != nil {
+		return m.AvgBlockTimePerDay
+	}
+	return nil
+}
+
+// QueryAvgTxFeeRequest is request type for the Query/AvgTxFee RPC method.
+type QueryAvgTxFeeRequest struct {
+	StartDate time.Time `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
+	EndDate   time.Time `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3,stdtime" json:"end_date"`
+}
+
+func (m *QueryAvgTxFeeRequest) Reset()         { *m = QueryAvgTxFeeRequest{} }
+func (m *QueryAvgTxFeeRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgTxFeeRequest) ProtoMessage()    {}
+func (*QueryAvgTxFeeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{6}
+}
+func (m *QueryAvgTxFeeRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgTxFeeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgTxFeeRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgTxFeeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgTxFeeRequest.Merge(m, src)
+}
+func (m *QueryAvgTxFeeRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgTxFeeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgTxFeeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgTxFeeRequest proto.InternalMessageInfo
+
+func (m *QueryAvgTxFeeRequest) GetStartDate() time.Time {
+	if m != nil {
+		return m.StartDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryAvgTxFeeRequest) GetEndDate() time.Time {
+	if m != nil {
+		return m.EndDate
+	}
+	return time.Time{}
+}
+
+// QueryAvgTxFeeResponse is response type for the Query/AvgTxFee RPC method.
+type QueryAvgTxFeeResponse struct {
+	AvgTxFeePerDay []AverageTxFeePerDay `protobuf:"bytes,1,rep,name=avg_tx_fee_per_day,json=avgTxFeePerDay,proto3" json:"avg_tx_fee_per_day"`
+}
+
+func (m *QueryAvgTxFeeResponse) Reset()         { *m = QueryAvgTxFeeResponse{} }
+func (m *QueryAvgTxFeeResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryAvgTxFeeResponse) ProtoMessage()    {}
+func (*QueryAvgTxFeeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{7}
+}
+func (m *QueryAvgTxFeeResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryAvgTxFeeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryAvgTxFeeResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryAvgTxFeeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryAvgTxFeeResponse.Merge(m, src)
+}
+func (m *QueryAvgTxFeeResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryAvgTxFeeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryAvgTxFeeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryAvgTxFeeResponse proto.InternalMessageInfo
+
+func (m *QueryAvgTxFeeResponse) GetAvgTxFeePerDay() []AverageTxFeePerDay {
+	if m != nil {
+		return m.AvgTxFeePerDay
+	}
+	return nil
+}
+
+// QueryTxVolumeRequest is request type for the Query/TxVolume RPC method.
+type QueryTxVolumeRequest struct {
+	StartDate time.Time `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
+	EndDate   time.Time `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3,stdtime" json:"end_date"`
+}
+
+func (m *QueryTxVolumeRequest) Reset()         { *m = QueryTxVolumeRequest{} }
+func (m *QueryTxVolumeRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryTxVolumeRequest) ProtoMessage()    {}
+func (*QueryTxVolumeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{8}
+}
+func (m *QueryTxVolumeRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryTxVolumeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryTxVolumeRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryTxVolumeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTxVolumeRequest.Merge(m, src)
+}
+func (m *QueryTxVolumeRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryTxVolumeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTxVolumeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTxVolumeRequest proto.InternalMessageInfo
+
+func (m *QueryTxVolumeRequest) GetStartDate() time.Time {
+	if m != nil {
+		return m.StartDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryTxVolumeRequest) GetEndDate() time.Time {
+	if m != nil {
+		return m.EndDate
+	}
+	return time.Time{}
+}
+
+// QueryAvgTxFeeResponse is response type for the Query/TxVolume RPC method.
+type QueryTxVolumeResponse struct {
+	TxVolumePerDay []TxVolumePerDay `protobuf:"bytes,1,rep,name=tx_volume_per_day,json=txVolumePerDay,proto3" json:"tx_volume_per_day"`
+}
+
+func (m *QueryTxVolumeResponse) Reset()         { *m = QueryTxVolumeResponse{} }
+func (m *QueryTxVolumeResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryTxVolumeResponse) ProtoMessage()    {}
+func (*QueryTxVolumeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{9}
+}
+func (m *QueryTxVolumeResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryTxVolumeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryTxVolumeResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryTxVolumeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryTxVolumeResponse.Merge(m, src)
+}
+func (m *QueryTxVolumeResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryTxVolumeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryTxVolumeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryTxVolumeResponse proto.InternalMessageInfo
+
+func (m *QueryTxVolumeResponse) GetTxVolumePerDay() []TxVolumePerDay {
+	if m != nil {
+		return m.TxVolumePerDay
+	}
+	return nil
+}
+
+// QueryValidatorsBlocksRequest is request type for the Query/ValidatorsBlocks RPC method.
+type QueryValidatorsBlocksRequest struct {
+	StartDate  time.Time          `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
+	EndDate    time.Time          `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3,stdtime" json:"end_date"`
+	Pagination *query.PageRequest `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Desc       bool               `protobuf:"varint,4,opt,name=desc,proto3" json:"desc,omitempty"`
+}
+
+func (m *QueryValidatorsBlocksRequest) Reset()         { *m = QueryValidatorsBlocksRequest{} }
+func (m *QueryValidatorsBlocksRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorsBlocksRequest) ProtoMessage()    {}
+func (*QueryValidatorsBlocksRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{10}
+}
+func (m *QueryValidatorsBlocksRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorsBlocksRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorsBlocksRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorsBlocksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorsBlocksRequest.Merge(m, src)
+}
+func (m *QueryValidatorsBlocksRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorsBlocksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorsBlocksRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorsBlocksRequest proto.InternalMessageInfo
+
+func (m *QueryValidatorsBlocksRequest) GetStartDate() time.Time {
+	if m != nil {
+		return m.StartDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryValidatorsBlocksRequest) GetEndDate() time.Time {
+	if m != nil {
+		return m.EndDate
+	}
+	return time.Time{}
+}
+
+func (m *QueryValidatorsBlocksRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+func (m *QueryValidatorsBlocksRequest) GetDesc() bool {
+	if m != nil {
+		return m.Desc
+	}
+	return false
+}
+
+// QueryValidatorsBlocksResponse is response type for the Query/ValidatorsBlocks RPC method.
+type QueryValidatorsBlocksResponse struct {
+	ValidatorsBlocks []ValidatorsBlocks  `protobuf:"bytes,1,rep,name=validators_blocks,json=validatorsBlocks,proto3" json:"validators_blocks"`
+	Pagination       *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryValidatorsBlocksResponse) Reset()         { *m = QueryValidatorsBlocksResponse{} }
+func (m *QueryValidatorsBlocksResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidatorsBlocksResponse) ProtoMessage()    {}
+func (*QueryValidatorsBlocksResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{11}
+}
+func (m *QueryValidatorsBlocksResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidatorsBlocksResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidatorsBlocksResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidatorsBlocksResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidatorsBlocksResponse.Merge(m, src)
+}
+func (m *QueryValidatorsBlocksResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidatorsBlocksResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidatorsBlocksResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidatorsBlocksResponse proto.InternalMessageInfo
+
+func (m *QueryValidatorsBlocksResponse) GetValidatorsBlocks() []ValidatorsBlocks {
+	if m != nil {
+		return m.ValidatorsBlocks
+	}
+	return nil
+}
+
+func (m *QueryValidatorsBlocksResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*QueryTopBalancesRequest)(nil), "telemetry.QueryTopBalancesRequest")
 	proto.RegisterType((*QueryTopBalancesResponse)(nil), "telemetry.QueryTopBalancesResponse")
+	proto.RegisterType((*QueryAvgBlockSizeRequest)(nil), "telemetry.QueryAvgBlockSizeRequest")
+	proto.RegisterType((*QueryAvgBlockSizeResponse)(nil), "telemetry.QueryAvgBlockSizeResponse")
+	proto.RegisterType((*QueryAvgBlockTimeRequest)(nil), "telemetry.QueryAvgBlockTimeRequest")
+	proto.RegisterType((*QueryAvgBlockTimeResponse)(nil), "telemetry.QueryAvgBlockTimeResponse")
+	proto.RegisterType((*QueryAvgTxFeeRequest)(nil), "telemetry.QueryAvgTxFeeRequest")
+	proto.RegisterType((*QueryAvgTxFeeResponse)(nil), "telemetry.QueryAvgTxFeeResponse")
+	proto.RegisterType((*QueryTxVolumeRequest)(nil), "telemetry.QueryTxVolumeRequest")
+	proto.RegisterType((*QueryTxVolumeResponse)(nil), "telemetry.QueryTxVolumeResponse")
+	proto.RegisterType((*QueryValidatorsBlocksRequest)(nil), "telemetry.QueryValidatorsBlocksRequest")
+	proto.RegisterType((*QueryValidatorsBlocksResponse)(nil), "telemetry.QueryValidatorsBlocksResponse")
 }
 
 func init() { proto.RegisterFile("telemetry/query.proto", fileDescriptor_4346fb254048dbbd) }
 
 var fileDescriptor_4346fb254048dbbd = []byte{
-	// 435 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x6f, 0xd3, 0x30,
-	0x14, 0xc7, 0xeb, 0x8d, 0xa1, 0xcd, 0xbd, 0x59, 0x43, 0x0b, 0xd5, 0x94, 0x96, 0x22, 0x41, 0x85,
-	0x54, 0x5b, 0x2d, 0x5c, 0xb8, 0x56, 0x88, 0x5d, 0x10, 0x82, 0x88, 0x13, 0x17, 0xe4, 0x24, 0x4f,
-	0xc1, 0x5a, 0xe3, 0x97, 0xc5, 0x2e, 0xac, 0x37, 0xc4, 0x95, 0x0b, 0x12, 0x5f, 0x6a, 0xc7, 0x49,
-	0x5c, 0x76, 0x9a, 0x50, 0xcb, 0xa7, 0xe0, 0x84, 0x12, 0xbb, 0x59, 0x10, 0x83, 0x9d, 0xe2, 0xf8,
-	0xfd, 0xdf, 0xfb, 0xbd, 0xff, 0xf3, 0xa3, 0x77, 0x2c, 0xcc, 0x21, 0x07, 0x5b, 0x2e, 0xc5, 0xc9,
-	0x02, 0xca, 0x25, 0x2f, 0x4a, 0xb4, 0xc8, 0xf6, 0x9a, 0xeb, 0xde, 0x7e, 0x86, 0x19, 0xd6, 0xb7,
-	0xa2, 0x3a, 0x39, 0x41, 0xef, 0x30, 0x43, 0xcc, 0xe6, 0x20, 0x64, 0xa1, 0x84, 0xd4, 0x1a, 0xad,
-	0xb4, 0x0a, 0xb5, 0xf1, 0xd1, 0x30, 0x41, 0x93, 0xa3, 0x11, 0xb1, 0x34, 0x20, 0x3e, 0x4c, 0x62,
-	0xb0, 0x72, 0x22, 0x12, 0x54, 0xda, 0xc7, 0xef, 0x5d, 0x17, 0x8f, 0xe5, 0x5c, 0xea, 0x04, 0xbc,
-	0xe4, 0x51, 0x5b, 0x52, 0xb7, 0xd6, 0x08, 0x0b, 0x99, 0x29, 0x5d, 0xf3, 0x9c, 0x76, 0xf8, 0x85,
-	0xd0, 0x83, 0xd7, 0x95, 0xe4, 0x0d, 0x16, 0x33, 0x57, 0xc5, 0x44, 0x70, 0xb2, 0x00, 0x63, 0xd9,
-	0x3e, 0xdd, 0x49, 0x41, 0x63, 0x1e, 0x90, 0x01, 0x19, 0xed, 0x45, 0xee, 0x87, 0x3d, 0xa7, 0xf4,
-	0xaa, 0x4a, 0xb0, 0x35, 0x20, 0xa3, 0xee, 0xf4, 0x01, 0x77, 0x48, 0x5e, 0x21, 0xb9, 0x9b, 0x86,
-	0x47, 0xf2, 0x57, 0x32, 0x03, 0x5f, 0x31, 0x6a, 0x65, 0x32, 0x46, 0x6f, 0xa5, 0x60, 0x92, 0x60,
-	0x7b, 0x40, 0x46, 0xbb, 0x51, 0x7d, 0x1e, 0x5e, 0x10, 0x1a, 0xfc, 0xdd, 0x8d, 0x29, 0x50, 0x1b,
-	0x60, 0x86, 0xee, 0x7a, 0x9f, 0x26, 0x20, 0x83, 0xed, 0x51, 0x77, 0x7a, 0xf8, 0x07, 0x76, 0x03,
-	0xf4, 0x89, 0xb3, 0xa7, 0x67, 0x97, 0xfd, 0xce, 0xaf, 0xcb, 0xfe, 0x24, 0x53, 0xf6, 0xfd, 0x22,
-	0xe6, 0x09, 0xe6, 0xc2, 0x4f, 0xc6, 0x7d, 0xc6, 0x26, 0x3d, 0x16, 0xa7, 0x22, 0x96, 0xfa, 0x58,
-	0xd8, 0x65, 0x01, 0x66, 0x93, 0x1a, 0x35, 0x20, 0x76, 0x74, 0x8d, 0xdb, 0x87, 0x37, 0xba, 0x75,
-	0x1d, 0xb7, 0xed, 0x4e, 0x3f, 0x11, 0xba, 0x53, 0x5b, 0x63, 0x1f, 0x69, 0xb7, 0x65, 0x8f, 0x0d,
-	0x79, 0xb3, 0x30, 0xfc, 0x1f, 0x2f, 0xd1, 0xbb, 0xff, 0x5f, 0x8d, 0xa3, 0x0d, 0xfb, 0x9f, 0xbf,
-	0xff, 0xfc, 0xb6, 0x75, 0x97, 0x1d, 0x88, 0xab, 0xc5, 0xb4, 0x58, 0xbc, 0xdb, 0x78, 0x99, 0xbd,
-	0x3c, 0x5b, 0x85, 0xe4, 0x7c, 0x15, 0x92, 0x1f, 0xab, 0x90, 0x7c, 0x5d, 0x87, 0x9d, 0xf3, 0x75,
-	0xd8, 0xb9, 0x58, 0x87, 0x9d, 0xb7, 0x4f, 0x5a, 0x23, 0x3a, 0x02, 0x7c, 0x36, 0x1b, 0xbf, 0x50,
-	0xb9, 0xb2, 0x90, 0x0a, 0x4c, 0x95, 0x1e, 0x27, 0x58, 0x82, 0x38, 0x6d, 0x97, 0xad, 0xa6, 0x15,
-	0xdf, 0xae, 0x57, 0xe8, 0xf1, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0xda, 0x49, 0xc1, 0xfe, 0x09,
-	0x03, 0x00, 0x00,
+	// 892 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0xcd, 0x6e, 0xeb, 0x44,
+	0x14, 0x8e, 0xd3, 0x16, 0xd2, 0x09, 0x42, 0xf7, 0x8e, 0xd2, 0xdb, 0x24, 0x37, 0x75, 0x52, 0x73,
+	0x45, 0x23, 0xa4, 0xda, 0x6a, 0x60, 0xc3, 0x0a, 0x35, 0x54, 0xad, 0x84, 0x50, 0x29, 0x21, 0xea,
+	0x02, 0x16, 0xd6, 0xd8, 0x9e, 0xba, 0x56, 0x12, 0x8f, 0xeb, 0x99, 0x84, 0xa4, 0x62, 0x81, 0xd8,
+	0x76, 0x53, 0x89, 0x2d, 0x0b, 0x1e, 0x83, 0x47, 0xe8, 0xb2, 0x12, 0x9b, 0xae, 0x0a, 0x6a, 0xe1,
+	0x25, 0x58, 0x21, 0x8f, 0xc7, 0xc9, 0xc4, 0x49, 0x5a, 0x10, 0x2c, 0xb2, 0xca, 0x64, 0xce, 0xcf,
+	0xf7, 0x9d, 0x6f, 0x66, 0xce, 0x31, 0xd8, 0x60, 0xb8, 0x8b, 0x7b, 0x98, 0x85, 0x23, 0xe3, 0xa2,
+	0x8f, 0xc3, 0x91, 0x1e, 0x84, 0x84, 0x11, 0xb8, 0x3e, 0xde, 0x2e, 0x17, 0x5c, 0xe2, 0x12, 0xbe,
+	0x6b, 0x44, 0xab, 0xd8, 0xa1, 0x5c, 0x71, 0x09, 0x71, 0xbb, 0xd8, 0x40, 0x81, 0x67, 0x20, 0xdf,
+	0x27, 0x0c, 0x31, 0x8f, 0xf8, 0x54, 0x58, 0x55, 0x9b, 0xd0, 0x1e, 0xa1, 0x86, 0x85, 0x28, 0x36,
+	0x06, 0x7b, 0x16, 0x66, 0x68, 0xcf, 0xb0, 0x89, 0xe7, 0x0b, 0xfb, 0xf6, 0x3c, 0xbb, 0x85, 0xba,
+	0xc8, 0xb7, 0xb1, 0x70, 0xf9, 0x40, 0x76, 0xe1, 0xd4, 0xc6, 0x8e, 0x01, 0x72, 0x3d, 0x9f, 0xe3,
+	0x09, 0xdf, 0xaa, 0x20, 0xc3, 0xff, 0x59, 0xfd, 0x33, 0x83, 0x79, 0x3d, 0x4c, 0x19, 0xea, 0x05,
+	0xc2, 0xa1, 0x34, 0xa9, 0x72, 0xbc, 0x8a, 0x4d, 0xda, 0x95, 0x02, 0x36, 0xbf, 0x8c, 0xd2, 0xb7,
+	0x49, 0xd0, 0x8c, 0x19, 0xd0, 0x16, 0xbe, 0xe8, 0x63, 0xca, 0x60, 0x01, 0xac, 0x39, 0xd8, 0x27,
+	0xbd, 0xa2, 0x52, 0x53, 0xea, 0xeb, 0xad, 0xf8, 0x0f, 0x3c, 0x04, 0x60, 0xc2, 0xa0, 0x98, 0xad,
+	0x29, 0xf5, 0x7c, 0xe3, 0x7d, 0x3d, 0xa6, 0xab, 0x47, 0x74, 0xf5, 0x58, 0x49, 0x41, 0x57, 0x3f,
+	0x41, 0x2e, 0x16, 0x19, 0x5b, 0x52, 0x24, 0x84, 0x60, 0xd5, 0xc1, 0xd4, 0x2e, 0xae, 0xd4, 0x94,
+	0x7a, 0xae, 0xc5, 0xd7, 0xda, 0x9d, 0x02, 0x8a, 0xb3, 0x6c, 0x68, 0x40, 0x7c, 0x8a, 0x21, 0x05,
+	0x39, 0xa1, 0x11, 0x2d, 0x2a, 0xb5, 0x95, 0x7a, 0xbe, 0x51, 0x99, 0x82, 0x4d, 0x00, 0x45, 0x60,
+	0xf3, 0xe3, 0x9b, 0xfb, 0x6a, 0xe6, 0xaf, 0xfb, 0xea, 0x9e, 0xeb, 0xb1, 0xf3, 0xbe, 0xa5, 0xdb,
+	0xa4, 0x67, 0x08, 0x55, 0xe3, 0x9f, 0x5d, 0xea, 0x74, 0x8c, 0xa1, 0x61, 0x21, 0xbf, 0x63, 0xb0,
+	0x51, 0x80, 0x69, 0x12, 0xda, 0x1a, 0x03, 0xc1, 0xa3, 0x39, 0xd5, 0xee, 0x3c, 0x5b, 0x6d, 0xcc,
+	0x58, 0x2e, 0x57, 0xfb, 0x39, 0x29, 0x6d, 0x7f, 0xe0, 0x36, 0xbb, 0xc4, 0xee, 0x7c, 0xe5, 0x5d,
+	0x26, 0xba, 0xc0, 0x4f, 0x01, 0xa0, 0x0c, 0x85, 0xcc, 0x74, 0x10, 0xc3, 0x5c, 0xee, 0x7c, 0xa3,
+	0xac, 0xc7, 0xc7, 0xaa, 0x27, 0xc7, 0xaa, 0xb7, 0x93, 0x63, 0x6d, 0xe6, 0xa2, 0xd2, 0xae, 0x7f,
+	0xab, 0x2a, 0xad, 0x75, 0x1e, 0x77, 0x80, 0x18, 0x86, 0x9f, 0x80, 0x1c, 0xf6, 0x9d, 0x38, 0x45,
+	0xf6, 0x5f, 0xa4, 0x78, 0x1b, 0xfb, 0x4e, 0x94, 0x40, 0x1b, 0x82, 0xd2, 0x1c, 0x86, 0x42, 0xfd,
+	0x6f, 0xc0, 0x2b, 0x34, 0x70, 0x4d, 0x2b, 0x32, 0x98, 0xd4, 0xbb, 0xc4, 0x66, 0x80, 0x43, 0xd3,
+	0x41, 0x23, 0x71, 0x16, 0xdb, 0xfa, 0xe4, 0x6a, 0xed, 0x0f, 0x70, 0x88, 0x5c, 0x3c, 0x4e, 0x72,
+	0x82, 0xc3, 0x03, 0x34, 0x6a, 0xae, 0x46, 0x90, 0x2d, 0x88, 0xa4, 0xf4, 0xb1, 0x65, 0x56, 0x9c,
+	0x88, 0xe7, 0x72, 0x8b, 0x13, 0x33, 0x9c, 0x27, 0x4e, 0xf4, 0xfa, 0xfe, 0xa1, 0x38, 0x51, 0x92,
+	0xf9, 0xe2, 0x4c, 0x2c, 0xda, 0x4f, 0x0a, 0x28, 0x24, 0xd0, 0xed, 0xe1, 0x21, 0x5e, 0x32, 0x61,
+	0xce, 0xc1, 0x46, 0x8a, 0x9d, 0x10, 0xe5, 0x0b, 0x10, 0x55, 0x63, 0xb2, 0xa1, 0x79, 0x86, 0xd3,
+	0x82, 0x6c, 0xcd, 0x0a, 0xc2, 0x83, 0xa7, 0xc4, 0x78, 0x17, 0x89, 0x94, 0x69, 0x21, 0xda, 0xc3,
+	0x53, 0xd2, 0xed, 0x2f, 0xdb, 0x0d, 0xb1, 0x85, 0x10, 0x13, 0x76, 0x42, 0x88, 0xcf, 0xc0, 0x4b,
+	0x36, 0x34, 0x07, 0x7c, 0x33, 0xa5, 0x43, 0x49, 0xd2, 0x21, 0x89, 0x9b, 0xd6, 0x80, 0x4d, 0xed,
+	0x6a, 0xdf, 0x67, 0x41, 0x85, 0xa3, 0x9c, 0xa2, 0xae, 0xe7, 0x20, 0x46, 0x42, 0xca, 0xef, 0x0b,
+	0x5d, 0x2a, 0x2d, 0x52, 0x43, 0x62, 0xe5, 0x3f, 0x0f, 0x89, 0x55, 0x69, 0x48, 0xfc, 0xa2, 0x80,
+	0xad, 0x05, 0x12, 0x08, 0xc1, 0x8f, 0xc1, 0xcb, 0xc1, 0xd8, 0x16, 0xbf, 0xca, 0x64, 0x64, 0xbc,
+	0x96, 0x04, 0x4f, 0xc7, 0x0b, 0xc9, 0x5f, 0x0c, 0x52, 0xfb, 0xff, 0xdb, 0x10, 0x68, 0xfc, 0xb9,
+	0x06, 0xd6, 0x38, 0x75, 0xf8, 0x2d, 0xc8, 0x4b, 0x33, 0x0e, 0x6a, 0x12, 0xad, 0x05, 0xe3, 0xb8,
+	0xfc, 0xde, 0x93, 0x3e, 0x31, 0x9a, 0x56, 0xfd, 0xe1, 0xd7, 0x3f, 0x7e, 0xcc, 0x96, 0xe0, 0xa6,
+	0x21, 0xcd, 0x7c, 0x12, 0x98, 0xe3, 0x81, 0xf6, 0x1d, 0x78, 0x47, 0xee, 0xef, 0x70, 0x26, 0xeb,
+	0x9c, 0xf9, 0x54, 0x7e, 0xf3, 0xb4, 0x93, 0xc0, 0xde, 0xe6, 0xd8, 0xaf, 0x61, 0x49, 0xc2, 0x9e,
+	0x9e, 0x19, 0x32, 0x7a, 0x74, 0x7f, 0x16, 0xa3, 0x4b, 0x03, 0x60, 0x31, 0xba, 0xdc, 0x83, 0x9f,
+	0x41, 0x8f, 0x9a, 0x32, 0xec, 0x82, 0x5c, 0xd2, 0xa5, 0x60, 0x75, 0x4e, 0x52, 0xb9, 0xbb, 0x96,
+	0x6b, 0x8b, 0x1d, 0x04, 0xe2, 0x16, 0x47, 0xdc, 0x84, 0x1b, 0x29, 0xc4, 0xb8, 0xe3, 0xc1, 0x0e,
+	0xc8, 0x25, 0x4f, 0x7a, 0x16, 0x2d, 0xd5, 0xc2, 0x66, 0xd1, 0xd2, 0x5d, 0x44, 0xab, 0x70, 0xb4,
+	0x57, 0xb0, 0x20, 0x9f, 0x6c, 0xd2, 0x56, 0xe0, 0x95, 0x02, 0x5e, 0xa4, 0xef, 0x33, 0xdc, 0x49,
+	0x27, 0x5d, 0xd0, 0x34, 0xca, 0xf5, 0xe7, 0x1d, 0x05, 0x8b, 0x37, 0x9c, 0x85, 0x0a, 0x2b, 0x12,
+	0x8b, 0x99, 0xb7, 0xd6, 0x3c, 0xbe, 0x79, 0x50, 0x95, 0xdb, 0x07, 0x55, 0xf9, 0xfd, 0x41, 0x55,
+	0xae, 0x1f, 0xd5, 0xcc, 0xed, 0xa3, 0x9a, 0xb9, 0x7b, 0x54, 0x33, 0x5f, 0x7f, 0x24, 0x7d, 0x8c,
+	0x1d, 0x61, 0x72, 0xd0, 0xdc, 0xfd, 0xdc, 0xeb, 0x79, 0x0c, 0x3b, 0x06, 0x71, 0x3c, 0x7f, 0xd7,
+	0x26, 0x21, 0x36, 0x86, 0x72, 0x85, 0xd1, 0x77, 0x99, 0xf5, 0x16, 0xef, 0x3a, 0x1f, 0xfe, 0x1d,
+	0x00, 0x00, 0xff, 0xff, 0xbe, 0x03, 0x23, 0xdc, 0xaf, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -201,6 +755,16 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// TopBalances returns all the system balances for specific denom.
 	TopBalances(ctx context.Context, in *QueryTopBalancesRequest, opts ...grpc.CallOption) (*QueryTopBalancesResponse, error)
+	// AvgBlockSize returns average block size per day.
+	AvgBlockSize(ctx context.Context, in *QueryAvgBlockSizeRequest, opts ...grpc.CallOption) (*QueryAvgBlockSizeResponse, error)
+	// AvgBlockTime returns average block time per day.
+	AvgBlockTime(ctx context.Context, in *QueryAvgBlockTimeRequest, opts ...grpc.CallOption) (*QueryAvgBlockTimeResponse, error)
+	// AvgTxFee returns average transaction fee per day.
+	AvgTxFee(ctx context.Context, in *QueryAvgTxFeeRequest, opts ...grpc.CallOption) (*QueryAvgTxFeeResponse, error)
+	// TxVolume returns count of transactions per day.
+	TxVolume(ctx context.Context, in *QueryTxVolumeRequest, opts ...grpc.CallOption) (*QueryTxVolumeResponse, error)
+	// ValidatorsBlocks returns validators blocks and stake percentage.
+	ValidatorsBlocks(ctx context.Context, in *QueryValidatorsBlocksRequest, opts ...grpc.CallOption) (*QueryValidatorsBlocksResponse, error)
 }
 
 type queryClient struct {
@@ -220,10 +784,65 @@ func (c *queryClient) TopBalances(ctx context.Context, in *QueryTopBalancesReque
 	return out, nil
 }
 
+func (c *queryClient) AvgBlockSize(ctx context.Context, in *QueryAvgBlockSizeRequest, opts ...grpc.CallOption) (*QueryAvgBlockSizeResponse, error) {
+	out := new(QueryAvgBlockSizeResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/AvgBlockSize", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) AvgBlockTime(ctx context.Context, in *QueryAvgBlockTimeRequest, opts ...grpc.CallOption) (*QueryAvgBlockTimeResponse, error) {
+	out := new(QueryAvgBlockTimeResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/AvgBlockTime", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) AvgTxFee(ctx context.Context, in *QueryAvgTxFeeRequest, opts ...grpc.CallOption) (*QueryAvgTxFeeResponse, error) {
+	out := new(QueryAvgTxFeeResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/AvgTxFee", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) TxVolume(ctx context.Context, in *QueryTxVolumeRequest, opts ...grpc.CallOption) (*QueryTxVolumeResponse, error) {
+	out := new(QueryTxVolumeResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/TxVolume", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ValidatorsBlocks(ctx context.Context, in *QueryValidatorsBlocksRequest, opts ...grpc.CallOption) (*QueryValidatorsBlocksResponse, error) {
+	out := new(QueryValidatorsBlocksResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/ValidatorsBlocks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// TopBalances returns all the system balances for specific denom.
 	TopBalances(context.Context, *QueryTopBalancesRequest) (*QueryTopBalancesResponse, error)
+	// AvgBlockSize returns average block size per day.
+	AvgBlockSize(context.Context, *QueryAvgBlockSizeRequest) (*QueryAvgBlockSizeResponse, error)
+	// AvgBlockTime returns average block time per day.
+	AvgBlockTime(context.Context, *QueryAvgBlockTimeRequest) (*QueryAvgBlockTimeResponse, error)
+	// AvgTxFee returns average transaction fee per day.
+	AvgTxFee(context.Context, *QueryAvgTxFeeRequest) (*QueryAvgTxFeeResponse, error)
+	// TxVolume returns count of transactions per day.
+	TxVolume(context.Context, *QueryTxVolumeRequest) (*QueryTxVolumeResponse, error)
+	// ValidatorsBlocks returns validators blocks and stake percentage.
+	ValidatorsBlocks(context.Context, *QueryValidatorsBlocksRequest) (*QueryValidatorsBlocksResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -232,6 +851,21 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) TopBalances(ctx context.Context, req *QueryTopBalancesRequest) (*QueryTopBalancesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TopBalances not implemented")
+}
+func (*UnimplementedQueryServer) AvgBlockSize(ctx context.Context, req *QueryAvgBlockSizeRequest) (*QueryAvgBlockSizeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvgBlockSize not implemented")
+}
+func (*UnimplementedQueryServer) AvgBlockTime(ctx context.Context, req *QueryAvgBlockTimeRequest) (*QueryAvgBlockTimeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvgBlockTime not implemented")
+}
+func (*UnimplementedQueryServer) AvgTxFee(ctx context.Context, req *QueryAvgTxFeeRequest) (*QueryAvgTxFeeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvgTxFee not implemented")
+}
+func (*UnimplementedQueryServer) TxVolume(ctx context.Context, req *QueryTxVolumeRequest) (*QueryTxVolumeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TxVolume not implemented")
+}
+func (*UnimplementedQueryServer) ValidatorsBlocks(ctx context.Context, req *QueryValidatorsBlocksRequest) (*QueryValidatorsBlocksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidatorsBlocks not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -256,6 +890,96 @@ func _Query_TopBalances_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_AvgBlockSize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAvgBlockSizeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).AvgBlockSize(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/AvgBlockSize",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).AvgBlockSize(ctx, req.(*QueryAvgBlockSizeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_AvgBlockTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAvgBlockTimeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).AvgBlockTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/AvgBlockTime",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).AvgBlockTime(ctx, req.(*QueryAvgBlockTimeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_AvgTxFee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAvgTxFeeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).AvgTxFee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/AvgTxFee",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).AvgTxFee(ctx, req.(*QueryAvgTxFeeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_TxVolume_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTxVolumeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).TxVolume(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/TxVolume",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).TxVolume(ctx, req.(*QueryTxVolumeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ValidatorsBlocks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidatorsBlocksRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ValidatorsBlocks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/ValidatorsBlocks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ValidatorsBlocks(ctx, req.(*QueryValidatorsBlocksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "telemetry.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -263,6 +987,26 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TopBalances",
 			Handler:    _Query_TopBalances_Handler,
+		},
+		{
+			MethodName: "AvgBlockSize",
+			Handler:    _Query_AvgBlockSize_Handler,
+		},
+		{
+			MethodName: "AvgBlockTime",
+			Handler:    _Query_AvgBlockTime_Handler,
+		},
+		{
+			MethodName: "AvgTxFee",
+			Handler:    _Query_AvgTxFee_Handler,
+		},
+		{
+			MethodName: "TxVolume",
+			Handler:    _Query_TxVolume_Handler,
+		},
+		{
+			MethodName: "ValidatorsBlocks",
+			Handler:    _Query_ValidatorsBlocks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -370,6 +1114,420 @@ func (m *QueryTopBalancesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryAvgBlockSizeRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgBlockSizeRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgBlockSizeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err3 != nil {
+		return 0, err3
+	}
+	i -= n3
+	i = encodeVarintQuery(dAtA, i, uint64(n3))
+	i--
+	dAtA[i] = 0x12
+	n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err4 != nil {
+		return 0, err4
+	}
+	i -= n4
+	i = encodeVarintQuery(dAtA, i, uint64(n4))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryAvgBlockSizeResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgBlockSizeResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgBlockSizeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AvgBlockSizePerDay) > 0 {
+		for iNdEx := len(m.AvgBlockSizePerDay) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AvgBlockSizePerDay[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryAvgBlockTimeRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgBlockTimeRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgBlockTimeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err5 != nil {
+		return 0, err5
+	}
+	i -= n5
+	i = encodeVarintQuery(dAtA, i, uint64(n5))
+	i--
+	dAtA[i] = 0x12
+	n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err6 != nil {
+		return 0, err6
+	}
+	i -= n6
+	i = encodeVarintQuery(dAtA, i, uint64(n6))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryAvgBlockTimeResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgBlockTimeResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgBlockTimeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AvgBlockTimePerDay) > 0 {
+		for iNdEx := len(m.AvgBlockTimePerDay) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AvgBlockTimePerDay[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryAvgTxFeeRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgTxFeeRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgTxFeeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err7 != nil {
+		return 0, err7
+	}
+	i -= n7
+	i = encodeVarintQuery(dAtA, i, uint64(n7))
+	i--
+	dAtA[i] = 0x12
+	n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err8 != nil {
+		return 0, err8
+	}
+	i -= n8
+	i = encodeVarintQuery(dAtA, i, uint64(n8))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryAvgTxFeeResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryAvgTxFeeResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryAvgTxFeeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AvgTxFeePerDay) > 0 {
+		for iNdEx := len(m.AvgTxFeePerDay) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AvgTxFeePerDay[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryTxVolumeRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryTxVolumeRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryTxVolumeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	n9, err9 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err9 != nil {
+		return 0, err9
+	}
+	i -= n9
+	i = encodeVarintQuery(dAtA, i, uint64(n9))
+	i--
+	dAtA[i] = 0x12
+	n10, err10 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err10 != nil {
+		return 0, err10
+	}
+	i -= n10
+	i = encodeVarintQuery(dAtA, i, uint64(n10))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryTxVolumeResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryTxVolumeResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryTxVolumeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.TxVolumePerDay) > 0 {
+		for iNdEx := len(m.TxVolumePerDay) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TxVolumePerDay[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorsBlocksRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorsBlocksRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorsBlocksRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Desc {
+		i--
+		if m.Desc {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	n12, err12 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err12 != nil {
+		return 0, err12
+	}
+	i -= n12
+	i = encodeVarintQuery(dAtA, i, uint64(n12))
+	i--
+	dAtA[i] = 0x12
+	n13, err13 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err13 != nil {
+		return 0, err13
+	}
+	i -= n13
+	i = encodeVarintQuery(dAtA, i, uint64(n13))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidatorsBlocksResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidatorsBlocksResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidatorsBlocksResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValidatorsBlocks) > 0 {
+		for iNdEx := len(m.ValidatorsBlocks) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ValidatorsBlocks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -409,6 +1567,157 @@ func (m *QueryTopBalancesResponse) Size() (n int) {
 	_ = l
 	if len(m.Balances) > 0 {
 		for _, e := range m.Balances {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryAvgBlockSizeRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate)
+	n += 1 + l + sovQuery(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate)
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryAvgBlockSizeResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.AvgBlockSizePerDay) > 0 {
+		for _, e := range m.AvgBlockSizePerDay {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryAvgBlockTimeRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate)
+	n += 1 + l + sovQuery(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate)
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryAvgBlockTimeResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.AvgBlockTimePerDay) > 0 {
+		for _, e := range m.AvgBlockTimePerDay {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryAvgTxFeeRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate)
+	n += 1 + l + sovQuery(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate)
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryAvgTxFeeResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.AvgTxFeePerDay) > 0 {
+		for _, e := range m.AvgTxFeePerDay {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryTxVolumeRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate)
+	n += 1 + l + sovQuery(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate)
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryTxVolumeResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.TxVolumePerDay) > 0 {
+		for _, e := range m.TxVolumePerDay {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryValidatorsBlocksRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate)
+	n += 1 + l + sovQuery(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate)
+	n += 1 + l + sovQuery(uint64(l))
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Desc {
+		n += 2
+	}
+	return n
+}
+
+func (m *QueryValidatorsBlocksResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.ValidatorsBlocks) > 0 {
+		for _, e := range m.ValidatorsBlocks {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -624,6 +1933,1098 @@ func (m *QueryTopBalancesResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.Balances = append(m.Balances, github_com_cosmos_cosmos_sdk_x_bank_types.Balance{})
 			if err := m.Balances[len(m.Balances)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgBlockSizeRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgBlockSizeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgBlockSizeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.EndDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgBlockSizeResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgBlockSizeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgBlockSizeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AvgBlockSizePerDay", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AvgBlockSizePerDay = append(m.AvgBlockSizePerDay, AverageBlockSizePerDay{})
+			if err := m.AvgBlockSizePerDay[len(m.AvgBlockSizePerDay)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgBlockTimeRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgBlockTimeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgBlockTimeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.EndDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgBlockTimeResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgBlockTimeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgBlockTimeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AvgBlockTimePerDay", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AvgBlockTimePerDay = append(m.AvgBlockTimePerDay, AverageBlockTimePerDay{})
+			if err := m.AvgBlockTimePerDay[len(m.AvgBlockTimePerDay)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgTxFeeRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgTxFeeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgTxFeeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.EndDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryAvgTxFeeResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryAvgTxFeeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryAvgTxFeeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AvgTxFeePerDay", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AvgTxFeePerDay = append(m.AvgTxFeePerDay, AverageTxFeePerDay{})
+			if err := m.AvgTxFeePerDay[len(m.AvgTxFeePerDay)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryTxVolumeRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryTxVolumeRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryTxVolumeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.EndDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryTxVolumeResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryTxVolumeResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryTxVolumeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TxVolumePerDay", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TxVolumePerDay = append(m.TxVolumePerDay, TxVolumePerDay{})
+			if err := m.TxVolumePerDay[len(m.TxVolumePerDay)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorsBlocksRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorsBlocksRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorsBlocksRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.StartDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.EndDate, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Desc", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Desc = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidatorsBlocksResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidatorsBlocksResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidatorsBlocksResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorsBlocks", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorsBlocks = append(m.ValidatorsBlocks, ValidatorsBlocks{})
+			if err := m.ValidatorsBlocks[len(m.ValidatorsBlocks)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

@@ -1,0 +1,88 @@
+syntax = "proto3";
+package telemetry;
+
+option go_package = "github.com/GeoDB-Limited/odin-core/x/telemetry/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// AverageBlockSizePerDay represents average block size per day.
+message AverageBlockSizePerDay {
+  option (gogoproto.equal) = true;
+
+  google.protobuf.Timestamp date = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
+  uint64 bytes = 2;
+}
+
+// AverageBlockSizePerDay represents average block time per day.
+message AverageBlockTimePerDay {
+  option (gogoproto.equal) = true;
+
+  google.protobuf.Timestamp date = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
+  uint64 seconds = 2;
+}
+
+// AverageBlockSizePerDay represents average transaction fee per day.
+message AverageTxFeePerDay {
+  option (gogoproto.equal) = true;
+
+  google.protobuf.Timestamp date = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
+  repeated cosmos.base.v1beta1.Coin fee = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// AverageBlockSizePerDay represents count of transactions per day.
+message TxVolumePerDay {
+  option (gogoproto.equal) = true;
+
+  google.protobuf.Timestamp date = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
+  uint64 volume = 2;
+}
+
+// AverageBlockSizePerDay represents validators blocks and stake percentage.
+message ValidatorsBlocks {
+  option (gogoproto.equal) = true;
+
+  string validator_address = 1;
+  uint64 blocks_count = 2;
+  string stake_percentage = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+
+
+message Statistic {
+
+}
+
+message DailyStatistic {
+  google.protobuf.Timestamp date = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.stdtime) = true
+  ];
+  uint64 blocks_count = 2;
+  uint64 blocks_size = 3;
+  uint64 txs_count = 4;
+  repeated cosmos.base.v1beta1.Coin total_tx_fee = 5 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+}

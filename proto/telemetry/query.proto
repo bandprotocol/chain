@@ -8,6 +8,8 @@ import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/v1beta1/balance.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/protobuf/timestamp.proto";
+import "telemetry/telemetry.proto";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -15,22 +17,101 @@ service Query {
   rpc TopBalances(QueryTopBalancesRequest) returns (QueryTopBalancesResponse) {
     option (google.api.http).get = "/telemetry/top_balances";
   }
+  // AvgBlockSize returns average block size per day.
+  rpc AvgBlockSize(QueryAvgBlockSizeRequest) returns (QueryAvgBlockSizeResponse) {
+    option (google.api.http).get = "/telemetry/avg_block_size";
+  }
+
+  // AvgBlockTime returns average block time per day.
+  rpc AvgBlockTime(QueryAvgBlockTimeRequest) returns (QueryAvgBlockTimeResponse) {
+    option (google.api.http).get = "/telemetry/avg_block_time";
+  }
+
+  // AvgTxFee returns average transaction fee per day.
+  rpc AvgTxFee(QueryAvgTxFeeRequest) returns (QueryAvgTxFeeResponse) {
+    option (google.api.http).get = "/telemetry/avg_tx_fee";
+  }
+
+  // TxVolume returns count of transactions per day.
+  rpc TxVolume(QueryTxVolumeRequest) returns (QueryTxVolumeResponse) {
+    option (google.api.http).get = "/telemetry/tx_volume";
+  }
+
+  // ValidatorsBlocks returns validators blocks and stake percentage.
+  rpc ValidatorsBlocks(QueryValidatorsBlocksRequest) returns (QueryValidatorsBlocksResponse) {
+    option (google.api.http).get = "/telemetry/validators_blocks";
+  }
 }
 
-// QueryParamsRequest is request type for the Query/QueryParams RPC
-// method.
+// QueryTopBalancesRequest is request type for the Query/TopBalances RPC method.
 message QueryTopBalancesRequest {
   string denom = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
   bool desc = 3;
 }
-// QueryParamsResponse is response type for the Query/QueryParams RPC
-// method.
+// QueryTopBalancesResponse is response type for the Query/TopBalances RPC method.
 message QueryTopBalancesResponse {
   repeated cosmos.base.v1beta1.Balance balances = 1 [
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/bank/types.Balance",
     (gogoproto.nullable) = false
   ];
 
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryAvgBlockSizeRequest is request type for the Query/AvgBlockSize RPC method.
+message QueryAvgBlockSizeRequest {
+  google.protobuf.Timestamp start_date = 1 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp end_date = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+// QueryAvgBlockSizeResponse is response type for the Query/AvgBlockSize RPC method.
+message QueryAvgBlockSizeResponse {
+  repeated AverageBlockSizePerDay avg_block_size_per_day = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAvgBlockTimeRequest is request type for the Query/AvgBlockTime RPC method.
+message QueryAvgBlockTimeRequest {
+  google.protobuf.Timestamp start_date = 1 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp end_date = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+// QueryAvgBlockTimeResponse is response type for the Query/AvgBlockTime RPC method.
+message QueryAvgBlockTimeResponse {
+  repeated AverageBlockTimePerDay avg_block_time_per_day = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAvgTxFeeRequest is request type for the Query/AvgTxFee RPC method.
+message QueryAvgTxFeeRequest {
+  google.protobuf.Timestamp start_date = 1 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp end_date = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+// QueryAvgTxFeeResponse is response type for the Query/AvgTxFee RPC method.
+message QueryAvgTxFeeResponse {
+  repeated AverageTxFeePerDay avg_tx_fee_per_day = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryTxVolumeRequest is request type for the Query/TxVolume RPC method.
+message QueryTxVolumeRequest {
+  google.protobuf.Timestamp start_date = 1 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp end_date = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+// QueryAvgTxFeeResponse is response type for the Query/TxVolume RPC method.
+message QueryTxVolumeResponse {
+  repeated TxVolumePerDay tx_volume_per_day = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryValidatorsBlocksRequest is request type for the Query/ValidatorsBlocks RPC method.
+message QueryValidatorsBlocksRequest {
+  google.protobuf.Timestamp start_date = 1 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp end_date = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  cosmos.base.query.v1beta1.PageRequest pagination = 3;
+  bool desc = 4;
+}
+
+// QueryValidatorsBlocksResponse is response type for the Query/ValidatorsBlocks RPC method.
+message QueryValidatorsBlocksResponse {
+  repeated ValidatorsBlocks validators_blocks = 1 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

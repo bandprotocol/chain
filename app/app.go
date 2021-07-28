@@ -91,7 +91,7 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	bandappparams "github.com/GeoDB-Limited/odin-core/app/params"
+	odinappparams "github.com/GeoDB-Limited/odin-core/app/params"
 
 	"github.com/GeoDB-Limited/odin-core/x/oracle"
 	bandante "github.com/GeoDB-Limited/odin-core/x/oracle/ante"
@@ -230,7 +230,7 @@ func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
 // NewBandApp returns a reference to an initialized BandApp.
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
+	homePath string, invCheckPeriod uint, encodingConfig odinappparams.EncodingConfig, appOpts servertypes.AppOptions,
 	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 
@@ -352,7 +352,7 @@ func NewBandApp(
 		app.CoinswapKeeper,
 	)
 
-	app.TelemetryKeeper = telemetrykeeper.NewKeeper(appCodec, app.BankKeeper)
+	app.TelemetryKeeper = telemetrykeeper.NewKeeper(appCodec, encodingConfig.TxConfig.TxDecoder(), app.BankKeeper, app.StakingKeeper)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
