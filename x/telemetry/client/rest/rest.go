@@ -12,10 +12,41 @@ import (
 
 // RegisterRoutes TODO: refactor rest limit and offset params to get params
 func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}/{%s}/{%s}", telemetrytypes.ModuleName, telemetrytypes.QueryTopBalances, telemetrytypes.DenomTag, commonrest.LimitTag, commonrest.OffsetTag, commonrest.DescTag), getTopBalancesHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", telemetrytypes.ModuleName, telemetrytypes.QueryTopBalances), getTopBalancesHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", telemetrytypes.ModuleName, telemetrytypes.QueryExtendedValidators), getExtendedValidatorsHandler(clientCtx)).Methods("GET")
 }
 
 func getTopBalancesHandler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		paginationParams, ok := commonrest.СheckPaginationParams(w, r)
+		if !ok {
+			return
+		}
+		bin := clientCtx.LegacyAmino.MustMarshalJSON(paginationParams)
+
+		query := r.URL.Query()
+
+		res, height, err := clientCtx.QueryWithData(fmt.Sprintf(
+			"custom/%s/%s/%s",
+			telemetrytypes.QuerierRoute,
+			telemetrytypes.QueryTopBalances,
+			query.Get(telemetrytypes.DenomTag),
+		), bin)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
+	}
+}
+
+func getExtendedValidatorsHandler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
 		if !ok {
@@ -33,8 +64,8 @@ func getTopBalancesHandler(clientCtx client.Context) http.HandlerFunc {
 		res, height, err := clientCtx.QueryWithData(fmt.Sprintf(
 			"custom/%s/%s/%s",
 			telemetrytypes.QuerierRoute,
-			telemetrytypes.QueryTopBalances,
-			vars[telemetrytypes.DenomTag],
+			telemetrytypes.QueryExtendedValidators,
+			vars[telemetrytypes.StatusTag],
 		), bin)
 		if rest.CheckInternalServerError(w, err) {
 			return

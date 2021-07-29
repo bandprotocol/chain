@@ -6,18 +6,25 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"sort"
 )
 
 type Keeper struct {
-	cdc        codec.BinaryMarshaler
-	bankKeeper bankkeeper.ViewKeeper
+	cdc            codec.BinaryMarshaler
+	bankKeeper     bankkeeper.ViewKeeper
+	stakingQuerier stakingkeeper.Querier
+	stakingKeeper  stakingkeeper.Keeper
 }
 
-func NewKeeper(cdc codec.BinaryMarshaler, bk bankkeeper.ViewKeeper) Keeper {
+func NewKeeper(cdc codec.BinaryMarshaler, bk bankkeeper.ViewKeeper, sk stakingkeeper.Keeper) Keeper {
 	return Keeper{
-		cdc:        cdc,
-		bankKeeper: bk,
+		cdc:           cdc,
+		bankKeeper:    bk,
+		stakingKeeper: sk,
+		stakingQuerier: stakingkeeper.Querier{
+			Keeper: sk,
+		},
 	}
 }
 
@@ -41,4 +48,15 @@ func (k Keeper) GetPaginatedBalances(ctx sdk.Context, denom string, desc bool, p
 	}
 
 	return balances[pagination.GetOffset() : pagination.GetOffset()+maxLimit], uint64(len(balances))
+}
+
+func (k Keeper) GetBalances(ctx sdk.Context, addrs ...sdk.AccAddress) []banktypes.Balance {
+	balances := make([]banktypes.Balance, len(addrs))
+	for i, addr := range addrs {
+		balances[i] = banktypes.Balance{
+			Address: addr.String(),
+			Coins:   k.bankKeeper.GetAllBalances(ctx, addr),
+		}
+	}
+	return balances
 }

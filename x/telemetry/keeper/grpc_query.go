@@ -4,6 +4,7 @@ import (
 	"context"
 	telemetrytypes "github.com/GeoDB-Limited/odin-core/x/telemetry/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
@@ -18,4 +19,19 @@ func (k Keeper) TopBalances(c context.Context, request *telemetrytypes.QueryTopB
 			Total: total,
 		},
 	}, nil
+}
+
+func (k Keeper) ExtendedValidators(c context.Context, request *telemetrytypes.QueryExtendedValidatorsRequest) (*telemetrytypes.QueryExtendedValidatorsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	validatorsResp, err := k.stakingQuerier.Validators(c, ExtendedValidatorsRequestToValidatorsRequest(request))
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to get validators")
+	}
+	accounts, err := ValidatorsToAccounts(validatorsResp.GetValidators())
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to get validators accounts addresses")
+	}
+	extendedValidatorsResp := ValidatorsResponseToExtendedValidatorsResponse(validatorsResp)
+	extendedValidatorsResp.Balances = k.GetBalances(ctx, accounts...)
+	return extendedValidatorsResp, nil
 }

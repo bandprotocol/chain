@@ -15,6 +15,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case telemetrytypes.QueryTopBalances:
 			return queryTopBalances(ctx, path[1:], keeper, cdc, req)
+		case telemetrytypes.QueryExtendedValidators:
+			return queryExtendedValidators(ctx, path[1:], keeper, cdc, req)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown telemetry query endpoint")
 		}
@@ -39,4 +41,32 @@ func queryTopBalances(ctx sdk.Context, path []string, k Keeper, cdc *codec.Legac
 			Total: total,
 		},
 	})
+}
+
+func queryExtendedValidators(ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery) ([]byte, error) {
+	if len(path) > 1 {
+		return nil, sdkerrors.ErrInvalidRequest
+	}
+	var params commontypes.QueryPaginationParams
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to unmarshal query pagination params")
+	}
+
+	var total = 0
+	if params.GetCountTotal() {
+		total = len(k.stakingKeeper.GetValidators(ctx, k.stakingKeeper.MaxValidators(ctx)))
+	}
+	validators, err := k.ExtendedValidators(sdk.WrapSDKContext(ctx), &telemetrytypes.QueryExtendedValidatorsRequest{
+		Status: path[0],
+		Pagination: &query.PageRequest{
+			Offset: params.Offset,
+			Limit:  params.Limit,
+		},
+	})
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to query extended validators")
+	}
+
+	validators.Pagination.Total = uint64(total)
+	return commontypes.QueryOK(cdc, validators)
 }

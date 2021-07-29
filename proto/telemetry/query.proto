@@ -8,12 +8,17 @@ import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/v1beta1/balance.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/validator.proto";
 
 // Query defines the gRPC querier service.
 service Query {
   // TopBalances returns all the system balances for specific denom.
   rpc TopBalances(QueryTopBalancesRequest) returns (QueryTopBalancesResponse) {
     option (google.api.http).get = "/telemetry/top_balances";
+  }
+
+  rpc ExtendedValidators(QueryExtendedValidatorsRequest) returns (QueryExtendedValidatorsResponse) {
+    option (google.api.http).get = "/telemetry/validators_balances";
   }
 }
 
@@ -33,4 +38,23 @@ message QueryTopBalancesResponse {
   ];
 
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryExtendedValidatorsRequest {
+  string status = 1;
+
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryExtendedValidatorsResponse {
+  repeated cosmos.base.v1beta1.Validator validators = 1 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/staking/types.Validator",
+    (gogoproto.nullable) = false
+  ];
+  repeated cosmos.base.v1beta1.Balance balances = 2 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/bank/types.Balance",
+    (gogoproto.nullable) = false
+  ];
+
+  cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }

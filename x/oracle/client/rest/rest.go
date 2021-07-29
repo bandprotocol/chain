@@ -2,7 +2,6 @@ package rest
 
 import (
 	"fmt"
-	commonrest "github.com/GeoDB-Limited/odin-core/x/common/client/rest"
 	"github.com/GeoDB-Limited/odin-core/x/oracle/client/common/proof"
 	oracletypes "github.com/GeoDB-Limited/odin-core/x/oracle/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -21,12 +20,12 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryCounts), getCountsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryData, dataHashTag), getDataByHashHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryDataSources, idTag), getDataSourceByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryDataSources, commonrest.LimitTag, commonrest.OffsetTag), getDataSourcesHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryDataSources), getDataSourcesHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryOracleScripts, idTag), getOracleScriptByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryOracleScripts, commonrest.LimitTag, commonrest.OffsetTag), getOracleScriptsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryOracleScripts), getOracleScriptsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryRequests, idTag), getRequestByIDHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryRequests, commonrest.LimitTag, commonrest.OffsetTag), getRequestsHandler(clientCtx)).Methods("GET")
-	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}/{%s}", oracletypes.ModuleName, oracletypes.QueryRequestReports, idTag, commonrest.LimitTag, commonrest.OffsetTag), getRequestReportsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryRequests), getRequestsHandler(clientCtx)).Methods("GET")
+	rtr.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", oracletypes.ModuleName, oracletypes.QueryRequestReports, idTag), getRequestReportsHandler(clientCtx)).Methods("GET")
 	rtr.HandleFunc(fmt.Sprintf("/%s/%s", oracletypes.ModuleName, oracletypes.QueryRequestSearch), getRequestSearchHandler(clientCtx)).Methods("GET")
 	// TODO: fix
 	//rtr.HandleFunc(fmt.Sprintf("/%s/request_prices", oracletypes.ModuleName), getRequestsPricesHandler(clientCtx)).Methods("POST")

@@ -1,7 +1,8 @@
 package rest
 
 const (
-	LimitTag  = "limitTag"
-	OffsetTag = "offsetTag"
-	DescTag   = "descTag"
+	LimitTag      = "limit"
+	OffsetTag     = "offset"
+	DescTag       = "desc"
+	CountTotalTag = "count_total"
 )

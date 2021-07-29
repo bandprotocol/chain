@@ -8,6 +8,8 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	QueryTopBalances = "top_balances"
-	DenomTag         = "denomTag "
+	QueryTopBalances        = "top_balances"
+	QueryExtendedValidators = "extended_validators"
+	DenomTag                = "denom"
+	StatusTag               = "status"
 )

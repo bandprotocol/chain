@@ -20,6 +20,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 	coinswapCmd.AddCommand(
 		GetQueryCmdTopBalances(),
+		GetQueryCmdExtendedValidators(),
 	)
 	return coinswapCmd
 }
@@ -39,7 +40,7 @@ func GetQueryCmdTopBalances() *cobra.Command {
 			denom := args[0]
 
 			var limit uint64 = query.DefaultLimit
-			var offset uint64 = 0
+			var offset uint64
 			if len(args) >= 3 {
 				limit, err = strconv.ParseUint(args[1], 10, 64)
 				if err != nil {
@@ -66,6 +67,58 @@ func GetQueryCmdTopBalances() *cobra.Command {
 					Limit:  limit,
 				},
 				Desc: desc,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetQueryCmdExtendedValidators() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "extended-validators [limit] [offset] [status]",
+		Args: cobra.MaximumNArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			var limit uint64 = query.DefaultLimit
+			var offset uint64
+			var status string
+
+			if len(args) > 0 {
+				limit, err = strconv.ParseUint(args[1], 10, 64)
+				if err != nil {
+					return err
+				}
+			}
+			if len(args) > 1 {
+				offset, err = strconv.ParseUint(args[2], 10, 64)
+				if err != nil {
+					return err
+				}
+			}
+			if len(args) > 2 {
+				if len(args) > 0 {
+					status = args[0]
+				}
+			}
+
+			queryClient := telemetrytypes.NewQueryClient(clientCtx)
+			res, err := queryClient.ExtendedValidators(cmd.Context(), &telemetrytypes.QueryExtendedValidatorsRequest{
+				Status: status,
+				Pagination: &query.PageRequest{
+					Offset: offset,
+					Limit:  limit,
+				},
 			})
 			if err != nil {
 				return err

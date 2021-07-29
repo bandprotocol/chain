@@ -352,7 +352,7 @@ func NewBandApp(
 		app.CoinswapKeeper,
 	)
 
-	app.TelemetryKeeper = telemetrykeeper.NewKeeper(appCodec, app.BankKeeper)
+	app.TelemetryKeeper = telemetrykeeper.NewKeeper(appCodec, app.BankKeeper, app.StakingKeeper)
 
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
