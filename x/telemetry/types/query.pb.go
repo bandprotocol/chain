@@ -9,6 +9,7 @@ import (
 	_ "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	github_com_cosmos_cosmos_sdk_x_bank_types "github.com/cosmos/cosmos-sdk/x/bank/types"
+	github_com_cosmos_cosmos_sdk_x_staking_types "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -150,6 +151,118 @@ func (m *QueryTopBalancesResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+type QueryExtendedValidatorsRequest struct {
+	Status     string             `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryExtendedValidatorsRequest) Reset()         { *m = QueryExtendedValidatorsRequest{} }
+func (m *QueryExtendedValidatorsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryExtendedValidatorsRequest) ProtoMessage()    {}
+func (*QueryExtendedValidatorsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{2}
+}
+func (m *QueryExtendedValidatorsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryExtendedValidatorsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryExtendedValidatorsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryExtendedValidatorsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryExtendedValidatorsRequest.Merge(m, src)
+}
+func (m *QueryExtendedValidatorsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryExtendedValidatorsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryExtendedValidatorsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryExtendedValidatorsRequest proto.InternalMessageInfo
+
+func (m *QueryExtendedValidatorsRequest) GetStatus() string {
+	if m != nil {
+		return m.Status
+	}
+	return ""
+}
+
+func (m *QueryExtendedValidatorsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+type QueryExtendedValidatorsResponse struct {
+	Validators []github_com_cosmos_cosmos_sdk_x_staking_types.Validator `protobuf:"bytes,1,rep,name=validators,proto3,casttype=github.com/cosmos/cosmos-sdk/x/staking/types.Validator" json:"validators"`
+	Balances   []github_com_cosmos_cosmos_sdk_x_bank_types.Balance      `protobuf:"bytes,2,rep,name=balances,proto3,casttype=github.com/cosmos/cosmos-sdk/x/bank/types.Balance" json:"balances"`
+	Pagination *query.PageResponse                                      `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryExtendedValidatorsResponse) Reset()         { *m = QueryExtendedValidatorsResponse{} }
+func (m *QueryExtendedValidatorsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryExtendedValidatorsResponse) ProtoMessage()    {}
+func (*QueryExtendedValidatorsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4346fb254048dbbd, []int{3}
+}
+func (m *QueryExtendedValidatorsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryExtendedValidatorsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryExtendedValidatorsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryExtendedValidatorsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryExtendedValidatorsResponse.Merge(m, src)
+}
+func (m *QueryExtendedValidatorsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryExtendedValidatorsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryExtendedValidatorsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryExtendedValidatorsResponse proto.InternalMessageInfo
+
+func (m *QueryExtendedValidatorsResponse) GetValidators() []github_com_cosmos_cosmos_sdk_x_staking_types.Validator {
+	if m != nil {
+		return m.Validators
+	}
+	return nil
+}
+
+func (m *QueryExtendedValidatorsResponse) GetBalances() []github_com_cosmos_cosmos_sdk_x_bank_types.Balance {
+	if m != nil {
+		return m.Balances
+	}
+	return nil
+}
+
+func (m *QueryExtendedValidatorsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
 // QueryAvgBlockSizeRequest is request type for the Query/AvgBlockSize RPC method.
 type QueryAvgBlockSizeRequest struct {
 	StartDate time.Time `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3,stdtime" json:"start_date"`
@@ -160,7 +273,7 @@ func (m *QueryAvgBlockSizeRequest) Reset()         { *m = QueryAvgBlockSizeReque
 func (m *QueryAvgBlockSizeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgBlockSizeRequest) ProtoMessage()    {}
 func (*QueryAvgBlockSizeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{2}
+	return fileDescriptor_4346fb254048dbbd, []int{4}
 }
 func (m *QueryAvgBlockSizeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -212,7 +325,7 @@ func (m *QueryAvgBlockSizeResponse) Reset()         { *m = QueryAvgBlockSizeResp
 func (m *QueryAvgBlockSizeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgBlockSizeResponse) ProtoMessage()    {}
 func (*QueryAvgBlockSizeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{3}
+	return fileDescriptor_4346fb254048dbbd, []int{5}
 }
 func (m *QueryAvgBlockSizeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -258,7 +371,7 @@ func (m *QueryAvgBlockTimeRequest) Reset()         { *m = QueryAvgBlockTimeReque
 func (m *QueryAvgBlockTimeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgBlockTimeRequest) ProtoMessage()    {}
 func (*QueryAvgBlockTimeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{4}
+	return fileDescriptor_4346fb254048dbbd, []int{6}
 }
 func (m *QueryAvgBlockTimeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -310,7 +423,7 @@ func (m *QueryAvgBlockTimeResponse) Reset()         { *m = QueryAvgBlockTimeResp
 func (m *QueryAvgBlockTimeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgBlockTimeResponse) ProtoMessage()    {}
 func (*QueryAvgBlockTimeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{5}
+	return fileDescriptor_4346fb254048dbbd, []int{7}
 }
 func (m *QueryAvgBlockTimeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -356,7 +469,7 @@ func (m *QueryAvgTxFeeRequest) Reset()         { *m = QueryAvgTxFeeRequest{} }
 func (m *QueryAvgTxFeeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgTxFeeRequest) ProtoMessage()    {}
 func (*QueryAvgTxFeeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{6}
+	return fileDescriptor_4346fb254048dbbd, []int{8}
 }
 func (m *QueryAvgTxFeeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -408,7 +521,7 @@ func (m *QueryAvgTxFeeResponse) Reset()         { *m = QueryAvgTxFeeResponse{} }
 func (m *QueryAvgTxFeeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryAvgTxFeeResponse) ProtoMessage()    {}
 func (*QueryAvgTxFeeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{7}
+	return fileDescriptor_4346fb254048dbbd, []int{9}
 }
 func (m *QueryAvgTxFeeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -454,7 +567,7 @@ func (m *QueryTxVolumeRequest) Reset()         { *m = QueryTxVolumeRequest{} }
 func (m *QueryTxVolumeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryTxVolumeRequest) ProtoMessage()    {}
 func (*QueryTxVolumeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{8}
+	return fileDescriptor_4346fb254048dbbd, []int{10}
 }
 func (m *QueryTxVolumeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -506,7 +619,7 @@ func (m *QueryTxVolumeResponse) Reset()         { *m = QueryTxVolumeResponse{} }
 func (m *QueryTxVolumeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryTxVolumeResponse) ProtoMessage()    {}
 func (*QueryTxVolumeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{9}
+	return fileDescriptor_4346fb254048dbbd, []int{11}
 }
 func (m *QueryTxVolumeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -554,7 +667,7 @@ func (m *QueryValidatorsBlocksRequest) Reset()         { *m = QueryValidatorsBlo
 func (m *QueryValidatorsBlocksRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValidatorsBlocksRequest) ProtoMessage()    {}
 func (*QueryValidatorsBlocksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{10}
+	return fileDescriptor_4346fb254048dbbd, []int{12}
 }
 func (m *QueryValidatorsBlocksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -621,7 +734,7 @@ func (m *QueryValidatorsBlocksResponse) Reset()         { *m = QueryValidatorsBl
 func (m *QueryValidatorsBlocksResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValidatorsBlocksResponse) ProtoMessage()    {}
 func (*QueryValidatorsBlocksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4346fb254048dbbd, []int{11}
+	return fileDescriptor_4346fb254048dbbd, []int{13}
 }
 func (m *QueryValidatorsBlocksResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -667,6 +780,8 @@ func (m *QueryValidatorsBlocksResponse) GetPagination() *query.PageResponse {
 func init() {
 	proto.RegisterType((*QueryTopBalancesRequest)(nil), "telemetry.QueryTopBalancesRequest")
 	proto.RegisterType((*QueryTopBalancesResponse)(nil), "telemetry.QueryTopBalancesResponse")
+	proto.RegisterType((*QueryExtendedValidatorsRequest)(nil), "telemetry.QueryExtendedValidatorsRequest")
+	proto.RegisterType((*QueryExtendedValidatorsResponse)(nil), "telemetry.QueryExtendedValidatorsResponse")
 	proto.RegisterType((*QueryAvgBlockSizeRequest)(nil), "telemetry.QueryAvgBlockSizeRequest")
 	proto.RegisterType((*QueryAvgBlockSizeResponse)(nil), "telemetry.QueryAvgBlockSizeResponse")
 	proto.RegisterType((*QueryAvgBlockTimeRequest)(nil), "telemetry.QueryAvgBlockTimeRequest")
@@ -682,63 +797,71 @@ func init() {
 func init() { proto.RegisterFile("telemetry/query.proto", fileDescriptor_4346fb254048dbbd) }
 
 var fileDescriptor_4346fb254048dbbd = []byte{
-	// 892 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0xcd, 0x6e, 0xeb, 0x44,
-	0x14, 0x8e, 0xd3, 0x16, 0xd2, 0x09, 0x42, 0xf7, 0x8e, 0xd2, 0xdb, 0x24, 0x37, 0x75, 0x52, 0x73,
-	0x45, 0x23, 0xa4, 0xda, 0x6a, 0x60, 0xc3, 0x0a, 0x35, 0x54, 0xad, 0x84, 0x50, 0x29, 0x21, 0xea,
-	0x02, 0x16, 0xd6, 0xd8, 0x9e, 0xba, 0x56, 0x12, 0x8f, 0xeb, 0x99, 0x84, 0xa4, 0x62, 0x81, 0xd8,
-	0x76, 0x53, 0x89, 0x2d, 0x0b, 0x1e, 0x83, 0x47, 0xe8, 0xb2, 0x12, 0x9b, 0xae, 0x0a, 0x6a, 0xe1,
-	0x25, 0x58, 0x21, 0x8f, 0xc7, 0xc9, 0xc4, 0x49, 0x5a, 0x10, 0x2c, 0xb2, 0xca, 0x64, 0xce, 0xcf,
-	0xf7, 0x9d, 0x6f, 0x66, 0xce, 0x31, 0xd8, 0x60, 0xb8, 0x8b, 0x7b, 0x98, 0x85, 0x23, 0xe3, 0xa2,
-	0x8f, 0xc3, 0x91, 0x1e, 0x84, 0x84, 0x11, 0xb8, 0x3e, 0xde, 0x2e, 0x17, 0x5c, 0xe2, 0x12, 0xbe,
-	0x6b, 0x44, 0xab, 0xd8, 0xa1, 0x5c, 0x71, 0x09, 0x71, 0xbb, 0xd8, 0x40, 0x81, 0x67, 0x20, 0xdf,
-	0x27, 0x0c, 0x31, 0x8f, 0xf8, 0x54, 0x58, 0x55, 0x9b, 0xd0, 0x1e, 0xa1, 0x86, 0x85, 0x28, 0x36,
-	0x06, 0x7b, 0x16, 0x66, 0x68, 0xcf, 0xb0, 0x89, 0xe7, 0x0b, 0xfb, 0xf6, 0x3c, 0xbb, 0x85, 0xba,
-	0xc8, 0xb7, 0xb1, 0x70, 0xf9, 0x40, 0x76, 0xe1, 0xd4, 0xc6, 0x8e, 0x01, 0x72, 0x3d, 0x9f, 0xe3,
-	0x09, 0xdf, 0xaa, 0x20, 0xc3, 0xff, 0x59, 0xfd, 0x33, 0x83, 0x79, 0x3d, 0x4c, 0x19, 0xea, 0x05,
-	0xc2, 0xa1, 0x34, 0xa9, 0x72, 0xbc, 0x8a, 0x4d, 0xda, 0x95, 0x02, 0x36, 0xbf, 0x8c, 0xd2, 0xb7,
-	0x49, 0xd0, 0x8c, 0x19, 0xd0, 0x16, 0xbe, 0xe8, 0x63, 0xca, 0x60, 0x01, 0xac, 0x39, 0xd8, 0x27,
-	0xbd, 0xa2, 0x52, 0x53, 0xea, 0xeb, 0xad, 0xf8, 0x0f, 0x3c, 0x04, 0x60, 0xc2, 0xa0, 0x98, 0xad,
-	0x29, 0xf5, 0x7c, 0xe3, 0x7d, 0x3d, 0xa6, 0xab, 0x47, 0x74, 0xf5, 0x58, 0x49, 0x41, 0x57, 0x3f,
-	0x41, 0x2e, 0x16, 0x19, 0x5b, 0x52, 0x24, 0x84, 0x60, 0xd5, 0xc1, 0xd4, 0x2e, 0xae, 0xd4, 0x94,
-	0x7a, 0xae, 0xc5, 0xd7, 0xda, 0x9d, 0x02, 0x8a, 0xb3, 0x6c, 0x68, 0x40, 0x7c, 0x8a, 0x21, 0x05,
-	0x39, 0xa1, 0x11, 0x2d, 0x2a, 0xb5, 0x95, 0x7a, 0xbe, 0x51, 0x99, 0x82, 0x4d, 0x00, 0x45, 0x60,
-	0xf3, 0xe3, 0x9b, 0xfb, 0x6a, 0xe6, 0xaf, 0xfb, 0xea, 0x9e, 0xeb, 0xb1, 0xf3, 0xbe, 0xa5, 0xdb,
-	0xa4, 0x67, 0x08, 0x55, 0xe3, 0x9f, 0x5d, 0xea, 0x74, 0x8c, 0xa1, 0x61, 0x21, 0xbf, 0x63, 0xb0,
-	0x51, 0x80, 0x69, 0x12, 0xda, 0x1a, 0x03, 0xc1, 0xa3, 0x39, 0xd5, 0xee, 0x3c, 0x5b, 0x6d, 0xcc,
-	0x58, 0x2e, 0x57, 0xfb, 0x39, 0x29, 0x6d, 0x7f, 0xe0, 0x36, 0xbb, 0xc4, 0xee, 0x7c, 0xe5, 0x5d,
-	0x26, 0xba, 0xc0, 0x4f, 0x01, 0xa0, 0x0c, 0x85, 0xcc, 0x74, 0x10, 0xc3, 0x5c, 0xee, 0x7c, 0xa3,
-	0xac, 0xc7, 0xc7, 0xaa, 0x27, 0xc7, 0xaa, 0xb7, 0x93, 0x63, 0x6d, 0xe6, 0xa2, 0xd2, 0xae, 0x7f,
-	0xab, 0x2a, 0xad, 0x75, 0x1e, 0x77, 0x80, 0x18, 0x86, 0x9f, 0x80, 0x1c, 0xf6, 0x9d, 0x38, 0x45,
-	0xf6, 0x5f, 0xa4, 0x78, 0x1b, 0xfb, 0x4e, 0x94, 0x40, 0x1b, 0x82, 0xd2, 0x1c, 0x86, 0x42, 0xfd,
-	0x6f, 0xc0, 0x2b, 0x34, 0x70, 0x4d, 0x2b, 0x32, 0x98, 0xd4, 0xbb, 0xc4, 0x66, 0x80, 0x43, 0xd3,
-	0x41, 0x23, 0x71, 0x16, 0xdb, 0xfa, 0xe4, 0x6a, 0xed, 0x0f, 0x70, 0x88, 0x5c, 0x3c, 0x4e, 0x72,
-	0x82, 0xc3, 0x03, 0x34, 0x6a, 0xae, 0x46, 0x90, 0x2d, 0x88, 0xa4, 0xf4, 0xb1, 0x65, 0x56, 0x9c,
-	0x88, 0xe7, 0x72, 0x8b, 0x13, 0x33, 0x9c, 0x27, 0x4e, 0xf4, 0xfa, 0xfe, 0xa1, 0x38, 0x51, 0x92,
-	0xf9, 0xe2, 0x4c, 0x2c, 0xda, 0x4f, 0x0a, 0x28, 0x24, 0xd0, 0xed, 0xe1, 0x21, 0x5e, 0x32, 0x61,
-	0xce, 0xc1, 0x46, 0x8a, 0x9d, 0x10, 0xe5, 0x0b, 0x10, 0x55, 0x63, 0xb2, 0xa1, 0x79, 0x86, 0xd3,
-	0x82, 0x6c, 0xcd, 0x0a, 0xc2, 0x83, 0xa7, 0xc4, 0x78, 0x17, 0x89, 0x94, 0x69, 0x21, 0xda, 0xc3,
-	0x53, 0xd2, 0xed, 0x2f, 0xdb, 0x0d, 0xb1, 0x85, 0x10, 0x13, 0x76, 0x42, 0x88, 0xcf, 0xc0, 0x4b,
-	0x36, 0x34, 0x07, 0x7c, 0x33, 0xa5, 0x43, 0x49, 0xd2, 0x21, 0x89, 0x9b, 0xd6, 0x80, 0x4d, 0xed,
-	0x6a, 0xdf, 0x67, 0x41, 0x85, 0xa3, 0x9c, 0xa2, 0xae, 0xe7, 0x20, 0x46, 0x42, 0xca, 0xef, 0x0b,
-	0x5d, 0x2a, 0x2d, 0x52, 0x43, 0x62, 0xe5, 0x3f, 0x0f, 0x89, 0x55, 0x69, 0x48, 0xfc, 0xa2, 0x80,
-	0xad, 0x05, 0x12, 0x08, 0xc1, 0x8f, 0xc1, 0xcb, 0xc1, 0xd8, 0x16, 0xbf, 0xca, 0x64, 0x64, 0xbc,
-	0x96, 0x04, 0x4f, 0xc7, 0x0b, 0xc9, 0x5f, 0x0c, 0x52, 0xfb, 0xff, 0xdb, 0x10, 0x68, 0xfc, 0xb9,
-	0x06, 0xd6, 0x38, 0x75, 0xf8, 0x2d, 0xc8, 0x4b, 0x33, 0x0e, 0x6a, 0x12, 0xad, 0x05, 0xe3, 0xb8,
-	0xfc, 0xde, 0x93, 0x3e, 0x31, 0x9a, 0x56, 0xfd, 0xe1, 0xd7, 0x3f, 0x7e, 0xcc, 0x96, 0xe0, 0xa6,
-	0x21, 0xcd, 0x7c, 0x12, 0x98, 0xe3, 0x81, 0xf6, 0x1d, 0x78, 0x47, 0xee, 0xef, 0x70, 0x26, 0xeb,
-	0x9c, 0xf9, 0x54, 0x7e, 0xf3, 0xb4, 0x93, 0xc0, 0xde, 0xe6, 0xd8, 0xaf, 0x61, 0x49, 0xc2, 0x9e,
-	0x9e, 0x19, 0x32, 0x7a, 0x74, 0x7f, 0x16, 0xa3, 0x4b, 0x03, 0x60, 0x31, 0xba, 0xdc, 0x83, 0x9f,
-	0x41, 0x8f, 0x9a, 0x32, 0xec, 0x82, 0x5c, 0xd2, 0xa5, 0x60, 0x75, 0x4e, 0x52, 0xb9, 0xbb, 0x96,
-	0x6b, 0x8b, 0x1d, 0x04, 0xe2, 0x16, 0x47, 0xdc, 0x84, 0x1b, 0x29, 0xc4, 0xb8, 0xe3, 0xc1, 0x0e,
-	0xc8, 0x25, 0x4f, 0x7a, 0x16, 0x2d, 0xd5, 0xc2, 0x66, 0xd1, 0xd2, 0x5d, 0x44, 0xab, 0x70, 0xb4,
-	0x57, 0xb0, 0x20, 0x9f, 0x6c, 0xd2, 0x56, 0xe0, 0x95, 0x02, 0x5e, 0xa4, 0xef, 0x33, 0xdc, 0x49,
-	0x27, 0x5d, 0xd0, 0x34, 0xca, 0xf5, 0xe7, 0x1d, 0x05, 0x8b, 0x37, 0x9c, 0x85, 0x0a, 0x2b, 0x12,
-	0x8b, 0x99, 0xb7, 0xd6, 0x3c, 0xbe, 0x79, 0x50, 0x95, 0xdb, 0x07, 0x55, 0xf9, 0xfd, 0x41, 0x55,
-	0xae, 0x1f, 0xd5, 0xcc, 0xed, 0xa3, 0x9a, 0xb9, 0x7b, 0x54, 0x33, 0x5f, 0x7f, 0x24, 0x7d, 0x8c,
-	0x1d, 0x61, 0x72, 0xd0, 0xdc, 0xfd, 0xdc, 0xeb, 0x79, 0x0c, 0x3b, 0x06, 0x71, 0x3c, 0x7f, 0xd7,
-	0x26, 0x21, 0x36, 0x86, 0x72, 0x85, 0xd1, 0x77, 0x99, 0xf5, 0x16, 0xef, 0x3a, 0x1f, 0xfe, 0x1d,
-	0x00, 0x00, 0xff, 0xff, 0xbe, 0x03, 0x23, 0xdc, 0xaf, 0x0b, 0x00, 0x00,
+	// 1016 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x96, 0x4f, 0x6f, 0xdb, 0x36,
+	0x18, 0xc6, 0x23, 0x27, 0xcd, 0x1c, 0x66, 0x18, 0x5a, 0x22, 0x7f, 0x6c, 0xd7, 0x91, 0x1d, 0xb5,
+	0x68, 0xbd, 0x02, 0x91, 0x90, 0x6c, 0x18, 0xb0, 0xcb, 0x86, 0x7a, 0x59, 0x0b, 0x0c, 0x43, 0xd7,
+	0x79, 0x41, 0x0f, 0xdb, 0x41, 0xa0, 0xad, 0xb7, 0xaa, 0x60, 0x5b, 0x54, 0x45, 0xda, 0xb3, 0x8b,
+	0x61, 0x28, 0x76, 0xed, 0xa5, 0x40, 0xaf, 0x3b, 0xec, 0x63, 0xec, 0x23, 0xf4, 0x58, 0x60, 0x97,
+	0x9e, 0xda, 0x21, 0xd9, 0xa7, 0xd8, 0x2e, 0x83, 0x28, 0x4a, 0xa6, 0x65, 0xa9, 0xe9, 0xb6, 0x00,
+	0xcb, 0xc9, 0x16, 0xf9, 0xf2, 0x7d, 0x1e, 0xfe, 0x48, 0xbe, 0x24, 0xda, 0xe4, 0x30, 0x80, 0x21,
+	0xf0, 0x70, 0x6a, 0x3d, 0x1c, 0x41, 0x38, 0x35, 0x83, 0x90, 0x72, 0x8a, 0xd7, 0xd2, 0xe6, 0xda,
+	0x86, 0x4b, 0x5d, 0x2a, 0x5a, 0xad, 0xe8, 0x5f, 0x1c, 0x50, 0xab, 0xbb, 0x94, 0xba, 0x03, 0xb0,
+	0x48, 0xe0, 0x59, 0xc4, 0xf7, 0x29, 0x27, 0xdc, 0xa3, 0x3e, 0x93, 0xbd, 0x7a, 0x8f, 0xb2, 0x21,
+	0x65, 0x56, 0x97, 0x30, 0xb0, 0xc6, 0xfb, 0x5d, 0xe0, 0x64, 0xdf, 0xea, 0x51, 0xcf, 0x97, 0xfd,
+	0xbb, 0x79, 0xfd, 0x5d, 0x32, 0x20, 0x7e, 0x0f, 0x64, 0xc8, 0x0d, 0x35, 0x44, 0x58, 0x4b, 0x03,
+	0x03, 0xe2, 0x7a, 0xbe, 0xd0, 0x93, 0xb1, 0x0d, 0x69, 0x46, 0x7c, 0x75, 0x47, 0xf7, 0x2d, 0xee,
+	0x0d, 0x81, 0x71, 0x32, 0x0c, 0x64, 0x40, 0x75, 0x36, 0xcb, 0xf4, 0x9f, 0xec, 0xba, 0x92, 0x67,
+	0x65, 0x4c, 0x06, 0x9e, 0x43, 0x38, 0x0d, 0xe3, 0x20, 0xe3, 0x89, 0x86, 0xb6, 0xbf, 0x8e, 0x3c,
+	0x1c, 0xd1, 0xa0, 0x1d, 0xdb, 0x64, 0x1d, 0x78, 0x38, 0x02, 0xc6, 0xf1, 0x06, 0xba, 0xe0, 0x80,
+	0x4f, 0x87, 0x15, 0xad, 0xa9, 0xb5, 0xd6, 0x3a, 0xf1, 0x07, 0xbe, 0x85, 0xd0, 0xcc, 0x66, 0xa5,
+	0xd4, 0xd4, 0x5a, 0xeb, 0x07, 0xd7, 0xcc, 0x58, 0xcb, 0x8c, 0xb4, 0xcc, 0x18, 0xb7, 0x54, 0x34,
+	0xef, 0x12, 0x17, 0x64, 0xc6, 0x8e, 0x32, 0x12, 0x63, 0xb4, 0xe2, 0x00, 0xeb, 0x55, 0x96, 0x9b,
+	0x5a, 0xab, 0xdc, 0x11, 0xff, 0x8d, 0x97, 0x1a, 0xaa, 0x2c, 0xba, 0x61, 0x01, 0xf5, 0x19, 0x60,
+	0x86, 0xca, 0x12, 0x24, 0xab, 0x68, 0xcd, 0xe5, 0xd6, 0xfa, 0x41, 0x7d, 0x4e, 0x36, 0x11, 0x94,
+	0x03, 0xdb, 0x1f, 0x3f, 0x7f, 0xd5, 0x58, 0xfa, 0xf3, 0x55, 0x63, 0xdf, 0xf5, 0xf8, 0x83, 0x51,
+	0xd7, 0xec, 0xd1, 0xa1, 0x25, 0x91, 0xc4, 0x3f, 0x7b, 0xcc, 0xe9, 0x5b, 0x13, 0xab, 0x4b, 0xfc,
+	0xbe, 0xc5, 0xa7, 0x01, 0xb0, 0x64, 0x68, 0x27, 0x15, 0xc2, 0xb7, 0x73, 0x66, 0x7b, 0xfd, 0xd4,
+	0xd9, 0xc6, 0x8e, 0xd5, 0xe9, 0x1a, 0x8f, 0x35, 0xa4, 0x8b, 0xa9, 0x7d, 0x3e, 0xe1, 0xe0, 0x3b,
+	0xe0, 0xdc, 0x4b, 0x56, 0x22, 0xe5, 0xbd, 0x85, 0x56, 0x19, 0x27, 0x7c, 0xc4, 0x24, 0x70, 0xf9,
+	0x75, 0x56, 0xc4, 0x8d, 0xd7, 0x25, 0xd4, 0x28, 0xb4, 0x20, 0x21, 0xff, 0x88, 0x50, 0xba, 0x45,
+	0x12, 0xcc, 0x7a, 0x2e, 0xe6, 0x74, 0x70, 0xfb, 0x13, 0x09, 0xfa, 0xa3, 0x53, 0x40, 0x33, 0x4e,
+	0xfa, 0x9e, 0xef, 0x4a, 0xd6, 0xe9, 0xf8, 0x8e, 0xa2, 0x38, 0xb7, 0xc8, 0xa5, 0xff, 0x67, 0x91,
+	0x97, 0xff, 0xfd, 0x22, 0xff, 0x92, 0xec, 0xdf, 0x9b, 0x63, 0xb7, 0x3d, 0xa0, 0xbd, 0xfe, 0x37,
+	0xde, 0xa3, 0x64, 0x29, 0xf0, 0x67, 0x08, 0x31, 0x4e, 0x42, 0x6e, 0x3b, 0x84, 0x83, 0x58, 0xe2,
+	0xf5, 0x83, 0x9a, 0x19, 0x1f, 0x70, 0x33, 0x39, 0xe0, 0xe6, 0x51, 0x72, 0xc0, 0xdb, 0xe5, 0x68,
+	0x6a, 0x4f, 0x5f, 0x37, 0xb4, 0xce, 0x9a, 0x18, 0x77, 0x48, 0x38, 0xe0, 0x4f, 0x51, 0x19, 0x7c,
+	0x27, 0x4e, 0x51, 0xfa, 0x07, 0x29, 0xde, 0x01, 0xdf, 0x89, 0x12, 0x18, 0x13, 0x54, 0xcd, 0x71,
+	0x28, 0x57, 0xff, 0x3b, 0xb4, 0x45, 0xc6, 0xae, 0xdd, 0x8d, 0x3a, 0x6c, 0xe6, 0x3d, 0x02, 0x3b,
+	0x80, 0xd0, 0x76, 0xc8, 0x54, 0xee, 0x84, 0x5d, 0x73, 0x56, 0x64, 0x6e, 0x8e, 0x21, 0x24, 0x2e,
+	0xa4, 0x49, 0xee, 0x42, 0x78, 0x48, 0xa6, 0xed, 0x95, 0x48, 0xb2, 0x83, 0x89, 0x92, 0x3e, 0xee,
+	0x59, 0x84, 0x13, 0xf9, 0x3c, 0xdf, 0x70, 0x62, 0x87, 0x79, 0x70, 0xa2, 0x3a, 0xfc, 0x96, 0x70,
+	0xa2, 0x24, 0xf9, 0x70, 0x66, 0x3d, 0xc6, 0xcf, 0x1a, 0xda, 0x48, 0xa4, 0x8f, 0x26, 0xb7, 0xe0,
+	0x9c, 0x81, 0x79, 0x80, 0x36, 0x33, 0xee, 0x24, 0x94, 0xaf, 0x50, 0x34, 0x1b, 0x9b, 0x4f, 0xec,
+	0xfb, 0x90, 0x05, 0xb2, 0xb3, 0x08, 0x44, 0x0c, 0x9e, 0x83, 0xf1, 0x1e, 0x91, 0x29, 0xb3, 0x20,
+	0x8e, 0x26, 0xf7, 0xe8, 0x60, 0x74, 0xde, 0x76, 0x48, 0x4f, 0x82, 0x98, 0xb9, 0x93, 0x20, 0xbe,
+	0x40, 0x97, 0xf8, 0xc4, 0x1e, 0x8b, 0xc6, 0x0c, 0x87, 0xaa, 0xc2, 0x21, 0x19, 0x37, 0xcf, 0x80,
+	0xcf, 0xb5, 0x1a, 0x8f, 0x4b, 0xa8, 0x2e, 0x54, 0x66, 0x05, 0x5a, 0xec, 0x17, 0x76, 0xae, 0x58,
+	0x64, 0xee, 0xa5, 0xe5, 0xff, 0xfc, 0x12, 0x58, 0x51, 0x5e, 0x02, 0xbf, 0x6a, 0x68, 0xa7, 0x00,
+	0x81, 0x04, 0x7e, 0x07, 0x5d, 0x9a, 0xdd, 0x1b, 0xf1, 0xa9, 0x4c, 0x2e, 0xac, 0xcb, 0x0a, 0xf0,
+	0xec, 0x78, 0x89, 0xfc, 0xe2, 0x38, 0xd3, 0x7e, 0x66, 0x37, 0xfd, 0xc1, 0x5f, 0xab, 0xe8, 0x82,
+	0xb0, 0x8e, 0xbf, 0x47, 0xeb, 0xca, 0x43, 0x06, 0x1b, 0x8a, 0xad, 0x82, 0x37, 0x57, 0xed, 0xca,
+	0x1b, 0x63, 0x62, 0x35, 0xa3, 0xf1, 0xd3, 0x6f, 0x7f, 0x3c, 0x2b, 0x55, 0xf1, 0xb6, 0xa5, 0xbc,
+	0xfe, 0x68, 0x60, 0xa7, 0x17, 0xda, 0x0f, 0xe8, 0x5d, 0xb5, 0xbe, 0xe3, 0x85, 0xac, 0x39, 0xf7,
+	0x53, 0xed, 0xea, 0x9b, 0x83, 0xa4, 0xf6, 0xae, 0xd0, 0xbe, 0x8c, 0xab, 0x8a, 0xf6, 0xfc, 0x9d,
+	0xa1, 0xaa, 0x47, 0xfb, 0xa7, 0x58, 0x5d, 0xb9, 0x00, 0x8a, 0xd5, 0xd5, 0x1a, 0x7c, 0x8a, 0x7a,
+	0x54, 0x94, 0xf1, 0x00, 0x95, 0x93, 0x2a, 0x85, 0x1b, 0x39, 0x49, 0xd5, 0xea, 0x5a, 0x6b, 0x16,
+	0x07, 0x48, 0xc5, 0x1d, 0xa1, 0xb8, 0x8d, 0x37, 0x33, 0x8a, 0x71, 0xc5, 0xc3, 0x7d, 0x54, 0x4e,
+	0x8e, 0xf4, 0xa2, 0x5a, 0xa6, 0x84, 0x2d, 0xaa, 0x65, 0xab, 0x88, 0x51, 0x17, 0x6a, 0x5b, 0x78,
+	0x43, 0x5d, 0xd9, 0xa4, 0xac, 0xe0, 0x27, 0x1a, 0xba, 0x98, 0xdd, 0xcf, 0xf8, 0x7a, 0x36, 0x69,
+	0x41, 0xd1, 0xa8, 0xb5, 0x4e, 0x0f, 0x94, 0x2e, 0xae, 0x0a, 0x17, 0x3a, 0xae, 0x2b, 0x2e, 0x16,
+	0xce, 0x1a, 0x7e, 0xa6, 0x21, 0xbc, 0xf8, 0x92, 0xc4, 0xef, 0x67, 0x65, 0x0a, 0x1f, 0xbc, 0xb5,
+	0x1b, 0x6f, 0x13, 0x2a, 0x3d, 0x5d, 0x13, 0x9e, 0x9a, 0x58, 0x2f, 0xf0, 0x24, 0xb7, 0x7e, 0xfb,
+	0xce, 0xf3, 0x63, 0x5d, 0x7b, 0x71, 0xac, 0x6b, 0xbf, 0x1f, 0xeb, 0xda, 0xd3, 0x13, 0x7d, 0xe9,
+	0xc5, 0x89, 0xbe, 0xf4, 0xf2, 0x44, 0x5f, 0xfa, 0xf6, 0x43, 0xe5, 0x89, 0x78, 0x1b, 0xe8, 0x61,
+	0x7b, 0xef, 0x4b, 0x6f, 0xe8, 0x71, 0x70, 0x2c, 0xea, 0x78, 0xfe, 0x5e, 0x8f, 0x86, 0x60, 0x4d,
+	0x54, 0xee, 0xd1, 0x6b, 0xb1, 0xbb, 0x2a, 0x6a, 0xe1, 0x07, 0x7f, 0x07, 0x00, 0x00, 0xff, 0xff,
+	0x98, 0x03, 0x34, 0x02, 0x4f, 0x0e, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -765,6 +888,7 @@ type QueryClient interface {
 	TxVolume(ctx context.Context, in *QueryTxVolumeRequest, opts ...grpc.CallOption) (*QueryTxVolumeResponse, error)
 	// ValidatorsBlocks returns validators blocks and stake percentage.
 	ValidatorsBlocks(ctx context.Context, in *QueryValidatorsBlocksRequest, opts ...grpc.CallOption) (*QueryValidatorsBlocksResponse, error)
+	ExtendedValidators(ctx context.Context, in *QueryExtendedValidatorsRequest, opts ...grpc.CallOption) (*QueryExtendedValidatorsResponse, error)
 }
 
 type queryClient struct {
@@ -829,6 +953,15 @@ func (c *queryClient) ValidatorsBlocks(ctx context.Context, in *QueryValidatorsB
 	return out, nil
 }
 
+func (c *queryClient) ExtendedValidators(ctx context.Context, in *QueryExtendedValidatorsRequest, opts ...grpc.CallOption) (*QueryExtendedValidatorsResponse, error) {
+	out := new(QueryExtendedValidatorsResponse)
+	err := c.cc.Invoke(ctx, "/telemetry.Query/ExtendedValidators", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// TopBalances returns all the system balances for specific denom.
@@ -843,6 +976,7 @@ type QueryServer interface {
 	TxVolume(context.Context, *QueryTxVolumeRequest) (*QueryTxVolumeResponse, error)
 	// ValidatorsBlocks returns validators blocks and stake percentage.
 	ValidatorsBlocks(context.Context, *QueryValidatorsBlocksRequest) (*QueryValidatorsBlocksResponse, error)
+	ExtendedValidators(context.Context, *QueryExtendedValidatorsRequest) (*QueryExtendedValidatorsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -866,6 +1000,9 @@ func (*UnimplementedQueryServer) TxVolume(ctx context.Context, req *QueryTxVolum
 }
 func (*UnimplementedQueryServer) ValidatorsBlocks(ctx context.Context, req *QueryValidatorsBlocksRequest) (*QueryValidatorsBlocksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidatorsBlocks not implemented")
+}
+func (*UnimplementedQueryServer) ExtendedValidators(ctx context.Context, req *QueryExtendedValidatorsRequest) (*QueryExtendedValidatorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExtendedValidators not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -980,6 +1117,24 @@ func _Query_ValidatorsBlocks_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_ExtendedValidators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryExtendedValidatorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ExtendedValidators(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/telemetry.Query/ExtendedValidators",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ExtendedValidators(ctx, req.(*QueryExtendedValidatorsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "telemetry.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -1007,6 +1162,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidatorsBlocks",
 			Handler:    _Query_ValidatorsBlocks_Handler,
+		},
+		{
+			MethodName: "ExtendedValidators",
+			Handler:    _Query_ExtendedValidators_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1114,6 +1273,111 @@ func (m *QueryTopBalancesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryExtendedValidatorsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryExtendedValidatorsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryExtendedValidatorsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Status) > 0 {
+		i -= len(m.Status)
+		copy(dAtA[i:], m.Status)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Status)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryExtendedValidatorsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryExtendedValidatorsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryExtendedValidatorsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Balances) > 0 {
+		for iNdEx := len(m.Balances) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Balances[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Validators) > 0 {
+		for iNdEx := len(m.Validators) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Validators[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *QueryAvgBlockSizeRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1134,20 +1398,20 @@ func (m *QueryAvgBlockSizeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
-	n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
-	if err3 != nil {
-		return 0, err3
+	n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err5 != nil {
+		return 0, err5
 	}
-	i -= n3
-	i = encodeVarintQuery(dAtA, i, uint64(n3))
+	i -= n5
+	i = encodeVarintQuery(dAtA, i, uint64(n5))
 	i--
 	dAtA[i] = 0x12
-	n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
-	if err4 != nil {
-		return 0, err4
+	n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err6 != nil {
+		return 0, err6
 	}
-	i -= n4
-	i = encodeVarintQuery(dAtA, i, uint64(n4))
+	i -= n6
+	i = encodeVarintQuery(dAtA, i, uint64(n6))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -1210,20 +1474,20 @@ func (m *QueryAvgBlockTimeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
-	n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
-	if err5 != nil {
-		return 0, err5
+	n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err7 != nil {
+		return 0, err7
 	}
-	i -= n5
-	i = encodeVarintQuery(dAtA, i, uint64(n5))
+	i -= n7
+	i = encodeVarintQuery(dAtA, i, uint64(n7))
 	i--
 	dAtA[i] = 0x12
-	n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
-	if err6 != nil {
-		return 0, err6
+	n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err8 != nil {
+		return 0, err8
 	}
-	i -= n6
-	i = encodeVarintQuery(dAtA, i, uint64(n6))
+	i -= n8
+	i = encodeVarintQuery(dAtA, i, uint64(n8))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -1286,20 +1550,20 @@ func (m *QueryAvgTxFeeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
-	if err7 != nil {
-		return 0, err7
+	n9, err9 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err9 != nil {
+		return 0, err9
 	}
-	i -= n7
-	i = encodeVarintQuery(dAtA, i, uint64(n7))
+	i -= n9
+	i = encodeVarintQuery(dAtA, i, uint64(n9))
 	i--
 	dAtA[i] = 0x12
-	n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
-	if err8 != nil {
-		return 0, err8
+	n10, err10 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err10 != nil {
+		return 0, err10
 	}
-	i -= n8
-	i = encodeVarintQuery(dAtA, i, uint64(n8))
+	i -= n10
+	i = encodeVarintQuery(dAtA, i, uint64(n10))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -1362,20 +1626,20 @@ func (m *QueryTxVolumeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n9, err9 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
-	if err9 != nil {
-		return 0, err9
+	n11, err11 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err11 != nil {
+		return 0, err11
 	}
-	i -= n9
-	i = encodeVarintQuery(dAtA, i, uint64(n9))
+	i -= n11
+	i = encodeVarintQuery(dAtA, i, uint64(n11))
 	i--
 	dAtA[i] = 0x12
-	n10, err10 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
-	if err10 != nil {
-		return 0, err10
+	n12, err12 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err12 != nil {
+		return 0, err12
 	}
-	i -= n10
-	i = encodeVarintQuery(dAtA, i, uint64(n10))
+	i -= n12
+	i = encodeVarintQuery(dAtA, i, uint64(n12))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -1460,20 +1724,20 @@ func (m *QueryValidatorsBlocksRequest) MarshalToSizedBuffer(dAtA []byte) (int, e
 		i--
 		dAtA[i] = 0x1a
 	}
-	n12, err12 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
-	if err12 != nil {
-		return 0, err12
+	n14, err14 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.EndDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.EndDate):])
+	if err14 != nil {
+		return 0, err14
 	}
-	i -= n12
-	i = encodeVarintQuery(dAtA, i, uint64(n12))
+	i -= n14
+	i = encodeVarintQuery(dAtA, i, uint64(n14))
 	i--
 	dAtA[i] = 0x12
-	n13, err13 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
-	if err13 != nil {
-		return 0, err13
+	n15, err15 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.StartDate, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.StartDate):])
+	if err15 != nil {
+		return 0, err15
 	}
-	i -= n13
-	i = encodeVarintQuery(dAtA, i, uint64(n13))
+	i -= n15
+	i = encodeVarintQuery(dAtA, i, uint64(n15))
 	i--
 	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
@@ -1565,6 +1829,48 @@ func (m *QueryTopBalancesResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if len(m.Balances) > 0 {
+		for _, e := range m.Balances {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryExtendedValidatorsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Status)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryExtendedValidatorsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Validators) > 0 {
+		for _, e := range m.Validators {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
 	if len(m.Balances) > 0 {
 		for _, e := range m.Balances {
 			l = e.Size()
@@ -1937,6 +2243,278 @@ func (m *QueryTopBalancesResponse) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryExtendedValidatorsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryExtendedValidatorsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryExtendedValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Status = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryExtendedValidatorsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryExtendedValidatorsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryExtendedValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Validators", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Validators = append(m.Validators, github_com_cosmos_cosmos_sdk_x_staking_types.Validator{})
+			if err := m.Validators[len(m.Validators)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Balances", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Balances = append(m.Balances, github_com_cosmos_cosmos_sdk_x_bank_types.Balance{})
+			if err := m.Balances[len(m.Balances)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
 			}

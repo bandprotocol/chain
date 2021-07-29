@@ -9,16 +9,16 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"sort"
 	"time"
 )
 
 type Keeper struct {
-	cdc           codec.BinaryMarshaler
-	bankKeeper    bankkeeper.ViewKeeper
-	stakingKeeper stakingkeeper.Keeper
-
-	txDecoder sdk.TxDecoder
+	cdc            codec.BinaryMarshaler
+	bankKeeper     bankkeeper.ViewKeeper
+	stakingQuerier stakingkeeper.Querier
+	txDecoder      sdk.TxDecoder
 }
 
 func NewKeeper(
@@ -28,10 +28,11 @@ func NewKeeper(
 	sk stakingkeeper.Keeper,
 ) Keeper {
 	return Keeper{
-		cdc:           cdc,
-		bankKeeper:    bk,
-		stakingKeeper: sk,
-
+		cdc:        cdc,
+		bankKeeper: bk,
+		stakingQuerier: stakingkeeper.Querier{
+			Keeper: sk,
+		},
 		txDecoder: txDecoder,
 	}
 }
@@ -64,11 +65,18 @@ func (k Keeper) GetPaginatedBalances(
 	return balances[pagination.GetOffset() : pagination.GetOffset()+maxLimit], uint64(len(balances))
 }
 
-func (k Keeper) GetAvgBlockSizePerDay(
-	ctx sdk.Context,
-	startDate, endDate time.Time,
-) ([]telemetrytypes.AverageBlockSizePerDay, error) {
+func (k Keeper) GetBalances(ctx sdk.Context, addrs ...sdk.AccAddress) []banktypes.Balance {
+	balances := make([]banktypes.Balance, len(addrs))
+	for i, addr := range addrs {
+		balances[i] = banktypes.Balance{
+			Address: addr.String(),
+			Coins:   k.bankKeeper.GetAllBalances(ctx, addr),
+		}
+	}
+	return balances
+}
 
+func (k Keeper) GetAvgBlockSizePerDay(startDate, endDate time.Time) ([]telemetrytypes.AverageBlockSizePerDay, error) {
 	blocksByDates, err := k.GetBlocksByDates(startDate, endDate)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get the blocks by date")
@@ -91,11 +99,7 @@ func (k Keeper) GetAvgBlockSizePerDay(
 	return avgBlockSizePerDay, nil
 }
 
-func (k Keeper) GetAvgBlockTimePerDay(
-	ctx sdk.Context,
-	startDate, endDate time.Time,
-) ([]telemetrytypes.AverageBlockTimePerDay, error) {
-
+func (k Keeper) GetAvgBlockTimePerDay(startDate, endDate time.Time) ([]telemetrytypes.AverageBlockTimePerDay, error) {
 	blocksByDates, err := k.GetBlocksByDates(startDate, endDate)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get the blocks by date")
@@ -117,11 +121,7 @@ func (k Keeper) GetAvgBlockTimePerDay(
 	return avgBlockTimePerDay, nil
 }
 
-func (k Keeper) GetAvgTxFeePerDay(
-	ctx sdk.Context,
-	startDate, endDate time.Time,
-) ([]telemetrytypes.AverageTxFeePerDay, error) {
-
+func (k Keeper) GetAvgTxFeePerDay(startDate, endDate time.Time) ([]telemetrytypes.AverageTxFeePerDay, error) {
 	blocksByDates, err := k.GetBlocksByDates(startDate, endDate)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get the blocks by date")
@@ -163,11 +163,7 @@ func (k Keeper) GetAvgTxFeePerDay(
 	return avgTxFeePerDay, nil
 }
 
-func (k Keeper) GetTxVolumePerDay(
-	ctx sdk.Context,
-	startDate, endDate time.Time,
-) ([]telemetrytypes.TxVolumePerDay, error) {
-
+func (k Keeper) GetTxVolumePerDay(startDate, endDate time.Time) ([]telemetrytypes.TxVolumePerDay, error) {
 	blocksByDates, err := k.GetBlocksByDates(startDate, endDate)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get the blocks by date")
@@ -216,7 +212,7 @@ func (k Keeper) GetValidatorsBlocks(
 	}
 
 	validatorsBlocks := make([]telemetrytypes.ValidatorsBlocks, 0, len(blocksCount))
-	totalBondedTokens := k.stakingKeeper.TotalBondedTokens(ctx)
+	totalBondedTokens := k.stakingQuerier.TotalBondedTokens(ctx)
 
 	for addr, blocks := range blocksCount {
 		valAddr, err := sdk.ValAddressFromHex(addr)
@@ -224,9 +220,16 @@ func (k Keeper) GetValidatorsBlocks(
 			return nil, 0, sdkerrors.Wrap(err, "failed to retrieve validator address from hex")
 		}
 
-		validator := k.stakingKeeper.Validator(ctx, valAddr)
+		validatorRequest := &stakingtypes.QueryValidatorRequest{
+			ValidatorAddr: valAddr.String(),
+		}
+		validatorResponse, err := k.stakingQuerier.Validator(ctx.Context(), validatorRequest)
+		if err != nil {
+			return nil, 0, sdkerrors.Wrap(err, "failed to get the validator")
+		}
+
 		stakePercentage := sdk.NewDecFromIntWithPrec(
-			validator.GetBondedTokens(),
+			validatorResponse.Validator.BondedTokens(),
 			2,
 		).QuoRoundUp(
 			sdk.NewDecFromIntWithPrec(

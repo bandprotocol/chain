@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 	coinswapCmd.AddCommand(
 		GetQueryCmdTopBalances(),
+		GetQueryCmdExtendedValidators(),
 		GetQueryCmdAvgBlockSize(),
 		GetQueryCmdAvgBlockTime(),
 		GetQueryCmdAvgTxFee(),
@@ -56,6 +57,38 @@ func GetQueryCmdTopBalances() *cobra.Command {
 				Denom:      args[0],
 				Pagination: page,
 				Desc:       desc,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetQueryCmdExtendedValidators() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "extended-validators [limit] [offset] [status]",
+		Args: cobra.MaximumNArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			page, _, err := ParsePagination(args[1], args[2], "")
+			if err != nil {
+				return sdkerrors.Wrap(err, "failed to parse pagination")
+			}
+
+			queryClient := telemetrytypes.NewQueryClient(clientCtx)
+			res, err := queryClient.ExtendedValidators(cmd.Context(), &telemetrytypes.QueryExtendedValidatorsRequest{
+				Status:     args[0],
+				Pagination: page,
 			})
 			if err != nil {
 				return err
@@ -103,7 +136,8 @@ func GetQueryCmdAvgBlockSize() *cobra.Command {
 }
 
 // GetQueryCmdAvgBlockTime implements the query parameters command.
-func GetQueryCmdAvgBlockTime() *cobra.Command {
+func
+GetQueryCmdAvgBlockTime() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "avg-block-time [start-date] [end-date]",
 		Args: cobra.MinimumNArgs(2),
@@ -136,7 +170,8 @@ func GetQueryCmdAvgBlockTime() *cobra.Command {
 }
 
 // GetQueryCmdAvgTxFee implements the query parameters command.
-func GetQueryCmdAvgTxFee() *cobra.Command {
+func
+GetQueryCmdAvgTxFee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "avg-tx-fee [start-date] [end-date]",
 		Args: cobra.MinimumNArgs(2),
@@ -169,7 +204,8 @@ func GetQueryCmdAvgTxFee() *cobra.Command {
 }
 
 // GetQueryCmdTxVolume implements the query parameters command.
-func GetQueryCmdTxVolume() *cobra.Command {
+func
+GetQueryCmdTxVolume() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "tx-volume [start-date] [end-date]",
 		Args: cobra.MinimumNArgs(2),
@@ -202,7 +238,8 @@ func GetQueryCmdTxVolume() *cobra.Command {
 }
 
 // GetQueryCmdValidatorsBlocks implements the query parameters command.
-func GetQueryCmdValidatorsBlocks() *cobra.Command {
+func
+GetQueryCmdValidatorsBlocks() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "validators-blocks [start-date] [end-date] [limit] [offset] [desc]",
 		Args: cobra.MinimumNArgs(2),

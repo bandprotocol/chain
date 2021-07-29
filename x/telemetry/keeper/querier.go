@@ -15,6 +15,8 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 		switch path[0] {
 		case telemetrytypes.QueryTopBalances:
 			return queryTopBalances(ctx, path[1:], keeper, cdc, req)
+		case telemetrytypes.QueryExtendedValidators:
+			return queryExtendedValidators(ctx, path[1:], keeper, cdc, req)
 		case telemetrytypes.QueryAvgBlockSize:
 			return queryAvgBlockSize(ctx, path[1:], keeper, cdc, req)
 		case telemetrytypes.QueryAvgBlockTime:
@@ -32,7 +34,11 @@ func NewQuerier(keeper Keeper, cdc *codec.LegacyAmino) sdk.Querier {
 }
 
 func queryTopBalances(
-	ctx sdk.Context, path []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery,
+	ctx sdk.Context,
+	path []string,
+	k Keeper,
+	cdc *codec.LegacyAmino,
+	req abci.RequestQuery,
 ) ([]byte, error) {
 	if len(path) > 1 {
 		return nil, sdkerrors.ErrInvalidRequest
@@ -53,14 +59,52 @@ func queryTopBalances(
 	})
 }
 
+func queryExtendedValidators(
+	ctx sdk.Context,
+	path []string,
+	k Keeper,
+	cdc *codec.LegacyAmino,
+	req abci.RequestQuery,
+) ([]byte, error) {
+	if len(path) > 1 {
+		return nil, sdkerrors.ErrInvalidRequest
+	}
+	var params commontypes.QueryPaginationParams
+	if err := cdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to unmarshal query pagination params")
+	}
+
+	var total = 0
+	if params.GetCountTotal() {
+		total = len(k.stakingQuerier.GetValidators(ctx, k.stakingQuerier.MaxValidators(ctx)))
+	}
+	validators, err := k.ExtendedValidators(sdk.WrapSDKContext(ctx), &telemetrytypes.QueryExtendedValidatorsRequest{
+		Status: path[0],
+		Pagination: &query.PageRequest{
+			Offset: params.Offset,
+			Limit:  params.Limit,
+		},
+	})
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to query extended validators")
+	}
+
+	validators.Pagination.Total = uint64(total)
+	return commontypes.QueryOK(cdc, validators)
+}
+
 func queryAvgBlockSize(
-	ctx sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery,
+	_ sdk.Context,
+	_ []string,
+	k Keeper,
+	cdc *codec.LegacyAmino,
+	req abci.RequestQuery,
 ) ([]byte, error) {
 	var request telemetrytypes.QueryAvgBlockSizeRequest
 	if err := cdc.UnmarshalJSON(req.Data, &request); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	blockSizePerDay, err := k.GetAvgBlockSizePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	blockSizePerDay, err := k.GetAvgBlockSizePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average block size per day")
 	}
@@ -70,13 +114,17 @@ func queryAvgBlockSize(
 }
 
 func queryAvgBlockTime(
-	ctx sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery,
+	_ sdk.Context,
+	_ []string,
+	k Keeper,
+	cdc *codec.LegacyAmino,
+	req abci.RequestQuery,
 ) ([]byte, error) {
 	var request telemetrytypes.QueryAvgBlockTimeRequest
 	if err := cdc.UnmarshalJSON(req.Data, &request); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	blockTimePerDay, err := k.GetAvgBlockTimePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	blockTimePerDay, err := k.GetAvgBlockTimePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average block time per day")
 	}
@@ -86,14 +134,12 @@ func queryAvgBlockTime(
 	})
 }
 
-func queryAvgTxFee(
-	ctx sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery,
-) ([]byte, error) {
+func queryAvgTxFee(_ sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery) ([]byte, error) {
 	var request telemetrytypes.QueryAvgTxFeeRequest
 	if err := cdc.UnmarshalJSON(req.Data, &request); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	avgTxFee, err := k.GetAvgTxFeePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	avgTxFee, err := k.GetAvgTxFeePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average tx fee per day")
 	}
@@ -102,14 +148,12 @@ func queryAvgTxFee(
 	})
 }
 
-func queryTxVolume(
-	ctx sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery,
-) ([]byte, error) {
+func queryTxVolume(_ sdk.Context, _ []string, k Keeper, cdc *codec.LegacyAmino, req abci.RequestQuery) ([]byte, error) {
 	var request telemetrytypes.QueryTxVolumeRequest
 	if err := cdc.UnmarshalJSON(req.Data, &request); err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	txVolume, err := k.GetTxVolumePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	txVolume, err := k.GetTxVolumePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get tx volume")
 	}

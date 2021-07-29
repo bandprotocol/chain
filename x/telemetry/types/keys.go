@@ -8,12 +8,14 @@ const (
 	RouterKey    = ModuleName
 	QuerierRoute = ModuleName
 
-	QueryTopBalances      = "top_balances"
-	QueryAvgBlockSize     = "avg_block_size"
-	QueryAvgBlockTime     = "avg_block_time"
-	QueryAvgTxFee         = "avg_tx_fee"
-	QueryTxVolume         = "tx_volume"
-	QueryValidatorsBlocks = "validators_blocks"
+	QueryTopBalances        = "top_balances"
+	QueryExtendedValidators = "extended_validators"
+	QueryAvgBlockSize       = "avg_block_size"
+	QueryAvgBlockTime       = "avg_block_time"
+	QueryAvgTxFee           = "avg_tx_fee"
+	QueryTxVolume           = "tx_volume"
+	QueryValidatorsBlocks   = "validators_blocks"
 
-	DenomTag = "denomTag "
+	DenomTag  = "denom"
+	StatusTag = "status"
 )

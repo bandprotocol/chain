@@ -26,12 +26,11 @@ func (k Keeper) TopBalances(
 }
 
 func (k Keeper) AvgBlockSize(
-	c context.Context,
+	_ context.Context,
 	request *telemetrytypes.QueryAvgBlockSizeRequest,
 ) (*telemetrytypes.QueryAvgBlockSizeResponse, error) {
 
-	ctx := sdk.UnwrapSDKContext(c)
-	blockSizePerDay, err := k.GetAvgBlockSizePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	blockSizePerDay, err := k.GetAvgBlockSizePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average block size per day")
 	}
@@ -42,12 +41,11 @@ func (k Keeper) AvgBlockSize(
 }
 
 func (k Keeper) AvgBlockTime(
-	c context.Context,
+	_ context.Context,
 	request *telemetrytypes.QueryAvgBlockTimeRequest,
 ) (*telemetrytypes.QueryAvgBlockTimeResponse, error) {
 
-	ctx := sdk.UnwrapSDKContext(c)
-	blockTimePerDay, err := k.GetAvgBlockTimePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	blockTimePerDay, err := k.GetAvgBlockTimePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average block time per day")
 	}
@@ -62,8 +60,7 @@ func (k Keeper) AvgTxFee(
 	request *telemetrytypes.QueryAvgTxFeeRequest,
 ) (*telemetrytypes.QueryAvgTxFeeResponse, error) {
 
-	ctx := sdk.UnwrapSDKContext(c)
-	avgTxFee, err := k.GetAvgTxFeePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	avgTxFee, err := k.GetAvgTxFeePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get average tx fee per day")
 	}
@@ -78,8 +75,7 @@ func (k Keeper) TxVolume(
 	request *telemetrytypes.QueryTxVolumeRequest,
 ) (*telemetrytypes.QueryTxVolumeResponse, error) {
 
-	ctx := sdk.UnwrapSDKContext(c)
-	txVolume, err := k.GetTxVolumePerDay(ctx, request.GetStartDate(), request.GetEndDate())
+	txVolume, err := k.GetTxVolumePerDay(request.GetStartDate(), request.GetEndDate())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to get tx volume")
 	}
@@ -112,4 +108,23 @@ func (k Keeper) ValidatorsBlocks(
 			Total: total,
 		},
 	}, nil
+}
+
+func (k Keeper) ExtendedValidators(
+	c context.Context,
+	request *telemetrytypes.QueryExtendedValidatorsRequest,
+) (*telemetrytypes.QueryExtendedValidatorsResponse, error) {
+
+	ctx := sdk.UnwrapSDKContext(c)
+	validatorsResp, err := k.stakingQuerier.Validators(c, ExtendedValidatorsRequestToValidatorsRequest(request))
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to get validators")
+	}
+	accounts, err := ValidatorsToAccounts(validatorsResp.GetValidators())
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "failed to get validators accounts addresses")
+	}
+	extendedValidatorsResp := ValidatorsResponseToExtendedValidatorsResponse(validatorsResp)
+	extendedValidatorsResp.Balances = k.GetBalances(ctx, accounts...)
+	return extendedValidatorsResp, nil
 }

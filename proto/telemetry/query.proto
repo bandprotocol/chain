@@ -10,6 +10,8 @@ import "cosmos/base/v1beta1/balance.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/protobuf/timestamp.proto";
 import "telemetry/telemetry.proto";
+import "cosmos/base/v1beta1/validator.proto";
+
 
 // Query defines the gRPC querier service.
 service Query {
@@ -17,6 +19,7 @@ service Query {
   rpc TopBalances(QueryTopBalancesRequest) returns (QueryTopBalancesResponse) {
     option (google.api.http).get = "/telemetry/top_balances";
   }
+
   // AvgBlockSize returns average block size per day.
   rpc AvgBlockSize(QueryAvgBlockSizeRequest) returns (QueryAvgBlockSizeResponse) {
     option (google.api.http).get = "/telemetry/avg_block_size";
@@ -41,6 +44,10 @@ service Query {
   rpc ValidatorsBlocks(QueryValidatorsBlocksRequest) returns (QueryValidatorsBlocksResponse) {
     option (google.api.http).get = "/telemetry/validators_blocks";
   }
+
+  rpc ExtendedValidators(QueryExtendedValidatorsRequest) returns (QueryExtendedValidatorsResponse) {
+    option (google.api.http).get = "/telemetry/validators_balances";
+  }
 }
 
 // QueryTopBalancesRequest is request type for the Query/TopBalances RPC method.
@@ -57,6 +64,25 @@ message QueryTopBalancesResponse {
   ];
 
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryExtendedValidatorsRequest {
+  string status = 1;
+
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryExtendedValidatorsResponse {
+  repeated cosmos.base.v1beta1.Validator validators = 1 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/staking/types.Validator",
+    (gogoproto.nullable) = false
+  ];
+  repeated cosmos.base.v1beta1.Balance balances = 2 [
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/x/bank/types.Balance",
+    (gogoproto.nullable) = false
+  ];
+
+  cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 
 // QueryAvgBlockSizeRequest is request type for the Query/AvgBlockSize RPC method.
