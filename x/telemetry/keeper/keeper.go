@@ -223,7 +223,8 @@ func (k Keeper) GetValidatorsBlocks(
 		validatorRequest := &stakingtypes.QueryValidatorRequest{
 			ValidatorAddr: valAddr.String(),
 		}
-		validatorResponse, err := k.stakingQuerier.Validator(ctx.Context(), validatorRequest)
+
+		validatorResponse, err := k.stakingQuerier.Validator(sdk.WrapSDKContext(ctx), validatorRequest)
 		if err != nil {
 			return nil, 0, sdkerrors.Wrap(err, "failed to get the validator")
 		}

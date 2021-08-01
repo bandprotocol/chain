@@ -15,10 +15,12 @@ func RegisterRoutes(clientCtx client.Context, rtr *mux.Router) {
 		fmt.Sprintf("/%s/%s", telemetrytypes.ModuleName, telemetrytypes.QueryTopBalances),
 		getTopBalancesHandler(clientCtx),
 	).Methods("GET")
+
 	rtr.HandleFunc(
 		fmt.Sprintf("/%s/%s", telemetrytypes.ModuleName, telemetrytypes.QueryExtendedValidators),
 		getExtendedValidatorsHandler(clientCtx),
 	).Methods("GET")
+
 	rtr.HandleFunc(
 		fmt.Sprintf("/%s/%s", telemetrytypes.ModuleName, telemetrytypes.QueryAvgBlockSize),
 		getAvgBlockSizeHandler(clientCtx),
