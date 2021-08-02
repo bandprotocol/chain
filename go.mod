@@ -8,7 +8,6 @@ require (
 	github.com/cosmos/cosmos-sdk v0.42.4
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.10.3
-	github.com/gin-gonic/gin v1.6.3
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.4.3
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
