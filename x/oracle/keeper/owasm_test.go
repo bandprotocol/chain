@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/hex"
+	"strings"
 	"testing"
 	"time"
 
@@ -210,6 +211,13 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds")
 }
 
+func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	m := types.NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	require.EqualError(t, err, "got: 2000, max: 256: too large calldata")
+}
+
 func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589790)).WithBlockHeight(42)
@@ -402,7 +410,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "260"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "516"),
 	)}, ctx.EventManager().Events())
 }
 
@@ -448,7 +456,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "000000206265656264317631626565626431763262656562643276316265656264327632"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "8738"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "10274"),
 	)}, ctx.EventManager().Events())
 }
 
@@ -518,7 +526,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "7757"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "9293"),
 	)}, ctx.EventManager().Events())
 }
 

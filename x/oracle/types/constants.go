@@ -14,7 +14,6 @@ const (
 	MaxExecutableSize       = 8 * 1024        // 8kB
 	MaxWasmCodeSize         = 512 * 1024      // 512kB
 	MaxCompiledWasmCodeSize = 1 * 1024 * 1024 // 1MB
-	MaxDataSize             = 256             // 256B
 
 	MaximumOwasmGas = 20000000 // The half of block gas limit
 )
