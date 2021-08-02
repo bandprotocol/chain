@@ -47,7 +47,7 @@ func GetQueryCmdTopBalances() *cobra.Command {
 
 Example:
   $ %[1]s query %[2]s top-balances [denom]
-  $ %[1]s query %[2]s top-balances [denom] --page=2 --limit=100
+  $ %[1]s query %[2]s top-balances [denom] --limit=100 --offset=2 --desc=true
 `,
 				version.AppName, telemetrytypes.ModuleName,
 			),
@@ -96,7 +96,7 @@ func GetQueryCmdExtendedValidators() *cobra.Command {
 
 Example:
   $ %[1]s query %[2]s extended-validators [status]
-  $ %[1]s query %[2]s extended-validators [status] --page=2 --limit=100
+  $ %[1]s query %[2]s extended-validators [status] --limit=100 --offset=2
 `,
 				version.AppName, telemetrytypes.ModuleName,
 			),
@@ -275,7 +275,7 @@ func GetQueryCmdValidatorsBlocks() *cobra.Command {
 
 Example:
   $ %[1]s query %[2]s validators-blocks [start-date] [end-date]
-  $ %[1]s query %[2]s validators-blocks [start-date] [end-date] --page=2 --limit=100
+  $ %[1]s query %[2]s validators-blocks [start-date] [end-date] --limit=100 --offset=2 --desc=true
 `,
 				version.AppName, telemetrytypes.ModuleName,
 			),
