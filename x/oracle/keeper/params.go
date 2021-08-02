@@ -16,6 +16,8 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return types.NewParams(
 		k.MaxRawRequestCount(ctx),
 		k.MaxAskCount(ctx),
+		k.MaxCalldataSize(ctx),
+		k.MaxReportDataSize(ctx),
 		k.ExpirationBlockCount(ctx),
 		k.BaseOwasmGas(ctx),
 		k.PerValidatorRequestGas(ctx),
@@ -35,6 +37,18 @@ func (k Keeper) MaxRawRequestCount(ctx sdk.Context) (res uint64) {
 // MaxAskCount - Maximum number of validators allowed to fulfill the request
 func (k Keeper) MaxAskCount(ctx sdk.Context) (res uint64) {
 	k.paramstore.Get(ctx, types.KeyMaxAskCount, &res)
+	return
+}
+
+// MaxCalldataSize - Maximum size limit of calldata (bytes) in a request
+func (k Keeper) MaxCalldataSize(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyMaxCalldataSize, &res)
+	return
+}
+
+// MaxReportDataSize - Maximum size limit of report data (bytes) in a report
+func (k Keeper) MaxReportDataSize(ctx sdk.Context) (res uint64) {
+	k.paramstore.Get(ctx, types.KeyMaxReportDataSize, &res)
 	return
 }
 

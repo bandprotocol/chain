@@ -52,23 +52,25 @@ func (env *BaseEnv) GetExternalData(eid int64, vid int64) ([]byte, error) {
 // PrepareEnv implements ExecEnv interface only expected function and panic on non-prepare functions.
 type PrepareEnv struct {
 	BaseEnv
-	maxRawRequests int64
-	rawRequests    []RawRequest
+	maxCalldataSize int64
+	maxRawRequests  int64
+	rawRequests     []RawRequest
 }
 
 // NewPrepareEnv creates a new environment instance for prepare period.
-func NewPrepareEnv(req Request, maxRawRequests int64) *PrepareEnv {
+func NewPrepareEnv(req Request, maxCalldataSize int64, maxRawRequests int64) *PrepareEnv {
 	return &PrepareEnv{
 		BaseEnv: BaseEnv{
 			request: req,
 		},
-		maxRawRequests: maxRawRequests,
+		maxCalldataSize: maxCalldataSize,
+		maxRawRequests:  maxRawRequests,
 	}
 }
 
 // AskExternalData implements Owasm ExecEnv interface.
 func (env *PrepareEnv) AskExternalData(eid int64, did int64, data []byte) error {
-	if int64(len(data)) > MaxDataSize {
+	if int64(len(data)) > env.maxCalldataSize {
 		return api.ErrSpanTooSmall
 	}
 	if int64(len(env.rawRequests)) >= env.maxRawRequests {

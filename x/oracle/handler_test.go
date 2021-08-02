@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -334,6 +335,10 @@ func TestRequestDataFail(t *testing.T) {
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	// Too large calldata
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte(strings.Repeat("beeb", 2000)), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 256")
+	require.Nil(t, res)
 	// Too high ask count
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
 	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
@@ -439,6 +444,10 @@ func TestReportFail(t *testing.T) {
 	// Not-asked validator
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress, testapp.Alice.Address))
 	testapp.CheckErrorf(t, err, types.ErrValidatorNotRequested, "reqID: 42, val: %s", testapp.Alice.ValAddress.String())
+	require.Nil(t, res)
+	// Too large report data size
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000)))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	testapp.CheckErrorf(t, err, types.ErrTooLargeRawReportData, "got: 10000, max: 512")
 	require.Nil(t, res)
 	// Not an authorized reporter
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Alice.Address))

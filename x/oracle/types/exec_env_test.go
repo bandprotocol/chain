@@ -50,7 +50,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
 	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
-	env := NewPrepareEnv(request, 3)
+	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
 	return env
 }
 
@@ -174,7 +174,7 @@ func TestAskExternalData(t *testing.T) {
 func TestAskExternalDataOnTooSmallSpan(t *testing.T) {
 	penv := mockFreshPrepareEnv()
 
-	err := penv.AskExternalData(1, 3, make([]byte, MaxDataSize+1))
+	err := penv.AskExternalData(1, 3, make([]byte, DefaultMaxCalldataSize+1))
 	require.Equal(t, api.ErrSpanTooSmall, err)
 	require.Equal(t, []RawRequest(nil), penv.GetRawRequests())
 }
