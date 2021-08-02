@@ -48,7 +48,7 @@ func (k Keeper) GetPaginatedBalances(
 
 	sort.Slice(balances, func(i, j int) bool {
 		if desc {
-			return balances[j].GetCoins().AmountOf(denom).GT(balances[i].GetCoins().AmountOf(denom))
+			return balances[j].GetCoins().AmountOf(denom).LT(balances[i].GetCoins().AmountOf(denom))
 		}
 		return balances[i].GetCoins().AmountOf(denom).LT(balances[j].GetCoins().AmountOf(denom))
 	})
@@ -255,7 +255,7 @@ func (k Keeper) GetValidatorsBlocks(
 
 	sort.Slice(validatorsBlocks, func(i, j int) bool {
 		if desc {
-			return validatorsBlocks[i].BlocksCount > validatorsBlocks[j].BlocksCount
+			return validatorsBlocks[j].BlocksCount < validatorsBlocks[j].BlocksCount
 		}
 		return validatorsBlocks[i].BlocksCount < validatorsBlocks[j].BlocksCount
 	})

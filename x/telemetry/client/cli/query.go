@@ -1,13 +1,14 @@
 package cli
 
 import (
+	"fmt"
 	telemetrytypes "github.com/GeoDB-Limited/odin-core/x/telemetry/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -39,23 +40,36 @@ func GetQueryCmd() *cobra.Command {
 // GetQueryCmdTopBalances implements the query parameters command.
 func GetQueryCmdTopBalances() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "top-balances [denom] [limit] [offset] [desc]",
-		Args: cobra.MinimumNArgs(1),
+		Use:   "top-balances [denom]",
+		Short: "Query for top balances",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query the top balances of a specific denomination.
+
+Example:
+  $ %[1]s query %[2]s top-balances [denom]
+  $ %[1]s query %[2]s top-balances [denom] --page=2 --limit=100
+`,
+				version.AppName, telemetrytypes.ModuleName,
+			),
+		),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			page, desc, err := ParsePagination(args[1], args[2], args[3])
+			flagSet := cmd.Flags()
+			pageReq, err := client.ReadPageRequest(flagSet)
 			if err != nil {
-				return sdkerrors.Wrap(err, "failed to parse pagination")
+				return err
 			}
+			desc, _ := flagSet.GetBool(flagDesc)
 
 			queryClient := telemetrytypes.NewQueryClient(clientCtx)
 			res, err := queryClient.TopBalances(cmd.Context(), &telemetrytypes.QueryTopBalancesRequest{
 				Denom:      args[0],
-				Pagination: page,
+				Pagination: pageReq,
 				Desc:       desc,
 			})
 			if err != nil {
@@ -66,29 +80,43 @@ func GetQueryCmdTopBalances() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "top balances")
+	cmd.Flags().Bool(flagDesc, false, "desc is used in calling the data with sort by desc")
+
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
 
 func GetQueryCmdExtendedValidators() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "extended-validators [limit] [offset] [status]",
-		Args: cobra.MaximumNArgs(3),
+		Use:   "extended-validators [status]",
+		Short: "Query for extended validators",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for extended validators.
+
+Example:
+  $ %[1]s query %[2]s extended-validators [status]
+  $ %[1]s query %[2]s extended-validators [status] --page=2 --limit=100
+`,
+				version.AppName, telemetrytypes.ModuleName,
+			),
+		),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			page, _, err := ParsePagination(args[1], args[2], "")
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
-				return sdkerrors.Wrap(err, "failed to parse pagination")
+				return err
 			}
 
 			queryClient := telemetrytypes.NewQueryClient(clientCtx)
 			res, err := queryClient.ExtendedValidators(cmd.Context(), &telemetrytypes.QueryExtendedValidatorsRequest{
 				Status:     args[0],
-				Pagination: page,
+				Pagination: pageReq,
 			})
 			if err != nil {
 				return err
@@ -98,6 +126,7 @@ func GetQueryCmdExtendedValidators() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "top balances")
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
@@ -204,8 +233,7 @@ GetQueryCmdAvgTxFee() *cobra.Command {
 }
 
 // GetQueryCmdTxVolume implements the query parameters command.
-func
-GetQueryCmdTxVolume() *cobra.Command {
+func GetQueryCmdTxVolume() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:  "tx-volume [start-date] [end-date]",
 		Args: cobra.MinimumNArgs(2),
@@ -238,10 +266,20 @@ GetQueryCmdTxVolume() *cobra.Command {
 }
 
 // GetQueryCmdValidatorsBlocks implements the query parameters command.
-func
-GetQueryCmdValidatorsBlocks() *cobra.Command {
+func GetQueryCmdValidatorsBlocks() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "validators-blocks [start-date] [end-date] [limit] [offset] [desc]",
+		Use:   "validators-blocks [start-date] [end-date]",
+		Short: "Query for validators blocks",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for validators blocks.
+
+Example:
+  $ %[1]s query %[2]s validators-blocks [start-date] [end-date]
+  $ %[1]s query %[2]s validators-blocks [start-date] [end-date] --page=2 --limit=100
+`,
+				version.AppName, telemetrytypes.ModuleName,
+			),
+		),
 		Args: cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -254,16 +292,18 @@ GetQueryCmdValidatorsBlocks() *cobra.Command {
 				return sdkerrors.Wrap(err, "failed to parse date interval")
 			}
 
-			page, desc, err := ParsePagination(args[1], args[2], args[3])
+			flagSet := cmd.Flags()
+			pageReq, err := client.ReadPageRequest(flagSet)
 			if err != nil {
-				return sdkerrors.Wrap(err, "failed to parse pagination")
+				return err
 			}
+			desc, _ := flagSet.GetBool(flagDesc)
 
 			queryClient := telemetrytypes.NewQueryClient(clientCtx)
 			res, err := queryClient.ValidatorsBlocks(cmd.Context(), &telemetrytypes.QueryValidatorsBlocksRequest{
 				StartDate:  startDate,
 				EndDate:    endDate,
-				Pagination: page,
+				Pagination: pageReq,
 				Desc:       desc,
 			})
 			if err != nil {
@@ -274,7 +314,10 @@ GetQueryCmdValidatorsBlocks() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "top balances")
+	cmd.Flags().Bool(flagDesc, false, "desc is used in calling the data with sort by desc")
 	flags.AddQueryFlagsToCmd(cmd)
+
 	return cmd
 }
 
@@ -288,35 +331,4 @@ func ParseDateInterval(startDateArg, endDateArg string) (time.Time, time.Time, e
 		return time.Time{}, time.Time{}, sdkerrors.Wrap(err, "failed to parse end date")
 	}
 	return startDate, endDate, err
-}
-
-func ParsePagination(limitArg, offsetArg, descArg string) (*query.PageRequest, bool, error) {
-	page := &query.PageRequest{
-		Offset: 0,
-		Limit:  query.DefaultLimit,
-	}
-
-	if limitArg != "" {
-		limit, err := strconv.ParseUint(limitArg, 10, 64)
-		if err != nil {
-			return nil, false, sdkerrors.Wrap(err, "failed to parse pagination limit")
-		}
-		page.Limit = limit
-	}
-	if offsetArg != "" {
-		offset, err := strconv.ParseUint(offsetArg, 10, 64)
-		if err != nil {
-			return nil, false, sdkerrors.Wrap(err, "failed to parse pagination offset")
-		}
-		page.Offset = offset
-	}
-	if descArg != "" {
-		desc, err := strconv.ParseBool(descArg)
-		if err != nil {
-			return nil, false, sdkerrors.Wrap(err, "failed to parse pagination desc")
-		}
-		return page, desc, nil
-	}
-
-	return page, false, nil
 }
