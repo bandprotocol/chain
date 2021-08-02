@@ -24,8 +24,6 @@ install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
 
-faucet: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/faucet
 
 release: go.sum
 	env GOOS=linux GOARCH=amd64 \
