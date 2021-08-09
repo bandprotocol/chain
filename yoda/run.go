@@ -22,8 +22,7 @@ import (
 )
 
 const (
-	// TODO: We can subscribe only for txs that contain request messages
-	TxQuery = "tm.event = 'Tx'"
+	TxQuery = "tm.event = 'Tx' AND request.id EXISTS"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
 )
