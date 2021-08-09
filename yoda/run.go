@@ -33,6 +33,7 @@ func runImpl(c *Context, l *Logger) error {
 	if err != nil {
 		return err
 	}
+	defer c.client.Stop()
 
 	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cxl()
