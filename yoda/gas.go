@@ -1,7 +1,6 @@
 package yoda
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -33,7 +32,7 @@ const (
 	writeAccountGas                = writeFlatGas + accountByteLength*writeGasPerByte
 
 	// Auth's ante handlers procedures
-	baseAuthAnteGas              = readParamGas*4 + readAccountGas*4 + writeAccountGas + signatureVerificationGasCost
+	baseAuthAnteGas              = readParamGas*4 + readAccountGas*4 + writeAccountGas + signatureVerificationGasCost + readAccountWithoutPublicKeyGas + writeAccountGas
 	payingFeeGasCost             = uint64(19834)
 	baseTransactionSize          = uint64(253)
 	txCostPerByte                = uint64(5)    // Using DefaultTxSizeCostPerByte of BandChain
@@ -107,14 +106,8 @@ func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uin
 	return cost
 }
 
-func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) uint64 {
+func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 	gas := uint64(baseAuthAnteGas)
-
-	if acc.GetPubKey() == nil {
-		gas += readAccountWithoutPublicKeyGas + writeAccountGas
-	} else {
-		gas += readAccountGas
-	}
 
 	txByteLength := getTxByteLength(msgs)
 	gas += txCostPerByte * txByteLength
@@ -126,8 +119,8 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg, acc client.Account) 
 	return gas
 }
 
-func estimateGas(c *Context, msgs []sdk.Msg, feeEstimations []FeeEstimationData, acc client.Account, l *Logger) uint64 {
-	gas := estimateAuthAnteHandlerGas(c, msgs, acc)
+func estimateGas(c *Context, l *Logger, msgs []sdk.Msg, feeEstimations []FeeEstimationData) uint64 {
+	gas := estimateAuthAnteHandlerGas(c, msgs)
 
 	for i, msg := range msgs {
 		msg, ok := msg.(*types.MsgReportData)
