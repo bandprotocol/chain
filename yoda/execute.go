@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -125,13 +126,8 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
-	acc, err := queryAccount(clientCtx, key)
-	if err != nil {
-		l.Error(":warning: Failed to query account with error: %s", c, err.Error())
-		return
-	}
 
-	gasLimit := estimateGas(c, msgs, feeEstimations, acc, l)
+	gasLimit := estimateGas(c, l, msgs, feeEstimations)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
@@ -193,7 +189,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-		res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
+		res, err := abciQuery(c, l, fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
 		if err != nil {
 			l.Error(":exploding_head: Failed to get data source with error: %s", c, err.Error())
 			return nil, err
@@ -214,9 +210,9 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 		return hash.(string), nil
 	}
 
-	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
+	res, err := abciQuery(c, l, fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
 	if err != nil {
-		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
+		l.Error(":skull: Failed to get data source with error: %s", c, err.Error())
 		return "", err
 	}
 
@@ -230,9 +226,9 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 
 // GetRequest fetches request by id
 func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
-	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
+	res, err := abciQuery(c, l, fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
 	if err != nil {
-		l.Debug(":skull: Failed to get request with error: %s", err.Error())
+		l.Error(":skull: Failed to get request with error: %s", c, err.Error())
 		return types.Request{}, err
 	}
 
@@ -240,4 +236,20 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
 
 	return r, nil
+}
+
+// abciQuery will try to query data from BandChain node maxTry time before give up and return error
+func abciQuery(c *Context, l *Logger, path string, data []byte) (*ctypes.ResultABCIQuery, error) {
+	var lastErr error
+	for try := 0; try < int(c.maxTry); try++ {
+		res, err := c.client.ABCIQuery(context.Background(), path, data)
+		if err != nil {
+			l.Debug(":skull: Failed to query on %s request with error: %s", path, err.Error())
+			lastErr = err
+			time.Sleep(c.rpcPollInterval)
+			continue
+		}
+		return res, nil
+	}
+	return nil, lastErr
 }
