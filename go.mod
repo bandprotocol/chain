@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/bandprotocol/go-owasm v0.0.0-20210311072328-a6859c27139c
 	github.com/confio/ics23/go v0.6.6
-	github.com/cosmos/cosmos-sdk v0.42.8
+	github.com/cosmos/cosmos-sdk v0.42.9
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.10.6
 	github.com/gin-gonic/gin v1.6.3
