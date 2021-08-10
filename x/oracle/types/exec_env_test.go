@@ -37,7 +37,7 @@ func mockExecEnv() *ExecuteEnv {
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
 	report1 := NewReport(validatorAddress1, true, []RawReport{rawReport1, rawReport2})
 	report2 := NewReport(validatorAddress2, true, []RawReport{rawReport3})
-	env := NewExecuteEnv(request, []Report{report1, report2})
+	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0))
 	return env
 }
 
@@ -100,6 +100,27 @@ func TestGetMinCount(t *testing.T) {
 
 	eenv := mockExecEnv()
 	require.Equal(t, int64(1), eenv.GetMinCount())
+}
+
+func TestGetPrepareTime(t *testing.T) {
+	// Can call on both environment
+	penv := mockFreshPrepareEnv()
+	require.Equal(t, int64(1581589700), penv.GetPrepareTime())
+
+	eenv := mockExecEnv()
+	require.Equal(t, int64(1581589700), eenv.GetPrepareTime())
+}
+
+func TestGetExecuteTime(t *testing.T) {
+	// Should return error if call on prepare environment.
+	penv := mockFreshPrepareEnv()
+	_, err := penv.GetExecuteTime()
+	require.Equal(t, api.ErrWrongPeriodAction, err)
+
+	eenv := mockExecEnv()
+	v, err := eenv.GetExecuteTime()
+	require.NoError(t, err)
+	require.Equal(t, int64(1581589710), v)
 }
 
 func TestGetAnsCount(t *testing.T) {
