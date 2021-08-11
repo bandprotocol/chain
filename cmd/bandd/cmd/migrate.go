@@ -44,7 +44,7 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 	}
 
 	genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
-	genDoc.ConsensusParams.Block.MaxGas = 40000000  // 40M gas
+	genDoc.ConsensusParams.Block.MaxGas = 8000000   // 8M gas
 	genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 
 	if err := genDoc.ValidateAndComplete(); err != nil {

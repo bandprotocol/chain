@@ -206,6 +206,29 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 	suite.Require().NoError(err) // relay committed
 }
 
+func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
+	path := suite.setupAndDepositPoolRequest()
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte(strings.Repeat("beeb", 2000)),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		"beeb-request",
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("got: 8000, max: 256: too large calldata")
+	err := path.RelayPacket(packet, ack.GetBytes())
+	suite.Require().NoError(err) // relay committed
+}
+
 func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 	path := suite.setupAndDepositPoolRequest()
 

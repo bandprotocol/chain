@@ -26,9 +26,6 @@ func NewOracleRequestPacketData(
 
 // ValidateBasic is used for validating the request.
 func (p OracleRequestPacketData) ValidateBasic() error {
-	if len(p.Calldata) > MaxDataSize {
-		return WrapMaxError(ErrTooLargeCalldata, len(p.Calldata), MaxDataSize)
-	}
 	if p.MinCount <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", p.MinCount)
 	}

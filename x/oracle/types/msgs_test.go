@@ -186,7 +186,6 @@ func TestMsgEditOracleScriptValidation(t *testing.T) {
 func TestMsgRequestDataValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte(strings.Repeat("x", 2000)), 10, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodCoins, 1, 1, GoodTestAddr)},
@@ -201,7 +200,6 @@ func TestMsgReportDataValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr, GoodTestAddr)},
 		{false, NewMsgReportData(1, []RawReport{}, GoodTestValAddr, GoodTestAddr)},
-		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte(strings.Repeat("x", 500))}, {2, 2, []byte("data2")}}, GoodTestValAddr, GoodTestAddr)},
 		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {1, 1, []byte("data2")}}, GoodTestValAddr, GoodTestAddr)},
 		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, BadTestValAddr, GoodTestAddr)},
 		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr, BadTestAddr)},
