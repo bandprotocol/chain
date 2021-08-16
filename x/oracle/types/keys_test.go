@@ -61,10 +61,10 @@ func TestReportersOfValidatorPrefixKey(t *testing.T) {
 func TestGetEscrowAddress(t *testing.T) {
 	var (
 		requestKey1 = "beeb"
-		port1       = "transfer"
+		port1       = "oracle"
 		channel1    = "channel"
 		requestKey2 = "beeb"
-		port2       = "transfercha"
+		port2       = "oraclecha"
 		channel2    = "nnel"
 	)
 

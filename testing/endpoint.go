@@ -340,7 +340,7 @@ func (endpoint *Endpoint) ChanOpenConfirm() error {
 
 // ChanCloseInit will construct and execute a MsgChannelCloseInit on the associated endpoint.
 //
-// NOTE: does not work with ibc-transfer module
+// NOTE: does not work with ibc-transfer/oracle module
 func (endpoint *Endpoint) ChanCloseInit() error {
 	msg := channeltypes.NewMsgChannelCloseInit(
 		endpoint.ChannelConfig.PortID, endpoint.ChannelID,
