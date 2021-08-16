@@ -1,7 +1,7 @@
 package types
 
 import (
-	time "time"
+	"time"
 
 	"github.com/bandprotocol/go-owasm/api"
 )
