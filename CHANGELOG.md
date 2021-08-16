@@ -1,7 +1,7 @@
 # Changelog
 
 ## v2.1.2
-- (bandd) Add oracle script functions -- PrepareTime() and ExecuteTime() -- for retrieving prepare and execute blocktime respectively.
+- (bandd) Add oracle script functions -- GetPrepareTime() and GetExecuteTime() -- for retrieving prepare and execute blocktime respectively.
 
 ## v2.1.1
 
