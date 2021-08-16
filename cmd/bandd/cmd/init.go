@@ -174,7 +174,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			genDoc.AppState = appState
 			genDoc.ConsensusParams = types.DefaultConsensusParams()
 
-			genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
+			genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
 			genDoc.ConsensusParams.Block.MaxGas = 8000000   // 8M gas
 			genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}

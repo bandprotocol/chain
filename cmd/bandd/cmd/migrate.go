@@ -43,7 +43,7 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 		return nil, fmt.Errorf("error reading GenesisDoc at %s: %w", genDocFile, err)
 	}
 
-	genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
+	genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
 	genDoc.ConsensusParams.Block.MaxGas = 8000000   // 8M gas
 	genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 
