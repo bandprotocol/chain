@@ -189,8 +189,8 @@ func queryPendingRequests(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []int64
-	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+	var pendingIDs []uint64
+	for id := lastExpired + 1; uint64(id) <= requestCount; id++ {
 
 		req := k.MustGetRequest(ctx, id)
 
@@ -240,7 +240,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 			}
 		}
 
-		pendingIDs = append(pendingIDs, int64(id))
+		pendingIDs = append(pendingIDs, uint64(id))
 	}
 
 	res := types.PendingResolveList{RequestIds: pendingIDs}

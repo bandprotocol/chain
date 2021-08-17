@@ -52,7 +52,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	app.BankKeeper.MintCoins(ctx, authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
@@ -129,7 +129,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	app.BankKeeper.MintCoins(ctx, authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()

@@ -3,6 +3,7 @@ package oracle
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"math"
 
 	"github.com/gorilla/mux"
@@ -16,9 +17,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/modules/core/exported"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
@@ -29,13 +31,12 @@ import (
 
 var (
 	_ module.AppModule      = AppModule{}
+	_ porttypes.IBCModule   = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
 // AppModuleBasic is Band Oracle's module basic object.
-type AppModuleBasic struct {
-	cdc codec.Marshaler
-}
+type AppModuleBasic struct{}
 
 // Name returns this module's name - "oracle" (SDK AppModuleBasic interface).
 func (AppModuleBasic) Name() string {
@@ -53,17 +54,17 @@ func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) 
 }
 
 // DefaultGenesis returns the default genesis state as raw bytes.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // Validation check of the Genesis
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var gs types.GenesisState
-	err := cdc.UnmarshalJSON(bz, &gs)
-	if err != nil {
-		return err
+	if err := cdc.UnmarshalJSON(bz, &gs); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
+
 	return gs.Validate()
 }
 
@@ -105,7 +106,7 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
 // Route returns the module's path for message route (SDK AppModule interface).
 func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(am.keeper))
+	return sdk.Route{}
 }
 
 // QuerierRoute returns the oracle module's querier route name.
@@ -121,7 +122,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{am.keeper})
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper})
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
@@ -136,7 +137,7 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 }
 
 // InitGenesis performs genesis initialization for the oracle module.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, &genesisState)
@@ -144,10 +145,13 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 }
 
 // ExportGenesis returns the current state as genesis raw bytes.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }
 
 //____________________________________________________________________________
 
@@ -289,35 +293,29 @@ func (am AppModule) OnChanCloseConfirm(
 func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
-) (*sdk.Result, []byte, error) {
-
-	if !am.keeper.IBCRequestEnabled(ctx) {
-		return &sdk.Result{
-			Events: ctx.EventManager().Events().ToABCIEvents(),
-		}, channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error()).GetBytes(), nil
-	}
+	relayer sdk.AccAddress,
+) ibcexported.Acknowledgement {
+	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 
 	var data types.OracleRequestPacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal oracle request packet data: %s", err.Error())
+	if !am.keeper.IBCRequestEnabled(ctx) {
+		ack = channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error())
+	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+		ack = channeltypes.NewErrorAcknowledgement(fmt.Sprintf("cannot unmarshal oracle request packet data: %s", err.Error()))
 	}
 
-	cacheCtx, writeFn := ctx.CacheContext()
-	id, err := am.keeper.OnRecvPacket(cacheCtx, packet, data)
-
-	var acknowledgement channeltypes.Acknowledgement
-	if err != nil {
-		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
-	} else {
-		writeFn()
-		ctx.EventManager().EmitEvents(cacheCtx.EventManager().Events())
-		acknowledgement = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
+	// only attempt the application logic if the packet data
+	// was successfully decoded
+	if ack.Success() {
+		id, err := am.keeper.OnRecvPacket(ctx, packet, data, relayer)
+		if err != nil {
+			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		}
+		ack = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 	}
 
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
-	return &sdk.Result{
-		Events: ctx.EventManager().Events().ToABCIEvents(),
-	}, acknowledgement.GetBytes(), nil
+	return ack
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
@@ -325,6 +323,7 @@ func (am AppModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
+	relayer sdk.AccAddress,
 ) (*sdk.Result, error) {
 	// Do nothing for out-going packet
 	return &sdk.Result{
@@ -336,6 +335,7 @@ func (am AppModule) OnAcknowledgementPacket(
 func (am AppModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
+	relayer sdk.AccAddress,
 ) (*sdk.Result, error) {
 	// Do nothing for out-going packet
 	return &sdk.Result{

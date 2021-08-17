@@ -16,7 +16,7 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)
 	key := types.ReportsOfValidatorPrefixKey(rid, val)
-	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&rep))
+	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshal(&rep))
 }
 
 // AddReports performs sanity checks and adds a new batch from one validator to one request
@@ -82,7 +82,7 @@ func (k Keeper) GetReports(ctx sdk.Context, rid types.RequestID) (reports []type
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var rep types.Report
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &rep)
+		k.cdc.MustUnmarshal(iterator.Value(), &rep)
 		reports = append(reports, rep)
 	}
 	return reports

@@ -40,7 +40,7 @@ func defaultVotes() []abci.VoteInfo {
 func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper) authtypes.ModuleAccountI {
 	// Set collected fee to 1000000uband and 70% oracle reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), Coins1000000uband)
+	app.BankKeeper.MintCoins(ctx, authtypes.FeeCollectorName, Coins1000000uband)
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 
 	params := k.GetParams(ctx)

@@ -119,7 +119,7 @@ func request_Query_DataSource_0(ctx context.Context, marshaler runtime.Marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "data_source_id")
 	}
 
-	protoReq.DataSourceId, err = runtime.Int64(val)
+	protoReq.DataSourceId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "data_source_id", err)
@@ -146,7 +146,7 @@ func local_request_Query_DataSource_0(ctx context.Context, marshaler runtime.Mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "data_source_id")
 	}
 
-	protoReq.DataSourceId, err = runtime.Int64(val)
+	protoReq.DataSourceId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "data_source_id", err)
@@ -173,7 +173,7 @@ func request_Query_OracleScript_0(ctx context.Context, marshaler runtime.Marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "oracle_script_id")
 	}
 
-	protoReq.OracleScriptId, err = runtime.Int64(val)
+	protoReq.OracleScriptId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "oracle_script_id", err)
@@ -200,7 +200,7 @@ func local_request_Query_OracleScript_0(ctx context.Context, marshaler runtime.M
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "oracle_script_id")
 	}
 
-	protoReq.OracleScriptId, err = runtime.Int64(val)
+	protoReq.OracleScriptId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "oracle_script_id", err)
@@ -227,7 +227,7 @@ func request_Query_Request_0(ctx context.Context, marshaler runtime.Marshaler, c
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "request_id")
 	}
 
-	protoReq.RequestId, err = runtime.Int64(val)
+	protoReq.RequestId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "request_id", err)
@@ -254,7 +254,7 @@ func local_request_Query_Request_0(ctx context.Context, marshaler runtime.Marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "request_id")
 	}
 
-	protoReq.RequestId, err = runtime.Int64(val)
+	protoReq.RequestId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "request_id", err)

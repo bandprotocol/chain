@@ -68,13 +68,13 @@ func (k Keeper) GetValidatorStatus(ctx sdk.Context, val sdk.ValAddress) types.Va
 		return types.NewValidatorStatus(false, time.Time{})
 	}
 	var status types.ValidatorStatus
-	k.cdc.MustUnmarshalBinaryBare(bz, &status)
+	k.cdc.MustUnmarshal(bz, &status)
 	return status
 }
 
 // SetValidatorStatus sets the validator status for the given validator.
 func (k Keeper) SetValidatorStatus(ctx sdk.Context, val sdk.ValAddress, status types.ValidatorStatus) {
-	ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshalBinaryBare(&status))
+	ctx.KVStore(k.storeKey).Set(types.ValidatorStatusStoreKey(val), k.cdc.MustMarshal(&status))
 }
 
 // Activate changes the given validator's status to active. Returns error if the validator is

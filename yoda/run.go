@@ -56,7 +56,7 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	bz := cdc.MustMarshalBinaryBare(&types.QueryPendingRequestsRequest{
+	bz := cdc.MustMarshal(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
@@ -64,7 +64,7 @@ func runImpl(c *Context, l *Logger) error {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
 	pendingRequests := types.QueryPendingRequestsResponse{}
-	cdc.MustUnmarshalBinaryBare(resBz.Response.Value, &pendingRequests)
+	cdc.MustUnmarshal(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {

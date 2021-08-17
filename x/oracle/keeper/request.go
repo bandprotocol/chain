@@ -21,7 +21,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, id types.RequestID) (types.Request, 
 		return types.Request{}, sdkerrors.Wrapf(types.ErrRequestNotFound, "id: %d", id)
 	}
 	var request types.Request
-	k.cdc.MustUnmarshalBinaryBare(bz, &request)
+	k.cdc.MustUnmarshal(bz, &request)
 	return request, nil
 }
 
@@ -36,7 +36,7 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id types.RequestID) types.Reques
 
 // SetRequest saves the given data request to the store without performing any validation.
 func (k Keeper) SetRequest(ctx sdk.Context, id types.RequestID, request types.Request) {
-	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
+	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshal(&request))
 }
 
 // DeleteRequest removes the given data request from the store.
@@ -99,12 +99,12 @@ func (k Keeper) AddPendingRequest(ctx sdk.Context, id types.RequestID) {
 
 // SetPendingResolveList saves the list of pending request that will be resolved at end block.
 func (k Keeper) SetPendingResolveList(ctx sdk.Context, ids []types.RequestID) {
-	intVs := make([]int64, len(ids))
+	intVs := make([]uint64, len(ids))
 	for idx, id := range ids {
-		intVs[idx] = int64(id)
+		intVs[idx] = uint64(id)
 	}
 
-	bz := k.cdc.MustMarshalBinaryBare(&types.PendingResolveList{RequestIds: intVs})
+	bz := k.cdc.MustMarshal(&types.PendingResolveList{RequestIds: intVs})
 	if bz == nil {
 		bz = []byte{}
 	}
@@ -118,7 +118,7 @@ func (k Keeper) GetPendingResolveList(ctx sdk.Context) (ids []types.RequestID) {
 		return []types.RequestID{}
 	}
 	pendingResolveList := types.PendingResolveList{}
-	k.cdc.MustUnmarshalBinaryBare(bz, &pendingResolveList)
+	k.cdc.MustUnmarshal(bz, &pendingResolveList)
 	for _, rid := range pendingResolveList.RequestIds {
 		ids = append(ids, types.RequestID(rid))
 	}

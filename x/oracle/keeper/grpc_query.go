@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/grpc/codes"
@@ -107,8 +108,8 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []int64
-	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+	var pendingIDs []uint64
+	for id := lastExpired + 1; uint64(id) <= requestCount; id++ {
 		oracleReq := k.MustGetRequest(ctx, id)
 
 		// If all validators reported on this request, then skip it.
@@ -150,7 +151,7 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 			continue
 		}
 
-		pendingIDs = append(pendingIDs, int64(id))
+		pendingIDs = append(pendingIDs, uint64(id))
 	}
 
 	return &types.QueryPendingRequestsResponse{RequestIDs: pendingIDs}, nil
@@ -254,9 +255,9 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
-	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
+	reporterPubKey, ok := req.Reporter.GetCachedValue().(cryptotypes.PubKey)
+	if !ok {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
 	}
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
@@ -333,7 +334,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		Validator:    req.Validator,
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
-		DataSourceId: int64(*dataSourceID),
+		DataSourceId: uint64(*dataSourceID),
 	}, nil
 }
 

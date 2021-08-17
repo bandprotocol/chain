@@ -59,7 +59,7 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 			panic("Don't support non-report data message")
 		}
 
-		ser := cdc.MustMarshalBinaryBare(msg)
+		ser := cdc.MustMarshal(msg)
 		size += uint64(len(ser))
 	}
 
@@ -85,7 +85,7 @@ func getReportByteLength(msg *types.MsgReportData) uint64 {
 		true,
 		msg.RawReports,
 	)
-	return uint64(len(cdc.MustMarshalBinaryBare(&report)))
+	return uint64(len(cdc.MustMarshal(&report)))
 }
 
 func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {

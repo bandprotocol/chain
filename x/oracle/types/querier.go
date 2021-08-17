@@ -54,9 +54,9 @@ func QueryNotFound(legacyQuerierCdc *codec.LegacyAmino, result interface{}) ([]b
 
 // QueryCountsResult is the struct for the result of query counts.
 type QueryCountsResult struct {
-	DataSourceCount   int64 `json:"data_source_count"`
-	OracleScriptCount int64 `json:"oracle_script_count"`
-	RequestCount      int64 `json:"request_count"`
+	DataSourceCount   uint64 `json:"data_source_count"`
+	OracleScriptCount uint64 `json:"oracle_script_count"`
+	RequestCount      uint64 `json:"request_count"`
 }
 
 // QueryRequestResult is the struct for the result of request query.
