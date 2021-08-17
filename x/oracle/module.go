@@ -295,27 +295,20 @@ func (am AppModule) OnRecvPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	ack := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 
 	var data types.OracleRequestPacketData
 	if !am.keeper.IBCRequestEnabled(ctx) {
-		ack = channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error())
+		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error())
 	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		ack = channeltypes.NewErrorAcknowledgement(fmt.Sprintf("cannot unmarshal oracle request packet data: %s", err.Error()))
+		// TODO: Ack with non-deterministic error break consensus?
+		return channeltypes.NewErrorAcknowledgement("cannot unmarshal oracle request packet data")
 	}
 
-	// only attempt the application logic if the packet data
-	// was successfully decoded
-	if ack.Success() {
-		id, err := am.keeper.OnRecvPacket(ctx, packet, data, relayer)
-		if err != nil {
-			ack = channeltypes.NewErrorAcknowledgement(err.Error())
-		}
-		ack = channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
+	id, err := am.keeper.OnRecvPacket(ctx, packet, data, relayer)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
-
-	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
-	return ack
+	return channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface

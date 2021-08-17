@@ -94,6 +94,7 @@ import (
 
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 	bandclient "github.com/bandprotocol/chain/v2/client"
+	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
@@ -213,10 +214,12 @@ func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
 	accountPrefix := Bech32MainPrefix
 	validatorPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
 	consensusPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
+	config.SetCoinType(Bip44CoinType)
 	config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
 	config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
 	config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
-	config.SetCoinType(Bip44CoinType)
+
+	config.Seal()
 }
 
 // NewBandApp returns a reference to an initialized BandApp.
@@ -371,7 +374,7 @@ func NewBandApp(
 		genutil.NewAppModule(app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
 		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
-		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		bandbank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),

@@ -51,7 +51,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(band.DefaultNodeHome)
+		WithHomeDir(band.DefaultNodeHome).
+		WithViper("BAND")
 
 	rootCmd := &cobra.Command{
 		Use:   "bandd",

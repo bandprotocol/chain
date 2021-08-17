@@ -337,14 +337,3 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		DataSourceId: uint64(*dataSourceID),
 	}, nil
 }
-
-// RequestPool queries the request pool information
-func (k Querier) RequestPool(c context.Context, req *types.QueryRequestPoolRequest) (*types.QueryRequestPoolResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-	ctx := sdk.UnwrapSDKContext(c)
-	requestPool := types.GetEscrowAddress(req.RequestKey, req.PortId, req.ChannelId)
-	b := k.bankKeeper.GetAllBalances(ctx, requestPool)
-	return &types.QueryRequestPoolResponse{RequestPoolAddress: requestPool.String(), Balance: b}, nil
-}

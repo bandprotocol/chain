@@ -1,6 +1,6 @@
 module github.com/bandprotocol/chain/v2
 
-go 1.15
+go 1.16
 
 require (
 	github.com/bandprotocol/go-owasm v0.1.0

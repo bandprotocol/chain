@@ -62,7 +62,7 @@ type TestChain struct {
 	Signers  []tmtypes.PrivValidator
 	Treasury sdk.AccAddress
 
-	senderPrivKey cryptotypes.PrivKey
+	SenderPrivKey cryptotypes.PrivKey
 	SenderAccount authtypes.AccountI
 
 	senders map[string]*authtypes.BaseAccount
@@ -86,7 +86,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 	for i := uint64(0); i < valSize; i++ {
 		// generate validator private/public key
-		privVal := mock.PV{testapp.Validators[i].PrivKey}
+		privVal := mock.PV{PrivKey: testapp.Validators[i].PrivKey}
 		tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[i].PubKey)
 		require.NoError(t, err)
 
@@ -99,7 +99,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		genesisAccount[i] = senders[testapp.Validators[i].Address.String()]
 		balances[i] = banktypes.Balance{
 			Address: genesisAccount[i].GetAddress().String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100000000000000))),
+			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))),
 		}
 	}
 
@@ -133,7 +133,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
 		Signers:       signers,
-		senderPrivKey: testapp.Validators[0].PrivKey,
+		SenderPrivKey: testapp.Validators[0].PrivKey,
 		SenderAccount: genesisAccount[0],
 		Treasury:      testapp.Treasury.Address,
 		senders:       senders,
@@ -271,7 +271,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 		chain.ChainID,
 		[]uint64{chain.SenderAccount.GetAccountNumber()},
 		[]uint64{chain.SenderAccount.GetSequence()},
-		chain.senderPrivKey,
+		chain.SenderPrivKey,
 	)
 	if err != nil {
 		return nil, err
