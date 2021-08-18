@@ -237,7 +237,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 		"BAND_VALIDATOR":   vmsg.Validator,
 		"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
 		"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
-		"BAND_REPORTER":    pubkey,
+		"BAND_REPORTER":    hex.EncodeToString(pubkey.Bytes()),
 		"BAND_SIGNATURE":   sig,
 	})
 

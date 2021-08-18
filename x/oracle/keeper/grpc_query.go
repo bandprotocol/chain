@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/grpc/codes"
@@ -175,6 +176,20 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 
+// IsReporter queries grant of account on this validator
+func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest) (*types.QueryIsReporterResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := sdk.AccAddressFromBech32(req.ReporterAddress)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
+}
+
 // Reporters queries all reporters of a given validator address.
 func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
 	if req == nil {
@@ -255,11 +270,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse validator address: %s", err.Error()))
 	}
 
-	// Provided signature should be valid, which means this query request should be signed by the provided reporter
-	reporterPubKey, ok := req.Reporter.GetCachedValue().(cryptotypes.PubKey)
-	if !ok {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
+	bz, err := hex.DecodeString(req.Reporter)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "unable to get reporter's public key")
 	}
+	reporterPubKey := secp256k1.PubKey{Key: bz}
+
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
@@ -268,7 +284,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 
 	// Provided reporter should be authorized by the provided validator
 	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
-	if !k.IsReporter(ctx, validator, reporter) {
+	if !k.Keeper.IsReporter(ctx, validator, reporter) {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 

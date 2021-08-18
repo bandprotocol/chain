@@ -1,9 +1,9 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,15 +62,12 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 }
 
 func (suite *RequestVerificationTestSuite) TestSuccess() {
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -99,15 +96,12 @@ func (suite *RequestVerificationTestSuite) TestFailedEmptyRequest() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedChainIDNotMatch() {
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    "other-chain-id",
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -122,15 +116,12 @@ func (suite *RequestVerificationTestSuite) TestFailedChainIDNotMatch() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedInvalidValidatorAddr() {
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  "someRandomString",
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -145,14 +136,12 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidValidatorAddr() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
-	pk := &codectypes.Any{}
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   "Non-hex",
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -167,15 +156,12 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedEmptySignature() {
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	res, err := suite.querier.RequestVerification(sdk.WrapSDKContext(suite.ctx), req)
@@ -188,15 +174,12 @@ func (suite *RequestVerificationTestSuite) TestFailedReporterUnauthorized() {
 	err := suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
 	suite.assert.NoError(err)
 
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -214,15 +197,12 @@ func (suite *RequestVerificationTestSuite) TestFailedUnselectedValidator() {
 	suite.request.RequestedValidators = []string{testapp.Validators[1].ValAddress.String()}
 	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(1), suite.request)
 
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -240,15 +220,12 @@ func (suite *RequestVerificationTestSuite) TestFailedNoDataSourceFound() {
 	suite.request.RawRequests = []types.RawRequest{}
 	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(1), suite.request)
 
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -270,15 +247,12 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 	}))
 	suite.assert.NoError(err)
 
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -293,15 +267,12 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
-	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())
-	suite.assert.NoError(err)
-
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   pk,
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	suite.ctx = suite.ctx.WithBlockHeight(1000)
