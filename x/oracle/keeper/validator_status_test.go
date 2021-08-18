@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -40,7 +41,8 @@ func defaultVotes() []abci.VoteInfo {
 func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper) authtypes.ModuleAccountI {
 	// Set collected fee to 1000000uband and 70% oracle reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.MintCoins(ctx, authtypes.FeeCollectorName, Coins1000000uband)
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband)
+	app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, authtypes.FeeCollectorName, Coins1000000uband)
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 
 	params := k.GetParams(ctx)
