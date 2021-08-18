@@ -94,7 +94,7 @@ func TestEditDataSourceDoNotModify(t *testing.T) {
 func TestAddDataSourceDataSourceMustReturnCorrectID(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Initially we expect the data source count to be what we have on genesis state.
-	genesisCount := int64(len(testapp.DataSources)) - 1
+	genesisCount := uint64(len(testapp.DataSources)) - 1
 	require.Equal(t, genesisCount, k.GetDataSourceCount(ctx))
 	// Every new data source we add should return a new ID.
 	id1 := k.AddDataSource(ctx, types.NewDataSource(testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, testapp.EmptyCoins, testapp.Treasury.Address))

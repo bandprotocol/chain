@@ -146,8 +146,7 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidValidatorAddr() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
-	pk, err := codectypes.NewAnyWithValue(nil)
-	suite.assert.NoError(err)
+	pk := &codectypes.Any{}
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    suite.ctx.ChainID(),
