@@ -184,13 +184,10 @@ message OracleRequestPacketData {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // RequestKey is the key from request chain to match data source fee payer on
-  // Bandchain
-  string request_key = 7;
   // PrepareGas is amount of gas to pay to prepare raw requests
-  uint64 prepare_gas = 8;
+  uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
-  uint64 execute_gas = 9;
+  uint64 execute_gas = 8;
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement

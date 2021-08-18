@@ -8,7 +8,7 @@ import (
 )
 
 // OnRecvPacket processes a cross chain oracle request. Data source fees
-// are collected from an escrowAddress corresponding to the given requestKey.
+// are collected from the relayer account.
 func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,

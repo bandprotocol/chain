@@ -1,15 +1,13 @@
 package types
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string, prepareGas uint64, executeGas uint64,
+	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, prepareGas uint64, executeGas uint64,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -18,7 +16,6 @@ func NewOracleRequestPacketData(
 		AskCount:       askCount,
 		MinCount:       minCount,
 		FeeLimit:       feeLimit,
-		RequestKey:     requestKey,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
 	}
@@ -46,12 +43,6 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 	}
 	if !p.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, p.FeeLimit.String())
-	}
-	if strings.Contains(p.RequestKey, "/") {
-		return sdkerrors.Wrapf(ErrInvalidRequestKey, "got: %s", p.RequestKey)
-	}
-	if len(p.RequestKey) > MaxRequestKeyLength {
-		return WrapMaxError(ErrTooLongRequestKey, len(p.RequestKey), MaxRequestKeyLength)
 	}
 	return nil
 }

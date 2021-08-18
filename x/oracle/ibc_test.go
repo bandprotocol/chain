@@ -81,7 +81,6 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		2,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -123,19 +122,16 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 
 	clientID := path.EndpointA.ClientID
 	coins := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000)))
-	requestKey := "beeb-request"
 
 	oracleRequestPackets := []types.OracleRequestPacketData{
-		types.NewOracleRequestPacketData(clientID, 1, []byte(strings.Repeat("beeb", 65)), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 0, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 2, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(strings.Repeat(clientID, 9), 1, []byte("beeb"), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, 0, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, testapp.TestDefaultPrepareGas, 0),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, requestKey, types.MaximumOwasmGas, types.MaximumOwasmGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, testapp.BadCoins, requestKey, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, "beeb/request", testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, strings.Repeat(requestKey, 11), testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte(strings.Repeat("beeb", 65)), 1, 1, coins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 0, coins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 2, coins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(strings.Repeat(clientID, 9), 1, []byte("beeb"), 1, 1, coins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, 0, testapp.TestDefaultExecuteGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, testapp.TestDefaultPrepareGas, 0),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, types.MaximumOwasmGas, types.MaximumOwasmGas),
+		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, testapp.BadCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas),
 	}
 	expectedErrs := []string{
 		"got: 260, max: 256: too large calldata",
@@ -146,8 +142,6 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		"invalid execute gas: 0: invalid owasm gas",
 		"sum of prepare gas and execute gas (40000000) exceed 20000000: invalid owasm gas",
 		"-1uband: invalid coins",
-		"got: beeb/request: invalid request key",
-		"got: 132, max: 128: too long request key",
 	}
 
 	timeoutHeight := clienttypes.NewHeight(0, 110)
@@ -172,7 +166,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -206,7 +199,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -228,7 +220,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		100,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -251,7 +242,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		17,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -268,7 +258,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		3,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -296,7 +285,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -324,7 +312,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -348,7 +335,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -371,7 +357,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -394,7 +379,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -417,7 +401,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -447,7 +430,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -470,7 +452,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -492,7 +473,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)
@@ -515,7 +495,6 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		2,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		1,
 	)
@@ -560,7 +539,6 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 		2,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
-		"beeb-request",
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 	)

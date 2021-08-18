@@ -24,7 +24,6 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		AskCount:       1,
 		MinCount:       1,
 		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
-		RequestKey:     "TEST_KEY",
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}
