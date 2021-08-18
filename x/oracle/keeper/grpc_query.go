@@ -180,17 +180,18 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-	ctx := sdk.UnwrapSDKContext(c)
-	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
-	if err != nil {
-		return nil, err
-	}
-	reps := k.GetReporters(ctx, val)
-	reporters := make([]string, len(reps))
-	for idx, rep := range reps {
-		reporters[idx] = rep.String()
-	}
-	return &types.QueryReportersResponse{Reporter: reporters}, nil
+	// TODO: Wait of get all grants
+	// ctx := sdk.UnwrapSDKContext(c)
+	// val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// reps := k.GetReporters(ctx, val)
+	// reporters := make([]string, len(reps))
+	// for idx, rep := range reps {
+	// 	reporters[idx] = rep.String()
+	// }
+	return &types.QueryReportersResponse{Reporter: []string{}}, nil
 }
 
 // ActiveValidators queries all active oracle validators.
@@ -266,16 +267,8 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided reporter should be authorized by the provided validator
-	reporters := k.GetReporters(ctx, validator)
 	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
-	isReporterAuthorizedByValidator := false
-	for _, existingReporter := range reporters {
-		if reporter.Equals(existingReporter) {
-			isReporterAuthorizedByValidator = true
-			break
-		}
-	}
-	if !isReporterAuthorizedByValidator {
+	if !k.IsReporter(ctx, validator, reporter) {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 

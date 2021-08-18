@@ -5,12 +5,14 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -30,6 +32,7 @@ const (
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
+	flagExpiration    = "expiration"
 )
 
 // NewTxCmd returns the transaction commands for this module
@@ -49,7 +52,7 @@ func NewTxCmd() *cobra.Command {
 		GetCmdEditOracleScript(),
 		GetCmdActivate(),
 		GetCmdAddReporters(),
-		GetCmdRemoveReporter(),
+		GetCmdRemoveReporters(),
 	)
 
 	return txCmd
@@ -589,17 +592,29 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 			if err != nil {
 				return err
 			}
-			validator := sdk.ValAddress(clientCtx.GetFromAddress())
+
+			exp, err := cmd.Flags().GetInt64(flagExpiration)
+			if err != nil {
+				return err
+			}
+
+			validator := clientCtx.GetFromAddress()
 			msgs := make([]sdk.Msg, len(args))
 			for i, raw := range args {
 				reporter, err := sdk.AccAddressFromBech32(raw)
 				if err != nil {
 					return err
 				}
-				msgs[i] = types.NewMsgAddReporter(
+				msg, err := authz.NewMsgGrant(
 					validator,
 					reporter,
+					types.NewReportAuthorization(),
+					time.Unix(exp, 0),
 				)
+				if err != nil {
+					return err
+				}
+				msgs[i] = msg
 				err = msgs[i].ValidateBasic()
 				if err != nil {
 					return err
@@ -608,20 +623,21 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
+	cmd.Flags().Int64(flagExpiration, time.Now().AddDate(2500, 0, 0).Unix(), "The Unix timestamp. Default is 2500 years(forever).")
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
 // GetCmdRemoveReporter implements the remove reporter command handler.
-func GetCmdRemoveReporter() *cobra.Command {
+func GetCmdRemoveReporters() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove-reporter [reporter]",
-		Short: "Remove an agent from the list of authorized reporters.",
-		Args:  cobra.ExactArgs(1),
+		Use:   "remove-reporters [reporter1] [reporter2] ...",
+		Short: "Remove agents from the list of authorized reporters.",
+		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Remove an agent from the list of authorized reporters.
+			fmt.Sprintf(`Remove agents from the list of authorized reporters.
 Example:
-$ %s tx oracle remove-reporter band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun --from mykey
+$ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
@@ -631,20 +647,26 @@ $ %s tx oracle remove-reporter band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun --fro
 			if err != nil {
 				return err
 			}
-			validator := sdk.ValAddress(clientCtx.GetFromAddress())
-			reporter, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
+
+			validator := clientCtx.GetFromAddress()
+			msgs := make([]sdk.Msg, len(args))
+			for i, raw := range args {
+				reporter, err := sdk.AccAddressFromBech32(raw)
+				if err != nil {
+					return err
+				}
+				msg := authz.NewMsgRevoke(
+					validator,
+					reporter,
+					sdk.MsgTypeURL(&types.MsgReportData{}),
+				)
+				msgs[i] = &msg
+				err = msg.ValidateBasic()
+				if err != nil {
+					return err
+				}
 			}
-			msg := types.NewMsgRemoveReporter(
-				validator,
-				reporter,
-			)
-			err = msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)

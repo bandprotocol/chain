@@ -57,9 +57,8 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	suite.reporterAddr = sdk.AccAddress(suite.reporterPrivKey.PubKey().Address())
 
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
-	if err := k.AddReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr); err != nil {
-		panic(err)
-	}
+	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	suite.assert.NoError(err)
 }
 
 func (suite *RequestVerificationTestSuite) TestSuccess() {
@@ -186,7 +185,7 @@ func (suite *RequestVerificationTestSuite) TestFailedEmptySignature() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedReporterUnauthorized() {
-	err := suite.querier.Keeper.RemoveReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	err := suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
 	suite.assert.NoError(err)
 
 	pk, err := codectypes.NewAnyWithValue(suite.reporterPrivKey.PubKey())

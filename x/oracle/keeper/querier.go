@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -145,14 +146,16 @@ func queryValidatorStatus(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 }
 
 func queryReporters(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
-	}
-	validatorAddress, err := sdk.ValAddressFromBech32(path[0])
-	if err != nil {
-		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
-	}
-	return types.QueryOK(legacyQuerierCdc, k.GetReporters(ctx, validatorAddress))
+	// TODO: Query all reporters
+	// if len(path) != 1 {
+	// 	return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
+	// }
+	// validatorAddress, err := sdk.ValAddressFromBech32(path[0])
+	// if err != nil {
+	// 	return types.QueryBadRequest(legacyQuerierCdc, err.Error())
+	// }
+	// return types.QueryOK(legacyQuerierCdc, k.GetReporters(ctx, validatorAddress))
+	return types.QueryNotFound(legacyQuerierCdc, errors.New("Unimplemented"))
 }
 
 func queryActiveValidators(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {

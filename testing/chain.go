@@ -292,7 +292,7 @@ func (chain *TestChain) SendReport(rid types.RequestID, rawReps []types.RawRepor
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
 		chain.GetContext().BlockHeader(),
-		[]sdk.Msg{types.NewMsgReportData(rid, rawReps, sender.ValAddress, sender.Address)},
+		[]sdk.Msg{types.NewMsgReportData(rid, rawReps, sender.ValAddress)},
 		chain.ChainID,
 		[]uint64{senderAccount.GetAccountNumber()},
 		[]uint64{senderAccount.GetSequence()},
