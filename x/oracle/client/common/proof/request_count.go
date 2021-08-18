@@ -2,13 +2,13 @@ package proof
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	gogotypes "github.com/gogo/protobuf/types"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
@@ -67,11 +67,10 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		// Parse requests count
-		rs := gogotypes.Int64Value{}
-		types.ModuleCdc.MustUnmarshalLengthPrefixed(value, &rs)
+		rs := binary.BigEndian.Uint64(value)
 
 		requestsCountProof := RequestsCountProof{
-			Count:       uint64(rs.GetValue()),
+			Count:       rs,
 			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 			MerklePaths: GetMerklePaths(iavlEp),
 		}
