@@ -104,7 +104,7 @@ func NewAppModule(k keeper.Keeper) AppModule {
 // RegisterInvariants is a noop function to satisfy SDK AppModule interface.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {}
 
-// Route returns the module's path for message route (SDK AppModule interface).
+// Deprecated: Route returns the message routing key for the bank module.
 func (am AppModule) Route() sdk.Route {
 	return sdk.Route{}
 }

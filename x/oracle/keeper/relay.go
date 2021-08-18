@@ -13,12 +13,12 @@ func (k Keeper) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	data types.OracleRequestPacketData,
-	escrowAddress sdk.AccAddress,
+	relayer sdk.AccAddress,
 ) (types.RequestID, error) {
 	if err := data.ValidateBasic(); err != nil {
 		return 0, err
 	}
 	ibcChannel := types.NewIBCChannel(packet.DestinationPort, packet.DestinationChannel)
 
-	return k.PrepareRequest(ctx, &data, escrowAddress, &ibcChannel)
+	return k.PrepareRequest(ctx, &data, relayer, &ibcChannel)
 }

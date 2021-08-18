@@ -37,7 +37,7 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 		return nil, sdkerrors.Wrapf(
 			types.ErrInsufficientValidators, "%d < %d", len(valOperators), size)
 	}
-	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(uint64(id)), []byte(ctx.ChainID()))
+	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}
