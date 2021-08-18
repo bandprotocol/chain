@@ -393,7 +393,7 @@ func TestReportSuccess(t *testing.T) {
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Validators[0] reports data.
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress))
 	require.NoError(t, err)
 	require.Equal(t, []types.RequestID{}, k.GetPendingResolveList(ctx))
 	event := abci.Event{
@@ -405,7 +405,7 @@ func TestReportSuccess(t *testing.T) {
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Validators[1] reports data. Now the request should move to pending resolve.
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[1].ValAddress, testapp.Validators[1].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[1].ValAddress))
 	require.NoError(t, err)
 	require.Equal(t, []types.RequestID{42}, k.GetPendingResolveList(ctx))
 	event = abci.Event{
@@ -419,7 +419,7 @@ func TestReportSuccess(t *testing.T) {
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
 	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress, testapp.Validators[2].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
 		Type: types.EventTypeReport,
@@ -457,32 +457,28 @@ func TestReportFail(t *testing.T) {
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Bad ID
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, testapp.Validators[0].ValAddress))
 	testapp.CheckErrorf(t, err, types.ErrRequestNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not-asked validator
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress, testapp.Alice.Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress))
 	testapp.CheckErrorf(t, err, types.ErrValidatorNotRequested, "reqID: 42, val: %s", testapp.Alice.ValAddress.String())
 	require.Nil(t, res)
 	// Too large report data size
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000)))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000)))}, testapp.Validators[0].ValAddress))
 	testapp.CheckErrorf(t, err, types.ErrTooLargeRawReportData, "got: 10000, max: 512")
 	require.Nil(t, res)
-	// Not an authorized reporter
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Alice.Address))
-	require.ErrorIs(t, err, types.ErrReporterNotAuthorized)
-	require.Nil(t, res)
 	// Not having all raw reports
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1"))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1"))}, testapp.Validators[0].ValAddress))
 	require.ErrorIs(t, err, types.ErrInvalidReportSize)
 	require.Nil(t, res)
 	// Incorrect external IDs
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))}, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))}, testapp.Validators[0].ValAddress))
 	testapp.CheckErrorf(t, err, types.ErrRawRequestNotFound, "reqID: 42, extID: 42")
 	require.Nil(t, res)
 	// Request already expired
 	k.SetRequestLastExpired(ctx, 42)
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress, testapp.Validators[0].Address))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress))
 	require.ErrorIs(t, err, types.ErrRequestAlreadyExpired)
 	require.Nil(t, res)
 }
@@ -528,61 +524,4 @@ func TestActivateFail(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200000))
 	_, err = oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
-}
-
-func TestAddReporterSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	require.False(t, k.IsReporter(ctx, testapp.Alice.ValAddress, testapp.Bob.Address))
-	// Add testapp.Bob to a reporter of testapp.Alice validator.
-	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
-	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.NoError(t, err)
-	require.True(t, k.IsReporter(ctx, testapp.Alice.ValAddress, testapp.Bob.Address))
-	event := abci.Event{
-		Type: types.EventTypeAddReporter,
-		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Alice.ValAddress.String())},
-			{Key: []byte(types.AttributeKeyReporter), Value: []byte(testapp.Bob.Address.String())},
-		},
-	}
-	require.Equal(t, abci.Event(event), res.Events[0])
-}
-
-func TestAddReporterFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	// Should fail when you try to add yourself as your reporter.
-	msg := types.NewMsgAddReporter(testapp.Alice.ValAddress, testapp.Alice.Address)
-	res, err := oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrReporterAlreadyExists, "val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Alice.Address.String())
-	require.Nil(t, res)
-}
-
-func TestRemoveReporterSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	// Add testapp.Bob to a reporter of testapp.Alice validator.
-	err := k.AddReporter(ctx, testapp.Alice.ValAddress, testapp.Bob.Address)
-	require.True(t, k.IsReporter(ctx, testapp.Alice.ValAddress, testapp.Bob.Address))
-	require.NoError(t, err)
-	// Now remove testapp.Bob from the set of testapp.Alice's reporters.
-	msg := types.NewMsgRemoveReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
-	res, err := oracle.NewHandler(k)(ctx, msg)
-	require.NoError(t, err)
-	require.False(t, k.IsReporter(ctx, testapp.Alice.ValAddress, testapp.Bob.Address))
-	event := abci.Event{
-		Type: types.EventTypeRemoveReporter,
-		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Alice.ValAddress.String())},
-			{Key: []byte(types.AttributeKeyReporter), Value: []byte(testapp.Bob.Address.String())},
-		},
-	}
-	require.Equal(t, abci.Event(event), res.Events[0])
-}
-
-func TestRemoveReporterFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	// Should fail because testapp.Bob isn't testapp.Alice validator's reporter.
-	msg := types.NewMsgRemoveReporter(testapp.Alice.ValAddress, testapp.Bob.Address)
-	res, err := oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrReporterNotFound, "val: %s, addr: %s", testapp.Alice.ValAddress.String(), testapp.Bob.Address.String())
-	require.Nil(t, res)
 }

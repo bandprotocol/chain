@@ -353,16 +353,6 @@ message IBCChannel {
   string channel_id = 2;
 }
 
-// ReportersPerValidator is list of reporters that is associated with a
-// validator
-message ReportersPerValidator {
-  // Validator a validator address
-  string validator = 1;
-  // Reporters is a list of reporter account addresses associated with the
-  // validator
-  repeated string reporters = 2 [ (gogoproto.nullable) = false ];
-}
-
 // RequestVerification is a message that is constructed and signed by a reporter
 // to be used as a part of verification of oracle request.
 message RequestVerification {

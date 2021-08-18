@@ -105,7 +105,9 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			oracleGenesis.Params.IBCRequestEnabled = false
 			oracleGenesis.OracleScripts = oracleGenesisV039.OracleScripts
-			oracleGenesis.Reporters = oracleGenesisV039.Reporters
+
+			// TODO: Migrate reporters to grant in authz
+			// oracleGenesis.Reporters = oracleGenesisV039.Reporters
 			for _, dataSource := range oracleGenesisV039.DataSources {
 				oracleGenesis.DataSources = append(oracleGenesis.DataSources, oracletypes.DataSource{
 					Owner:       dataSource.Owner,
