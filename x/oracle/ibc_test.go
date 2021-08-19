@@ -172,19 +172,48 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 
 	// Use Carol as a relayer
 	carol := testapp.Carol
+	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000)))
 	suite.chainB.SendMsgs(banktypes.NewMsgSend(
 		suite.chainB.SenderAccount.GetAddress(),
 		carol.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+		carolExpectedBalance,
 	))
 	suite.chainB.SenderPrivKey = carol.PrivKey
 	suite.chainB.SenderAccount = suite.chainB.App.AccountKeeper.GetAccount(suite.chainB.GetContext(), carol.Address)
 
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("10uband is smaller than 1000000uband: insufficient funds")
+	ack := channeltypes.NewErrorAcknowledgement("500000uband is smaller than 1000000uband: insufficient funds")
 	err := path.RelayPacket(packet, ack.Acknowledgement())
 	suite.Require().NoError(err) // relay committed
+
+	carolBalance := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), carol.Address)
+	suite.Require().Equal(carolExpectedBalance, carolBalance)
+}
+
+func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
+	path := suite.path
+	expectedBalance := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.SenderAccount.GetAddress())
+
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(0, 110)
+	oracleRequestPacket := types.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("beeb"),
+		1,
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	ack := channeltypes.NewErrorAcknowledgement("require: 3000000uband, max: 2000000uband: not enough fee")
+	err := path.RelayPacket(packet, ack.Acknowledgement())
+	suite.Require().NoError(err) // relay committed
+
+	suite.checkChainBSenderBalances(expectedBalance)
 }
 
 func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
