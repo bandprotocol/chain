@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- (bandd) Refactor QueryRequestVerification
 - (app) Upgrade SDK version to v0.43.0
 - (app) Use ibc-go package v1.0.0
 - (app) Limit block gas to 8000000
