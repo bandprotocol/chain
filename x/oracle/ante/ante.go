@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	repTxCount       *lru.Cache
+	firstBlockSeen   *lru.Cache
 	nextRepOnlyBlock int64
 )
 
 func init() {
 	var err error
-	repTxCount, err = lru.New(20000)
+	firstBlockSeen, err = lru.New(20000)
 	if err != nil {
 		panic(err)
 	}
@@ -36,15 +36,18 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, r *types.M
 	return oracleKeeper.CheckValidReport(ctx, r.RequestID, report)
 }
 
-func updateCache(val string, rid types.RequestID) (trigger bool) {
+func updateCache(val string, rid types.RequestID, block int64) (trigger bool) {
 	key := fmt.Sprintf("%s:%d", val, rid)
-	value, ok := repTxCount.Get(key)
-	nextVal := 1
+	value, ok := firstBlockSeen.Get(key)
+	// Check if we already seen this report
 	if ok {
-		nextVal = value.(int) + 1
+		start := value.(int64)
+		// If the report has been seen more than 20 then make the next block will be only reporter
+		return block-start > 20
+	} else {
+		firstBlockSeen.Add(key, block)
+		return false
 	}
-	repTxCount.Add(key, nextVal)
-	return nextVal > 20
 }
 
 // NewFeelessReportsAnteHandler returns a new ante handler that waives minimum gas price
@@ -62,7 +65,7 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keep
 						return ctx, err
 					}
 					if !isRepOnlyBlock {
-						if updateCache(dr.Validator, dr.RequestID) {
+						if updateCache(dr.Validator, dr.RequestID, ctx.BlockHeight()) {
 							nextRepOnlyBlock = ctx.BlockHeight() + 1
 						}
 					}
@@ -114,7 +117,7 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keep
 
 						// Update cache in case it's a valid report
 						if !isRepOnlyBlock {
-							if updateCache(r.Validator, r.RequestID) {
+							if updateCache(r.Validator, r.RequestID, ctx.BlockHeight()) {
 								nextRepOnlyBlock = ctx.BlockHeight() + 1
 							}
 						}
