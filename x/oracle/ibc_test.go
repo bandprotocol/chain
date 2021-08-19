@@ -140,7 +140,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		"got: 135, max: 128: too long client id",
 		"invalid prepare gas: 0: invalid owasm gas",
 		"invalid execute gas: 0: invalid owasm gas",
-		"sum of prepare gas and execute gas (40000000) exceed 20000000: invalid owasm gas",
+		"sum of prepare gas and execute gas (16000000) exceed 8000000: invalid owasm gas",
 		"-1uband: invalid coins",
 	}
 
