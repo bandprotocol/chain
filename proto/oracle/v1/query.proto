@@ -271,10 +271,7 @@ message QueryRequestVerificationRequest {
   uint64 external_id = 4;
   // Reporter is an bech32-encoded public key of the reporter authorized by the
   // validator
-  google.protobuf.Any reporter = 5 [
-    (cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey",
-    (gogoproto.moretags) = "yaml:\"reporter\""
-  ];
+  string reporter = 5;
   // Signature is a signature signed by the reporter using reporter's private
   // key
   bytes signature = 6;
