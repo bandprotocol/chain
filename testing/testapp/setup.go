@@ -133,7 +133,7 @@ func (app *TestingApp) GetTxConfig() client.TxConfig {
 }
 
 func init() {
-	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
+	bandapp.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)

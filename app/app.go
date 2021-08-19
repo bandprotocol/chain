@@ -210,8 +210,8 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".band")
 }
 
-// SetBech32AddressPrefixesAndBip44CoinType sets the global Bech32 prefixes and HD wallet coin type.
-func SetBech32AddressPrefixesAndBip44CoinType(config *sdk.Config) {
+// SetBech32AddressPrefixesAndBip44CoinTypeAndSeal sets the global Bech32 prefixes and HD wallet coin type and seal config.
+func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
 	accountPrefix := Bech32MainPrefix
 	validatorPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
 	consensusPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
