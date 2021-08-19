@@ -83,9 +83,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
-	cfg := sdk.GetConfig()
-	cfg.Seal()
-
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
