@@ -83,9 +83,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
-	cfg := sdk.GetConfig()
-	cfg.Seal()
-
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
@@ -229,8 +226,6 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	return bandApp
 }
 
-// appExport creates a new simapp (optionally at a given height)
-// and exports state.
 func (ac appCreator) appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions) (servertypes.ExportedApp, error) {
