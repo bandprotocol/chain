@@ -41,7 +41,7 @@ var (
 	valSize uint64 = 2
 )
 
-// TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI
+// TestChain is a testing struct that wraps a TestingApp with the last TM Header, the current ABCI
 // header and the validators of the TestChain. It also contains a field called ChainID. This
 // is the clientID that *other* chains use to refer to this TestChain. The SenderAccount
 // is used for delivering transactions through the application state.
@@ -148,16 +148,6 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 func (chain *TestChain) GetContext() sdk.Context {
 	return chain.App.GetBaseApp().NewContext(false, chain.CurrentHeader)
 }
-
-// // GetSimApp returns the SimApp to allow usage ofnon-interface fields.
-// // CONTRACT: This function should not be called by third parties implementing
-// // their own SimApp.
-// func (chain *TestChain) GetSimApp() *simapp.SimApp {
-// 	app, ok := chain.App.(*simapp.SimApp)
-// 	require.True(chain.t, ok)
-
-// 	return app
-// }
 
 // QueryProof performs an abci query with the given key and returns the proto encoded merkle proof
 // for the query and the height at which the proof will succeed on a tendermint verifier.
