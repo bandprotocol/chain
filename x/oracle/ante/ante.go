@@ -2,7 +2,6 @@ package ante
 
 import (
 	"fmt"
-	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -15,7 +14,6 @@ import (
 
 var (
 	repTxCount       *lru.Cache
-	mu               sync.Mutex
 	nextRepOnlyBlock int64
 )
 
@@ -40,8 +38,6 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, r *types.M
 
 func updateCache(val string, rid types.RequestID) (trigger bool) {
 	key := fmt.Sprintf("%s:%d", val, rid)
-	mu.Lock()
-	defer mu.Unlock()
 	value, ok := repTxCount.Get(key)
 	nextVal := 1
 	if ok {
