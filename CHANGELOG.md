@@ -10,7 +10,7 @@
 - (bandd) Support oracle script functions - GetPrepareTime() and GetExecuteTime() - for retrieving prepare and execute blocktime respectively.
 - (bandd) Refactor test
 
-## [v2.1.1](https://github.com/bandprotocol/chain/releases/tag/v2.1.1))
+## [v2.1.1](https://github.com/bandprotocol/chain/releases/tag/v2.1.1)
 
 - (bandd) Increase max block size for evidence size
 
