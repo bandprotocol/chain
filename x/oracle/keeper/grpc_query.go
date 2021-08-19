@@ -5,9 +5,9 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -270,11 +270,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse validator address: %s", err.Error()))
 	}
 
-	bz, err := hex.DecodeString(req.Reporter)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "unable to get reporter's public key")
+	// Provided signature should be valid, which means this query request should be signed by the provided reporter
+	pk, err := hex.DecodeString(req.Reporter)
+	if err != nil || len(pk) != secp256k1.PubKeySize {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
 	}
-	reporterPubKey := secp256k1.PubKey{Key: bz}
+	reporterPubKey := secp256k1.PubKey(pk[:])
 
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()

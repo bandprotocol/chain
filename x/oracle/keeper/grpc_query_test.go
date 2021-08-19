@@ -141,7 +141,7 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   "Non-hex",
+		Reporter:   "RANDOM STRING",
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
