@@ -46,7 +46,7 @@ service Msg {
 message MsgRequestData {
   option (gogoproto.equal) = true;
   // OracleScriptID is the identifier of the oracle script to be called.
-  int64 oracle_script_id = 1 [
+  uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -80,7 +80,7 @@ message MsgRequestDataResponse {}
 message MsgReportData {
   option (gogoproto.equal) = true;
   // RequestID is the identifier of the request to be reported to.
-  int64 request_id = 1 [
+  uint64 request_id = 1 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
@@ -130,7 +130,7 @@ message MsgCreateDataSourceResponse {}
 message MsgEditDataSource {
   option (gogoproto.equal) = true;
   // DataSourceID is the unique identifier of the data source to be edited.
-  int64 data_source_id = 1 [
+  uint64 data_source_id = 1 [
     (gogoproto.customname) = "DataSourceID",
     (gogoproto.casttype) = "DataSourceID"
   ];
@@ -190,7 +190,7 @@ message MsgCreateOracleScriptResponse {}
 message MsgEditOracleScript {
   option (gogoproto.equal) = true;
   // OracleScriptID is the unique identifier of the oracle script to be edited.
-  int64 oracle_script_id = 1 [
+  uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];

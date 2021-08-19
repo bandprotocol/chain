@@ -1,13 +1,13 @@
 package types
 
 // DataSourceID is the type-safe unique identifier type for data sources.
-type DataSourceID int64
+type DataSourceID uint64
 
 // OracleScriptID is the type-safe unique identifier type for oracle scripts.
-type OracleScriptID int64
+type OracleScriptID uint64
 
 // RequestID is the type-safe unique identifier type for data requests.
-type RequestID int64
+type RequestID uint64
 
 // ExternalID is the type-safe unique identifier type for raw data requests.
-type ExternalID int64
+type ExternalID uint64

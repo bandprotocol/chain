@@ -1,23 +1,23 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
@@ -44,24 +44,36 @@ const (
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	encodingConfig := band.MakeEncodingConfig()
 	initClientCtx := client.Context{}.
-		WithJSONMarshaler(encodingConfig.Marshaler).
+		WithCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(band.DefaultNodeHome)
+		WithHomeDir(band.DefaultNodeHome).
+		WithViper("BAND")
 
 	rootCmd := &cobra.Command{
 		Use:   "bandd",
-		Short: "Band Consumer App",
+		Short: "BandChain App",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			// set the default command outputs
+			cmd.SetOut(cmd.OutOrStdout())
+			cmd.SetErr(cmd.ErrOrStderr())
+
+			initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
+
+			initClientCtx, err := config.ReadFromClientConfig(initClientCtx)
+			if err != nil {
+				return err
+			}
+
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd)
+			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
 		},
 	}
 
@@ -71,12 +83,10 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 }
 
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
-	authclient.Codec = encodingConfig.Marshaler
-
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
-		MigrateGenesisCmd(),
+		band.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(band.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
 		AddGenesisAccountCmd(band.DefaultNodeHome),
@@ -85,9 +95,13 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
+		config.Cmd(),
 	)
 
-	server.AddCommands(rootCmd, band.DefaultNodeHome, newApp, createSimappAndExport, addModuleInitFlags)
+	ac := appCreator{
+		encCfg: encodingConfig,
+	}
+	server.AddCommands(rootCmd, band.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
@@ -156,8 +170,12 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
+type appCreator struct {
+	encCfg params.EncodingConfig
+}
+
 // newApp is an AppCreator
-func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
+func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
 	var cache sdk.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
@@ -188,7 +206,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		band.MakeEncodingConfig(), // Ideally, we would reuse the one created by NewRootCmd.
+		ac.encCfg,
 		appOpts,
 		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
@@ -208,22 +226,39 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts serverty
 	return bandApp
 }
 
-func createSimappAndExport(
+func (ac appCreator) appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions) (servertypes.ExportedApp, error) {
 
-	encCfg := band.MakeEncodingConfig() // Ideally, we would reuse the one created by NewRootCmd.
-	encCfg.Marshaler = codec.NewProtoCodec(encCfg.InterfaceRegistry)
-	var bandConsumerApp *band.BandApp
-	if height != -1 {
-		bandConsumerApp = band.NewBandApp(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)))
-
-		if err := bandConsumerApp.LoadHeight(height); err != nil {
-			return servertypes.ExportedApp{}, err
-		}
-	} else {
-		bandConsumerApp = band.NewBandApp(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), encCfg, appOpts, false, cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)))
+	homePath, ok := appOpts.Get(flags.FlagHome).(string)
+	if !ok || homePath == "" {
+		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
 
-	return bandConsumerApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+	var loadLatest bool
+	if height == -1 {
+		loadLatest = true
+	}
+
+	bandApp := band.NewBandApp(
+		logger,
+		db,
+		traceStore,
+		loadLatest,
+		map[int64]bool{},
+		homePath,
+		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
+		ac.encCfg,
+		appOpts,
+		false,
+		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+	)
+
+	if height != -1 {
+		if err := bandApp.LoadHeight(height); err != nil {
+			return servertypes.ExportedApp{}, err
+		}
+	}
+
+	return bandApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
 }

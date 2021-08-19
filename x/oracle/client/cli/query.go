@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"strconv"
 
@@ -33,8 +32,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdReporters(),
 		GetQueryActiveValidators(),
 		GetQueryPendingRequests(),
-		GetQueryRequestVerification(),
-		GetQueryRequestPool(),
+		// GetQueryRequestVerification(),
 	)
 	return oracleCmd
 }
@@ -100,7 +98,7 @@ func GetQueryCmdDataSource() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -129,7 +127,7 @@ func GetQueryCmdOracleScript() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -159,7 +157,7 @@ func GetQueryCmdRequest() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -293,79 +291,47 @@ func GetQueryPendingRequests() *cobra.Command {
 }
 
 // GetQueryRequestVerification implements the query request verification command.
-func GetQueryRequestVerification() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-pubkey] [reporter-signature-hex]",
-		Short: "Verify validity of pending oracle requests",
-		Args:  cobra.ExactArgs(6),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			requestID, err := strconv.ParseInt(args[2], 10, 64)
-			if err != nil {
-				return fmt.Errorf("unable to parse request ID: %w", err)
-			}
-			externalID, err := strconv.ParseInt(args[3], 10, 64)
-			if err != nil {
-				return fmt.Errorf("unable to parse external ID: %w", err)
-			}
+// func GetQueryRequestVerification() *cobra.Command {
+// 	cmd := &cobra.Command{
+// 		Use:   "verify-request [chain-id] [validator-addr] [request-id] [data-source-external-id] [reporter-pubkey] [reporter-signature-hex]",
+// 		Short: "Verify validity of pending oracle requests",
+// 		Args:  cobra.ExactArgs(6),
+// 		RunE: func(cmd *cobra.Command, args []string) error {
+// 			clientCtx, err := client.GetClientQueryContext(cmd)
+// 			if err != nil {
+// 				return err
+// 			}
+// 			queryClient := types.NewQueryClient(clientCtx)
+// 			requestID, err := strconv.ParseUint(args[2], 10, 64)
+// 			if err != nil {
+// 				return fmt.Errorf("unable to parse request ID: %w", err)
+// 			}
+// 			externalID, err := strconv.ParseUint(args[3], 10, 64)
+// 			if err != nil {
+// 				return fmt.Errorf("unable to parse external ID: %w", err)
+// 			}
 
-			signature, err := hex.DecodeString(args[5])
-			if err != nil {
-				return fmt.Errorf("unable to parse signature: %w", err)
-			}
+// 			signature, err := hex.DecodeString(args[5])
+// 			if err != nil {
+// 				return fmt.Errorf("unable to parse signature: %w", err)
+// 			}
 
-			r, err := queryClient.RequestVerification(context.Background(), &types.QueryRequestVerificationRequest{
-				ChainId:    args[0],
-				Validator:  args[1],
-				RequestId:  requestID,
-				ExternalId: externalID,
-				Reporter:   args[4],
-				Signature:  signature,
-			})
-			if err != nil {
-				return err
-			}
+// 			r, err := queryClient.RequestVerification(context.Background(), &types.QueryRequestVerificationRequest{
+// 				ChainId:    args[0],
+// 				Validator:  args[1],
+// 				RequestId:  requestID,
+// 				ExternalId: externalID,
+// 				Reporter:   args[4],
+// 				Signature:  signature,
+// 			})
+// 			if err != nil {
+// 				return err
+// 			}
 
-			return clientCtx.PrintProto(r)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
+// 			return clientCtx.PrintProto(r)
+// 		},
+// 	}
+// 	flags.AddQueryFlagsToCmd(cmd)
 
-	return cmd
-}
-
-// GetQueryRequestPool implements the query request pool command.
-func GetQueryRequestPool() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "request-pool [request-key] [port-id] [channel-id]",
-		Short: "Get account information of request pool",
-		Args:  cobra.ExactArgs(3),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.RequestPool(
-				context.Background(),
-				&types.QueryRequestPoolRequest{
-					RequestKey: args[0],
-					PortId:     args[1],
-					ChannelId:  args[2],
-				},
-			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(r)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
+// 	return cmd
+// }

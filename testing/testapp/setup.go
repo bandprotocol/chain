@@ -17,15 +17,17 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/simapp/helpers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authsign "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -84,8 +86,7 @@ const (
 	TestDefaultExecuteGas uint64 = 300000
 )
 
-// DefaultConsensusParams defines the default Tendermint consensus params used in
-// SimApp testing.
+// DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
@@ -132,7 +133,7 @@ func (app *TestingApp) GetTxConfig() client.TxConfig {
 }
 
 func init() {
-	bandapp.SetBech32AddressPrefixesAndBip44CoinType(sdk.GetConfig())
+	bandapp.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
@@ -307,6 +308,12 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
 	}
 
+	// add bonded amount to bonded pool module account
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin("uband", sdk.NewInt(200999999))},
+	})
+
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
 	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
@@ -316,7 +323,9 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 	stateBytes, err := json.MarshalIndent(genesis, "", " ")
-
+	if err != nil {
+		panic(err)
+	}
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
 		ChainId:       chainID,
@@ -354,10 +363,10 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	return app, bandapp.GenesisState{}, dir
 }
 
-// SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new TestingApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit (10^6) in the default token of the simapp from first genesis
-// account. A Nop logger is set in SimApp.
+// of one consensus engine unit (10^6) in the default token of the BandChain from first genesis
+// account. A Nop logger is set in TestingApp.
 func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *TestingApp {
 	app, genesisState, dir := setup(true, 5)
 	// set genesis accounts
@@ -393,14 +402,22 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	}
 
 	// set validators and delegations
-	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)
+	ps := stakingtypes.DefaultParams()
+	ps.BondDenom = "uband"
+	stakingGenesis := stakingtypes.NewGenesisState(ps, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(sdk.DefaultBondDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin("uband", bondAmt))...)
 	}
+
+	// add bonded amount to bonded pool module account
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin("uband", bondAmt.Mul(sdk.NewInt(2)))},
+	})
 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
@@ -436,11 +453,70 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	return app
 }
 
-// SimAppChainID hardcoded chainID for simulation
 const (
 	DefaultGenTxGas = 1000000
-	SimAppChainID   = "simulation-app"
 )
+
+// GenTx generates a signed mock transaction.
+func GenTx(gen client.TxConfig, msgs []sdk.Msg, feeAmt sdk.Coins, gas uint64, chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey) (sdk.Tx, error) {
+	sigs := make([]signing.SignatureV2, len(priv))
+
+	// create a random length memo
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	memo := simulation.RandStringOfLength(r, simulation.RandIntBetween(r, 0, 100))
+
+	signMode := gen.SignModeHandler().DefaultMode()
+
+	// 1st round: set SignatureV2 with empty signatures, to set correct
+	// signer infos.
+	for i, p := range priv {
+		sigs[i] = signing.SignatureV2{
+			PubKey: p.PubKey(),
+			Data: &signing.SingleSignatureData{
+				SignMode: signMode,
+			},
+			Sequence: accSeqs[i],
+		}
+	}
+
+	tx := gen.NewTxBuilder()
+	err := tx.SetMsgs(msgs...)
+	if err != nil {
+		return nil, err
+	}
+	err = tx.SetSignatures(sigs...)
+	if err != nil {
+		return nil, err
+	}
+	tx.SetMemo(memo)
+	tx.SetFeeAmount(feeAmt)
+	tx.SetGasLimit(gas)
+
+	// 2nd round: once all signer infos are set, every signer can sign.
+	for i, p := range priv {
+		signerData := authsign.SignerData{
+			ChainID:       chainID,
+			AccountNumber: accNums[i],
+			Sequence:      accSeqs[i],
+		}
+		signBytes, err := gen.SignModeHandler().GetSignBytes(signMode, signerData, tx.GetTx())
+		if err != nil {
+			panic(err)
+		}
+		sig, err := p.Sign(signBytes)
+		if err != nil {
+			panic(err)
+		}
+		sigs[i].Data.(*signing.SingleSignatureData).Signature = sig
+		err = tx.SetSignatures(sigs...)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return tx.GetTx(), nil
+}
 
 // SignAndDeliver signs and delivers a transaction. No simulation occurs as the
 // ibc testing package causes checkState and deliverState to diverge in block time.
@@ -449,11 +525,11 @@ func SignAndDeliver(
 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
 
-	tx, err := helpers.GenTx(
+	tx, err := GenTx(
 		txCfg,
 		msgs,
 		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
-		helpers.DefaultGenTxGas,
+		DefaultGenTxGas,
 		chainID,
 		accNums,
 		accSeqs,

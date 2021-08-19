@@ -78,7 +78,7 @@ func GetMutiProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			}
 
 			var rs types.Result
-			types.ModuleCdc.MustUnmarshalBinaryBare(value, &rs)
+			types.ModuleCdc.MustUnmarshal(value, &rs)
 
 			oracleData := OracleDataProof{
 				Result:      rs,

@@ -4,9 +4,11 @@ package oracle.v1;
 option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -87,13 +89,6 @@ service Query {
       returns (QueryRequestVerificationResponse) {
     option (google.api.http).get = "/oracle/v1/verify_request";
   }
-
-  // RequestPool queries the request pool information corresponding to the given
-  // port, channel, and request key.
-  rpc RequestPool(QueryRequestPoolRequest) returns (QueryRequestPoolResponse) {
-    option (google.api.http).get =
-        "/oracle/v1/request_pool/{request_key}/{port_id}/{channel_id}";
-  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -102,11 +97,11 @@ message QueryCountsRequest {}
 // QueryCountsResponse is response type for the Query/Count RPC method.
 message QueryCountsResponse {
   // DataSourceCount is total number of data sources available on the chain
-  int64 data_source_count = 1;
+  uint64 data_source_count = 1;
   // OracleScriptCount is total number of oracle scripts available on the chain
-  int64 oracle_script_count = 2;
+  uint64 oracle_script_count = 2;
   // RequestCount is total number of requests submitted to the chain
-  int64 request_count = 3;
+  uint64 request_count = 3;
 }
 
 // QueryDataRequest is request type for the Query/Data RPC method.
@@ -125,7 +120,7 @@ message QueryDataResponse {
 // QueryDataSourceRequest is request type for the Query/DataSource RPC method.
 message QueryDataSourceRequest {
   // DataSourceID is ID of a data source script
-  int64 data_source_id = 1;
+  uint64 data_source_id = 1;
 }
 
 // QueryDataSourceResponse is response type for the Query/DataSource RPC method.
@@ -138,7 +133,7 @@ message QueryDataSourceResponse {
 // method.
 message QueryOracleScriptRequest {
   // OracleScriptID is ID of an oracle script
-  int64 oracle_script_id = 1;
+  uint64 oracle_script_id = 1;
 }
 
 // QueryOracleScriptResponse is response type for the Query/OracleScript RPC
@@ -151,7 +146,7 @@ message QueryOracleScriptResponse {
 // QueryRequestRequest is request type for the Query/Request RPC method.
 message QueryRequestRequest {
   // RequestID is ID of an oracle request
-  int64 request_id = 1;
+  uint64 request_id = 1;
 }
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
@@ -176,7 +171,7 @@ message QueryPendingRequestsRequest {
 // RPC method.
 message QueryPendingRequestsResponse {
   // RequestIDs is a list of pending request IDs assigned to the given validator
-  repeated int64 request_ids = 1 [ (gogoproto.customname) = "RequestIDs" ];
+  repeated uint64 request_ids = 1 [ (gogoproto.customname) = "RequestIDs" ];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -227,7 +222,7 @@ message QueryActiveValidatorsResponse {
 // method.
 message QueryRequestSearchRequest {
   // OracleScriptID is ID of an oracle script
-  int64 oracle_script_id = 1;
+  uint64 oracle_script_id = 1;
   // Calldata is OBI-encoded data in hex format as argument params for the
   // oracle script
   string calldata = 2;
@@ -250,9 +245,9 @@ message QueryRequestPriceRequest {
   // Symbol is unit of data indicating what the data is
   repeated string symbols = 1;
   // AskCount is number of validators allowed for fulfilling the request
-  int64 ask_count = 2;
+  uint64 ask_count = 2;
   // MinCount is number of validators required for fulfilling the request
-  int64 min_count = 3;
+  uint64 min_count = 3;
 }
 
 // QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
@@ -271,12 +266,15 @@ message QueryRequestVerificationRequest {
   // Validator is a validator address
   string validator = 2;
   // RequestID is oracle request ID
-  int64 request_id = 3;
+  uint64 request_id = 3;
   // ExternalID is an oracle's external ID
-  int64 external_id = 4;
+  uint64 external_id = 4;
   // Reporter is an bech32-encoded public key of the reporter authorized by the
   // validator
-  string reporter = 5;
+  google.protobuf.Any reporter = 5 [
+    (cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey",
+    (gogoproto.moretags) = "yaml:\"reporter\""
+  ];
   // Signature is a signature signed by the reporter using reporter's private
   // key
   bytes signature = 6;
@@ -290,31 +288,10 @@ message QueryRequestVerificationResponse {
   // Validator is the targeted validator address
   string validator = 2;
   // RequestID is the ID of targeted request
-  int64 request_id = 3;
+  uint64 request_id = 3;
   // ExternalID is the ID of targeted oracle's external data source
-  int64 external_id = 4;
+  uint64 external_id = 4;
   // DataSourceID is the ID of a data source that relates to the targeted
   // external ID
-  int64 data_source_id = 5;
-}
-
-// QueryRequestPoolRequest is request type for the Query/RequestPool RPC method.
-message QueryRequestPoolRequest {
-  // RequestKey is a user-generated key for each request pool
-  string request_key = 1;
-  // PortID is the corresponding port to the request pool
-  string port_id = 2;
-  // ChannelID is the corresponding channel to the request pool
-  string channel_id = 3;
-}
-
-// QueryRequestPoolResponse is response type for the Query/RequestPool RPC
-// method.
-message QueryRequestPoolResponse {
-  // RequestPoolAddress is an address of a request pool
-  string request_pool_address = 1;
-  repeated cosmos.base.v1beta1.Coin balance = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  uint64 data_source_id = 5;
 }
