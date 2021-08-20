@@ -191,7 +191,7 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 				return err
 			}
 
-			oracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
+			oracleScriptID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse oracle script ID: %w", err)
 			}
@@ -392,11 +392,11 @@ func GetQueryRequestPrice() *cobra.Command {
 		Args:    cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			symbols := strings.Split(args[0], ",")
-			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			askCount, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse ask count: %w", err)
 			}
-			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			minCount, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse min count: %w", err)
 			}

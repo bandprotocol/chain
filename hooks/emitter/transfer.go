@@ -2,8 +2,8 @@ package emitter
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	"github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 )

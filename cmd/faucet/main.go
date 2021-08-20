@@ -49,8 +49,7 @@ func initConfig(cmd *cobra.Command) error {
 
 func main() {
 	appConfig := sdk.GetConfig()
-	band.SetBech32AddressPrefixesAndBip44CoinType(appConfig)
-	appConfig.Seal()
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
 
 	ctx := &Context{}
 	rootCmd := &cobra.Command{

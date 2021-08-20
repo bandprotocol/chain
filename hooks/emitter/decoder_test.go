@@ -12,13 +12,13 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/modules/light-clients/07-tendermint/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -186,7 +186,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 	consensus := suite.chainA.CurrentTMClientHeader().ConsensusState()
 	b64RootHash := b64.StdEncoding.EncodeToString(consensus.Root.Hash)
 	tendermintClient := ibctmtypes.NewClientState(suite.chainA.ChainID, ibctesting.DefaultTrustLevel, ibctesting.TrustingPeriod, ibctesting.UnbondingPeriod, ibctesting.MaxClockDrift, clientHeight, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, false, false)
-	msg, _ := clienttypes.NewMsgCreateClient(tendermintClient, consensus, SenderAddress)
+	msg, _ := clienttypes.NewMsgCreateClient(tendermintClient, consensus, SenderAddress.String())
 	decodeMsgCreateClient(msg, detail)
 	suite.testCompareJson(detail,
 		fmt.Sprintf(
@@ -277,7 +277,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgBeginRedelegate() {
 }
 func (suite *DecoderTestSuite) TestDecodeMsgUpdateClient() {
 	detail := make(common.JsDict)
-	msg, _ := clienttypes.NewMsgUpdateClient("tendermint", suite.chainA.CurrentTMClientHeader(), SenderAddress)
+	msg, _ := clienttypes.NewMsgUpdateClient("tendermint", suite.chainA.CurrentTMClientHeader(), SenderAddress.String())
 	decodeMsgUpdateClient(msg, detail)
 	suite.testContains(
 		detail,
@@ -307,7 +307,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
 	proofUpgradedConsState, _ := suite.chainB.QueryUpgradeProof(upgradetypes.UpgradedConsStateKey(int64(lastHeight.GetRevisionHeight())), cs.GetLatestHeight().GetRevisionHeight())
 
 	msg, err := clienttypes.NewMsgUpgradeClient(path.EndpointA.ClientID, upgradedClient, upgradedConsState,
-		proofUpgradeClient, proofUpgradedConsState, suite.chainA.SenderAccount.GetAddress())
+		proofUpgradeClient, proofUpgradedConsState, suite.chainA.SenderAccount.GetAddress().String())
 	suite.Require().NoError(err)
 
 	decodeMsgUpgradeClient(msg, detail)
@@ -328,7 +328,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitMisbehaviour() {
 	header2 := suite.chainA.CreateTMClientHeader(suite.chainA.ChainID, int64(height.RevisionHeight), heightMinus1, suite.chainA.CurrentHeader.Time.Add(time.Minute), suite.chainA.Vals, suite.chainA.Vals, suite.chainA.Signers)
 
 	misbehaviour := ibctmtypes.NewMisbehaviour("tendermint", header1, header2)
-	msg, err := clienttypes.NewMsgSubmitMisbehaviour("tendermint", misbehaviour, suite.chainA.SenderAccount.GetAddress())
+	msg, err := clienttypes.NewMsgSubmitMisbehaviour("tendermint", misbehaviour, suite.chainA.SenderAccount.GetAddress().String())
 	suite.Require().NoError(err)
 
 	decodeMsgSubmitMisbehaviour(msg, detail)
@@ -344,7 +344,7 @@ func (suite *DecoderTestSuite) TestDecodedecodeMsgConnectionOpenInit() {
 	detail := make(common.JsDict)
 	path := NewOraclePath(suite.chainA, suite.chainB)
 	prefix := commitmenttypes.NewMerklePrefix([]byte("storePrefixKey"))
-	msg := connectiontypes.NewMsgConnectionOpenInit(path.EndpointA.ConnectionID, path.EndpointB.ClientID, prefix, ibctesting.ConnectionVersion, ibctesting.DefaultDelayPeriod, SignerAddress)
+	msg := connectiontypes.NewMsgConnectionOpenInit(path.EndpointA.ConnectionID, path.EndpointB.ClientID, prefix, ibctesting.ConnectionVersion, ibctesting.DefaultDelayPeriod, SignerAddress.String())
 	decodeMsgConnectionOpenInit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -360,7 +360,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 	clientState := ibctmtypes.NewClientState(
 		suite.chainA.ChainID, ibctmtypes.DefaultTrustLevel, ibctesting.TrustingPeriod, ibctesting.UnbondingPeriod, ibctesting.MaxClockDrift, clientHeight, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, false, false,
 	)
-	msg := connectiontypes.NewMsgConnectionOpenTry(path.EndpointA.ConnectionID, path.EndpointA.ClientID, path.EndpointB.ConnectionID, path.EndpointB.ClientID, clientState, prefix, []*connectiontypes.Version{ibctesting.ConnectionVersion}, 500, []byte{}, []byte{}, []byte{}, clientHeight, clientHeight, SignerAddress)
+	msg := connectiontypes.NewMsgConnectionOpenTry(path.EndpointA.ConnectionID, path.EndpointA.ClientID, path.EndpointB.ConnectionID, path.EndpointB.ClientID, clientState, prefix, []*connectiontypes.Version{ibctesting.ConnectionVersion}, 500, []byte{}, []byte{}, []byte{}, clientHeight, clientHeight, SignerAddress.String())
 	decodeMsgConnectionOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -375,7 +375,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 		suite.chainA.ChainID, ibctmtypes.DefaultTrustLevel, ibctesting.TrustingPeriod, ibctesting.UnbondingPeriod, ibctesting.MaxClockDrift, clientHeight, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, false, false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenAck(
-		path.EndpointA.ConnectionID, path.EndpointB.ConnectionID, clientState, []byte{}, []byte{}, []byte{}, clientHeight, clientHeight, ibctesting.ConnectionVersion, SignerAddress,
+		path.EndpointA.ConnectionID, path.EndpointB.ConnectionID, clientState, []byte{}, []byte{}, []byte{}, clientHeight, clientHeight, ibctesting.ConnectionVersion, SignerAddress.String(),
 	)
 	decodeMsgConnectionOpenAck(msg, detail)
 	suite.testCompareJson(
@@ -387,7 +387,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenConfirm() {
 	detail := make(common.JsDict)
 	path := NewOraclePath(suite.chainA, suite.chainB)
-	msg := connectiontypes.NewMsgConnectionOpenConfirm(path.EndpointA.ConnectionID, []byte{}, clientHeight, SignerAddress)
+	msg := connectiontypes.NewMsgConnectionOpenConfirm(path.EndpointA.ConnectionID, []byte{}, clientHeight, SignerAddress.String())
 	decodeMsgConnectionOpenConfirm(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -399,7 +399,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenInit() {
 	detail := make(common.JsDict)
 	path := NewOraclePath(suite.chainA, suite.chainB)
 	suite.coordinator.Setup(path)
-	msg := channeltypes.NewMsgChannelOpenInit(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelConfig.Version, channeltypes.ORDERED, path.EndpointA.GetChannel().ConnectionHops, path.EndpointA.Counterparty.ChannelConfig.PortID, SignerAddress)
+	msg := channeltypes.NewMsgChannelOpenInit(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelConfig.Version, channeltypes.ORDERED, path.EndpointA.GetChannel().ConnectionHops, path.EndpointA.Counterparty.ChannelConfig.PortID, SignerAddress.String())
 	decodeMsgChannelOpenInit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -422,7 +422,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenTry() {
 		path.EndpointA.Counterparty.ChannelConfig.Version,
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgChannelOpenTry(msg, detail)
 	suite.testCompareJson(
@@ -442,7 +442,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenAck() {
 		"cpv",
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgChannelOpenAck(msg, detail)
 	suite.testCompareJson(
@@ -460,7 +460,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenConfirm() {
 		path.EndpointA.ChannelID,
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgChannelOpenConfirm(msg, detail)
 	suite.testCompareJson(
@@ -476,7 +476,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelCloseInit() {
 	msg := channeltypes.NewMsgChannelCloseInit(
 		path.EndpointA.ChannelConfig.PortID,
 		path.EndpointA.ChannelID,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgChannelCloseInit(msg, detail)
 	suite.testCompareJson(
@@ -494,7 +494,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelCloseConfirm() {
 		path.EndpointA.ChannelID,
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgChannelCloseConfirm(msg, detail)
 	suite.testCompareJson(
@@ -514,7 +514,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRecvPacket() {
 		path.EndpointA.ChannelID,
 		path.EndpointB.ChannelConfig.PortID,
 		path.EndpointB.ChannelID, clientHeight, 0)
-	msg := channeltypes.NewMsgRecvPacket(packet, []byte{}, clientHeight, SignerAddress)
+	msg := channeltypes.NewMsgRecvPacket(packet, []byte{}, clientHeight, SignerAddress.String())
 	decodeMsgRecvPacket(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -538,7 +538,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgAcknowledgement() {
 		[]byte{},
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgAcknowledgement(msg, detail)
 	suite.testCompareJson(
@@ -563,7 +563,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeout() {
 		1,
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgTimeout(msg, detail)
 	suite.testCompareJson(
@@ -590,7 +590,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 		[]byte{},
 		[]byte{},
 		clientHeight,
-		SignerAddress,
+		SignerAddress.String(),
 	)
 	decodeMsgTimeoutOnClose(msg, detail)
 	suite.testCompareJson(

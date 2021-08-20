@@ -1,14 +1,16 @@
 package emitter
 
 import (
+	"encoding/hex"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -195,14 +197,14 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 
 func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
 	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
-	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
+	hexConsPubKey := hex.EncodeToString(pk.Bytes())
 
 	detail["description"] = msg.Description
 	detail["commission_rates"] = msg.Commission.Rate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
-	detail["pubkey"] = bechConsPubKey
+	detail["pubkey"] = hexConsPubKey
 	detail["value"] = msg.Value
 }
 

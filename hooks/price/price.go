@@ -19,7 +19,7 @@ import (
 
 // Hook uses levelDB to store the latest price of standard price reference.
 type Hook struct {
-	cdc          codec.Marshaler
+	cdc          codec.Codec
 	stdOs        map[types.OracleScriptID]bool
 	oracleKeeper keeper.Keeper
 	db           *leveldb.DB
@@ -28,7 +28,7 @@ type Hook struct {
 var _ band.Hook = &Hook{}
 
 // NewHook creates a price hook instance that will be added in Band App.
-func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string) *Hook {
+func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string) *Hook {
 	stdOs := make(map[types.OracleScriptID]bool)
 	for _, oid := range oids {
 		stdOs[oid] = true
@@ -83,7 +83,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 							ResolveTime: result.ResolveTime,
 						}
 						err := h.db.Put([]byte(fmt.Sprintf("%d,%d,%s", result.AskCount, result.MinCount, symbol)),
-							h.cdc.MustMarshalBinaryBare(&price), nil)
+							h.cdc.MustMarshal(&price), nil)
 						if err != nil {
 							panic(err)
 						}
@@ -99,7 +99,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 	switch req.Path {
 	case "/oracle.v1.Query/RequestPrice":
 		var request types.QueryRequestPriceRequest
-		if err := h.cdc.UnmarshalBinaryBare(req.Data, &request); err != nil {
+		if err := h.cdc.Unmarshal(req.Data, &request); err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request of RequestPrice query: %s", err)), true
 		}
 
@@ -127,11 +127,11 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 				), true
 			}
 
-			h.cdc.MustUnmarshalBinaryBare(bz, &priceResult)
+			h.cdc.MustUnmarshal(bz, &priceResult)
 			response.PriceResults = append(response.PriceResults, &priceResult)
 		}
 
-		bz := h.cdc.MustMarshalBinaryBare(&response)
+		bz := h.cdc.MustMarshal(&response)
 
 		return common.QueryResultSuccess(bz, req.Height), true
 	default:

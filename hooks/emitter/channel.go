@@ -3,9 +3,9 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcxfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -96,7 +96,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":          data.PrepareGas,
 				"execute_gas":          data.ExecuteGas,
 				"fee_limit":            data.FeeLimit.String(),
-				"request_key":          data.RequestKey,
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"success":    true,
@@ -114,7 +113,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":      data.PrepareGas,
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
-				"request_key":      data.RequestKey,
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"success": false,

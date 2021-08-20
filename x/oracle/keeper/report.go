@@ -18,7 +18,7 @@ func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 		return types.Report{}, sdkerrors.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
 	}
 	var report types.Report
-	k.cdc.MustUnmarshalBinaryBare(bz, &report)
+	k.cdc.MustUnmarshal(bz, &report)
 	return report, nil
 }
 

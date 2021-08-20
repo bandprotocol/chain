@@ -34,7 +34,7 @@ import (
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
 type Hook struct {
-	cdc            codec.Marshaler
+	cdc            codec.Codec
 	legecyAmino    *codec.LegacyAmino
 	encodingConfig params.EncodingConfig
 	// Main Kafka writer instance.
@@ -56,7 +56,7 @@ type Hook struct {
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
-	cdc codec.Marshaler, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
+	cdc codec.Codec, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
 	oracleKeeper keeper.Keeper, kafkaURI string, emitStartState bool,
 ) *Hook {
@@ -272,13 +272,18 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, validator.GetOperator())
 		}
 	}
+	totalSupply := make([]string, 0)
+	h.bankKeeper.IterateTotalSupply(ctx, func(coin sdk.Coin) bool {
+		totalSupply = append(totalSupply, coin.String())
+		return true
+	})
 	h.Write("NEW_BLOCK", common.JsDict{
 		"height":    req.Header.GetHeight(),
 		"timestamp": ctx.BlockTime().UnixNano(),
 		"proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
 		"hash":      req.GetHash(),
 		"inflation": h.mintKeeper.GetMinter(ctx).Inflation.String(),
-		"supply":    h.bankKeeper.GetSupply(ctx).GetTotal().String(),
+		"supply":    totalSupply,
 	})
 	for _, event := range res.Events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
@@ -333,7 +338,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		}
 		messages = append(messages, common.JsDict{
 			"msg":  detail,
-			"type": msg.Type(),
+			"type": sdk.MsgTypeURL(msg),
 		})
 	}
 	signers := tx.GetMsgs()[0].GetSigners()
