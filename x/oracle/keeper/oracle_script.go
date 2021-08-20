@@ -21,7 +21,7 @@ func (k Keeper) GetOracleScript(ctx sdk.Context, id types.OracleScriptID) (types
 		return types.OracleScript{}, sdkerrors.Wrapf(types.ErrOracleScriptNotFound, "id: %d", id)
 	}
 	var oracleScript types.OracleScript
-	k.cdc.MustUnmarshalBinaryBare(bz, &oracleScript)
+	k.cdc.MustUnmarshal(bz, &oracleScript)
 	return oracleScript, nil
 }
 
@@ -37,7 +37,7 @@ func (k Keeper) MustGetOracleScript(ctx sdk.Context, id types.OracleScriptID) ty
 // SetOracleScript saves the given oracle script to the storage without performing validation.
 func (k Keeper) SetOracleScript(ctx sdk.Context, id types.OracleScriptID, oracleScript types.OracleScript) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.OracleScriptStoreKey(id), k.cdc.MustMarshalBinaryBare(&oracleScript))
+	store.Set(types.OracleScriptStoreKey(id), k.cdc.MustMarshal(&oracleScript))
 }
 
 // AddOracleScript adds the given oracle script to the storage.
@@ -66,7 +66,7 @@ func (k Keeper) GetAllOracleScripts(ctx sdk.Context) (oracleScripts []types.Orac
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var oracleScript types.OracleScript
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &oracleScript)
+		k.cdc.MustUnmarshal(iterator.Value(), &oracleScript)
 		oracleScripts = append(oracleScripts, oracleScript)
 	}
 	return oracleScripts

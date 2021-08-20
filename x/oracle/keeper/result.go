@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -25,7 +25,7 @@ func (k Keeper) HasResult(ctx sdk.Context, id types.RequestID) bool {
 
 // SetResult sets result to the store.
 func (k Keeper) SetResult(ctx sdk.Context, reqID types.RequestID, result types.Result) {
-	ctx.KVStore(k.storeKey).Set(types.ResultStoreKey(reqID), k.cdc.MustMarshalBinaryBare(&result))
+	ctx.KVStore(k.storeKey).Set(types.ResultStoreKey(reqID), k.cdc.MustMarshal(&result))
 }
 
 // GetResult returns the result for the given request ID or error if not exists.
@@ -35,7 +35,7 @@ func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, er
 		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
 	}
 	var result types.Result
-	k.cdc.MustUnmarshalBinaryBare(bz, &result)
+	k.cdc.MustUnmarshal(bz, &result)
 	return result, nil
 }
 

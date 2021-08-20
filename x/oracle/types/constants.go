@@ -7,7 +7,6 @@ const (
 	MaxNameLength        = 128
 	MaxDescriptionLength = 4096
 	MaxClientIDLength    = 128
-	MaxRequestKeyLength  = 128
 	MaxSchemaLength      = 512
 	MaxURLLength         = 128
 
@@ -15,7 +14,7 @@ const (
 	MaxWasmCodeSize         = 512 * 1024      // 512kB
 	MaxCompiledWasmCodeSize = 1 * 1024 * 1024 // 1MB
 
-	MaximumOwasmGas = 20000000 // The half of block gas limit
+	MaximumOwasmGas = 8000000 // The same as block gas limit
 )
 
 // nolint

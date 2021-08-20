@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -67,7 +68,7 @@ func (suite *RequestVerificationTestSuite) TestSuccess() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -101,7 +102,7 @@ func (suite *RequestVerificationTestSuite) TestFailedChainIDNotMatch() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -121,7 +122,7 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidValidatorAddr() {
 		Validator:  "someRandomString",
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -141,7 +142,7 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   "someRandomString",
+		Reporter:   "RANDOM STRING",
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -161,7 +162,7 @@ func (suite *RequestVerificationTestSuite) TestFailedEmptySignature() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	res, err := suite.querier.RequestVerification(sdk.WrapSDKContext(suite.ctx), req)
@@ -179,7 +180,7 @@ func (suite *RequestVerificationTestSuite) TestFailedReporterUnauthorized() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -202,7 +203,7 @@ func (suite *RequestVerificationTestSuite) TestFailedUnselectedValidator() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -225,7 +226,7 @@ func (suite *RequestVerificationTestSuite) TestFailedNoDataSourceFound() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -252,7 +253,7 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
@@ -272,7 +273,7 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
 		Validator:  testapp.Validators[0].ValAddress.String(),
 		RequestId:  1,
 		ExternalId: 1,
-		Reporter:   sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, suite.reporterPrivKey.PubKey()),
+		Reporter:   hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
 	suite.ctx = suite.ctx.WithBlockHeight(1000)
@@ -405,7 +406,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		ValidatorAddress: sdk.ValAddress(testapp.Validators[0].Address).String(),
 	})
 
-	suite.assert.Equal(&types.QueryPendingRequestsResponse{RequestIDs: []int64{3}}, r)
+	suite.assert.Equal(&types.QueryPendingRequestsResponse{RequestIDs: []uint64{3}}, r)
 	suite.assert.NoError(err)
 }
 

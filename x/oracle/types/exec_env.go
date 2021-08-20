@@ -6,6 +6,11 @@ import (
 	"github.com/bandprotocol/go-owasm/api"
 )
 
+var (
+	_ api.EnvInterface = (*PrepareEnv)(nil)
+	_ api.EnvInterface = (*ExecuteEnv)(nil)
+)
+
 // BaseEnv combines shared functions used in prepare and execution Owasm program,
 type BaseEnv struct {
 	request Request

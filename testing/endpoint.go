@@ -3,13 +3,13 @@ package ibctesting
 import (
 	"fmt"
 
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
-	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/modules/core/23-commitment/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	"github.com/cosmos/ibc-go/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/modules/light-clients/07-tendermint/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -109,7 +109,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	}
 
 	msg, err := clienttypes.NewMsgCreateClient(
-		clientState, consensusState, endpoint.Chain.SenderAccount.GetAddress(),
+		clientState, consensusState, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	require.NoError(endpoint.Chain.t, err)
 
@@ -147,7 +147,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 
 	msg, err := clienttypes.NewMsgUpdateClient(
 		endpoint.ClientID, header,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	require.NoError(endpoint.Chain.t, err)
 
@@ -161,7 +161,7 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 		endpoint.ClientID,
 		endpoint.Counterparty.ClientID,
 		endpoint.Counterparty.Chain.GetPrefix(), DefaultOpenInitVersion, endpoint.ConnectionConfig.DelayPeriod,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	res, err := endpoint.Chain.SendMsgs(msg)
 	if err != nil {
@@ -186,7 +186,7 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 		counterpartyClient, endpoint.Counterparty.Chain.GetPrefix(), []*connectiontypes.Version{ConnectionVersion}, endpoint.ConnectionConfig.DelayPeriod,
 		proofInit, proofClient, proofConsensus,
 		proofHeight, consensusHeight,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	res, err := endpoint.Chain.SendMsgs(msg)
 	if err != nil {
@@ -212,7 +212,7 @@ func (endpoint *Endpoint) ConnOpenAck() error {
 		proofTry, proofClient, proofConsensus,
 		proofHeight, consensusHeight,
 		ConnectionVersion,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
 }
@@ -227,7 +227,7 @@ func (endpoint *Endpoint) ConnOpenConfirm() error {
 	msg := connectiontypes.NewMsgConnectionOpenConfirm(
 		endpoint.ConnectionID,
 		proof, height,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
 }
@@ -267,7 +267,7 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 		endpoint.ChannelConfig.PortID,
 		endpoint.ChannelConfig.Version, endpoint.ChannelConfig.Order, []string{endpoint.ConnectionID},
 		endpoint.Counterparty.ChannelConfig.PortID,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	res, err := endpoint.Chain.SendMsgs(msg)
 	if err != nil {
@@ -292,7 +292,7 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 		endpoint.ChannelConfig.Version, endpoint.ChannelConfig.Order, []string{endpoint.ConnectionID},
 		endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID, endpoint.Counterparty.ChannelConfig.Version,
 		proof, height,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	res, err := endpoint.Chain.SendMsgs(msg)
 	if err != nil {
@@ -318,7 +318,7 @@ func (endpoint *Endpoint) ChanOpenAck() error {
 		endpoint.ChannelConfig.PortID, endpoint.ChannelID,
 		endpoint.Counterparty.ChannelID, endpoint.Counterparty.ChannelConfig.Version, // testing doesn't use flexible selection
 		proof, height,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
 }
@@ -333,7 +333,7 @@ func (endpoint *Endpoint) ChanOpenConfirm() error {
 	msg := channeltypes.NewMsgChannelOpenConfirm(
 		endpoint.ChannelConfig.PortID, endpoint.ChannelID,
 		proof, height,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
 }
@@ -344,7 +344,7 @@ func (endpoint *Endpoint) ChanOpenConfirm() error {
 func (endpoint *Endpoint) ChanCloseInit() error {
 	msg := channeltypes.NewMsgChannelCloseInit(
 		endpoint.ChannelConfig.PortID, endpoint.ChannelID,
-		endpoint.Chain.SenderAccount.GetAddress(),
+		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
 	return endpoint.Chain.sendMsgs(msg)
 }
@@ -373,7 +373,7 @@ func (endpoint *Endpoint) RecvPacket(packet channeltypes.Packet) error {
 	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.Chain.QueryProof(packetKey)
 
-	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress())
+	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
 
 	// receive on counterparty and update source client
 	if err := endpoint.Chain.sendMsgs(recvMsg); err != nil {
@@ -383,33 +383,58 @@ func (endpoint *Endpoint) RecvPacket(packet channeltypes.Packet) error {
 	return endpoint.Counterparty.UpdateClient()
 }
 
-// // WriteAcknowledgement writes an acknowledgement on the channel associated with the endpoint.
-// // The counterparty client is updated.
-// func (endpoint *Endpoint) WriteAcknowledgement(ack exported.Acknowledgement, packet exported.PacketI) error {
-// 	channelCap := endpoint.Chain.GetChannelCapability(packet.GetDestPort(), packet.GetDestChannel())
+// WriteAcknowledgement writes an acknowledgement on the channel associated with the endpoint.
+// The counterparty client is updated.
+func (endpoint *Endpoint) WriteAcknowledgement(ack exported.Acknowledgement, packet exported.PacketI) error {
+	channelCap := endpoint.Chain.GetChannelCapability(packet.GetDestPort(), packet.GetDestChannel())
 
-// 	// no need to send message, acting as a handler
-// 	err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.WriteAcknowledgement(endpoint.Chain.GetContext(), channelCap, packet, ack.Acknowledgement())
-// 	if err != nil {
-// 		return err
-// 	}
+	// no need to send message, acting as a handler
+	err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.WriteAcknowledgement(endpoint.Chain.GetContext(), channelCap, packet, ack.Acknowledgement())
+	if err != nil {
+		return err
+	}
 
-// 	// commit changes since no message was sent
-// 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Chain)
+	// commit changes since no message was sent
+	endpoint.Chain.Coordinator.CommitBlock(endpoint.Chain)
 
-// 	return endpoint.Counterparty.UpdateClient()
-// }
+	return endpoint.Counterparty.UpdateClient()
+}
 
 // AcknowledgePacket sends a MsgAcknowledgement to the channel associated with the endpoint.
-// TODO: add a query for the acknowledgement by events
-// - https://github.com/cosmos/cosmos-sdk/issues/6509
 func (endpoint *Endpoint) AcknowledgePacket(packet channeltypes.Packet, ack []byte) error {
 	// get proof of acknowledgement on counterparty
 	packetKey := host.PacketAcknowledgementKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
 
-	ackMsg := channeltypes.NewMsgAcknowledgement(packet, ack, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress())
+	ackMsg := channeltypes.NewMsgAcknowledgement(packet, ack, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
+
 	return endpoint.Chain.sendMsgs(ackMsg)
+}
+
+// TimeoutPacket sends a MsgTimeout to the channel associated with the endpoint.
+func (endpoint *Endpoint) TimeoutPacket(packet channeltypes.Packet) error {
+	// get proof for timeout based on channel order
+	var packetKey []byte
+
+	switch endpoint.ChannelConfig.Order {
+	case channeltypes.ORDERED:
+		packetKey = host.NextSequenceRecvKey(packet.GetDestPort(), packet.GetDestChannel())
+	case channeltypes.UNORDERED:
+		packetKey = host.PacketReceiptKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
+	default:
+		return fmt.Errorf("unsupported order type %s", endpoint.ChannelConfig.Order)
+	}
+
+	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
+	nextSeqRecv, found := endpoint.Counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(endpoint.Counterparty.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
+	require.True(endpoint.Chain.t, found)
+
+	timeoutMsg := channeltypes.NewMsgTimeout(
+		packet, nextSeqRecv,
+		proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String(),
+	)
+
+	return endpoint.Chain.sendMsgs(timeoutMsg)
 }
 
 // SetChannelClosed sets a channel state to CLOSED.

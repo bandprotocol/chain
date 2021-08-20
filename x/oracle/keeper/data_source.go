@@ -21,7 +21,7 @@ func (k Keeper) GetDataSource(ctx sdk.Context, id types.DataSourceID) (types.Dat
 		return types.DataSource{}, sdkerrors.Wrapf(types.ErrDataSourceNotFound, "id: %d", id)
 	}
 	var dataSource types.DataSource
-	k.cdc.MustUnmarshalBinaryBare(bz, &dataSource)
+	k.cdc.MustUnmarshal(bz, &dataSource)
 	return dataSource, nil
 }
 
@@ -37,7 +37,7 @@ func (k Keeper) MustGetDataSource(ctx sdk.Context, id types.DataSourceID) types.
 // SetDataSource saves the given data source to the storage without performing validation.
 func (k Keeper) SetDataSource(ctx sdk.Context, id types.DataSourceID, dataSource types.DataSource) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshalBinaryBare(&dataSource))
+	store.Set(types.DataSourceStoreKey(id), k.cdc.MustMarshal(&dataSource))
 }
 
 // AddDataSource adds the given data source to the storage.
@@ -66,7 +66,7 @@ func (k Keeper) GetAllDataSources(ctx sdk.Context) (dataSources []types.DataSour
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var dataSource types.DataSource
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &dataSource)
+		k.cdc.MustUnmarshal(iterator.Value(), &dataSource)
 		dataSources = append(dataSources, dataSource)
 	}
 	return dataSources
