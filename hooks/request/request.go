@@ -25,7 +25,7 @@ import (
 
 // Hook inherits from Band app hook to save latest request into SQL database.
 type Hook struct {
-	cdc          codec.Marshaler
+	cdc          codec.Codec
 	oracleKeeper keeper.Keeper
 	db           *gorm.DB
 	dbMaxRecords int
@@ -35,7 +35,7 @@ type Hook struct {
 var _ band.Hook = &Hook{}
 
 // NewHook creates a request hook instance that will be added in Band App.
-func NewHook(cdc codec.Marshaler, oracleKeeper keeper.Keeper, connStr string, numRecords int) *Hook {
+func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, connStr string, numRecords int) *Hook {
 	dbConnStr := strings.SplitN(connStr, ":", 2)
 	for i := range dbConnStr {
 		dbConnStr[i] = strings.TrimSpace(dbConnStr[i])
@@ -138,7 +138,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 	switch req.Path {
 	case "/oracle.v1.Query/RequestSearch":
 		var queryReq types.QueryRequestSearchRequest
-		if err := h.cdc.UnmarshalBinaryBare(req.Data, &queryReq); err != nil {
+		if err := h.cdc.Unmarshal(req.Data, &queryReq); err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request data: %s", err)), true
 		}
 
@@ -167,7 +167,7 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		finalResult := types.QueryRequestSearchResponse{
 			Request: &queryResponse,
 		}
-		bz, err := h.cdc.MarshalBinaryBare(&finalResult)
+		bz, err := h.cdc.Marshal(&finalResult)
 		if err != nil {
 			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to marshal response: %s", err)), true
 		}

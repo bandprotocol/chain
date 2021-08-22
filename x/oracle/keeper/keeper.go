@@ -1,15 +1,15 @@
 package keeper
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	gogotypes "github.com/gogo/protobuf/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	"github.com/tendermint/tendermint/libs/log"
 
 	owasm "github.com/bandprotocol/go-owasm/api"
@@ -24,7 +24,7 @@ const (
 
 type Keeper struct {
 	storeKey         sdk.StoreKey
-	cdc              codec.BinaryMarshaler
+	cdc              codec.BinaryCodec
 	fileCache        filecache.Cache
 	feeCollectorName string
 	paramstore       paramtypes.Subspace
@@ -41,7 +41,7 @@ type Keeper struct {
 
 // NewKeeper creates a new oracle Keeper instance.
 func NewKeeper(
-	cdc codec.BinaryMarshaler,
+	cdc codec.BinaryCodec,
 	key sdk.StoreKey,
 	ps paramtypes.Subspace,
 	fileDir string,
@@ -91,53 +91,49 @@ func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
 }
 
 // SetRequestCount sets the number of request count to the given value. Useful for genesis state.
-func (k Keeper) SetRequestCount(ctx sdk.Context, count int64) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.RequestCountStoreKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count}))
+func (k Keeper) SetRequestCount(ctx sdk.Context, count uint64) {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
+	ctx.KVStore(k.storeKey).Set(types.RequestCountStoreKey, bz)
 }
 
 // GetRequestCount returns the current number of all requests ever exist.
-func (k Keeper) GetRequestCount(ctx sdk.Context) int64 {
+func (k Keeper) GetRequestCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestCountStoreKey)
-	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
-	return intV.GetValue()
+	return binary.BigEndian.Uint64(bz)
 }
 
 // SetRequestLastExpired sets the ID of the last expired request.
 func (k Keeper) SetRequestLastExpired(ctx sdk.Context, id types.RequestID) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.RequestLastExpiredStoreKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, uint64(id))
+	ctx.KVStore(k.storeKey).Set(types.RequestLastExpiredStoreKey, bz)
 }
 
 // GetRequestLastExpired returns the ID of the last expired request.
 func (k Keeper) GetRequestLastExpired(ctx sdk.Context) types.RequestID {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestLastExpiredStoreKey)
-	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
-	return types.RequestID(intV.GetValue())
+	return types.RequestID(binary.BigEndian.Uint64(bz))
 }
 
 // GetNextRequestID increments and returns the current number of requests.
 func (k Keeper) GetNextRequestID(ctx sdk.Context) types.RequestID {
 	requestNumber := k.GetRequestCount(ctx)
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: requestNumber + 1})
-	ctx.KVStore(k.storeKey).Set(types.RequestCountStoreKey, bz)
+	k.SetRequestCount(ctx, requestNumber+1)
 	return types.RequestID(requestNumber + 1)
 }
 
 // SetDataSourceCount sets the number of data source count to the given value.
-func (k Keeper) SetDataSourceCount(ctx sdk.Context, count int64) {
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count})
+func (k Keeper) SetDataSourceCount(ctx sdk.Context, count uint64) {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
 	ctx.KVStore(k.storeKey).Set(types.DataSourceCountStoreKey, bz)
 }
 
 // GetDataSourceCount returns the current number of all data sources ever exist.
-func (k Keeper) GetDataSourceCount(ctx sdk.Context) int64 {
+func (k Keeper) GetDataSourceCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.DataSourceCountStoreKey)
-	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
-	return intV.GetValue()
+	return binary.BigEndian.Uint64(bz)
 }
 
 // GetNextDataSourceID increments and returns the current number of data sources.
@@ -148,17 +144,16 @@ func (k Keeper) GetNextDataSourceID(ctx sdk.Context) types.DataSourceID {
 }
 
 // SetOracleScriptCount sets the number of oracle script count to the given value.
-func (k Keeper) SetOracleScriptCount(ctx sdk.Context, count int64) {
-	bz := k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: count})
+func (k Keeper) SetOracleScriptCount(ctx sdk.Context, count uint64) {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
 	ctx.KVStore(k.storeKey).Set(types.OracleScriptCountStoreKey, bz)
 }
 
 // GetOracleScriptCount returns the current number of all oracle scripts ever exist.
-func (k Keeper) GetOracleScriptCount(ctx sdk.Context) int64 {
+func (k Keeper) GetOracleScriptCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.OracleScriptCountStoreKey)
-	intV := gogotypes.Int64Value{}
-	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
-	return intV.GetValue()
+	return binary.BigEndian.Uint64(bz)
 }
 
 // GetNextOracleScriptID increments and returns the current number of oracle scripts.
@@ -173,7 +168,7 @@ func (k Keeper) GetFile(name string) []byte {
 	return k.fileCache.MustGetFile(name)
 }
 
-// IsBound checks if the transfer module is already bound to the desired port
+// IsBound checks if the oracle module is already bound to the desired port
 func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
 	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
 	return ok
@@ -186,13 +181,13 @@ func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
 
-// GetPort returns the portID for the transfer module. Used in ExportGenesis
+// GetPort returns the portID for the oracle module. Used in ExportGenesis
 func (k Keeper) GetPort(ctx sdk.Context) string {
 	store := ctx.KVStore(k.storeKey)
 	return string(store.Get(types.PortKey))
 }
 
-// SetPort sets the portID for the transfer module. Used in InitGenesis
+// SetPort sets the portID for the oracle module. Used in InitGenesis
 func (k Keeper) SetPort(ctx sdk.Context, portID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.PortKey, []byte(portID))
@@ -203,7 +198,7 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 	return k.scopedKeeper.AuthenticateCapability(ctx, cap, name)
 }
 
-// ClaimCapability allows the transfer module that can claim a capability that IBC module
+// ClaimCapability allows the oracle module that can claim a capability that IBC module
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)

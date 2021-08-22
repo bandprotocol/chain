@@ -56,12 +56,12 @@ message OracleScript {
 message RawRequest {
   option (gogoproto.equal) = true;
   // ExternalID is an ID of the raw request
-  int64 external_id = 1 [
+  uint64 external_id = 1 [
     (gogoproto.customname) = "ExternalID",
     (gogoproto.casttype) = "ExternalID"
   ];
   // DataSourceID is an ID of data source script that relates to the raw request
-  int64 data_source_id = 2 [
+  uint64 data_source_id = 2 [
     (gogoproto.customname) = "DataSourceID",
     (gogoproto.casttype) = "DataSourceID"
   ];
@@ -74,7 +74,7 @@ message RawRequest {
 message RawReport {
   option (gogoproto.equal) = true;
   // ExternalID is an ID of the raw request
-  int64 external_id = 1 [
+  uint64 external_id = 1 [
     (gogoproto.customname) = "ExternalID",
     (gogoproto.casttype) = "ExternalID"
   ];
@@ -92,7 +92,7 @@ message RawReport {
 message Request {
   option (gogoproto.equal) = true;
   // OracleScriptID is ID of an oracle script
-  int64 oracle_script_id = 1 [
+  uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -107,7 +107,7 @@ message Request {
   // RequestHeight is block height that the request has been created
   int64 request_height = 5;
   // RequestTime is timestamp of the chain's block which contains the request
-  uint64 request_time = 6;
+  int64 request_time = 6;
   // ClientID is arbitrary id provided by requester.
   // It is used by client-side for referencing the request
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
@@ -164,7 +164,7 @@ message OracleRequestPacketData {
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
-  int64 oracle_script_id = 2 [
+  uint64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -184,13 +184,10 @@ message OracleRequestPacketData {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  // RequestKey is the key from request chain to match data source fee payer on
-  // Bandchain
-  string request_key = 7;
   // PrepareGas is amount of gas to pay to prepare raw requests
-  uint64 prepare_gas = 8;
+  uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
-  uint64 execute_gas = 9;
+  uint64 execute_gas = 8;
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
@@ -198,7 +195,7 @@ message OracleRequestPacketData {
 message OracleRequestPacketAcknowledgement {
   option (gogoproto.equal) = true;
   // RequestID is BandChain's unique identifier for this oracle request.
-  int64 request_id = 1 [
+  uint64 request_id = 1 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
@@ -212,7 +209,7 @@ message OracleResponsePacketData {
   // packet.
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
   // RequestID is BandChain's unique identifier for this oracle request.
-  int64 request_id = 2 [
+  uint64 request_id = 2 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
@@ -243,7 +240,7 @@ message Result {
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
-  int64 oracle_script_id = 2 [
+  uint64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -257,7 +254,7 @@ message Result {
   // cost of liveness.
   uint64 min_count = 5;
   // RequestID is BandChain's unique identifier for this oracle request.
-  int64 request_id = 6 [
+  uint64 request_id = 6 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
@@ -340,7 +337,7 @@ message Params {
 message PendingResolveList {
   option (gogoproto.equal) = true;
   // RequestIDs is a list of request IDs that are waiting to be resolved
-  repeated int64 request_ids = 1;
+  repeated uint64 request_ids = 1;
 }
 
 // IBCChannel is information of IBC protocol to allow communicating with other
@@ -375,12 +372,12 @@ message RequestVerification {
   // Validator is an validator address
   string validator = 2;
   // RequestID is the targeted request ID
-  int64 request_id = 3 [
+  uint64 request_id = 3 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
   // ExternalID is the oracle's external ID of data source
-  int64 external_id = 4 [
+  uint64 external_id = 4 [
     (gogoproto.customname) = "ExternalID",
     (gogoproto.casttype) = "ExternalID"
   ];
@@ -397,7 +394,7 @@ message PriceResult {
   // Px is the actual data, which is rate number multiplied by the multiplier.
   uint64 px = 3;
   // RequestID is oracle request ID that contains this price
-  int64 request_id = 4 [
+  uint64 request_id = 4 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];

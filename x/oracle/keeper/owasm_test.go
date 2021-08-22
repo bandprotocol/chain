@@ -111,6 +111,14 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	), k.MustGetRequest(ctx, 1))
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(
+			authtypes.EventTypeCoinSpent,
+			sdk.NewAttribute(authtypes.AttributeKeySpender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeCoinReceived,
+			sdk.NewAttribute(authtypes.AttributeKeyReceiver, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
 			authtypes.EventTypeTransfer,
 			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
 			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
@@ -119,6 +127,14 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
 		), sdk.NewEvent(
+			authtypes.EventTypeCoinSpent,
+			sdk.NewAttribute(authtypes.AttributeKeySpender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeCoinReceived,
+			sdk.NewAttribute(authtypes.AttributeKeyReceiver, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
 			authtypes.EventTypeTransfer,
 			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
 			sdk.NewAttribute(authtypes.AttributeKeySender, testapp.FeePayer.Address.String()),
@@ -126,6 +142,14 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		), sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeySender, testapp.FeePayer.Address.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeCoinSpent,
+			sdk.NewAttribute(authtypes.AttributeKeySpender, testapp.FeePayer.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
+		), sdk.NewEvent(
+			authtypes.EventTypeCoinReceived,
+			sdk.NewAttribute(authtypes.AttributeKeyReceiver, testapp.Treasury.Address.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, testapp.Coins1000000uband.String()),
 		), sdk.NewEvent(
 			authtypes.EventTypeTransfer,
 			sdk.NewAttribute(authtypes.AttributeKeyRecipient, testapp.Treasury.Address.String()),
@@ -166,7 +190,8 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyExternalID, "3"),
 			sdk.NewAttribute(types.AttributeKeyCalldata, "beeb"),
 			sdk.NewAttribute(types.AttributeKeyFee, "1000000uband"),
-		)}, ctx.EventManager().Events())
+		),
+	}, ctx.EventManager().Events())
 
 	// assert gas consumption
 	params := k.GetParams(ctx)

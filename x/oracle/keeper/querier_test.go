@@ -36,17 +36,17 @@ func TestQueryPendingRequests(t *testing.T) {
 		{
 			name:     "Get all pending requests",
 			args:     []string{},
-			expected: types.PendingResolveList{RequestIds: []int64{41, 42, 43}},
+			expected: types.PendingResolveList{RequestIds: []uint64{41, 42, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[0]",
 			args:     []string{testapp.Validators[0].ValAddress.String()},
-			expected: types.PendingResolveList{RequestIds: []int64{42, 43}},
+			expected: types.PendingResolveList{RequestIds: []uint64{42, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[1]",
 			args:     []string{testapp.Validators[1].ValAddress.String()},
-			expected: types.PendingResolveList{RequestIds: []int64{41, 43}},
+			expected: types.PendingResolveList{RequestIds: []uint64{41, 43}},
 		},
 		{
 			name:     "Get pending requests for Validators[2]",

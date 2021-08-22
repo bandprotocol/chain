@@ -1,4 +1,4 @@
-package cmd
+package band
 
 import (
 	"encoding/json"
@@ -15,9 +15,9 @@ import (
 	captypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	v040 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	ibcxfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	ibccoretypes "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	ibccoretypes "github.com/cosmos/ibc-go/modules/core/types"
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -43,7 +43,7 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 		return nil, fmt.Errorf("error reading GenesisDoc at %s: %w", genDocFile, err)
 	}
 
-	genDoc.ConsensusParams.Block.MaxBytes = 1000000 // 1M bytes
+	genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
 	genDoc.ConsensusParams.Block.MaxGas = 8000000   // 8M gas
 	genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 
@@ -56,6 +56,7 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
 // nolint: funlen
+// TODO
 func MigrateGenesisCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate [genesis-file]",
@@ -93,12 +94,12 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			ibcTransferGenesis.Params.ReceiveEnabled = false
 			ibcTransferGenesis.Params.SendEnabled = false
 
-			newGenState[ibcxfertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcTransferGenesis)
-			newGenState[host.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(ibcCoreGenesis)
-			newGenState[captypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(capGenesis)
+			newGenState[ibcxfertypes.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(ibcTransferGenesis)
+			newGenState[host.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(ibcCoreGenesis)
+			newGenState[captypes.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(capGenesis)
 
 			v039Codec := codec.NewLegacyAmino()
-			v040Codec := clientCtx.JSONMarshaler
+			v040Codec := clientCtx.JSONCodec
 			var oracleGenesisV039 v039oracle.GenesisState
 			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
 

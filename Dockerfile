@@ -3,6 +3,8 @@ FROM golang:1.15.8-buster
 WORKDIR /chain
 COPY . /chain
 
-RUN make install
+COPY docker-config/run.sh .
+
+RUN make install && make faucet
 
 CMD bandd start --rpc.laddr tcp://0.0.0.0:26657

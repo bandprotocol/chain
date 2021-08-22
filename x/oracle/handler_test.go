@@ -254,8 +254,27 @@ func TestRequestDataSuccess(t *testing.T) {
 		nil,
 		uint64(testapp.TestDefaultExecuteGas),
 	), k.MustGetRequest(ctx, 1))
-
 	event := abci.Event{
+		Type: authtypes.EventTypeCoinSpent,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(authtypes.AttributeKeySpender), Value: []byte(testapp.FeePayer.Address.String())},
+			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, abci.Event(event), res.Events[4])
+	require.Equal(t, abci.Event(event), res.Events[8])
+	event = abci.Event{
+		Type: authtypes.EventTypeCoinReceived,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(authtypes.AttributeKeyReceiver), Value: []byte(testapp.Treasury.Address.String())},
+			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[1])
+	require.Equal(t, abci.Event(event), res.Events[5])
+	require.Equal(t, abci.Event(event), res.Events[9])
+	event = abci.Event{
 		Type: authtypes.EventTypeTransfer,
 		Attributes: []abci.EventAttribute{
 			{Key: []byte(authtypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
@@ -263,18 +282,18 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
 	require.Equal(t, abci.Event(event), res.Events[2])
-	require.Equal(t, abci.Event(event), res.Events[4])
+	require.Equal(t, abci.Event(event), res.Events[6])
+	require.Equal(t, abci.Event(event), res.Events[10])
 	event = abci.Event{
 		Type: sdk.EventTypeMessage,
 		Attributes: []abci.EventAttribute{
 			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[1])
 	require.Equal(t, abci.Event(event), res.Events[3])
-	require.Equal(t, abci.Event(event), res.Events[5])
+	require.Equal(t, abci.Event(event), res.Events[7])
+	require.Equal(t, abci.Event(event), res.Events[11])
 
 	event = abci.Event{
 		Type: types.EventTypeRequest,
@@ -291,7 +310,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[6])
+	require.Equal(t, abci.Event(event), res.Events[12])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -302,7 +321,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[7])
+	require.Equal(t, abci.Event(event), res.Events[13])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -313,7 +332,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[8])
+	require.Equal(t, abci.Event(event), res.Events[14])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
@@ -324,7 +343,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[9])
+	require.Equal(t, abci.Event(event), res.Events[15])
 }
 
 func TestRequestDataFail(t *testing.T) {

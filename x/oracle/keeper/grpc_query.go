@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -107,8 +109,8 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []int64
-	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+	var pendingIDs []uint64
+	for id := lastExpired + 1; uint64(id) <= requestCount; id++ {
 		oracleReq := k.MustGetRequest(ctx, id)
 
 		// If all validators reported on this request, then skip it.
@@ -150,7 +152,7 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 			continue
 		}
 
-		pendingIDs = append(pendingIDs, int64(id))
+		pendingIDs = append(pendingIDs, uint64(id))
 	}
 
 	return &types.QueryPendingRequestsResponse{RequestIDs: pendingIDs}, nil
@@ -254,10 +256,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
-	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
+	pk, err := hex.DecodeString(req.Reporter)
+	if err != nil || len(pk) != secp256k1.PubKeySize {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
 	}
+	reporterPubKey := secp256k1.PubKey(pk[:])
+
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
@@ -333,17 +337,6 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		Validator:    req.Validator,
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
-		DataSourceId: int64(*dataSourceID),
+		DataSourceId: uint64(*dataSourceID),
 	}, nil
-}
-
-// RequestPool queries the request pool information
-func (k Querier) RequestPool(c context.Context, req *types.QueryRequestPoolRequest) (*types.QueryRequestPoolResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-	ctx := sdk.UnwrapSDKContext(c)
-	requestPool := types.GetEscrowAddress(req.RequestKey, req.PortId, req.ChannelId)
-	b := k.bankKeeper.GetAllBalances(ctx, requestPool)
-	return &types.QueryRequestPoolResponse{RequestPoolAddress: requestPool.String(), Balance: b}, nil
 }

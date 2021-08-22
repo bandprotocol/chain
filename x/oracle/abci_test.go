@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -52,7 +53,8 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
@@ -129,7 +131,8 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	app.BankKeeper.AddCoins(ctx, feeCollector.GetAddress(), sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	app.BankKeeper.SendCoinsFromModuleToModule(ctx, minttypes.ModuleName, authtypes.FeeCollectorName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
@@ -160,7 +163,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
 	})
-	require.Equal(t, sdk.Coins(nil), app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
+	require.Equal(t, sdk.Coins{}, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	require.Equal(t, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)), app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()))
 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(1)}}, app.DistrKeeper.GetFeePool(ctx).CommunityPool)
 	require.Equal(t, sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(43015, 3)}}, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress).Rewards)

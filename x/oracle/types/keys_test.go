@@ -57,18 +57,3 @@ func TestReportersOfValidatorPrefixKey(t *testing.T) {
 	expect, _ := hex.DecodeString("05b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
 	require.Equal(t, expect, ReportersOfValidatorPrefixKey(val))
 }
-
-func TestGetEscrowAddress(t *testing.T) {
-	var (
-		requestKey1 = "beeb"
-		port1       = "transfer"
-		channel1    = "channel"
-		requestKey2 = "beeb"
-		port2       = "transfercha"
-		channel2    = "nnel"
-	)
-
-	escrow1 := GetEscrowAddress(requestKey1, port1, channel1)
-	escrow2 := GetEscrowAddress(requestKey2, port2, channel2)
-	require.NotEqual(t, escrow1, escrow2)
-}

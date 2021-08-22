@@ -6,7 +6,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
@@ -34,25 +33,7 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 	}
 
 	for _, log := range logs {
-		messageType, err := GetEventValue(log, sdk.EventTypeMessage, sdk.AttributeKeyAction)
-		if err != nil {
-			l.Error(":cold_sweat: Failed to get message action type with error: %s", c, err.Error())
-			continue
-		}
-
-		if messageType == (types.MsgRequestData{}).Type() {
-			go handleRequestLog(c, l, log)
-		} else if messageType == (channeltypes.MsgRecvPacket{}).Type() {
-			// Try to get request id from packet. If not then return error.
-			_, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
-			if err != nil {
-				l.Debug(":ghost: Skipping non-request packet")
-				return
-			}
-			go handleRequestLog(c, l, log)
-		} else {
-			l.Debug(":ghost: Skipping non-{request/packet} type: %s", messageType)
-		}
+		go handleRequestLog(c, l, log)
 	}
 }
 
@@ -249,7 +230,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 		"BAND_VALIDATOR":   vmsg.Validator,
 		"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
 		"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
-		"BAND_REPORTER":    sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubkey),
+		"BAND_REPORTER":    hex.EncodeToString(pubkey.Bytes()),
 		"BAND_SIGNATURE":   sig,
 	})
 

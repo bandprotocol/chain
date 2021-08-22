@@ -94,7 +94,6 @@ func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 		Table("requests").
 		Limit(h.dbMaxRecords)
 	h.trans.
-		Unscoped().
 		Where(&queryCondition).
 		Not("id IN (?)", subQuery).
 		Delete(&Request{})

@@ -11,8 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -52,7 +50,6 @@ func NewTxCmd() *cobra.Command {
 		GetCmdActivate(),
 		GetCmdAddReporters(),
 		GetCmdRemoveReporter(),
-		GetCmdDepositRequestPool(),
 	)
 
 	return txCmd
@@ -643,52 +640,6 @@ $ %s tx oracle remove-reporter band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun --fro
 				validator,
 				reporter,
 			)
-			err = msg.ValidateBasic()
-			if err != nil {
-				return err
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-// GetCmdDepositRequestPool implements the deposit request pool command handler.
-func GetCmdDepositRequestPool() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deposit-request-pool [request-key] [port-id] [channel-id] [amount]",
-		Short: "Deposit the coins to request pool",
-		Args:  cobra.ExactArgs(4),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Deposit the coins to request pool.
-Example:
-$ %s tx oracle deposit-request-pool request-key port-1 channel-1 1000uband --from mykey
-`,
-				version.AppName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-			sender := sdk.AccAddress(clientCtx.GetFromAddress())
-			amt, err := sdk.ParseCoinsNormalized(args[3])
-			if err != nil {
-				return err
-			}
-
-			portID := args[1]
-			if err := host.PortIdentifierValidator(portID); err != nil {
-				return err
-			}
-			channelID := args[2]
-			if err := host.ChannelIdentifierValidator(channelID); err != nil {
-				return err
-			}
-			pool := types.GetEscrowAddress(args[0], portID, channelID)
-			msg := banktypes.NewMsgSend(sender, pool, amt)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

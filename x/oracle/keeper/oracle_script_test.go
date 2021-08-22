@@ -108,7 +108,7 @@ func TestAddEditOracleScriptDoNotModify(t *testing.T) {
 func TestAddOracleScriptMustReturnCorrectID(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// Initially we expect the oracle script count to be what we have on genesis state.
-	genesisCount := int64(len(testapp.OracleScripts)) - 1
+	genesisCount := uint64(len(testapp.OracleScripts)) - 1
 	require.Equal(t, genesisCount, k.GetOracleScriptCount(ctx))
 	// Every new oracle script we add should return a new ID.
 	id1 := k.AddOracleScript(ctx, types.NewOracleScript(
@@ -121,7 +121,7 @@ func TestAddOracleScriptMustReturnCorrectID(t *testing.T) {
 	))
 	require.Equal(t, types.OracleScriptID(genesisCount+2), id2)
 	// Finally we expect the oracle script to increase as well.
-	require.Equal(t, int64(genesisCount+2), k.GetOracleScriptCount(ctx))
+	require.Equal(t, uint64(genesisCount+2), k.GetOracleScriptCount(ctx))
 }
 
 func TestEditNonExistentOracleScript(t *testing.T) {

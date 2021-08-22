@@ -1,7 +1,14 @@
 package types
 
 import (
+	"time"
+
 	"github.com/bandprotocol/go-owasm/api"
+)
+
+var (
+	_ api.EnvInterface = (*PrepareEnv)(nil)
+	_ api.EnvInterface = (*ExecuteEnv)(nil)
 )
 
 // BaseEnv combines shared functions used in prepare and execution Owasm program,
@@ -27,6 +34,16 @@ func (env *BaseEnv) GetAskCount() int64 {
 // GetMinCount implements Owasm ExecEnv interface.
 func (env *BaseEnv) GetMinCount() int64 {
 	return int64(env.request.MinCount)
+}
+
+// GetPrepareTime implements Owasm ExecEnv interface.
+func (env *BaseEnv) GetPrepareTime() int64 {
+	return int64(env.request.RequestTime)
+}
+
+// GetExecuteTime implements Owasm ExecEnv interface.
+func (env *BaseEnv) GetExecuteTime() (int64, error) {
+	return 0, api.ErrWrongPeriodAction
 }
 
 // GetAnsCount implements Owasm ExecEnv interface.
@@ -95,12 +112,13 @@ func (env *PrepareEnv) GetRawRequests() []RawRequest {
 // ExecuteEnv implements ExecEnv interface only expected function and panic on prepare related functions.
 type ExecuteEnv struct {
 	BaseEnv
-	reports map[string]map[ExternalID]RawReport
-	Retdata []byte
+	reports     map[string]map[ExternalID]RawReport
+	Retdata     []byte
+	ExecuteTime int64
 }
 
 // NewExecuteEnv creates a new environment instance for execution period.
-func NewExecuteEnv(req Request, reports []Report) *ExecuteEnv {
+func NewExecuteEnv(req Request, reports []Report, executeTime time.Time) *ExecuteEnv {
 	envReports := make(map[string]map[ExternalID]RawReport)
 	for _, report := range reports {
 		valReports := make(map[ExternalID]RawReport)
@@ -113,8 +131,14 @@ func NewExecuteEnv(req Request, reports []Report) *ExecuteEnv {
 		BaseEnv: BaseEnv{
 			request: req,
 		},
-		reports: envReports,
+		reports:     envReports,
+		ExecuteTime: executeTime.Unix(),
 	}
+}
+
+// GetExecuteTime implements Owasm ExecEnv interface.
+func (env *ExecuteEnv) GetExecuteTime() (int64, error) {
+	return env.ExecuteTime, nil
 }
 
 // GetAnsCount implements Owasm ExecEnv interface.

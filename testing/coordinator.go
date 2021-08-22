@@ -74,7 +74,7 @@ func (coord *Coordinator) UpdateTimeForChain(chain *TestChain) {
 
 // Setup constructs a TM client, connection, and channel on both chains provided. It will
 // fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
-// for both chains. The channels created are connected to the ibc-transfer application.
+// for both chains. The channels created are connected to the BandChain.
 func (coord *Coordinator) Setup(path *Path) {
 	coord.SetupConnections(path)
 
@@ -135,7 +135,7 @@ func (coord *Coordinator) CreateMockChannels(path *Path) {
 }
 
 // CreateTransferChannels constructs and executes channel handshake messages to create OPEN
-// ibc-transfer channels on chainA and chainB. The function expects the channels to be
+// ibc-oracle channels on chainA and chainB. The function expects the channels to be
 // successfully opened otherwise testing will fail.
 func (coord *Coordinator) CreateTransferChannels(path *Path) {
 	path.EndpointA.ChannelConfig.PortID = OraclePort
@@ -223,7 +223,7 @@ func (coord *Coordinator) ConnOpenInitOnBothChains(path *Path) error {
 // ChanOpenInitOnBothChains initializes a channel on the source chain and counterparty chain
 // with the state INIT using the OpenInit handshake call.
 func (coord *Coordinator) ChanOpenInitOnBothChains(path *Path) error {
-	// NOTE: only creation of a capability for a transfer or mock port is supported
+	// NOTE: only creation of a capability for a oracle or mock port is supported
 	// Other applications must bind to the port in InitGenesis or modify this code.
 
 	if err := path.EndpointA.ChanOpenInit(); err != nil {

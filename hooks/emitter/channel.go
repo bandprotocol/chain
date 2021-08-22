@@ -3,9 +3,9 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcxfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -163,8 +163,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":          data.PrepareGas,
 				"execute_gas":          data.ExecuteGas,
 				"fee_limit":            data.FeeLimit.String(),
-				"request_key":          data.RequestKey,
-				"payer":                payer.String(),
 			}
 			detail["id"] = id
 			detail["name"] = os.Name
@@ -190,7 +188,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":      data.PrepareGas,
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
-				"request_key":      data.RequestKey,
 			}
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
@@ -230,12 +227,12 @@ func (h *Hook) extractOracleResponsePacket(
 	var data oracletypes.OracleResponsePacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
 	if err == nil {
-		result := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
-		os := h.oracleKeeper.MustGetOracleScript(ctx, result.OracleScriptID)
-		packet["type"] = "oracle_response"
+		res := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
+		os := h.oracleKeeper.MustGetOracleScript(ctx, res.OracleScriptID)
+		packet["type"] = "oracle response"
 		packet["data"] = common.JsDict{
 			"request_id":           data.RequestID,
-			"oracle_script_id":     result.OracleScriptID,
+			"oracle_script_id":     res.OracleScriptID,
 			"oracle_script_name":   os.Name,
 			"oracle_script_schema": os.Schema,
 			"resolve_status":       data.ResolveStatus,
