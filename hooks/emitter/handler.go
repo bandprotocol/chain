@@ -45,10 +45,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgEditDataSource(ctx, txHash, msg)
 	case *oracletypes.MsgEditOracleScript:
 		h.handleMsgEditOracleScript(ctx, txHash, msg)
-	case *oracletypes.MsgAddReporter:
-		h.handleMsgAddReporter(ctx, msg, detail)
-	case *oracletypes.MsgRemoveReporter:
-		h.handleMsgRemoveReporter(ctx, msg, detail)
 	case *oracletypes.MsgActivate:
 		h.handleMsgActivate(ctx, msg)
 	case *stakingtypes.MsgCreateValidator:

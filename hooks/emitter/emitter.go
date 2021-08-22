@@ -240,14 +240,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
 	}
-	for _, repPerVal := range oracleState.Reporters {
-		for _, rep := range repPerVal.Reporters {
-			h.Write("SET_REPORTER", common.JsDict{
-				"reporter":  rep,
-				"validator": repPerVal.Validator,
-			})
-		}
-	}
+	// TODO: add authz
 	h.Write("COMMIT", common.JsDict{"height": 0})
 	h.FlushMessages()
 }

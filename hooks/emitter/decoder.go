@@ -35,10 +35,10 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgEditDataSource(msg, detail)
 	case *oracletypes.MsgEditOracleScript:
 		decodeMsgEditOracleScript(msg, detail)
-	case *oracletypes.MsgAddReporter:
-		decodeMsgAddReporter(msg, detail)
-	case *oracletypes.MsgRemoveReporter:
-		decodeMsgRemoveReporter(msg, detail)
+	// case *oracletypes.MsgAddReporter:
+	// 	decodeMsgAddReporter(msg, detail)
+	// case *oracletypes.MsgRemoveReporter:
+	// 	decodeMsgRemoveReporter(msg, detail)
 	case *oracletypes.MsgActivate:
 		decodeMsgActivate(msg, detail)
 	case *clienttypes.MsgCreateClient:
@@ -148,7 +148,7 @@ func decodeMsgReportData(msg *oracletypes.MsgReportData, detail common.JsDict) {
 	detail["request_id"] = msg.GetRequestID()
 	detail["raw_reports"] = msg.GetRawReports()
 	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
+	// detail["reporter"] = msg.GetReporter()
 }
 
 func decodeMsgCreateDataSource(msg *oracletypes.MsgCreateDataSource, detail common.JsDict) {
@@ -193,15 +193,15 @@ func decodeMsgEditOracleScript(msg *oracletypes.MsgEditOracleScript, detail comm
 	detail["sender"] = msg.GetSender()
 }
 
-func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
-	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
-}
+// func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
+// 	detail["validator"] = msg.GetValidator()
+// 	detail["reporter"] = msg.GetReporter()
+// }
 
-func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, detail common.JsDict) {
-	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
-}
+// func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, detail common.JsDict) {
+// 	detail["validator"] = msg.GetValidator()
+// 	detail["reporter"] = msg.GetReporter()
+// }
 
 func decodeMsgActivate(msg *oracletypes.MsgActivate, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()

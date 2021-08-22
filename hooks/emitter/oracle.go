@@ -172,9 +172,9 @@ func (h *Hook) handleMsgRequestData(
 func (h *Hook) handleMsgReportData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap,
 ) {
-	val, _ := sdk.ValAddressFromBech32(msg.Validator)
-	rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
-	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
+	// val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	// rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
+	// h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
 }
 
 // handleMsgCreateDataSource implements emitter handler for MsgCreateDataSource.
@@ -222,34 +222,6 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 	} else {
 		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "")
 	}
-}
-
-// handleMsgAddReporter implements emitter handler for MsgAddReporter.
-func (h *Hook) handleMsgAddReporter(
-	ctx sdk.Context, msg *types.MsgAddReporter, detail common.JsDict,
-) {
-	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
-	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	detail["validator_moniker"] = val.GetMoniker()
-	h.AddAccountsInTx(msg.Reporter)
-	h.Write("SET_REPORTER", common.JsDict{
-		"reporter":  msg.Reporter,
-		"validator": msg.Validator,
-	})
-}
-
-// handleMsgRemoveReporter implements emitter handler for MsgRemoveReporter.
-func (h *Hook) handleMsgRemoveReporter(
-	ctx sdk.Context, msg *types.MsgRemoveReporter, detail common.JsDict,
-) {
-	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
-	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	detail["validator_moniker"] = val.GetMoniker()
-	h.AddAccountsInTx(msg.Reporter)
-	h.Write("REMOVE_REPORTER", common.JsDict{
-		"reporter":  msg.Reporter,
-		"validator": msg.Validator,
-	})
 }
 
 // handleMsgActivate implements emitter handler for handleMsgActivate.
