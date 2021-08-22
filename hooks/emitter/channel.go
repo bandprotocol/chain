@@ -150,8 +150,6 @@ func (h *Hook) extractOracleRequestPacket(
 			})
 			h.emitRawRequestAndValRequest(ctx, id, req)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
-			payer := oracletypes.GetEscrowAddress(data.RequestKey, port, channel)
-			h.AddAccountsInTx(payer.String())
 			data := common.JsDict{
 				"oracle_script_id":     data.OracleScriptID,
 				"oracle_script_name":   os.Name,

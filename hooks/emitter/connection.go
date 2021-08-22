@@ -3,7 +3,7 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
+	"github.com/cosmos/ibc-go/modules/core/03-connection/types"
 )
 
 func (h *Hook) emitConnection(ctx sdk.Context, connectionId string) {

@@ -5,10 +5,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	transfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	types1 "github.com/cosmos/ibc-go/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
 
@@ -457,24 +462,6 @@ func decodeMsgTransfer(msg *transfertypes.MsgTransfer, detail common.JsDict) {
 	detail["timeout_timestamp"] = msg.TimeoutTimestamp
 }
 
-func decodeMsgSubmitProposal(msg *govtypes.MsgSubmitProposal, detail common.JsDict) {
-	detail["content"] = msg.GetContent()
-	detail["initial_deposit"] = msg.GetInitialDeposit()
-	detail["proposer"] = msg.GetProposer()
-}
-
-func decodeMsgDeposit(msg *govtypes.MsgDeposit, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["depositor"] = msg.Depositor
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["voter"] = msg.Voter
-	detail["option"] = msg.Option
-}
-
 func decodeDescription(des stakingtypes.Description) common.JsDict {
 	return common.JsDict{
 		"details":          des.GetDetails(),
@@ -483,43 +470,4 @@ func decodeDescription(des stakingtypes.Description) common.JsDict {
 		"security_contact": des.GetSecurityContact(),
 		"website":          des.GetWebsite(),
 	}
-}
-
-func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
-	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
-	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
-
-	detail["description"] = decodeDescription(msg.Description)
-	detail["commission"] = msg.Commission
-	detail["min_self_delegation"] = msg.MinSelfDelegation
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["pubkey"] = bechConsPubKey
-	detail["value"] = msg.Value
-}
-
-func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
-	detail["description"] = decodeDescription(msg.Description)
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["commission_rate"] = msg.CommissionRate
-	detail["min_self_delegation"] = msg.MinSelfDelegation
-}
-
-func decodeMsgDelegate(msg *stakingtypes.MsgDelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgUndelegate(msg *stakingtypes.MsgUndelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_address"] = msg.ValidatorAddress
-	detail["amount"] = msg.Amount
-}
-
-func decodeMsgBeginRedelegate(msg *stakingtypes.MsgBeginRedelegate, detail common.JsDict) {
-	detail["delegator_address"] = msg.DelegatorAddress
-	detail["validator_src_address"] = msg.ValidatorSrcAddress
-	detail["validator_dst_address"] = msg.ValidatorDstAddress
-	detail["amount"] = msg.Amount
 }
