@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
@@ -18,10 +19,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateOracleScript{}, "oracle/CreateOracleScript", nil)
 	cdc.RegisterConcrete(&MsgEditOracleScript{}, "oracle/EditOracleScript", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "oracle/Activate", nil)
-	cdc.RegisterConcrete(&MsgAddReporter{}, "oracle/AddReporter", nil)
-	cdc.RegisterConcrete(&MsgRemoveReporter{}, "oracle/RemoveReporter", nil)
-	// cdc.RegisterConcrete(OracleRequestPacketData{}, "oracle/OracleRequestPacketData", nil)
-	// cdc.RegisterConcrete(OracleResponsePacketData{}, "oracle/OracleResponsePacketData", nil)
 }
 
 // RegisterInterfaces register the oracle module interfaces to protobuf Any.
@@ -34,8 +31,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCreateOracleScript{},
 		&MsgEditOracleScript{},
 		&MsgActivate{},
-		&MsgAddReporter{},
-		&MsgRemoveReporter{},
+	)
+
+	registry.RegisterImplementations(
+		(*authz.Authorization)(nil),
+		&ReportAuthorization{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

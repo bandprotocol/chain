@@ -1,0 +1,12 @@
+syntax = "proto3";
+package oracle.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/bandprotocol/chain/x/oracle/types";
+
+// ReportAuthorization defines authorization for report.
+message ReportAuthorization {
+  option (cosmos_proto.implements_interface) = "Authorization";
+}

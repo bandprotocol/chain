@@ -7,12 +7,11 @@ import (
 )
 
 // NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(params Params, dataSources []DataSource, oracleScripts []OracleScript, reporters []ReportersPerValidator) *GenesisState {
+func NewGenesisState(params Params, dataSources []DataSource, oracleScripts []OracleScript) *GenesisState {
 	return &GenesisState{
 		Params:        params,
 		DataSources:   dataSources,
 		OracleScripts: oracleScripts,
-		Reporters:     reporters,
 	}
 }
 
@@ -22,7 +21,6 @@ func DefaultGenesisState() *GenesisState {
 		Params:        DefaultParams(),
 		DataSources:   []DataSource{},
 		OracleScripts: []OracleScript{},
-		Reporters:     []ReportersPerValidator{},
 	}
 }
 

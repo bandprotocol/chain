@@ -65,7 +65,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[0].ValAddress, testapp.Validators[0].Address,
+		testapp.Validators[0].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg1)
 	require.NotNil(t, res)
@@ -88,7 +88,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[1].ValAddress, testapp.Validators[1].Address,
+		testapp.Validators[1].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg2)
 	require.NotNil(t, res)

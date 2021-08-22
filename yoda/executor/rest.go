@@ -51,7 +51,7 @@ func (e *RestExec) Exec(code []byte, arg string, env interface{}) (ExecResult, e
 		return ExecResult{Output: []byte{}, Code: 111}, nil
 	}
 
-	if resp.Ok != true {
+	if !resp.Ok {
 		return ExecResult{}, ErrRestNotOk
 	}
 

@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/binary"
 	"fmt"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,8 +33,9 @@ type Keeper struct {
 
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	distrKeeper   types.DistrKeeper
 	stakingKeeper types.StakingKeeper
+	distrKeeper   types.DistrKeeper
+	authzKeeper   types.AuthzKeeper
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
@@ -50,6 +52,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
 	distrKeeper types.DistrKeeper,
+	authzKeeper types.AuthzKeeper,
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
@@ -67,8 +70,9 @@ func NewKeeper(
 		owasmVM:          owasmVM,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
-		distrKeeper:      distrKeeper,
 		stakingKeeper:    stakingKeeper,
+		distrKeeper:      distrKeeper,
+		authzKeeper:      authzKeeper,
 		channelKeeper:    channelKeeper,
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
@@ -202,4 +206,20 @@ func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Cap
 // passes to it
 func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
 	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+}
+
+// IsReporter checks if the validator granted to the reporter
+func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) bool {
+	cap, _ := k.authzKeeper.GetCleanAuthorization(ctx, reporter, sdk.AccAddress(validator), sdk.MsgTypeURL(&types.MsgReportData{}))
+	return cap != nil
+}
+
+// GrantReporter grants the reporter to validator for testing
+func (k Keeper) GrantReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) error {
+	return k.authzKeeper.SaveGrant(ctx, reporter, sdk.AccAddress(validator), types.NewReportAuthorization(), ctx.BlockTime().Add(10*time.Minute))
+}
+
+// RevokeReporter revokes grant from the reporter for testing
+func (k Keeper) RevokeReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) error {
+	return k.authzKeeper.DeleteGrant(ctx, reporter, sdk.AccAddress(validator), sdk.MsgTypeURL(&types.MsgReportData{}))
 }
