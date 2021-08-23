@@ -11,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -35,6 +37,8 @@ var (
 	ReporterAddress  = sdk.AccAddress(genAddresFromString("Reporter"))
 	SignerAddress    = sdk.AccAddress(genAddresFromString("Signer"))
 	DelegatorAddress = sdk.AccAddress(genAddresFromString("Delegator"))
+	GranterAddress   = sdk.AccAddress(genAddresFromString("Granter"))
+	GranteeAddress   = sdk.AccAddress(genAddresFromString("Grantee"))
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
@@ -48,6 +52,8 @@ var (
 	NewRate           = sdk.NewDec(1)
 	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
 	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+
+	Expiration = time.Now().AddDate(0, 1, 0)
 )
 
 type DecoderTestSuite struct {
@@ -98,6 +104,46 @@ func (suite *DecoderTestSuite) testCompareJson(msg common.JsDict, expect string)
 func (suite *DecoderTestSuite) testContains(msg common.JsDict, expect string) {
 	res, _ := json.Marshal(msg)
 	suite.Require().Contains(string(res), expect)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
+	detail := make(common.JsDict)
+
+	layout := "2006-01-02T15:04:05.000Z"
+	str := "2014-11-12T11:45:26.371Z"
+	t, _ := time.Parse(layout, str)
+
+	// TestReportAuthorization
+	msg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, oracletypes.NewReportAuthorization(), t)
+	decodeMsgGrant(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgRevoke() {
+	detail := make(common.JsDict)
+	msg := authz.NewMsgRevoke(GranterAddress, GranteeAddress, "")
+	decodeMsgRevoke(&msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgExec() {
+	detail := make(common.JsDict)
+	msg := authz.NewMsgExec(GranteeAddress, []sdk.Msg{
+		&banktypes.MsgSend{
+			Amount:      sdk.NewCoins(sdk.NewInt64Coin("steak", 2)),
+			FromAddress: GranterAddress.String(),
+			ToAddress:   GranteeAddress.String(),
+		}})
+	decodeMsgExec(&msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"amount\":[{\"denom\":\"steak\",\"amount\":\"2\"}]}]}",
+	)
+
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
