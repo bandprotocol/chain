@@ -71,7 +71,7 @@ func (suite *AnteTestSuit) TestValidRawReport() {
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
-	suite.Require().Equal(err, nil)
+	suite.Require().NoError(err)
 }
 
 func (suite *AnteTestSuit) TestNotValidRawReport() {
@@ -86,21 +86,21 @@ func (suite *AnteTestSuit) TestNotValidRawReport() {
 
 func (suite *AnteTestSuit) TestValidReport() {
 	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
-	autzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
-	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
+	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
-	suite.Require().Equal(err, nil)
+	suite.Require().NoError(err)
 }
 
 func (suite *AnteTestSuit) TestNoAuthzReport() {
 	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
-	autzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
-	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
+	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
@@ -110,8 +110,8 @@ func (suite *AnteTestSuit) TestNoAuthzReport() {
 
 func (suite *AnteTestSuit) TestNotValidReport() {
 	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, testapp.Validators[0].ValAddress)}
-	autzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
-	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
+	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
@@ -120,21 +120,21 @@ func (suite *AnteTestSuit) TestNotValidReport() {
 }
 
 func (suite *AnteTestSuit) TestNotReportMsg() {
-	requetMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
-	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
+	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx, suite.ctx)
-	suite.Require().Equal(err, nil)
+	suite.Require().NoError(err)
 }
 
 func (suite *AnteTestSuit) TestNotReportMsgButReportOnlyBlock() {
 	suite.ctx = suite.ctx.WithBlockHeight(0)
-	requetMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
-	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
+	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
 	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
