@@ -15,6 +15,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
+var (
+	BasicCalldata = []byte("BASIC_CALLDATA")
+	BasicClientID = "BASIC_CLIENT_ID"
+)
+
 type MyStubTx struct {
 	sdk.Tx
 	Msgs []sdk.Msg
@@ -49,7 +54,7 @@ func (suite *AnteTestSuit) SetupTest() {
 
 	suite.oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
 
-	req := types.NewRequest(1, []byte("BASIC_CALLDATA"), []sdk.ValAddress{testapp.Validators[0].ValAddress}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
+	req := types.NewRequest(1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
 	suite.requestId = suite.oracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.mockAnte = new(MyMockAnte)
@@ -115,18 +120,20 @@ func (suite *AnteTestSuit) TestNotValidReport() {
 }
 
 func (suite *AnteTestSuit) TestNotReportMsg() {
-	requetMsg := types.NewMsgRequestData(1, []byte("BASIC_CALLDATA"), 1, 1, "BASIC_CLIENT_ID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requetMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
 
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
-	suite.gaslessAnte(suite.ctx, stubTx, false)
+	ctx, err := suite.gaslessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
+	suite.Require().Equal(ctx, suite.ctx)
+	suite.Require().Equal(err, nil)
 }
 
 func (suite *AnteTestSuit) TestNotReportMsgButReportOnlyBlock() {
 	suite.ctx = suite.ctx.WithBlockHeight(0)
-	requetMsg := types.NewMsgRequestData(1, []byte("BASIC_CALLDATA"), 1, 1, "BASIC_CLIENT_ID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requetMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
 
 	_, err := suite.gaslessAnte(suite.ctx, stubTx, false)
