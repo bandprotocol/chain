@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -25,11 +24,10 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-data-source [name] [description] [owner] [filepath] [fee] [treasury]",
 		Short: "Add a data source to genesis.json",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			depCdc := clientCtx.JSONCodec
-			cdc := depCdc.(codec.Codec)
+			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config

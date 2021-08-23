@@ -608,7 +608,7 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 				msg, err := authz.NewMsgGrant(
 					validator,
 					reporter,
-					types.NewReportAuthorization(),
+					authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})),
 					time.Unix(exp, 0),
 				)
 				if err != nil {
