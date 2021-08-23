@@ -172,9 +172,18 @@ func (h *Hook) handleMsgRequestData(
 func (h *Hook) handleMsgReportData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap,
 ) {
-	// val, _ := sdk.ValAddressFromBech32(msg.Validator)
-	// rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
-	// h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
+	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	rep := sdk.AccAddress(val)
+	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
+}
+
+// handleMsgReportDataFromGrantee implements emitter handler for MsgReportData.
+func (h *Hook) handleMsgReportDataFromGrantee(
+	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, grantee string,
+) {
+	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	rep, _ := sdk.AccAddressFromBech32(grantee)
+	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
 }
 
 // handleMsgCreateDataSource implements emitter handler for MsgCreateDataSource.

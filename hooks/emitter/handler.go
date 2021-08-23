@@ -2,6 +2,7 @@ package emitter
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -99,6 +100,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgChannelCloseConfirm(ctx, msg)
 	case *channeltypes.MsgAcknowledgement:
 		h.handleMsgAcknowledgement(ctx, msg, evMap)
+	case *authz.MsgGrant:
+		h.handleMsgGrant(msg, detail)
+	case *authz.MsgRevoke:
+		h.handleMsgRevoke(msg, detail)
+	case *authz.MsgExec:
+		h.handleMsgExec(ctx, txHash, msg, detail)
 	default:
 		break
 	}
