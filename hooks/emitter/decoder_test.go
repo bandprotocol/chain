@@ -11,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -35,6 +37,8 @@ var (
 	ReporterAddress  = sdk.AccAddress(genAddresFromString("Reporter"))
 	SignerAddress    = sdk.AccAddress(genAddresFromString("Signer"))
 	DelegatorAddress = sdk.AccAddress(genAddresFromString("Delegator"))
+	GranterAddress   = sdk.AccAddress(genAddresFromString("Granter"))
+	GranteeAddress   = sdk.AccAddress(genAddresFromString("Grantee"))
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
@@ -100,6 +104,61 @@ func (suite *DecoderTestSuite) testContains(msg common.JsDict, expect string) {
 	suite.Require().Contains(string(res), expect)
 }
 
+func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
+	detail := make(common.JsDict)
+	expiration := suite.chainA.GetContext().BlockTime()
+
+	// TestSendAuthorization
+	spendLimit := sdk.NewCoins(Amount)
+	sendMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, banktypes.NewSendAuthorization(spendLimit), expiration)
+	decodeMsgGrant(sendMsg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"spend_limit\":[{\"denom\":\"uband\",\"amount\":\"1\"}]},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+	// TestGenericAuthorization
+	genericMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})), expiration)
+	decodeMsgGrant(genericMsg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgReportData\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+	// TestStakeAuthorization
+	stakeAuthorization, _ := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{ValAddress}, []sdk.ValAddress{}, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, &Amount)
+	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, expiration)
+	decodeMsgGrant(stakeMsg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"max_tokens\":{\"denom\":\"uband\",\"amount\":\"1\"},\"Validators\":{\"allow_list\":{\"address\":[\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"]}},\"authorization_type\":1},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgRevoke() {
+	detail := make(common.JsDict)
+	msg := authz.NewMsgRevoke(GranterAddress, GranteeAddress, sdk.MsgTypeURL(&oracletypes.MsgReportData{}))
+	decodeMsgRevoke(&msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"/oracle.v1.MsgReportData\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgExec() {
+	detail := make(common.JsDict)
+	msg := authz.NewMsgExec(GranteeAddress, []sdk.Msg{
+		&banktypes.MsgSend{
+			Amount:      sdk.NewCoins(Amount),
+			FromAddress: GranterAddress.String(),
+			ToAddress:   GranteeAddress.String(),
+		},
+		&oracletypes.MsgReportData{},
+	})
+	decodeMsgExec(&msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"raw_reports\":null,\"request_id\":0,\"type\":\"/oracle.v1.MsgReportData\",\"validator\":\"\"}]}",
+	)
+
+}
+
 func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 	detail := make(common.JsDict)
 	msg := oracletypes.NewMsgRequestData(1, []byte("calldata"), 1, 1, "cleint_id", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, SenderAddress)
@@ -109,14 +168,14 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 	)
 }
 
-// func (suite *DecoderTestSuite) TestDecodeReportData() {
-// 	detail := make(common.JsDict)
-// 	msg := oracletypes.NewMsgReportData(1, []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress, ReporterAddress)
-// 	decodeMsgReportData(msg, detail)
-// 	suite.testCompareJson(detail,
-// 		"{\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"request_id\":1,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
-// 	)
-// }
+func (suite *DecoderTestSuite) TestDecodeReportData() {
+	detail := make(common.JsDict)
+	msg := oracletypes.NewMsgReportData(1, []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress)
+	decodeMsgReportData(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"request_id\":1,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
 
 func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource() {
 	detail := make(common.JsDict)
@@ -153,24 +212,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgEditOracleScript() {
 		"{\"code\":\"Y29kZQ==\",\"description\":\"desc\",\"name\":\"name\",\"oracle_script_id\":1,\"owner\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"schema\":\"schema\",\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"source_code_url\":\"url\"}",
 	)
 }
-
-// func (suite *DecoderTestSuite) TestDecodeMsgAddReporter() {
-// 	detail := make(common.JsDict)
-// 	msg := oracletypes.NewMsgAddReporter(ValAddress, ReporterAddress)
-// 	decodeMsgAddReporter(msg, detail)
-// 	suite.testCompareJson(detail,
-// 		"{\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
-// 	)
-// }
-
-// func (suite *DecoderTestSuite) TestDecodeMsgRemoveReporter() {
-// 	detail := make(common.JsDict)
-// 	msg := oracletypes.NewMsgRemoveReporter(ValAddress, ReporterAddress)
-// 	decodeMsgRemoveReporter(msg, detail)
-// 	suite.testCompareJson(detail,
-// 		"{\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
-// 	)
-// }
 
 func (suite *DecoderTestSuite) TestDecodeMsgActivate() {
 	detail := make(common.JsDict)

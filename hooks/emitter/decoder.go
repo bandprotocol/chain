@@ -3,9 +3,9 @@ package emitter
 import (
 	"encoding/hex"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -107,9 +107,53 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgUndelegate(msg, detail)
 	case *stakingtypes.MsgBeginRedelegate:
 		decodeMsgBeginRedelegate(msg, detail)
+	case *authz.MsgGrant:
+		decodeMsgGrant(msg, detail)
+	case *authz.MsgRevoke:
+		decodeMsgRevoke(msg, detail)
+	case *authz.MsgExec:
+		decodeMsgExec(msg, detail)
 	default:
 		break
 	}
+}
+
+func decodeGrant(g authz.Grant) common.JsDict {
+	return common.JsDict{
+		"authorization": g.GetAuthorization(),
+		"expiration":    g.Expiration,
+	}
+}
+
+func decodeMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
+	detail["granter"] = msg.Granter
+	detail["grantee"] = msg.Grantee
+	detail["grant"] = decodeGrant(msg.Grant)
+}
+
+func decodeMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
+	detail["granter"] = msg.Granter
+	detail["grantee"] = msg.Grantee
+	detail["msg_type_url"] = msg.MsgTypeUrl
+}
+
+func decodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
+	detail["grantee"] = msg.Grantee
+	msgs, _ := msg.GetMessages()
+	execMsgs := make([]common.JsDict, 0)
+	for _, msg := range msgs {
+		execMsg := make(common.JsDict)
+		switch msg := msg.(type) {
+		case *oracletypes.MsgReportData:
+			decodeMsgReportData(msg, execMsg)
+		case *banktypes.MsgSend:
+			decodeMsgSend(msg, execMsg)
+			// TODO: Add more MsgType
+		}
+		execMsg["type"] = sdk.MsgTypeURL(msg)
+		execMsgs = append(execMsgs, execMsg)
+	}
+	detail["msgs"] = execMsgs
 }
 
 func decodeHeight(h types1.Height) common.JsDict {
@@ -238,7 +282,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
 	hexConsPubKey := hex.EncodeToString(pk.Bytes())
 
-	detail["description"] = msg.Description
+	detail["description"] = decodeDescription(msg.Description)
 	detail["commission_rates"] = msg.Commission.Rate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
@@ -248,7 +292,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 }
 
 func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
-	detail["description"] = msg.Description
+	detail["description"] = decodeDescription(msg.Description)
 	detail["validator_address"] = msg.ValidatorAddress
 	detail["commission_rates"] = msg.CommissionRate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
