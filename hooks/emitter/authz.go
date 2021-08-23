@@ -11,7 +11,7 @@ import (
 func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
 	authorization := msg.Grant.GetAuthorization()
 	switch authorization.MsgTypeURL() {
-	case oracletypes.ReportAuthorization{}.MsgTypeURL():
+	case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
 		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
 		val := sdk.ValAddress(acc).String()
 		h.Write("SET_REPORTER", common.JsDict{
@@ -28,7 +28,7 @@ func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
 
 func (h *Hook) handleMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 	switch msg.MsgTypeUrl {
-	case oracletypes.ReportAuthorization{}.MsgTypeURL():
+	case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
 		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
 		val := sdk.ValAddress(acc).String()
 		h.Write("REMOVE_REPORTER", common.JsDict{
