@@ -7,12 +7,11 @@ import (
 )
 
 // NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(params Params, dataSources []DataSource, oracleScripts []OracleScript, reporters []ReportersPerValidator) *GenesisState {
+func NewGenesisState(params Params, dataSources []DataSource, oracleScripts []OracleScript) *GenesisState {
 	return &GenesisState{
 		Params:        params,
 		DataSources:   dataSources,
 		OracleScripts: oracleScripts,
-		Reporters:     reporters,
 	}
 }
 
@@ -22,12 +21,11 @@ func DefaultGenesisState() *GenesisState {
 		Params:        DefaultParams(),
 		DataSources:   []DataSource{},
 		OracleScripts: []OracleScript{},
-		Reporters:     []ReportersPerValidator{},
 	}
 }
 
 // GetGenesisStateFromAppState returns oracle GenesisState given raw application genesis state.
-func GetGenesisStateFromAppState(cdc codec.JSONMarshaler, appState map[string]json.RawMessage) *GenesisState {
+func GetGenesisStateFromAppState(cdc codec.JSONCodec, appState map[string]json.RawMessage) *GenesisState {
 	var genesisState GenesisState
 
 	if appState[ModuleName] != nil {

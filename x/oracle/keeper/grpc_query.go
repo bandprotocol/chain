@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -107,8 +109,8 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []int64
-	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+	var pendingIDs []uint64
+	for id := lastExpired + 1; uint64(id) <= requestCount; id++ {
 		oracleReq := k.MustGetRequest(ctx, id)
 
 		// If all validators reported on this request, then skip it.
@@ -150,7 +152,7 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 			continue
 		}
 
-		pendingIDs = append(pendingIDs, int64(id))
+		pendingIDs = append(pendingIDs, uint64(id))
 	}
 
 	return &types.QueryPendingRequestsResponse{RequestIDs: pendingIDs}, nil
@@ -174,22 +176,37 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 
-// Reporters queries all reporters of a given validator address.
-func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
+// IsReporter queries grant of account on this validator
+func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest) (*types.QueryIsReporterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
-	reps := k.GetReporters(ctx, val)
-	reporters := make([]string, len(reps))
-	for idx, rep := range reps {
-		reporters[idx] = rep.String()
+	rep, err := sdk.AccAddressFromBech32(req.ReporterAddress)
+	if err != nil {
+		return nil, err
 	}
-	return &types.QueryReportersResponse{Reporter: reporters}, nil
+	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
+}
+
+// Reporters queries all reporters of a given validator address.
+func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+	// TODO: Wait of get all grants
+	// ctx := sdk.UnwrapSDKContext(c)
+	// val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// reps := k.GetReporters(ctx, val)
+	// reporters := make([]string, len(reps))
+	// for idx, rep := range reps {
+	// 	reporters[idx] = rep.String()
+	// }
+	return &types.QueryReportersResponse{Reporter: []string{}}, nil
 }
 
 // ActiveValidators queries all active oracle validators.
@@ -254,10 +271,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
-	reporterPubKey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, req.Reporter)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key: %s", err.Error()))
+	pk, err := hex.DecodeString(req.Reporter)
+	if err != nil || len(pk) != secp256k1.PubKeySize {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
 	}
+	reporterPubKey := secp256k1.PubKey(pk[:])
+
 	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
@@ -265,16 +284,8 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 
 	// Provided reporter should be authorized by the provided validator
-	reporters := k.GetReporters(ctx, validator)
 	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
-	isReporterAuthorizedByValidator := false
-	for _, existingReporter := range reporters {
-		if reporter.Equals(existingReporter) {
-			isReporterAuthorizedByValidator = true
-			break
-		}
-	}
-	if !isReporterAuthorizedByValidator {
+	if !k.Keeper.IsReporter(ctx, validator, reporter) {
 		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
 	}
 
@@ -333,17 +344,6 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		Validator:    req.Validator,
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
-		DataSourceId: int64(*dataSourceID),
+		DataSourceId: uint64(*dataSourceID),
 	}, nil
-}
-
-// RequestPool queries the request pool information
-func (k Querier) RequestPool(c context.Context, req *types.QueryRequestPoolRequest) (*types.QueryRequestPoolResponse, error) {
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "empty request")
-	}
-	ctx := sdk.UnwrapSDKContext(c)
-	requestPool := types.GetEscrowAddress(req.RequestKey, req.PortId, req.ChannelId)
-	b := k.bankKeeper.GetAllBalances(ctx, requestPool)
-	return &types.QueryRequestPoolResponse{RequestPoolAddress: requestPool.String(), Balance: b}, nil
 }

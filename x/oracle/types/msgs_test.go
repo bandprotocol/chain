@@ -11,9 +11,9 @@ import (
 
 var (
 	GoodTestAddr    = sdk.AccAddress(make([]byte, 20))
-	BadTestAddr     = sdk.AccAddress([]byte("BAD_ADDR"))
+	EmptyAddr       = sdk.AccAddress([]byte(""))
 	GoodTestValAddr = sdk.ValAddress(make([]byte, 20))
-	BadTestValAddr  = sdk.ValAddress([]byte("BAD_ADDR"))
+	EmptyValAddr    = sdk.ValAddress([]byte(""))
 
 	MsgPk            = secp256k1.GenPrivKey().PubKey()
 	GoodTestAddr2    = sdk.AccAddress(MsgPk.Address())
@@ -48,8 +48,6 @@ func TestMsgRoute(t *testing.T) {
 	require.Equal(t, "oracle", MsgRequestData{}.Route())
 	require.Equal(t, "oracle", MsgReportData{}.Route())
 	require.Equal(t, "oracle", MsgActivate{}.Route())
-	require.Equal(t, "oracle", MsgAddReporter{}.Route())
-	require.Equal(t, "oracle", MsgRemoveReporter{}.Route())
 }
 
 func TestMsgType(t *testing.T) {
@@ -60,8 +58,6 @@ func TestMsgType(t *testing.T) {
 	require.Equal(t, "request", MsgRequestData{}.Type())
 	require.Equal(t, "report", MsgReportData{}.Type())
 	require.Equal(t, "activate", MsgActivate{}.Type())
-	require.Equal(t, "add_reporter", MsgAddReporter{}.Type())
-	require.Equal(t, "remove_reporter", MsgRemoveReporter{}.Type())
 }
 
 func TestMsgGetSigners(t *testing.T) {
@@ -77,10 +73,8 @@ func TestMsgGetSigners(t *testing.T) {
 	require.Equal(t, signers, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners())
 	require.Equal(t, signers, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", emptyCoins, 1, 1, signerAcc).GetSigners())
-	require.Equal(t, signers, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, anotherVal, signerAcc).GetSigners())
+	require.Equal(t, []sdk.AccAddress{anotherAcc}, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, anotherVal).GetSigners())
 	require.Equal(t, signers, NewMsgActivate(signerVal).GetSigners())
-	require.Equal(t, signers, NewMsgAddReporter(signerVal, anotherAcc).GetSigners())
-	require.Equal(t, signers, NewMsgRemoveReporter(signerVal, anotherAcc).GetSigners())
 }
 
 func TestMsgGetSignBytes(t *testing.T) {
@@ -108,29 +102,21 @@ func TestMsgGetSignBytes(t *testing.T) {
 		string(NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", FeeCoins, 50000, 250000, GoodTestAddr).GetSignBytes()),
 	)
 	require.Equal(t,
-		`{"type":"oracle/Report","value":{"raw_reports":[{"data":"ZGF0YTE=","exit_code":1,"external_id":"1"},{"data":"ZGF0YTI=","exit_code":2,"external_id":"2"}],"reporter":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","request_id":"1","validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
-		string(NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr, GoodTestAddr).GetSignBytes()),
+		`{"type":"oracle/Report","value":{"raw_reports":[{"data":"ZGF0YTE=","exit_code":1,"external_id":"1"},{"data":"ZGF0YTI=","exit_code":2,"external_id":"2"}],"request_id":"1","validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
+		string(NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr).GetSignBytes()),
 	)
 	require.Equal(t,
 		`{"type":"oracle/Activate","value":{"validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
 		string(NewMsgActivate(GoodTestValAddr).GetSignBytes()),
-	)
-	require.Equal(t,
-		`{"type":"oracle/AddReporter","value":{"reporter":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
-		string(NewMsgAddReporter(GoodTestValAddr, GoodTestAddr).GetSignBytes()),
-	)
-	require.Equal(t,
-		`{"type":"oracle/RemoveReporter","value":{"reporter":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
-		string(NewMsgRemoveReporter(GoodTestValAddr, GoodTestAddr).GetSignBytes()),
 	)
 }
 
 func TestMsgCreateDataSourceValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, BadTestAddr, GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, BadTestAddr, GoodTestAddr)},
-		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, BadTestAddr)},
+		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, EmptyAddr, GoodTestAddr, GoodTestAddr)},
+		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, EmptyAddr, GoodTestAddr)},
+		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, EmptyAddr)},
 		{false, NewMsgCreateDataSource("name", "desc", []byte("exec"), BadCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateDataSource(strings.Repeat("x", 200), "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateDataSource("name", strings.Repeat("x", 5000), []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
@@ -143,9 +129,9 @@ func TestMsgCreateDataSourceValidation(t *testing.T) {
 func TestMsgEditDataSourceValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, BadTestAddr, GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, BadTestAddr, GoodTestAddr)},
-		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, BadTestAddr)},
+		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, EmptyAddr, GoodTestAddr, GoodTestAddr)},
+		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, EmptyAddr, GoodTestAddr)},
+		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, EmptyAddr)},
 		{false, NewMsgEditDataSource(1, "name", "desc", []byte("exec"), BadCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditDataSource(1, strings.Repeat("x", 200), "desc", []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditDataSource(1, "name", strings.Repeat("x", 5000), []byte("exec"), GoodCoins, GoodTestAddr, GoodTestAddr, GoodTestAddr)},
@@ -157,7 +143,7 @@ func TestMsgEditDataSourceValidation(t *testing.T) {
 func TestMsgCreateOracleScriptValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), BadTestAddr, GoodTestAddr)},
+		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), EmptyAddr, GoodTestAddr)},
 		{false, NewMsgCreateOracleScript(strings.Repeat("x", 200), "desc", "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateOracleScript("name", strings.Repeat("x", 5000), "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateOracleScript("name", "desc", strings.Repeat("x", 1000), "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
@@ -165,21 +151,21 @@ func TestMsgCreateOracleScriptValidation(t *testing.T) {
 		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte{}, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte(strings.Repeat("x", 600000)), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", DoNotModifyBytes, GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), GoodTestAddr, BadTestAddr)},
+		{false, NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), GoodTestAddr, EmptyAddr)},
 	})
 }
 
 func TestMsgEditOracleScriptValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), BadTestAddr, GoodTestAddr)},
+		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), EmptyAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, strings.Repeat("x", 200), "desc", "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, "name", strings.Repeat("x", 5000), "schema", "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, "name", "desc", strings.Repeat("x", 1000), "url", []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", strings.Repeat("x", 200), []byte("code"), GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte{}, GoodTestAddr, GoodTestAddr)},
 		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte(strings.Repeat("x", 600000)), GoodTestAddr, GoodTestAddr)},
-		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), GoodTestAddr, BadTestAddr)},
+		{false, NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), GoodTestAddr, EmptyAddr)},
 	})
 }
 
@@ -189,7 +175,7 @@ func TestMsgRequestDataValidation(t *testing.T) {
 		{false, NewMsgRequestData(1, []byte("calldata"), 2, 5, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 0, 0, "client-id", GoodCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, strings.Repeat("x", 300), GoodCoins, 1, 1, GoodTestAddr)},
-		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 1, BadTestAddr)},
+		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 1, EmptyAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", BadCoins, 1, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 0, 1, GoodTestAddr)},
 		{false, NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", GoodCoins, 1, 0, GoodTestAddr)},
@@ -198,35 +184,16 @@ func TestMsgRequestDataValidation(t *testing.T) {
 
 func TestMsgReportDataValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
-		{true, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr, GoodTestAddr)},
-		{false, NewMsgReportData(1, []RawReport{}, GoodTestValAddr, GoodTestAddr)},
-		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {1, 1, []byte("data2")}}, GoodTestValAddr, GoodTestAddr)},
-		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, BadTestValAddr, GoodTestAddr)},
-		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr, BadTestAddr)},
+		{true, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, GoodTestValAddr)},
+		{false, NewMsgReportData(1, []RawReport{}, GoodTestValAddr)},
+		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {1, 1, []byte("data2")}}, GoodTestValAddr)},
+		{false, NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, EmptyValAddr)},
 	})
 }
 
 func TestMsgActivateValidation(t *testing.T) {
 	performValidateTests(t, []validateTestCase{
 		{true, NewMsgActivate(GoodTestValAddr)},
-		{false, NewMsgActivate(BadTestValAddr)},
-	})
-}
-
-func TestMsgAddReporterValidation(t *testing.T) {
-	performValidateTests(t, []validateTestCase{
-		{true, NewMsgAddReporter(GoodTestValAddr, GoodTestAddr2)},
-		{false, NewMsgAddReporter(BadTestValAddr, GoodTestAddr)},
-		{false, NewMsgAddReporter(GoodTestValAddr, BadTestAddr)},
-		{false, NewMsgAddReporter(GoodTestValAddr, GoodTestAddr)},
-	})
-}
-
-func TestMsgRemoveReporterValidation(t *testing.T) {
-	performValidateTests(t, []validateTestCase{
-		{true, NewMsgRemoveReporter(GoodTestValAddr, GoodTestAddr2)},
-		{false, NewMsgRemoveReporter(BadTestValAddr, GoodTestAddr)},
-		{false, NewMsgRemoveReporter(GoodTestValAddr, BadTestAddr)},
-		{false, NewMsgRemoveReporter(GoodTestValAddr, GoodTestAddr)},
+		{false, NewMsgActivate(EmptyValAddr)},
 	})
 }

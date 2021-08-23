@@ -22,7 +22,7 @@ func convertToOwasmGas(cosmos uint64) uint32 {
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
 // chance of getting selected directly proportional to the amount of voting power it has.
-func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.ValAddress, error) {
+func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk.ValAddress, error) {
 	valOperators := []sdk.ValAddress{}
 	valPowers := []uint64{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
@@ -37,7 +37,7 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id int64) ([]sdk.
 		return nil, sdkerrors.Wrapf(
 			types.ErrInsufficientValidators, "%d < %d", len(valOperators), size)
 	}
-	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(uint64(id)), []byte(ctx.ChainID()))
+	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}

@@ -18,6 +18,9 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	clientkeeper "github.com/cosmos/ibc-go/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -34,7 +37,7 @@ import (
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
 type Hook struct {
-	cdc            codec.Marshaler
+	cdc            codec.Codec
 	legecyAmino    *codec.LegacyAmino
 	encodingConfig params.EncodingConfig
 	// Main Kafka writer instance.
@@ -52,13 +55,18 @@ type Hook struct {
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+
+	//ibc keeper
+	clientkeeper     clientkeeper.Keeper
+	connectionkeeper connectionkeeper.Keeper
+	channelkeeper    channelkeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
-	cdc codec.Marshaler, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
+	cdc codec.Codec, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper, kafkaURI string, emitStartState bool,
+	oracleKeeper keeper.Keeper, clientkeeper clientkeeper.Keeper, connectionkeeper connectionkeeper.Keeper, channelkeeper channelkeeper.Keeper, kafkaURI string, emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
@@ -72,14 +80,17 @@ func NewHook(
 			BatchTimeout: 1 * time.Millisecond,
 			// Async:    true, // TODO: We may be able to enable async mode on replay
 		}),
-		accountKeeper:  accountKeeper,
-		bankKeeper:     bankKeeper,
-		stakingKeeper:  stakingKeeper,
-		mintKeeper:     mintKeeper,
-		distrKeeper:    distrKeeper,
-		govKeeper:      govKeeper,
-		oracleKeeper:   oracleKeeper,
-		emitStartState: emitStartState,
+		accountKeeper:    accountKeeper,
+		bankKeeper:       bankKeeper,
+		stakingKeeper:    stakingKeeper,
+		mintKeeper:       mintKeeper,
+		distrKeeper:      distrKeeper,
+		govKeeper:        govKeeper,
+		oracleKeeper:     oracleKeeper,
+		clientkeeper:     clientkeeper,
+		connectionkeeper: connectionkeeper,
+		channelkeeper:    channelkeeper,
+		emitStartState:   emitStartState,
 	}
 }
 
@@ -229,14 +240,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
 	}
-	for _, repPerVal := range oracleState.Reporters {
-		for _, rep := range repPerVal.Reporters {
-			h.Write("SET_REPORTER", common.JsDict{
-				"reporter":  rep,
-				"validator": repPerVal.Validator,
-			})
-		}
-	}
+	// TODO: add authz
 	h.Write("COMMIT", common.JsDict{"height": 0})
 	h.FlushMessages()
 }
@@ -272,13 +276,18 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, validator.GetOperator())
 		}
 	}
+	totalSupply := make([]string, 0)
+	h.bankKeeper.IterateTotalSupply(ctx, func(coin sdk.Coin) bool {
+		totalSupply = append(totalSupply, coin.String())
+		return true
+	})
 	h.Write("NEW_BLOCK", common.JsDict{
 		"height":    req.Header.GetHeight(),
 		"timestamp": ctx.BlockTime().UnixNano(),
 		"proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
 		"hash":      req.GetHash(),
 		"inflation": h.mintKeeper.GetMinter(ctx).Inflation.String(),
-		"supply":    h.bankKeeper.GetSupply(ctx).GetTotal().String(),
+		"supply":    totalSupply,
 	})
 	for _, event := range res.Events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
@@ -333,7 +342,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		}
 		messages = append(messages, common.JsDict{
 			"msg":  detail,
-			"type": msg.Type(),
+			"type": sdk.MsgTypeURL(msg),
 		})
 	}
 	signers := tx.GetMsgs()[0].GetSigners()

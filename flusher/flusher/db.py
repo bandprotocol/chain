@@ -182,7 +182,11 @@ requests = sa.Table(
     Column("request_time", sa.Integer, nullable=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
+    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
+    Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
+    Column("total_fees", sa.String),
+    Column("is_ibc", sa.Boolean),
     sa.Index("ix_requests_oracle_script_id", "oracle_script_id", "id"),
     sa.Index("ix_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
 )
@@ -377,17 +381,58 @@ request_count_per_days = sa.Table(
     "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
 )
 
-packets = sa.Table(
-    "packets",
+incoming_packets = sa.Table(
+    "incoming_packets",
     metadata,
-    Column("is_incoming", sa.Boolean),
     Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
     Column("src_channel", sa.String),
     Column("src_port", sa.String),
-    Column("sequence", sa.Integer),
-    Column("dst_channel", sa.String),
-    Column("dst_port", sa.String),
+    Column("sequence", sa.Integer, primary_key=True),
+    Column("dst_channel", sa.String, primary_key=True),
+    Column("dst_port", sa.String, primary_key=True),
+    Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
     Column("type", sa.String),
     Column("data", sa.JSON),
     Column("acknowledgement", sa.JSON, nullable=True),
+    sa.ForeignKeyConstraint(["dst_port", "dst_channel"], ["channels.port", "channels.channel"]),
+)
+
+outgoing_packets = sa.Table(
+    "outgoing_packets",
+    metadata,
+    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), index=True),
+    Column("src_channel", sa.String, primary_key=True),
+    Column("src_port", sa.String, primary_key=True),
+    Column("sequence", sa.Integer, primary_key=True),
+    Column("dst_channel", sa.String),
+    Column("dst_port", sa.String),
+    Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("type", sa.String),
+    Column("data", sa.JSON),
+    Column("acknowledgement", sa.JSON, nullable=True),
+    sa.ForeignKeyConstraint(["src_port", "src_channel"], ["channels.port", "channels.channel"]),
+)
+
+counterparty_chains = sa.Table("counterparty_chains", metadata, Column("chain_id", sa.String, primary_key=True))
+
+connections = sa.Table(
+    "connections",
+    metadata,
+    Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True),
+    Column("counterparty_connection_id", sa.String),
+    Column("client_id", sa.String),
+    Column("counterparty_client_id", sa.String),
+    Column("connection_id", sa.String, primary_key=True, unique=True),
+)
+
+channels = sa.Table(
+    "channels",
+    metadata,
+    Column("connection_id", sa.String, sa.ForeignKey("connections.connection_id")),
+    Column("port", sa.String, primary_key=True),
+    Column("counterparty_port", sa.String),
+    Column("channel", sa.String, primary_key=True),
+    Column("counterparty_channel", sa.String),
+    Column("state", sa.Integer),
+    Column("order", sa.String),
 )

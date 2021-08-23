@@ -1,9 +1,6 @@
 package types
 
 import (
-	"crypto/sha256"
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -53,10 +50,8 @@ var (
 	DataSourceStoreKeyPrefix = []byte{0x03}
 	// OracleScriptStoreKeyPrefix is the prefix for oracle script store.
 	OracleScriptStoreKeyPrefix = []byte{0x04}
-	// ReporterStoreKeyPrefix is the prefix for reporter store.
-	ReporterStoreKeyPrefix = []byte{0x05}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
-	ValidatorStatusKeyPrefix = []byte{0x06}
+	ValidatorStatusKeyPrefix = []byte{0x05}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 
@@ -84,13 +79,6 @@ func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 	return append(OracleScriptStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(oracleScriptID))...)
 }
 
-// ReporterStoreKey returns the key to check whether an address is a reporter of a validator.
-func ReporterStoreKey(validatorAddress sdk.ValAddress, reporterAddress sdk.AccAddress) []byte {
-	buf := append(ReporterStoreKeyPrefix, []byte(validatorAddress)...)
-	buf = append(buf, []byte(reporterAddress)...)
-	return buf
-}
-
 // ValidatorStatusStoreKey returns the key to a validator's status.
 func ValidatorStatusStoreKey(v sdk.ValAddress) []byte {
 	return append(ValidatorStatusKeyPrefix, v.Bytes()...)
@@ -106,23 +94,4 @@ func ReportsOfValidatorPrefixKey(reqID RequestID, val sdk.ValAddress) []byte {
 	buf := append(ReportStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(reqID))...)
 	buf = append(buf, val.Bytes()...)
 	return buf
-}
-
-// ReportersOfValidatorPrefixKey returns the prefix key to get all reporters of a validator.
-func ReportersOfValidatorPrefixKey(val sdk.ValAddress) []byte {
-	return append(ReporterStoreKeyPrefix, val.Bytes()...)
-}
-
-// GetEscrowAddress returns the escrow address for the specified channel and request key.
-// The escrow address follows the format as outlined in ADR 028:
-// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses.md
-func GetEscrowAddress(requestKey, portID, channelID string) sdk.AccAddress {
-	contents := fmt.Sprintf("%s/%s/%s", requestKey, portID, channelID)
-
-	// ADR 028 AddressHash construction
-	preImage := []byte(Version)
-	preImage = append(preImage, 0)
-	preImage = append(preImage, contents...)
-	hash := sha256.Sum256(preImage)
-	return hash[:20]
 }

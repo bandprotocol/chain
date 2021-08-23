@@ -41,9 +41,9 @@ func (h *Hook) emitOracleModule(ctx sdk.Context) {
 			"execute_gas":      req.ExecuteGas,
 		})
 		if h.oracleKeeper.HasResult(ctx, rid) {
-			h.emitUpdateResult(ctx, rid)
+			h.emitUpdateResult(ctx, rid, "")
 		}
-		h.emitRawRequestAndValRequest(rid, req)
+		h.emitRawRequestAndValRequest(ctx, rid, req)
 		reps := h.oracleKeeper.GetReports(ctx, rid)
 		for _, rep := range reps {
 			h.emitReportAndRawReport(nil, rid, sdk.ValAddress(rep.Validator), nil, rep.RawReports)
@@ -86,7 +86,7 @@ func (h *Hook) emitHistoricalValidatorStatus(ctx sdk.Context, operatorAddress sd
 	})
 }
 
-func (h *Hook) emitRawRequestAndValRequest(requestID types.RequestID, req types.Request) {
+func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request) {
 	for _, raw := range req.RawRequests {
 		h.Write("NEW_RAW_REQUEST", common.JsDict{
 			"request_id":     requestID,
@@ -94,6 +94,8 @@ func (h *Hook) emitRawRequestAndValRequest(requestID types.RequestID, req types.
 			"data_source_id": raw.DataSourceID,
 			"calldata":       parseBytes(raw.Calldata),
 		})
+		ds := h.oracleKeeper.MustGetDataSource(ctx, raw.DataSourceID)
+		h.AddAccountsInTx(ds.Treasury)
 	}
 	for _, val := range req.RequestedValidators {
 		h.Write("NEW_VAL_REQUEST", common.JsDict{
@@ -123,13 +125,15 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID) {
+func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, reason string) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":             id,
 		"request_time":   result.RequestTime,
 		"resolve_time":   result.ResolveTime,
 		"resolve_status": result.ResolveStatus,
+		"resolve_height": ctx.BlockHeight(),
+		"reason":         reason,
 		"result":         parseBytes(result.Result),
 	})
 }
@@ -154,8 +158,10 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas":      msg.PrepareGas,
 		"execute_gas":      msg.ExecuteGas,
 		"fee_limit":        msg.FeeLimit.String(),
+		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
+		"is_ibc":           req.IBCChannel != nil,
 	})
-	h.emitRawRequestAndValRequest(id, req)
+	h.emitRawRequestAndValRequest(ctx, id, req)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)
 	detail["id"] = id
 	detail["name"] = os.Name
@@ -166,9 +172,9 @@ func (h *Hook) handleMsgRequestData(
 func (h *Hook) handleMsgReportData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap,
 ) {
-	val, _ := sdk.ValAddressFromBech32(msg.Validator)
-	rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
-	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
+	// val, _ := sdk.ValAddressFromBech32(msg.Validator)
+	// rep, _ := sdk.AccAddressFromBech32(msg.Reporter)
+	// h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
 }
 
 // handleMsgCreateDataSource implements emitter handler for MsgCreateDataSource.
@@ -211,35 +217,11 @@ func (h *Hook) handleMsgEditOracleScript(
 
 // handleEventRequestExecute implements emitter handler for EventRequestExecute.
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
-	h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])))
-}
-
-// handleMsgAddReporter implements emitter handler for MsgAddReporter.
-func (h *Hook) handleMsgAddReporter(
-	ctx sdk.Context, msg *types.MsgAddReporter, detail common.JsDict,
-) {
-	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
-	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	detail["validator_moniker"] = val.GetMoniker()
-	h.AddAccountsInTx(msg.Reporter)
-	h.Write("SET_REPORTER", common.JsDict{
-		"reporter":  msg.Reporter,
-		"validator": msg.Validator,
-	})
-}
-
-// handleMsgRemoveReporter implements emitter handler for MsgRemoveReporter.
-func (h *Hook) handleMsgRemoveReporter(
-	ctx sdk.Context, msg *types.MsgRemoveReporter, detail common.JsDict,
-) {
-	addr, _ := sdk.ValAddressFromBech32(msg.Validator)
-	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
-	detail["validator_moniker"] = val.GetMoniker()
-	h.AddAccountsInTx(msg.Reporter)
-	h.Write("REMOVE_REPORTER", common.JsDict{
-		"reporter":  msg.Reporter,
-		"validator": msg.Validator,
-	})
+	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
+		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), reasons[0])
+	} else {
+		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "")
+	}
 }
 
 // handleMsgActivate implements emitter handler for handleMsgActivate.

@@ -16,14 +16,14 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	commitmenttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/23-commitment/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	"github.com/cosmos/cosmos-sdk/x/ibc/core/exported"
-	ibctmtypes "github.com/cosmos/cosmos-sdk/x/ibc/light-clients/07-tendermint/types"
-	"github.com/cosmos/cosmos-sdk/x/ibc/testing/mock"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	commitmenttypes "github.com/cosmos/ibc-go/modules/core/23-commitment/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	"github.com/cosmos/ibc-go/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/modules/light-clients/07-tendermint/types"
+	"github.com/cosmos/ibc-go/testing/mock"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -41,7 +41,7 @@ var (
 	valSize uint64 = 2
 )
 
-// TestChain is a testing struct that wraps a simapp with the last TM Header, the current ABCI
+// TestChain is a testing struct that wraps a TestingApp with the last TM Header, the current ABCI
 // header and the validators of the TestChain. It also contains a field called ChainID. This
 // is the clientID that *other* chains use to refer to this TestChain. The SenderAccount
 // is used for delivering transactions through the application state.
@@ -56,13 +56,13 @@ type TestChain struct {
 	CurrentHeader tmproto.Header     // header for current block height
 	// QueryServer   types.QueryServer
 	TxConfig client.TxConfig
-	Codec    codec.BinaryMarshaler
+	Codec    codec.BinaryCodec
 
 	Vals     *tmtypes.ValidatorSet
 	Signers  []tmtypes.PrivValidator
 	Treasury sdk.AccAddress
 
-	senderPrivKey cryptotypes.PrivKey
+	SenderPrivKey cryptotypes.PrivKey
 	SenderAccount authtypes.AccountI
 
 	senders map[string]*authtypes.BaseAccount
@@ -86,7 +86,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 	for i := uint64(0); i < valSize; i++ {
 		// generate validator private/public key
-		privVal := mock.PV{testapp.Validators[i].PrivKey}
+		privVal := mock.PV{PrivKey: testapp.Validators[i].PrivKey}
 		tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[i].PubKey)
 		require.NoError(t, err)
 
@@ -99,7 +99,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		genesisAccount[i] = senders[testapp.Validators[i].Address.String()]
 		balances[i] = banktypes.Balance{
 			Address: genesisAccount[i].GetAddress().String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100000000000000))),
+			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))),
 		}
 	}
 
@@ -132,7 +132,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
 		Signers:       signers,
-		senderPrivKey: testapp.Validators[0].PrivKey,
+		SenderPrivKey: testapp.Validators[0].PrivKey,
 		SenderAccount: genesisAccount[0],
 		Treasury:      testapp.Treasury.Address,
 		senders:       senders,
@@ -147,16 +147,6 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 func (chain *TestChain) GetContext() sdk.Context {
 	return chain.App.GetBaseApp().NewContext(false, chain.CurrentHeader)
 }
-
-// // GetSimApp returns the SimApp to allow usage ofnon-interface fields.
-// // CONTRACT: This function should not be called by third parties implementing
-// // their own SimApp.
-// func (chain *TestChain) GetSimApp() *simapp.SimApp {
-// 	app, ok := chain.App.(*simapp.SimApp)
-// 	require.True(chain.t, ok)
-
-// 	return app
-// }
 
 // QueryProof performs an abci query with the given key and returns the proto encoded merkle proof
 // for the query and the height at which the proof will succeed on a tendermint verifier.
@@ -177,7 +167,7 @@ func (chain *TestChain) QueryProofAtHeight(key []byte, height int64) ([]byte, cl
 	merkleProof, err := commitmenttypes.ConvertProofs(res.ProofOps)
 	require.NoError(chain.t, err)
 
-	proof, err := chain.App.AppCodec().MarshalBinaryBare(&merkleProof)
+	proof, err := chain.App.AppCodec().Marshal(&merkleProof)
 	require.NoError(chain.t, err)
 
 	revision := clienttypes.ParseChainID(chain.ChainID)
@@ -201,7 +191,7 @@ func (chain *TestChain) QueryUpgradeProof(key []byte, height uint64) ([]byte, cl
 	merkleProof, err := commitmenttypes.ConvertProofs(res.ProofOps)
 	require.NoError(chain.t, err)
 
-	proof, err := chain.App.AppCodec().MarshalBinaryBare(&merkleProof)
+	proof, err := chain.App.AppCodec().Marshal(&merkleProof)
 	require.NoError(chain.t, err)
 
 	revision := clienttypes.ParseChainID(chain.ChainID)
@@ -270,7 +260,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 		chain.ChainID,
 		[]uint64{chain.SenderAccount.GetAccountNumber()},
 		[]uint64{chain.SenderAccount.GetSequence()},
-		chain.senderPrivKey,
+		chain.SenderPrivKey,
 	)
 	if err != nil {
 		return nil, err
@@ -301,7 +291,7 @@ func (chain *TestChain) SendReport(rid types.RequestID, rawReps []types.RawRepor
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
 		chain.GetContext().BlockHeader(),
-		[]sdk.Msg{types.NewMsgReportData(rid, rawReps, sender.ValAddress, sender.Address)},
+		[]sdk.Msg{types.NewMsgReportData(rid, rawReps, sender.ValAddress)},
 		chain.ChainID,
 		[]uint64{senderAccount.GetAccountNumber()},
 		[]uint64{senderAccount.GetSequence()},
@@ -347,7 +337,7 @@ func (chain *TestChain) GetValsAtHeight(height int64) (*tmtypes.ValidatorSet, bo
 
 	valSet := stakingtypes.Validators(histInfo.Valset)
 
-	tmValidators, err := teststaking.ToTmValidators(valSet)
+	tmValidators, err := teststaking.ToTmValidators(valSet, sdk.DefaultPowerReduction)
 	if err != nil {
 		panic(err)
 	}

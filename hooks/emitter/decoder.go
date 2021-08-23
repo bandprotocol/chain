@@ -1,17 +1,24 @@
 package emitter
 
 import (
+	"encoding/hex"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	connectiontypes "github.com/cosmos/cosmos-sdk/x/ibc/core/03-connection/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	transfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	types1 "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+
+	"github.com/bandprotocol/chain/v2/hooks/common"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
@@ -28,30 +35,14 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgEditDataSource(msg, detail)
 	case *oracletypes.MsgEditOracleScript:
 		decodeMsgEditOracleScript(msg, detail)
-	case *oracletypes.MsgAddReporter:
-		decodeMsgAddReporter(msg, detail)
-	case *oracletypes.MsgRemoveReporter:
-		decodeMsgRemoveReporter(msg, detail)
+	// case *oracletypes.MsgAddReporter:
+	// 	decodeMsgAddReporter(msg, detail)
+	// case *oracletypes.MsgRemoveReporter:
+	// 	decodeMsgRemoveReporter(msg, detail)
 	case *oracletypes.MsgActivate:
 		decodeMsgActivate(msg, detail)
 	case *clienttypes.MsgCreateClient:
 		decodeMsgCreateClient(msg, detail)
-	case *govtypes.MsgSubmitProposal:
-		decodeMsgSubmitProposal(msg, detail)
-	case *govtypes.MsgDeposit:
-		decodeMsgDeposit(msg, detail)
-	case *govtypes.MsgVote:
-		decodeMsgVote(msg, detail)
-	case *stakingtypes.MsgCreateValidator:
-		decodeMsgCreateValidator(msg, detail)
-	case *stakingtypes.MsgEditValidator:
-		decodeMsgEditValidator(msg, detail)
-	case *stakingtypes.MsgDelegate:
-		decodeMsgDelegate(msg, detail)
-	case *stakingtypes.MsgUndelegate:
-		decodeMsgUndelegate(msg, detail)
-	case *stakingtypes.MsgBeginRedelegate:
-		decodeMsgBeginRedelegate(msg, detail)
 	case *clienttypes.MsgUpdateClient:
 		decodeMsgUpdateClient(msg, detail)
 	case *clienttypes.MsgUpgradeClient:
@@ -86,8 +77,58 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgTimeout(msg, detail)
 	case *channeltypes.MsgTimeoutOnClose:
 		decodeMsgTimeoutOnClose(msg, detail)
+	case *banktypes.MsgSend:
+		decodeMsgSend(msg, detail)
+	case *banktypes.MsgMultiSend:
+		decodeMsgMultiSend(msg, detail)
+	case *distrtypes.MsgSetWithdrawAddress:
+		decodeMsgSetWithdrawAddress(msg, detail)
+	case *distrtypes.MsgWithdrawDelegatorReward:
+		decodeMsgWithdrawDelegatorReward(msg, detail)
+	case *distrtypes.MsgWithdrawValidatorCommission:
+		decodeMsgWithdrawValidatorCommission(msg, detail)
+	case *slashingtypes.MsgUnjail:
+		decodeMsgUnjail(msg, detail)
+	case *transfertypes.MsgTransfer:
+		decodeMsgTransfer(msg, detail)
+	case *govtypes.MsgSubmitProposal:
+		decodeMsgSubmitProposal(msg, detail)
+	case *govtypes.MsgDeposit:
+		decodeMsgDeposit(msg, detail)
+	case *govtypes.MsgVote:
+		decodeMsgVote(msg, detail)
+	case *stakingtypes.MsgCreateValidator:
+		decodeMsgCreateValidator(msg, detail)
+	case *stakingtypes.MsgEditValidator:
+		decodeMsgEditValidator(msg, detail)
+	case *stakingtypes.MsgDelegate:
+		decodeMsgDelegate(msg, detail)
+	case *stakingtypes.MsgUndelegate:
+		decodeMsgUndelegate(msg, detail)
+	case *stakingtypes.MsgBeginRedelegate:
+		decodeMsgBeginRedelegate(msg, detail)
 	default:
 		break
+	}
+}
+
+func decodeHeight(h types1.Height) common.JsDict {
+	return common.JsDict{
+		"revision_number": h.GetRevisionNumber(),
+		"revision_height": h.GetRevisionHeight(),
+	}
+}
+
+func decodePacket(packet channeltypes.Packet) common.JsDict {
+	return common.JsDict{
+		"sequence":            packet.GetSequence(),
+		"source_port":         packet.GetSourcePort(),
+		"source_channel":      packet.GetSourceChannel(),
+		"destination_port":    packet.GetDestPort(),
+		"destination_channel": packet.GetDestChannel(),
+		"data":                packet.GetData(),
+		"timeout_height":      decodeHeight(types1.NewHeight(packet.GetTimeoutHeight().GetRevisionNumber(), packet.GetTimeoutHeight().GetRevisionHeight())),
+		"timeout_timestamp":   packet.GetTimeoutTimestamp(),
 	}
 }
 
@@ -107,7 +148,7 @@ func decodeMsgReportData(msg *oracletypes.MsgReportData, detail common.JsDict) {
 	detail["request_id"] = msg.GetRequestID()
 	detail["raw_reports"] = msg.GetRawReports()
 	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
+	// detail["reporter"] = msg.GetReporter()
 }
 
 func decodeMsgCreateDataSource(msg *oracletypes.MsgCreateDataSource, detail common.JsDict) {
@@ -152,15 +193,15 @@ func decodeMsgEditOracleScript(msg *oracletypes.MsgEditOracleScript, detail comm
 	detail["sender"] = msg.GetSender()
 }
 
-func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
-	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
-}
+// func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
+// 	detail["validator"] = msg.GetValidator()
+// 	detail["reporter"] = msg.GetReporter()
+// }
 
-func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, detail common.JsDict) {
-	detail["validator"] = msg.GetValidator()
-	detail["reporter"] = msg.GetReporter()
-}
+// func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, detail common.JsDict) {
+// 	detail["validator"] = msg.GetValidator()
+// 	detail["reporter"] = msg.GetReporter()
+// }
 
 func decodeMsgActivate(msg *oracletypes.MsgActivate, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
@@ -195,14 +236,14 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 
 func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
 	pk, _ := msg.Pubkey.GetCachedValue().(cryptotypes.PubKey)
-	bechConsPubKey, _ := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pk)
+	hexConsPubKey := hex.EncodeToString(pk.Bytes())
 
 	detail["description"] = msg.Description
 	detail["commission_rates"] = msg.Commission.Rate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
-	detail["pubkey"] = bechConsPubKey
+	detail["pubkey"] = hexConsPubKey
 	detail["value"] = msg.Value
 }
 
@@ -259,7 +300,7 @@ func decodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail 
 
 func decodeMsgConnectionOpenInit(msg *connectiontypes.MsgConnectionOpenInit, detail common.JsDict) {
 	detail["client_id"] = msg.ClientId
-	detail["counterpart"] = msg.Counterparty
+	detail["counterparty"] = msg.Counterparty
 	detail["version"] = msg.Version
 	detail["delay_period"] = msg.DelayPeriod
 	detail["signer"] = msg.Signer
@@ -273,11 +314,11 @@ func decodeMsgConnectionOpenTry(msg *connectiontypes.MsgConnectionOpenTry, detai
 	detail["counterparty"] = msg.Counterparty
 	detail["delay_period"] = msg.DelayPeriod
 	detail["counterparty_versions"] = msg.CounterpartyVersions
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["proof_init"] = msg.ProofInit
 	detail["proof_client"] = msg.ProofClient
 	detail["proof_consensus"] = msg.ProofConsensus
-	detail["consensus_height"] = msg.ConsensusHeight
+	detail["consensus_height"] = decodeHeight(msg.ConsensusHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -287,18 +328,18 @@ func decodeMsgConnectionOpenAck(msg *connectiontypes.MsgConnectionOpenAck, detai
 	detail["counterparty_connection_id"] = msg.CounterpartyConnectionId
 	detail["version"] = msg.Version
 	detail["client_state"] = clientState
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["proof_try"] = msg.ProofTry
 	detail["proof_client"] = msg.ProofClient
 	detail["proof_consensus"] = msg.ProofConsensus
-	detail["consensus_height"] = msg.ConsensusHeight
+	detail["consensus_height"] = decodeHeight(msg.ConsensusHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgConnectionOpenConfirm(msg *connectiontypes.MsgConnectionOpenConfirm, detail common.JsDict) {
 	detail["connection_id"] = msg.ConnectionId
 	detail["proof_ack"] = msg.ProofAck
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -314,7 +355,7 @@ func decodeMsgChannelOpenTry(msg *channeltypes.MsgChannelOpenTry, detail common.
 	detail["channel"] = msg.Channel
 	detail["counterparty_version"] = msg.CounterpartyVersion
 	detail["proof_init"] = msg.ProofInit
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -324,7 +365,7 @@ func decodeMsgChannelOpenAck(msg *channeltypes.MsgChannelOpenAck, detail common.
 	detail["counterparty_channel_id"] = msg.CounterpartyChannelId
 	detail["counterparty_version"] = msg.CounterpartyVersion
 	detail["proof_try"] = msg.ProofTry
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -332,7 +373,7 @@ func decodeMsgChannelOpenConfirm(msg *channeltypes.MsgChannelOpenConfirm, detail
 	detail["port_id"] = msg.PortId
 	detail["channel_id"] = msg.ChannelId
 	detail["proof_ack"] = msg.ProofAck
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
@@ -346,38 +387,87 @@ func decodeMsgChannelCloseConfirm(msg *channeltypes.MsgChannelCloseConfirm, deta
 	detail["port_id"] = msg.PortId
 	detail["channel_id"] = msg.ChannelId
 	detail["proof_init"] = msg.ProofInit
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgRecvPacket(msg *channeltypes.MsgRecvPacket, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_commitment"] = msg.ProofCommitment
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgAcknowledgement(msg *channeltypes.MsgAcknowledgement, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["acknowledgement"] = msg.Acknowledgement
 	detail["proof_acked"] = msg.ProofAcked
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgTimeout(msg *channeltypes.MsgTimeout, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_unreceived"] = msg.ProofUnreceived
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
 }
 
 func decodeMsgTimeoutOnClose(msg *channeltypes.MsgTimeoutOnClose, detail common.JsDict) {
-	detail["packet"] = msg.Packet
+	detail["packet"] = decodePacket(msg.Packet)
 	detail["proof_unreceived"] = msg.ProofUnreceived
 	detail["proof_close"] = msg.ProofClose
-	detail["proof_height"] = msg.ProofHeight
+	detail["proof_height"] = decodeHeight(msg.ProofHeight)
 	detail["next_sequence_recv"] = msg.NextSequenceRecv
 	detail["signer"] = msg.Signer
+}
+
+func decodeMsgSend(msg *banktypes.MsgSend, detail common.JsDict) {
+	detail["from_address"] = msg.FromAddress
+	detail["to_address"] = msg.ToAddress
+	detail["amount"] = msg.Amount
+}
+
+func decodeMsgMultiSend(msg *banktypes.MsgMultiSend, detail common.JsDict) {
+	detail["inputs"] = msg.Inputs
+	detail["outputs"] = msg.Outputs
+}
+
+func decodeMsgSetWithdrawAddress(msg *distrtypes.MsgSetWithdrawAddress, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["withdraw_address"] = msg.WithdrawAddress
+}
+
+func decodeMsgWithdrawDelegatorReward(msg *distrtypes.MsgWithdrawDelegatorReward, detail common.JsDict) {
+	detail["delegator_address"] = msg.DelegatorAddress
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgWithdrawValidatorCommission(msg *distrtypes.MsgWithdrawValidatorCommission, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddress
+}
+
+func decodeMsgUnjail(msg *slashingtypes.MsgUnjail, detail common.JsDict) {
+	detail["validator_address"] = msg.ValidatorAddr
+}
+
+func decodeMsgTransfer(msg *transfertypes.MsgTransfer, detail common.JsDict) {
+	detail["source_port"] = msg.SourcePort
+	detail["source_channel"] = msg.SourceChannel
+	detail["token"] = msg.Token
+	detail["sender"] = msg.Sender
+	detail["receiver"] = msg.Receiver
+	detail["timeout_height"] = decodeHeight(msg.TimeoutHeight)
+	detail["timeout_timestamp"] = msg.TimeoutTimestamp
+}
+
+func decodeDescription(des stakingtypes.Description) common.JsDict {
+	return common.JsDict{
+		"details":          des.GetDetails(),
+		"identity":         des.GetIdentity(),
+		"moniker":          des.GetMoniker(),
+		"security_contact": des.GetSecurityContact(),
+		"website":          des.GetWebsite(),
+	}
 }

@@ -123,7 +123,7 @@ func NewRequest(
 	clientID string,
 	ansCount uint64,
 	requestHeight int64,
-	requestTimeUnix uint64,
+	requestTimeUnix int64,
 	rawRequests []RawRequest,
 	reports []Report,
 	ibcChannel string,

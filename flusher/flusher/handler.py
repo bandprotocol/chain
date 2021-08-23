@@ -30,7 +30,11 @@ from .db import (
     data_source_requests,
     oracle_script_requests,
     request_count_per_days,
-    packets,
+    incoming_packets,
+    outgoing_packets,
+    counterparty_chains,
+    connections,
+    channels,
 )
 
 
@@ -362,6 +366,22 @@ class Handler(object):
     def handle_new_packet(self, msg):
         self.conn.execute(insert(packets).values(**msg))
 
+    def handle_new_incoming_packet(self, msg):
+        msg["tx_id"] = self.get_transaction_id(msg["hash"])
+        del msg["hash"]
+        self.conn.execute(insert(incoming_packets).values(**msg))
+
+    def handle_new_outgoing_packet(self, msg):
+        msg["tx_id"] = self.get_transaction_id(msg["hash"])
+        del msg["hash"]
+        self.conn.execute(insert(outgoing_packets).values(**msg))
+
+    def handle_update_outgoing_packet(self, msg):
+        condition = True
+        for col in outgoing_packets.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(outgoing_packets.update(condition).values(**msg))
+
     def increase_oracle_script_count(self, id):
         self.conn.execute(
             oracle_script_requests.update(oracle_script_requests.c.oracle_script_id == id).values(
@@ -375,3 +395,18 @@ class Handler(object):
             .values(**msg)
             .on_conflict_do_update(constraint="historical_bonded_token_on_validators_pkey", set_=msg)
         )
+
+    def handle_set_counterparty_chain(self, msg):
+        self.conn.execute(
+            insert(counterparty_chains)
+            .values(**msg)
+            .on_conflict_do_update(constraint="counterparty_chains_pkey", set_=msg)
+        )
+
+    def handle_set_connection(self, msg):
+        self.conn.execute(
+            insert(connections).values(**msg).on_conflict_do_update(constraint="connections_pkey", set_=msg)
+        )
+
+    def handle_set_channel(self, msg):
+        self.conn.execute(insert(channels).values(**msg).on_conflict_do_update(constraint="channels_pkey", set_=msg))

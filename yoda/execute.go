@@ -12,8 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	band "github.com/bandprotocol/chain/v2/app"
@@ -50,7 +51,9 @@ func signAndBroadcast(
 		WithKeybase(kb).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := tx.BuildUnsignedTx(txf, msgs...)
+	execMsg := authz.NewMsgExec(key.GetAddress(), msgs)
+
+	txb, err := tx.BuildUnsignedTx(txf, &execMsg)
 	if err != nil {
 		return "", err
 	}
@@ -153,7 +156,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	FindTx:
 		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
 			time.Sleep(c.rpcPollInterval)
-			txRes, err := authclient.QueryTx(clientCtx, txHash)
+			txRes, err := authtx.QueryTx(clientCtx, txHash)
 			if err != nil {
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
@@ -217,7 +220,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 	}
 
 	var d types.DataSource
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+	cdc.MustUnmarshal(res.Response.Value, &d)
 
 	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
 
@@ -233,7 +236,7 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	}
 
 	var r types.Request
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
+	cdc.MustUnmarshal(res.Response.Value, &r)
 
 	return r, nil
 }

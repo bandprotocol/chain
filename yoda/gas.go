@@ -59,7 +59,7 @@ func getTxByteLength(msgs []sdk.Msg) uint64 {
 			panic("Don't support non-report data message")
 		}
 
-		ser := cdc.MustMarshalBinaryBare(msg)
+		ser := cdc.MustMarshal(msg)
 		size += uint64(len(ser))
 	}
 
@@ -85,7 +85,7 @@ func getReportByteLength(msg *types.MsgReportData) uint64 {
 		true,
 		msg.RawReports,
 	)
-	return uint64(len(cdc.MustMarshalBinaryBare(&report)))
+	return uint64(len(cdc.MustMarshal(&report)))
 }
 
 func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
@@ -120,6 +120,7 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 }
 
 func estimateGas(c *Context, l *Logger, msgs []sdk.Msg, feeEstimations []FeeEstimationData) uint64 {
+	// TODO: Add authz validation / remove check reporter base gas
 	gas := estimateAuthAnteHandlerGas(c, msgs)
 
 	for i, msg := range msgs {

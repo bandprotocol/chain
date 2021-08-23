@@ -34,19 +34,13 @@ service Msg {
 
   // Activate defines a method for applying to be an oracle validator.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
-
-  // AddReporter defines a method for adding a new reporter for a validator.
-  rpc AddReporter(MsgAddReporter) returns (MsgAddReporterResponse);
-
-  // RemoveReporter defines a method for removing an reporter from a validator
-  rpc RemoveReporter(MsgRemoveReporter) returns (MsgRemoveReporterResponse);
 }
 
 // MsgRequestData is a message for sending a data oracle request.
 message MsgRequestData {
   option (gogoproto.equal) = true;
   // OracleScriptID is the identifier of the oracle script to be called.
-  int64 oracle_script_id = 1 [
+  uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -80,7 +74,7 @@ message MsgRequestDataResponse {}
 message MsgReportData {
   option (gogoproto.equal) = true;
   // RequestID is the identifier of the request to be reported to.
-  int64 request_id = 1 [
+  uint64 request_id = 1 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
   ];
@@ -89,9 +83,6 @@ message MsgReportData {
   repeated RawReport raw_reports = 2 [ (gogoproto.nullable) = false ];
   // Validator is the address of the validator that owns this report.
   string validator = 3;
-  // Reporter is the message signer who submits this report transaction for the
-  // validator.
-  string reporter = 4;
 }
 
 // MsgReportDataResponse is response data for MsgReportData message
@@ -130,7 +121,7 @@ message MsgCreateDataSourceResponse {}
 message MsgEditDataSource {
   option (gogoproto.equal) = true;
   // DataSourceID is the unique identifier of the data source to be edited.
-  int64 data_source_id = 1 [
+  uint64 data_source_id = 1 [
     (gogoproto.customname) = "DataSourceID",
     (gogoproto.casttype) = "DataSourceID"
   ];
@@ -190,7 +181,7 @@ message MsgCreateOracleScriptResponse {}
 message MsgEditOracleScript {
   option (gogoproto.equal) = true;
   // OracleScriptID is the unique identifier of the oracle script to be edited.
-  int64 oracle_script_id = 1 [
+  uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.casttype) = "OracleScriptID"
   ];
@@ -228,31 +219,3 @@ message MsgActivate {
 
 // MsgActivateResponse is response data for MsgActivate message
 message MsgActivateResponse {}
-
-// MsgAddReporter is a message for adding a new reporter for a validator.
-message MsgAddReporter {
-  option (gogoproto.equal) = true;
-  // Validator is the validator address who requested to add a new reporter.
-  // Note that this is the signer.
-  string validator = 1;
-  // Reporter is the account address to be added as a reporter to the validator.
-  string reporter = 2;
-}
-
-// MsgAddReporterResponse is response data for MsgAddReporter message
-message MsgAddReporterResponse {}
-
-// MsgAddReporter is a message for removing an existing reporter from a
-// validator.
-message MsgRemoveReporter {
-  option (gogoproto.equal) = true;
-  // Validator is the validator address who requested to remove an existing
-  // reporter. Note that this is the signer.
-  string validator = 1;
-  // Reporter is the account address to be removed from being the validator's
-  // reporter.
-  string reporter = 2;
-}
-
-// MsgRemoveReporterResponse is response data for MsgRemoveReporter message
-message MsgRemoveReporterResponse {}

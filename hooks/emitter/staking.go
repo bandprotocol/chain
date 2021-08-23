@@ -1,11 +1,12 @@
 package emitter
 
 import (
+	"encoding/hex"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	
+
 	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
@@ -59,7 +60,7 @@ func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Vali
 		"operator_address":       addr.String(),
 		"delegator_address":      sdk.AccAddress(addr).String(),
 		"consensus_address":      sdk.GetConsAddress(pub).String(),
-		"consensus_pubkey":       sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pub),
+		"consensus_pubkey":       hex.EncodeToString(pub.Bytes()),
 		"moniker":                val.Description.Moniker,
 		"identity":               val.Description.Identity,
 		"website":                val.Description.Website,

@@ -53,16 +53,6 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 		return nil, err
 	}
 
-	reporter, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-
-	// check this address is a reporter of the validator
-	if !k.IsReporter(ctx, validator, reporter) {
-		return nil, types.ErrReporterNotAuthorized
-	}
-
 	// check request must not expire.
 	if msg.RequestID <= k.GetRequestLastExpired(ctx) {
 		return nil, types.ErrRequestAlreadyExpired
@@ -87,7 +77,7 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeReport,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", msg.RequestID)),
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(types.AttributeKeyValidator, validator.String()),
 	))
 	return &types.MsgReportDataResponse{}, nil
 }
@@ -283,48 +273,4 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
 	))
 	return &types.MsgActivateResponse{}, nil
-}
-
-func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter) (*types.MsgAddReporterResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
-	if err != nil {
-		return nil, err
-	}
-	err = k.Keeper.AddReporter(ctx, valAddr, repAddr)
-	if err != nil {
-		return nil, err
-	}
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeAddReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
-	))
-	return &types.MsgAddReporterResponse{}, nil
-}
-
-func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveReporter) (*types.MsgRemoveReporterResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
-	if err != nil {
-		return nil, err
-	}
-	err = k.Keeper.RemoveReporter(ctx, valAddr, repAddr)
-	if err != nil {
-		return nil, err
-	}
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeRemoveReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
-	))
-	return &types.MsgRemoveReporterResponse{}, nil
 }

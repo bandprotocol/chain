@@ -36,7 +36,6 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryActiveValidators(),
 		GetQueryPendingRequests(),
 		GetQueryRequestVerification(),
-		GetQueryRequestPool(),
 		GetQueryRequestPrice(),
 	)
 	return oracleCmd
@@ -103,7 +102,7 @@ func GetQueryCmdDataSource() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -132,7 +131,7 @@ func GetQueryCmdOracleScript() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -162,7 +161,7 @@ func GetQueryCmdRequest() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseInt(args[0], 10, 64)
+			id, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -192,7 +191,7 @@ func GetQueryCmdRequestSearch() *cobra.Command {
 				return err
 			}
 
-			oracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
+			oracleScriptID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse oracle script ID: %w", err)
 			}
@@ -351,11 +350,11 @@ func GetQueryRequestVerification() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			requestID, err := strconv.ParseInt(args[2], 10, 64)
+			requestID, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse request ID: %w", err)
 			}
-			externalID, err := strconv.ParseInt(args[3], 10, 64)
+			externalID, err := strconv.ParseUint(args[3], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse external ID: %w", err)
 			}
@@ -385,38 +384,6 @@ func GetQueryRequestVerification() *cobra.Command {
 	return cmd
 }
 
-// GetQueryRequestPool implements the query request pool command.
-func GetQueryRequestPool() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "request-pool [request-key] [port-id] [channel-id]",
-		Short: "Get account information of request pool",
-		Args:  cobra.ExactArgs(3),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.RequestPool(
-				context.Background(),
-				&types.QueryRequestPoolRequest{
-					RequestKey: args[0],
-					PortId:     args[1],
-					ChannelId:  args[2],
-				},
-			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(r)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
 func GetQueryRequestPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "request-price [symbols-comma-separated] [ask-count] [min-count]",
@@ -425,11 +392,11 @@ func GetQueryRequestPrice() *cobra.Command {
 		Args:    cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			symbols := strings.Split(args[0], ",")
-			askCount, err := strconv.ParseInt(args[1], 10, 64)
+			askCount, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse ask count: %w", err)
 			}
-			minCount, err := strconv.ParseInt(args[2], 10, 64)
+			minCount, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return fmt.Errorf("unable to parse min count: %w", err)
 			}
