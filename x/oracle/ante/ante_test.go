@@ -142,6 +142,28 @@ func (suite *AnteTestSuit) TestNotReportMsgButReportOnlyBlock() {
 	suite.Require().EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
 }
 
+func (suite *AnteTestSuit) TestNotReportMsgOnReportOnlyBlockByCash() {
+	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
+	stubTxReport := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
+	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	stubTxNotReport := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
+
+	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTxReport, false)
+	suite.feelessAnte(suite.ctx, stubTxReport, false)
+
+	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 21)
+	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTxReport, false)
+	suite.feelessAnte(suite.ctx, stubTxReport, false)
+
+	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
+	_, err := suite.feelessAnte(suite.ctx, stubTxNotReport, false)
+
+	suite.mockAnte.AssertExpectations(suite.T())
+	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 2)
+	suite.Require().EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
+}
+
 func TestAnteTestSuite(t *testing.T) {
 	suite.Run(t, new(AnteTestSuit))
 }
