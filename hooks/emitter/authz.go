@@ -54,5 +54,4 @@ func (h *Hook) handleMsgExec(ctx sdk.Context, txHash []byte, msg *authz.MsgExec,
 			break
 		}
 	}
-	h.AddAccountsInTx(msg.Grantee)
 }
