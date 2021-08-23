@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- (chain) Replace report authorization with generic authorization
 - (yoda) Fix yoda to send report by MsgExec.
 - (yoda) Add feature on yoda keys list to show grant status of reporter
 - (chain) Remove MsgAddReporter/MsgRemoveReporter + Using Grant in authz module to manage authorization of reporter
