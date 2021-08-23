@@ -114,10 +114,32 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	t, _ := time.Parse(layout, str)
 
 	// TestReportAuthorization
-	msg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, oracletypes.NewReportAuthorization(), t)
-	decodeMsgGrant(msg, detail)
+	report_msg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, oracletypes.NewReportAuthorization(), t)
+	decodeMsgGrant(report_msg, detail)
 	suite.testCompareJson(detail,
 		"{\"grant\":{\"authorization\":{},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+	// TestSendAuthorization
+	send_msg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, banktypes.NewSendAuthorization(sdk.NewCoins(sdk.NewInt64Coin("uband", 1000))), t)
+	decodeMsgGrant(send_msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"spend_limit\":[{\"denom\":\"uband\",\"amount\":\"1000\"}]},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+	// TestGenericAuthorization
+	generic_msg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, authz.NewGenericAuthorization("/oracle.v1.MsgActivate"), t)
+	decodeMsgGrant(generic_msg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgActivate\"},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+	)
+
+	// TestStakeAuthorization
+	stakeAuthorization, _ := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{ValAddress}, []sdk.ValAddress{}, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE, &Amount)
+	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, t)
+	decodeMsgGrant(stakeMsg, detail)
+	suite.testCompareJson(detail,
+		"{\"grant\":{\"authorization\":{\"max_tokens\":{\"denom\":\"uband\",\"amount\":\"1\"},\"Validators\":{\"allow_list\":{\"address\":[\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"]}},\"authorization_type\":1},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 }
@@ -141,7 +163,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgExec() {
 		}})
 	decodeMsgExec(&msg, detail)
 	suite.testCompareJson(detail,
-		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"amount\":[{\"denom\":\"steak\",\"amount\":\"2\"}]}]}",
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"amount\":[{\"denom\":\"steak\",\"amount\":\"2\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}]}",
 	)
 
 }

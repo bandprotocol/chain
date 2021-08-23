@@ -146,7 +146,9 @@ func decodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
 		switch msg := msg.(type) {
 		case *oracletypes.MsgReportData:
 			decodeMsgReportData(msg, execMsg)
-
+		case *banktypes.MsgSend:
+			decodeMsgSend(msg, execMsg)
+			// TODO: Add more MsgType
 		}
 		execMsg["type"] = sdk.MsgTypeURL(msg)
 		execMsgs = append(execMsgs, execMsg)
