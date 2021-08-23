@@ -139,7 +139,7 @@ func decodeMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 
 func decodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
 	detail["grantee"] = msg.Grantee
-	detail["msgs"] = msg.Msgs
+	detail["msgs"], _ = msg.GetMessages()
 }
 
 func decodeHeight(h types1.Height) common.JsDict {
