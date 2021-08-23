@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -216,7 +217,9 @@ func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter s
 
 // GrantReporter grants the reporter to validator for testing
 func (k Keeper) GrantReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) error {
-	return k.authzKeeper.SaveGrant(ctx, reporter, sdk.AccAddress(validator), types.NewReportAuthorization(), ctx.BlockTime().Add(10*time.Minute))
+	return k.authzKeeper.SaveGrant(ctx, reporter, sdk.AccAddress(validator),
+		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})), ctx.BlockTime().Add(10*time.Minute),
+	)
 }
 
 // RevokeReporter revokes grant from the reporter for testing
