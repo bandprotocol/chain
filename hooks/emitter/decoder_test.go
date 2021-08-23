@@ -108,13 +108,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	detail := make(common.JsDict)
 	expiration := suite.chainA.GetContext().BlockTime()
 
-	// TestReportAuthorization
-	reportMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, oracletypes.NewReportAuthorization(), expiration)
-	decodeMsgGrant(reportMsg, detail)
-	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
-	)
-
 	// TestSendAuthorization
 	spendLimit := sdk.NewCoins(Amount)
 	sendMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, banktypes.NewSendAuthorization(spendLimit), expiration)
@@ -124,10 +117,10 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	)
 
 	// TestGenericAuthorization
-	genericMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, authz.NewGenericAuthorization("/oracle.v1.MsgActivate"), expiration)
+	genericMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})), expiration)
 	decodeMsgGrant(genericMsg, detail)
 	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgActivate\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgReportData\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 	// TestStakeAuthorization
