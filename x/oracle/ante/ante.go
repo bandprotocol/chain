@@ -25,8 +25,6 @@ func init() {
 	}
 }
 
-// TODO: Add test on this ante before merge
-
 func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, r *types.MsgReportData) error {
 	validator, err := sdk.ValAddressFromBech32(r.Validator)
 	if err != nil {
