@@ -50,7 +50,7 @@ sed 's/node-validator/🙎‍♀️Alice \& Co./g' ~/.band/config/config.toml.te
 bandd gentx validator1 100000000uband \
     --chain-id bandchain \
     --node-id 11392b605378063b1c505c0ab123f04bd710d7d7 \
-    --pubkey bandvalconspub1addwnpepq06h7wvh5n5pmrejr6t3pyn7ytpwd5c0kmv0wjdfujs847em8dusjl96sxg \
+    --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A/V/OZek6B2PMh6XEJJ+IsLm0w+22PdJqeSgevs7O3kJ"}' \
     --details "Alice's Adventures in Wonderland (commonly shortened to Alice in Wonderland) is an 1865 novel written by English author Charles Lutwidge Dodgson under the pseudonym Lewis Carroll." \
     --website "https://www.alice.org/" \
     --ip 172.18.0.11 \
@@ -62,7 +62,7 @@ sed 's/node-validator/Bobby.fish 🐡/g' ~/.band/config/config.toml.temp > ~/.ba
 bandd gentx validator2 100000000uband \
     --chain-id bandchain \
     --node-id 0851086afcd835d5a6fb0ffbf96fcdf74fec742e \
-    --pubkey bandvalconspub1addwnpepqfey4c5ul6m5juz36z0dlk8gyg6jcnyrvxm4werkgkmcerx8fn5g2gj9q6w \
+    --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AnJK4pz+t0lwUdCe39joIjUsTINht1dkdkW3jIzHTOiF"}' \
     --details "Fish is best known for his appearances with Ring of Honor (ROH) from 2013 to 2017, where he wrestled as one-half of the tag team reDRagon and held the ROH World Tag Team Championship three times and the ROH World Television Championship once." \
     --website "https://www.wwe.com/superstars/bobby-fish" \
     --ip 172.18.0.12 \
@@ -74,7 +74,7 @@ sed 's/node-validator/Carol/g' ~/.band/config/config.toml.temp > ~/.band/config/
 bandd gentx validator3 100000000uband \
     --chain-id bandchain \
     --node-id 7b58b086dd915a79836eb8bfa956aeb9488d13b0 \
-    --pubkey bandvalconspub1addwnpepqwj5l74gfj8j77v8st0gh932s3uyu2yys7n50qf6pptjgwnqu2arxkkn82m \
+    --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A6VP+qhMjy95h4Lei5YqhHhOKISHp0eBOghXJDpg4roz"}' \
     --details "Carol Susan Jane Danvers is a fictional superhero appearing in American comic books published by Marvel Comics. Created by writer Roy Thomas and artist Gene Colan." \
     --website "https://www.marvel.com/characters/captain-marvel-carol-danvers" \
     --ip 172.18.0.13 \
@@ -86,8 +86,8 @@ sed 's/node-validator/Eve 🦹🏿‍♂️the evil with a really long moniker n
 bandd gentx validator4 100000000uband \
     --chain-id bandchain \
     --node-id 63808bd64f2ec19acb2a494c8ce8467c595f6fba \
-    --pubkey bandvalconspub1addwnpepq0grwz83v8g4s06fusnq5s4jkzxnhgvx67qr5g7v8tx39ur5m8tk7rg2nxj \
-   --details "Evil is an American supernatural drama television series created by Robert King and Michelle King that premiered on September 26, 2019, on CBS. The series is produced by CBS Television Studios and King Size Productions." \
+    --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A9A3CPFh0Vg/SeQmCkKysI07oYbXgDojzDrNEvB02ddv"}' \
+    --details "Evil is an American supernatural drama television series created by Robert King and Michelle King that premiered on September 26, 2019, on CBS. The series is produced by CBS Television Studios and King Size Productions." \
     --website "https://www.imdb.com/title/tt9055008/" \
     --ip 172.18.0.14 \
     --keyring-backend test
