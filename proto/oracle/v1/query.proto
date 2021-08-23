@@ -54,6 +54,12 @@ service Query {
     option (google.api.http).get = "/oracle/v1/validators/{validator_address}";
   }
 
+  // IsReporter queries grant of account on this validator.
+  rpc IsReporter(QueryIsReporterRequest) returns (QueryIsReporterResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/reporter/{validator_address}/{reporter_address}";
+  }
+
   // Reporters queries all reporters associated with given validator address.
   rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
     option (google.api.http).get = "/oracle/v1/reporters/{validator_address}";
@@ -193,6 +199,20 @@ message QueryValidatorRequest {
 message QueryValidatorResponse {
   // Status is status of a validator e.g. active/inactive
   ValidatorStatus status = 1;
+}
+
+// QueryIsReporterRequest is request type for the Query/Reporter RPC method.
+message QueryIsReporterRequest {
+  // ValidatorAddress is a validator address
+  string validator_address = 1;
+  // ReporterAddress is a candidate account
+  string reporter_address = 2;
+}
+
+// QueryIsReporterResponse is response type for the Query/Reporter RPC method.
+message QueryIsReporterResponse {
+  // IsReporter is true if this account has been granted by validator
+  bool is_reporter = 1;
 }
 
 // QueryReportersRequest is request type for the Query/Reporters RPC method.

@@ -12,6 +12,11 @@ type DataSource struct {
 	Filename    string `json:"filename,omitempty"`
 }
 
+type ReportersPerValidator struct {
+	Validator string   `json:"validator,omitempty"`
+	Reporters []string `json:"reporters,omitempty"`
+}
+
 // Params represents parameters for oracle module
 type Params struct {
 	MaxRawRequestCount      uint64 `json:"max_raw_request_count,omitempty"`
@@ -25,8 +30,8 @@ type Params struct {
 }
 
 type GenesisState struct {
-	Params        Params                        `json:"params" yaml:"params"`
-	DataSources   []DataSource                  `json:"data_sources"  yaml:"data_sources"`
-	OracleScripts []types.OracleScript          `json:"oracle_scripts"  yaml:"oracle_scripts"`
-	Reporters     []types.ReportersPerValidator `json:"reporters" yaml:"reporters"`
+	Params        Params                  `json:"params" yaml:"params"`
+	DataSources   []DataSource            `json:"data_sources"  yaml:"data_sources"`
+	OracleScripts []types.OracleScript    `json:"oracle_scripts"  yaml:"oracle_scripts"`
+	Reporters     []ReportersPerValidator `json:"reporters" yaml:"reporters"`
 }

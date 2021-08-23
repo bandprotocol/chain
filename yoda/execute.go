@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	band "github.com/bandprotocol/chain/v2/app"
@@ -50,7 +51,9 @@ func signAndBroadcast(
 		WithKeybase(kb).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := tx.BuildUnsignedTx(txf, msgs...)
+	execMsg := authz.NewMsgExec(key.GetAddress(), msgs)
+
+	txb, err := tx.BuildUnsignedTx(txf, &execMsg)
 	if err != nil {
 		return "", err
 	}

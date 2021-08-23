@@ -15,7 +15,4 @@ message GenesisState {
   // OracleScripts are list of oracle scripts to be installed during genesis
   // phase
   repeated OracleScript oracle_scripts = 3 [ (gogoproto.nullable) = false ];
-  // Reporters are mapping between reporter's account address (key) and
-  // validator's validator address (value)
-  repeated ReportersPerValidator reporters = 4 [ (gogoproto.nullable) = false ];
 }

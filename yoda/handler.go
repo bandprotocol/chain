@@ -120,7 +120,7 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	}
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator, key.GetAddress()),
+		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{
@@ -169,7 +169,7 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 	reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator, key.GetAddress()),
+		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{

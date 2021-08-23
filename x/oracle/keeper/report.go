@@ -22,6 +22,14 @@ func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 // AddReports performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
 func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
+	if err := k.CheckValidReport(ctx, rid, rep); err != nil {
+		return err
+	}
+	k.SetReport(ctx, rid, rep)
+	return nil
+}
+
+func (k Keeper) CheckValidReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
 	req, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		return err
@@ -57,7 +65,6 @@ func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 				types.ErrRawRequestNotFound, "reqID: %d, extID: %d", rid, rep.ExternalID)
 		}
 	}
-	k.SetReport(ctx, rid, rep)
 	return nil
 }
 
