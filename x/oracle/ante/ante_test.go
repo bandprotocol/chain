@@ -44,7 +44,7 @@ type AnteTestSuit struct {
 	ctx          sdk.Context
 	oracleKeeper keeper.Keeper
 	mockAnte     *MyMockAnte
-	gaslessAnte  sdk.AnteHandler
+	feelessAnte  sdk.AnteHandler
 	requestId    types.RequestID
 }
 
@@ -58,7 +58,7 @@ func (suite *AnteTestSuit) SetupTest() {
 	suite.requestId = suite.oracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.mockAnte = new(MyMockAnte)
-	suite.gaslessAnte = bandante.NewFeelessReportsAnteHandler(suite.mockAnte.Ante, suite.oracleKeeper)
+	suite.feelessAnte = bandante.NewFeelessReportsAnteHandler(suite.mockAnte.Ante, suite.oracleKeeper)
 }
 
 func (suite *AnteTestSuit) TestValidRawReport() {
@@ -67,7 +67,7 @@ func (suite *AnteTestSuit) TestValidRawReport() {
 	stubTx := &MyStubTx{Msgs: msgs}
 
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTx, false)
-	ctx, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
@@ -78,7 +78,7 @@ func (suite *AnteTestSuit) TestNotValidRawReport() {
 	msgs := []sdk.Msg{types.NewMsgReportData(1, []types.RawReport{}, testapp.Alice.ValAddress)}
 	stubTx := &MyStubTx{Msgs: msgs}
 
-	ctx, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.Require().Equal(ctx, suite.ctx)
 	suite.Require().Error(err)
@@ -90,7 +90,7 @@ func (suite *AnteTestSuit) TestValidReport() {
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
 
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTx, false)
-	ctx, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
@@ -102,7 +102,7 @@ func (suite *AnteTestSuit) TestNoAuthzReport() {
 	autzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
 
-	_, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().EqualError(err, sdkerrors.ErrUnauthorized.Wrap("authorization not found").Error())
@@ -113,7 +113,7 @@ func (suite *AnteTestSuit) TestNotValidReport() {
 	autzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&autzMsg}}
 
-	_, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().Error(err)
@@ -124,7 +124,7 @@ func (suite *AnteTestSuit) TestNotReportMsg() {
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
 
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
-	ctx, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx, suite.ctx)
@@ -136,7 +136,7 @@ func (suite *AnteTestSuit) TestNotReportMsgButReportOnlyBlock() {
 	requetMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requetMsg}}
 
-	_, err := suite.gaslessAnte(suite.ctx, stubTx, false)
+	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
