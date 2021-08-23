@@ -181,6 +181,40 @@ func (suite *AnteTestSuit) TestNotReportMsgOnReportOnlyBlockByCash() {
 	suite.Require().EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
 }
 
+func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
+	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	msgs := []sdk.Msg{reportMsg, requestMsg}
+	authzMsg := authz.NewMsgExec(testapp.Alice.Address, msgs)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
+
+	//makes an expectation when call function 'Ante' of 'mockAnte' object
+	//the authzMsgs have others type Msg was normally called by ante function
+	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
+
+	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	suite.mockAnte.AssertExpectations(suite.T())
+	suite.Require().Equal(ctx, suite.ctx)
+	suite.Require().NoError(err)
+}
+
+func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameTx() {
+	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	stubTx := &MyStubTx{Msgs: []sdk.Msg{reportMsg, requestMsg}}
+
+	//makes an expectation when call function 'Ante' of 'mockAnte' object
+	//the tx has others type Msg was normally called by ante function
+	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
+	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
+
+	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	suite.mockAnte.AssertExpectations(suite.T())
+	suite.Require().Equal(ctx, suite.ctx)
+	suite.Require().NoError(err)
+}
+
 func TestAnteTestSuite(t *testing.T) {
 	suite.Run(t, new(AnteTestSuit))
 }
