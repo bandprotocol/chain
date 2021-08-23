@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	captypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	v040 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
+	v043 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v043"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
 	host "github.com/cosmos/ibc-go/modules/core/24-host"
@@ -83,31 +86,71 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 				return errors.Wrap(err, "failed to JSON unmarshal initial genesis state")
 			}
 
-			// Migrate from guanyu (0.39 like genesis file) to cosmos-sdk v0.40
-			newGenState := v040.Migrate(initialState, clientCtx)
+			genesisTimeStr, _ := cmd.Flags().GetString(flagGenesisTime)
+			genesisTime := genDoc.GenesisTime
+			if genesisTimeStr != "" {
+				err := genesisTime.UnmarshalText([]byte(genesisTimeStr))
+				if err != nil {
+					return errors.Wrap(err, "failed to unmarshal genesis time")
+				}
 
-			ibcTransferGenesis := ibcxfertypes.DefaultGenesisState()
-			ibcCoreGenesis := ibccoretypes.DefaultGenesisState()
-			capGenesis := captypes.DefaultGenesis()
-			oracleGenesis := oracletypes.DefaultGenesisState()
+				genDoc.GenesisTime = genesisTime
+			}
 
-			ibcTransferGenesis.Params.ReceiveEnabled = false
-			ibcTransferGenesis.Params.SendEnabled = false
-
-			newGenState[ibcxfertypes.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(ibcTransferGenesis)
-			newGenState[host.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(ibcCoreGenesis)
-			newGenState[captypes.ModuleName] = clientCtx.JSONCodec.MustMarshalJSON(capGenesis)
-
+			// Get Guanyu oracle genesis state
 			v039Codec := codec.NewLegacyAmino()
-			v040Codec := clientCtx.JSONCodec
+			v043Codec := clientCtx.Codec
 			var oracleGenesisV039 v039oracle.GenesisState
 			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
 
+			// Migrate from guanyu (0.39 like genesis file) to cosmos-sdk v0.43
+			// TODO: Make sure default param of cosmos-sdk has been changed to our genesis.go
+			newGenState := v043.Migrate(v040.Migrate(initialState, clientCtx), clientCtx)
+
+			// Add new module genesis state
+			ibcCoreGenesis := ibccoretypes.DefaultGenesisState()
+			newGenState[host.ModuleName] = clientCtx.Codec.MustMarshalJSON(ibcCoreGenesis)
+
+			capGenesis := captypes.DefaultGenesis()
+			newGenState[captypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(capGenesis)
+
+			ibcTransferGenesis := ibcxfertypes.DefaultGenesisState()
+			ibcTransferGenesis.Params.ReceiveEnabled = false
+			ibcTransferGenesis.Params.SendEnabled = false
+			newGenState[ibcxfertypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(ibcTransferGenesis)
+
+			feegrantGenesis := feegrant.DefaultGenesisState()
+			newGenState[feegrant.ModuleName] = clientCtx.Codec.MustMarshalJSON(feegrantGenesis)
+
+			// Authz module
+			entries := make([]authz.GrantAuthorization, 0)
+			auth, err := codectypes.NewAnyWithValue(oracletypes.NewReportAuthorization())
+			if err != nil {
+				return err
+			}
+			// Using genesis time + 2500 years as expiration of grant
+			expirationTime := genesisTime.AddDate(2500, 0, 0)
+			for _, reps := range oracleGenesisV039.Reporters {
+				val, err := sdk.ValAddressFromBech32(reps.Validator)
+				if err != nil {
+					return err
+				}
+				for _, r := range reps.Reporters {
+					entries = append(entries, authz.GrantAuthorization{
+						Granter:       sdk.AccAddress(val).String(),
+						Grantee:       r,
+						Authorization: auth,
+						Expiration:    expirationTime,
+					})
+				}
+			}
+			authzGenesis := authz.NewGenesisState(entries)
+			newGenState[authz.ModuleName] = clientCtx.Codec.MustMarshalJSON(authzGenesis)
+
+			oracleGenesis := oracletypes.DefaultGenesisState()
 			oracleGenesis.Params.IBCRequestEnabled = false
 			oracleGenesis.OracleScripts = oracleGenesisV039.OracleScripts
 
-			// TODO: Migrate reporters to grant in authz
-			// oracleGenesis.Reporters = oracleGenesisV039.Reporters
 			for _, dataSource := range oracleGenesisV039.DataSources {
 				oracleGenesis.DataSources = append(oracleGenesis.DataSources, oracletypes.DataSource{
 					Owner:       dataSource.Owner,
@@ -118,23 +161,11 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 					Fee:         sdk.NewCoins(),
 				})
 			}
-			newGenState[oracletypes.ModuleName] = v040Codec.MustMarshalJSON(oracleGenesis)
+			newGenState[oracletypes.ModuleName] = v043Codec.MustMarshalJSON(oracleGenesis)
 
 			genDoc.AppState, err = json.Marshal(newGenState)
 			if err != nil {
 				return errors.Wrap(err, "failed to JSON marshal migrated genesis state")
-			}
-
-			genesisTime, _ := cmd.Flags().GetString(flagGenesisTime)
-			if genesisTime != "" {
-				var t time.Time
-
-				err := t.UnmarshalText([]byte(genesisTime))
-				if err != nil {
-					return errors.Wrap(err, "failed to unmarshal genesis time")
-				}
-
-				genDoc.GenesisTime = t
 			}
 
 			chainID, _ := cmd.Flags().GetString(flags.FlagChainID)
