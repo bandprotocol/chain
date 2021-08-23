@@ -174,7 +174,7 @@ func (h *Hook) handleMsgReportData(
 ) {
 	val, _ := sdk.ValAddressFromBech32(msg.Validator)
 	rep := sdk.AccAddress(val)
-	h.handleMsgReportDataFromGrantee(ctx, txHash, msg, rep.String())
+	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
 }
 
 // handleMsgReportDataFromGrantee implements emitter handler for MsgReportData.
