@@ -112,7 +112,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	reportMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, oracletypes.NewReportAuthorization(), expiration)
 	decodeMsgGrant(reportMsg, detail)
 	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 	// TestSendAuthorization
@@ -120,14 +120,14 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	sendMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, banktypes.NewSendAuthorization(spendLimit), expiration)
 	decodeMsgGrant(sendMsg, detail)
 	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{\"spend_limit\":[{\"denom\":\"uband\",\"amount\":\"1\"}]},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{\"spend_limit\":[{\"denom\":\"uband\",\"amount\":\"1\"}]},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 	// TestGenericAuthorization
 	genericMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, authz.NewGenericAuthorization("/oracle.v1.MsgActivate"), expiration)
 	decodeMsgGrant(genericMsg, detail)
 	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgActivate\"},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgActivate\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 	// TestStakeAuthorization
@@ -135,7 +135,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, expiration)
 	decodeMsgGrant(stakeMsg, detail)
 	suite.testCompareJson(detail,
-		"{\"grant\":{\"authorization\":{\"max_tokens\":{\"denom\":\"uband\",\"amount\":\"1\"},\"Validators\":{\"allow_list\":{\"address\":[\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"]}},\"authorization_type\":1},\"expiration\":\"2014-11-12T11:45:26.371Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{\"max_tokens\":{\"denom\":\"uband\",\"amount\":\"1\"},\"Validators\":{\"allow_list\":{\"address\":[\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"]}},\"authorization_type\":1},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 }
@@ -145,7 +145,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRevoke() {
 	msg := authz.NewMsgRevoke(GranterAddress, GranteeAddress, sdk.MsgTypeURL(&oracletypes.MsgReportData{}))
 	decodeMsgRevoke(&msg, detail)
 	suite.testCompareJson(detail,
-		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"\"}",
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"/oracle.v1.MsgReportData\"}",
 	)
 }
 
@@ -180,7 +180,7 @@ func (suite *DecoderTestSuite) TestDecodeReportData() {
 	msg := oracletypes.NewMsgReportData(1, []oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, ValAddress)
 	decodeMsgReportData(msg, detail)
 	suite.testCompareJson(detail,
-		"{\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"reporter\":\"band12fjhqmmjw3jhyqqqqqqqqqqqqqqqqqqqjfy83g\",\"request_id\":1,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"raw_reports\":[{\"external_id\":1,\"exit_code\":1,\"data\":\"ZGF0YTE=\"},{\"external_id\":2,\"exit_code\":2,\"data\":\"ZGF0YTI=\"}],\"request_id\":1,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
