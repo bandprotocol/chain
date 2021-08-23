@@ -139,7 +139,19 @@ func decodeMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 
 func decodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
 	detail["grantee"] = msg.Grantee
-	detail["msgs"], _ = msg.GetMessages()
+	msgs, _ := msg.GetMessages()
+	execMsgs := make([]common.JsDict, 0)
+	for _, msg := range msgs {
+		execMsg := make(common.JsDict)
+		switch msg := msg.(type) {
+		case *oracletypes.MsgReportData:
+			decodeMsgReportData(msg, execMsg)
+
+		}
+		execMsg["type"] = sdk.MsgTypeURL(msg)
+		execMsgs = append(execMsgs, execMsg)
+	}
+	detail["msgs"] = execMsgs
 }
 
 func decodeHeight(h types1.Height) common.JsDict {
