@@ -278,7 +278,7 @@ unbonding_delegations = sa.Table(
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id")),
     Column("creation_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
     Column("completion_time", CustomDateTime),
-    Column("amount", sa.DECIMAL),
+    Column("amount", sa.String),
 )
 
 redelegations = sa.Table(
@@ -288,7 +288,7 @@ redelegations = sa.Table(
     Column("validator_src_id", sa.Integer, sa.ForeignKey("validators.id")),
     Column("validator_dst_id", sa.Integer, sa.ForeignKey("validators.id")),
     Column("completion_time", CustomDateTime),
-    Column("amount", sa.DECIMAL),
+    Column("amount", sa.String),
 )
 
 account_transactions = sa.Table(
