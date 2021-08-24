@@ -115,7 +115,7 @@ do
     yoda config executor "rest:https://iv3lgtv11a.execute-api.ap-southeast-1.amazonaws.com/live/master?timeout=10s"
 
     # activate validator
-    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain -b block
 
     # wait for activation transaction success
     sleep 2
@@ -127,7 +127,7 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain -b block
 
     # wait for sending band tokens transaction success
     sleep 2
@@ -154,7 +154,7 @@ do
     faucet keys add worker$i
 
     # send band tokens to worker
-    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain -b block
 
     # wait for addding reporter transaction success
     sleep 2
