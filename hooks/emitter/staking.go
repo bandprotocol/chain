@@ -183,12 +183,13 @@ func (h *Hook) handleMsgUndelegate(
 
 func (h *Hook) emitUnbondingDelegation(ctx sdk.Context, msg *types.MsgUndelegate, evMap common.EvMap) {
 	completeTime, _ := time.Parse(time.RFC3339, evMap[types.EventTypeUnbond+"."+types.AttributeKeyCompletionTime][0])
+	coin, _ := sdk.ParseCoinNormalized(evMap[types.EventTypeUnbond+"."+sdk.AttributeKeyAmount][0])
 	h.Write("NEW_UNBONDING_DELEGATION", common.JsDict{
 		"delegator_address": msg.DelegatorAddress,
 		"operator_address":  msg.ValidatorAddress,
 		"creation_height":   ctx.BlockHeight(),
 		"completion_time":   completeTime.UnixNano(),
-		"amount":            evMap[types.EventTypeUnbond+"."+sdk.AttributeKeyAmount][0],
+		"amount":            coin.Amount.String(),
 	})
 }
 
@@ -210,12 +211,13 @@ func (h *Hook) handleMsgBeginRedelegate(
 
 func (h *Hook) emitUpdateRedelation(operatorSrcAddress sdk.ValAddress, operatorDstAddress sdk.ValAddress, delegatorAddress sdk.AccAddress, evMap common.EvMap) {
 	completeTime, _ := time.Parse(time.RFC3339, evMap[types.EventTypeRedelegate+"."+types.AttributeKeyCompletionTime][0])
+	coin, _ := sdk.ParseCoinNormalized(evMap[types.EventTypeRedelegate+"."+sdk.AttributeKeyAmount][0])
 	h.Write("NEW_REDELEGATION", common.JsDict{
 		"delegator_address":    delegatorAddress.String(),
 		"operator_src_address": operatorSrcAddress.String(),
 		"operator_dst_address": operatorDstAddress.String(),
 		"completion_time":      completeTime.UnixNano(),
-		"amount":               evMap[types.EventTypeRedelegate+"."+sdk.AttributeKeyAmount][0],
+		"amount":               coin.Amount.String(),
 	})
 }
 
