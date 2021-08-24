@@ -26,6 +26,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	v039oracle "github.com/bandprotocol/chain/v2/x/oracle/legacy/v039"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -124,7 +125,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			// Authz module
 			entries := make([]authz.GrantAuthorization, 0)
-			auth, err := codectypes.NewAnyWithValue(oracletypes.NewReportAuthorization())
+			auth, err := codectypes.NewAnyWithValue(authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})))
 			if err != nil {
 				return err
 			}
@@ -135,8 +136,8 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 				if err != nil {
 					return err
 				}
+				v := sdk.AccAddress(val).String()
 				for _, r := range reps.Reporters {
-					v := sdk.AccAddress(val).String()
 					if v != r {
 						entries = append(entries, authz.GrantAuthorization{
 							Granter:       v,
