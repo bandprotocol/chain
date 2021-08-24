@@ -136,12 +136,15 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 					return err
 				}
 				for _, r := range reps.Reporters {
-					entries = append(entries, authz.GrantAuthorization{
-						Granter:       sdk.AccAddress(val).String(),
-						Grantee:       r,
-						Authorization: auth,
-						Expiration:    expirationTime,
-					})
+					v := sdk.AccAddress(val).String()
+					if v != r {
+						entries = append(entries, authz.GrantAuthorization{
+							Granter:       v,
+							Grantee:       r,
+							Authorization: auth,
+							Expiration:    expirationTime,
+						})
+					}
 				}
 			}
 			authzGenesis := authz.NewGenesisState(entries)
