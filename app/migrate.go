@@ -123,6 +123,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			feegrantGenesis := feegrant.DefaultGenesisState()
 			newGenState[feegrant.ModuleName] = clientCtx.Codec.MustMarshalJSON(feegrantGenesis)
 
+			// Adjust distribute params BaseProposer / Bonus to 3/12 %
 			var distrGenesis distrtypes.GenesisState
 			clientCtx.Codec.MustUnmarshalJSON(newGenState[distrtypes.ModuleName], &distrGenesis)
 			distrGenesis.Params.BaseProposerReward = sdk.NewDecWithPrec(3, 2)   // 3%
