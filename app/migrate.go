@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	captypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	v040 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	v043 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v043"
@@ -26,7 +27,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	v039oracle "github.com/bandprotocol/chain/v2/x/oracle/legacy/v039"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -123,9 +123,15 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			feegrantGenesis := feegrant.DefaultGenesisState()
 			newGenState[feegrant.ModuleName] = clientCtx.Codec.MustMarshalJSON(feegrantGenesis)
 
+			var distrGenesis distrtypes.GenesisState
+			clientCtx.Codec.MustUnmarshalJSON(newGenState[distrtypes.ModuleName], &distrGenesis)
+			distrGenesis.Params.BaseProposerReward = sdk.NewDecWithPrec(3, 2)   // 3%
+			distrGenesis.Params.BonusProposerReward = sdk.NewDecWithPrec(12, 2) // 12%
+			newGenState[distrtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&distrGenesis)
+
 			// Authz module
 			entries := make([]authz.GrantAuthorization, 0)
-			auth, err := codectypes.NewAnyWithValue(authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})))
+			auth, err := codectypes.NewAnyWithValue(authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})))
 			if err != nil {
 				return err
 			}
