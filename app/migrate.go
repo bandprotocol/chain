@@ -60,7 +60,6 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
 // nolint: funlen
-// TODO
 func MigrateGenesisCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate [genesis-file]",
@@ -105,7 +104,6 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			v039Codec.MustUnmarshalJSON(initialState[oracletypes.ModuleName], &oracleGenesisV039)
 
 			// Migrate from guanyu (0.39 like genesis file) to cosmos-sdk v0.43
-			// TODO: Make sure default param of cosmos-sdk has been changed to our genesis.go
 			newGenState := v043.Migrate(v040.Migrate(initialState, clientCtx), clientCtx)
 
 			// Add new module genesis state
@@ -123,7 +121,7 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 			feegrantGenesis := feegrant.DefaultGenesisState()
 			newGenState[feegrant.ModuleName] = clientCtx.Codec.MustMarshalJSON(feegrantGenesis)
 
-			// Adjust distribute params BaseProposer / Bonus to 3/12 %
+			// Adjust distribute params BaseProposer/Bonus to 3/12 %
 			var distrGenesis distrtypes.GenesisState
 			clientCtx.Codec.MustUnmarshalJSON(newGenState[distrtypes.ModuleName], &distrGenesis)
 			distrGenesis.Params.BaseProposerReward = sdk.NewDecWithPrec(3, 2)   // 3%
