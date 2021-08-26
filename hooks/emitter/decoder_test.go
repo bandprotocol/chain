@@ -267,25 +267,25 @@ func (suite *DecoderTestSuite) TestDecodeMsgVote() {
 	)
 }
 
-// func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
-// 	detail := make(common.JsDict)
-// 	msg, _ := stakingtypes.NewMsgCreateValidator(ValAddress, PubKey, SelfDelegation, Description, CommissionRate, MinSelfDelegation)
+func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
+	detail := make(common.JsDict)
+	msg, _ := stakingtypes.NewMsgCreateValidator(ValAddress, PubKey, SelfDelegation, Description, CommissionRate, MinSelfDelegation)
 
-// 	decodeMsgCreateValidator(msg, detail)
-// 	suite.testCompareJson(detail,
-// 		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"bandvalconspub1addwnpeqpdy9elqwanrpj3qyfppklr7fmaq9vmerd8njgqpgz32vk4f2ldgq972k95\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
-// 	)
-// }
+	decodeMsgCreateValidator(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"0b485cfc0eecc619440448436f8fc9df40566f2369e72400281454cb552afb50\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
+	)
+}
 
-// func (suite *DecoderTestSuite) TestDecodeMsgEditValidator() {
-// 	detail := make(common.JsDict)
-// 	msg := stakingtypes.NewMsgEditValidator(ValAddress, Description, &NewRate, &MinSelfDelegation)
+func (suite *DecoderTestSuite) TestDecodeMsgEditValidator() {
+	detail := make(common.JsDict)
+	msg := stakingtypes.NewMsgEditValidator(ValAddress, Description, &NewRate, &MinSelfDelegation)
 
-// 	decodeMsgEditValidator(msg, detail)
-// 	suite.testCompareJson(detail,
-// 		"{\"commission_rate\":\"1.000000000000000000\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
-// 	)
-// }
+	decodeMsgEditValidator(msg, detail)
+	suite.testCompareJson(detail,
+		"{\"commission_rate\":\"1.000000000000000000\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
 
 func (suite *DecoderTestSuite) TestDecodeMsgDelegate() {
 	detail := make(common.JsDict)

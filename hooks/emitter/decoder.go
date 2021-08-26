@@ -283,7 +283,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	hexConsPubKey := hex.EncodeToString(pk.Bytes())
 
 	detail["description"] = decodeDescription(msg.Description)
-	detail["commission_rates"] = msg.Commission.Rate
+	detail["commission"] = msg.Commission
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
@@ -294,7 +294,7 @@ func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 func decodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
 	detail["description"] = decodeDescription(msg.Description)
 	detail["validator_address"] = msg.ValidatorAddress
-	detail["commission_rates"] = msg.CommissionRate
+	detail["commission_rate"] = msg.CommissionRate
 	detail["min_self_delegation"] = msg.MinSelfDelegation
 }
 
