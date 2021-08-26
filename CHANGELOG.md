@@ -1,7 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [v2.2.0](https://github.com/bandprotocol/chain/releases/tag/v2.2.0)
 
+- (bump) Use ibc-go package v1.0.1
 - (chain) Replace report authorization with generic authorization
 - (yoda) Fix yoda to send report by MsgExec.
 - (yoda) Add feature on yoda keys list to show grant status of reporter
