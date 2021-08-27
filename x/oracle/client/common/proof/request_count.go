@@ -16,7 +16,7 @@ import (
 )
 
 type CountProof struct {
-	BlockHeight     uint64             `json:"block_heigh"`
+	BlockHeight     uint64             `json:"block_height"`
 	CountProof      RequestsCountProof `json:"count_proof"`
 	BlockRelayProof BlockRelayProof    `json:"block_relay_proof"`
 }
