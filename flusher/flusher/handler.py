@@ -305,9 +305,7 @@ class Handler(object):
         del msg["validator"]
         msg["reporter_id"] = self.get_account_id(msg["reporter"])
         del msg["reporter"]
-        self.conn.execute(
-            insert(oracle_script_requests).values(reporters).on_conflict_do_nothing(constraint="reporters_pkey")
-        )
+        self.conn.execute(insert(reporters).values(msg).on_conflict_do_nothing(constraint="reporters_pkey"))
 
     def handle_remove_reporter(self, msg):
         msg["operator_address"] = msg["validator"]
