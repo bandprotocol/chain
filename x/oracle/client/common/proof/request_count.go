@@ -16,7 +16,7 @@ import (
 )
 
 type CountProof struct {
-	BlockHeight     uint64             `json:"block_heigh"`
+	BlockHeight     uint64             `json:"block_height"`
 	CountProof      RequestsCountProof `json:"count_proof"`
 	BlockRelayProof BlockRelayProof    `json:"block_relay_proof"`
 }
@@ -103,7 +103,7 @@ func GetRequestsCountProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 
 		rest.PostProcessResponse(w, ctx, CountProofResponse{
 			Proof: CountProof{
-				BlockHeight:     uint64(commit.Height - 1),
+				BlockHeight:     uint64(commit.Height),
 				CountProof:      requestsCountProof,
 				BlockRelayProof: blockRelay,
 			},
