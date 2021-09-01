@@ -8,19 +8,19 @@ import (
 
 // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
 // compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
-//												________________[AppHasH]_________________
-//											   /										  \
-//                         _________________[I14]_________________						  [G]
+//                                              ________________[AppHash]_________________
+//                                             /                                          \
+//                         _________________[I14]_________________                        [G]
 //                        /                                        \
 //             _______[I12]______                          _______[I13]________
 //            /                  \                        /                    \
 //       __[I8]__             __[I9]__                __[I10]__              __[I11]__
 //      /         \          /         \            /          \            /         \
 //    [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
-//   /   \      /   \    /    \      /    \      /    \      /    \		 /	  \		 /	 \
+//   /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
 // [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
-// [0] - auth     [1] - authz	 [2] - bank    [3] - capability [4] - crisis  [5] - dist
-// [6] - evidence [7] - feegrant [8] - gov     [9] - ibccore    [A] - mint	  [B] - oracle
+// [0] - auth     [1] - authz    [2] - bank    [3] - capability [4] - crisis  [5] - dist
+// [6] - evidence [7] - feegrant [8] - gov     [9] - ibccore    [A] - mint    [B] - oracle
 // [C] - params   [D] - slashing [E] - staking [F] - transfer   [G] - upgrade
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [B] In fact, only
