@@ -6,7 +6,12 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "authToIbcTransferStoresMerkleHash",
+        "name": "authToFeeGrantStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "govToIbcCoreStoresMerkleHash",
         "type": "bytes32"
       },
       {
@@ -21,12 +26,12 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes32",
-        "name": "paramsToSlashStoresMerkleHash",
+        "name": "paramsToTransferStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "stakingToUpgradeStoresMerkleHash",
+        "name": "upgradeStoreMerkleHash",
         "type": "bytes32"
       }
     ],

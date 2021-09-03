@@ -11,40 +11,40 @@ import (
 
 /*
 {
-  "jsonrpc": "2.0",
-  "id": -1,
-  "result": {
-    "response": {
-      "code": 0,
-      "log": "",
-      "info": "",
-      "index": "0",
-      "key": "/wAAAAAAAAAB",
-      "value": "AAAACmZyb21fYmFuZGQAAAAAAAAAIQAAAAgAAAAAAAAAZAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAAQAAAAAAAAAQAAAAAGCdRR4AAAAAYJ1FJgAAAAEAAAAIAAAAAAACyIk=",
-      "proofOps": {
-        "ops": [
-          {
-            "type": "ics23:iavl",
-            "key": "/wAAAAAAAAAB",
-            "data": "CvMGCgn/AAAAAAAAAAESYgAAAApmcm9tX2JhbmRkAAAAAAAAACEAAAAIAAAAAAAAAGQAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAAEAAAAAAAAAEAAAAABgnUUeAAAAAGCdRSYAAAABAAAACAAAAAAAAsiJGgwIARgBIAEqBAACkAYiLAgBEgUCBOgGIBohIGdj7fQsDXo3ZejNm5cK4OINxtPPXfDcY8rSyF+vxqgDIioIARImBAjuBiCS8zYBRmdp1iZwpYdxyPjyaV5xQrOFIZfdPKaCW4o7JiAiLAgBEgUGEJAJIBohIFLEslBD/3YNtK4/NB6DCQgATR58O733JLxx3CSqaFE0Ii0IARIGCCCyqQ0gGiEgwJJO/Pr3fk/2Xp8k7QxDx7u7sHDMERxKWNorZrEYnnQiLQgBEgYKNpSsDSAaISBWmsxce+2sB+RRqtS0y0jfglzQN8kcfAz2A6rw1xVa0yItCAESBgxoxsANIBohIIlpQWHoQmHVKLmF8YScJw4GgcHeVj1UL/h0zkqMqkPPIi4IARIHDtoB+soNIBohIDkgQjAtnMeQYgCbYUy1c5yCJ+5HorG9Q27XoBtBMBhmIi4IARIHEMwDlNINIBohIGG8Ftxs3vXSA2bbB+sp0yjc+g1lQeewmmcV8t6dCXkUIi4IARIHEo4Hzu0NIBohIBoSS3Q0SHgfAQm1WZLXEorbT78bknoBDFiS0RGqvwktIi4IARIHFMQO+v8NIBohIJYOQzto4+xF6CaLNEjqiy3pQQkbRp88BIQAsAdJ6Tf2Ii4IARIHFsgc0KkOIBohIE6kjn74Dkv6lr193sHqaXKQ1BfP7wzhMB5pR9gNwKzDIiwIARIoGLAphoIWILhp1b7zuFYz6LqSZ/VHs+2O+B7a5Z562Qut7p9gx3t5ICIuCAESBxrsZIaCFiAaISBTap5a2qYuQSOnlGwHDEZZ5gHHZPHdg0SuMt3S8MDroyIvCAESCBzG3AGGghYgGiEgHtxX9LH3jy1lUMKuGY5xiQQDeti4z5mjUUXfdifmNmAiLwgBEggevMgDhoIWIBohIIikNBin0veShDGow/Is2j75y5fbYW95jXzx89Rz6GhOIi8IARIIIP6eBoaCFiAaISC57L3ZFn7voKNCFn9Fb/a+b6nFa2qyZcQs7NKDf7p/Yw=="
-          },
-          {
-            "type": "ics23:simple",
-            "key": "b3JhY2xl",
-            "data": "CtUBCgZvcmFjbGUSIJj83HwI9IC+eoJooHuGNTM9kChH7A6lYG8z1Douk2wOGgkIARgBIAEqAQAiJQgBEiEBrn8EGLzowJ0sM7mBpuomG6Mwx12I3BY3pFK8xlxa6MEiJwgBEgEBGiDgAE8rLdq18Z4gJ/jN5svn/CoLe/ou9Iu2FPhZERPL8CInCAESAQEaIO8Ux+H17c0lq2FuOUtu2JYfZu0rw2Nge1D887onYMb4IiUIARIhAX+pMhUpuZRYyJ9LGxYmssLATEHrDkf8vS+6fqeLnWXX"
-          }
-        ]
-      },
-      "height": "180355",
-      "codespace": ""
-    }
-  }
+	jsonrpc: "2.0",
+	id: -1,
+	result: {
+		response: {
+			code: 0,
+			log: "",
+			info: "",
+			index: "0",
+			key: "/wAAAAAAAAAB",
+			value: "EAEaEwAAAAEAAAADQlRDAAAAAAABhqAgASgBMAE4AUCTqZOJBkiXqZOJBlABWgwAAAABAAAAASTsB4w=",
+			proofOps: {
+				ops: [
+					{
+						type: "ics23:iavl",
+						key: "/wAAAAAAAAAB",
+						data: "CocCCgn/AAAAAAAAAAESOxABGhMAAAABAAAAA0JUQwAAAAAAAYagIAEoATABOAFAk6mTiQZIl6mTiQZQAVoMAAAAAQAAAAEk7AeMGgwIARgBIAEqBAACsgMiKggBEiYCBLIDIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9ICIqCAESJgQIsgMgGEcQdQfV57TNmUHrb/4WlCZK80xoXBncR4vq3aJlpXggIioIARImBgyyAyDoCq5YHsAEI5hUxNkNgUjoXx+Q0HBKc2aP0tpE3AzqUyAiKwgBEicKIM6GAyB0G3lGJNvpTWfNae6o1Xqqdo0upy8fylYaS++2eDbp4SA="
+					},
+					{
+						type: "ics23:simple",
+						key: "b3JhY2xl",
+						data: "CvwBCgZvcmFjbGUSIOjifLtEu2VPZO7vRmeGitSGZ86yjj21xN96S0uH8MBLGgkIARgBIAEqAQAiJQgBEiEB+YFxZWKkneBuPcr7+2OIwpS6pPqdRXd+JXQKkvgc9l4iJQgBEiEBf9X1x8KSDBh2GFQpAc3FcXvoIE8kvoVugJAqG7BHN+QiJwgBEgEBGiD8ls/9MOW4l56mb50NocurFvaWaeiyofsuG+tFfJcm6CIlCAESIQFSSEY+ky0W99CS4mjA3th7I9Ow5xhW8cauKqkfbHEzICInCAESAQEaIMnIhJ7RJcx2gTKcTSe4Ox/IrPeoZcnR0d9XXMpW9I2+"
+					}
+				]
+			},
+			height: "24999",
+			codespace: ""
+		}
+	}
 }
 */
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
-	data := base64ToBytes("CtUBCgZvcmFjbGUSIJj83HwI9IC+eoJooHuGNTM9kChH7A6lYG8z1Douk2wOGgkIARgBIAEqAQAiJQgBEiEBrn8EGLzowJ0sM7mBpuomG6Mwx12I3BY3pFK8xlxa6MEiJwgBEgEBGiDgAE8rLdq18Z4gJ/jN5svn/CoLe/ou9Iu2FPhZERPL8CInCAESAQEaIO8Ux+H17c0lq2FuOUtu2JYfZu0rw2Nge1D887onYMb4IiUIARIhAX+pMhUpuZRYyJ9LGxYmssLATEHrDkf8vS+6fqeLnWXX")
+	data := base64ToBytes("CvwBCgZvcmFjbGUSIOjifLtEu2VPZO7vRmeGitSGZ86yjj21xN96S0uH8MBLGgkIARgBIAEqAQAiJQgBEiEB+YFxZWKkneBuPcr7+2OIwpS6pPqdRXd+JXQKkvgc9l4iJQgBEiEBf9X1x8KSDBh2GFQpAc3FcXvoIE8kvoVugJAqG7BHN+QiJwgBEgEBGiD8ls/9MOW4l56mb50NocurFvaWaeiyofsuG+tFfJcm6CIlCAESIQFSSEY+ky0W99CS4mjA3th7I9Ow5xhW8cauKqkfbHEzICInCAESAQEaIMnIhJ7RJcx2gTKcTSe4Ox/IrPeoZcnR0d9XXMpW9I2+")
 
 	var multistoreOps storetypes.CommitmentOp
 	proof := &ics23.CommitmentProof{}
@@ -67,17 +67,20 @@ func TestGetMultiStoreProof(t *testing.T) {
 	prefix = append(prefix, 32)     // size of result hash must be 32
 
 	apphash := innerHash(
-		m.AuthToIbcTransferStoresMerkleHash,
 		innerHash(
+			m.AuthToFeeGrantStoresMerkleHash,
 			innerHash(
 				innerHash(
-					m.MintStoreMerkleHash,
-					leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
+					m.GovToIbcCoreStoresMerkleHash,
+					innerHash(
+						m.MintStoreMerkleHash,
+						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
+					),
 				),
-				m.ParamsToSlashStoresMerkleHash,
+				m.ParamsToTransferStoresMerkleHash,
 			),
-			m.StakingToUpgradeStoresMerkleHash,
 		),
+		m.UpgradeStoreMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)
