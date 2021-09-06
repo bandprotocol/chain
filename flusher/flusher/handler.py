@@ -51,7 +51,7 @@ class Handler(object):
     def get_account_id(self, address):
         id = self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
         if id is None:
-            self.conn.execute(accounts.insert(), {"address": address, balance: "0uband"})
+            self.conn.execute(accounts.insert(), {"address": address, "balance": "0uband"})
             return self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
         return id
 
