@@ -53,7 +53,7 @@ func signAndBroadcast(
 
 	execMsg := authz.NewMsgExec(key.GetAddress(), msgs)
 
-	txb, err := tx.BuildUnsignedTx(txf, &execMsg)
+	txb, err := txf.BuildUnsignedTx(&execMsg)
 	if err != nil {
 		return "", err
 	}

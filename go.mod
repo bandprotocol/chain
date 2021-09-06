@@ -5,10 +5,10 @@ go 1.16
 require (
 	github.com/bandprotocol/go-owasm v0.1.0
 	github.com/confio/ics23/go v0.6.6
-	github.com/cosmos/cosmos-sdk v0.43.0
+	github.com/cosmos/cosmos-sdk v0.44.0
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go v1.0.1
-	github.com/ethereum/go-ethereum v1.10.6
+	github.com/cosmos/ibc-go v1.1.0
+	github.com/ethereum/go-ethereum v1.10.8
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gogo/protobuf v1.3.3
