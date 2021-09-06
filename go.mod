@@ -9,6 +9,8 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go v1.1.0
 	github.com/ethereum/go-ethereum v1.10.8
+	github.com/gin-gonic/gin v1.6.3
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
