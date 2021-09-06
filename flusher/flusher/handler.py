@@ -49,7 +49,11 @@ class Handler(object):
         return self.conn.execute(select([validators.c.id]).where(validators.c.operator_address == val)).scalar()
 
     def get_account_id(self, address):
-        return self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
+        id = self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
+        if id is None:
+            self.conn.execute(accounts.insert(), {"address": address, balance: "0uband"})
+            return self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
+        return id
 
     def get_request_count(self, date):
         return self.conn.execute(
