@@ -2,6 +2,8 @@
 
 ## [v2.2.0](https://github.com/bandprotocol/chain/releases/tag/v2.2.0)
 
+- (bump) Use cosmos-sdk package v0.44.0
+- (bump) Use ibc-go package v1.1.0
 - (bump) Use ibc-go package v1.0.1
 - (chain) Replace report authorization with generic authorization
 - (yoda) Fix yoda to send report by MsgExec.
