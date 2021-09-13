@@ -154,22 +154,26 @@ func NewWhiteListAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper, r
 		if ctx.IsCheckTx() && !simulate {
 
 			for _, msg := range tx.GetMsgs() {
-				if req, ok := msg.(*types.MsgRequestData); ok {
-					// is a whitelisted request
-					if _, found := whiteList[req.Sender]; !found {
-						return ctx, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, fmt.Sprintf("%s not in the whitelist", msg.GetSigners()[0].String()))
-					}
-				} else if _, ok = msg.(*types.MsgReportData); ok {
-					// TODO: check if this is our report
-				} else if _, ok := msg.(*authz.MsgExec); ok {
-					// is a whitelisted request
-					if _, found := whiteList[msg.GetSigners()[0].String()]; !found {
-						return ctx, sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, fmt.Sprintf("%s not in the whitelist", msg.GetSigners()[0].String()))
+				signers := msg.GetSigners()
+				if len(signers) > 1 {
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrTooManySignatures, "Accept one signer only")
+				}
+
+				if _, found := whiteList[signers[0].String()]; found {
+					if _, ok := msg.(*types.MsgRequestData); ok {
+						continue
+					} else if _, ok := msg.(*types.MsgReportData); ok {
+						// TODO: check if this is our report
+					} else if _, ok := msg.(*authz.MsgExec); ok {
+						continue
+					} else {
+						// reject all other msg type
+						return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
 					}
 				} else {
-					// reject all other msg type
-					return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("%s not in the whitelist", signers[0].String()))
 				}
+
 			}
 		}
 		return ante(ctx, tx, simulate)
