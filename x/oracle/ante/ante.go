@@ -154,24 +154,31 @@ func NewWhiteListAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper, r
 		if ctx.IsCheckTx() && !simulate {
 
 			for _, msg := range tx.GetMsgs() {
-				signers := msg.GetSigners()
-				if len(signers) > 1 {
-					return ctx, sdkerrors.Wrap(sdkerrors.ErrTooManySignatures, "Accept one signer only")
-				}
 
-				if _, found := whiteList[signers[0].String()]; found {
-					if _, ok := msg.(*types.MsgRequestData); ok {
-						continue
-					} else if _, ok := msg.(*types.MsgReportData); ok {
-						// TODO: check if this is our report
-					} else if _, ok := msg.(*authz.MsgExec); ok {
-						continue
-					} else {
-						// reject all other msg type
-						return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
+				switch m := msg.(type) {
+				case *types.MsgRequestData:
+
+					if _, found := whiteList[m.Sender]; !found {
+						return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("%s not in the whitelist", m.Sender))
 					}
-				} else {
-					return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("%s not in the whitelist", signers[0].String()))
+				case *types.MsgReportData:
+					// TODO: check if this is our report
+					continue
+				case *authz.MsgExec:
+					msgs, err := m.GetMessages()
+					if err != nil {
+						return ctx, err
+					}
+
+					for _, m := range msgs {
+
+						if sdk.MsgTypeURL(&types.MsgReportData{}) != sdk.MsgTypeURL(m) {
+							return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
+						}
+					}
+				default:
+					// reject all other msg type
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
 				}
 
 			}
