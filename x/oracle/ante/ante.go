@@ -165,14 +165,14 @@ func NewWhiteListAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper, r
 					// TODO: check if this is our report
 					continue
 				case *authz.MsgExec:
-					msgs, err := m.GetMessages()
+					execMsgs, err := m.GetMessages()
 					if err != nil {
 						return ctx, err
 					}
 
-					for _, m := range msgs {
+					for _, execMsg := range execMsgs {
 
-						if sdk.MsgTypeURL(&types.MsgReportData{}) != sdk.MsgTypeURL(m) {
+						if sdk.MsgTypeURL(&types.MsgReportData{}) != sdk.MsgTypeURL(execMsg) {
 							return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
 						}
 					}
