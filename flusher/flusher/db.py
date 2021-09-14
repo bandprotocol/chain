@@ -391,8 +391,8 @@ incoming_packets = sa.Table(
     Column("dst_channel", sa.String, primary_key=True),
     Column("dst_port", sa.String, primary_key=True),
     Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
-    Column("type", sa.String),
-    Column("data", sa.JSON),
+    Column("type", sa.String, nullable=True),
+    Column("data", sa.JSON, nullable=True),
     Column("acknowledgement", sa.JSON, nullable=True),
     sa.ForeignKeyConstraint(["dst_port", "dst_channel"], ["channels.port", "channels.channel"]),
 )
@@ -407,8 +407,8 @@ outgoing_packets = sa.Table(
     Column("dst_channel", sa.String),
     Column("dst_port", sa.String),
     Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
-    Column("type", sa.String),
-    Column("data", sa.JSON),
+    Column("type", sa.String, nullable=True),
+    Column("data", sa.JSON, nullable=True),
     Column("acknowledgement", sa.JSON, nullable=True),
     sa.ForeignKeyConstraint(["src_port", "src_channel"], ["channels.port", "channels.channel"]),
 )
