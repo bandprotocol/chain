@@ -63,5 +63,4 @@ def sync(commit_interval, db, servers, echo_sqlalchemy):
                         )
                         break
                     continue
-                print(key.lower(), value, flush=True)
                 getattr(handler, "handle_" + key.lower())(value)
