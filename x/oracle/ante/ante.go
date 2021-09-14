@@ -1,7 +1,6 @@
 package ante
 
 import (
-	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -156,17 +155,32 @@ func NewWhiteListAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper, r
 
 			for _, msg := range tx.GetMsgs() {
 
-				if req, ok := msg.(*types.MsgRequestData); ok {
-					// is a whitelisted request
-					if _, found := whiteList[req.Sender]; !found {
-						return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Request is in valid")
+				switch m := msg.(type) {
+				case *types.MsgRequestData:
+
+					if _, found := whiteList[m.Sender]; !found {
+						return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, fmt.Sprintf("%s not in the whitelist", m.Sender))
 					}
-				} else if _, ok = msg.(*types.MsgReportData); ok {
+				case *types.MsgReportData:
 					// TODO: check if this is our report
-				} else {
+					continue
+				case *authz.MsgExec:
+					execMsgs, err := m.GetMessages()
+					if err != nil {
+						return ctx, err
+					}
+
+					for _, execMsg := range execMsgs {
+
+						if sdk.MsgTypeURL(&types.MsgReportData{}) != sdk.MsgTypeURL(execMsg) {
+							return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
+						}
+					}
+				default:
 					// reject all other msg type
-					return ctx, errors.New("Msg type is not allowed")
+					return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidType, "Msg type is not allowed")
 				}
+
 			}
 		}
 		return ante(ctx, tx, simulate)
