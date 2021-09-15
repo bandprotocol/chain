@@ -1,8 +1,5 @@
 # Changelog
 
-- (bump) Use ibc-go package v1.2.0
-- (bump) Use tendermint package v0.34.13
-
 ## [v2.3.0](https://github.com/bandprotocol/chain/releases/tag/v2.3.0)
 
 - (bump) Use cosmos-sdk package v0.44.0
