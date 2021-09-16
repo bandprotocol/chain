@@ -359,7 +359,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	h.AddAccountsInBlock(relatedAccounts...)
 	h.Write("SET_RELATED_TRANSACTION", common.JsDict{
 		"hash":             txHash,
-		"related_accounts": addrs,
+		"related_accounts": relatedAccounts,
 	})
 	txDict["messages"] = messages
 }
