@@ -235,7 +235,16 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	var oracleState oracletypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[oracletypes.ModuleName], &oracleState)
 	for idx, ds := range oracleState.DataSources {
-		h.emitSetDataSource(types.DataSourceID(idx+1), ds, nil)
+		h.Write("NEW_DATA_SOURCE", common.JsDict{
+			"id":          types.DataSourceID(idx + 1),
+			"name":        ds.Name,
+			"description": ds.Description,
+			"owner":       ds.Owner,
+			"executable":  h.oracleKeeper.GetFile(ds.Filename),
+			"fee":         ds.Fee.String(),
+			"treasury":    ds.Treasury,
+			"tx_hash":     nil,
+		})
 	}
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
