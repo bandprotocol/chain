@@ -57,7 +57,7 @@ func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.Requ
 			"request_id":     requestID,
 			"external_id":    raw.ExternalID,
 			"data_source_id": raw.DataSourceID,
-			"fee":            fee.String(),
+			"fee":            fee.Amount,
 			"calldata":       parseBytes(raw.Calldata),
 		})
 		ds := h.oracleKeeper.MustGetDataSource(ctx, raw.DataSourceID)

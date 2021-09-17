@@ -164,7 +164,7 @@ class Handler(object):
             }
         )
         self.conn.execute(raw_requests.insert(), msg)
-        self.increase_accumulated_revenue(msg["data_source_id"], msg["fee"][:-5])
+        self.increase_accumulated_revenue(msg["data_source_id"], msg["fee"])
 
     def increase_accumulated_revenue(self, id, fee):
         self.conn.execute(
