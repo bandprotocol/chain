@@ -107,7 +107,7 @@ class Handler(object):
 
     def handle_set_data_source(self, msg):
         msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
-
+        del msg["tx_hash"]
         condition = True
         for col in data_sources.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
