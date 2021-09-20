@@ -150,6 +150,7 @@ data_sources = sa.Table(
     Column("treasury", sa.String),
     Column("fee", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("accumulated_revenue", sa.BigInteger),
 )
 
 oracle_scripts = sa.Table(
@@ -197,6 +198,7 @@ raw_requests = sa.Table(
     Column("request_id", sa.Integer, sa.ForeignKey("requests.id"), primary_key=True),
     Column("external_id", sa.BigInteger, primary_key=True),
     Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id")),
+    Column("fee", sa.BigInteger),
     Column("calldata", CustomBase64),
 )
 

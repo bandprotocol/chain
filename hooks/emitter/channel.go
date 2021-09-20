@@ -148,7 +148,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,
 			})
-			h.emitRawRequestAndValRequest(ctx, id, req)
+			h.emitRawRequestAndValRequest(ctx, id, req, evMap)
 			os := h.oracleKeeper.MustGetOracleScript(ctx, data.OracleScriptID)
 			data := common.JsDict{
 				"oracle_script_id":     data.OracleScriptID,

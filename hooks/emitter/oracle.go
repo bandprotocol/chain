@@ -14,43 +14,6 @@ func parseBytes(b []byte) []byte {
 	return b
 }
 
-func (h *Hook) emitOracleModule(ctx sdk.Context) {
-	dataSources := h.oracleKeeper.GetAllDataSources(ctx)
-	for idx, ds := range dataSources {
-		id := types.DataSourceID(idx + 1)
-		h.emitSetDataSource(id, ds, nil)
-	}
-	oracleScripts := h.oracleKeeper.GetAllOracleScripts(ctx)
-	for idx, os := range oracleScripts {
-		id := types.OracleScriptID(idx + 1)
-		h.emitSetOracleScript(id, os, nil)
-	}
-	rqCount := h.oracleKeeper.GetRequestCount(ctx)
-	for rid := types.RequestID(1); rid <= types.RequestID(rqCount); rid++ {
-		// TODO: revisit must get request
-		req := h.oracleKeeper.MustGetRequest(ctx, rid)
-		h.Write("NEW_REQUEST", common.JsDict{
-			"id":               rid,
-			"oracle_script_id": req.OracleScriptID,
-			"calldata":         parseBytes(req.Calldata),
-			"ask_count":        len(req.RequestedValidators),
-			"min_count":        req.MinCount,
-			"tx_hash":          nil,
-			"client_id":        req.ClientID,
-			"resolve_status":   types.RESOLVE_STATUS_OPEN,
-			"execute_gas":      req.ExecuteGas,
-		})
-		if h.oracleKeeper.HasResult(ctx, rid) {
-			h.emitUpdateResult(ctx, rid, "")
-		}
-		h.emitRawRequestAndValRequest(ctx, rid, req)
-		reps := h.oracleKeeper.GetReports(ctx, rid)
-		for _, rep := range reps {
-			h.emitReportAndRawReport(nil, rid, sdk.ValAddress(rep.Validator), nil, rep.RawReports)
-		}
-	}
-}
-
 func (h *Hook) emitSetDataSource(id types.DataSourceID, ds types.DataSource, txHash []byte) {
 	h.Write("SET_DATA_SOURCE", common.JsDict{
 		"id":          id,
@@ -86,12 +49,18 @@ func (h *Hook) emitHistoricalValidatorStatus(ctx sdk.Context, operatorAddress sd
 	})
 }
 
-func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request) {
-	for _, raw := range req.RawRequests {
+func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request, evMap common.EvMap) {
+	for id, raw := range req.RawRequests {
+		fee, err := sdk.ParseCoinNormalized(evMap[types.EventTypeRawRequest+"."+types.AttributeKeyFee][id])
+		if err != nil {
+			fee = sdk.NewCoin("uband", sdk.NewInt(0))
+		}
+		fee.Amount = fee.Amount.Mul(sdk.NewInt(int64(len(req.RequestedValidators))))
 		h.Write("NEW_RAW_REQUEST", common.JsDict{
 			"request_id":     requestID,
 			"external_id":    raw.ExternalID,
 			"data_source_id": raw.DataSourceID,
+			"fee":            fee.Amount,
 			"calldata":       parseBytes(raw.Calldata),
 		})
 		ds := h.oracleKeeper.MustGetDataSource(ctx, raw.DataSourceID)
@@ -161,7 +130,7 @@ func (h *Hook) handleMsgRequestData(
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
 	})
-	h.emitRawRequestAndValRequest(ctx, id, req)
+	h.emitRawRequestAndValRequest(ctx, id, req, evMap)
 	os := h.oracleKeeper.MustGetOracleScript(ctx, msg.OracleScriptID)
 	detail["id"] = id
 	detail["name"] = os.Name
@@ -192,7 +161,16 @@ func (h *Hook) handleMsgCreateDataSource(
 ) {
 	id := types.DataSourceID(common.Atoi(evMap[types.EventTypeCreateDataSource+"."+types.AttributeKeyID][0]))
 	ds := h.oracleKeeper.MustGetDataSource(ctx, id)
-	h.emitSetDataSource(id, ds, txHash)
+	h.Write("NEW_DATA_SOURCE", common.JsDict{
+		"id":          id,
+		"name":        ds.Name,
+		"description": ds.Description,
+		"owner":       ds.Owner,
+		"executable":  h.oracleKeeper.GetFile(ds.Filename),
+		"fee":         ds.Fee.String(),
+		"treasury":    ds.Treasury,
+		"tx_hash":     txHash,
+	})
 	detail["id"] = id
 }
 

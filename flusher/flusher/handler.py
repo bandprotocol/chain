@@ -95,20 +95,23 @@ class Handler(object):
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(accounts.update().where(condition).values(**msg))
 
-    def handle_set_data_source(self, msg):
+    def handle_new_data_source(self, msg):
         if msg["tx_hash"] is not None:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         else:
             msg["transaction_id"] = None
         del msg["tx_hash"]
-        if self.get_data_source_id(msg["id"]) is None:
-            self.conn.execute(data_sources.insert(), msg)
-            self.init_data_source_request_count(msg["id"])
-        else:
-            condition = True
-            for col in data_sources.primary_key.columns.values():
-                condition = (col == msg[col.name]) & condition
-            self.conn.execute(data_sources.update().where(condition).values(**msg))
+        msg["accumulated_revenue"] = 0
+        self.conn.execute(data_sources.insert(), msg)
+        self.init_data_source_request_count(msg["id"])
+
+    def handle_set_data_source(self, msg):
+        msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
+        condition = True
+        for col in data_sources.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(data_sources.update().where(condition).values(**msg))
 
     def handle_set_oracle_script(self, msg):
         if msg["tx_hash"] is not None:
@@ -161,6 +164,14 @@ class Handler(object):
             }
         )
         self.conn.execute(raw_requests.insert(), msg)
+        self.increase_accumulated_revenue(msg["data_source_id"], msg["fee"])
+
+    def increase_accumulated_revenue(self, id, fee):
+        self.conn.execute(
+            data_sources.update(data_sources.c.id == id).values(
+                accumulated_revenue=data_sources.c.accumulated_revenue + fee
+            )
+        )
 
     def handle_new_val_request(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
