@@ -51,7 +51,10 @@ func (h *Hook) emitHistoricalValidatorStatus(ctx sdk.Context, operatorAddress sd
 
 func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request, evMap common.EvMap) {
 	for id, raw := range req.RawRequests {
-		fee, _ := sdk.ParseCoinNormalized(evMap[types.EventTypeRawRequest+"."+types.AttributeKeyFee][id])
+		fee, err := sdk.ParseCoinNormalized(evMap[types.EventTypeRawRequest+"."+types.AttributeKeyFee][id])
+		if err != nil {
+			fee = sdk.NewCoin("uband", sdk.NewInt(0))
+		}
 		fee.Amount = fee.Amount.Mul(sdk.NewInt(int64(len(req.RequestedValidators))))
 		h.Write("NEW_RAW_REQUEST", common.JsDict{
 			"request_id":     requestID,
