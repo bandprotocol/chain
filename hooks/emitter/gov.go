@@ -28,10 +28,10 @@ func (h *Hook) emitGovModule(ctx sdk.Context) {
 		return false
 	})
 	h.govKeeper.IterateAllVotes(ctx, func(vote types.Vote) (stop bool) {
-		h.Write("SET_VOTE", common.JsDict{
+		h.Write("SET_VOTE_WEIGHT", common.JsDict{
 			"proposal_id": vote.ProposalId,
 			"voter":       vote.Voter,
-			"answer":      int(vote.Option),
+			"options":     vote.Options,
 			"tx_hash":     nil,
 		})
 		return false
@@ -129,7 +129,7 @@ func (h *Hook) handleMsgVote(
 
 }
 
-// handleMsgVote implements emitter handler for MsgVote.
+// handleMsgVoteWeighted implements emitter handler for MsgVoteWeighted.
 func (h *Hook) handleMsgVoteWeighted(
 	ctx sdk.Context, txHash []byte, msg *types.MsgVoteWeighted, detail common.JsDict,
 ) {

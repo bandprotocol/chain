@@ -239,6 +239,7 @@ func decodeMsgEditOracleScript(msg *oracletypes.MsgEditOracleScript, detail comm
 	detail["sender"] = msg.GetSender()
 }
 
+// TODO: Remove?
 // func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
 // 	detail["validator"] = msg.GetValidator()
 // 	detail["reporter"] = msg.GetReporter()
