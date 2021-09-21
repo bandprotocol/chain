@@ -26,7 +26,7 @@ class VoteOption(enum.Enum):
     Yes = 1
     Abstain = 2
     No = 3
-    NoWithVeto = 4
+    No_With_Veto = 4
 
 
 class CustomResolveStatus(sa.types.TypeDecorator):
@@ -331,7 +331,10 @@ votes = sa.Table(
     metadata,
     Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
     Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    Column("answer", CustomVoteOption),
+    Column("yes", sa.DECIMAL),
+    Column("abstain", sa.DECIMAL),
+    Column("no", sa.DECIMAL),
+    Column("no_with_veto", sa.DECIMAL),
     Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
 )
 
@@ -380,7 +383,10 @@ oracle_script_requests = sa.Table(
 )
 
 request_count_per_days = sa.Table(
-    "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
+    "request_count_per_days",
+    metadata,
+    Column("date", CustomDate, primary_key=True),
+    Column("count", sa.Integer),
 )
 
 incoming_packets = sa.Table(

@@ -118,10 +118,25 @@ func (h *Hook) handleMsgDeposit(
 func (h *Hook) handleMsgVote(
 	ctx sdk.Context, txHash []byte, msg *types.MsgVote, detail common.JsDict,
 ) {
-	h.Write("SET_VOTE", common.JsDict{
+	h.Write("SET_VOTE_WEIGHTED", common.JsDict{
 		"proposal_id": msg.ProposalId,
 		"voter":       msg.Voter,
-		"answer":      int(msg.Option),
+		"options":     types.NewNonSplitVoteOption(msg.Option),
+		"tx_hash":     txHash,
+	})
+	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	detail["title"] = proposal.GetTitle()
+
+}
+
+// handleMsgVote implements emitter handler for MsgVote.
+func (h *Hook) handleMsgVoteWeighted(
+	ctx sdk.Context, txHash []byte, msg *types.MsgVoteWeighted, detail common.JsDict,
+) {
+	h.Write("SET_VOTE_WEIGHTED", common.JsDict{
+		"proposal_id": msg.ProposalId,
+		"voter":       msg.Voter,
+		"options":     msg.Options,
 		"tx_hash":     txHash,
 	})
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)

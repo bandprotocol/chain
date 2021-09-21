@@ -35,6 +35,7 @@ from .db import (
     counterparty_chains,
     connections,
     channels,
+    VoteOption,
 )
 
 
@@ -295,11 +296,21 @@ class Handler(object):
         del msg["tx_hash"]
         self.conn.execute(insert(deposits).values(**msg).on_conflict_do_update(constraint="deposits_pkey", set_=msg))
 
-    def handle_set_vote(self, msg):
+    def handle_set_vote_weighted(self, msg):
+
         msg["voter_id"] = self.get_account_id(msg["voter"])
         del msg["voter"]
         msg["tx_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
+
+        required_options = {"yes": "0", "abstain": "0", "no": "0", "no_with_veto": "0"}
+        for item in msg["options"]:
+            option = VoteOption(item["option"]).name.lower()
+            required_options[option] = item["weight"]
+
+        msg.update(required_options)
+        del msg["options"]
+
         self.conn.execute(insert(votes).values(**msg).on_conflict_do_update(constraint="votes_pkey", set_=msg))
 
     def handle_update_proposal(self, msg):
