@@ -13,7 +13,10 @@ from sqlalchemy import create_engine
 @click.argument("topic")
 @click.argument("replay_topic")
 @click.option(
-    "--db", help="Database URI connection string.", default="localhost:5432/postgres", show_default=True,
+    "--db",
+    help="Database URI connection string.",
+    default="localhost:5432/postgres",
+    show_default=True,
 )
 def init(chain_id, topic, replay_topic, db):
     """Initialize database with empty tables and tracking info."""
@@ -167,30 +170,33 @@ AS
     )
     engine.execute(
         """
-CREATE VIEW non_validator_vote_proposals_view AS
-SELECT validator_id,
-       proposal_id,
-       answer,
-       SUM(CAST(shares AS DECIMAL) * CAST(tokens AS DECIMAL) / CAST(delegator_shares AS DECIMAL)) AS tokens
-FROM delegations
-JOIN votes ON delegations.delegator_id=votes.voter_id
-JOIN validators ON delegations.validator_id=validators.id
-AND votes.voter_id != validators.account_id
-GROUP BY answer, validator_id, proposal_id;
-"""
+    CREATE VIEW non_validator_vote_proposals_view AS
+    SELECT delegations.validator_id,
+    votes.proposal_id,
+    SUM(votes."yes" * shares * tokens / delegator_shares) as yes_vote,
+    SUM(votes.abstain * shares * tokens / delegator_shares) as abstain_vote,
+    SUM(votes."no" * shares * tokens / delegator_shares) as no_vote,
+    SUM(votes.no_with_veto * shares * tokens / delegator_shares) as no_with_veto_vote
+   FROM delegations
+     JOIN votes ON delegator_id = voter_id
+     JOIN validators ON validator_id = validators.id AND votes.voter_id != account_id
+  GROUP BY validator_id, votes.proposal_id;
+    """
     )
 
     engine.execute(
         """
-CREATE VIEW validator_vote_proposals_view AS
-SELECT validators.id,
-       proposal_id,
-       answer,
-       tokens
-FROM votes
-JOIN accounts ON accounts.id = votes.voter_id
-JOIN validators ON accounts.id = validators.account_id;
-"""
+    CREATE VIEW validator_vote_proposals_view AS
+    SELECT validators.id,
+           proposal_id,
+           votes."yes" * tokens as yes_vote,
+           votes.abstain * tokens as abstain_vote,
+           votes."no" * tokens as no_vote,
+           votes.no_with_veto * tokens as no_with_veto_vote
+    FROM votes
+    JOIN accounts ON accounts.id = votes.voter_id
+    JOIN validators ON accounts.id = validators.account_id;
+    """
     )
     engine.execute(
         """
