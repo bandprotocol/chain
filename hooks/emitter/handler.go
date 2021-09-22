@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	transfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
@@ -70,12 +69,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgWithdrawValidatorCommission(ctx, msg, evMap, detail)
 	case *slashingtypes.MsgUnjail:
 		h.handleMsgUnjail(ctx, msg)
-	case *govtypes.MsgSubmitProposal:
-		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, detail)
-	case *govtypes.MsgVote:
-		h.handleMsgVote(ctx, txHash, msg, detail)
-	case *govtypes.MsgDeposit:
-		h.handleMsgDeposit(ctx, txHash, msg, detail)
+	// case *govtypes.MsgSubmitProposal:
+	// 	h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, detail)
+	// case *govtypes.MsgVote:
+	// 	h.handleMsgVote(ctx, txHash, msg, detail)
+	// case *govtypes.MsgDeposit:
+	// 	h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, detail)
 	case *transfertypes.MsgTransfer:
@@ -125,10 +124,10 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeCompleteUnbonding(ctx, evMap)
 	case stakingtypes.EventTypeCompleteRedelegation:
 		h.handEventTypeCompleteRedelegation(ctx)
-	case govtypes.EventTypeInactiveProposal:
-		h.handleEventInactiveProposal(evMap)
-	case govtypes.EventTypeActiveProposal:
-		h.handleEventTypeActiveProposal(ctx, evMap)
+	// case govtypes.EventTypeInactiveProposal:
+	// 	h.handleEventInactiveProposal(evMap)
+	// case govtypes.EventTypeActiveProposal:
+	// 	h.handleEventTypeActiveProposal(ctx, evMap)
 	case banktypes.EventTypeTransfer:
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
