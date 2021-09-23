@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -249,7 +250,22 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
 	}
-	// TODO: add authz
+
+	var authzState authz.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
+	for _, authz := range authzState.Authorization {
+		authorization := authz.GetAuthorization()
+		switch authorization.GetTypeUrl() {
+		case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
+			acc, _ := sdk.AccAddressFromBech32(authz.Granter)
+			val := sdk.ValAddress(acc).String()
+			h.Write("SET_REPORTER", common.JsDict{
+				"reporter":  authz.Grantee,
+				"validator": val,
+			})
+		}
+	}
+
 	h.Write("COMMIT", common.JsDict{"height": 0})
 	h.FlushMessages()
 }
