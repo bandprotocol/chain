@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -32,6 +34,23 @@ func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
 		"voting_time":     proposal.VotingStartTime.UnixNano(),
 		"voting_end_time": proposal.VotingEndTime.UnixNano(),
 	})
+}
+
+func (h *Hook) emitSetVoteWeighted(ctx sdk.Context, setVoteWeighted common.JsDict, options []types.WeightedVoteOption) {
+	required_options := map[string]bool{"yes": false, "abstain": false, "no": false, "no_with_veto": false}
+
+	for _, item := range options {
+		option := strings.ToLower(item.Option.String()[12:])
+		setVoteWeighted[option] = item.Weight
+		required_options[option] = true
+	}
+
+	for option, isSet := range required_options {
+		if !isSet {
+			setVoteWeighted[option] = "0"
+		}
+	}
+	h.Write("SET_VOTE_WEIGHTED", setVoteWeighted)
 }
 
 // handleMsgSubmitProposal implements emitter handler for MsgSubmitProposal.
@@ -75,12 +94,12 @@ func (h *Hook) handleMsgDeposit(
 func (h *Hook) handleMsgVote(
 	ctx sdk.Context, txHash []byte, msg *types.MsgVote, detail common.JsDict,
 ) {
-	h.Write("SET_VOTE_WEIGHTED", common.JsDict{
+	setVoteWeighted := common.JsDict{
 		"proposal_id": msg.ProposalId,
 		"voter":       msg.Voter,
-		"options":     types.NewNonSplitVoteOption(msg.Option),
 		"tx_hash":     txHash,
-	})
+	}
+	h.emitSetVoteWeighted(ctx, setVoteWeighted, types.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
 
@@ -90,12 +109,12 @@ func (h *Hook) handleMsgVote(
 func (h *Hook) handleMsgVoteWeighted(
 	ctx sdk.Context, txHash []byte, msg *types.MsgVoteWeighted, detail common.JsDict,
 ) {
-	h.Write("SET_VOTE_WEIGHTED", common.JsDict{
+	setVoteWeighted := common.JsDict{
 		"proposal_id": msg.ProposalId,
 		"voter":       msg.Voter,
-		"options":     msg.Options,
 		"tx_hash":     txHash,
-	})
+	}
+	h.emitSetVoteWeighted(ctx, setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
 
