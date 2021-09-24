@@ -224,12 +224,12 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 		})
 	}
 	for _, vote := range govState.Votes {
-		h.Write("SET_VOTE_WEIGHTED", common.JsDict{
+		setVoteWeighted := common.JsDict{
 			"proposal_id": vote.ProposalId,
 			"voter":       vote.Voter,
-			"options":     vote.Options,
 			"tx_hash":     nil,
-		})
+		}
+		h.emitSetVoteWeighted(setVoteWeighted, vote.Options)
 	}
 
 	// Oracle module

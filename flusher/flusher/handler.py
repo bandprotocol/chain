@@ -35,7 +35,6 @@ from .db import (
     counterparty_chains,
     connections,
     channels,
-    VoteOption,
 )
 
 
@@ -301,7 +300,6 @@ class Handler(object):
         del msg["voter"]
         msg["tx_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
-
         self.conn.execute(insert(votes).values(**msg).on_conflict_do_update(constraint="votes_pkey", set_=msg))
 
     def handle_update_proposal(self, msg):

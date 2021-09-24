@@ -36,7 +36,7 @@ func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
 	})
 }
 
-func (h *Hook) emitSetVoteWeighted(ctx sdk.Context, setVoteWeighted common.JsDict, options []types.WeightedVoteOption) {
+func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []types.WeightedVoteOption) {
 	required_options := map[string]bool{"yes": false, "abstain": false, "no": false, "no_with_veto": false}
 
 	for _, item := range options {
@@ -99,7 +99,7 @@ func (h *Hook) handleMsgVote(
 		"voter":       msg.Voter,
 		"tx_hash":     txHash,
 	}
-	h.emitSetVoteWeighted(ctx, setVoteWeighted, types.NewNonSplitVoteOption(msg.Option))
+	h.emitSetVoteWeighted(setVoteWeighted, types.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
 
@@ -114,7 +114,7 @@ func (h *Hook) handleMsgVoteWeighted(
 		"voter":       msg.Voter,
 		"tx_hash":     txHash,
 	}
-	h.emitSetVoteWeighted(ctx, setVoteWeighted, msg.Options)
+	h.emitSetVoteWeighted(setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
 
