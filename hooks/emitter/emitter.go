@@ -270,16 +270,6 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.FlushMessages()
 }
 
-// func (h *Hook) emitNonHistoricalState(ctx sdk.Context) {
-// 	// h.emitAuthModule(ctx)
-// 	// h.emitStakingModule(ctx)
-// 	// h.emitGovModule(ctx)
-// 	// h.emitOracleModule(ctx)
-// 	h.Write("COMMIT", common.JsDict{"height": -1})
-// 	h.FlushMessages()
-// 	h.msgs = []common.Message{}
-// }
-
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
 func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
 	h.accsInBlock = make(map[string]bool)

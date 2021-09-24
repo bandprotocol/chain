@@ -15,41 +15,6 @@ var (
 	EventTypeCompleteRedelegation = types.EventTypeCompleteRedelegation
 )
 
-func (h *Hook) emitStakingModule(ctx sdk.Context) {
-	h.stakingKeeper.IterateValidators(ctx, func(_ int64, val types.ValidatorI) (stop bool) {
-		h.emitSetValidator(ctx, val.GetOperator())
-		return false
-	})
-
-	h.stakingKeeper.IterateAllDelegations(ctx, func(delegation types.Delegation) (stop bool) {
-		h.emitDelegation(ctx, sdk.ValAddress(delegation.ValidatorAddress), sdk.AccAddress(delegation.DelegatorAddress))
-		return false
-	})
-	h.stakingKeeper.IterateRedelegations(ctx, func(_ int64, red types.Redelegation) (stop bool) {
-		for _, entry := range red.Entries {
-			h.Write("NEW_REDELEGATION", common.JsDict{
-				"delegator_address":    red.DelegatorAddress,
-				"operator_src_address": red.ValidatorSrcAddress,
-				"operator_dst_address": red.ValidatorDstAddress,
-				"completion_time":      entry.CompletionTime.UnixNano(),
-				"amount":               entry.SharesDst.String(),
-			})
-		}
-		return false
-	})
-	h.stakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd types.UnbondingDelegation) (stop bool) {
-		for _, entry := range ubd.Entries {
-			h.Write("NEW_UNBONDING_DELEGATION", common.JsDict{
-				"delegator_address": ubd.DelegatorAddress,
-				"operator_address":  ubd.ValidatorAddress,
-				"completion_time":   entry.CompletionTime.UnixNano(),
-				"amount":            entry.Balance.String(),
-			})
-		}
-		return false
-	})
-}
-
 func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Validator {
 	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
 	currentReward, currentRatio := h.getCurrentRewardAndCurrentRatio(ctx, addr)

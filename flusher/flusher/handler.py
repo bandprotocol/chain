@@ -297,7 +297,6 @@ class Handler(object):
         self.conn.execute(insert(deposits).values(**msg).on_conflict_do_update(constraint="deposits_pkey", set_=msg))
 
     def handle_set_vote_weighted(self, msg):
-
         msg["voter_id"] = self.get_account_id(msg["voter"])
         del msg["voter"]
         msg["tx_id"] = self.get_transaction_id(msg["tx_hash"])

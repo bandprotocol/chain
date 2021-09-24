@@ -13,49 +13,6 @@ var (
 	StatusInactive            = 6
 )
 
-func (h *Hook) emitGovModule(ctx sdk.Context) {
-	h.govKeeper.IterateProposals(ctx, func(proposal types.Proposal) (stop bool) {
-		h.emitNewProposal(proposal, nil)
-		return false
-	})
-	h.govKeeper.IterateAllDeposits(ctx, func(deposit types.Deposit) (stop bool) {
-		h.Write("SET_DEPOSIT", common.JsDict{
-			"proposal_id": deposit.ProposalId,
-			"depositor":   deposit.Depositor,
-			"amount":      deposit.Amount.String(),
-			"tx_hash":     nil,
-		})
-		return false
-	})
-	h.govKeeper.IterateAllVotes(ctx, func(vote types.Vote) (stop bool) {
-		h.Write("SET_VOTE_WEIGHT", common.JsDict{
-			"proposal_id": vote.ProposalId,
-			"voter":       vote.Voter,
-			"options":     vote.Options,
-			"tx_hash":     nil,
-		})
-		return false
-	})
-}
-
-func (h *Hook) emitNewProposal(proposal types.Proposal, proposer sdk.AccAddress) {
-	content := proposal.GetContent()
-	h.Write("NEW_PROPOSAL", common.JsDict{
-		"id":               proposal.ProposalId,
-		"proposer":         proposer,
-		"type":             content.ProposalType(),
-		"title":            content.GetTitle(),
-		"description":      content.GetDescription(),
-		"proposal_route":   content.ProposalRoute(),
-		"status":           int(proposal.Status),
-		"submit_time":      proposal.SubmitTime.UnixNano(),
-		"deposit_end_time": proposal.DepositEndTime.UnixNano(),
-		"total_deposit":    proposal.TotalDeposit.String(),
-		"voting_time":      proposal.VotingStartTime.UnixNano(),
-		"voting_end_time":  proposal.VotingEndTime.UnixNano(),
-	})
-}
-
 func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, depositor sdk.AccAddress) {
 	deposit, _ := h.govKeeper.GetDeposit(ctx, id, depositor)
 	h.Write("SET_DEPOSIT", common.JsDict{
