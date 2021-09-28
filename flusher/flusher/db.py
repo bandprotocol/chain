@@ -26,7 +26,7 @@ class VoteOption(enum.Enum):
     Yes = 1
     Abstain = 2
     No = 3
-    No_With_Veto = 4
+    NoWithVeto = 4
 
 
 class CustomResolveStatus(sa.types.TypeDecorator):
