@@ -127,10 +127,10 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeCompleteUnbonding(ctx, evMap)
 	case stakingtypes.EventTypeCompleteRedelegation:
 		h.handEventTypeCompleteRedelegation(ctx)
-	// case govtypes.EventTypeInactiveProposal:
-	// 	h.handleEventInactiveProposal(evMap)
-	// case govtypes.EventTypeActiveProposal:
-	// 	h.handleEventTypeActiveProposal(ctx, evMap)
+	case govtypes.EventTypeInactiveProposal:
+		h.handleEventInactiveProposal(evMap)
+	case govtypes.EventTypeActiveProposal:
+		h.handleEventTypeActiveProposal(ctx, evMap)
 	case banktypes.EventTypeTransfer:
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
