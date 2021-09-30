@@ -1,8 +1,6 @@
 package emitter
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -37,18 +35,24 @@ func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
 }
 
 func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []types.WeightedVoteOption) {
-	required_options := map[string]bool{"yes": false, "abstain": false, "no": false, "no_with_veto": false}
+	required_options := map[string]string{"yes": "0", "abstain": "0", "no": "0", "no_with_veto": "0"}
 
 	for _, item := range options {
-		option := strings.ToLower(item.Option.String()[12:])
-		setVoteWeighted[option] = item.Weight
-		required_options[option] = true
+
+		switch item.Option {
+		case types.OptionYes:
+			required_options["yes"] = item.Weight.String()
+		case types.OptionAbstain:
+			required_options["abstain"] = item.Weight.String()
+		case types.OptionNo:
+			required_options["no"] = item.Weight.String()
+		case types.OptionNoWithVeto:
+			required_options["no_with_veto"] = item.Weight.String()
+		}
 	}
 
-	for option, isSet := range required_options {
-		if !isSet {
-			setVoteWeighted[option] = "0"
-		}
+	for option, weight := range required_options {
+		setVoteWeighted[option] = weight
 	}
 	h.Write("SET_VOTE_WEIGHTED", setVoteWeighted)
 }
