@@ -171,15 +171,18 @@ AS
     engine.execute(
         """
 CREATE VIEW non_validator_vote_proposals_view AS
-SELECT delegations.validator_id, votes.proposal_id,
-       SUM(votes."yes" * shares * tokens / delegator_shares) as yes_vote,
-       SUM(votes."abstain" * shares * tokens / delegator_shares) as abstain_vote,
-       SUM(votes."no" * shares * tokens / delegator_shares) as no_vote,
-       SUM(votes."no_with_veto" * shares * tokens / delegator_shares) as no_with_veto_vote
+SELECT delegations.validator_id,
+       votes.proposal_id,
+       SUM(votes."yes" * shares * tokens / delegator_shares) AS yes_vote,
+       SUM(votes."abstain" * shares * tokens / delegator_shares) AS abstain_vote,
+       SUM(votes."no" * shares * tokens / delegator_shares) AS no_vote,
+       SUM(votes."no_with_veto" * shares * tokens / delegator_shares) AS no_with_veto_vote
 FROM delegations
-  JOIN votes ON delegator_id = voter_id
-  JOIN validators ON validator_id = validators.id AND votes.voter_id != account_id
-GROUP BY validator_id, votes.proposal_id;
+JOIN votes ON delegator_id = voter_id
+JOIN validators ON validator_id = validators.id
+AND votes.voter_id != account_id
+GROUP BY validator_id,
+         votes.proposal_id;
     """
     )
 
@@ -188,13 +191,13 @@ GROUP BY validator_id, votes.proposal_id;
 CREATE VIEW validator_vote_proposals_view AS
 SELECT validators.id,
        proposal_id,
-       votes."yes" * tokens as yes_vote,
-       votes."abstain" * tokens as abstain_vote,
-       votes."no" * tokens as no_vote,
-       votes."no_with_veto" * tokens as no_with_veto_vote
+       votes."yes" * tokens AS yes_vote,
+       votes."abstain" * tokens AS abstain_vote,
+       votes."no" * tokens AS no_vote,
+       votes."no_with_veto" * tokens AS no_with_veto_vote
 FROM votes
-  JOIN accounts ON accounts.id = votes.voter_id
-  JOIN validators ON accounts.id = validators.account_id;
+JOIN accounts ON accounts.id = votes.voter_id
+JOIN validators ON accounts.id = validators.account_id;
     """
     )
     engine.execute(
