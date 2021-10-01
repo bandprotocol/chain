@@ -13,10 +13,7 @@ from sqlalchemy import create_engine
 @click.argument("topic")
 @click.argument("replay_topic")
 @click.option(
-    "--db",
-    help="Database URI connection string.",
-    default="localhost:5432/postgres",
-    show_default=True,
+    "--db", help="Database URI connection string.", default="localhost:5432/postgres", show_default=True,
 )
 def init(chain_id, topic, replay_topic, db):
     """Initialize database with empty tables and tracking info."""
@@ -227,5 +224,16 @@ LANGUAGE 'plpgsql';
 CREATE TRIGGER validator_report_count_trigger BEFORE INSERT OR DELETE ON reports
   FOR EACH ROW EXECUTE PROCEDURE adjust_count();
 COMMIT;
+"""
+    )
+
+    engine.execute(
+        """
+CREATE VIEW proposal_total_votes as
+SELECT proposal_id, sum(aa.yes_vote) + sum(aa.abstain_vote) + sum(aa.no_vote) + sum(aa.no_with_veto_vote) as sum FROM
+(SELECT proposal_id,yes_vote,abstain_vote,no_vote,no_with_veto_vote  FROM non_validator_vote_proposals_view
+UNION
+SELECT proposal_id,yes_vote,abstain_vote,no_vote,no_with_veto_vote FROM validator_vote_proposals_view) aa
+GROUP BY proposal_id
 """
     )
