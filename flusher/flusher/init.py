@@ -13,7 +13,10 @@ from sqlalchemy import create_engine
 @click.argument("topic")
 @click.argument("replay_topic")
 @click.option(
-    "--db", help="Database URI connection string.", default="localhost:5432/postgres", show_default=True,
+    "--db",
+    help="Database URI connection string.",
+    default="localhost:5432/postgres",
+    show_default=True,
 )
 def init(chain_id, topic, replay_topic, db):
     """Initialize database with empty tables and tracking info."""
@@ -186,14 +189,25 @@ GROUP BY validator_id,
     engine.execute(
         """
 CREATE VIEW validator_vote_proposals_view AS
+WITH non_val AS
+  (SELECT v.proposal_id,
+          SUM(CASE
+                  WHEN v.voter_id = val.account_id THEN 0
+                  ELSE shares
+              END) AS total
+   FROM votes v
+   LEFT JOIN delegations d ON d.delegator_id = v.voter_id
+   LEFT JOIN validators val ON d.validator_id = val.id
+   GROUP BY v.proposal_id)
 SELECT validators.id,
-       proposal_id,
-       votes."yes" * tokens AS yes_vote,
-       votes."abstain" * tokens AS abstain_vote,
-       votes."no" * tokens AS no_vote,
-       votes."no_with_veto" * tokens AS no_with_veto_vote
-FROM votes
-JOIN accounts ON accounts.id = votes.voter_id
+       v.proposal_id,
+       v."yes" * (tokens - non_val.total) AS yes_vote,
+       v."abstain" * (tokens - non_val.total) AS abstain_vote,
+       v."no" * (tokens - non_val.total) AS no_vote,
+       v."no_with_veto" * (tokens - non_val.total) AS no_with_veto_vote
+FROM votes v
+JOIN non_val ON non_val.proposal_id = v.proposal_id
+JOIN accounts ON accounts.id = v.voter_id
 JOIN validators ON accounts.id = validators.account_id;
     """
     )
@@ -229,11 +243,22 @@ COMMIT;
 
     engine.execute(
         """
-CREATE VIEW proposal_total_votes as
-SELECT proposal_id, sum(aa.yes_vote) + sum(aa.abstain_vote) + sum(aa.no_vote) + sum(aa.no_with_veto_vote) as sum FROM
-(SELECT proposal_id,yes_vote,abstain_vote,no_vote,no_with_veto_vote  FROM non_validator_vote_proposals_view
-UNION
-SELECT proposal_id,yes_vote,abstain_vote,no_vote,no_with_veto_vote FROM validator_vote_proposals_view) aa
+CREATE VIEW proposal_total_votes AS
+SELECT proposal_id,
+       sum(all_vote.yes_vote) + sum(all_vote.abstain_vote) + sum(all_vote.no_vote) + sum(all_vote.no_with_veto_vote) AS SUM
+FROM
+  (SELECT proposal_id,
+          yes_vote,
+          abstain_vote,
+          no_vote,
+          no_with_veto_vote
+   FROM non_validator_vote_proposals_view
+   UNION SELECT proposal_id,
+                yes_vote,
+                abstain_vote,
+                no_vote,
+                no_with_veto_vote
+   FROM validator_vote_proposals_view) all_vote
 GROUP BY proposal_id
 """
     )
