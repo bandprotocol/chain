@@ -2,14 +2,16 @@
 ## Prepare environment
 
 1. Install Java `brew cask install java`
-2. Install Kafka `brew install kafka`
-3. Start Zookeeper services `brew services start zookeeper`
-4. Start Kafka services `brew services start kafka`
-5. run `python3 -m venv venv && source venv/bin/activate`
-6. run `pip install -r requirements.txt`
-7. If you have openssl problem while install dependencies run `brew install openssl && export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/`
-8. `make install` in chain directory
-9. Open 2 tabs on cmd
+2. Install Postgresql `brew install postgresql`
+3. Install Kafka `brew install kafka`
+4. Start Zookeeper services `brew services start zookeeper`
+5. Start Postgresql services `brew services start postgresql`
+6. Start Kafka services `brew services start kafka`
+7. run `python3 -m venv venv && source venv/bin/activate`
+8. run `pip install -r requirements.txt`
+9. If you have openssl problem while install dependencies run `brew install openssl && export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/`
+10. `make install` in chain directory
+11. Open 2 tabs on cmd
 
 ### How to run BandChain with emitter on development mode
 
