@@ -60,8 +60,7 @@ If you haven't already, install Golang by following the [official docs](https://
 Use `git` to retrieve BandChain from the [official repo](https://github.com/bandprotocol/chain), and checkout the master branch, which contains the latest stable release. That should install the `bandd` binary.
 
 ```bash
-git clone https://github.com/bandprotocol/bandchain
-cd bandchain/chain
+git clone https://github.com/bandprotocol/chain
 git checkout master
 make install
 ```
@@ -74,7 +73,7 @@ Using `bandd version` command to verify that your `bandd` has been build success
 bandd version --long
 name: bandchain
 server_name: bandd
-version: 2.1.1
+version: [Latest version]
 commit: 6f5d4742d311d1bcc57d93f3c37812dc59292212
 build_tags: ledger
 go: go version go1.15.7 darwin/amd64
