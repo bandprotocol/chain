@@ -51,7 +51,7 @@ We recommend the following for running a BandChain Validator:
 
 **Step 1. Install Golang**
 
-Go v1.15+ or higher is required for BandChain.
+Go v1.16+ or higher is required for BandChain.
 
 If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your GOPATH and GOBIN environment variables are properly set up.
 
@@ -60,9 +60,8 @@ If you haven't already, install Golang by following the [official docs](https://
 Use `git` to retrieve BandChain from the [official repo](https://github.com/bandprotocol/chain), and checkout the master branch, which contains the latest stable release. That should install the `bandd` binary.
 
 ```bash
-git clone https://github.com/bandprotocol/bandchain
-cd bandchain/chain
-git checkout master
+git clone https://github.com/bandprotocol/chain
+cd chain && git checkout v2.3.0
 make install
 ```
 
@@ -74,10 +73,10 @@ Using `bandd version` command to verify that your `bandd` has been build success
 bandd version --long
 name: bandchain
 server_name: bandd
-version: 2.1.1
-commit: 6f5d4742d311d1bcc57d93f3c37812dc59292212
+version: 2.3.0
+commit: 4fe19638b33043eed4dec9861cda40962fb5b2a7
 build_tags: ledger
-go: go version go1.15.7 darwin/amd64
+go: go version go1.16.7 darwin/amd64
 build_deps:
 ...
 ```
