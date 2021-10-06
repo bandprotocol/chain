@@ -61,7 +61,7 @@ Use `git` to retrieve BandChain from the [official repo](https://github.com/band
 
 ```bash
 git clone https://github.com/bandprotocol/chain
-git checkout v2.3.0
+cd chain && git checkout v2.3.0
 make install
 ```
 
