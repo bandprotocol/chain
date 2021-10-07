@@ -17,23 +17,20 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-const (
-	ASK_COUNT = 16
-	MIN_COUNT = 10
-)
-
 // Hook uses levelDB to store the latest price of standard price reference.
 type Hook struct {
 	cdc          codec.Codec
 	stdOs        map[types.OracleScriptID]bool
 	oracleKeeper keeper.Keeper
 	db           *leveldb.DB
+	askCount     uint64
+	minCount     uint64
 }
 
 var _ band.Hook = &Hook{}
 
 // NewHook creates a price hook instance that will be added in Band App.
-func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string) *Hook {
+func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string, askCount uint64, minCount uint64) *Hook {
 	stdOs := make(map[types.OracleScriptID]bool)
 	for _, oid := range oids {
 		stdOs[oid] = true
@@ -47,6 +44,8 @@ func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScr
 		stdOs:        stdOs,
 		oracleKeeper: oracleKeeper,
 		db:           db,
+		askCount:     askCount,
+		minCount:     minCount,
 	}
 }
 
@@ -113,8 +112,8 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 			var priceResult types.PriceResult
 
 			if request.AskCount == 0 || request.MinCount == 0 {
-				request.AskCount = ASK_COUNT
-				request.MinCount = MIN_COUNT
+				request.AskCount = h.askCount
+				request.MinCount = h.minCount
 			}
 			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
 			if err != nil {

@@ -17,8 +17,8 @@ import (
 
 // Flag names and values
 const (
-	FlagAskCount = "ask-count"
-	FlagMinCount = "min-count"
+	flagAskCount = "ask-count"
+	flagMinCount = "min-count"
 )
 
 // GetQueryCmd returns the cli query commands for this module.
@@ -426,8 +426,8 @@ func GetQueryRequestPrice() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
-	cmd.Flags().Uint64(FlagAskCount, 16, "The maximum number of validators that you want to respond to the request")
-	cmd.Flags().Uint64(FlagMinCount, 10, "The minimum number of BandChain's validators that need to responds to consider the request successful")
+	cmd.Flags().Uint64(flagAskCount, 0, "The maximum number of validators that you want to respond to the request, if not provided use default value set by --with-pricer flag")
+	cmd.Flags().Uint64(flagMinCount, 0, "The minimum number of BandChain's validators that need to responds to consider the request successful, if not provided use default value set by --with-pricer flag")
 
 	return cmd
 }

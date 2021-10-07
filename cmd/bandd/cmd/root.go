@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -130,7 +131,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
 	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
-	startCmd.Flags().String(flagWithPricer, "", "[Experimental] enable collecting standard price reference provided by given oracle scripts and save in level db")
+	startCmd.Flags().String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle scripts and save in level db (ex. ids/defaultAskCount/defaultMinCount)")
 }
 
 func queryCommand() *cobra.Command {
@@ -255,7 +256,21 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 
 	pricerStr, _ := appOpts.Get(flagWithPricer).(string)
 	if pricerStr != "" {
-		rawOracleIDs := strings.Split(pricerStr, ",")
+		pricerStrArgs := strings.Split(pricerStr, "/")
+		var defaultAskCount, defaultMinCount uint64
+		if len(pricerStrArgs) == 3 {
+			defaultAskCount, err = strconv.ParseUint(pricerStrArgs[1], 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			defaultMinCount, err = strconv.ParseUint(pricerStrArgs[2], 10, 64)
+			if err != nil {
+				panic(err)
+			}
+		} else if len(pricerStrArgs) == 2 || len(pricerStrArgs) > 3 {
+			panic(fmt.Errorf("accepts 1 or 3 arg(s), received %d", len(pricerStrArgs)))
+		}
+		rawOracleIDs := strings.Split(pricerStrArgs[0], ",")
 		var oracleIDs []oracletypes.OracleScriptID
 		for _, rawOracleID := range rawOracleIDs {
 			oracleID, err := strconv.ParseInt(rawOracleID, 10, 64)
@@ -265,7 +280,9 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 			oracleIDs = append(oracleIDs, oracletypes.OracleScriptID(oracleID))
 		}
 		bandApp.AddHook(
-			price.NewHook(bandApp.AppCodec(), bandApp.OracleKeeper, oracleIDs, filepath.Join(cast.ToString(appOpts.Get(cli.HomeFlag)), "prices")))
+			price.NewHook(bandApp.AppCodec(), bandApp.OracleKeeper, oracleIDs,
+				filepath.Join(cast.ToString(appOpts.Get(cli.HomeFlag)), "prices"),
+				defaultAskCount, defaultMinCount))
 	}
 
 	return bandApp
