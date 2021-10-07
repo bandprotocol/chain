@@ -15,6 +15,12 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
+// Flag names and values
+const (
+	FlagAskCount = "ask-count"
+	FlagMinCount = "min-count"
+)
+
 // GetQueryCmd returns the cli query commands for this module.
 func GetQueryCmd() *cobra.Command {
 	oracleCmd := &cobra.Command{
@@ -386,19 +392,20 @@ func GetQueryRequestVerification() *cobra.Command {
 
 func GetQueryRequestPrice() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "request-price [symbols-comma-separated] [ask-count] [min-count]",
+		Use:     "request-price [symbols-comma-separated]",
 		Short:   "Query the latest price on standard price reference database",
-		Example: "request-price ETH,BAND,BTC 10 16",
-		Args:    cobra.ExactArgs(3),
+		Example: "request-price ETH,BAND,BTC --ask-count 4 --min-count 3",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			symbols := strings.Split(args[0], ",")
-			askCount, err := strconv.ParseUint(args[1], 10, 64)
+
+			askCount, err := cmd.Flags().GetUint64("ask-count")
 			if err != nil {
-				return fmt.Errorf("unable to parse ask count: %w", err)
+				return err
 			}
-			minCount, err := strconv.ParseUint(args[2], 10, 64)
+			minCount, err := cmd.Flags().GetUint64("min-count")
 			if err != nil {
-				return fmt.Errorf("unable to parse min count: %w", err)
+				return err
 			}
 
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -419,6 +426,8 @@ func GetQueryRequestPrice() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	cmd.Flags().Uint64(FlagAskCount, 16, "The maximum number of validators that you want to respond to the request")
+	cmd.Flags().Uint64(FlagMinCount, 10, "The minimum number of BandChain's validators that need to responds to consider the request successful")
 
 	return cmd
 }

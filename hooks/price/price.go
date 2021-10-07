@@ -106,6 +106,11 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		var response types.QueryRequestPriceResponse
 		for _, symbol := range request.Symbols {
 			var priceResult types.PriceResult
+
+			if request.AskCount == 0 || request.MinCount == 0 {
+				request.AskCount = 16
+				request.MinCount = 10
+			}
 			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
 			if err != nil {
 				if errors.Is(err, leveldb.ErrNotFound) {
