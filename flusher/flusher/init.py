@@ -171,44 +171,45 @@ AS
     engine.execute(
         """
 CREATE VIEW non_validator_vote_proposals_view AS
-SELECT delegations.validator_id,
-       votes.proposal_id,
-       SUM(votes."yes" * shares * tokens / delegator_shares) AS yes_vote,
-       SUM(votes."abstain" * shares * tokens / delegator_shares) AS abstain_vote,
-       SUM(votes."no" * shares * tokens / delegator_shares) AS no_vote,
-       SUM(votes."no_with_veto" * shares * tokens / delegator_shares) AS no_with_veto_vote
-FROM delegations
-JOIN votes ON delegator_id = voter_id
-JOIN validators ON validator_id = validators.id
-AND votes.voter_id != account_id
-GROUP BY validator_id,
-         votes.proposal_id;
+SELECT d.delegator_id,
+       v.proposal_id,
+       SUM(v."yes" * d.shares) AS yes_vote,
+       SUM(v."abstain" * d.shares) AS abstain_vote,
+       SUM(v."no" * d.shares) AS no_vote,
+       SUM(v."no_with_veto" * d.shares) AS no_with_veto_vote
+FROM delegations d
+JOIN votes v ON d.delegator_id = v.voter_id
+JOIN validators val ON d.validator_id = val.id
+AND v.voter_id != val.account_id
+GROUP BY d.delegator_id,
+         v.proposal_id;
     """
     )
 
     engine.execute(
         """
-CREATE VIEW validator_vote_proposals_view AS
-WITH non_val AS
+CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
   (SELECT v.proposal_id,
+          val.account_id,
           SUM(CASE
-                  WHEN v.voter_id = val.account_id THEN 0
-                  ELSE shares
-              END) AS total
+                  WHEN v.voter_id != val.account_id THEN d.shares
+                  ELSE 0
+              END) AS Total
    FROM votes v
-   LEFT JOIN delegations d ON d.delegator_id = v.voter_id
-   LEFT JOIN validators val ON d.validator_id = val.id
-   GROUP BY v.proposal_id)
-SELECT validators.id,
-       v.proposal_id,
-       v."yes" * (tokens - non_val.total) AS yes_vote,
-       v."abstain" * (tokens - non_val.total) AS abstain_vote,
+   JOIN delegations d ON d.delegator_id = v.voter_id
+   JOIN validators val ON d.validator_id = val.id
+   GROUP BY v.proposal_id,
+            val.account_id)
+SELECT v.proposal_id,
+       val.account_id,
+       v."yes" * (val.tokens - non_val.total) AS yes_vote,
+       v."abstain" * (val.tokens - non_val.total) AS abstain_vote,
        v."no" * (tokens - non_val.total) AS no_vote,
        v."no_with_veto" * (tokens - non_val.total) AS no_with_veto_vote
 FROM votes v
+JOIN validators val ON val.account_id = v.voter_id
 JOIN non_val ON non_val.proposal_id = v.proposal_id
-JOIN accounts ON accounts.id = v.voter_id
-JOIN validators ON accounts.id = validators.account_id;
+AND non_val.account_id = val.account_id;
     """
     )
     engine.execute(
