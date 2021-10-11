@@ -134,7 +134,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysListCmd(cc *Context) *cobra.Command {
+func keysListCmd(c *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
