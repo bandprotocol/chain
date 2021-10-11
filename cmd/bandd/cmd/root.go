@@ -131,7 +131,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
 	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
-	startCmd.Flags().String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle scripts and save in level db (ex. ids/defaultAskCount/defaultMinCount)")
+	startCmd.Flags().String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
 }
 
 func queryCommand() *cobra.Command {
