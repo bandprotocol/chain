@@ -100,7 +100,7 @@ func runImpl(c *Context, l *Logger) error {
 	}
 }
 
-func runCmd(c *Context, home string) *cobra.Command {
+func runCmd(c *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
@@ -143,7 +143,7 @@ func runCmd(c *Context, home string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.fileCache = filecache.New(filepath.Join(viper.GetString(flags.FlagHome), "files"))
+			c.fileCache = filecache.New(filepath.Join(c.home, "files"))
 			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
 			if err != nil {
 				return err
@@ -165,7 +165,6 @@ func runCmd(c *Context, home string) *cobra.Command {
 	}
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
-	cmd.Flags().String(flags.FlagHome, home, "home directory")
 	cmd.Flags().String(flagValidator, "", "validator address")
 	cmd.Flags().String(flagExecutor, "", "executor name and url for executing the data source script")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
@@ -176,7 +175,6 @@ func runCmd(c *Context, home string) *cobra.Command {
 	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flags.FlagHome, cmd.Flags().Lookup(flags.FlagHome))
 	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
