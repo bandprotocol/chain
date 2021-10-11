@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -42,8 +43,9 @@ type Config struct {
 
 // Global instances.
 var (
-	cfg Config
-	kb  keyring.Keyring
+	cfg             Config
+	kb              keyring.Keyring
+	DefaultYodaHome string
 )
 
 func initConfig(cmd *cobra.Command) error {
@@ -59,6 +61,15 @@ func initConfig(cmd *cobra.Command) error {
 	return nil
 }
 
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultYodaHome = filepath.Join(userHomeDir, ".yoda")
+}
+
 func Main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
@@ -72,7 +83,7 @@ func Main() {
 	rootCmd.AddCommand(
 		configCmd(),
 		keysCmd(ctx),
-		runCmd(ctx),
+		runCmd(ctx, DefaultYodaHome),
 		version.NewVersionCommand(),
 	)
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
@@ -89,7 +100,7 @@ func Main() {
 		}
 		return initConfig(rootCmd)
 	}
-	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv("$HOME/.yoda"), "home directory")
+	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultYodaHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
