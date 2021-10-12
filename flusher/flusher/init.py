@@ -200,8 +200,8 @@ CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
    JOIN validators val ON d.validator_id = val.id
    GROUP BY v.proposal_id,
             val.account_id)
-SELECT v.proposal_id,
-       val.id,
+SELECT val.id,
+       v.proposal_id,
        v."yes" * (val.tokens - non_val.total) AS yes_vote,
        v."abstain" * (val.tokens - non_val.total) AS abstain_vote,
        v."no" * (tokens - non_val.total) AS no_vote,
