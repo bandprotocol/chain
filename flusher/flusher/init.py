@@ -190,7 +190,7 @@ GROUP BY d.validator_id,
         """
 CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
   (SELECT v.proposal_id,
-          val.id,
+          val.account_id,
           SUM(CASE
                   WHEN v.voter_id != val.account_id THEN d.shares
                   ELSE 0
@@ -201,7 +201,7 @@ CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
    GROUP BY v.proposal_id,
             val.account_id)
 SELECT v.proposal_id,
-       val.account_id,
+       val.id,
        v."yes" * (val.tokens - non_val.total) AS yes_vote,
        v."abstain" * (val.tokens - non_val.total) AS abstain_vote,
        v."no" * (tokens - non_val.total) AS no_vote,
