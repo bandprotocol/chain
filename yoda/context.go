@@ -53,6 +53,7 @@ type Context struct {
 	pendingGauge   int64
 	errorCount     int64
 	submittedCount int64
+	home           string
 }
 
 func (c *Context) nextKeyIndex() int64 {
