@@ -143,7 +143,7 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.fileCache = filecache.New(filepath.Join(viper.GetString(flags.FlagHome), "files"))
+			c.fileCache = filecache.New(filepath.Join(c.home, "files"))
 			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
 			if err != nil {
 				return err

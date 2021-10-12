@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -42,21 +43,27 @@ type Config struct {
 
 // Global instances.
 var (
-	cfg Config
-	kb  keyring.Keyring
+	cfg             Config
+	kb              keyring.Keyring
+	DefaultYodaHome string
 )
 
-func initConfig(cmd *cobra.Command) error {
-	home, err := cmd.PersistentFlags().GetString(flags.FlagHome)
-	if err != nil {
-		return err
-	}
-	viper.SetConfigFile(path.Join(home, "config.yaml"))
+func initConfig(c *Context, cmd *cobra.Command) error {
+	viper.SetConfigFile(path.Join(c.home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return err
 	}
 	return nil
+}
+
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultYodaHome = filepath.Join(userHomeDir, ".yoda")
 }
 
 func Main() {
@@ -80,6 +87,7 @@ func Main() {
 		if err != nil {
 			return err
 		}
+		ctx.home = home
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
@@ -87,9 +95,9 @@ func Main() {
 		if err != nil {
 			return err
 		}
-		return initConfig(rootCmd)
+		return initConfig(ctx, rootCmd)
 	}
-	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv("$HOME/.yoda"), "home directory")
+	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultYodaHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
