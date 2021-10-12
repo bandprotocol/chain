@@ -19,18 +19,18 @@ import (
 
 // Hook uses levelDB to store the latest price of standard price reference.
 type Hook struct {
-	cdc          codec.Codec
-	stdOs        map[types.OracleScriptID]bool
-	oracleKeeper keeper.Keeper
-	db           *leveldb.DB
-	askCount     uint64
-	minCount     uint64
+	cdc             codec.Codec
+	stdOs           map[types.OracleScriptID]bool
+	oracleKeeper    keeper.Keeper
+	db              *leveldb.DB
+	defaultAskCount uint64
+	defaultMinCount uint64
 }
 
 var _ band.Hook = &Hook{}
 
 // NewHook creates a price hook instance that will be added in Band App.
-func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string, askCount uint64, minCount uint64) *Hook {
+func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string, defaultAskCount uint64, defaultMinCount uint64) *Hook {
 	stdOs := make(map[types.OracleScriptID]bool)
 	for _, oid := range oids {
 		stdOs[oid] = true
@@ -40,12 +40,12 @@ func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScr
 		panic(err)
 	}
 	return &Hook{
-		cdc:          cdc,
-		stdOs:        stdOs,
-		oracleKeeper: oracleKeeper,
-		db:           db,
-		askCount:     askCount,
-		minCount:     minCount,
+		cdc:             cdc,
+		stdOs:           stdOs,
+		oracleKeeper:    oracleKeeper,
+		db:              db,
+		defaultAskCount: defaultAskCount,
+		defaultMinCount: defaultMinCount,
 	}
 }
 
@@ -111,9 +111,9 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 		for _, symbol := range request.Symbols {
 			var priceResult types.PriceResult
 
-			if request.AskCount == 0 || request.MinCount == 0 {
-				request.AskCount = h.askCount
-				request.MinCount = h.minCount
+			if request.AskCount == 0 && request.MinCount == 0 {
+				request.AskCount = h.defaultAskCount
+				request.MinCount = h.defaultMinCount
 			}
 			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
 			if err != nil {
@@ -122,16 +122,16 @@ func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop b
 						sdkerrors.ErrKeyNotFound,
 						"price not found for %s with %d/%d counts",
 						symbol,
-						request.MinCount,
 						request.AskCount,
+						request.MinCount,
 					)), true
 				}
 				return sdkerrors.QueryResult(
 					sdkerrors.Wrapf(sdkerrors.ErrLogic,
 						"unable to get price of %s with %d/%d counts",
 						symbol,
-						request.MinCount,
 						request.AskCount,
+						request.MinCount,
 					),
 				), true
 			}

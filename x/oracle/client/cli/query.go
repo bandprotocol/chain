@@ -401,11 +401,11 @@ func GetQueryRequestPrice() *cobra.Command {
 
 			askCount, err := cmd.Flags().GetUint64("ask-count")
 			if err != nil {
-				return err
+				return fmt.Errorf("unable to parse ask count: %w", err)
 			}
 			minCount, err := cmd.Flags().GetUint64("min-count")
 			if err != nil {
-				return err
+				return fmt.Errorf("unable to parse min count: %w", err)
 			}
 
 			clientCtx, err := client.GetClientQueryContext(cmd)
