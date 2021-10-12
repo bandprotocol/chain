@@ -168,10 +168,11 @@ AS
             requests.resolve_status;
 """
     )
+    # TODO: replace select&group_by d.validator_id with d.delegator_id
     engine.execute(
         """
 CREATE VIEW non_validator_vote_proposals_view AS
-SELECT d.delegator_id,
+SELECT d.validator_id,
        v.proposal_id,
        SUM(v."yes" * d.shares) AS yes_vote,
        SUM(v."abstain" * d.shares) AS abstain_vote,
@@ -181,16 +182,15 @@ FROM delegations d
 JOIN votes v ON d.delegator_id = v.voter_id
 JOIN validators val ON d.validator_id = val.id
 AND v.voter_id != val.account_id
-GROUP BY d.delegator_id,
+GROUP BY d.validator_id,
          v.proposal_id;
     """
     )
-
     engine.execute(
         """
 CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
   (SELECT v.proposal_id,
-          val.account_id,
+          val.id,
           SUM(CASE
                   WHEN v.voter_id != val.account_id THEN d.shares
                   ELSE 0
