@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- (bump) Use cosmos-sdk package v0.44.1
+- (bump) Use cosmos-sdk package v0.44.2
 - (yoda) Fix Yoda can't cache file
 
 ## [v2.3.0](https://github.com/bandprotocol/chain/releases/tag/v2.3.0)
