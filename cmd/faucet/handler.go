@@ -72,7 +72,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 		WithKeybase(keybase).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := txf.BuildUnsignedTx(msg)
+	txb, err := tx.BuildUnsignedTx(txf, msg)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
