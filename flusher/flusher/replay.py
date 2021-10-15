@@ -28,7 +28,11 @@ from .handler import Handler
     show_default=True,
 )
 @click.option(
-    "-s", "--servers", help="Kafka bootstrap servers.", default="localhost:9092", show_default=True,
+    "-s",
+    "--servers",
+    help="Kafka bootstrap servers.",
+    default="localhost:9092",
+    show_default=True,
 )
 @click.option("-e", "--echo-sqlalchemy", "echo_sqlalchemy", is_flag=True)
 def replay(commit_interval, db, servers, echo_sqlalchemy):

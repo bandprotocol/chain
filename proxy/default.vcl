@@ -7,7 +7,7 @@ backend rest {
 
 backend bandsv {
   .host = "172.18.0.15";
-  .port = "5000";
+  .port = "8080";
 }
 
 backend hasura {

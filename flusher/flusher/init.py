@@ -13,7 +13,10 @@ from sqlalchemy import create_engine
 @click.argument("topic")
 @click.argument("replay_topic")
 @click.option(
-    "--db", help="Database URI connection string.", default="localhost:5432/postgres", show_default=True,
+    "--db",
+    help="Database URI connection string.",
+    default="localhost:5432/postgres",
+    show_default=True,
 )
 def init(chain_id, topic, replay_topic, db):
     """Initialize database with empty tables and tracking info."""
@@ -165,32 +168,49 @@ AS
             requests.resolve_status;
 """
     )
+    # TODO: replace select&group_by d.validator_id with d.delegator_id
     engine.execute(
         """
 CREATE VIEW non_validator_vote_proposals_view AS
-SELECT validator_id,
-       proposal_id,
-       answer,
-       SUM(CAST(shares AS DECIMAL) * CAST(tokens AS DECIMAL) / CAST(delegator_shares AS DECIMAL)) AS tokens
-FROM delegations
-JOIN votes ON delegations.delegator_id=votes.voter_id
-JOIN validators ON delegations.validator_id=validators.id
-AND votes.voter_id != validators.account_id
-GROUP BY answer, validator_id, proposal_id;
-"""
+SELECT d.validator_id,
+       v.proposal_id,
+       SUM(v."yes" * d.shares) AS yes_vote,
+       SUM(v."abstain" * d.shares) AS abstain_vote,
+       SUM(v."no" * d.shares) AS no_vote,
+       SUM(v."no_with_veto" * d.shares) AS no_with_veto_vote
+FROM delegations d
+JOIN votes v ON d.delegator_id = v.voter_id
+JOIN validators val ON d.validator_id = val.id
+AND v.voter_id != val.account_id
+GROUP BY d.validator_id,
+         v.proposal_id;
+    """
     )
-
     engine.execute(
         """
-CREATE VIEW validator_vote_proposals_view AS
-SELECT validators.id,
-       proposal_id,
-       answer,
-       tokens
-FROM votes
-JOIN accounts ON accounts.id = votes.voter_id
-JOIN validators ON accounts.id = validators.account_id;
-"""
+CREATE VIEW validator_vote_proposals_view AS WITH non_val AS
+  (SELECT v.proposal_id,
+          val.account_id,
+          SUM(CASE
+                  WHEN v.voter_id != val.account_id THEN d.shares
+                  ELSE 0
+              END) AS Total
+   FROM votes v
+   JOIN delegations d ON d.delegator_id = v.voter_id
+   JOIN validators val ON d.validator_id = val.id
+   GROUP BY v.proposal_id,
+            val.account_id)
+SELECT val.id,
+       v.proposal_id,
+       v."yes" * (val.tokens - non_val.total) AS yes_vote,
+       v."abstain" * (val.tokens - non_val.total) AS abstain_vote,
+       v."no" * (tokens - non_val.total) AS no_vote,
+       v."no_with_veto" * (tokens - non_val.total) AS no_with_veto_vote
+FROM votes v
+JOIN validators val ON val.account_id = v.voter_id
+JOIN non_val ON non_val.proposal_id = v.proposal_id
+AND non_val.account_id = val.account_id;
+    """
     )
     engine.execute(
         """
@@ -219,5 +239,27 @@ LANGUAGE 'plpgsql';
 CREATE TRIGGER validator_report_count_trigger BEFORE INSERT OR DELETE ON reports
   FOR EACH ROW EXECUTE PROCEDURE adjust_count();
 COMMIT;
+"""
+    )
+
+    engine.execute(
+        """
+CREATE VIEW proposal_total_votes AS
+SELECT proposal_id,
+       sum(all_vote.yes_vote) + sum(all_vote.abstain_vote) + sum(all_vote.no_vote) + sum(all_vote.no_with_veto_vote) AS SUM
+FROM
+  (SELECT proposal_id,
+          yes_vote,
+          abstain_vote,
+          no_vote,
+          no_with_veto_vote
+   FROM non_validator_vote_proposals_view
+   UNION SELECT proposal_id,
+                yes_vote,
+                abstain_vote,
+                no_vote,
+                no_with_veto_vote
+   FROM validator_vote_proposals_view) all_vote
+GROUP BY proposal_id
 """
     )

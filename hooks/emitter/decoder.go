@@ -97,6 +97,8 @@ func (h *Hook) decodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		decodeMsgDeposit(msg, detail)
 	case *govtypes.MsgVote:
 		decodeMsgVote(msg, detail)
+	case *govtypes.MsgVoteWeighted:
+		decodeMsgVoteWeighted(msg, detail)
 	case *stakingtypes.MsgCreateValidator:
 		decodeMsgCreateValidator(msg, detail)
 	case *stakingtypes.MsgEditValidator:
@@ -237,16 +239,6 @@ func decodeMsgEditOracleScript(msg *oracletypes.MsgEditOracleScript, detail comm
 	detail["sender"] = msg.GetSender()
 }
 
-// func decodeMsgAddReporter(msg *oracletypes.MsgAddReporter, detail common.JsDict) {
-// 	detail["validator"] = msg.GetValidator()
-// 	detail["reporter"] = msg.GetReporter()
-// }
-
-// func decodeMsgRemoveReporter(msg *oracletypes.MsgRemoveReporter, detail common.JsDict) {
-// 	detail["validator"] = msg.GetValidator()
-// 	detail["reporter"] = msg.GetReporter()
-// }
-
 func decodeMsgActivate(msg *oracletypes.MsgActivate, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 }
@@ -276,6 +268,12 @@ func decodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["voter"] = msg.Voter
 	detail["option"] = msg.Option
+}
+
+func decodeMsgVoteWeighted(msg *govtypes.MsgVoteWeighted, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["voter"] = msg.Voter
+	detail["options"] = msg.Options
 }
 
 func decodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail common.JsDict) {
