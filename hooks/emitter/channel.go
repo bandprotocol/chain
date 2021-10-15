@@ -101,8 +101,7 @@ func (h *Hook) extractFungibleTokenPacket(
 		packet["type"] = "fungible_token"
 		packet["data"] = data
 		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckSuccess]; ok {
-			// TODO: patch this line when cosmos-sdk fix AttributeKeyAckSuccess value
-			if events[0] == "false" {
+			if events[0] == "true" {
 				packet["acknowledgement"] = common.JsDict{
 					"status": "success",
 				}
@@ -167,6 +166,7 @@ func (h *Hook) extractOracleRequestPacket(
 			detail["schema"] = os.Schema
 			detail["decoded_data"] = data
 			detail["packet_type"] = "oracle_request"
+			detail["skip"] = false
 
 			packet["type"] = "oracle_request"
 			packet["data"] = data
@@ -187,9 +187,14 @@ func (h *Hook) extractOracleRequestPacket(
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
 			}
+			reasons, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck]
+			if !ok {
+				detail["skip"] = true
+				return false
+			}
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck][0],
+				"reason": reasons[0],
 			}
 		}
 		return true
@@ -210,11 +215,12 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		txHash,
 	)
-	h.Write("NEW_INCOMING_PACKET", packet)
 	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
+		h.Write("NEW_INCOMING_PACKET", packet)
 		return
 	}
 	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
+		h.Write("NEW_INCOMING_PACKET", packet)
 		return
 	}
 }
