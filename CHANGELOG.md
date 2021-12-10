@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- (bump) cosmos-sdk to v0.44.5
+- (bump) tendermint to v0.34.14
+- (bump) iavl restricted to v0.17.3
+- (bump) tm-db restricted to v0.6.4
 
 ## [v2.3.2](https://github.com/bandprotocol/chain/releases/tag/v2.3.2)
 
