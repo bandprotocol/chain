@@ -47,7 +47,7 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	idStr, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
 	if err != nil {
-		l.Debug(":cold_sweat: Failed to parse request id with error: %s", c, err.Error())
+		l.Debug(":cold_sweat: Failed to parse request id with error: %s", err.Error())
 		return
 	}
 
