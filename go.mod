@@ -5,9 +5,10 @@ go 1.16
 require (
 	github.com/bandprotocol/go-owasm v0.1.0
 	github.com/confio/ics23/go v0.6.6
-	github.com/cosmos/cosmos-sdk v0.44.2
+	github.com/containerd/continuity v0.1.0 // indirect
+	github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go v1.1.0
+	github.com/cosmos/ibc-go v1.1.5
 	github.com/ethereum/go-ethereum v1.10.8
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-sql-driver/mysql v1.6.0
@@ -32,10 +33,10 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/syndtr/goleveldb v1.0.1-0.20210305035536-64b5b1c73954
-	github.com/tendermint/tendermint v0.34.13
+	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
-	google.golang.org/grpc v1.40.0
+	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
+	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.1.0
