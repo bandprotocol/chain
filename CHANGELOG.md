@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## [v2.3.3](https://github.com/bandprotocol/chain/releases/tag/v2.3.3)
+
+- (yoda) Change severity of error when query log
+- (bump) Use cosmos-sdk package v0.44.5 / tendermint v0.34.14 / ibc-go v1.1.5
+
+## [v2.3.2](https://github.com/bandprotocol/chain/releases/tag/v2.3.2)
+
 - (bump) Use cosmos-sdk package v0.44.2
 - (yoda) Fix Yoda can't cache file
 
