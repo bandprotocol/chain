@@ -102,11 +102,11 @@ func (h *Hook) extractFungibleTokenPacket(
 		packet["data"] = p
 
 		// Add Band account sender or receiver to account tx to update balance and related tx
-		if _, err = sdk.AccAddressFromBech32(data.Sender); err != nil {
+		if _, err = sdk.AccAddressFromBech32(data.Sender); err == nil {
 			h.AddAccountsInTx(data.Sender)
 		}
 
-		if _, err = sdk.AccAddressFromBech32(data.Receiver); err != nil {
+		if _, err = sdk.AccAddressFromBech32(data.Receiver); err == nil {
 			h.AddAccountsInTx(data.Receiver)
 		}
 
