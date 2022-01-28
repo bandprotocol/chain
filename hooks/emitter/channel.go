@@ -89,17 +89,27 @@ func (h *Hook) extractFungibleTokenPacket(
 	var data ibcxfertypes.FungibleTokenPacketData
 	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
-		data := common.JsDict{
+		p := common.JsDict{
 			"denom":    data.Denom,
 			"amount":   data.Amount,
 			"sender":   data.Sender,
 			"receiver": data.Receiver,
 		}
-		detail["decoded_data"] = data
+		detail["decoded_data"] = p
 		detail["packet_type"] = "fungible_token"
 
 		packet["type"] = "fungible_token"
-		packet["data"] = data
+		packet["data"] = p
+
+		// Add Band account sender or receiver to account tx to update balance and related tx
+		if _, err = sdk.AccAddressFromBech32(data.Sender); err != nil {
+			h.AddAccountsInTx(data.Sender)
+		}
+
+		if _, err = sdk.AccAddressFromBech32(data.Receiver); err != nil {
+			h.AddAccountsInTx(data.Receiver)
+		}
+
 		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckSuccess]; ok {
 			if events[0] == "true" {
 				packet["acknowledgement"] = common.JsDict{
