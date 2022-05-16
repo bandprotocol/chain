@@ -403,6 +403,7 @@ func NewBandApp(
 		&app.IBCKeeper.PortKeeper,
 		scopedOracleKeeper,
 		owasmVM,
+		app.hooks,
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.hooks)
 
