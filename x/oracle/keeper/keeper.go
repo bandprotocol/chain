@@ -42,7 +42,7 @@ type Keeper struct {
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
 
-	hooks common.Hook
+	hook common.Hook
 }
 
 // NewKeeper creates a new oracle Keeper instance.
@@ -61,6 +61,7 @@ func NewKeeper(
 	portKeeper types.PortKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
+	hook common.Hook,
 ) Keeper {
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
@@ -80,6 +81,7 @@ func NewKeeper(
 		channelKeeper:    channelKeeper,
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
+		hook:             hook,
 	}
 }
 

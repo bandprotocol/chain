@@ -281,7 +281,7 @@ func (k Querier) RequestSearch(
 	c context.Context,
 	req *types.QueryRequestSearchRequest,
 ) (*types.QueryRequestSearchResponse, error) {
-	return k.hooks.RequestSearch(req)
+	return k.hook.RequestSearch(req)
 	// return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
@@ -291,7 +291,7 @@ func (k Querier) RequestPrice(
 	c context.Context,
 	req *types.QueryRequestPriceRequest,
 ) (*types.QueryRequestPriceResponse, error) {
-	return k.hooks.RequestPrice(req)
+	return k.hook.RequestPrice(req)
 	// return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
