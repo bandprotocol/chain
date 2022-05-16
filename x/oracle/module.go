@@ -98,6 +98,7 @@ type AppModule struct {
 
 // NewAppModule creates a new AppModule object.
 func NewAppModule(k keeper.Keeper, h common.Hook) AppModule {
+	fmt.Println("Hooks:", len(h.(common.Hooks)))
 	return AppModule{
 		keeper: k,
 		hook:   h,
