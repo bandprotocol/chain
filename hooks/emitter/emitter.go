@@ -28,7 +28,6 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -142,7 +141,7 @@ func (h *Hook) FlushMessages() {
 
 // AfterInitChain specify actions need to do after chain initialization (app.Hook interface).
 func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
-	var genesisState bandapp.GenesisState
+	var genesisState map[string]json.RawMessage
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}

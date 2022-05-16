@@ -11,12 +11,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
 type Querier struct {
 	Keeper
+	Hook common.Hook
 }
 
 var _ types.QueryServer = Querier{}
@@ -281,7 +283,7 @@ func (k Querier) RequestSearch(
 	c context.Context,
 	req *types.QueryRequestSearchRequest,
 ) (*types.QueryRequestSearchResponse, error) {
-	return k.hook.RequestSearch(req)
+	return k.Hook.RequestSearch(req)
 	// return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
@@ -291,7 +293,7 @@ func (k Querier) RequestPrice(
 	c context.Context,
 	req *types.QueryRequestPriceRequest,
 ) (*types.QueryRequestPriceResponse, error) {
-	return k.hook.RequestPrice(req)
+	return k.Hook.RequestPrice(req)
 	// return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 

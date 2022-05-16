@@ -23,6 +23,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/modules/core/exported"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/rest"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -92,12 +93,14 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
+	hook   common.Hook
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper) AppModule {
+func NewAppModule(k keeper.Keeper, h common.Hook) AppModule {
 	return AppModule{
 		keeper: k,
+		hook:   h,
 	}
 }
 
@@ -122,7 +125,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper})
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper, Hook: am.hook})
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
