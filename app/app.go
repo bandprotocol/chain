@@ -403,9 +403,9 @@ func NewBandApp(
 		&app.IBCKeeper.PortKeeper,
 		scopedOracleKeeper,
 		owasmVM,
-		app.hooks,
+		&app.hooks,
 	)
-	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.hooks)
+	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

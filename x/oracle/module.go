@@ -23,7 +23,6 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/modules/core/exported"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/rest"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -93,14 +92,12 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
-	hook   common.Hook
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper, hook common.Hook) AppModule {
+func NewAppModule(k keeper.Keeper) AppModule {
 	return AppModule{
 		keeper: k,
-		hook:   hook,
 	}
 }
 
