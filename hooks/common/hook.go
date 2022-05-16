@@ -53,7 +53,7 @@ func (h Hooks) BeforeCommit() {
 func (h Hooks) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
 	for _, hook := range h {
 		res, err = hook.RequestSearch(req)
-		if err != nil {
+		if err == nil {
 			return res, nil
 		}
 	}
@@ -64,7 +64,7 @@ func (h Hooks) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.Q
 func (h Hooks) RequestPrice(req *types.QueryRequestPriceRequest) (res *types.QueryRequestPriceResponse, err error) {
 	for _, hook := range h {
 		res, err = hook.RequestPrice(req)
-		if err != nil {
+		if err == nil {
 			return res, nil
 		}
 	}
