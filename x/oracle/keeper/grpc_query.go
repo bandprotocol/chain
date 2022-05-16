@@ -293,6 +293,7 @@ func (k Querier) RequestPrice(
 	c context.Context,
 	req *types.QueryRequestPriceRequest,
 ) (*types.QueryRequestPriceResponse, error) {
+	fmt.Println("Request Price", req)
 	return k.Hook.RequestPrice(req)
 	// return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
