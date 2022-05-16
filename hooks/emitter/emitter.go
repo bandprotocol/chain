@@ -3,6 +3,7 @@ package emitter
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
@@ -65,9 +66,21 @@ type Hook struct {
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
-	cdc codec.Codec, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper, clientkeeper clientkeeper.Keeper, connectionkeeper connectionkeeper.Keeper, channelkeeper channelkeeper.Keeper, kafkaURI string, emitStartState bool,
+	cdc codec.Codec,
+	legecyAmino *codec.LegacyAmino,
+	encodingConfig params.EncodingConfig,
+	accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
+	mintKeeper mintkeeper.Keeper,
+	distrKeeper distrkeeper.Keeper,
+	govKeeper govkeeper.Keeper,
+	oracleKeeper keeper.Keeper,
+	clientkeeper clientkeeper.Keeper,
+	connectionkeeper connectionkeeper.Keeper,
+	channelkeeper channelkeeper.Keeper,
+	kafkaURI string,
+	emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
@@ -401,9 +414,12 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	h.Write("COMMIT", common.JsDict{"height": req.Height})
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	return abci.ResponseQuery{}, false
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
+	return nil, errors.New("not implemented")
+}
+
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
+	return nil, errors.New("not implemented")
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

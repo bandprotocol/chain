@@ -16,6 +16,7 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -40,6 +41,8 @@ type Keeper struct {
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
+
+	hooks common.Hook
 }
 
 // NewKeeper creates a new oracle Keeper instance.
@@ -211,7 +214,12 @@ func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability
 
 // IsReporter checks if the validator granted to the reporter
 func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) bool {
-	cap, _ := k.authzKeeper.GetCleanAuthorization(ctx, reporter, sdk.AccAddress(validator), sdk.MsgTypeURL(&types.MsgReportData{}))
+	cap, _ := k.authzKeeper.GetCleanAuthorization(
+		ctx,
+		reporter,
+		sdk.AccAddress(validator),
+		sdk.MsgTypeURL(&types.MsgReportData{}),
+	)
 	return cap != nil
 }
 

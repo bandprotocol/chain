@@ -17,7 +17,6 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -32,7 +31,7 @@ type Hook struct {
 	trans        *gorm.DB
 }
 
-var _ band.Hook = &Hook{}
+var _ common.Hook = &Hook{}
 
 // NewHook creates a request hook instance that will be added in Band App.
 func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, connStr string, numRecords int) *Hook {
@@ -72,7 +71,8 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 			validator := evMap[types.EventTypeReport+"."+types.AttributeKeyValidator][0]
 			valAddr, err := sdk.ValAddressFromBech32(validator)
 			if err != nil {
-				ctx.Logger().Error("Unable to parse validator address got from EventTypeReport for request search", "error", err)
+				ctx.Logger().
+					Error("Unable to parse validator address got from EventTypeReport for request search", "error", err)
 				continue
 			}
 			report, err := h.oracleKeeper.GetReport(ctx, reqID, valAddr)
@@ -133,49 +133,34 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	switch req.Path {
-	case "/oracle.v1.Query/RequestSearch":
-		var queryReq types.QueryRequestSearchRequest
-		if err := h.cdc.Unmarshal(req.Data, &queryReq); err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request data: %s", err)), true
-		}
-
-		calldata, err := hex.DecodeString(queryReq.Calldata)
-		if err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)), true
-		}
-
-		// Query oracle requests from database
-		oracleReq, err := h.getLatestRequest(
-			types.OracleScriptID(queryReq.OracleScriptId),
-			calldata,
-			queryReq.AskCount,
-			queryReq.MinCount,
-		)
-
-		// check query results
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")), true
-			}
-			return sdkerrors.QueryResult(sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")), true
-		}
-
-		queryResponse := oracleReq.QueryRequestResponse()
-		finalResult := types.QueryRequestSearchResponse{
-			Request: &queryResponse,
-		}
-		bz, err := h.cdc.Marshal(&finalResult)
-		if err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to marshal response: %s", err)), true
-		}
-
-		return common.QueryResultSuccess(bz, req.Height), true
-	default:
-		return abci.ResponseQuery{}, false
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
+	calldata, err := hex.DecodeString(req.Calldata)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)
 	}
+
+	// Query oracle requests from database
+	oracleReq, err := h.getLatestRequest(
+		types.OracleScriptID(req.OracleScriptId),
+		calldata,
+		req.AskCount,
+		req.MinCount,
+	)
+
+	// check query results
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")
+		}
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")
+	}
+
+	queryResponse := oracleReq.QueryRequestResponse()
+	return &types.QueryRequestSearchResponse{Request: &queryResponse}, nil
+}
+
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
+	return nil, errors.New("not implemented")
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).
