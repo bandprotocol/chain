@@ -363,7 +363,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	messages := []map[string]interface{}{}
 	for idx, msg := range tx.GetMsgs() {
 		var detail = make(common.JsDict)
-		h.decodeMsg(ctx, msg, detail)
+		h.DecodeMsg(ctx, msg, detail)
 		if res.IsOK() {
 			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
 		}

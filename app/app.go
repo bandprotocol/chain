@@ -470,6 +470,7 @@ func NewBandApp(
 				defaultAskCount, defaultMinCount))
 	}
 
+	// Add hook to app module for create Querier
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.hooks)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -479,18 +480,13 @@ func NewBandApp(
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router.
-	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	/****  Module Options ****/
 
-	/****  Module Options ****/
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
