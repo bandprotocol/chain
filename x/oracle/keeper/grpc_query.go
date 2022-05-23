@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -283,7 +284,12 @@ func (k Querier) RequestSearch(
 	c context.Context,
 	req *types.QueryRequestSearchRequest,
 ) (*types.QueryRequestSearchResponse, error) {
-	return k.Hook.RequestSearch(req)
+	res, hit, err := k.Hook.RequestSearch(req)
+	if hit {
+		return res, err
+	} else {
+		return nil, errors.New("not implemented")
+	}
 }
 
 // RequestPrice queries the latest price on standard price reference oracle
@@ -292,7 +298,12 @@ func (k Querier) RequestPrice(
 	c context.Context,
 	req *types.QueryRequestPriceRequest,
 ) (*types.QueryRequestPriceResponse, error) {
-	return k.Hook.RequestPrice(req)
+	res, hit, err := k.Hook.RequestPrice(req)
+	if hit {
+		return res, err
+	} else {
+		return nil, errors.New("not implemented")
+	}
 }
 
 // RequestVerification verifies oracle request for validation before executing data sources

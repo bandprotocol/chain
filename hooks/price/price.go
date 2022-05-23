@@ -104,11 +104,11 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 }
 
-func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
-	return nil, errors.New("not implemented")
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
+	return nil, false, nil
 }
 
-func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
 	var response types.QueryRequestPriceResponse
 	for _, symbol := range req.Symbols {
 		var priceResult types.PriceResult
@@ -120,7 +120,7 @@ func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRe
 		bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", req.AskCount, req.MinCount, symbol)), nil)
 		if err != nil {
 			if errors.Is(err, leveldb.ErrNotFound) {
-				return nil, sdkerrors.Wrapf(
+				return nil, true, sdkerrors.Wrapf(
 					sdkerrors.ErrKeyNotFound,
 					"price not found for %s with %d/%d counts",
 					symbol,
@@ -128,7 +128,7 @@ func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRe
 					req.MinCount,
 				)
 			}
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrLogic,
+			return nil, true, sdkerrors.Wrapf(sdkerrors.ErrLogic,
 				"unable to get price of %s with %d/%d counts",
 				symbol,
 				req.AskCount,
@@ -138,7 +138,7 @@ func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRe
 		h.cdc.MustUnmarshal(bz, &priceResult)
 		response.PriceResults = append(response.PriceResults, &priceResult)
 	}
-	return &response, nil
+	return &response, true, nil
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

@@ -15,8 +15,8 @@ type Hook interface {
 	AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock)
 	AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx)
 	AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock)
-	RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error)
-	RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error)
+	RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error)
+	RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error)
 	BeforeCommit()
 }
 
@@ -50,24 +50,24 @@ func (h Hooks) BeforeCommit() {
 	}
 }
 
-func (h Hooks) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
+func (h Hooks) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
 	for _, hook := range h {
-		res, err = hook.RequestSearch(req)
-		if err == nil {
-			return res, nil
+		res, hit, err := hook.RequestSearch(req)
+		if hit {
+			return res, true, err
 		}
 	}
 
-	return nil, err
+	return nil, false, nil
 }
 
-func (h Hooks) RequestPrice(req *types.QueryRequestPriceRequest) (res *types.QueryRequestPriceResponse, err error) {
+func (h Hooks) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
 	for _, hook := range h {
-		res, err = hook.RequestPrice(req)
-		if err == nil {
-			return res, nil
+		res, hit, err := hook.RequestPrice(req)
+		if hit {
+			return res, true, err
 		}
 	}
 
-	return nil, err
+	return nil, false, nil
 }

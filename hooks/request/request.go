@@ -133,10 +133,10 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 }
 
-func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.QueryRequestSearchResponse, err error) {
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
 	calldata, err := hex.DecodeString(req.Calldata)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)
+		return nil, true, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)
 	}
 
 	// Query oracle requests from database
@@ -150,17 +150,17 @@ func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (res *types.Q
 	// check query results
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")
+			return nil, true, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")
 		}
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")
+		return nil, true, sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")
 	}
 
 	queryResponse := oracleReq.QueryRequestResponse()
-	return &types.QueryRequestSearchResponse{Request: &queryResponse}, nil
+	return &types.QueryRequestSearchResponse{Request: &queryResponse}, true, nil
 }
 
-func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return nil, errors.New("not implemented")
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+	return nil, false, nil
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).
