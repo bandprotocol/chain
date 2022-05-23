@@ -284,7 +284,6 @@ func (k Querier) RequestSearch(
 	req *types.QueryRequestSearchRequest,
 ) (*types.QueryRequestSearchResponse, error) {
 	return k.Hook.RequestSearch(req)
-	// return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
 // RequestPrice queries the latest price on standard price reference oracle
@@ -293,9 +292,7 @@ func (k Querier) RequestPrice(
 	c context.Context,
 	req *types.QueryRequestPriceRequest,
 ) (*types.QueryRequestPriceResponse, error) {
-	fmt.Println("Request Price", req)
 	return k.Hook.RequestPrice(req)
-	// return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
 }
 
 // RequestVerification verifies oracle request for validation before executing data sources

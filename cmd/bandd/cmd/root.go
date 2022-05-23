@@ -250,11 +250,6 @@ func (ac appCreator) newApp(
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
 
-	pricerStr, _ := appOpts.Get(flagWithPricer).(string)
-	if pricerStr != "" {
-
-	}
-
 	return bandApp
 }
 
