@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,12 +12,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
 type Querier struct {
 	Keeper
+	Hook common.Hook
 }
 
 var _ types.QueryServer = Querier{}
@@ -44,7 +47,10 @@ func (k Querier) Data(c context.Context, req *types.QueryDataRequest) (*types.Qu
 }
 
 // DataSource queries data source info for given data source id.
-func (k Querier) DataSource(c context.Context, req *types.QueryDataSourceRequest) (*types.QueryDataSourceResponse, error) {
+func (k Querier) DataSource(
+	c context.Context,
+	req *types.QueryDataSourceRequest,
+) (*types.QueryDataSourceResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -57,7 +63,10 @@ func (k Querier) DataSource(c context.Context, req *types.QueryDataSourceRequest
 }
 
 // OracleScript queries oracle script info for given oracle script id.
-func (k Querier) OracleScript(c context.Context, req *types.QueryOracleScriptRequest) (*types.QueryOracleScriptResponse, error) {
+func (k Querier) OracleScript(
+	c context.Context,
+	req *types.QueryOracleScriptRequest,
+) (*types.QueryOracleScriptResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -81,7 +90,14 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	if err != nil {
 		lastExpired := k.GetRequestLastExpired(ctx)
 		if rid > lastExpired {
-			return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: request id (%d) > latest expired request id (%d)", rid, lastExpired))
+			return nil, status.Error(
+				codes.NotFound,
+				fmt.Sprintf(
+					"unable to get request from chain: request id (%d) > latest expired request id (%d)",
+					rid,
+					lastExpired,
+				),
+			)
 		}
 		result := k.MustGetResult(ctx, rid)
 		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
@@ -96,14 +112,20 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
 }
 
-func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingRequestsRequest) (*types.QueryPendingRequestsResponse, error) {
+func (k Querier) PendingRequests(
+	c context.Context,
+	req *types.QueryPendingRequestsRequest,
+) (*types.QueryPendingRequestsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 	valAddress, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse given validator address: %v", err))
+		return nil, status.Error(
+			codes.InvalidArgument,
+			fmt.Sprintf("unable to parse given validator address: %v", err),
+		)
 	}
 
 	lastExpired := k.GetRequestLastExpired(ctx)
@@ -125,7 +147,10 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 		for _, v := range oracleReq.RequestedValidators {
 			val, err := sdk.ValAddressFromBech32(v)
 			if err != nil {
-				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", v, err))
+				return nil, status.Error(
+					codes.Internal,
+					fmt.Sprintf("unable to parse validator address in requested validators %v: %v", v, err),
+				)
 			}
 			if valAddress.Equals(val) {
 				isInValidatorSet = true
@@ -141,7 +166,10 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 		for _, r := range reports {
 			val, err := sdk.ValAddressFromBech32(r.Validator)
 			if err != nil {
-				return nil, status.Error(codes.Internal, fmt.Sprintf("unable to parse validator address in requested validators %v: %v", r.Validator, err))
+				return nil, status.Error(
+					codes.Internal,
+					fmt.Sprintf("unable to parse validator address in requested validators %v: %v", r.Validator, err),
+				)
 			}
 			if valAddress.Equals(val) {
 				reported = true
@@ -160,7 +188,10 @@ func (k Querier) PendingRequests(c context.Context, req *types.QueryPendingReque
 
 // Validator queries oracle info of validator for given validator
 // address.
-func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) (*types.QueryValidatorResponse, error) {
+func (k Querier) Validator(
+	c context.Context,
+	req *types.QueryValidatorRequest,
+) (*types.QueryValidatorResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -177,7 +208,10 @@ func (k Querier) Validator(c context.Context, req *types.QueryValidatorRequest) 
 }
 
 // IsReporter queries grant of account on this validator
-func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest) (*types.QueryIsReporterResponse, error) {
+func (k Querier) IsReporter(
+	c context.Context,
+	req *types.QueryIsReporterRequest,
+) (*types.QueryIsReporterResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
@@ -191,7 +225,10 @@ func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest
 }
 
 // Reporters queries all reporters of a given validator address.
-func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+func (k Querier) Reporters(
+	c context.Context,
+	req *types.QueryReportersRequest,
+) (*types.QueryReportersResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -210,7 +247,10 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 }
 
 // ActiveValidators queries all active oracle validators.
-func (k Querier) ActiveValidators(c context.Context, req *types.QueryActiveValidatorsRequest) (*types.QueryActiveValidatorsResponse, error) {
+func (k Querier) ActiveValidators(
+	c context.Context,
+	req *types.QueryActiveValidatorsRequest,
+) (*types.QueryActiveValidatorsResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -240,18 +280,37 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 }
 
 // RequestSearch queries the latest request that match the given input.
-func (k Querier) RequestSearch(c context.Context, req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "This feature can be taken from extra/rest branch")
+func (k Querier) RequestSearch(
+	c context.Context,
+	req *types.QueryRequestSearchRequest,
+) (*types.QueryRequestSearchResponse, error) {
+	res, hit, err := k.Hook.RequestSearch(req)
+	if hit {
+		return res, err
+	} else {
+		return nil, errors.New("not implemented")
+	}
 }
 
 // RequestPrice queries the latest price on standard price reference oracle
 // script.
-func (k Querier) RequestPrice(c context.Context, req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "This feature can be taken from extra/rest branch")
+func (k Querier) RequestPrice(
+	c context.Context,
+	req *types.QueryRequestPriceRequest,
+) (*types.QueryRequestPriceResponse, error) {
+	res, hit, err := k.Hook.RequestPrice(req)
+	if hit {
+		return res, err
+	} else {
+		return nil, errors.New("not implemented")
+	}
 }
 
 // RequestVerification verifies oracle request for validation before executing data sources
-func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestVerificationRequest) (*types.QueryRequestVerificationResponse, error) {
+func (k Querier) RequestVerification(
+	c context.Context,
+	req *types.QueryRequestVerificationRequest,
+) (*types.QueryRequestVerificationResponse, error) {
 	// Request should not be empty
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -261,13 +320,23 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 
 	// Provided chain ID should match current chain ID
 	if ctx.ChainID() != req.ChainId {
-		return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("provided chain ID does not match the validator's chain ID; expected %s, got %s", ctx.ChainID(), req.ChainId))
+		return nil, status.Error(
+			codes.FailedPrecondition,
+			fmt.Sprintf(
+				"provided chain ID does not match the validator's chain ID; expected %s, got %s",
+				ctx.ChainID(),
+				req.ChainId,
+			),
+		)
 	}
 
 	// Provided validator's address should be valid
 	validator, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to parse validator address: %s", err.Error()))
+		return nil, status.Error(
+			codes.InvalidArgument,
+			fmt.Sprintf("unable to parse validator address: %s", err.Error()),
+		)
 	}
 
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
@@ -277,7 +346,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 	reporterPubKey := secp256k1.PubKey(pk[:])
 
-	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
+	requestVerificationContent := types.NewRequestVerification(
+		req.ChainId,
+		validator,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+	)
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
 		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
@@ -286,7 +360,10 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	// Provided reporter should be authorized by the provided validator
 	reporter := sdk.AccAddress(reporterPubKey.Address().Bytes())
 	if !k.Keeper.IsReporter(ctx, validator, reporter) {
-		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator))
+		return nil, status.Error(
+			codes.PermissionDenied,
+			fmt.Sprintf("%s is not an authorized reporter of %s", reporter, req.Validator),
+		)
 	}
 
 	// Provided request should exist on chain
@@ -305,7 +382,10 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if !isValidatorAssigned {
-		return nil, status.Error(codes.PermissionDenied, fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId))
+		return nil, status.Error(
+			codes.PermissionDenied,
+			fmt.Sprintf("%s is not assigned for request ID %d", validator, req.RequestId),
+		)
 	}
 
 	// Provided external ID should be required by the request determined by oracle script
@@ -317,7 +397,14 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if dataSourceID == nil {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("no data source required by the request %d found which relates to the external data source with ID %d.", req.RequestId, req.ExternalId))
+		return nil, status.Error(
+			codes.InvalidArgument,
+			fmt.Sprintf(
+				"no data source required by the request %d found which relates to the external data source with ID %d.",
+				req.RequestId,
+				req.ExternalId,
+			),
+		)
 	}
 
 	// Provided validator should not have reported data for the request
@@ -331,12 +418,18 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		}
 	}
 	if isValidatorReported {
-		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("validator %s already submitted data report for this request", validator))
+		return nil, status.Error(
+			codes.AlreadyExists,
+			fmt.Sprintf("validator %s already submitted data report for this request", validator),
+		)
 	}
 
 	// The request should not be expired
 	if request.RequestHeight+int64(k.ExpirationBlockCount(ctx)) < ctx.BlockHeader().Height {
-		return nil, status.Error(codes.DeadlineExceeded, fmt.Sprintf("Request with ID %d is already expired", req.RequestId))
+		return nil, status.Error(
+			codes.DeadlineExceeded,
+			fmt.Sprintf("Request with ID %d is already expired", req.RequestId),
+		)
 	}
 
 	return &types.QueryRequestVerificationResponse{

@@ -27,7 +27,6 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -65,9 +64,21 @@ type Hook struct {
 
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
-	cdc codec.Codec, legecyAmino *codec.LegacyAmino, encodingConfig params.EncodingConfig, accountKeeper authkeeper.AccountKeeper, bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper, mintKeeper mintkeeper.Keeper, distrKeeper distrkeeper.Keeper, govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper, clientkeeper clientkeeper.Keeper, connectionkeeper connectionkeeper.Keeper, channelkeeper channelkeeper.Keeper, kafkaURI string, emitStartState bool,
+	cdc codec.Codec,
+	legecyAmino *codec.LegacyAmino,
+	encodingConfig params.EncodingConfig,
+	accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
+	mintKeeper mintkeeper.Keeper,
+	distrKeeper distrkeeper.Keeper,
+	govKeeper govkeeper.Keeper,
+	oracleKeeper keeper.Keeper,
+	clientkeeper clientkeeper.Keeper,
+	connectionkeeper connectionkeeper.Keeper,
+	channelkeeper channelkeeper.Keeper,
+	kafkaURI string,
+	emitStartState bool,
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
@@ -129,7 +140,7 @@ func (h *Hook) FlushMessages() {
 
 // AfterInitChain specify actions need to do after chain initialization (app.Hook interface).
 func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
-	var genesisState bandapp.GenesisState
+	var genesisState map[string]json.RawMessage
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
@@ -351,7 +362,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	messages := []map[string]interface{}{}
 	for idx, msg := range tx.GetMsgs() {
 		var detail = make(common.JsDict)
-		h.decodeMsg(ctx, msg, detail)
+		h.DecodeMsg(ctx, msg, detail)
 		if res.IsOK() {
 			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
 		}
@@ -401,9 +412,12 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	h.Write("COMMIT", common.JsDict{"height": req.Height})
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	return abci.ResponseQuery{}, false
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
+	return nil, false, nil
+}
+
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+	return nil, false, nil
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

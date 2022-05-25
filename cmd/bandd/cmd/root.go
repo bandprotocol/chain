@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -29,17 +26,12 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/app/params"
-	"github.com/bandprotocol/chain/v2/hooks/emitter"
-	"github.com/bandprotocol/chain/v2/hooks/price"
-	"github.com/bandprotocol/chain/v2/hooks/request"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const (
@@ -103,7 +95,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		band.MigrateGenesisCmd(),
-		genutilcli.GenTxCmd(band.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
+		genutilcli.GenTxCmd(
+			band.ModuleBasics,
+			encodingConfig.TxConfig,
+			banktypes.GenesisBalancesIterator{},
+			band.DefaultNodeHome,
+		),
 		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
 		AddGenesisAccountCmd(band.DefaultNodeHome),
 		AddGenesisDataSourceCmd(band.DefaultNodeHome),
@@ -132,9 +129,11 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
 	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
 	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
-	startCmd.Flags().Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
+	startCmd.Flags().
+		Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
 	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
-	startCmd.Flags().String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
+	startCmd.Flags().
+		String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
 }
 
 func queryCommand() *cobra.Command {
@@ -195,7 +194,12 @@ type appCreator struct {
 }
 
 // newApp is an AppCreator
-func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
+func (ac appCreator) newApp(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	appOpts servertypes.AppOptions,
+) servertypes.Application {
 	var cache sdk.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
@@ -230,6 +234,9 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		appOpts,
 		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		cast.ToString(appOpts.Get(flagWithEmitter)),
+		cast.ToString(appOpts.Get(flagWithRequestSearch)),
+		cast.ToString(appOpts.Get(flagWithPricer)),
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -242,51 +249,6 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
 		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
 	)
-	connStr, _ := appOpts.Get(flagWithRequestSearch).(string)
-	if connStr != "" {
-		requestSearchCacheSize := appOpts.Get(flagRequestSearchCacheSize).(int)
-		bandApp.AddHook(request.NewHook(
-			bandApp.AppCodec(), bandApp.OracleKeeper, connStr, requestSearchCacheSize))
-	}
-
-	connStr, _ = appOpts.Get(flagWithEmitter).(string)
-	if connStr != "" {
-		bandApp.AddHook(
-			emitter.NewHook(bandApp.AppCodec(), bandApp.LegacyAmino(), band.MakeEncodingConfig(), bandApp.AccountKeeper, bandApp.BankKeeper,
-				bandApp.StakingKeeper, bandApp.MintKeeper, bandApp.DistrKeeper, bandApp.GovKeeper,
-				bandApp.OracleKeeper, bandApp.IBCKeeper.ClientKeeper, bandApp.IBCKeeper.ConnectionKeeper, bandApp.IBCKeeper.ChannelKeeper, connStr, false))
-	}
-
-	pricerStr, _ := appOpts.Get(flagWithPricer).(string)
-	if pricerStr != "" {
-		pricerStrArgs := strings.Split(pricerStr, "/")
-		var defaultAskCount, defaultMinCount uint64
-		if len(pricerStrArgs) == 3 {
-			defaultAskCount, err = strconv.ParseUint(pricerStrArgs[1], 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			defaultMinCount, err = strconv.ParseUint(pricerStrArgs[2], 10, 64)
-			if err != nil {
-				panic(err)
-			}
-		} else if len(pricerStrArgs) == 2 || len(pricerStrArgs) > 3 {
-			panic(fmt.Errorf("accepts 1 or 3 arg(s), received %d", len(pricerStrArgs)))
-		}
-		rawOracleIDs := strings.Split(pricerStrArgs[0], ",")
-		var oracleIDs []oracletypes.OracleScriptID
-		for _, rawOracleID := range rawOracleIDs {
-			oracleID, err := strconv.ParseInt(rawOracleID, 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			oracleIDs = append(oracleIDs, oracletypes.OracleScriptID(oracleID))
-		}
-		bandApp.AddHook(
-			price.NewHook(bandApp.AppCodec(), bandApp.OracleKeeper, oracleIDs,
-				filepath.Join(cast.ToString(appOpts.Get(cli.HomeFlag)), "prices"),
-				defaultAskCount, defaultMinCount))
-	}
 
 	return bandApp
 }
@@ -317,6 +279,9 @@ func (ac appCreator) appExport(
 		appOpts,
 		false,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		cast.ToString(appOpts.Get(flagWithEmitter)),
+		cast.ToString(appOpts.Get(flagWithRequestSearch)),
+		cast.ToString(appOpts.Get(flagWithPricer)),
 	)
 
 	if height != -1 {

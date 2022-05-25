@@ -10,7 +10,6 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -27,10 +26,17 @@ type Hook struct {
 	defaultMinCount uint64
 }
 
-var _ band.Hook = &Hook{}
+var _ common.Hook = &Hook{}
 
 // NewHook creates a price hook instance that will be added in Band App.
-func NewHook(cdc codec.Codec, oracleKeeper keeper.Keeper, oids []types.OracleScriptID, priceDBDir string, defaultAskCount uint64, defaultMinCount uint64) *Hook {
+func NewHook(
+	cdc codec.Codec,
+	oracleKeeper keeper.Keeper,
+	oids []types.OracleScriptID,
+	priceDBDir string,
+	defaultAskCount uint64,
+	defaultMinCount uint64,
+) *Hook {
 	stdOs := make(map[types.OracleScriptID]bool)
 	for _, oid := range oids {
 		stdOs[oid] = true
@@ -98,54 +104,41 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 }
 
-// ApplyQuery catch the custom query that matches specific paths (app.Hook interface).
-func (h *Hook) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
-	switch req.Path {
-	case "/oracle.v1.Query/RequestPrice":
-		var request types.QueryRequestPriceRequest
-		if err := h.cdc.Unmarshal(req.Data, &request); err != nil {
-			return sdkerrors.QueryResult(sdkerrors.Wrapf(sdkerrors.ErrLogic, "unable to parse request of RequestPrice query: %s", err)), true
+func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
+	return nil, false, nil
+}
+
+func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+	var response types.QueryRequestPriceResponse
+	for _, symbol := range req.Symbols {
+		var priceResult types.PriceResult
+
+		if req.AskCount == 0 && req.MinCount == 0 {
+			req.AskCount = h.defaultAskCount
+			req.MinCount = h.defaultMinCount
 		}
-
-		var response types.QueryRequestPriceResponse
-		for _, symbol := range request.Symbols {
-			var priceResult types.PriceResult
-
-			if request.AskCount == 0 && request.MinCount == 0 {
-				request.AskCount = h.defaultAskCount
-				request.MinCount = h.defaultMinCount
+		bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", req.AskCount, req.MinCount, symbol)), nil)
+		if err != nil {
+			if errors.Is(err, leveldb.ErrNotFound) {
+				return nil, true, sdkerrors.Wrapf(
+					sdkerrors.ErrKeyNotFound,
+					"price not found for %s with %d/%d counts",
+					symbol,
+					req.AskCount,
+					req.MinCount,
+				)
 			}
-			bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", request.AskCount, request.MinCount, symbol)), nil)
-			if err != nil {
-				if errors.Is(err, leveldb.ErrNotFound) {
-					return sdkerrors.QueryResult(sdkerrors.Wrapf(
-						sdkerrors.ErrKeyNotFound,
-						"price not found for %s with %d/%d counts",
-						symbol,
-						request.AskCount,
-						request.MinCount,
-					)), true
-				}
-				return sdkerrors.QueryResult(
-					sdkerrors.Wrapf(sdkerrors.ErrLogic,
-						"unable to get price of %s with %d/%d counts",
-						symbol,
-						request.AskCount,
-						request.MinCount,
-					),
-				), true
-			}
-
-			h.cdc.MustUnmarshal(bz, &priceResult)
-			response.PriceResults = append(response.PriceResults, &priceResult)
+			return nil, true, sdkerrors.Wrapf(sdkerrors.ErrLogic,
+				"unable to get price of %s with %d/%d counts",
+				symbol,
+				req.AskCount,
+				req.MinCount,
+			)
 		}
-
-		bz := h.cdc.MustMarshal(&response)
-
-		return common.QueryResultSuccess(bz, req.Height), true
-	default:
-		return
+		h.cdc.MustUnmarshal(bz, &priceResult)
+		response.PriceResults = append(response.PriceResults, &priceResult)
 	}
+	return &response, true, nil
 }
 
 // BeforeCommit specify actions need to do before commit block (app.Hook interface).

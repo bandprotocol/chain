@@ -211,7 +211,12 @@ func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability
 
 // IsReporter checks if the validator granted to the reporter
 func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) bool {
-	cap, _ := k.authzKeeper.GetCleanAuthorization(ctx, reporter, sdk.AccAddress(validator), sdk.MsgTypeURL(&types.MsgReportData{}))
+	cap, _ := k.authzKeeper.GetCleanAuthorization(
+		ctx,
+		reporter,
+		sdk.AccAddress(validator),
+		sdk.MsgTypeURL(&types.MsgReportData{}),
+	)
 	return cap != nil
 }
 

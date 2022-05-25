@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -15,6 +17,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/cli"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -95,6 +98,10 @@ import (
 
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 	bandclient "github.com/bandprotocol/chain/v2/client"
+	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v2/hooks/emitter"
+	"github.com/bandprotocol/chain/v2/hooks/price"
+	"github.com/bandprotocol/chain/v2/hooks/request"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle"
@@ -124,8 +131,13 @@ var (
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.CancelProposalHandler, upgradeclient.CancelProposalHandler,
-			ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
+		gov.NewAppModuleBasic(
+			paramsclient.ProposalHandler,
+			distrclient.ProposalHandler,
+			upgradeclient.CancelProposalHandler,
+			upgradeclient.CancelProposalHandler,
+			ibcclientclient.UpdateClientProposalHandler,
+			ibcclientclient.UpgradeProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -202,7 +214,7 @@ type BandApp struct {
 	DeliverContext sdk.Context
 
 	// List of hooks
-	hooks Hooks
+	hooks common.Hooks
 	// the configurator
 	configurator module.Configurator
 }
@@ -233,7 +245,9 @@ func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
+	disableFeelessReports bool, owasmCacheSize uint32,
+	emitterFlag, requestSearchFlag, pricerFlag string,
+	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 
 	appCodec := encodingConfig.Marshaler
@@ -270,13 +284,24 @@ func NewBandApp(
 		panic(err)
 	}
 	// Initialize params keeper and module subspaces.
-	app.ParamsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
+	app.ParamsKeeper = initParamsKeeper(
+		appCodec,
+		legacyAmino,
+		keys[paramstypes.StoreKey],
+		tkeys[paramstypes.TStoreKey],
+	)
 
 	// set the BaseApp's parameter store
-	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
+	bApp.SetParamStore(
+		app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()),
+	)
 
 	// add capability keeper and ScopeToModule for ibc module
-	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
+	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
+		appCodec,
+		keys[capabilitytypes.StoreKey],
+		memKeys[capabilitytypes.MemStoreKey],
+	)
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
@@ -286,17 +311,29 @@ func NewBandApp(
 
 	// Add keepers.
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
+		appCodec,
+		keys[authtypes.StoreKey],
+		app.GetSubspace(authtypes.ModuleName),
+		authtypes.ProtoBaseAccount,
+		maccPerms,
 	)
 	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
 	app.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
 		bankkeeper.NewBaseKeeper(
-			appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
+			appCodec,
+			keys[banktypes.StoreKey],
+			app.AccountKeeper,
+			app.GetSubspace(banktypes.ModuleName),
+			app.ModuleAccountAddrs(),
 		),
 		app.AccountKeeper,
 	)
 	stakingKeeper := stakingkeeper.NewKeeper(
-		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
+		appCodec,
+		keys[stakingtypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.GetSubspace(stakingtypes.ModuleName),
 	)
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
@@ -316,7 +353,13 @@ func NewBandApp(
 	)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
-	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
+	app.UpgradeKeeper = upgradekeeper.NewKeeper(
+		skipUpgradeHeights,
+		keys[upgradetypes.StoreKey],
+		appCodec,
+		homePath,
+		app.BaseApp,
+	)
 
 	app.StakingKeeper = *stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
@@ -324,7 +367,12 @@ func NewBandApp(
 
 	// create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
+		appCodec,
+		keys[ibchost.StoreKey],
+		app.GetSubspace(ibchost.ModuleName),
+		app.StakingKeeper,
+		app.UpgradeKeeper,
+		scopedIBCKeeper,
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.BaseApp.MsgServiceRouter())
@@ -349,11 +397,81 @@ func NewBandApp(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
-		appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName), filepath.Join(homePath, "files"),
-		authtypes.FeeCollectorName, app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.DistrKeeper, app.AuthzKeeper,
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper, scopedOracleKeeper, owasmVM,
+		appCodec,
+		keys[oracletypes.StoreKey],
+		app.GetSubspace(oracletypes.ModuleName),
+		filepath.Join(homePath, "files"),
+		authtypes.FeeCollectorName,
+		app.AccountKeeper,
+		app.BankKeeper,
+		&stakingKeeper,
+		app.DistrKeeper,
+		app.AuthzKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedOracleKeeper,
+		owasmVM,
 	)
-	oracleModule := oracle.NewAppModule(app.OracleKeeper)
+
+	if emitterFlag != "" {
+		app.hooks = append(app.hooks, emitter.NewHook(
+			appCodec,
+			app.LegacyAmino(),
+			encodingConfig,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.MintKeeper,
+			app.DistrKeeper,
+			app.GovKeeper,
+			app.OracleKeeper,
+			app.IBCKeeper.ClientKeeper,
+			app.IBCKeeper.ConnectionKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			emitterFlag,
+			false,
+		))
+	}
+
+	if requestSearchFlag != "" {
+		app.hooks = append(
+			app.hooks,
+			request.NewHook(appCodec, app.OracleKeeper, requestSearchFlag, 10),
+		)
+	}
+
+	if pricerFlag != "" {
+		pricerStrArgs := strings.Split(pricerFlag, "/")
+		var defaultAskCount, defaultMinCount uint64
+		if len(pricerStrArgs) == 3 {
+			defaultAskCount, err = strconv.ParseUint(pricerStrArgs[1], 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			defaultMinCount, err = strconv.ParseUint(pricerStrArgs[2], 10, 64)
+			if err != nil {
+				panic(err)
+			}
+		} else if len(pricerStrArgs) == 2 || len(pricerStrArgs) > 3 {
+			panic(fmt.Errorf("accepts 1 or 3 arg(s), received %d", len(pricerStrArgs)))
+		}
+		rawOracleIDs := strings.Split(pricerStrArgs[0], ",")
+		var oracleIDs []oracletypes.OracleScriptID
+		for _, rawOracleID := range rawOracleIDs {
+			oracleID, err := strconv.ParseInt(rawOracleID, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			oracleIDs = append(oracleIDs, oracletypes.OracleScriptID(oracleID))
+		}
+		app.hooks = append(app.hooks,
+			price.NewHook(appCodec, app.OracleKeeper, oracleIDs,
+				filepath.Join(cast.ToString(appOpts.Get(cli.HomeFlag)), "prices"),
+				defaultAskCount, defaultMinCount))
+	}
+
+	// Add hook to app module for create Querier
+	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.hooks)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -362,18 +480,13 @@ func NewBandApp(
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router.
-	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	/****  Module Options ****/
 
-	/****  Module Options ****/
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -384,7 +497,13 @@ func NewBandApp(
 		bandbank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(
+			appCodec,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.FeeGrantKeeper,
+			app.interfaceRegistry,
+		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
@@ -402,8 +521,15 @@ func NewBandApp(
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
 	// over in the validator fee pool, so as to keep the CanWithdrawInvariant invariant.
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, capabilitytypes.ModuleName, minttypes.ModuleName, oracletypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
-		evidencetypes.ModuleName, stakingtypes.ModuleName, ibchost.ModuleName,
+		upgradetypes.ModuleName,
+		capabilitytypes.ModuleName,
+		minttypes.ModuleName,
+		oracletypes.ModuleName,
+		distrtypes.ModuleName,
+		slashingtypes.ModuleName,
+		evidencetypes.ModuleName,
+		stakingtypes.ModuleName,
+		ibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName, oracletypes.ModuleName,
@@ -414,10 +540,22 @@ func NewBandApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
-		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
-		ibchost.ModuleName, genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName, ibctransfertypes.ModuleName,
-		oracletypes.ModuleName, feegrant.ModuleName,
+		capabilitytypes.ModuleName,
+		authtypes.ModuleName,
+		banktypes.ModuleName,
+		distrtypes.ModuleName,
+		stakingtypes.ModuleName,
+		slashingtypes.ModuleName,
+		govtypes.ModuleName,
+		minttypes.ModuleName,
+		crisistypes.ModuleName,
+		ibchost.ModuleName,
+		genutiltypes.ModuleName,
+		evidencetypes.ModuleName,
+		authz.ModuleName,
+		ibctransfertypes.ModuleName,
+		oracletypes.ModuleName,
+		feegrant.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -518,25 +656,6 @@ func (app *BandApp) DeliverTx(req abci.RequestDeliverTx) abci.ResponseDeliverTx 
 	app.hooks.AfterDeliverTx(app.DeliverContext, req, res)
 
 	return res
-}
-
-func (app *BandApp) Query(req abci.RequestQuery) abci.ResponseQuery {
-	hookReq := req
-
-	// when a client did not provide a query height, manually inject the latest
-	if hookReq.Height == 0 {
-		hookReq.Height = app.LastBlockHeight()
-	}
-
-	// Since we have to always run BaseApp.Query() to remember gRPC's return types
-	// (for more information, see Cosmos SDK's baseapp/gorouter.go file),
-	// We run both from baseApp and hooks, then choose the result later.
-	baseRes := app.BaseApp.Query(hookReq)
-	hookRes, match := app.hooks.ApplyQuery(hookReq)
-	if match {
-		return hookRes
-	}
-	return baseRes
 }
 
 // LoadHeight loads a particular height
@@ -659,7 +778,11 @@ func GetMaccPerms() map[string][]string {
 }
 
 // initParamsKeeper init params keeper and its subspaces
-func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+func initParamsKeeper(
+	appCodec codec.BinaryCodec,
+	legacyAmino *codec.LegacyAmino,
+	key, tkey sdk.StoreKey,
+) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
@@ -675,9 +798,4 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
-}
-
-// AddHook appends hook that will be call after process abci request
-func (app *BandApp) AddHook(hook Hook) {
-	app.hooks = append(app.hooks, hook)
 }

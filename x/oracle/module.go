@@ -23,6 +23,7 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/modules/core/exported"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/rest"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -92,12 +93,14 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
+	hook   common.Hook
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper) AppModule {
+func NewAppModule(k keeper.Keeper, h common.Hook) AppModule {
 	return AppModule{
 		keeper: k,
+		hook:   h,
 	}
 }
 
@@ -122,7 +125,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper})
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper, Hook: am.hook})
 }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
@@ -173,10 +176,20 @@ func ValidateOracleChannelParams(
 		return err
 	}
 	if channelSequence > uint64(math.MaxUint32) {
-		return sdkerrors.Wrapf(types.ErrMaxOracleChannels, "channel sequence %d is greater than max allowed oracle channels %d", channelSequence, uint64(math.MaxUint32))
+		return sdkerrors.Wrapf(
+			types.ErrMaxOracleChannels,
+			"channel sequence %d is greater than max allowed oracle channels %d",
+			channelSequence,
+			uint64(math.MaxUint32),
+		)
 	}
 	if order != channeltypes.UNORDERED {
-		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.UNORDERED, order)
+		return sdkerrors.Wrapf(
+			channeltypes.ErrInvalidChannelOrdering,
+			"expected %s channel, got %s ",
+			channeltypes.UNORDERED,
+			order,
+		)
 	}
 
 	// Require portID is the portID oracle module is bound to
@@ -231,7 +244,12 @@ func (am AppModule) OnChanOpenTry(
 	}
 
 	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: got: %s, expected %s", counterpartyVersion, types.Version)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidVersion,
+			"invalid counterparty version: got: %s, expected %s",
+			counterpartyVersion,
+			types.Version,
+		)
 	}
 
 	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
@@ -256,7 +274,12 @@ func (am AppModule) OnChanOpenAck(
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(types.ErrInvalidVersion, "invalid counterparty version: %s, expected %s", counterpartyVersion, types.Version)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidVersion,
+			"invalid counterparty version: %s, expected %s",
+			counterpartyVersion,
+			types.Version,
+		)
 	}
 	return nil
 }
@@ -308,7 +331,9 @@ func (am AppModule) OnRecvPacket(
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err.Error())
 	}
-	return channeltypes.NewResultAcknowledgement(types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)))
+	return channeltypes.NewResultAcknowledgement(
+		types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(id)),
+	)
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface

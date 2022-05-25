@@ -1,8 +1,10 @@
-package band
+package common
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type Hooks []Hook
@@ -13,7 +15,8 @@ type Hook interface {
 	AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock)
 	AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx)
 	AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock)
-	ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool)
+	RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error)
+	RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error)
 	BeforeCommit()
 }
 
@@ -47,13 +50,24 @@ func (h Hooks) BeforeCommit() {
 	}
 }
 
-func (h Hooks) ApplyQuery(req abci.RequestQuery) (res abci.ResponseQuery, stop bool) {
+func (h Hooks) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
 	for _, hook := range h {
-		res, stop = hook.ApplyQuery(req)
-		if stop {
-			return
+		res, hit, err := hook.RequestSearch(req)
+		if hit {
+			return res, true, err
 		}
 	}
 
-	return
+	return nil, false, nil
+}
+
+func (h Hooks) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+	for _, hook := range h {
+		res, hit, err := hook.RequestPrice(req)
+		if hit {
+			return res, true, err
+		}
+	}
+
+	return nil, false, nil
 }
