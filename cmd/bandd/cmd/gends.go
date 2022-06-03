@@ -6,9 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -16,19 +14,20 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // AddGenesisDataSourceCmd returns add-data-source cobra Command.
 func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-data-source [name] [description] [owner] [filepath]",
+		Use:   "add-data-source [name] [description] [owner] [filepath] [fee] [treasury]",
 		Short: "Add a data source to genesis.json",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			depCdc := clientCtx.JSONMarshaler
-			cdc := depCdc.(codec.Marshaler)
+			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
@@ -50,10 +49,18 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
+			fee, err := sdk.ParseCoinsNormalized(args[4])
+			if err != nil {
+				return err
+			}
+			treasury, err := sdk.AccAddressFromBech32(args[5])
+			if err != nil {
+				return err
+			}
+
 			oracleGenState := types.GetGenesisStateFromAppState(cdc, appState)
-			// TODO: Add fee tag
 			oracleGenState.DataSources = append(oracleGenState.DataSources, types.NewDataSource(
-				owner, args[0], args[1], filename, sdk.NewCoins(),
+				owner, args[0], args[1], filename, fee, treasury,
 			))
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
 

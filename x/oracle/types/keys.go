@@ -9,8 +9,7 @@ const (
 	ModuleName = "oracle"
 
 	// Version defines the current version the IBC oracle module supports
-	// TODO: Using our new version for oracle packet (new ics?)
-	Version = "ics20-1"
+	Version = "bandchain-1"
 
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
@@ -51,10 +50,8 @@ var (
 	DataSourceStoreKeyPrefix = []byte{0x03}
 	// OracleScriptStoreKeyPrefix is the prefix for oracle script store.
 	OracleScriptStoreKeyPrefix = []byte{0x04}
-	// ReporterStoreKeyPrefix is the prefix for reporter store.
-	ReporterStoreKeyPrefix = []byte{0x05}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
-	ValidatorStatusKeyPrefix = []byte{0x06}
+	ValidatorStatusKeyPrefix = []byte{0x05}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 
@@ -62,7 +59,7 @@ var (
 	PortKey = []byte{0xf0}
 )
 
-// RequestStoreKey returns the key to retrieve a specfic request from the store.
+// RequestStoreKey returns the key to retrieve a specific request from the store.
 func RequestStoreKey(requestID RequestID) []byte {
 	return append(RequestStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
 }
@@ -82,13 +79,6 @@ func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 	return append(OracleScriptStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(oracleScriptID))...)
 }
 
-// ReporterStoreKey returns the key to check whether an address is a reporter of a validator.
-func ReporterStoreKey(validatorAddress sdk.ValAddress, reporterAddress sdk.AccAddress) []byte {
-	buf := append(ReporterStoreKeyPrefix, []byte(validatorAddress)...)
-	buf = append(buf, []byte(reporterAddress)...)
-	return buf
-}
-
 // ValidatorStatusStoreKey returns the key to a validator's status.
 func ValidatorStatusStoreKey(v sdk.ValAddress) []byte {
 	return append(ValidatorStatusKeyPrefix, v.Bytes()...)
@@ -104,9 +94,4 @@ func ReportsOfValidatorPrefixKey(reqID RequestID, val sdk.ValAddress) []byte {
 	buf := append(ReportStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(reqID))...)
 	buf = append(buf, val.Bytes()...)
 	return buf
-}
-
-// ReportersOfValidatorPrefixKey returns the prefix key to get all reporters of a validator.
-func ReportersOfValidatorPrefixKey(val sdk.ValAddress) []byte {
-	return append(ReporterStoreKeyPrefix, val.Bytes()...)
 }

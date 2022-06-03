@@ -1,93 +1,68 @@
 package proof
 
-// import (
-// 	bam "github.com/cosmos/cosmos-sdk/baseapp"
-// 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
-// 	"github.com/cosmos/cosmos-sdk/x/auth"
-// 	"github.com/cosmos/cosmos-sdk/x/distribution"
-// 	"github.com/cosmos/cosmos-sdk/x/evidence"
-// 	"github.com/cosmos/cosmos-sdk/x/gov"
-// 	"github.com/cosmos/cosmos-sdk/x/mint"
-// 	"github.com/cosmos/cosmos-sdk/x/params"
-// 	"github.com/cosmos/cosmos-sdk/x/slashing"
-// 	"github.com/cosmos/cosmos-sdk/x/staking"
-// 	"github.com/cosmos/cosmos-sdk/x/supply"
-// 	"github.com/cosmos/cosmos-sdk/x/upgrade"
-// 	"github.com/ethereum/go-ethereum/common"
-// 	"github.com/tendermint/tendermint/crypto/merkle"
-// 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+import (
+	ics23 "github.com/confio/ics23/go"
+	"github.com/ethereum/go-ethereum/common"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+)
 
-// 	"github.com/bandprotocol/chain/x/oracle/types"
-// )
+// MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
+// compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
+//                                              ________________[AppHash]_________________
+//                                             /                                          \
+//                         _________________[I14]_________________                        [G]
+//                        /                                        \
+//             _______[I12]______                          _______[I13]________
+//            /                  \                        /                    \
+//       __[I8]__             __[I9]__                __[I10]__              __[I11]__
+//      /         \          /         \            /          \            /         \
+//    [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
+//   /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
+// [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
+// [0] - auth     [1] - authz    [2] - bank    [3] - capability [4] - crisis  [5] - dist
+// [6] - evidence [7] - feegrant [8] - gov     [9] - ibccore    [A] - mint    [B] - oracle
+// [C] - params   [D] - slashing [E] - staking [F] - transfer   [G] - upgrade
+// Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
+// root hash, since we only want to validate the correctness of [B] In fact, only
+// [A], [I4], [I11], [I12], and [G] are needed in order to compute [AppHash].
+type MultiStoreProof struct {
+	AuthToFeeGrantStoresMerkleHash   tmbytes.HexBytes `json:"auth_to_fee_grant_stores_Merkle_hash"`
+	GovToIbcCoreStoresMerkleHash     tmbytes.HexBytes `json:"gov_to_ibc_core_stores_merkle_hash"`
+	MintStoreMerkleHash              tmbytes.HexBytes `json:"mint_store_merkle_hash"`
+	OracleIAVLStateHash              tmbytes.HexBytes `json:"oracle_iavl_State_hash"`
+	ParamsToTransferStoresMerkleHash tmbytes.HexBytes `json:"params_to_transfer_stores_merkle_hash"`
+	UpgradeStoreMerkleHash           tmbytes.HexBytes `json:"upgrade_store_merkle_hash"`
+}
 
-// // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
-// // compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
-// //                         ________________[AppHash]_______________
-// //                        /                                        \
-// //             _______[I9]______                          ________[I10]________
-// //            /                  \                       /                     \
-// //       __[I5]__             __[I6]__              __[I7]__               __[I8]__
-// //      /         \          /         \           /         \            /         \
-// //    [I1]       [I2]     [I3]        [I4]       [8]        [9]          [A]        [B]
-// //   /   \      /   \    /    \      /    \
-// // [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]
-// // [0] - acc      [1] - distr   [2] - evidence  [3] - gov
-// // [4] - main     [5] - mint    [6] - oracle    [7] - params
-// // [8] - slashing [9] - staking [A] - supply    [D] - upgrade
-// // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
-// // root hash, since we only want to validate the correctness of [6] In fact, only
-// // [7], [I3], [I5], and [I10] are needed in order to compute [AppHash].
-// type MultiStoreProof struct {
-// 	AccToGovStoresMerkleHash          tmbytes.HexBytes `json:"accToGovStoresMerkleHash"`
-// 	MainAndMintStoresMerkleHash       tmbytes.HexBytes `json:"mainAndMintStoresMerkleHash"`
-// 	OracleIAVLStateHash               tmbytes.HexBytes `json:"oracleIAVLStateHash"`
-// 	ParamsStoresMerkleHash            tmbytes.HexBytes `json:"paramsStoresMerkleHash"`
-// 	SlashingToUpgradeStoresMerkleHash tmbytes.HexBytes `json:"slashingToUpgradeStoresMerkleHash"`
-// }
+// MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
+type MultiStoreProofEthereum struct {
+	AuthToFeeGrantStoresMerkleHash   common.Hash
+	GovToIbcCoreStoresMerkleHash     common.Hash
+	MintStoreMerkleHash              common.Hash
+	OracleIAVLStateHash              common.Hash
+	ParamsToTransferStoresMerkleHash common.Hash
+	UpgradeStoreMerkleHash           common.Hash
+}
 
-// // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
-// type MultiStoreProofEthereum struct {
-// 	AccToGovStoresMerkleHash          common.Hash
-// 	MainAndMintStoresMerkleHash       common.Hash
-// 	OracleIAVLStateHash               common.Hash
-// 	ParamsStoresMerkleHash            common.Hash
-// 	SlashingToUpgradeStoresMerkleHash common.Hash
-// }
+func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
+	return MultiStoreProofEthereum{
+		AuthToFeeGrantStoresMerkleHash:   common.BytesToHash(m.AuthToFeeGrantStoresMerkleHash),
+		GovToIbcCoreStoresMerkleHash:     common.BytesToHash(m.GovToIbcCoreStoresMerkleHash),
+		MintStoreMerkleHash:              common.BytesToHash(m.MintStoreMerkleHash),
+		OracleIAVLStateHash:              common.BytesToHash(m.OracleIAVLStateHash),
+		ParamsToTransferStoresMerkleHash: common.BytesToHash(m.ParamsToTransferStoresMerkleHash),
+		UpgradeStoreMerkleHash:           common.BytesToHash(m.UpgradeStoreMerkleHash),
+	}
+}
 
-// func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
-// 	return MultiStoreProofEthereum{
-// 		AccToGovStoresMerkleHash:          common.BytesToHash(m.AccToGovStoresMerkleHash),
-// 		MainAndMintStoresMerkleHash:       common.BytesToHash(m.MainAndMintStoresMerkleHash),
-// 		OracleIAVLStateHash:               common.BytesToHash(m.OracleIAVLStateHash),
-// 		ParamsStoresMerkleHash:            common.BytesToHash(m.ParamsStoresMerkleHash),
-// 		SlashingToUpgradeStoresMerkleHash: common.BytesToHash(m.SlashingToUpgradeStoresMerkleHash),
-// 	}
-// }
-
-// // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
-// func GetMultiStoreProof(proof rootmulti.MultiStoreProofOp) MultiStoreProof {
-// 	m := make(map[string][]byte, len(proof.Proof.StoreInfos))
-// 	for _, info := range proof.Proof.StoreInfos {
-// 		m[info.Name] = info.Core.CommitID.Hash
-// 	}
-// 	return MultiStoreProof{
-// 		AccToGovStoresMerkleHash: merkle.SimpleHashFromByteSlices([][]byte{
-// 			encodeStoreMerkleHash(auth.StoreKey, m[auth.StoreKey]),
-// 			encodeStoreMerkleHash(distribution.StoreKey, m[distribution.StoreKey]),
-// 			encodeStoreMerkleHash(evidence.StoreKey, m[evidence.StoreKey]),
-// 			encodeStoreMerkleHash(gov.StoreKey, m[gov.StoreKey]),
-// 		}),
-// 		MainAndMintStoresMerkleHash: merkle.SimpleHashFromByteSlices([][]byte{
-// 			encodeStoreMerkleHash(bam.MainStoreKey, m[bam.MainStoreKey]),
-// 			encodeStoreMerkleHash(mint.StoreKey, m[mint.StoreKey]),
-// 		}),
-// 		OracleIAVLStateHash:    m[types.StoreKey],
-// 		ParamsStoresMerkleHash: merkle.SimpleHashFromByteSlices([][]byte{encodeStoreMerkleHash(params.StoreKey, m[params.StoreKey])}),
-// 		SlashingToUpgradeStoresMerkleHash: merkle.SimpleHashFromByteSlices([][]byte{
-// 			encodeStoreMerkleHash(slashing.StoreKey, m[slashing.StoreKey]),
-// 			encodeStoreMerkleHash(staking.StoreKey, m[staking.StoreKey]),
-// 			encodeStoreMerkleHash(supply.StoreKey, m[supply.StoreKey]),
-// 			encodeStoreMerkleHash(upgrade.StoreKey, m[upgrade.StoreKey]),
-// 		}),
-// 	}
-// }
+// GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
+func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
+	return MultiStoreProof{
+		AuthToFeeGrantStoresMerkleHash:   tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
+		GovToIbcCoreStoresMerkleHash:     tmbytes.HexBytes(multiStoreEp.Path[1].Prefix[1:]),
+		MintStoreMerkleHash:              tmbytes.HexBytes(multiStoreEp.Path[0].Prefix[1:]),
+		OracleIAVLStateHash:              tmbytes.HexBytes(multiStoreEp.Value),
+		ParamsToTransferStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[2].Suffix),
+		UpgradeStoreMerkleHash:           tmbytes.HexBytes(multiStoreEp.Path[4].Suffix),
+	}
+}

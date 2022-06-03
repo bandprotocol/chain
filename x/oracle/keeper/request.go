@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // HasRequest checks if the request of this ID exists in the storage.
@@ -21,7 +21,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, id types.RequestID) (types.Request, 
 		return types.Request{}, sdkerrors.Wrapf(types.ErrRequestNotFound, "id: %d", id)
 	}
 	var request types.Request
-	k.cdc.MustUnmarshalBinaryBare(bz, &request)
+	k.cdc.MustUnmarshal(bz, &request)
 	return request, nil
 }
 
@@ -36,7 +36,7 @@ func (k Keeper) MustGetRequest(ctx sdk.Context, id types.RequestID) types.Reques
 
 // SetRequest saves the given data request to the store without performing any validation.
 func (k Keeper) SetRequest(ctx sdk.Context, id types.RequestID, request types.Request) {
-	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshalBinaryBare(&request))
+	ctx.KVStore(k.storeKey).Set(types.RequestStoreKey(id), k.cdc.MustMarshal(&request))
 }
 
 // DeleteRequest removes the given data request from the store.
@@ -55,21 +55,24 @@ func (k Keeper) AddRequest(ctx sdk.Context, req types.Request) types.RequestID {
 func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 	currentReqID := k.GetRequestLastExpired(ctx) + 1
 	lastReqID := types.RequestID(k.GetRequestCount(ctx))
-	expirationBlockCount := int64(k.GetParam(ctx, types.KeyExpirationBlockCount))
+	expirationBlockCount := int64(k.ExpirationBlockCount(ctx))
 	// Loop through all data requests in chronological order. If a request reaches its
 	// expiration height, we will deactivate validators that didn't report data on the
 	// request. We also resolve requests to status EXPIRED if they are not yet resolved.
 	for ; currentReqID <= lastReqID; currentReqID++ {
 		req := k.MustGetRequest(ctx, currentReqID)
+
 		// This request is not yet expired, so there's nothing to do here. Ditto for
 		// all other requests that come after this. Thus we can just break the loop.
 		if req.RequestHeight+expirationBlockCount > ctx.BlockHeight() {
 			break
 		}
+
 		// If the request still does not have result, we resolve it as EXPIRED.
 		if !k.HasResult(ctx, currentReqID) {
 			k.ResolveExpired(ctx, currentReqID)
 		}
+
 		// Deactivate all validators that do not report to this request.
 		for _, val := range req.RequestedValidators {
 			v, _ := sdk.ValAddressFromBech32(val)
@@ -77,6 +80,11 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
 			}
 		}
+
+		// Cleanup request and reports
+		k.DeleteRequest(ctx, currentReqID)
+		k.DeleteReports(ctx, currentReqID)
+
 		// Set last expired request ID to be this current request.
 		k.SetRequestLastExpired(ctx, currentReqID)
 	}
@@ -91,12 +99,12 @@ func (k Keeper) AddPendingRequest(ctx sdk.Context, id types.RequestID) {
 
 // SetPendingResolveList saves the list of pending request that will be resolved at end block.
 func (k Keeper) SetPendingResolveList(ctx sdk.Context, ids []types.RequestID) {
-	intVs := make([]int64, len(ids))
+	intVs := make([]uint64, len(ids))
 	for idx, id := range ids {
-		intVs[idx] = int64(id)
+		intVs[idx] = uint64(id)
 	}
 
-	bz := k.cdc.MustMarshalBinaryBare(&types.PendingResolveList{RequestIds: intVs})
+	bz := k.cdc.MustMarshal(&types.PendingResolveList{RequestIds: intVs})
 	if bz == nil {
 		bz = []byte{}
 	}
@@ -110,7 +118,7 @@ func (k Keeper) GetPendingResolveList(ctx sdk.Context) (ids []types.RequestID) {
 		return []types.RequestID{}
 	}
 	pendingResolveList := types.PendingResolveList{}
-	k.cdc.MustUnmarshalBinaryBare(bz, &pendingResolveList)
+	k.cdc.MustUnmarshal(bz, &pendingResolveList)
 	for _, rid := range pendingResolveList.RequestIds {
 		ids = append(ids, types.RequestID(rid))
 	}

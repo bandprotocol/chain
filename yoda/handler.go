@@ -6,18 +6,24 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	"github.com/bandprotocol/chain/hooks/common"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type processingResult struct {
 	rawReport types.RawReport
 	version   string
 	err       error
+}
+
+func MustAtoi(num string) int64 {
+	result, err := strconv.ParseInt(num, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	return result
 }
 
 func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
@@ -34,32 +40,14 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 	}
 
 	for _, log := range logs {
-		messageType, err := GetEventValue(log, sdk.EventTypeMessage, sdk.AttributeKeyAction)
-		if err != nil {
-			l.Error(":cold_sweat: Failed to get message action type with error: %s", c, err.Error())
-			continue
-		}
-
-		if messageType == (types.MsgRequestData{}).Type() {
-			go handleRequestLog(c, l, log)
-		} else if messageType == (channeltypes.MsgRecvPacket{}).Type() {
-			// Try to get request id from packet. If not then return error.
-			_, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
-			if err != nil {
-				l.Debug(":ghost: Skipping non-request packet")
-				return
-			}
-			go handleRequestLog(c, l, log)
-		} else {
-			l.Debug(":ghost: Skipping non-{request/packet} type: %s", messageType)
-		}
+		go handleRequestLog(c, l, log)
 	}
 }
 
 func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	idStr, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
 	if err != nil {
-		l.Error(":cold_sweat: Failed to parse request id with error: %s", c, err.Error())
+		l.Debug(":cold_sweat: Failed to parse request id with error: %s", err.Error())
 		return
 	}
 
@@ -108,13 +96,13 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	if len(rawAskCount) != 1 {
 		panic("Fail to get ask count")
 	}
-	askCount := common.Atoi(rawAskCount[0])
+	askCount := MustAtoi(rawAskCount[0])
 
 	rawMinCount := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyMinCount)
 	if len(rawMinCount) != 1 {
 		panic("Fail to get min count")
 	}
-	minCount := common.Atoi(rawMinCount[0])
+	minCount := MustAtoi(rawMinCount[0])
 
 	rawCallData := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyCalldata)
 	if len(rawCallData) != 1 {
@@ -132,7 +120,7 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 	}
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator, key.GetAddress()),
+		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{
@@ -181,7 +169,7 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 	reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator, key.GetAddress()),
+		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{
@@ -233,7 +221,7 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 		return
 	}
 
-	vmsg := NewVerificationMessage(cfg.ChainID, c.validator, id, req.externalID)
+	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID)
 	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
@@ -246,10 +234,10 @@ func handleRawRequest(c *Context, l *Logger, req rawRequest, key keyring.Info, i
 
 	result, err := c.executor.Exec(exec, req.calldata, map[string]interface{}{
 		"BAND_CHAIN_ID":    vmsg.ChainID,
-		"BAND_VALIDATOR":   vmsg.Validator.String(),
+		"BAND_VALIDATOR":   vmsg.Validator,
 		"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
 		"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
-		"BAND_REPORTER":    sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubkey),
+		"BAND_REPORTER":    hex.EncodeToString(pubkey.Bytes()),
 		"BAND_SIGNATURE":   sig,
 	})
 

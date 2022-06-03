@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/x/oracle/testapp"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestResultBasicFunctions(t *testing.T) {
@@ -25,7 +25,7 @@ func TestResultBasicFunctions(t *testing.T) {
 	require.Equal(t, result, result)
 	// GetResult of another request should return error.
 	_, err = k.GetResult(ctx, 2)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrResultNotFound)
 	require.Panics(t, func() { k.MustGetResult(ctx, 2) })
 	// HasResult should also perform correctly.
 	require.True(t, k.HasResult(ctx, 1))
@@ -38,7 +38,6 @@ func TestSaveResultOK(t *testing.T) {
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
-	// TODO: Fix this test when change fee limit and request key.
 	expect := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
 		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
@@ -70,7 +69,7 @@ func TestResolveFailure(t *testing.T) {
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveFailure(ctx, 42, "REASON")
 	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
-	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
+	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
@@ -85,7 +84,7 @@ func TestResolveExpired(t *testing.T) {
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.ResolveExpired(ctx, 42)
 	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
-	require.Equal(t, []byte{}, k.MustGetResult(ctx, 42).Result)
+	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),

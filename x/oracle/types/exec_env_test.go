@@ -37,7 +37,7 @@ func mockExecEnv() *ExecuteEnv {
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
 	report1 := NewReport(validatorAddress1, true, []RawReport{rawReport1, rawReport2})
 	report2 := NewReport(validatorAddress2, true, []RawReport{rawReport3})
-	env := NewExecuteEnv(request, []Report{report1, report2})
+	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0))
 	return env
 }
 
@@ -50,7 +50,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
 	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
-	env := NewPrepareEnv(request, 3)
+	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
 	return env
 }
 
@@ -102,6 +102,27 @@ func TestGetMinCount(t *testing.T) {
 	require.Equal(t, int64(1), eenv.GetMinCount())
 }
 
+func TestGetPrepareTime(t *testing.T) {
+	// Can call on both environment
+	penv := mockFreshPrepareEnv()
+	require.Equal(t, int64(1581589700), penv.GetPrepareTime())
+
+	eenv := mockExecEnv()
+	require.Equal(t, int64(1581589700), eenv.GetPrepareTime())
+}
+
+func TestGetExecuteTime(t *testing.T) {
+	// Should return error if call on prepare environment.
+	penv := mockFreshPrepareEnv()
+	_, err := penv.GetExecuteTime()
+	require.Equal(t, api.ErrWrongPeriodAction, err)
+
+	eenv := mockExecEnv()
+	v, err := eenv.GetExecuteTime()
+	require.NoError(t, err)
+	require.Equal(t, int64(1581589710), v)
+}
+
 func TestGetAnsCount(t *testing.T) {
 	// Should return error if call on prepare environment.
 	penv := mockFreshPrepareEnv()
@@ -137,14 +158,14 @@ func TestGetExternalData(t *testing.T) {
 	require.Equal(t, api.ErrBadValidatorIndex, err)
 
 	_, err = env.GetExternalData(1, -1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadValidatorIndex)
 	_, err = env.GetExternalDataStatus(1, -1)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadValidatorIndex)
 
 	_, err = env.GetExternalData(100, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadExternalID)
 	_, err = env.GetExternalDataStatus(100, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, api.ErrBadExternalID)
 }
 
 func TestFailedGetExternalData(t *testing.T) {
@@ -174,7 +195,7 @@ func TestAskExternalData(t *testing.T) {
 func TestAskExternalDataOnTooSmallSpan(t *testing.T) {
 	penv := mockFreshPrepareEnv()
 
-	err := penv.AskExternalData(1, 3, make([]byte, MaxDataSize+1))
+	err := penv.AskExternalData(1, 3, make([]byte, DefaultMaxCalldataSize+1))
 	require.Equal(t, api.ErrSpanTooSmall, err)
 	require.Equal(t, []RawRequest(nil), penv.GetRawRequests())
 }

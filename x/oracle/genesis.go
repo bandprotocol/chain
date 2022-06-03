@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // InitGenesis performs genesis initialization for the oracle module.
@@ -28,7 +28,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	// Only try to bind to port if it is not already bound, since we may already own
 	// port capability from capability InitGenesis
 	if !k.IsBound(ctx, types.PortID) {
-		// transfer module binds to the transfer port on InitChain
+		// oracle module binds to the oracle port on InitChain
 		// and claims the returned capability
 		err := k.BindPort(ctx, types.PortID)
 		if err != nil {

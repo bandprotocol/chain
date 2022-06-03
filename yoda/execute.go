@@ -12,16 +12,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
-	band "github.com/bandprotocol/chain/app"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (
-	// Use this as codec to legacy msg
-	cdc = band.MakeEncodingConfig().Amino
+	// Proto codec for encoding/decoding proto message
+	cdc = band.MakeEncodingConfig().Marshaler
 )
 
 func signAndBroadcast(
@@ -33,10 +35,9 @@ func signAndBroadcast(
 		BroadcastMode:     "async",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
-	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
-		return "", fmt.Errorf("Failed to retreive account with error: %s", err.Error())
+		return "", fmt.Errorf("unable to get account: %w", err)
 	}
 
 	txf := tx.Factory{}.
@@ -50,7 +51,9 @@ func signAndBroadcast(
 		WithKeybase(kb).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := tx.BuildUnsignedTx(txf, msgs...)
+	execMsg := authz.NewMsgExec(key.GetAddress(), msgs)
+
+	txb, err := tx.BuildUnsignedTx(txf, &execMsg)
 	if err != nil {
 		return "", err
 	}
@@ -75,6 +78,16 @@ func signAndBroadcast(
 	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
 	// }
 	return res.TxHash, nil
+}
+
+func queryAccount(clientCtx client.Context, key keyring.Info) (client.Account, error) {
+	accountRetriever := authtypes.AccountRetriever{}
+	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+
+	return acc, nil
 }
 
 func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {
@@ -111,8 +124,13 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
 	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
-	clientCtx := client.Context{Client: c.client, TxConfig: band.MakeEncodingConfig().TxConfig}
-	gasLimit := estimateGas(c, msgs, feeEstimations)
+	clientCtx := client.Context{
+		Client:            c.client,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+
+	gasLimit := estimateGas(c, l, msgs, feeEstimations)
 	// We want to resend transaction only if tx returns Out of gas error.
 	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
 		var txHash string
@@ -138,23 +156,25 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	FindTx:
 		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
 			time.Sleep(c.rpcPollInterval)
-			txRes, err := authclient.QueryTx(clientCtx, txHash)
+			txRes, err := authtx.QueryTx(clientCtx, txHash)
 			if err != nil {
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
 			}
-			switch txRes.Code {
-			case 0:
+
+			if txRes.Code == 0 {
 				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
 				c.updateSubmittedCount(int64(len(reports)))
 				return
-			case sdkerrors.ErrOutOfGas.ABCICode():
+			}
+			if txRes.Codespace == sdkerrors.RootCodespace &&
+				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas limit and try to broadcast again
 				gasLimit = gasLimit * 110 / 100
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
 				txFound = true
 				break FindTx
-			default:
+			} else {
 				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txRes.Code, txRes.RawLog, txRes.TxHash)
 				return
 			}
@@ -165,7 +185,6 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		}
 	}
 	l.Error(":anxious_face_with_sweat: Cannot send reports with adjusted gas: %d", c, gasLimit)
-	return
 }
 
 // GetExecutable fetches data source executable using the provided client.
@@ -173,7 +192,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-		res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
+		res, err := abciQuery(c, l, fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryData, hash), nil)
 		if err != nil {
 			l.Error(":exploding_head: Failed to get data source with error: %s", c, err.Error())
 			return nil, err
@@ -194,14 +213,14 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 		return hash.(string), nil
 	}
 
-	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
+	res, err := abciQuery(c, l, fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
 	if err != nil {
-		l.Debug(":skull: Failed to get data source with error: %s", err.Error())
+		l.Error(":skull: Failed to get data source with error: %s", c, err.Error())
 		return "", err
 	}
 
 	var d types.DataSource
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &d)
+	cdc.MustUnmarshal(res.Response.Value, &d)
 
 	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
 
@@ -210,14 +229,30 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 
 // GetRequest fetches request by id
 func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error) {
-	res, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
+	res, err := abciQuery(c, l, fmt.Sprintf("/store/%s/key", types.StoreKey), types.RequestStoreKey(id))
 	if err != nil {
-		l.Debug(":skull: Failed to get request with error: %s", err.Error())
+		l.Error(":skull: Failed to get request with error: %s", c, err.Error())
 		return types.Request{}, err
 	}
 
 	var r types.Request
-	cdc.MustUnmarshalBinaryBare(res.Response.Value, &r)
+	cdc.MustUnmarshal(res.Response.Value, &r)
 
 	return r, nil
+}
+
+// abciQuery will try to query data from BandChain node maxTry time before give up and return error
+func abciQuery(c *Context, l *Logger, path string, data []byte) (*ctypes.ResultABCIQuery, error) {
+	var lastErr error
+	for try := 0; try < int(c.maxTry); try++ {
+		res, err := c.client.ABCIQuery(context.Background(), path, data)
+		if err != nil {
+			l.Debug(":skull: Failed to query on %s request with error: %s", path, err.Error())
+			lastErr = err
+			time.Sleep(c.rpcPollInterval)
+			continue
+		}
+		return res, nil
+	}
+	return nil, lastErr
 }

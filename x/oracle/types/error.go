@@ -37,7 +37,7 @@ var (
 	ErrTooLongSchema            = sdkerrors.Register(ModuleName, 31, "too long schema")
 	ErrTooLongURL               = sdkerrors.Register(ModuleName, 32, "too long url")
 	ErrTooLargeRawReportData    = sdkerrors.Register(ModuleName, 33, "too large raw report data")
-	ErrInsufficientValidators   = sdkerrors.Register(ModuleName, 34, "insufficent available validators")
+	ErrInsufficientValidators   = sdkerrors.Register(ModuleName, 34, "insufficient available validators")
 	ErrCreateWithDoNotModify    = sdkerrors.Register(ModuleName, 35, "cannot create with [do-not-modify] content")
 	ErrSelfReferenceAsReporter  = sdkerrors.Register(ModuleName, 36, "cannot reference self as reporter")
 	ErrOBIDecode                = sdkerrors.Register(ModuleName, 37, "obi decode failed")
@@ -46,7 +46,9 @@ var (
 	ErrBadDrbgInitialization    = sdkerrors.Register(ModuleName, 40, "bad drbg initialization")
 	ErrMaxOracleChannels        = sdkerrors.Register(ModuleName, 41, "max oracle channels")
 	ErrInvalidVersion           = sdkerrors.Register(ModuleName, 42, "invalid ICS20 version")
-	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 43, "invalid owasm gas")
+	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
+	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
+	ErrIBCRequestDisabled       = sdkerrors.Register(ModuleName, 45, "sending oracle request via IBC is disabled")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.

@@ -5,58 +5,47 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	lru "github.com/hashicorp/golang-lru"
 
-	"github.com/bandprotocol/chain/x/oracle/keeper"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (
-	repTxCount       *lru.Cache
+	firstBlockSeen   *lru.Cache
 	nextRepOnlyBlock int64
 )
 
 func init() {
 	var err error
-	repTxCount, err = lru.New(20000)
+	firstBlockSeen, err = lru.New(20000)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types.MsgReportData) bool {
-	validator, _ := sdk.ValAddressFromBech32(rep.Validator)
-	reporter, _ := sdk.AccAddressFromBech32(rep.Reporter)
-	if !oracleKeeper.IsReporter(ctx, validator, reporter) {
-		return false
-	}
-	if rep.RequestID <= oracleKeeper.GetRequestLastExpired(ctx) {
-		return false
-	}
-
-	req, err := oracleKeeper.GetRequest(ctx, rep.RequestID)
+func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, r *types.MsgReportData) error {
+	validator, err := sdk.ValAddressFromBech32(r.Validator)
 	if err != nil {
-		return false
+		return err
 	}
+	report := types.NewReport(validator, false, r.RawReports)
+	return oracleKeeper.CheckValidReport(ctx, r.RequestID, report)
+}
 
-	reqVals := make([]sdk.ValAddress, len(req.RequestedValidators))
-	for idx, reqVal := range req.RequestedValidators {
-		val, _ := sdk.ValAddressFromBech32(reqVal)
-		reqVals[idx] = val
-	}
-
-	if !keeper.ContainsVal(reqVals, validator) {
+func updateCache(val string, rid types.RequestID, block int64) (trigger bool) {
+	key := fmt.Sprintf("%s:%d", val, rid)
+	value, ok := firstBlockSeen.Get(key)
+	// Check if we already seen this report
+	if ok {
+		start := value.(int64)
+		// If the report has been seen more than 20 then make the next block will be only reporter
+		return block-start > 20
+	} else {
+		firstBlockSeen.Add(key, block)
 		return false
 	}
-	if len(rep.RawReports) != len(req.RawRequests) {
-		return false
-	}
-	for _, report := range rep.RawReports {
-		if !keeper.ContainsEID(req.RawRequests, report.ExternalID) {
-			return false
-		}
-	}
-	return true
 }
 
 // NewFeelessReportsAnteHandler returns a new ante handler that waives minimum gas price
@@ -64,26 +53,80 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper keeper.Keeper, rep *types
 func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keeper) sdk.AnteHandler {
 	return func(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
 		if ctx.IsCheckTx() && !simulate {
-			// TODO: Move this out of "FeelessReports" ante handler.
 			isRepOnlyBlock := ctx.BlockHeight() == nextRepOnlyBlock
 			isValidReportTx := true
 			for _, msg := range tx.GetMsgs() {
-				rep, ok := msg.(*types.MsgReportData)
-				if !ok || !checkValidReportMsg(ctx, oracleKeeper, rep) {
-					isValidReportTx = false
-					break
-				}
-				if !isRepOnlyBlock {
-					key := fmt.Sprintf("%s:%d", rep.Validator, rep.RequestID)
-					val, ok := repTxCount.Get(key)
-					nextVal := 1
-					if ok {
-						nextVal = val.(int) + 1
+				// Check direct report msg
+				if dr, ok := msg.(*types.MsgReportData); ok {
+					// Check if it's not valid report msg, discard this transaction
+					if err := checkValidReportMsg(ctx, oracleKeeper, dr); err != nil {
+						return ctx, err
 					}
-					repTxCount.Add(key, nextVal)
-					if nextVal > 20 {
-						nextRepOnlyBlock = ctx.BlockHeight() + 1
+					if !isRepOnlyBlock {
+						if updateCache(dr.Validator, dr.RequestID, ctx.BlockHeight()) {
+							nextRepOnlyBlock = ctx.BlockHeight() + 1
+						}
 					}
+				} else {
+					// Check is the MsgExec from reporter
+					me, ok := msg.(*authz.MsgExec)
+					if !ok {
+						isValidReportTx = false
+						break
+					}
+
+					// If cannot get message, then pretend as non-free transaction
+					msgs, err := me.GetMessages()
+					if err != nil {
+						isValidReportTx = false
+						break
+					}
+
+					grantee, err := sdk.AccAddressFromBech32(me.Grantee)
+					if err != nil {
+						isValidReportTx = false
+						break
+					}
+
+					allValidReportMsg := true
+					for _, m := range msgs {
+						r, ok := m.(*types.MsgReportData)
+						// If this is not report msg, skip other msgs on this exec msg
+						if !ok {
+							allValidReportMsg = false
+							break
+						}
+
+						// Fail to parse validator, then discard this transaction
+						validator, err := sdk.ValAddressFromBech32(r.Validator)
+						if err != nil {
+							return ctx, err
+						}
+
+						// If this grantee is not a reporter of validator, then discard this transaction
+						if !oracleKeeper.IsReporter(ctx, validator, grantee) {
+							return ctx, sdkerrors.ErrUnauthorized.Wrap("authorization not found")
+						}
+
+						// Check if it's not valid report msg, discard this transaction
+						if err := checkValidReportMsg(ctx, oracleKeeper, r); err != nil {
+							return ctx, err
+						}
+
+						// Update cache in case it's a valid report
+						if !isRepOnlyBlock {
+							if updateCache(r.Validator, r.RequestID, ctx.BlockHeight()) {
+								nextRepOnlyBlock = ctx.BlockHeight() + 1
+							}
+						}
+					}
+
+					// If this exec msg has other non-report msg, disable feeless and skip other msgs in tx
+					if !allValidReportMsg {
+						isValidReportTx = false
+						break
+					}
+
 				}
 			}
 			if isRepOnlyBlock && !isValidReportTx {

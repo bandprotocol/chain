@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
 	"github.com/google/shlex"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type DockerExec struct {
@@ -65,7 +66,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 			return ExecResult{}, err
 		}
 	}
-	output, err := ioutil.ReadAll(io.LimitReader(&buf, types.MaxDataSize))
+	output, err := ioutil.ReadAll(io.LimitReader(&buf, int64(types.DefaultMaxReportDataSize)))
 	if err != nil {
 		return ExecResult{}, err
 	}

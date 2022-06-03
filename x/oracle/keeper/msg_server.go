@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/pkg/gzip"
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/pkg/gzip"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type msgServer struct {
@@ -26,7 +26,12 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	_, err := k.PrepareRequest(ctx, msg, nil)
+	payer, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = k.PrepareRequest(ctx, msg, payer, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,19 +41,16 @@ func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData)
 func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (*types.MsgReportDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	maxReportDataSize := int(k.MaxReportDataSize(ctx))
+	for _, r := range msg.RawReports {
+		if len(r.Data) > maxReportDataSize {
+			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), maxReportDataSize)
+		}
+	}
+
 	validator, err := sdk.ValAddressFromBech32(msg.Validator)
 	if err != nil {
 		return nil, err
-	}
-
-	reporter, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-
-	// check this address is a reporter of the validator
-	if !k.IsReporter(ctx, validator, reporter) {
-		return nil, types.ErrReporterNotAuthorized
 	}
 
 	// check request must not expire.
@@ -75,7 +77,7 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeReport,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", msg.RequestID)),
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
+		sdk.NewAttribute(types.AttributeKeyValidator, validator.String()),
 	))
 	return &types.MsgReportDataResponse{}, nil
 }
@@ -97,8 +99,13 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 		return nil, err
 	}
 
+	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+	if err != nil {
+		return nil, err
+	}
+
 	id := k.AddDataSource(ctx, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
+		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -132,6 +139,11 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 		return nil, types.ErrEditorNotAuthorized
 	}
 
+	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+	if err != nil {
+		return nil, err
+	}
+
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Executable) {
 		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
@@ -140,9 +152,14 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 		}
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	// Can safely use MustEdit here, as we already checked that the data source exists above.
 	k.MustEditDataSource(ctx, msg.DataSourceID, types.NewDataSource(
-		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee,
+		newOwner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -223,8 +240,13 @@ func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOra
 		return nil, err
 	}
 
+	newOwner, err := sdk.AccAddressFromBech32(msg.Owner)
+	if err != nil {
+		return nil, err
+	}
+
 	k.MustEditOracleScript(ctx, msg.OracleScriptID, types.NewOracleScript(
-		owner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
+		newOwner, msg.Name, msg.Description, filename, msg.Schema, msg.SourceCodeURL,
 	))
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -251,50 +273,4 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
 	))
 	return &types.MsgActivateResponse{}, nil
-}
-
-func (k msgServer) AddReporter(goCtx context.Context, msg *types.MsgAddReporter) (*types.MsgAddReporterResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
-	if err != nil {
-		return nil, err
-	}
-	err = k.Keeper.AddReporter(ctx, valAddr, repAddr)
-	if err != nil {
-		return nil, err
-	}
-	ctx.KVStore(k.storeKey).Set(types.ReporterStoreKey(valAddr, repAddr), []byte{1})
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeAddReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
-	))
-	return &types.MsgAddReporterResponse{}, nil
-}
-
-func (k msgServer) RemoveReporter(goCtx context.Context, msg *types.MsgRemoveReporter) (*types.MsgRemoveReporterResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	repAddr, err := sdk.AccAddressFromBech32(msg.Reporter)
-	if err != nil {
-		return nil, err
-	}
-	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
-	if err != nil {
-		return nil, err
-	}
-	err = k.Keeper.RemoveReporter(ctx, valAddr, repAddr)
-	if err != nil {
-		return nil, err
-	}
-	ctx.KVStore(k.storeKey).Delete(types.ReporterStoreKey(valAddr, repAddr))
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeRemoveReporter,
-		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
-		sdk.NewAttribute(types.AttributeKeyReporter, msg.Reporter),
-	))
-	return &types.MsgRemoveReporterResponse{}, nil
 }

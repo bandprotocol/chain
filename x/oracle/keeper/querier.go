@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -9,7 +10,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // NewQuerier is the module level router for state queries.
@@ -106,7 +107,16 @@ func queryRequestByID(ctx sdk.Context, path []string, _ abci.RequestQuery, k Kee
 	}
 	request, err := k.GetRequest(ctx, types.RequestID(id))
 	if err != nil {
-		return types.QueryNotFound(legacyQuerierCdc, err.Error())
+		if types.RequestID(id) > k.GetRequestLastExpired(ctx) {
+			return types.QueryNotFound(legacyQuerierCdc, err.Error())
+		}
+
+		result := k.MustGetResult(ctx, types.RequestID(id))
+		return types.QueryOK(legacyQuerierCdc, types.QueryRequestResult{
+			Request: types.Request{},
+			Reports: nil,
+			Result:  &result,
+		})
 	}
 	reports := k.GetReports(ctx, types.RequestID(id))
 	if !k.HasResult(ctx, types.RequestID(id)) {
@@ -136,14 +146,16 @@ func queryValidatorStatus(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 }
 
 func queryReporters(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
-	if len(path) != 1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
-	}
-	validatorAddress, err := sdk.ValAddressFromBech32(path[0])
-	if err != nil {
-		return types.QueryBadRequest(legacyQuerierCdc, err.Error())
-	}
-	return types.QueryOK(legacyQuerierCdc, k.GetReporters(ctx, validatorAddress))
+	// TODO: Query all reporters
+	// if len(path) != 1 {
+	// 	return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "validator address not specified")
+	// }
+	// validatorAddress, err := sdk.ValAddressFromBech32(path[0])
+	// if err != nil {
+	// 	return types.QueryBadRequest(legacyQuerierCdc, err.Error())
+	// }
+	// return types.QueryOK(legacyQuerierCdc, k.GetReporters(ctx, validatorAddress))
+	return types.QueryNotFound(legacyQuerierCdc, errors.New("Unimplemented"))
 }
 
 func queryActiveValidators(ctx sdk.Context, path []string, _ abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
@@ -180,8 +192,8 @@ func queryPendingRequests(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 	lastExpired := k.GetRequestLastExpired(ctx)
 	requestCount := k.GetRequestCount(ctx)
 
-	var pendingIDs []int64
-	for id := lastExpired + 1; int64(id) <= requestCount; id++ {
+	var pendingIDs []uint64
+	for id := lastExpired + 1; uint64(id) <= requestCount; id++ {
 
 		req := k.MustGetRequest(ctx, id)
 
@@ -231,7 +243,7 @@ func queryPendingRequests(ctx sdk.Context, path []string, _ abci.RequestQuery, k
 			}
 		}
 
-		pendingIDs = append(pendingIDs, int64(id))
+		pendingIDs = append(pendingIDs, uint64(id))
 	}
 
 	res := types.PendingResolveList{RequestIds: pendingIDs}

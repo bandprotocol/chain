@@ -7,7 +7,7 @@ import (
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string,
+	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, prepareGas uint64, executeGas uint64,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -16,15 +16,13 @@ func NewOracleRequestPacketData(
 		AskCount:       askCount,
 		MinCount:       minCount,
 		FeeLimit:       feeLimit,
-		RequestKey:     requestKey,
+		PrepareGas:     prepareGas,
+		ExecuteGas:     executeGas,
 	}
 }
 
 // ValidateBasic is used for validating the request.
 func (p OracleRequestPacketData) ValidateBasic() error {
-	if len(p.Calldata) > MaxDataSize {
-		return WrapMaxError(ErrTooLargeCalldata, len(p.Calldata), MaxDataSize)
-	}
 	if p.MinCount <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", p.MinCount)
 	}
@@ -33,6 +31,18 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 	}
 	if len(p.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(p.ClientID), MaxClientIDLength)
+	}
+	if p.PrepareGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", p.PrepareGas)
+	}
+	if p.ExecuteGas <= 0 {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", p.ExecuteGas)
+	}
+	if p.PrepareGas+p.ExecuteGas > MaximumOwasmGas {
+		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "sum of prepare gas and execute gas (%d) exceed %d", p.PrepareGas+p.ExecuteGas, MaximumOwasmGas)
+	}
+	if !p.FeeLimit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, p.FeeLimit.String())
 	}
 	return nil
 }

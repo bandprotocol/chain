@@ -4,70 +4,96 @@ package oracle.v1;
 option go_package = "github.com/bandprotocol/chain/x/oracle/types";
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
 import "google/api/annotations.proto";
 import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Counts queries the number of data sources, oracle scripts, and requests.
+  // Counts queries the number of existing data sources, oracle scripts, and
+  // requests.
   rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
-    option (google.api.http).get = "/oracle/counts";
+    option (google.api.http).get = "/oracle/v1/counts";
   }
 
-  // Data queries the data source or oracle script script for given file hash.
+  // Data queries content of the data source or oracle script for given SHA256
+  // file hash.
   rpc Data(QueryDataRequest) returns (QueryDataResponse) {
-    option (google.api.http).get = "/oracle/data/{data_hash}";
+    option (google.api.http).get = "/oracle/v1/data/{data_hash}";
   }
 
-  // DataSource queries data source info for given data source id.
+  // DataSource queries data source summary info for given data source id.
   rpc DataSource(QueryDataSourceRequest) returns (QueryDataSourceResponse) {
-    option (google.api.http).get = "/oracle/data_sources/{data_source_id}";
+    option (google.api.http).get = "/oracle/v1/data_sources/{data_source_id}";
   }
 
-  // OracleScript queries oracle script info for given oracle script id.
+  // OracleScript queries oracle script summary info for given oracle script id.
   rpc OracleScript(QueryOracleScriptRequest)
       returns (QueryOracleScriptResponse) {
-    option (google.api.http).get = "/oracle/oracle_script/{oracle_script_id}";
+    option (google.api.http).get =
+        "/oracle/v1/oracle_scripts/{oracle_script_id}";
   }
 
   // Request queries request info for given request id.
   rpc Request(QueryRequestRequest) returns (QueryRequestResponse) {
-    option (google.api.http).get = "/oracle/request/{request_id}";
+    option (google.api.http).get = "/oracle/v1/requests/{request_id}";
   }
 
-  // Validator queries oracle info of validator for given validator
-  // address.
+  // PendingRequests queries list of pending request IDs assigned to given
+  // validator.
+  rpc PendingRequests(QueryPendingRequestsRequest)
+      returns (QueryPendingRequestsResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/pending_requests/{validator_address}";
+  }
+
+  // Validator queries properties of given validator address.
   rpc Validator(QueryValidatorRequest) returns (QueryValidatorResponse) {
-    option (google.api.http).get = "/oracle/validators/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/validators/{validator_address}";
   }
 
-  // Reporters queries all reporters of a given validator address.
+  // IsReporter queries grant of account on this validator.
+  rpc IsReporter(QueryIsReporterRequest) returns (QueryIsReporterResponse) {
+    option (google.api.http).get =
+        "/oracle/v1/reporter/{validator_address}/{reporter_address}";
+  }
+
+  // Reporters queries all reporters associated with given validator address.
   rpc Reporters(QueryReportersRequest) returns (QueryReportersResponse) {
-    option (google.api.http).get = "/oracle/reporters/{validator_address}";
+    option (google.api.http).get = "/oracle/v1/reporters/{validator_address}";
   }
 
   // ActiveValidators queries all active oracle validators.
   rpc ActiveValidators(QueryActiveValidatorsRequest)
       returns (QueryActiveValidatorsResponse) {
-    option (google.api.http).get = "/oracle/active_validators";
+    option (google.api.http).get = "/oracle/v1/active_validators";
   }
 
-  // Params queries the oracle parameters.
+  // Params queries parameters used for runnning bandchain network.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/oracle/params";
+    option (google.api.http).get = "/oracle/v1/params";
   }
 
-  // RequestSearch queries the latest request that match the given input.
+  // RequestSearch queries the latest request that match search criteria.
   rpc RequestSearch(QueryRequestSearchRequest)
       returns (QueryRequestSearchResponse) {
-    option (google.api.http).get = "/oracle/request_search";
+    option (google.api.http).get = "/oracle/v1/request_search";
   }
 
   // RequestPrice queries the latest price on standard price reference oracle
   // script.
   rpc RequestPrice(QueryRequestPriceRequest)
       returns (QueryRequestPriceResponse) {
-    option (google.api.http).post = "/oracle/request_prices";
+    option (google.api.http).get = "/oracle/v1/request_prices";
+  }
+
+  // RequestVerification verifies a request to make sure that
+  // all information that will be used to report the data is valid
+  rpc RequestVerification(QueryRequestVerificationRequest)
+      returns (QueryRequestVerificationResponse) {
+    option (google.api.http).get = "/oracle/v1/verify_request";
   }
 }
 
@@ -76,38 +102,82 @@ message QueryCountsRequest {}
 
 // QueryCountsResponse is response type for the Query/Count RPC method.
 message QueryCountsResponse {
-  int64 data_source_count = 1;
-  int64 oracle_script_count = 2;
-  int64 request_count = 3;
+  // DataSourceCount is total number of data sources available on the chain
+  uint64 data_source_count = 1;
+  // OracleScriptCount is total number of oracle scripts available on the chain
+  uint64 oracle_script_count = 2;
+  // RequestCount is total number of requests submitted to the chain
+  uint64 request_count = 3;
 }
 
 // QueryDataRequest is request type for the Query/Data RPC method.
-message QueryDataRequest { string data_hash = 1; }
+message QueryDataRequest {
+  // DataHash is SHA256 hash of the file's content, which can be data source or
+  // oracle script
+  string data_hash = 1;
+}
 
 // QueryDataResponse is response type for the Query/Data RPC method.
-message QueryDataResponse { bytes data = 1; }
+message QueryDataResponse {
+  // Data is file's content, which can be data source or oracle script
+  bytes data = 1;
+}
 
 // QueryDataSourceRequest is request type for the Query/DataSource RPC method.
-message QueryDataSourceRequest { int64 data_source_id = 1; }
+message QueryDataSourceRequest {
+  // DataSourceID is ID of a data source script
+  uint64 data_source_id = 1;
+}
 
 // QueryDataSourceResponse is response type for the Query/DataSource RPC method.
-message QueryDataSourceResponse { DataSource data_source = 1; }
+message QueryDataSourceResponse {
+  // DataSource is summary information of a data source
+  DataSource data_source = 1;
+}
 
 // QueryOracleScriptRequest is request type for the Query/OracleScript RPC
 // method.
-message QueryOracleScriptRequest { int64 oracle_script_id = 1; }
+message QueryOracleScriptRequest {
+  // OracleScriptID is ID of an oracle script
+  uint64 oracle_script_id = 1;
+}
 
 // QueryOracleScriptResponse is response type for the Query/OracleScript RPC
 // method.
-message QueryOracleScriptResponse { OracleScript oracle_script = 1; }
+message QueryOracleScriptResponse {
+  // OracleScript is summary information of an oracle script
+  OracleScript oracle_script = 1;
+}
 
 // QueryRequestRequest is request type for the Query/Request RPC method.
-message QueryRequestRequest { int64 request_id = 1; }
+message QueryRequestRequest {
+  // RequestID is ID of an oracle request
+  uint64 request_id = 1;
+}
 
 // QueryRequestResponse is response type for the Query/Request RPC method.
 message QueryRequestResponse {
-  OracleRequestPacketData request_packet_data = 1;
-  OracleResponsePacketData response_packet_data = 2;
+  // Request is an oracle request
+  Request request = 1;
+  // Reports is list of result data as raw reports that are fulfilled by
+  // assigned validators
+  repeated Report reports = 2 [ (gogoproto.nullable) = false ];
+  // Result is a final form of result data
+  Result result = 3;
+}
+
+// QueryPendingRequestRequest is request type for the Query/PendingRequests RPC
+// method.
+message QueryPendingRequestsRequest {
+  // ValidatorAddress is address of a validator
+  string validator_address = 1;
+}
+
+// QueryPendingRequestResponse is response type for the Query/PendingRequests
+// RPC method.
+message QueryPendingRequestsResponse {
+  // RequestIDs is a list of pending request IDs assigned to the given validator
+  repeated uint64 request_ids = 1 [ (gogoproto.customname) = "RequestIDs" ];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -120,16 +190,42 @@ message QueryParamsResponse {
 }
 
 // QueryValidatorRequest is request type for the Query/Validator RPC method.
-message QueryValidatorRequest { string validator_address = 1; }
+message QueryValidatorRequest {
+  // ValidatorAddress is address of a validator
+  string validator_address = 1;
+}
 
 // QueryValidatorResponse is response type for the Query/Validator RPC method.
-message QueryValidatorResponse { ValidatorStatus status = 1; }
+message QueryValidatorResponse {
+  // Status is status of a validator e.g. active/inactive
+  ValidatorStatus status = 1;
+}
+
+// QueryIsReporterRequest is request type for the Query/Reporter RPC method.
+message QueryIsReporterRequest {
+  // ValidatorAddress is a validator address
+  string validator_address = 1;
+  // ReporterAddress is a candidate account
+  string reporter_address = 2;
+}
+
+// QueryIsReporterResponse is response type for the Query/Reporter RPC method.
+message QueryIsReporterResponse {
+  // IsReporter is true if this account has been granted by validator
+  bool is_reporter = 1;
+}
 
 // QueryReportersRequest is request type for the Query/Reporters RPC method.
-message QueryReportersRequest { string validator_address = 1; }
+message QueryReportersRequest {
+  // ValidatorAddress is a validator address
+  string validator_address = 1;
+}
 
 // QueryReportersResponse is response type for the Query/Reporters RPC method.
-message QueryReportersResponse { repeated string reporter = 1; }
+message QueryReportersResponse {
+  // Reporter is a list of account addresses of reporters
+  repeated string reporter = 1;
+}
 
 // QueryActiveValidatorsRequest is request type for the Query/ActiveValidators
 // RPC method.
@@ -137,36 +233,82 @@ message QueryActiveValidatorsRequest {}
 
 // QueryActiveValidatorsResponse is response type for the Query/ActiveValidators
 // RPC method.
-message QueryActiveValidatorsResponse { int64 count = 1; }
+message QueryActiveValidatorsResponse {
+  // Validators is a list of active validators
+  repeated ActiveValidator validators = 1;
+}
 
 // QueryRequestSearchRequest is request type for the Query/RequestSearch RPC
 // method.
 message QueryRequestSearchRequest {
-  int64 oracle_script_id = 1;
-  bytes calldata = 2;
-  int64 ask_count = 3;
-  int64 min_count = 4;
+  // OracleScriptID is ID of an oracle script
+  uint64 oracle_script_id = 1;
+  // Calldata is OBI-encoded data in hex format as argument params for the
+  // oracle script
+  string calldata = 2;
+  // AskCount is number of validators allowed for fulfilling the request
+  uint64 ask_count = 3;
+  // MinCount is number of validators required for fulfilling the request
+  uint64 min_count = 4;
 }
 
 // QueryRequestSearchResponse is response type for the Query/RequestSearch RPC
 // method.
 message QueryRequestSearchResponse {
-  // TODO: add fields
+  // Request is details of an oracle request
+  QueryRequestResponse request = 1;
 }
 
 // QueryRequestPriceRequest is request type for the Query/RequestPrice RPC
 // method.
 message QueryRequestPriceRequest {
-  string symbol = 1;
-  int64 ask_count = 2;
-  int64 min_count = 3;
+  // Symbol is unit of data indicating what the data is
+  repeated string symbols = 1;
+  // AskCount is number of validators allowed for fulfilling the request
+  uint64 ask_count = 2;
+  // MinCount is number of validators required for fulfilling the request
+  uint64 min_count = 3;
 }
 
 // QueryRequestPriceResponse is response type for the Query/RequestPrice RPC
 // method.
 message QueryRequestPriceResponse {
-  int64 oracle_script_id = 1;
-  bytes calldata = 2;
-  int64 ask_count = 3;
-  int64 min_count = 4;
+  // PriceResult is a list of price results for given symbols
+  repeated PriceResult price_results = 1;
+}
+
+// QueryRequestVerificationRequest is request type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationRequest {
+  // ChainID is the chain ID to identify which chain ID is used for the
+  // verification
+  string chain_id = 1;
+  // Validator is a validator address
+  string validator = 2;
+  // RequestID is oracle request ID
+  uint64 request_id = 3;
+  // ExternalID is an oracle's external ID
+  uint64 external_id = 4;
+  // Reporter is an bech32-encoded public key of the reporter authorized by the
+  // validator
+  string reporter = 5;
+  // Signature is a signature signed by the reporter using reporter's private
+  // key
+  bytes signature = 6;
+}
+
+// QueryRequestVerificationResponse is response type for the
+// Query/RequestVerification RPC
+message QueryRequestVerificationResponse {
+  // ChainID is the targeted chain ID
+  string chain_id = 1;
+  // Validator is the targeted validator address
+  string validator = 2;
+  // RequestID is the ID of targeted request
+  uint64 request_id = 3;
+  // ExternalID is the ID of targeted oracle's external data source
+  uint64 external_id = 4;
+  // DataSourceID is the ID of a data source that relates to the targeted
+  // external ID
+  uint64 data_source_id = 5;
 }

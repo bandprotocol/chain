@@ -11,7 +11,7 @@ ifeq ($(LEDGER_ENABLED),true)
 endif
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=bandchain \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=bandd \
+	-X github.com/cosmos/cosmos-sdk/version.AppName=bandd \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags)"
@@ -24,8 +24,6 @@ install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
 
-faucet: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/faucet
 
 release: go.sum
 	env GOOS=linux GOARCH=amd64 \

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // HasReport checks if the report of this ID triple exists in the storage.
@@ -16,12 +16,20 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)
 	key := types.ReportsOfValidatorPrefixKey(rid, val)
-	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshalBinaryBare(&rep))
+	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshal(&rep))
 }
 
 // AddReports performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
 func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
+	if err := k.CheckValidReport(ctx, rid, rep); err != nil {
+		return err
+	}
+	k.SetReport(ctx, rid, rep)
+	return nil
+}
+
+func (k Keeper) CheckValidReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
 	req, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		return err
@@ -57,7 +65,6 @@ func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 				types.ErrRawRequestNotFound, "reqID: %d, extID: %d", rid, rep.ExternalID)
 		}
 	}
-	k.SetReport(ctx, rid, rep)
 	return nil
 }
 
@@ -82,7 +89,7 @@ func (k Keeper) GetReports(ctx sdk.Context, rid types.RequestID) (reports []type
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var rep types.Report
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &rep)
+		k.cdc.MustUnmarshal(iterator.Value(), &rep)
 		reports = append(reports, rep)
 	}
 	return reports

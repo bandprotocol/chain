@@ -2,9 +2,7 @@ package yoda
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -17,14 +15,14 @@ import (
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/bandprotocol/chain/pkg/filecache"
-	"github.com/bandprotocol/chain/x/oracle/types"
-	"github.com/bandprotocol/chain/yoda/executor"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/yoda/executor"
 )
 
 const (
-	// TODO: We can subscribe only for txs that contain request messages
-	TxQuery = "tm.event = 'Tx'"
+	TxQuery = "tm.event = 'Tx' AND request.id EXISTS"
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
 )
@@ -35,6 +33,7 @@ func runImpl(c *Context, l *Logger) error {
 	if err != nil {
 		return err
 	}
+	defer c.client.Stop()
 
 	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cxl()
@@ -57,21 +56,18 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	// Get pending requests and handle them
-	rawPendingRequests, err := c.client.ABCIQuery(context.Background(), fmt.Sprintf("custom/%s/%s/%s", types.StoreKey, types.QueryPendingRequests, c.validator.String()), nil)
+	bz := cdc.MustMarshal(&types.QueryPendingRequestsRequest{
+		ValidatorAddress: c.validator.String(),
+	})
+	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
 	if err != nil {
-		return err
+		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
+	pendingRequests := types.QueryPendingRequestsResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &pendingRequests)
 
-	var result types.QueryResult
-	if err := json.Unmarshal(rawPendingRequests.Response.GetValue(), &result); err != nil {
-		return err
-	}
-
-	var pendingRequests types.PendingResolveList
-	cdc.MustUnmarshalJSON(result.Result, &pendingRequests)
-
-	for _, id := range pendingRequests.RequestIds {
+	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
+	for _, id := range pendingRequests.RequestIDs {
 		c.pendingRequests[types.RequestID(id)] = true
 		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
 	}
@@ -147,7 +143,7 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.fileCache = filecache.New(filepath.Join(viper.GetString(flags.FlagHome), "files"))
+			c.fileCache = filecache.New(filepath.Join(c.home, "files"))
 			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
 			if err != nil {
 				return err
