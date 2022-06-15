@@ -51,7 +51,7 @@ We recommend the following for running a BandChain Validator:
 
 **Step 1. Install Golang**
 
-Go v1.16+ or higher is required for BandChain.
+Go v1.18+ or higher is required for BandChain.
 
 If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your GOPATH and GOBIN environment variables are properly set up.
 
@@ -76,7 +76,7 @@ server_name: bandd
 version: 2.3.0
 commit: 4fe19638b33043eed4dec9861cda40962fb5b2a7
 build_tags: ledger
-go: go version go1.16.7 darwin/amd64
+go: go version go1.18.3 darwin/amd64
 build_deps:
 ...
 ```

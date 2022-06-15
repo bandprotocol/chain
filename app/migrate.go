@@ -19,9 +19,9 @@ import (
 	v040 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v040"
 	v043 "github.com/cosmos/cosmos-sdk/x/genutil/legacy/v043"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-	host "github.com/cosmos/ibc-go/modules/core/24-host"
-	ibccoretypes "github.com/cosmos/ibc-go/modules/core/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	ibccoretypes "github.com/cosmos/ibc-go/v3/modules/core/types"
 	"github.com/spf13/cobra"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -130,7 +130,9 @@ $ %s migrate /path/to/genesis.json --chain-id=band-laozi --genesis-time=2020-08-
 
 			// Authz module
 			entries := make([]authz.GrantAuthorization, 0)
-			auth, err := codectypes.NewAnyWithValue(authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})))
+			auth, err := codectypes.NewAnyWithValue(
+				authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})),
+			)
 			if err != nil {
 				return err
 			}
