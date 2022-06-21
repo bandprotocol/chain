@@ -147,7 +147,6 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		// router.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 	)
@@ -202,8 +201,7 @@ type BandApp struct {
 	TransferKeeper ibctransferkeeper.Keeper
 	FeeGrantKeeper feegrantkeeper.Keeper
 	AuthzKeeper    authzkeeper.Keeper
-	// RouterKeeper    routerkeeper.Keeper
-	OracleKeeper oraclekeeper.Keeper
+	OracleKeeper   oraclekeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
@@ -261,8 +259,7 @@ func NewBandApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey,
-		// routertypes.StoreKey, icahosttypes.StoreKey,
+		feegrant.StoreKey, authzkeeper.StoreKey, icahosttypes.StoreKey,
 		oracletypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -406,18 +403,21 @@ func NewBandApp(
 		scopedICAHostKeeper,
 		app.MsgServiceRouter(),
 	)
-	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
-	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
-	// app.RouterKeeper = routerkeeper.NewKeeper(
+	// TODO: Need to add or not?
+	// app.icaControllerKeeper = icacontrollerkeeper.NewKeeper(
 	// 	appCodec,
-	// 	keys[routertypes.StoreKey],
-	// 	app.GetSubspace(routertypes.ModuleName),
-	// 	app.TransferKeeper,
-	// 	app.DistrKeeper,
+	// 	keys[icacontrollertypes.StoreKey],
+	// 	app.getSubspace(icacontrollertypes.SubModuleName),
+	// 	app.ibcKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
+	// 	app.ibcKeeper.ChannelKeeper,
+	// 	&app.ibcKeeper.PortKeeper,
+	// 	scopedICAControllerKeeper,
+	// 	app.MsgServiceRouter(),
 	// )
 
-	// routerModule := router.NewAppModule(app.RouterKeeper, transferIBCModule)
+	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
+	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
@@ -511,11 +511,10 @@ func NewBandApp(
 		crisistypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		// icatypes.ModuleName,
+		icatypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
-		// group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 	)
@@ -526,8 +525,7 @@ func NewBandApp(
 		oracletypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		// icatypes.ModuleName,
-		// routertypes.ModuleName,
+		icatypes.ModuleName,
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
@@ -538,7 +536,6 @@ func NewBandApp(
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
-		// group.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -561,12 +558,10 @@ func NewBandApp(
 		genutiltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
-		// icatypes.ModuleName,
+		icatypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
-		// group.ModuleName,
-		// routertypes.ModuleName,
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -790,6 +785,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
