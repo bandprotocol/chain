@@ -19,9 +19,9 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	clientkeeper "github.com/cosmos/ibc-go/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/modules/core/04-channel/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v3/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -265,7 +265,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	var authzState authz.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
 	for _, authz := range authzState.Authorization {
-		authorization := authz.GetAuthorization()
+		authorization := authz.Authorization
 		switch authorization.GetTypeUrl() {
 		case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
 			acc, _ := sdk.AccAddressFromBech32(authz.Granter)

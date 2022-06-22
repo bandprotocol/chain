@@ -2,14 +2,20 @@ package emitter
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 // handleMsgTransfer implements emitter handler for msgTransfer.
-func (h *Hook) handleMsgTransfer(ctx sdk.Context, txHash []byte, msg *types.MsgTransfer, evMap common.EvMap, detail common.JsDict) {
+func (h *Hook) handleMsgTransfer(
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgTransfer,
+	evMap common.EvMap,
+	detail common.JsDict,
+) {
 	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyData]; ok {
 		packet := newPacket(
 			ctx,

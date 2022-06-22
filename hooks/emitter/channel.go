@@ -3,9 +3,9 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/modules/core/04-channel/types"
-	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -71,7 +71,15 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 	}
 }
 
-func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, txHash []byte) common.JsDict {
+func newPacket(
+	ctx sdk.Context,
+	srcPort string,
+	srcChannel string,
+	sequence uint64,
+	dstPort string,
+	dstChannel string,
+	txHash []byte,
+) common.JsDict {
 	return common.JsDict{
 		"block_height": ctx.BlockHeight(),
 		"src_channel":  srcChannel,
@@ -132,7 +140,15 @@ func (h *Hook) extractFungibleTokenPacket(
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict, port string, channel string,
+	ctx sdk.Context,
+	txHash []byte,
+	signer string,
+	dataOfPacket []byte,
+	evMap common.EvMap,
+	detail common.JsDict,
+	packet common.JsDict,
+	port string,
+	channel string,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -239,7 +255,10 @@ func (h *Hook) extractOracleResponsePacket(
 	ctx sdk.Context, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data oracletypes.OracleResponsePacketData
-	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
+	err := oracletypes.ModuleCdc.UnmarshalJSON(
+		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]),
+		&data,
+	)
 	if err == nil {
 		res := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
 		os := h.oracleKeeper.MustGetOracleScript(ctx, res.OracleScriptID)
