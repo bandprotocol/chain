@@ -26,6 +26,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
+	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	ibctransafertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
@@ -84,6 +86,7 @@ func NewDefaultGenesisState() GenesisState {
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
+		icatypes.ModuleName:          ica.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }
