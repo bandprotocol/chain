@@ -43,6 +43,7 @@ services:
     ports:
       - 26657:26657
       - 1317:1317
+      - 9090:9090
     networks:
       bandchain:
         ipv4_address: 172.18.0.15
