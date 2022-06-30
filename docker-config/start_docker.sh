@@ -160,6 +160,6 @@ do
     sleep 2
 done
 
-docker create --network chain_bandchain --name bandchain_faucet --ip 172.18.0.17 band-validator:latest faucet r
+docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 --ip 172.18.0.17 band-validator:latest faucet r
 docker cp ~/.faucet bandchain_faucet:/root/.faucet
 docker start bandchain_faucet

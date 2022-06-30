@@ -72,6 +72,22 @@ services:
     ports:
       - 80:80
 
+  proxy-ssl-server:
+    build:
+      context: ./proxy-ssl
+    image: proxy-ssl-server:latest
+    networks:
+      bandchain:
+        ipv4_address: 172.18.0.98
+    depends_on:
+      - query-node
+    ports:
+      - 443:443
+      - 9001:9001
+    volumes:
+      - ./../ssl/cert.pem:/etc/nginx/ssl/cert.pem
+      - ./../ssl/privkey.pem:/etc/nginx/ssl/privkey.pem
+
   postgres:
     image: postgres:12
     restart: always
