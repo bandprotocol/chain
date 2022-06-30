@@ -1,10 +1,7 @@
 import requests
 from flusher.db import metadata
 
-# URL = "http://35.187.228.10:5433/v1"
-# URL = "http://graphql-gm-lb.bandchain.org/v1"
-# URL = "http://34.126.91.209/v1"
-URL = "http://35.187.228.10/v1"
+URL = "http://"
 # VIEW_TABLE = [
 #     "delegations_view",
 #     "non_validator_vote_proposals_view",
