@@ -83,7 +83,7 @@ services:
       - query-node
     ports:
       - 443:443
-      - 9001:9001
+      - 9091:9091
     volumes:
       - ./../ssl/cert.pem:/etc/nginx/ssl/cert.pem
       - ./../ssl/privkey.pem:/etc/nginx/ssl/privkey.pem
