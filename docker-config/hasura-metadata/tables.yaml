@@ -1,0 +1,726 @@
+- table:
+    schema: public
+    name: account_transactions
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+- table:
+    schema: public
+    name: accounts
+  object_relationships:
+    - name: validator
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: validators
+          column_mapping:
+            id: account_id
+  array_relationships:
+    - name: account_transactions
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            schema: public
+            name: account_transactions
+    - name: delegations
+      using:
+        foreign_key_constraint_on:
+          column: delegator_id
+          table:
+            schema: public
+            name: delegations
+    - name: deposits
+      using:
+        foreign_key_constraint_on:
+          column: depositor_id
+          table:
+            schema: public
+            name: deposits
+    - name: proposals
+      using:
+        foreign_key_constraint_on:
+          column: proposer_id
+          table:
+            schema: public
+            name: proposals
+    - name: redelegations
+      using:
+        foreign_key_constraint_on:
+          column: delegator_id
+          table:
+            schema: public
+            name: redelegations
+    - name: reporters
+      using:
+        foreign_key_constraint_on:
+          column: reporter_id
+          table:
+            schema: public
+            name: reporters
+    - name: reports
+      using:
+        foreign_key_constraint_on:
+          column: reporter_id
+          table:
+            schema: public
+            name: reports
+    - name: unbonding_delegations
+      using:
+        foreign_key_constraint_on:
+          column: delegator_id
+          table:
+            schema: public
+            name: unbonding_delegations
+    - name: votes
+      using:
+        foreign_key_constraint_on:
+          column: voter_id
+          table:
+            schema: public
+            name: votes
+- table:
+    schema: public
+    name: blocks
+  object_relationships:
+    - name: validator
+      using:
+        foreign_key_constraint_on: proposer
+  array_relationships:
+    - name: incoming_packets
+      using:
+        foreign_key_constraint_on:
+          column: block_height
+          table:
+            schema: public
+            name: incoming_packets
+    - name: outgoing_packets
+      using:
+        foreign_key_constraint_on:
+          column: block_height
+          table:
+            schema: public
+            name: outgoing_packets
+    - name: requests
+      using:
+        foreign_key_constraint_on:
+          column: resolve_height
+          table:
+            schema: public
+            name: requests
+    - name: transactions
+      using:
+        foreign_key_constraint_on:
+          column: block_height
+          table:
+            schema: public
+            name: transactions
+    - name: unbonding_delegations
+      using:
+        foreign_key_constraint_on:
+          column: creation_height
+          table:
+            schema: public
+            name: unbonding_delegations
+    - name: validator_votes
+      using:
+        foreign_key_constraint_on:
+          column: block_height
+          table:
+            schema: public
+            name: validator_votes
+- table:
+    schema: public
+    name: channels
+  object_relationships:
+    - name: connection
+      using:
+        foreign_key_constraint_on: connection_id
+  array_relationships:
+    - name: incoming_packets
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: incoming_packets
+          column_mapping:
+            channel: dst_channel
+            port: dst_port
+    - name: outgoing_packets
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: outgoing_packets
+          column_mapping:
+            channel: src_channel
+            port: src_port
+- table:
+    schema: public
+    name: connections
+  object_relationships:
+    - name: counterparty_chain
+      using:
+        foreign_key_constraint_on: counterparty_chain_id
+  array_relationships:
+    - name: channels
+      using:
+        foreign_key_constraint_on:
+          column: connection_id
+          table:
+            schema: public
+            name: channels
+- table:
+    schema: public
+    name: counterparty_chains
+  array_relationships:
+    - name: connections
+      using:
+        foreign_key_constraint_on:
+          column: counterparty_chain_id
+          table:
+            schema: public
+            name: connections
+- table:
+    schema: public
+    name: data_source_requests
+  object_relationships:
+    - name: data_source
+      using:
+        foreign_key_constraint_on: data_source_id
+- table:
+    schema: public
+    name: data_sources
+  object_relationships:
+    - name: request_stat
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: data_source_requests
+          column_mapping:
+            id: data_source_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+  array_relationships:
+    - name: raw_requests
+      using:
+        foreign_key_constraint_on:
+          column: data_source_id
+          table:
+            schema: public
+            name: raw_requests
+    - name: related_data_source_oracle_scripts
+      using:
+        foreign_key_constraint_on:
+          column: data_source_id
+          table:
+            schema: public
+            name: related_data_source_oracle_scripts
+- table:
+    schema: public
+    name: delegations
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: delegator_id
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    schema: public
+    name: delegations_view
+- table:
+    schema: public
+    name: deposits
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: depositor_id
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: tx_id
+- table:
+    schema: public
+    name: historical_bonded_token_on_validators
+  object_relationships:
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    schema: public
+    name: historical_oracle_statuses
+- table:
+    schema: public
+    name: incoming_packets
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: block_height
+    - name: channel
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: channels
+          column_mapping:
+            dst_channel: channel
+            dst_port: port
+    - name: transaction
+      using:
+        foreign_key_constraint_on: tx_id
+- table:
+    schema: public
+    name: non_validator_vote_proposals_view
+- table:
+    schema: public
+    name: oracle_script_requests
+  object_relationships:
+    - name: oracle_script
+      using:
+        foreign_key_constraint_on: oracle_script_id
+- table:
+    schema: public
+    name: oracle_script_statistic_last_1_day
+- table:
+    schema: public
+    name: oracle_script_statistic_last_1_month
+- table:
+    schema: public
+    name: oracle_script_statistic_last_1_week
+- table:
+    schema: public
+    name: oracle_scripts
+  object_relationships:
+    - name: request_stat
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: oracle_script_requests
+          column_mapping:
+            id: oracle_script_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+  array_relationships:
+    - name: related_data_source_oracle_scripts
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            schema: public
+            name: related_data_source_oracle_scripts
+    - name: requests
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            schema: public
+            name: requests
+- table:
+    schema: public
+    name: outgoing_packets
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: block_height
+    - name: channel
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: channels
+          column_mapping:
+            src_channel: channel
+            src_port: port
+    - name: transaction
+      using:
+        foreign_key_constraint_on: tx_id
+- table:
+    schema: public
+    name: proposal_total_votes
+- table:
+    schema: public
+    name: proposals
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: proposer_id
+  array_relationships:
+    - name: deposits
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            schema: public
+            name: deposits
+    - name: votes
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            schema: public
+            name: votes
+- table:
+    schema: public
+    name: raw_reports
+  object_relationships:
+    - name: raw_request
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: raw_requests
+          column_mapping:
+            request_id: request_id
+            external_id: external_id
+    - name: report
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: reports
+          column_mapping:
+            request_id: request_id
+            validator_id: validator_id
+- table:
+    schema: public
+    name: raw_requests
+  object_relationships:
+    - name: data_source
+      using:
+        foreign_key_constraint_on: data_source_id
+    - name: request
+      using:
+        foreign_key_constraint_on: request_id
+  array_relationships:
+    - name: raw_reports
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: raw_reports
+          column_mapping:
+            request_id: request_id
+            external_id: external_id
+- table:
+    schema: public
+    name: redelegations
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: delegator_id
+    - name: validatorByValidatorDstId
+      using:
+        foreign_key_constraint_on: validator_dst_id
+    - name: validatorByValidatorSrcId
+      using:
+        foreign_key_constraint_on: validator_src_id
+- table:
+    schema: public
+    name: related_data_source_oracle_scripts
+  object_relationships:
+    - name: data_source
+      using:
+        foreign_key_constraint_on: data_source_id
+    - name: oracle_script
+      using:
+        foreign_key_constraint_on: oracle_script_id
+- table:
+    schema: public
+    name: reporters
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: reporter_id
+- table:
+    schema: public
+    name: reports
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: reporter_id
+    - name: request
+      using:
+        foreign_key_constraint_on: request_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+  array_relationships:
+    - name: raw_reports
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: raw_reports
+          column_mapping:
+            request_id: request_id
+            validator_id: validator_id
+- table:
+    schema: public
+    name: request_count_per_days
+- table:
+    schema: public
+    name: requests
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: resolve_height
+    - name: oracle_script
+      using:
+        foreign_key_constraint_on: oracle_script_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+  array_relationships:
+    - name: raw_requests
+      using:
+        foreign_key_constraint_on:
+          column: request_id
+          table:
+            schema: public
+            name: raw_requests
+    - name: reports
+      using:
+        foreign_key_constraint_on:
+          column: request_id
+          table:
+            schema: public
+            name: reports
+    - name: val_requests
+      using:
+        foreign_key_constraint_on:
+          column: request_id
+          table:
+            schema: public
+            name: val_requests
+- table:
+    schema: public
+    name: tracking
+- table:
+    schema: public
+    name: transactions
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: block_height
+  array_relationships:
+    - name: account_transactions
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            schema: public
+            name: account_transactions
+    - name: data_sources
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            schema: public
+            name: data_sources
+    - name: deposits
+      using:
+        foreign_key_constraint_on:
+          column: tx_id
+          table:
+            schema: public
+            name: deposits
+    - name: incoming_packets
+      using:
+        foreign_key_constraint_on:
+          column: tx_id
+          table:
+            schema: public
+            name: incoming_packets
+    - name: oracle_scripts
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            schema: public
+            name: oracle_scripts
+    - name: outgoing_packets
+      using:
+        foreign_key_constraint_on:
+          column: tx_id
+          table:
+            schema: public
+            name: outgoing_packets
+    - name: reports
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            schema: public
+            name: reports
+    - name: requests
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            schema: public
+            name: requests
+    - name: votes
+      using:
+        foreign_key_constraint_on:
+          column: tx_id
+          table:
+            schema: public
+            name: votes
+- table:
+    schema: public
+    name: unbonding_delegations
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: delegator_id
+    - name: block
+      using:
+        foreign_key_constraint_on: creation_height
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    schema: public
+    name: val_requests
+  object_relationships:
+    - name: request
+      using:
+        foreign_key_constraint_on: request_id
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    schema: public
+    name: validator_last_10000_votes
+- table:
+    schema: public
+    name: validator_last_1000_votes
+- table:
+    schema: public
+    name: validator_last_100_votes
+- table:
+    schema: public
+    name: validator_last_250_votes
+- table:
+    schema: public
+    name: validator_report_count
+- table:
+    schema: public
+    name: validator_vote_proposals_view
+- table:
+    schema: public
+    name: validator_votes
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: block_height
+    - name: validator
+      using:
+        foreign_key_constraint_on: consensus_address
+- table:
+    schema: public
+    name: validators
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: validator_report_count
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: validator_report_count
+          column_mapping:
+            id: validator_id
+  array_relationships:
+    - name: blocks
+      using:
+        foreign_key_constraint_on:
+          column: proposer
+          table:
+            schema: public
+            name: blocks
+    - name: delegations
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            schema: public
+            name: delegations
+    - name: historical_bonded_token_on_validators
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            schema: public
+            name: historical_bonded_token_on_validators
+    - name: redelegations
+      using:
+        foreign_key_constraint_on:
+          column: validator_src_id
+          table:
+            schema: public
+            name: redelegations
+    - name: redelegationsByValidatorDstId
+      using:
+        foreign_key_constraint_on:
+          column: validator_dst_id
+          table:
+            schema: public
+            name: redelegations
+    - name: reports
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            schema: public
+            name: reports
+    - name: unbonding_delegations
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            schema: public
+            name: unbonding_delegations
+    - name: validator_votes
+      using:
+        foreign_key_constraint_on:
+          column: consensus_address
+          table:
+            schema: public
+            name: validator_votes
+    - name: val_requests
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            schema: public
+            name: val_requests
+- table:
+    schema: public
+    name: votes
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: voter_id
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: tx_id
