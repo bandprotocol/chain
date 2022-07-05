@@ -418,18 +418,6 @@ func NewBandApp(
 		app.MsgServiceRouter(),
 	)
 
-	// TODO: Need to add or not?
-	// app.icaControllerKeeper = icacontrollerkeeper.NewKeeper(
-	// 	appCodec,
-	// 	keys[icacontrollertypes.StoreKey],
-	// 	app.getSubspace(icacontrollertypes.SubModuleName),
-	// 	app.ibcKeeper.ChannelKeeper, // may be replaced with middleware such as ics29 fee
-	// 	app.ibcKeeper.ChannelKeeper,
-	// 	&app.ibcKeeper.PortKeeper,
-	// 	scopedICAControllerKeeper,
-	// 	app.MsgServiceRouter(),
-	// )
-
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
