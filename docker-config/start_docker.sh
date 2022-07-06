@@ -32,12 +32,16 @@ echo "unfair beyond material banner okay genre camera dumb grit balcony permit r
 echo "smile stem oven genius cave resource better lunar nasty moon company ridge brass rather supply used horn three panic put venue analyst leader comic" \
     | bandd keys add requester --recover --keyring-backend test
 
+echo "audit silver absorb involve more aspect girl report open gather excite mirror bar hammer clay tackle negative example gym group finger shop stool seminar" \
+    | bandd keys add relayer --recover --keyring-backend test
+
 # add accounts to genesis
 bandd add-genesis-account validator1 10000000000000uband --keyring-backend test
 bandd add-genesis-account validator2 10000000000000uband --keyring-backend test
 bandd add-genesis-account validator3 10000000000000uband --keyring-backend test
 bandd add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd add-genesis-account requester 100000000000000uband --keyring-backend test
+bandd add-genesis-account relayer 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -100,6 +104,7 @@ bandd collect-gentxs
 
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
+sed -i -e 's/\"allow_messages\":.*/\"allow_messages\": [\"\/cosmos.authz.v1beta1.MsgExec\", \"\/cosmos.authz.v1beta1.MsgGrant\", \"\/cosmos.authz.v1beta1.MsgRevoke\", \"\/cosmos.bank.v1beta1.MsgSend\", \"\/cosmos.bank.v1beta1.MsgMultiSend\", \"\/cosmos.distribution.v1beta1.MsgSetWithdrawAddress\", \"\/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission\", \"\/cosmos.distribution.v1beta1.MsgFundCommunityPool\", \"\/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward\", \"\/cosmos.feegrant.v1beta1.MsgGrantAllowance\", \"\/cosmos.feegrant.v1beta1.MsgRevokeAllowance\", \"\/cosmos.gov.v1beta1.MsgVoteWeighted\", \"\/cosmos.gov.v1beta1.MsgSubmitProposal\", \"\/cosmos.gov.v1beta1.MsgDeposit\", \"\/cosmos.gov.v1beta1.MsgVote\", \"\/cosmos.staking.v1beta1.MsgEditValidator\", \"\/cosmos.staking.v1beta1.MsgDelegate\", \"\/cosmos.staking.v1beta1.MsgUndelegate\", \"\/cosmos.staking.v1beta1.MsgBeginRedelegate\", \"\/cosmos.staking.v1beta1.MsgCreateValidator\", \"\/cosmos.vesting.v1beta1.MsgCreateVestingAccount\", \"\/ibc.applications.transfer.v1.MsgTransfer\"]/g' $DIR/genesis.json
 
 docker-compose up -d --build
 
