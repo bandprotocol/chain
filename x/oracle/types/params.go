@@ -19,7 +19,7 @@ const (
 	DefaultMaxReportDataSize       = uint64(512) // 512B
 	DefaultExpirationBlockCount    = uint64(100)
 	DefaultBaseRequestGas          = uint64(20000)
-	DefaultPerValidatorRequestGas  = uint64(30000)
+	DefaultPerValidatorRequestGas  = uint64(0)
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
