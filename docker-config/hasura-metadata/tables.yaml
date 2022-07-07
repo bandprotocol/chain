@@ -12,6 +12,14 @@
     schema: public
     name: accounts
   object_relationships:
+    - name: interchain_account
+      using:
+        manual_configuration:
+          remote_table:
+            schema: public
+            name: interchain_accounts
+          column_mapping:
+            address: address
     - name: validator
       using:
         manual_configuration:
@@ -278,6 +286,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+- table:
+    schema: public
+    name: interchain_accounts
+  object_relationships:
+    - name: connection
+      using:
+        foreign_key_constraint_on: connection_id
 - table:
     schema: public
     name: non_validator_vote_proposals_view

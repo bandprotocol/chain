@@ -450,6 +450,7 @@ func NewBandApp(
 			app.DistrKeeper,
 			app.GovKeeper,
 			app.OracleKeeper,
+			app.ICAHostKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.IBCKeeper.ConnectionKeeper,
 			app.IBCKeeper.ChannelKeeper,

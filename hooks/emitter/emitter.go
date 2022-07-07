@@ -19,6 +19,7 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	clientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
 	connectionkeeper "github.com/cosmos/ibc-go/v3/modules/core/03-connection/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
@@ -55,6 +56,7 @@ type Hook struct {
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	icahostKeeper icahostkeeper.Keeper
 
 	//ibc keeper
 	clientkeeper     clientkeeper.Keeper
@@ -74,6 +76,7 @@ func NewHook(
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	oracleKeeper keeper.Keeper,
+	icahostKeeper icahostkeeper.Keeper,
 	clientkeeper clientkeeper.Keeper,
 	connectionkeeper connectionkeeper.Keeper,
 	channelkeeper channelkeeper.Keeper,
@@ -99,6 +102,7 @@ func NewHook(
 		distrKeeper:      distrKeeper,
 		govKeeper:        govKeeper,
 		oracleKeeper:     oracleKeeper,
+		icahostKeeper:    icahostKeeper,
 		clientkeeper:     clientkeeper,
 		connectionkeeper: connectionkeeper,
 		channelkeeper:    channelkeeper,

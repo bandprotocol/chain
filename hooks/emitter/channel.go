@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"strings"
+
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
@@ -29,7 +31,29 @@ func (h *Hook) handleMsgChannelOpenInit(ctx sdk.Context, msg *types.MsgChannelOp
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
 }
 
+func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+	counterpartyPortId := msg.Channel.Counterparty.PortId
+	counterpartyAddress := strings.TrimPrefix(counterpartyPortId, "icacontroller-")
+	connection := msg.Channel.ConnectionHops[0]
+	acc, status := h.icahostKeeper.GetInterchainAccountAddress(ctx, connection, counterpartyPortId)
+
+	if status == true {
+		h.Write("SET_INTERCHAIN_ACCOUNT", common.JsDict{
+			"address":              acc,
+			"connection_id":        connection,
+			"counterparty_port":    counterpartyPortId,
+			"counterparty_address": counterpartyAddress,
+		})
+	}
+}
+
 func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+
+	switch msg.PortId {
+	case "icahost":
+		h.handleIcahostChannelOpenTry(ctx, msg, evMap)
+	}
+
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenTry+"."+types.AttributeKeyChannelID][0])
 }
 
@@ -265,7 +289,7 @@ func (h *Hook) extractInterchainAccountPacket(
 
 		// extract and handle inner messages of packet
 		var msgs []sdk.Msg
-		var inner_messages []common.JsDict
+		var innerMessages []common.JsDict
 		switch data.Type {
 		case icatypes.EXECUTE_TX:
 			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data)
@@ -279,16 +303,16 @@ func (h *Hook) extractInterchainAccountPacket(
 				h.AddAccountsInTx(addrs...)
 
 				// decode message
-				msg_detail := make(common.JsDict)
-				h.DecodeMsg(ctx, msg, msg_detail)
-				inner_messages = append(inner_messages, common.JsDict{
+				msgDetail := make(common.JsDict)
+				h.DecodeMsg(ctx, msg, msgDetail)
+				innerMessages = append(innerMessages, common.JsDict{
 					"type": sdk.MsgTypeURL(msg),
-					"msg":  msg_detail,
+					"msg":  msgDetail,
 				})
 
 				// call handler for this message if ack is success
 				if status == "success" {
-					h.handleMsg(ctx, txHash, msg, log, msg_detail)
+					h.handleMsg(ctx, txHash, msg, log, msgDetail)
 				}
 			}
 		}
@@ -296,14 +320,14 @@ func (h *Hook) extractInterchainAccountPacket(
 		packet["type"] = "interchain_account"
 		packet["data"] = common.JsDict{
 			"type": data.Type,
-			"data": inner_messages,
+			"data": innerMessages,
 			"memo": data.Memo,
 		}
 
 		detail["packet_type"] = "interchain_account"
 		detail["decoded_data"] = common.JsDict{
 			"type": data.Type,
-			"data": inner_messages,
+			"data": innerMessages,
 			"memo": data.Memo,
 		}
 
