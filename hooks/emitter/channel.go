@@ -37,6 +37,8 @@ func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChanne
 	connection := msg.Channel.ConnectionHops[0]
 	acc, status := h.icahostKeeper.GetInterchainAccountAddress(ctx, connection, counterpartyPortId)
 
+	h.AddAccountsInTx(acc)
+
 	if status {
 		h.Write("SET_INTERCHAIN_ACCOUNT", common.JsDict{
 			"address":              acc,
