@@ -3,6 +3,7 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
 	ibcxfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
@@ -228,9 +229,97 @@ func (h *Hook) extractOracleRequestPacket(
 	return false
 }
 
+func (h *Hook) extractInterchainAccountPacket(
+	ctx sdk.Context,
+	txHash []byte,
+	dataOfPacket []byte,
+	evMap common.EvMap,
+	log sdk.ABCIMessageLog,
+	detail common.JsDict,
+	packet common.JsDict,
+) bool {
+	var data icatypes.InterchainAccountPacketData
+	err := icatypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
+	if err == nil {
+
+		var status string
+		if events, ok := evMap[icatypes.EventTypePacket+"."+icatypes.AttributeKeyAckSuccess]; ok {
+			if events[0] == "true" {
+				status = "success"
+				packet["acknowledgement"] = common.JsDict{
+					"status": status,
+				}
+
+			} else {
+				status = "failure"
+				packet["acknowledgement"] = common.JsDict{
+					"status": status,
+					"reason": evMap[icatypes.EventTypePacket+"."+icatypes.AttributeKeyAckError][0],
+				}
+			}
+		} else {
+			packet["acknowledgement"] = common.JsDict{
+				"status": status,
+			}
+		}
+
+		// extract and handle inner messages of packet
+		var msgs []sdk.Msg
+		var inner_messages []common.JsDict
+		switch data.Type {
+		case icatypes.EXECUTE_TX:
+			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data)
+			for _, msg := range msgs {
+				// add signers for this message into the transaction
+				signers := msg.GetSigners()
+				addrs := make([]string, len(signers))
+				for idx, signer := range signers {
+					addrs[idx] = signer.String()
+				}
+				h.AddAccountsInTx(addrs...)
+
+				// decode message
+				msg_detail := make(common.JsDict)
+				h.DecodeMsg(ctx, msg, msg_detail)
+				inner_messages = append(inner_messages, common.JsDict{
+					"type": sdk.MsgTypeURL(msg),
+					"msg":  msg_detail,
+				})
+
+				// call handler for this message if ack is success
+				if status == "success" {
+					h.handleMsg(ctx, txHash, msg, log, msg_detail)
+				}
+			}
+		}
+
+		packet["type"] = "interchain_account"
+		packet["data"] = common.JsDict{
+			"type": data.Type,
+			"data": inner_messages,
+			"memo": data.Memo,
+		}
+
+		detail["packet_type"] = "interchain_account"
+		detail["decoded_data"] = common.JsDict{
+			"type": data.Type,
+			"data": inner_messages,
+			"memo": data.Memo,
+		}
+
+		return true
+	}
+	return false
+}
+
 // handleMsgRequestData implements emitter handler for MsgRequestData.
 func (h *Hook) handleMsgRecvPacket(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, detail common.JsDict,
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgRecvPacket,
+	evMap common.EvMap,
+	log sdk.ABCIMessageLog,
+	detail common.JsDict,
 ) {
 	packet := newPacket(
 		ctx,
@@ -246,6 +335,10 @@ func (h *Hook) handleMsgRecvPacket(
 		return
 	}
 	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
+		h.Write("NEW_INCOMING_PACKET", packet)
+		return
+	}
+	if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
 		h.Write("NEW_INCOMING_PACKET", packet)
 		return
 	}

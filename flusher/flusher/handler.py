@@ -380,13 +380,10 @@ class Handler(object):
                 request_count_per_days.update(condition).values(count=request_count_per_days.c.count + 1)
             )
 
-    def handle_new_packet(self, msg):
-        self.conn.execute(insert(packets).values(**msg))
-
     def handle_new_incoming_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
-        self.conn.execute(insert(incoming_packets).values(**msg))
+        self.conn.execute(insert(incoming_packets).values(**msg).on_conflict_do_nothing())
 
     def handle_new_outgoing_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
