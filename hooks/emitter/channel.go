@@ -37,7 +37,7 @@ func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChanne
 	connection := msg.Channel.ConnectionHops[0]
 	acc, status := h.icahostKeeper.GetInterchainAccountAddress(ctx, connection, counterpartyPortId)
 
-	if status == true {
+	if status {
 		h.Write("SET_INTERCHAIN_ACCOUNT", common.JsDict{
 			"address":              acc,
 			"connection_id":        connection,
@@ -282,9 +282,7 @@ func (h *Hook) extractInterchainAccountPacket(
 				}
 			}
 		} else {
-			packet["acknowledgement"] = common.JsDict{
-				"status": status,
-			}
+			return false
 		}
 
 		// extract and handle inner messages of packet
@@ -354,17 +352,19 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		txHash,
 	)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
-		h.Write("NEW_INCOMING_PACKET", packet)
-		return
-	}
-	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
-		h.Write("NEW_INCOMING_PACKET", packet)
-		return
-	}
-	if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
-		h.Write("NEW_INCOMING_PACKET", packet)
-		return
+	if _, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyData]; ok {
+		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
+		if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
+		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
 	}
 }
 
