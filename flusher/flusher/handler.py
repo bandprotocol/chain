@@ -58,11 +58,6 @@ class Handler(object):
             return self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
         return id
 
-    def get_interchain_account_id(self, address):
-        return self.conn.execute(
-            select([interchain_accounts.c.id]).where(interchain_accounts.c.address == address)
-        ).scalar()
-
     def get_request_count(self, date):
         return self.conn.execute(
             select([request_count_per_days.c.count]).where(request_count_per_days.c.date == date)
@@ -102,13 +97,13 @@ class Handler(object):
             self.conn.execute(accounts.update().where(condition).values(**msg))
 
     def handle_set_interchain_account(self, msg):
-        if self.get_interchain_account_id(msg["address"]) is None:
-            self.conn.execute(interchain_accounts.insert(), msg)
-        else:
-            condition = True
-            for col in interchain_accounts.primary_key.columns.values():
-                condition = (col == msg[col.name]) & condition
-            self.conn.execute(interchain_accounts.update().where(condition).values(**msg))
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+        self.conn.execute(
+            insert(interchain_accounts)
+            .values(**msg)
+            .on_conflict_do_update(constraint="interchain_accounts_pkey", set_=msg)
+        )
 
     def handle_new_data_source(self, msg):
         if msg["tx_hash"] is not None:

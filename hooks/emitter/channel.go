@@ -1,6 +1,7 @@
 package emitter
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -315,6 +316,8 @@ func (h *Hook) extractInterchainAccountPacket(
 					h.handleMsg(ctx, txHash, msg, log, msgDetail)
 				}
 			}
+		default:
+			fmt.Print("got unspecified ica packet type")
 		}
 
 		packet["type"] = "interchain_account"
