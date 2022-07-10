@@ -96,7 +96,7 @@ class Handler(object):
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(accounts.update().where(condition).values(**msg))
 
-    def handle_set_interchain_account(self, msg):
+    def handle_new_interchain_account(self, msg):
         msg["account_id"] = self.get_account_id(msg["address"])
         del msg["address"]
         self.conn.execute(

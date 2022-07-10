@@ -41,7 +41,7 @@ func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChanne
 	h.AddAccountsInTx(acc)
 
 	if status {
-		h.Write("SET_INTERCHAIN_ACCOUNT", common.JsDict{
+		h.Write("NEW_INTERCHAIN_ACCOUNT", common.JsDict{
 			"address":              acc,
 			"connection_id":        connection,
 			"counterparty_port":    counterpartyPortId,
