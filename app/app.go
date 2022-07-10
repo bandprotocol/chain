@@ -664,7 +664,6 @@ func NewBandApp(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedOracleKeeper = scopedOracleKeeper
 
 	return app
