@@ -27,7 +27,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -218,7 +218,19 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+		BandApp: bandapp.NewBandApp(
+			log.NewNopLogger(),
+			db,
+			nil,
+			true,
+			map[int64]bool{},
+			dir,
+			0,
+			encCdc,
+			EmptyAppOptions{},
+			false,
+			0,
+		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
 	acc := []authtypes.GenesisAccount{
@@ -271,8 +283,14 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			panic(err)
 		}
 		validators = append(validators, validator)
-		signingInfos = append(signingInfos, slashingtypes.SigningInfo{Address: consAddr.String(), ValidatorSigningInfo: validatorSigningInfo})
-		delegations = append(delegations, stakingtypes.NewDelegation(acc[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		signingInfos = append(
+			signingInfos,
+			slashingtypes.SigningInfo{Address: consAddr.String(), ValidatorSigningInfo: validatorSigningInfo},
+		)
+		delegations = append(
+			delegations,
+			stakingtypes.NewDelegation(acc[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
+		)
 	}
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
@@ -305,7 +323,8 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	for idx := 0; idx < len(validators); idx++ {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
+		totalSupply = totalSupply.Add(
+			balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
 	}
 
 	// add bonded amount to bonded pool module account
@@ -314,7 +333,12 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		Coins:   sdk.Coins{sdk.NewCoin("uband", sdk.NewInt(200999999))},
 	})
 
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(
+		banktypes.DefaultGenesisState().Params,
+		balances,
+		totalSupply,
+		[]banktypes.Metadata{},
+	)
 	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	// Add genesis data sources and oracle scripts
@@ -355,7 +379,19 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, dir, 0, encCdc, EmptyAppOptions{}, false, 0),
+		BandApp: bandapp.NewBandApp(
+			log.NewNopLogger(),
+			db,
+			nil,
+			true,
+			map[int64]bool{},
+			dir,
+			0,
+			encCdc,
+			EmptyAppOptions{},
+			false,
+			0,
+		),
 	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
@@ -367,7 +403,12 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the BandChain from first genesis
 // account. A Nop logger is set in TestingApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *TestingApp {
+func SetupWithGenesisValSet(
+	t *testing.T,
+	valSet *tmtypes.ValidatorSet,
+	genAccs []authtypes.GenesisAccount,
+	balances ...banktypes.Balance,
+) *TestingApp {
 	app, genesisState, dir := setup(true, 5)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
@@ -397,7 +438,10 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(
+			delegations,
+			stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
+		)
 
 	}
 
@@ -420,7 +464,12 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(
+		banktypes.DefaultGenesisState().Params,
+		balances,
+		totalSupply,
+		[]banktypes.Metadata{},
+	)
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	// Add genesis data sources and oracle scripts
@@ -458,7 +507,15 @@ const (
 )
 
 // GenTx generates a signed mock transaction.
-func GenTx(gen client.TxConfig, msgs []sdk.Msg, feeAmt sdk.Coins, gas uint64, chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey) (sdk.Tx, error) {
+func GenTx(
+	gen client.TxConfig,
+	msgs []sdk.Msg,
+	feeAmt sdk.Coins,
+	gas uint64,
+	chainID string,
+	accNums, accSeqs []uint64,
+	priv ...cryptotypes.PrivKey,
+) (sdk.Tx, error) {
 	sigs := make([]signing.SignatureV2, len(priv))
 
 	// create a random length memo

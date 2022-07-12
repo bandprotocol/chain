@@ -13,13 +13,13 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount      = uint64(12)
+	DefaultMaxRawRequestCount      = uint64(16)
 	DefaultMaxAskCount             = uint64(16)
 	DefaultMaxCalldataSize         = uint64(256) // 256B
 	DefaultMaxReportDataSize       = uint64(512) // 512B
 	DefaultExpirationBlockCount    = uint64(100)
 	DefaultBaseRequestGas          = uint64(20000)
-	DefaultPerValidatorRequestGas  = uint64(30000)
+	DefaultPerValidatorRequestGas  = uint64(0)
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
@@ -53,7 +53,8 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
 	maxRawRequestCount, maxAskCount, maxCalldataSize, maxReportDataSize, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
-	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64, ibcRequestEnabled bool,
+	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
+	ibcRequestEnabled bool,
 ) Params {
 	return Params{
 		MaxRawRequestCount:      maxRawRequestCount,
@@ -73,16 +74,44 @@ func NewParams(
 // ParamSetPairs implements the paramtypes.ParamSet interface for Params.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyMaxRawRequestCount, &p.MaxRawRequestCount, validateUint64("max data source count", true)),
+		paramtypes.NewParamSetPair(
+			KeyMaxRawRequestCount,
+			&p.MaxRawRequestCount,
+			validateUint64("max data source count", true),
+		),
 		paramtypes.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
 		paramtypes.NewParamSetPair(KeyMaxCalldataSize, &p.MaxCalldataSize, validateUint64("max calldata size", true)),
-		paramtypes.NewParamSetPair(KeyMaxReportDataSize, &p.MaxReportDataSize, validateUint64("max report data size", true)),
-		paramtypes.NewParamSetPair(KeyExpirationBlockCount, &p.ExpirationBlockCount, validateUint64("expiration block count", true)),
+		paramtypes.NewParamSetPair(
+			KeyMaxReportDataSize,
+			&p.MaxReportDataSize,
+			validateUint64("max report data size", true),
+		),
+		paramtypes.NewParamSetPair(
+			KeyExpirationBlockCount,
+			&p.ExpirationBlockCount,
+			validateUint64("expiration block count", true),
+		),
 		paramtypes.NewParamSetPair(KeyBaseOwasmGas, &p.BaseOwasmGas, validateUint64("base request gas", false)),
-		paramtypes.NewParamSetPair(KeyPerValidatorRequestGas, &p.PerValidatorRequestGas, validateUint64("per validator request gas", false)),
-		paramtypes.NewParamSetPair(KeySamplingTryCount, &p.SamplingTryCount, validateUint64("sampling try count", true)),
-		paramtypes.NewParamSetPair(KeyOracleRewardPercentage, &p.OracleRewardPercentage, validateUint64("oracle reward percentage", false)),
-		paramtypes.NewParamSetPair(KeyInactivePenaltyDuration, &p.InactivePenaltyDuration, validateUint64("inactive penalty duration", false)),
+		paramtypes.NewParamSetPair(
+			KeyPerValidatorRequestGas,
+			&p.PerValidatorRequestGas,
+			validateUint64("per validator request gas", false),
+		),
+		paramtypes.NewParamSetPair(
+			KeySamplingTryCount,
+			&p.SamplingTryCount,
+			validateUint64("sampling try count", true),
+		),
+		paramtypes.NewParamSetPair(
+			KeyOracleRewardPercentage,
+			&p.OracleRewardPercentage,
+			validateUint64("oracle reward percentage", false),
+		),
+		paramtypes.NewParamSetPair(
+			KeyInactivePenaltyDuration,
+			&p.InactivePenaltyDuration,
+			validateUint64("inactive penalty duration", false),
+		),
 		paramtypes.NewParamSetPair(KeyIBCRequestEnabled, &p.IBCRequestEnabled, validateBool()),
 	}
 }

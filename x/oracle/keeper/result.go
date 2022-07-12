@@ -7,9 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -125,7 +125,11 @@ func (k Keeper) SaveResult(
 				types.EventTypeSendPacketFail,
 				sdk.NewAttribute(
 					types.AttributeKeyReason,
-					fmt.Sprintf("Cannot get sequence number on source port: %s, source channel: %s", sourcePort, sourceChannel),
+					fmt.Sprintf(
+						"Cannot get sequence number on source port: %s, source channel: %s",
+						sourcePort,
+						sourceChannel,
+					),
 				),
 			))
 			return
