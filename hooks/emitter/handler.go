@@ -79,7 +79,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *govtypes.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
-		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, detail)
+		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:

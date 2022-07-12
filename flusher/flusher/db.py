@@ -139,6 +139,15 @@ accounts = sa.Table(
     Column("balance", sa.String),
 )
 
+interchain_accounts = sa.Table(
+    "interchain_accounts",
+    metadata,
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
+    Column("connection_id", sa.String, sa.ForeignKey("connections.connection_id")),
+    Column("counterparty_port", sa.String),
+    Column("counterparty_address", sa.String),
+)
+
 data_sources = sa.Table(
     "data_sources",
     metadata,

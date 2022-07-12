@@ -7,6 +7,7 @@ from .db import (
     blocks,
     transactions,
     accounts,
+    interchain_accounts,
     data_sources,
     oracle_scripts,
     requests,
@@ -94,6 +95,15 @@ class Handler(object):
             for col in accounts.primary_key.columns.values():
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(accounts.update().where(condition).values(**msg))
+
+    def handle_new_interchain_account(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+        self.conn.execute(
+            insert(interchain_accounts)
+            .values(**msg)
+            .on_conflict_do_update(constraint="interchain_accounts_pkey", set_=msg)
+        )
 
     def handle_new_data_source(self, msg):
         if msg["tx_hash"] is not None:
@@ -380,18 +390,19 @@ class Handler(object):
                 request_count_per_days.update(condition).values(count=request_count_per_days.c.count + 1)
             )
 
-    def handle_new_packet(self, msg):
-        self.conn.execute(insert(packets).values(**msg))
-
     def handle_new_incoming_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
-        self.conn.execute(insert(incoming_packets).values(**msg))
+        self.conn.execute(
+            insert(incoming_packets).values(**msg).on_conflict_do_nothing(constraint="incoming_packets_pkey")
+        )
 
     def handle_new_outgoing_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
-        self.conn.execute(insert(outgoing_packets).values(**msg))
+        self.conn.execute(
+            insert(outgoing_packets).values(**msg).on_conflict_do_nothing(constraint="outgoing_packets_pkey")
+        )
 
     def handle_update_outgoing_packet(self, msg):
         condition = True
