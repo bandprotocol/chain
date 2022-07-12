@@ -26,12 +26,10 @@ require (
 	github.com/prometheus/client_golang v1.12.1
 	github.com/rakyll/statik v0.1.7
 	github.com/regen-network/cosmos-proto v0.3.1
-	github.com/segmentio/kafka-go v0.3.7
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.1
-	github.com/syndtr/goleveldb v1.0.1-0.20210305035536-64b5b1c73954
 	github.com/tendermint/tendermint v0.34.19
 	github.com/tendermint/tm-db v0.6.6
 	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
@@ -42,6 +40,11 @@ require (
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.11
+)
+
+require (
+	github.com/segmentio/kafka-go v0.3.7
+	github.com/syndtr/goleveldb v1.0.1-0.20210305035536-64b5b1c73954
 )
 
 require (
