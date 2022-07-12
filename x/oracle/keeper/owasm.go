@@ -156,8 +156,6 @@ func (k Keeper) PrepareRequest(
 func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
-	a, _ := env.GetAnsCount()
-	fmt.Println("ANS", a)
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Execute(
