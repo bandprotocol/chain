@@ -43,6 +43,7 @@ services:
     ports:
       - 26657:26657
       - 1317:1317
+      - 9090:9090
     networks:
       bandchain:
         ipv4_address: 172.18.0.15
@@ -71,6 +72,22 @@ services:
     ports:
       - 80:80
 
+  proxy-ssl-server:
+    build:
+      context: ./proxy-ssl
+    image: proxy-ssl-server:latest
+    networks:
+      bandchain:
+        ipv4_address: 172.18.0.98
+    depends_on:
+      - query-node
+    ports:
+      - 443:443
+      - 9091:9091
+    volumes:
+      - ./../ssl/cert.pem:/etc/nginx/ssl/cert.pem
+      - ./../ssl/privkey.pem:/etc/nginx/ssl/privkey.pem
+
   postgres:
     image: postgres:12
     restart: always
@@ -81,7 +98,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v1.3.0
+    image: hasura/graphql-engine:v1.3.0.cli-migrations-v2
     ports:
       - "5433:5433"
     depends_on:
@@ -97,6 +114,8 @@ services:
       HASURA_GRAPHQL_SERVER_HOST: 0.0.0.0
       HASURA_GRAPHQL_SERVER_PORT: 5433
       HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES: "true"
+    volumes:
+      - ./docker-config/hasura-metadata:/hasura-metadata
 
   # TODO: Expose port to consume kafka from other
   zookeeper:

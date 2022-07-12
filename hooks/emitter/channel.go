@@ -1,11 +1,15 @@
 package emitter
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcxfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/modules/core/04-channel/types"
-	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -28,7 +32,31 @@ func (h *Hook) handleMsgChannelOpenInit(ctx sdk.Context, msg *types.MsgChannelOp
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
 }
 
+func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+	counterpartyPortId := msg.Channel.Counterparty.PortId
+	counterpartyAddress := strings.TrimPrefix(counterpartyPortId, "icacontroller-")
+	connection := msg.Channel.ConnectionHops[0]
+	acc, status := h.icahostKeeper.GetInterchainAccountAddress(ctx, connection, counterpartyPortId)
+
+	h.AddAccountsInTx(acc)
+
+	if status {
+		h.Write("NEW_INTERCHAIN_ACCOUNT", common.JsDict{
+			"address":              acc,
+			"connection_id":        connection,
+			"counterparty_port":    counterpartyPortId,
+			"counterparty_address": counterpartyAddress,
+		})
+	}
+}
+
 func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+
+	switch msg.PortId {
+	case "icahost":
+		h.handleIcahostChannelOpenTry(ctx, msg, evMap)
+	}
+
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenTry+"."+types.AttributeKeyChannelID][0])
 }
 
@@ -71,7 +99,15 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 	}
 }
 
-func newPacket(ctx sdk.Context, srcPort string, srcChannel string, sequence uint64, dstPort string, dstChannel string, txHash []byte) common.JsDict {
+func newPacket(
+	ctx sdk.Context,
+	srcPort string,
+	srcChannel string,
+	sequence uint64,
+	dstPort string,
+	dstChannel string,
+	txHash []byte,
+) common.JsDict {
 	return common.JsDict{
 		"block_height": ctx.BlockHeight(),
 		"src_channel":  srcChannel,
@@ -132,7 +168,15 @@ func (h *Hook) extractFungibleTokenPacket(
 }
 
 func (h *Hook) extractOracleRequestPacket(
-	ctx sdk.Context, txHash []byte, signer string, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict, port string, channel string,
+	ctx sdk.Context,
+	txHash []byte,
+	signer string,
+	dataOfPacket []byte,
+	evMap common.EvMap,
+	detail common.JsDict,
+	packet common.JsDict,
+	port string,
+	channel string,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -212,9 +256,97 @@ func (h *Hook) extractOracleRequestPacket(
 	return false
 }
 
+func (h *Hook) extractInterchainAccountPacket(
+	ctx sdk.Context,
+	txHash []byte,
+	dataOfPacket []byte,
+	evMap common.EvMap,
+	log sdk.ABCIMessageLog,
+	detail common.JsDict,
+	packet common.JsDict,
+) bool {
+	var data icatypes.InterchainAccountPacketData
+	err := icatypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
+	if err == nil {
+
+		var status string
+		if events, ok := evMap[icatypes.EventTypePacket+"."+icatypes.AttributeKeyAckSuccess]; ok {
+			if events[0] == "true" {
+				status = "success"
+				packet["acknowledgement"] = common.JsDict{
+					"status": status,
+				}
+
+			} else {
+				status = "failure"
+				packet["acknowledgement"] = common.JsDict{
+					"status": status,
+					"reason": evMap[icatypes.EventTypePacket+"."+icatypes.AttributeKeyAckError][0],
+				}
+			}
+		} else {
+			return false
+		}
+
+		// extract and handle inner messages of packet
+		var msgs []sdk.Msg
+		var innerMessages []common.JsDict
+		switch data.Type {
+		case icatypes.EXECUTE_TX:
+			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data)
+			for _, msg := range msgs {
+				// add signers for this message into the transaction
+				signers := msg.GetSigners()
+				addrs := make([]string, len(signers))
+				for idx, signer := range signers {
+					addrs[idx] = signer.String()
+				}
+				h.AddAccountsInTx(addrs...)
+
+				// decode message
+				msgDetail := make(common.JsDict)
+				h.DecodeMsg(ctx, msg, msgDetail)
+				innerMessages = append(innerMessages, common.JsDict{
+					"type": sdk.MsgTypeURL(msg),
+					"msg":  msgDetail,
+				})
+
+				// call handler for this message if ack is success
+				if status == "success" {
+					h.handleMsg(ctx, txHash, msg, log, msgDetail)
+				}
+			}
+		default:
+			fmt.Print("got unspecified ica packet type")
+		}
+
+		packet["type"] = "interchain_account"
+		packet["data"] = common.JsDict{
+			"type": data.Type,
+			"data": innerMessages,
+			"memo": data.Memo,
+		}
+
+		detail["packet_type"] = "interchain_account"
+		detail["decoded_data"] = common.JsDict{
+			"type": data.Type,
+			"data": innerMessages,
+			"memo": data.Memo,
+		}
+
+		return true
+	}
+	return false
+}
+
 // handleMsgRequestData implements emitter handler for MsgRequestData.
 func (h *Hook) handleMsgRecvPacket(
-	ctx sdk.Context, txHash []byte, msg *types.MsgRecvPacket, evMap common.EvMap, detail common.JsDict,
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgRecvPacket,
+	evMap common.EvMap,
+	log sdk.ABCIMessageLog,
+	detail common.JsDict,
 ) {
 	packet := newPacket(
 		ctx,
@@ -225,13 +357,19 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		txHash,
 	)
-	if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
-		h.Write("NEW_INCOMING_PACKET", packet)
-		return
-	}
-	if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
-		h.Write("NEW_INCOMING_PACKET", packet)
-		return
+	if _, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyData]; ok {
+		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
+		if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
+		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
+			h.Write("NEW_INCOMING_PACKET", packet)
+			return
+		}
 	}
 }
 
@@ -239,7 +377,10 @@ func (h *Hook) extractOracleResponsePacket(
 	ctx sdk.Context, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data oracletypes.OracleResponsePacketData
-	err := oracletypes.ModuleCdc.UnmarshalJSON([]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]), &data)
+	err := oracletypes.ModuleCdc.UnmarshalJSON(
+		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]),
+		&data,
+	)
 	if err == nil {
 		res := h.oracleKeeper.MustGetResult(ctx, data.RequestID)
 		os := h.oracleKeeper.MustGetOracleScript(ctx, res.OracleScriptID)

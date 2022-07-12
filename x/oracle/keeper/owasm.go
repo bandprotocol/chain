@@ -158,7 +158,12 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), int64(k.MaxReportDataSize(ctx)), env)
+	output, err := k.owasmVM.Execute(
+		code,
+		convertToOwasmGas(req.GetExecuteGas()),
+		int64(k.MaxReportDataSize(ctx)),
+		env,
+	)
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 	} else if env.Retdata == nil {
@@ -169,7 +174,13 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 }
 
 // CollectFee subtract fee from fee payer and send them to treasury
-func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
+func (k Keeper) CollectFee(
+	ctx sdk.Context,
+	payer sdk.AccAddress,
+	feeLimit sdk.Coins,
+	askCount uint64,
+	rawRequests []types.RawRequest,
+) (sdk.Coins, error) {
 
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 

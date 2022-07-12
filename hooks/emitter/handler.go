@@ -8,10 +8,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -79,7 +79,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *govtypes.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
-		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, detail)
+		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:
