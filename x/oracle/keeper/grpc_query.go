@@ -296,11 +296,12 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		fmt.Println(k.GetRequestCount(ctx))
 		if req.RequestId-k.GetRequestCount(ctx) > 0 && req.RequestId-k.GetRequestCount(ctx) <= req.MaxDelay {
 			return &types.QueryRequestVerificationResponse{
-				ChainId:    req.ChainId,
-				Validator:  req.Validator,
-				RequestId:  req.RequestId,
-				ExternalId: req.ExternalId,
-				IsDelay:    true,
+				ChainId:      req.ChainId,
+				Validator:    req.Validator,
+				RequestId:    req.RequestId,
+				ExternalId:   req.ExternalId,
+				DataSourceId: uint64(0),
+				IsDelay:      true,
 			}, nil
 		}
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
@@ -356,5 +357,6 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
 		DataSourceId: uint64(*dataSourceID),
+		IsDelay:      false,
 	}, nil
 }
