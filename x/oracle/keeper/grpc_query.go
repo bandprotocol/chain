@@ -292,6 +292,17 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	// Provided request should exist on chain
 	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
 	if err != nil {
+		// return uncertain result if request id is in range of max delay
+		fmt.Println(k.GetRequestCount(ctx))
+		if req.RequestId-k.GetRequestCount(ctx) > 0 && req.RequestId-k.GetRequestCount(ctx) <= req.MaxDelay {
+			return &types.QueryRequestVerificationResponse{
+				ChainId:    req.ChainId,
+				Validator:  req.Validator,
+				RequestId:  req.RequestId,
+				ExternalId: req.ExternalId,
+				IsDelay:    true,
+			}, nil
+		}
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
 	}
 

@@ -295,6 +295,9 @@ message QueryRequestVerificationRequest {
   // Signature is a signature signed by the reporter using reporter's private
   // key
   bytes signature = 6;
+  // MaxDelay is a max number of RequestID delay acceptable in case of node
+  // delay
+  uint64 max_delay = 7;
 }
 
 // QueryRequestVerificationResponse is response type for the
@@ -311,4 +314,7 @@ message QueryRequestVerificationResponse {
   // DataSourceID is the ID of a data source that relates to the targeted
   // external ID
   uint64 data_source_id = 5;
+  // IsDelay is a flag to tell that this request is not exist yet but in 
+  // MaxDelay range
+  bool is_delay = 6;
 }
