@@ -26,16 +26,16 @@ func Wasm78(time int) []byte {
 	   i64.const 1
 	   i64.const 1
 	   i32.const 1024
-	   i64.extend_u/i32
-	   tee_local $l0
+	   i64.extend_i32_u
+	   local.tee $l0
 	   i64.const %d
 	   call $ask_external_data)
 	 (func $execute (export "execute") (type $t0)
 	   i32.const 1024
-	   i64.extend_u/i32
+	   i64.extend_i32_u
 	   i64.const %d
 	   call $set_return_data)
-	 (table $T0 1 1 anyfunc)
+	 (table $T0 1 1 funcref)
 	 (memory $memory (export "memory") 200)
 	 (data (i32.const 1024) "%s"))
 	  `, time, time, b.String())))
