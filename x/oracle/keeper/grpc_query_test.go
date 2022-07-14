@@ -128,11 +128,12 @@ func (suite *RequestVerificationTestSuite) TestRequestInDelayRange() {
 	res, err := suite.querier.RequestVerification(sdk.WrapSDKContext(suite.ctx), req)
 
 	expectedResult := &types.QueryRequestVerificationResponse{
-		ChainId:    suite.ctx.ChainID(),
-		Validator:  testapp.Validators[0].ValAddress.String(),
-		RequestId:  6,
-		ExternalId: 1,
-		IsDelay:    true,
+		ChainId:      suite.ctx.ChainID(),
+		Validator:    testapp.Validators[0].ValAddress.String(),
+		RequestId:    6,
+		ExternalId:   1,
+		DataSourceId: 0,
+		IsDelay:      true,
 	}
 	suite.assert.NoError(err, "RequestVerification should success")
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
