@@ -277,7 +277,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 	reporterPubKey := secp256k1.PubKey(pk[:])
 
-	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
+	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
 		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
@@ -293,14 +293,13 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
 	if err != nil {
 		// return uncertain result if request id is in range of max delay
-		fmt.Println(k.GetRequestCount(ctx))
 		if req.RequestId-k.GetRequestCount(ctx) > 0 && req.RequestId-k.GetRequestCount(ctx) <= req.MaxDelay {
 			return &types.QueryRequestVerificationResponse{
 				ChainId:      req.ChainId,
 				Validator:    req.Validator,
 				RequestId:    req.RequestId,
 				ExternalId:   req.ExternalId,
-				DataSourceId: uint64(0),
+				DataSourceId: req.DataSourceId,
 				IsDelay:      true,
 			}, nil
 		}
@@ -330,6 +329,9 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 	if dataSourceID == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("no data source required by the request %d found which relates to the external data source with ID %d.", req.RequestId, req.ExternalId))
+	}
+	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("data source required by the request %d which relates to the external data source with ID %d is not match with data source id provided in request.", req.RequestId, req.ExternalId))
 	}
 
 	// Provided validator should not have reported data for the request
