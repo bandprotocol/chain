@@ -14,7 +14,7 @@ var Wasm3 []byte = wat2wasm([]byte(`
 	(import "env" "set_return_data" (func $set_return_data (type $t2)))
 	(func $prepare (export "prepare") (type $t0))
 	(func $execute (export "execute") (type $t0))
-	(table $T0 1 1 anyfunc)
+	(table $T0 1 1 funcref)
 	(memory $memory (export "memory") 17)
 	(data (i32.const 1024) "beeb"))
 `))
