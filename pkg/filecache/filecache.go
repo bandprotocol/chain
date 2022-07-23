@@ -23,14 +23,14 @@ func New(basePath string) Cache {
 	}
 }
 
-func getFilename(data []byte) string {
+func GetFilename(data []byte) string {
 	hash := sha256.Sum256(data)
 	return hex.EncodeToString(hash[:])
 }
 
 // AddFile saves the given data to a file in HOME/files directory using sha256 sum as filename.
 func (c Cache) AddFile(data []byte) string {
-	filename := getFilename(data)
+	filename := GetFilename(data)
 	if !c.fileCache.Has(filename) {
 		c.fileCache.Write(filename, data)
 	}
@@ -43,7 +43,7 @@ func (c Cache) GetFile(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if getFilename(data) != filename { // Perform integrity check for safety. NEVER EXPECT TO HIT.
+	if GetFilename(data) != filename { // Perform integrity check for safety. NEVER EXPECT TO HIT.
 		return nil, errors.New("Inconsistent filecache content")
 	}
 	return data, nil

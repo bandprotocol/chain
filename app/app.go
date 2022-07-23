@@ -586,6 +586,16 @@ func NewBandApp(
 	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
+
+	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
+		err := snapshotManager.RegisterExtensions(
+			oraclekeeper.NewOracleSnapshotter(app.CommitMultiStore(), &app.OracleKeeper),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
+		}
+	}
+
 	if loadLatest {
 		err := app.LoadLatestVersion()
 		if err != nil {
