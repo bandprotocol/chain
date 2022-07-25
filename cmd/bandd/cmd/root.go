@@ -90,7 +90,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
 		band.MigrateGenesisCmd(),
-		genutilcli.GenTxCmd(band.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
+		genutilcli.GenTxCmd(
+			band.ModuleBasics,
+			encodingConfig.TxConfig,
+			banktypes.GenesisBalancesIterator{},
+			band.DefaultNodeHome,
+		),
 		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
 		AddGenesisAccountCmd(band.DefaultNodeHome),
 		AddGenesisDataSourceCmd(band.DefaultNodeHome),
@@ -178,7 +183,12 @@ type appCreator struct {
 }
 
 // newApp is an AppCreator
-func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
+func (ac appCreator) newApp(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	appOpts servertypes.AppOptions,
+) servertypes.Application {
 	var cache sdk.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
