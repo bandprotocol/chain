@@ -241,7 +241,7 @@ func handleRawRequest(
 		return
 	}
 
-	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID)
+	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
 	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
@@ -253,12 +253,13 @@ func handleRawRequest(
 	}
 
 	result, err := c.executor.Exec(exec, req.calldata, map[string]interface{}{
-		"BAND_CHAIN_ID":    vmsg.ChainID,
-		"BAND_VALIDATOR":   vmsg.Validator,
-		"BAND_REQUEST_ID":  strconv.Itoa(int(vmsg.RequestID)),
-		"BAND_EXTERNAL_ID": strconv.Itoa(int(vmsg.ExternalID)),
-		"BAND_REPORTER":    hex.EncodeToString(pubkey.Bytes()),
-		"BAND_SIGNATURE":   sig,
+		"BAND_CHAIN_ID":       vmsg.ChainID,
+		"BAND_DATA_SOURCE_ID": strconv.Itoa(int(vmsg.DataSourceID)),
+		"BAND_VALIDATOR":      vmsg.Validator,
+		"BAND_REQUEST_ID":     strconv.Itoa(int(vmsg.RequestID)),
+		"BAND_EXTERNAL_ID":    strconv.Itoa(int(vmsg.ExternalID)),
+		"BAND_REPORTER":       hex.EncodeToString(pubkey.Bytes()),
+		"BAND_SIGNATURE":      sig,
 	})
 
 	if err != nil {
