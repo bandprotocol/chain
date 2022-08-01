@@ -371,6 +371,11 @@ message RequestVerification {
     (gogoproto.customname) = "ExternalID",
     (gogoproto.casttype) = "ExternalID"
   ];
+  // DataSourceID is the ID of data source
+  uint64 data_source_id = 5 [
+    (gogoproto.customname) = "DataSourceID",
+    (gogoproto.casttype) = "DataSourceID"
+  ];
 }
 
 // PriceResult is a result from standard price reference

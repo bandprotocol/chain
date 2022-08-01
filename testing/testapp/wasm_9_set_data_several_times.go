@@ -10,14 +10,14 @@ var Wasm9 []byte = wat2wasm([]byte(`
 	(func $prepare (export "prepare") (type $t0))
 	(func $execute (export "execute") (type $t0)
 	  i32.const 1024
-	  i64.extend_u/i32
+	  i64.extend_i32_u
 	  i64.const 4
 	  call $set_return_data
 	  i32.const 1024
-	  i64.extend_u/i32
+	  i64.extend_i32_u
 	  i64.const 4
 	  call $set_return_data)
-	(table $T0 1 1 anyfunc)
+	(table $T0 1 1 funcref)
 	(memory $memory (export "memory") 17)
 	(data (i32.const 1024) "beeb"))
 `))
