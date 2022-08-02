@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"encoding/hex"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -19,8 +18,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
-
-const MAX_CONCURRENT_JOBS = 5
 
 func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
@@ -412,10 +409,6 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 }
 
 func TestResolveRequestSuccess(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -430,13 +423,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	go k.ResolveRequest(ctx, 42)
 	expectResult := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
 		42, 1, testapp.ParseTime(1581589790).Unix(),
@@ -453,10 +440,6 @@ func TestResolveRequestSuccess(t *testing.T) {
 }
 
 func TestResolveRequestSuccessComplex(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -482,13 +465,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beebd2v2")),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2},
@@ -509,10 +486,6 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 }
 
 func TestResolveRequestOutOfGas(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -527,13 +500,7 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
 		42, 1, testapp.ParseTime(1581589790).Unix(),
@@ -543,10 +510,6 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 }
 
 func TestResolveReadNilExternalData(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -572,13 +535,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			types.NewRawReport(1, 0, nil),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2},
@@ -599,10 +556,6 @@ func TestResolveReadNilExternalData(t *testing.T) {
 }
 
 func TestResolveRequestNoReturnData(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -617,13 +570,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	go k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
@@ -638,10 +585,6 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 }
 
 func TestResolveRequestWasmFailure(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -656,13 +599,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	go k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
@@ -677,10 +614,6 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 }
 
 func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
-
-	var wg sync.WaitGroup
-
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -690,13 +623,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
 	))
-
-	wg.Add(1)
-	// Create an empty struct to signal when the job finishes
-	jobc <- struct{}{}
-	go k.ResolveRequest(ctx, 42, jobc)
-	wg.Wait()
-
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,

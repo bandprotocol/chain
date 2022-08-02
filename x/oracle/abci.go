@@ -30,9 +30,14 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Loops through all requests in the resolvable list to parallel resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		wg.Add(1)
-		// Create an empty struct to signal when the job finishes
-		jobc <- struct{}{}
-		go k.ResolveRequest(ctx, reqID, jobc)
+		go func(ctx sdk.Context, reqID types.RequestID) {
+			defer wg.Done()
+
+			// Create an empty struct to signal when the job finishes
+			jobc <- struct{}{}
+			k.ResolveRequest(ctx, reqID)
+			<-jobc
+		}(ctx, reqID)
 	}
 	wg.Wait()
 

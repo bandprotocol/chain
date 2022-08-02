@@ -153,12 +153,7 @@ func (k Keeper) PrepareRequest(
 
 // ResolveRequest resolves the given request and saves the result to the store. The function
 // assumes that the given request is in a resolvable state with sufficient reporters.
-func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID, jobc chan struct{}) {
-	// job finished signal
-	defer func() {
-		<-jobc
-	}()
-
+func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
