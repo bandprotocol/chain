@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -153,7 +154,9 @@ func (k Keeper) PrepareRequest(
 
 // ResolveRequest resolves the given request and saves the result to the store. The function
 // assumes that the given request is in a resolvable state with sufficient reporters.
-func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
+func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	req := k.MustGetRequest(ctx, reqID)
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
