@@ -1,7 +1,9 @@
 package oracle
 
 import (
+	"fmt"
 	"sync"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -27,6 +29,8 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 
 	var wg sync.WaitGroup
 
+	// check parallel time
+	start := time.Now()
 	// Loops through all requests in the resolvable list to parallel resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		wg.Add(1)
@@ -40,6 +44,8 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 		}(ctx, reqID)
 	}
 	wg.Wait()
+
+	fmt.Println("time", time.Since(start))
 
 	// Once all the requests are resolved, we can clear the list.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
