@@ -76,7 +76,7 @@ func (os *OracleSnapshotter) Snapshot(height uint64, protoWriter protoio.Writer)
 func (os *OracleSnapshotter) Restore(
 	height uint64, format uint32, protoReader protoio.Reader,
 ) (snapshot.SnapshotItem, error) {
-	if format == 1 {
+	if format == SnapshotFormat {
 		return os.processAllItems(height, protoReader, restoreV1, finalizeV1)
 	}
 	return snapshot.SnapshotItem{}, snapshot.ErrUnknownFormat
@@ -169,9 +169,9 @@ func restoreV1(ctx sdk.Context, k *Keeper, compressedCode []byte, foundCode map[
 
 	// check if we really need this file or not first
 	filename := filecache.GetFilename(code)
-	found, needed := foundCode[filename]
+	found, required := foundCode[filename]
 
-	if !needed {
+	if !required {
 		return errors.New("found unexpected code in the snapshot")
 	}
 

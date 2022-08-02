@@ -587,6 +587,7 @@ func NewBandApp(
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
+	// if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
 	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
 		err := snapshotManager.RegisterExtensions(
 			oraclekeeper.NewOracleSnapshotter(app.CommitMultiStore(), &app.OracleKeeper),
