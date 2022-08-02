@@ -45,7 +45,8 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	}
 	wg.Wait()
 
-	fmt.Println("time", time.Since(start))
+	// check parallel time
+	fmt.Printf("resolve list count: %d, time to resloved requests: %v", len(k.GetPendingResolveList(ctx)), time.Since(start))
 
 	// Once all the requests are resolved, we can clear the list.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
