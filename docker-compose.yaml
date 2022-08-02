@@ -98,7 +98,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v1.3.0.cli-migrations-v2
+    image: hasura/graphql-engine:v2.9.0.cli-migrations-v2
     ports:
       - "5433:5433"
     depends_on:
