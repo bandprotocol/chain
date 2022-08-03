@@ -423,7 +423,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-	go k.ResolveRequest(ctx, 42)
+	k.ResolveRequest(ctx, 42)
 	expectResult := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
 		42, 1, testapp.ParseTime(1581589790).Unix(),
@@ -570,7 +570,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-	go k.ResolveRequest(ctx, 42)
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
@@ -599,7 +599,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 			types.NewRawReport(1, 0, []byte("beeb")),
 		},
 	))
-	go k.ResolveRequest(ctx, 42)
+	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
