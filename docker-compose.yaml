@@ -109,6 +109,7 @@ services:
         ipv4_address: 172.18.0.89
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_SERVER_HOST: 0.0.0.0
