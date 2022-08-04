@@ -81,7 +81,7 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v1.3.0
+    image: hasura/graphql-engine:v2.9.0.cli-migrations-v2
     ports:
       - "5433:5433"
     depends_on:
@@ -92,11 +92,14 @@ services:
         ipv4_address: 172.18.0.89
     environment:
       HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_SERVER_HOST: 0.0.0.0
       HASURA_GRAPHQL_SERVER_PORT: 5433
       HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES: "true"
+    volumes:
+      - ./docker-config/hasura-metadata:/hasura-metadata
 
   # TODO: Expose port to consume kafka from other
   zookeeper:
