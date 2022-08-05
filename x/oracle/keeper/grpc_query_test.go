@@ -413,7 +413,7 @@ func (suite *RequestVerificationTestSuite) TestGetReporters() {
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
-func (suite *RequestVerificationTestSuite) TestIsReporters() {
+func (suite *RequestVerificationTestSuite) TestIsReporter() {
 	req := &types.QueryIsReporterRequest{
 		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
 		ReporterAddress:  suite.reporterAddr.String(),
@@ -427,7 +427,7 @@ func (suite *RequestVerificationTestSuite) TestIsReporters() {
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
-func (suite *RequestVerificationTestSuite) TestIsNotReporters() {
+func (suite *RequestVerificationTestSuite) TestIsNotReporter() {
 	req := &types.QueryIsReporterRequest{
 		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
 		ReporterAddress:  suite.granteeAddr.String(),
@@ -438,6 +438,20 @@ func (suite *RequestVerificationTestSuite) TestIsNotReporters() {
 		IsReporter: false,
 	}
 	suite.assert.NoError(err, "IsReporter should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestRevokeReporters() {
+	suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
