@@ -191,13 +191,11 @@ func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest
 	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
 }
 
-// Reporters queries all reporters of a given validator address.
+// Reporters queries 100 gratees of a given validator address and filter for reporter.
 func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-	// TODO: Wait of get all grants
-	// ctx := sdk.UnwrapSDKContext(c)
 	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -210,10 +208,10 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	if err != nil {
 		return nil, err
 	}
-	reporters := make([]string, len(granterGrantsRes.Grants))
-	for idx, rep := range granterGrantsRes.Grants {
+	reporters := make([]string, 0)
+	for _, rep := range granterGrantsRes.Grants {
 		if rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{}) {
-			reporters[idx] = rep.Grantee
+			reporters = append(reporters, rep.Grantee)
 		}
 	}
 	return &types.QueryReportersResponse{Reporter: reporters}, nil
