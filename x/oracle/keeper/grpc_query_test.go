@@ -409,7 +409,7 @@ func (suite *RequestVerificationTestSuite) TestGetReporters() {
 	expectedResult := &types.QueryReportersResponse{
 		Reporter: []string{suite.reporterAddr.String()},
 	}
-	suite.assert.NoError(err, "GetReporters should success")
+	suite.assert.NoError(err, "Reporters should success")
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
@@ -423,7 +423,7 @@ func (suite *RequestVerificationTestSuite) TestIsReporters() {
 	expectedResult := &types.QueryIsReporterResponse{
 		IsReporter: true,
 	}
-	suite.assert.NoError(err, "IsReporters should success")
+	suite.assert.NoError(err, "IsReporter should success")
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
@@ -437,7 +437,7 @@ func (suite *RequestVerificationTestSuite) TestIsNotReporters() {
 	expectedResult := &types.QueryIsReporterResponse{
 		IsReporter: false,
 	}
-	suite.assert.NoError(err, "IsReporters should success")
+	suite.assert.NoError(err, "IsReporter should success")
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
