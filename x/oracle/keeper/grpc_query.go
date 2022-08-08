@@ -193,6 +193,7 @@ func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest
 
 // Reporters queries 100 gratees of a given validator address and filter for reporter.
 func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -210,7 +211,7 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	}
 	reporters := make([]string, 0)
 	for _, rep := range granterGrantsRes.Grants {
-		if rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{}) {
+		if (rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{})) && rep.Expiration.After(ctx.BlockTime()) {
 			reporters = append(reporters, rep.Grantee)
 		}
 	}

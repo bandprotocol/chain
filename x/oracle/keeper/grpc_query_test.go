@@ -413,6 +413,20 @@ func (suite *RequestVerificationTestSuite) TestGetReporters() {
 	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
+func (suite *RequestVerificationTestSuite) TestGetExpiredReporters() {
+	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(10 * time.Minute))
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
 func (suite *RequestVerificationTestSuite) TestIsReporter() {
 	req := &types.QueryIsReporterRequest{
 		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
