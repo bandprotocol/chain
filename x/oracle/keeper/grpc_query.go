@@ -346,12 +346,7 @@ func (k Querier) RequestVerification(
 	}
 	reporterPubKey := secp256k1.PubKey(pk[:])
 
-	requestVerificationContent := types.NewRequestVerification(
-		req.ChainId,
-		validator,
-		types.RequestID(req.RequestId),
-		types.ExternalID(req.ExternalId),
-	)
+	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
 		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
@@ -369,6 +364,17 @@ func (k Querier) RequestVerification(
 	// Provided request should exist on chain
 	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
 	if err != nil {
+		// return uncertain result if request id is in range of max delay
+		if req.RequestId-k.GetRequestCount(ctx) > 0 && req.RequestId-k.GetRequestCount(ctx) <= req.MaxDelay {
+			return &types.QueryRequestVerificationResponse{
+				ChainId:      req.ChainId,
+				Validator:    req.Validator,
+				RequestId:    req.RequestId,
+				ExternalId:   req.ExternalId,
+				DataSourceId: req.DataSourceId,
+				IsDelay:      true,
+			}, nil
+		}
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
 	}
 
@@ -406,6 +412,9 @@ func (k Querier) RequestVerification(
 			),
 		)
 	}
+	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("data source required by the request %d which relates to the external data source with ID %d is not match with data source id provided in request.", req.RequestId, req.ExternalId))
+	}
 
 	// Provided validator should not have reported data for the request
 	reports := k.GetReports(ctx, types.RequestID(req.RequestId))
@@ -438,5 +447,6 @@ func (k Querier) RequestVerification(
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
 		DataSourceId: uint64(*dataSourceID),
+		IsDelay:      false,
 	}, nil
 }

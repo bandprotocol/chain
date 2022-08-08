@@ -6,12 +6,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func NewRequestVerification(chainID string, validator sdk.ValAddress, requestID RequestID, externalID ExternalID) RequestVerification {
+func NewRequestVerification(chainID string, validator sdk.ValAddress, requestID RequestID, externalID ExternalID, dataSourceID DataSourceID) RequestVerification {
 	return RequestVerification{
-		ChainID:    chainID,
-		Validator:  validator.String(),
-		RequestID:  requestID,
-		ExternalID: externalID,
+		ChainID:      chainID,
+		Validator:    validator.String(),
+		RequestID:    requestID,
+		ExternalID:   externalID,
+		DataSourceID: dataSourceID,
 	}
 }
 
