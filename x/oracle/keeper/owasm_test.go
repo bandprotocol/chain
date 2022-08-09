@@ -624,6 +624,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		}, nil, testapp.TestDefaultExecuteGas,
 	))
 	k.ResolveRequest(ctx, 42)
+
 	result := types.NewResult(
 		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
