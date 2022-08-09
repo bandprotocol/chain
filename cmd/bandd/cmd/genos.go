@@ -24,7 +24,7 @@ import (
 func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-oracle-script [name] [description] [schema] [url] [owner] [filepath]",
-		Short: "Add a data source to genesis.json",
+		Short: "Add a oracle script to genesis.json",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

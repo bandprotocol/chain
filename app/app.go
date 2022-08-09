@@ -132,7 +132,7 @@ var (
 		gov.NewAppModuleBasic(
 			paramsclient.ProposalHandler,
 			distrclient.ProposalHandler,
-			upgradeclient.CancelProposalHandler,
+			upgradeclient.ProposalHandler,
 			upgradeclient.CancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler,
 			ibcclientclient.UpgradeProposalHandler,
@@ -586,6 +586,17 @@ func NewBandApp(
 	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
+
+	// if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
+	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
+		err := snapshotManager.RegisterExtensions(
+			oraclekeeper.NewOracleSnapshotter(app.CommitMultiStore(), &app.OracleKeeper),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
+		}
+	}
+
 	if loadLatest {
 		err := app.LoadLatestVersion()
 		if err != nil {
