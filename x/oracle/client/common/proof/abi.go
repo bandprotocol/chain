@@ -89,6 +89,23 @@ var relayFormat = []byte(`
   {
     "components": [
       {
+        "internalType": "bytes",
+        "name": "signedDataPrefix",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signedDataSuffix",
+        "type": "bytes"
+      }
+    ],
+    "internalType": "struct CommonEncodedVotePart.Data",
+    "name": "commonEncodedVotePart",
+    "type": "tuple"
+  },
+  {
+    "components": [
+      {
         "internalType": "bytes32",
         "name": "r",
         "type": "bytes32"
@@ -105,12 +122,7 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes",
-        "name": "signedDataPrefix",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signedDataSuffix",
+        "name": "encodedTimestamp",
         "type": "bytes"
       }
     ],
