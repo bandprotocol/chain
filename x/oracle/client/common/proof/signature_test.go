@@ -97,7 +97,7 @@ func TestGetSignaturesAndPrefix(t *testing.T) {
 		Header: &header,
 		Commit: &commit,
 	}
-	sig, cevp, err := GetSignaturesAndPrefix(&sh)
+	sig, commonVote, err := GetSignaturesAndPrefix(&sh)
 	require.NoError(t, err)
 
 	expectedSigs := []TMSignature{
@@ -126,13 +126,13 @@ func TestGetSignaturesAndPrefix(t *testing.T) {
 			EncodedTimestamp: hexToBytes("08CD9296890610F0E1F733"),
 		},
 	}
-	expectedCEVP := CommonEncodedVotePart{
-	    SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
-	    SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
+	expectedCommonVote := CommonEncodedVotePart{
+		SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
+		SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
 	}
 
 	require.Equal(t, expectedSigs, sig)
-	require.Equal(t, expectedCEVP, cevp)
+	require.Equal(t, expectedCommonVote, commonVote)
 }
 
 func TestVerifySignature(t *testing.T) {
@@ -162,9 +162,9 @@ func TestVerifySignature(t *testing.T) {
 			EncodedTimestamp: hexToBytes("08CD9296890610F0E1F733"),
 		},
 	}
-	cevp := CommonEncodedVotePart{
-	    SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
-	    SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
+	commonVote := CommonEncodedVotePart{
+		SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
+		SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
 	}
 
 	evmAddresses := []common.Address{
@@ -175,13 +175,14 @@ func TestVerifySignature(t *testing.T) {
 	}
 
 	blockHash := hexToBytes("3489F21785ACE1CE4214CB2B57F3A98DC0B7377D1BA1E1180B6E199E33B0FC5A")
-	commonPart := append(cevp.SignedDataPrefix, append(blockHash, cevp.SignedDataSuffix...)...)
+	commonPart := append(commonVote.SignedDataPrefix, append(blockHash, commonVote.SignedDataSuffix...)...)
 	encodedChainIDConstant := hexToBytes("320962616e64636861696e")
 
 	for i, sig := range signatures {
-		msg := append(commonPart, append([]byte{42, uint8(len(sig.EncodedTimestamp))}, sig.EncodedTimestamp...)...)
+		msg := append(commonPart, []byte{42, uint8(len(sig.EncodedTimestamp))}...)
+		msg = append(msg, sig.EncodedTimestamp...)
 		msg = append(msg, encodedChainIDConstant...)
-		msg = append([]byte{ uint8(len(msg)) }, msg...)
+		msg = append([]byte{uint8(len(msg))}, msg...)
 
 		sigBytes := append(sig.R, sig.S...)
 		sigBytes = append(sigBytes, sig.V-27)

@@ -48,35 +48,35 @@ func TestEncodeRelay(t *testing.T) {
 			LastResultsHash:                   hexToBytes("9FB9C7533CAF1D218DA3AF6D277F6B101C42E3C3B75D784242DA663604DD53C2"),
 			EvidenceAndProposerHash:           hexToBytes("7D11A74E40884411901BD7A70631734990B1FDBF5DE9E4C92C63B7650A6A6659"),
 		},
-        CommonEncodedVotePart: CommonEncodedVotePart{
-            SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
-            SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
-	    },
+		CommonEncodedVotePart: CommonEncodedVotePart{
+			SignedDataPrefix: hexToBytes("080211A86100000000000022480A20"),
+			SignedDataSuffix: hexToBytes("1224080112206BF91EFBA26A4CD86EBBD0E54DCFC9BD2C790859CFA96215661A47E4921A6301"),
+		},
 		Signatures: []TMSignature{
-            {
-                R:                hexToBytes("84B8585B71240FEE0E674952B79ED25D793F1B31B42DD37B80F75B98510B5754"),
-                S:                hexToBytes("1EC44DD7C5389474DF8E5C25CC6ED8B573CCA2E009AA824EE825BDC693935927"),
-                V:                28,
-                EncodedTimestamp: hexToBytes("08CD9296890610EAE9963D"),
-            },
-            {
-                R:                hexToBytes("394365193F819CF539381366D31B6C5849AAA31AE8BA6F95C62C5C80656BFB5C"),
-                S:                hexToBytes("6A07E4A3C0ABCEAE5F854D492DF699438FB84762F152F739DDEAC48DDCFCB5CC"),
-                V:                28,
-                EncodedTimestamp: hexToBytes("08CD9296890610EA928633"),
-            },
-            {
-                R:                hexToBytes("5D7B4BE7B21B00D08AD7DBE48CF2761CECCB599E64AAB10B2901A0DD58F00325"),
-                S:                hexToBytes("7160EF689A533C1E983707507FC8466DAEA1D0DC7A889E3A27D1BB1D09CEC030"),
-                V:                28,
-                EncodedTimestamp: hexToBytes("08CD929689061086FAB239"),
-            },
-            {
-                R:                hexToBytes("5654A44FB89330C34CF2D862F940763194A145B72ED3BB0ADD5759E1E68FD145"),
-                S:                hexToBytes("2AC795D02A9C574CF12343FDFC67FDCED8A24F88EC8138C7F8230F6EB442B726"),
-                V:                28,
-                EncodedTimestamp: hexToBytes("08CD9296890610F0E1F733"),
-            },
+			{
+				R:                hexToBytes("84B8585B71240FEE0E674952B79ED25D793F1B31B42DD37B80F75B98510B5754"),
+				S:                hexToBytes("1EC44DD7C5389474DF8E5C25CC6ED8B573CCA2E009AA824EE825BDC693935927"),
+				V:                28,
+				EncodedTimestamp: hexToBytes("08CD9296890610EAE9963D"),
+			},
+			{
+				R:                hexToBytes("394365193F819CF539381366D31B6C5849AAA31AE8BA6F95C62C5C80656BFB5C"),
+				S:                hexToBytes("6A07E4A3C0ABCEAE5F854D492DF699438FB84762F152F739DDEAC48DDCFCB5CC"),
+				V:                28,
+				EncodedTimestamp: hexToBytes("08CD9296890610EA928633"),
+			},
+			{
+				R:                hexToBytes("5D7B4BE7B21B00D08AD7DBE48CF2761CECCB599E64AAB10B2901A0DD58F00325"),
+				S:                hexToBytes("7160EF689A533C1E983707507FC8466DAEA1D0DC7A889E3A27D1BB1D09CEC030"),
+				V:                28,
+				EncodedTimestamp: hexToBytes("08CD929689061086FAB239"),
+			},
+			{
+				R:                hexToBytes("5654A44FB89330C34CF2D862F940763194A145B72ED3BB0ADD5759E1E68FD145"),
+				S:                hexToBytes("2AC795D02A9C574CF12343FDFC67FDCED8A24F88EC8138C7F8230F6EB442B726"),
+				V:                28,
+				EncodedTimestamp: hexToBytes("08CD9296890610F0E1F733"),
+			},
 		},
 	}
 	result, err := block.encodeToEthData()

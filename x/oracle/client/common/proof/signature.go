@@ -1,18 +1,18 @@
 package proof
 
 import (
+	"bytes"
 	"fmt"
 	"sort"
-	"bytes"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	"github.com/tendermint/tendermint/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tendermint/tendermint/libs/protoio"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/tendermint/tendermint/types"
 )
 
 // TMSignature contains all details of validator signature for performing signer recovery for ECDSA
@@ -66,27 +66,29 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 	addrs := []string{}
 	mapAddrs := map[string]TMSignature{}
 	encodedBlockMinimal, err := protoio.MarshalDelimited(
-        &tmproto.CanonicalVote {
-            Type: tmproto.SignedMsgType(info.Commit.Type()),
-            Height: info.Commit.Height,
-            Round: int64(info.Commit.Round),
-            BlockID: &tmproto.CanonicalBlockID {
-                Hash: info.Commit.BlockID.Hash,
-                PartSetHeader: tmproto.CanonicalPartSetHeader {
-                    Total: info.Commit.BlockID.PartSetHeader.Total,
-                    Hash: info.Commit.BlockID.PartSetHeader.Hash,
-                },
-            },
-        },
+		&tmproto.CanonicalVote{
+			Type:   tmproto.SignedMsgType(info.Commit.Type()),
+			Height: info.Commit.Height,
+			Round:  int64(info.Commit.Round),
+			BlockID: &tmproto.CanonicalBlockID{
+				Hash: info.Commit.BlockID.Hash,
+				PartSetHeader: tmproto.CanonicalPartSetHeader{
+					Total: info.Commit.BlockID.PartSetHeader.Total,
+					Hash:  info.Commit.BlockID.PartSetHeader.Hash,
+				},
+			},
+		},
 	)
-	if err != nil{
+	if err != nil {
 		return nil, CommonEncodedVotePart{}, err
 	}
 
 	lrCommon := bytes.Split(encodedBlockMinimal, info.Commit.BlockID.Hash)
-	cevp := CommonEncodedVotePart { SignedDataPrefix: lrCommon[0][1:], SignedDataSuffix: lrCommon[1][:38] }
+	commonVote := CommonEncodedVotePart{SignedDataPrefix: lrCommon[0][1:], SignedDataSuffix: lrCommon[1][:38]}
 
-	commonPart := append(cevp.SignedDataPrefix, append(info.Commit.BlockID.Hash, cevp.SignedDataSuffix...)...)
+	commonPart := append(commonVote.SignedDataPrefix, info.Commit.BlockID.Hash...)
+	commonPart = append(commonPart, commonVote.SignedDataSuffix...)
+
 	chainIDBytes := []byte(info.ChainID)
 	encodedChainIDConstant := append([]byte{50, uint8(len(chainIDBytes))}, chainIDBytes...)
 
@@ -97,9 +99,10 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 
 		encodedTimestamp := encodeTime(vote.Timestamp)
 
-		msg := append(commonPart, append([]byte{42, uint8(len(encodedTimestamp))}, encodedTimestamp...)...)
+		msg := append(commonPart, []byte{42, uint8(len(encodedTimestamp))}...)
+		msg = append(msg, encodedTimestamp...)
 		msg = append(msg, encodedChainIDConstant...)
-		msg = append([]byte{ uint8(len(msg)) }, msg...)
+		msg = append([]byte{uint8(len(msg))}, msg...)
 
 		addr, v, err := recoverETHAddress(msg, vote.Signature, vote.ValidatorAddress)
 		if err != nil {
@@ -123,5 +126,5 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 		signatures[i] = mapAddrs[addr]
 	}
 
-	return signatures, cevp, nil
+	return signatures, commonVote, nil
 }

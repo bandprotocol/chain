@@ -10,8 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -42,10 +42,10 @@ func init() {
 }
 
 type BlockRelayProof struct {
-	MultiStoreProof         MultiStoreProof         `json:"multi_store_proof"`
-	BlockHeaderMerkleParts  BlockHeaderMerkleParts  `json:"block_header_merkle_parts"`
-	CommonEncodedVotePart   CommonEncodedVotePart   `json:"common_encoded_vote_part"`
-	Signatures              []TMSignature           `json:"signatures"`
+	MultiStoreProof        MultiStoreProof        `json:"multi_store_proof"`
+	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"block_header_merkle_parts"`
+	CommonEncodedVotePart  CommonEncodedVotePart  `json:"common_encoded_vote_part"`
+	Signatures             []TMSignature          `json:"signatures"`
 }
 
 func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
@@ -109,10 +109,10 @@ type CommonEncodedVotePartEthereum struct {
 	SignedDataSuffix []byte
 }
 
-func (commonEncodedVotePart *CommonEncodedVotePart) encodeToEthFormat() CommonEncodedVotePartEthereum {
+func (commonVote *CommonEncodedVotePart) encodeToEthFormat() CommonEncodedVotePartEthereum {
 	return CommonEncodedVotePartEthereum{
-        SignedDataPrefix: commonEncodedVotePart.SignedDataPrefix,
-        SignedDataSuffix: commonEncodedVotePart.SignedDataSuffix,
+		SignedDataPrefix: commonVote.SignedDataPrefix,
+		SignedDataSuffix: commonVote.SignedDataSuffix,
 	}
 }
 
