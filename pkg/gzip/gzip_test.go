@@ -29,6 +29,47 @@ func TestUncompress(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestCompress(t *testing.T) {
+	bytes := []byte("file")
+	compressedBytes, err := gzip.Compress(bytes)
+	require.Equal(
+		t,
+		[]byte{
+			0x1f,
+			0x8b,
+			0x8,
+			0x0,
+			0x0,
+			0x0,
+			0x0,
+			0x0,
+			0x0,
+			0xff,
+			0x4a,
+			0xcb,
+			0xcc,
+			0x49,
+			0x5,
+			0x4,
+			0x0,
+			0x0,
+			0xff,
+			0xff,
+			0x10,
+			0x36,
+			0x9f,
+			0x8c,
+			0x4,
+			0x0,
+			0x0,
+			0x0,
+		},
+		compressedBytes,
+	)
+	require.NoError(t, err)
+
+}
+
 func TestIsGzip(t *testing.T) {
 	file1 := []byte("file")
 	var buf bytes.Buffer

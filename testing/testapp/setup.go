@@ -16,6 +16,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/snapshots"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -216,6 +217,17 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -232,6 +244,8 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			"",
 			"",
 			"",
+			baseapp.SetSnapshotStore(snapshotStore),
+			baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
@@ -380,6 +394,17 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -393,12 +418,20 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			EmptyAppOptions{},
 			false,
 			0, "", "", "",
+			baseapp.SetSnapshotStore(snapshotStore),
+			baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
 	return app, bandapp.GenesisState{}, dir
+}
+
+// SetupWithEmptyStore setup a TestingApp instance with empty DB
+func SetupWithEmptyStore() *TestingApp {
+	app, _, _ := setup(false, 0)
+	return app
 }
 
 // SetupWithGenesisValSet initializes a new TestingApp with a validator set and genesis accounts

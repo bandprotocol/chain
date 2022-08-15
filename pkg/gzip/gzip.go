@@ -33,3 +33,20 @@ func Uncompress(src []byte, maxSize int64) ([]byte, error) {
 	}
 	return uncompressed, nil
 }
+
+// Compress performs gzip compression and returns the result. Returns error if
+// it can't compress the input bytes
+func Compress(src []byte) ([]byte, error) {
+	var b bytes.Buffer
+	w := gz.NewWriter(&b)
+
+	if _, err := w.Write(src); err != nil {
+		return nil, err
+	}
+
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
