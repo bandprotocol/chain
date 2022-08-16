@@ -201,7 +201,7 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	if err != nil {
 		return nil, err
 	}
-	granter := (sdk.AccAddress(val)).String()
+	granter := sdk.AccAddress(val).String()
 	granterGrantsRequest := &authz.QueryGranterGrantsRequest{
 		Granter: granter,
 	}
@@ -211,7 +211,7 @@ func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) 
 	}
 	reporters := make([]string, 0)
 	for _, rep := range granterGrantsRes.Grants {
-		if (rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{})) && rep.Expiration.After(ctx.BlockTime()) {
+		if rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{}) && rep.Expiration.After(ctx.BlockTime()) {
 			reporters = append(reporters, rep.Grantee)
 		}
 	}
