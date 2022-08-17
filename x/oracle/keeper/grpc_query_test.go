@@ -3,10 +3,12 @@ package keeper_test
 import (
 	"encoding/hex"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -24,13 +26,14 @@ type RequestVerificationTestSuite struct {
 
 	reporterPrivKey cryptotypes.PrivKey
 	reporterAddr    sdk.AccAddress
+	granteeAddr     sdk.AccAddress
 
 	ctx sdk.Context
 }
 
 func (suite *RequestVerificationTestSuite) SetupTest() {
 	suite.assert = require.New(suite.T())
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 
 	suite.querier = keeper.Querier{
 		Keeper: k,
@@ -55,10 +58,14 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	)
 	suite.reporterPrivKey = secp256k1.GenPrivKey()
 	suite.reporterAddr = sdk.AccAddress(suite.reporterPrivKey.PubKey().Address())
+	suite.granteeAddr = sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
 	k.SetRequestCount(ctx, 1)
 	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
+		authz.NewGenericAuthorization("some url"), ctx.BlockTime().Add(10*time.Minute),
+	)
 	suite.assert.NoError(err)
 }
 
@@ -391,6 +398,75 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
 
 	suite.assert.Contains(err.Error(), "Request with ID 1 is already expired", "RequestVerification should failed")
 	suite.assert.Nil(res, "response should be nil")
+}
+
+func (suite *RequestVerificationTestSuite) TestGetReporters() {
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{suite.reporterAddr.String()},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestGetExpiredReporters() {
+	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(10 * time.Minute))
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestIsReporter() {
+	req := &types.QueryIsReporterRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+		ReporterAddress:  suite.reporterAddr.String(),
+	}
+	res, err := suite.querier.IsReporter(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryIsReporterResponse{
+		IsReporter: true,
+	}
+	suite.assert.NoError(err, "IsReporter should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestIsNotReporter() {
+	req := &types.QueryIsReporterRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+		ReporterAddress:  suite.granteeAddr.String(),
+	}
+	res, err := suite.querier.IsReporter(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryIsReporterResponse{
+		IsReporter: false,
+	}
+	suite.assert.NoError(err, "IsReporter should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestRevokeReporters() {
+	suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
 type PendingRequestsTestSuite struct {
