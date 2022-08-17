@@ -1,7 +1,6 @@
 package proof
 
 import (
-	"bytes"
 	"fmt"
 	"sort"
 
@@ -65,26 +64,38 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
 	addrs := []string{}
 	mapAddrs := map[string]TMSignature{}
-	encodedBlockMinimal, err := protoio.MarshalDelimited(
+
+	prefix, err := protoio.MarshalDelimited(
 		&tmproto.CanonicalVote{
 			Type:   tmproto.SignedMsgType(info.Commit.Type()),
 			Height: info.Commit.Height,
 			Round:  int64(info.Commit.Round),
-			BlockID: &tmproto.CanonicalBlockID{
-				Hash: info.Commit.BlockID.Hash,
-				PartSetHeader: tmproto.CanonicalPartSetHeader{
-					Total: info.Commit.BlockID.PartSetHeader.Total,
-					Hash:  info.Commit.BlockID.PartSetHeader.Hash,
-				},
-			},
 		},
 	)
 	if err != nil {
 		return nil, CommonEncodedVotePart{}, err
 	}
+	if info.Commit.Round == 0 {
+	    prefix = prefix[1:12]
+	} else {
+	    prefix = prefix[1:21]
+	}
+	prefix = append(prefix, []byte{34, 72, 10, 32}...)
 
-	lrCommon := bytes.Split(encodedBlockMinimal, info.Commit.BlockID.Hash)
-	commonVote := CommonEncodedVotePart{SignedDataPrefix: lrCommon[0][1:], SignedDataSuffix: lrCommon[1][:38]}
+	suffix, err := protoio.MarshalDelimited(
+        &tmproto.CanonicalBlockID {
+            PartSetHeader: tmproto.CanonicalPartSetHeader {
+                Total: info.Commit.BlockID.PartSetHeader.Total,
+                Hash:  info.Commit.BlockID.PartSetHeader.Hash,
+            },
+        },
+    )
+    if err != nil {
+		return nil, CommonEncodedVotePart{}, err
+	}
+    suffix = suffix[1:39]
+
+	commonVote := CommonEncodedVotePart{SignedDataPrefix: prefix, SignedDataSuffix: suffix}
 
 	commonPart := append(commonVote.SignedDataPrefix, info.Commit.BlockID.Hash...)
 	commonPart = append(commonPart, commonVote.SignedDataSuffix...)
