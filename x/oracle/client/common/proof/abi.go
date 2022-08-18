@@ -6,32 +6,32 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "authToFeeGrantStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "govToIbcCoreStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "mintStoreMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
         "name": "oracleIAVLStateHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "paramsToTransferStoresMerkleHash",
+        "name": "paramsStoreMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "upgradeStoreMerkleHash",
+        "name": "slashingToStakingStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "govToMintStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "authToFeeGrantStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "transferToUpgradeStoresMerkleHash",
         "type": "bytes32"
       }
     ],
