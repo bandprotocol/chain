@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- (bump) Use go 1.19
+- (bump) Use cosmos-sdk package v0.45.7 / tendermint v0.34.20 / ibc-go v3.2.0
+- (chain) Add ICA host module
+- (chain) Add MaxDelay parameter for request verification query
+- (chain) Add snapshot extension for oracle module
+- (yoda) Add BAND_DATA_SOURCE_ID in header
+
 ## [v2.3.3](https://github.com/bandprotocol/chain/releases/tag/v2.3.3)
 
 - (yoda) Change severity of error when query log
