@@ -30,7 +30,7 @@ type MultiStoreProof struct {
 	ParamsStoreMerkleHash             tmbytes.HexBytes `json:"params_store_merkle_hash"`
 	SlashingToStakingStoresMerkleHash tmbytes.HexBytes `json:"slashing_to_staking_stores_merkle_hash"`
 	GovToMintStoresMerkleHash         tmbytes.HexBytes `json:"gov_to_mint_stores_merkle_hash"`
-	AuthToFeeGrantStoresMerkleHash    tmbytes.HexBytes `json:"auth_to_fee_grant_stores_merkle_hash"`
+	AuthToFeegrantStoresMerkleHash    tmbytes.HexBytes `json:"auth_to_fee_grant_stores_merkle_hash"`
 	TransferToUpgradeStoresMerkleHash tmbytes.HexBytes `json:"transfer_to_upgrade_stores_merkle_hash"`
 }
 
@@ -40,7 +40,7 @@ type MultiStoreProofEthereum struct {
 	ParamsStoreMerkleHash             common.Hash
 	SlashingToStakingStoresMerkleHash common.Hash
 	GovToMintStoresMerkleHash         common.Hash
-	AuthToFeeGrantStoresMerkleHash    common.Hash
+	AuthToFeegrantStoresMerkleHash    common.Hash
 	TransferToUpgradeStoresMerkleHash common.Hash
 }
 
@@ -50,7 +50,7 @@ func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 		ParamsStoreMerkleHash:             common.BytesToHash(m.ParamsStoreMerkleHash),
 		SlashingToStakingStoresMerkleHash: common.BytesToHash(m.SlashingToStakingStoresMerkleHash),
 		GovToMintStoresMerkleHash:         common.BytesToHash(m.GovToMintStoresMerkleHash),
-		AuthToFeeGrantStoresMerkleHash:    common.BytesToHash(m.AuthToFeeGrantStoresMerkleHash),
+		AuthToFeegrantStoresMerkleHash:    common.BytesToHash(m.AuthToFeegrantStoresMerkleHash),
 		TransferToUpgradeStoresMerkleHash: common.BytesToHash(m.TransferToUpgradeStoresMerkleHash),
 	}
 }
@@ -62,7 +62,7 @@ func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
 		ParamsStoreMerkleHash:             tmbytes.HexBytes(multiStoreEp.Path[0].Suffix),
 		SlashingToStakingStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[1].Suffix),
 		GovToMintStoresMerkleHash:         tmbytes.HexBytes(multiStoreEp.Path[2].Prefix[1:]),
-		AuthToFeeGrantStoresMerkleHash:    tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
+		AuthToFeegrantStoresMerkleHash:    tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
 		TransferToUpgradeStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[4].Suffix),
 	}
 }

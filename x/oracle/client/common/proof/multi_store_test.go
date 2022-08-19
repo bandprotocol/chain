@@ -69,7 +69,7 @@ func TestGetMultiStoreProof(t *testing.T) {
 
 	apphash := innerHash(
 		innerHash(
-			m.AuthToFeeGrantStoresMerkleHash,
+			m.AuthToFeegrantStoresMerkleHash,
 			innerHash(
 				m.GovToMintStoresMerkleHash,
 				innerHash(
