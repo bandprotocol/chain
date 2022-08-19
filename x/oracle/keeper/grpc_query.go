@@ -415,9 +415,6 @@ func (k Querier) RequestVerification(
 	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("data source required by the request %d which relates to the external data source with ID %d is not match with data source id provided in request.", req.RequestId, req.ExternalId))
 	}
-	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("data source required by the request %d which relates to the external data source with ID %d is not match with data source id provided in request.", req.RequestId, req.ExternalId))
-	}
 
 	// Provided validator should not have reported data for the request
 	reports := k.GetReports(ctx, types.RequestID(req.RequestId))
