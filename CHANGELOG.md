@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [v2.3.4](https://github.com/bandprotocol/chain/releases/tag/v2.3.4)
+
+- (app) Add MaxDelay parameter for request verification query
+- (app) Add IsDelay parameter for request verification response
+- (yoda) Add BAND_DATA_SOURCE_ID in header
+
 ## [v2.3.3](https://github.com/bandprotocol/chain/releases/tag/v2.3.3)
 
 - (yoda) Change severity of error when query log
