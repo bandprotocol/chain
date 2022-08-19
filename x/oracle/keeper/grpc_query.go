@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
@@ -190,23 +191,31 @@ func (k Querier) IsReporter(c context.Context, req *types.QueryIsReporterRequest
 	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
 }
 
-// Reporters queries all reporters of a given validator address.
+// Reporters queries 100 gratees of a given validator address and filter for reporter.
 func (k Querier) Reporters(c context.Context, req *types.QueryReportersRequest) (*types.QueryReportersResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-	// TODO: Wait of get all grants
-	// ctx := sdk.UnwrapSDKContext(c)
-	// val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// reps := k.GetReporters(ctx, val)
-	// reporters := make([]string, len(reps))
-	// for idx, rep := range reps {
-	// 	reporters[idx] = rep.String()
-	// }
-	return &types.QueryReportersResponse{Reporter: []string{}}, nil
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	granter := sdk.AccAddress(val).String()
+	granterGrantsRequest := &authz.QueryGranterGrantsRequest{
+		Granter: granter,
+	}
+	granterGrantsRes, err := k.authzKeeper.GranterGrants(c, granterGrantsRequest)
+	if err != nil {
+		return nil, err
+	}
+	reporters := make([]string, 0)
+	for _, rep := range granterGrantsRes.Grants {
+		if rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(&types.MsgReportData{}) && rep.Expiration.After(ctx.BlockTime()) {
+			reporters = append(reporters, rep.Grantee)
+		}
+	}
+	return &types.QueryReportersResponse{Reporter: reporters}, nil
 }
 
 // ActiveValidators queries all active oracle validators.
@@ -277,7 +286,7 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	}
 	reporterPubKey := secp256k1.PubKey(pk[:])
 
-	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId))
+	requestVerificationContent := types.NewRequestVerification(req.ChainId, validator, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
 	signByte := requestVerificationContent.GetSignBytes()
 	if !reporterPubKey.VerifySignature(signByte, req.Signature) {
 		return nil, status.Error(codes.Unauthenticated, "invalid reporter's signature")
@@ -292,6 +301,17 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	// Provided request should exist on chain
 	request, err := k.GetRequest(ctx, types.RequestID(req.RequestId))
 	if err != nil {
+		// return uncertain result if request id is in range of max delay
+		if req.RequestId-k.GetRequestCount(ctx) > 0 && req.RequestId-k.GetRequestCount(ctx) <= req.MaxDelay {
+			return &types.QueryRequestVerificationResponse{
+				ChainId:      req.ChainId,
+				Validator:    req.Validator,
+				RequestId:    req.RequestId,
+				ExternalId:   req.ExternalId,
+				DataSourceId: req.DataSourceId,
+				IsDelay:      true,
+			}, nil
+		}
 		return nil, status.Error(codes.NotFound, fmt.Sprintf("unable to get request from chain: %s", err.Error()))
 	}
 
@@ -319,6 +339,9 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 	if dataSourceID == nil {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("no data source required by the request %d found which relates to the external data source with ID %d.", req.RequestId, req.ExternalId))
 	}
+	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("data source required by the request %d which relates to the external data source with ID %d is not match with data source id provided in request.", req.RequestId, req.ExternalId))
+	}
 
 	// Provided validator should not have reported data for the request
 	reports := k.GetReports(ctx, types.RequestID(req.RequestId))
@@ -345,5 +368,6 @@ func (k Querier) RequestVerification(c context.Context, req *types.QueryRequestV
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
 		DataSourceId: uint64(*dataSourceID),
+		IsDelay:      false,
 	}, nil
 }
