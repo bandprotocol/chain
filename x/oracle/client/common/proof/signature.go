@@ -75,25 +75,32 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 	if err != nil {
 		return nil, CommonEncodedVotePart{}, err
 	}
+
+    // The first byte is the size of the CanonicalVote
+	prefix = prefix[1:21]
 	if info.Commit.Round == 0 {
-	    prefix = prefix[1:12]
-	} else {
-	    prefix = prefix[1:21]
+	    // Ignore the last 9 bytes if the round is zero.
+	    prefix = prefix[:11]
 	}
+	// Append with 4 fixed bytes
+	// 34 is a key for the CanonicalBlockID ( 34 == (4 << 3) + 2 )
+	// 72 is the length of the CanonicalBlockID message ( 72 == (1+1 + 32) + (1+1 + (1 + 1) + (1+1 + 32)) )
+	// 10 is a key for the blockHash ( 10 == (1 << 3) + 2 )
+	// 32 is the length of the blockHash
 	prefix = append(prefix, []byte{34, 72, 10, 32}...)
 
 	suffix, err := protoio.MarshalDelimited(
-        &tmproto.CanonicalBlockID {
-            PartSetHeader: tmproto.CanonicalPartSetHeader {
-                Total: info.Commit.BlockID.PartSetHeader.Total,
-                Hash:  info.Commit.BlockID.PartSetHeader.Hash,
-            },
+        &tmproto.CanonicalPartSetHeader {
+            Total: info.Commit.BlockID.PartSetHeader.Total,
+            Hash:  info.Commit.BlockID.PartSetHeader.Hash,
         },
     )
     if err != nil {
 		return nil, CommonEncodedVotePart{}, err
 	}
-    suffix = suffix[1:39]
+	// Append with 1 fixed byte
+	// 18 is a key for the CanonicalPartSetHeader ( 18 == (2 << 3) + 2 )
+	suffix = append([]byte{18}, suffix...)
 
 	commonVote := CommonEncodedVotePart{SignedDataPrefix: prefix, SignedDataSuffix: suffix}
 
