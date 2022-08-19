@@ -592,7 +592,7 @@ func NewBandApp(
 	app.setupUpgradeHandlers()
 	app.setupUpgradeStoreLoaders()
 
-  // if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
+	// if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
 	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
 		err := snapshotManager.RegisterExtensions(
 			oraclekeeper.NewOracleSnapshotter(app.CommitMultiStore(), &app.OracleKeeper),
