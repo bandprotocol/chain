@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
@@ -224,26 +225,37 @@ func (k Querier) IsReporter(
 	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
 }
 
-// Reporters queries all reporters of a given validator address.
+// Reporters queries 100 gratees of a given validator address and filter for reporter.
 func (k Querier) Reporters(
 	c context.Context,
 	req *types.QueryReportersRequest,
 ) (*types.QueryReportersResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-	// TODO: Wait of get all grants
-	// ctx := sdk.UnwrapSDKContext(c)
-	// val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// reps := k.GetReporters(ctx, val)
-	// reporters := make([]string, len(reps))
-	// for idx, rep := range reps {
-	// 	reporters[idx] = rep.String()
-	// }
-	return &types.QueryReportersResponse{Reporter: []string{}}, nil
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	granter := sdk.AccAddress(val).String()
+	granterGrantsRequest := &authz.QueryGranterGrantsRequest{
+		Granter: granter,
+	}
+	granterGrantsRes, err := k.authzKeeper.GranterGrants(c, granterGrantsRequest)
+	if err != nil {
+		return nil, err
+	}
+	reporters := make([]string, 0)
+	for _, rep := range granterGrantsRes.Grants {
+		if rep.Authorization.GetCachedValue().(authz.Authorization).MsgTypeURL() == sdk.MsgTypeURL(
+			&types.MsgReportData{},
+		) &&
+			rep.Expiration.After(ctx.BlockTime()) {
+			reporters = append(reporters, rep.Grantee)
+		}
+	}
+	return &types.QueryReportersResponse{Reporter: reporters}, nil
 }
 
 // ActiveValidators queries all active oracle validators.
