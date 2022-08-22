@@ -1,14 +1,26 @@
 package proof
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto/tmhash"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tendermint/tendermint/types"
 )
+
+func TestGetPrefix(t *testing.T) {
+	prefix, err := GetPrefix(tmproto.SignedMsgType(2), 25000, 0)
+	require.NoError(t, err)
+	require.Equal(t, "080211a861000000000000", hex.EncodeToString(prefix))
+
+	prefix, err = GetPrefix(tmproto.SignedMsgType(2), 25000, 1)
+	require.NoError(t, err)
+	require.Equal(t, "080211a861000000000000190100000000000000", hex.EncodeToString(prefix))
+}
 
 /*
 {
@@ -71,25 +83,33 @@ func TestGetSignaturesAndPrefix(t *testing.T) {
 				BlockIDFlag:      2,
 				ValidatorAddress: hexToBytes("5179B0BB203248E03D2A1342896133B5C58E1E44"),
 				Timestamp:        parseTime("2021-08-25T00:05:33.107055466Z"),
-				Signature:        base64ToBytes("OUNlGT+BnPU5OBNm0xtsWEmqoxroum+VxixcgGVr+1xqB+SjwKvOrl+FTUkt9plDj7hHYvFS9znd6sSN3Py1zA=="),
+				Signature: base64ToBytes(
+					"OUNlGT+BnPU5OBNm0xtsWEmqoxroum+VxixcgGVr+1xqB+SjwKvOrl+FTUkt9plDj7hHYvFS9znd6sSN3Py1zA==",
+				),
 			},
 			{
 				BlockIDFlag:      2,
 				ValidatorAddress: hexToBytes("BDB6A0728C8DFE2124536F16F2BA428FE767A8F9"),
 				Timestamp:        parseTime("2021-08-25T00:05:33.128300266Z"),
-				Signature:        base64ToBytes("hLhYW3EkD+4OZ0lSt57SXXk/GzG0LdN7gPdbmFELV1QexE3XxTiUdN+OXCXMbti1c8yi4Amqgk7oJb3Gk5NZJw=="),
+				Signature: base64ToBytes(
+					"hLhYW3EkD+4OZ0lSt57SXXk/GzG0LdN7gPdbmFELV1QexE3XxTiUdN+OXCXMbti1c8yi4Amqgk7oJb3Gk5NZJw==",
+				),
 			},
 			{
 				BlockIDFlag:      2,
 				ValidatorAddress: hexToBytes("F0C23921727D869745C4F9703CF33996B1D2B715"),
 				Timestamp:        parseTime("2021-08-25T00:05:33.108916976Z"),
-				Signature:        base64ToBytes("VlSkT7iTMMNM8thi+UB2MZShRbcu07sK3VdZ4eaP0UUqx5XQKpxXTPEjQ/38Z/3O2KJPiOyBOMf4Iw9utEK3Jg=="),
+				Signature: base64ToBytes(
+					"VlSkT7iTMMNM8thi+UB2MZShRbcu07sK3VdZ4eaP0UUqx5XQKpxXTPEjQ/38Z/3O2KJPiOyBOMf4Iw9utEK3Jg==",
+				),
 			},
 			{
 				BlockIDFlag:      2,
 				ValidatorAddress: hexToBytes("F23391B5DBF982E37FB7DADEA64AAE21CAE4C172"),
 				Timestamp:        parseTime("2021-08-25T00:05:33.120372486Z"),
-				Signature:        base64ToBytes("XXtL57IbANCK19vkjPJ2HOzLWZ5kqrELKQGg3VjwAyVxYO9omlM8Hpg3B1B/yEZtrqHQ3HqInjon0bsdCc7AMA=="),
+				Signature: base64ToBytes(
+					"XXtL57IbANCK19vkjPJ2HOzLWZ5kqrELKQGg3VjwAyVxYO9omlM8Hpg3B1B/yEZtrqHQ3HqInjon0bsdCc7AMA==",
+				),
 			},
 		},
 	}
@@ -97,6 +117,7 @@ func TestGetSignaturesAndPrefix(t *testing.T) {
 		Header: &header,
 		Commit: &commit,
 	}
+
 	sig, commonVote, err := GetSignaturesAndPrefix(&sh)
 	require.NoError(t, err)
 

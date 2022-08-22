@@ -60,27 +60,31 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 	return nil, 0, fmt.Errorf("No match address found")
 }
 
+func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, error) {
+	fmt.Println(t, height, round)
+	prefix, err := protoio.MarshalDelimited(
+		&tmproto.CanonicalVote{
+			Type:   t,
+			Height: height,
+			Round:  round,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	length := int(prefix[0])
+	// prefix should be X + default timestamp that equals to `2a0b088092b8c398feffffff01`, so we trim last 13 bytes
+	return prefix[1 : length-12], nil
+}
+
 // GetSignaturesAndPrefix returns a list of TMSignature from Tendermint signed header.
 func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
 	addrs := []string{}
 	mapAddrs := map[string]TMSignature{}
 
-	prefix, err := protoio.MarshalDelimited(
-		&tmproto.CanonicalVote{
-			Type:   tmproto.SignedMsgType(info.Commit.Type()),
-			Height: info.Commit.Height,
-			Round:  int64(info.Commit.Round),
-		},
-	)
+	prefix, err := GetPrefix(tmproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
 	if err != nil {
 		return nil, CommonEncodedVotePart{}, err
-	}
-
-	// The first byte is the size of the CanonicalVote
-	prefix = prefix[1:21]
-	if info.Commit.Round == 0 {
-		// Ignore the last 9 bytes if the round is zero.
-		prefix = prefix[:11]
 	}
 	// Append with 4 fixed bytes
 	// 34 is a key for the CanonicalBlockID ( 34 == (4 << 3) | 2 )
