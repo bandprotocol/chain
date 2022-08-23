@@ -64,7 +64,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		signatures, err := GetSignaturesAndPrefix(&commit.SignedHeader)
+		signatures, commonVote, err := GetSignaturesAndPrefix(&commit.SignedHeader)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -72,6 +72,7 @@ func GetProofHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		blockRelay := BlockRelayProof{
 			MultiStoreProof:        GetMultiStoreProof(multiStoreEp),
 			BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
+			CommonEncodedVotePart:  commonVote,
 			Signatures:             signatures,
 		}
 
