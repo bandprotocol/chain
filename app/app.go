@@ -205,7 +205,7 @@ type BandApp struct {
 	ICAHostKeeper  icahostkeeper.Keeper
 	EvidenceKeeper evidencekeeper.Keeper
 	TransferKeeper ibctransferkeeper.Keeper
-	FeeGrantKeeper feegrantkeeper.Keeper
+	FeegrantKeeper feegrantkeeper.Keeper
 	AuthzKeeper    authzkeeper.Keeper
 	OracleKeeper   oraclekeeper.Keeper
 
@@ -361,7 +361,7 @@ func NewBandApp(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
 
-	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
+	app.FeegrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		keys[upgradetypes.StoreKey],
@@ -531,7 +531,7 @@ func NewBandApp(
 			appCodec,
 			app.AccountKeeper,
 			app.BankKeeper,
-			app.FeeGrantKeeper,
+			app.FeegrantKeeper,
 			app.interfaceRegistry,
 		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
@@ -643,7 +643,7 @@ func NewBandApp(
 			AccountKeeper:   app.AccountKeeper,
 			BankKeeper:      app.BankKeeper,
 			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
+			FeegrantKeeper:  app.FeegrantKeeper,
 			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 		},
 	)
