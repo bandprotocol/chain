@@ -19,9 +19,9 @@ import (
 //    [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
 //   /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
 // [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
-// [0] - auth     [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
-// [6] - evidence [7] - feegrant [8] - gov      [9] - ibccore    [A] - icahost  [B] - mint
-// [C] - oracle   [D] - params   [E] - slashing [F] - staking    [G] - transfer [H] - upgrade
+// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
+// [6] - evidence   [7] - feegrant [8] - gov      [9] - ibccore    [A] - icahost  [B] - mint
+// [C] - oracle     [D] - params   [E] - slashing [F] - staking    [G] - transfer [H] - upgrade
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [C] In fact, only
 // [D], [I7], [I10], [I12], and [I15] are needed in order to compute [AppHash].
