@@ -52,7 +52,8 @@ var CacheCases = map[string]uint32{
 	"cache":    1,
 }
 
-var GasLimit uint64 = 4000000
+var PrepareGasLimit uint64 = 4000000
+var ExecuteGasLimit uint64 = 4000000
 
 // benchmark test for prepare function of owasm vm
 func BenchmarkOwasmVMPrepare(b *testing.B) {
@@ -82,7 +83,7 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 							Scenario:     tc.scenario,
 							Value:        pm,
 						}), []sdk.ValAddress{}, 1,
-						1, time.Now(), "", nil, nil, GasLimit,
+						1, time.Now(), "", nil, nil, ExecuteGasLimit,
 					)
 
 					b.ResetTimer()
@@ -98,7 +99,7 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 						b.StartTimer()
 						_, _ = owasmVM.Prepare(
 							compiledCode,
-							oraclekeeper.ConvertToOwasmGas(GasLimit),
+							oraclekeeper.ConvertToOwasmGas(PrepareGasLimit),
 							int64(types.DefaultMaxCalldataSize),
 							env,
 						)
@@ -138,7 +139,7 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 							Scenario:     tc.scenario,
 							Value:        pm,
 						}), []sdk.ValAddress{}, 1,
-						1, time.Now(), "", nil, nil, GasLimit,
+						1, time.Now(), "", nil, nil, ExecuteGasLimit,
 					)
 
 					b.ResetTimer()
@@ -151,7 +152,7 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 						b.StartTimer()
 						_, _ = owasmVM.Execute(
 							compiledCode,
-							oraclekeeper.ConvertToOwasmGas(GasLimit),
+							oraclekeeper.ConvertToOwasmGas(ExecuteGasLimit),
 							int64(types.DefaultMaxCalldataSize),
 							env,
 						)

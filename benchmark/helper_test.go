@@ -2,6 +2,7 @@ package benchmark
 
 import (
 	"io/ioutil"
+	"math"
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
@@ -47,8 +48,8 @@ func GenMsgRequestData(
 		MinCount:   1,
 		ClientID:   "",
 		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
-		PrepareGas: GasLimit,
-		ExecuteGas: GasLimit,
+		PrepareGas: PrepareGasLimit,
+		ExecuteGas: ExecuteGasLimit,
 		Sender:     sender.Address.String(),
 	}
 
@@ -125,7 +126,7 @@ func GenSequenceOfTxs(
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
-			1000000000,
+			math.MaxInt64,
 			"",
 			[]uint64{account.Num},
 			[]uint64{account.Seq},
