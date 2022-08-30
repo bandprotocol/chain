@@ -58,7 +58,7 @@ func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
 	require.NoError(b, err)
 	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
 	require.NoError(b, err)
-	oid, err := GetFirstEventValue(res.Events)
+	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
 	require.NoError(b, err)
 	ba.Oid = uint64(oid)
 
@@ -66,7 +66,7 @@ func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
 	dCode := []byte("hello")
 	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
 	require.NoError(b, err)
-	did, err := GetFirstEventValue(res.Events)
+	did, err := GetFirstAttributeOfLastEventValue(res.Events)
 	require.NoError(b, err)
 	ba.Did = uint64(did)
 

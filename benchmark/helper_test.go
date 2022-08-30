@@ -174,7 +174,7 @@ func LogEvents(b testing.TB, events []types.Event) {
 	}
 }
 
-func GetFirstEventValue(events []types.Event) (int, error) {
+func GetFirstAttributeOfLastEventValue(events []types.Event) (int, error) {
 	evt := events[len(events)-1]
 	attr := evt.Attributes[0]
 	value, err := strconv.Atoi(string(attr.Value))
