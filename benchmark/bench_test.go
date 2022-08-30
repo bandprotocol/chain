@@ -6,11 +6,8 @@ import (
 
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	owasm "github.com/bandprotocol/go-owasm/api"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -66,41 +63,23 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 					name,
 					pm,
 				), func(b *testing.B) {
-					// prepare owasm vm
-					owasmVM, err := owasm.NewVm(cacheSize)
-					require.NoError(b, err)
-
-					// prepare owasm code
-					oCode, err := GetBenchmarkWasm()
-					require.NoError(b, err)
-					compiledCode, err := owasmVM.Compile(oCode, types.MaxCompiledWasmCodeSize)
-					require.NoError(b, err)
-
-					// prepare request
-					req := types.NewRequest(
-						1, obi.MustEncode(BenchmarkCalldata{
-							DataSourceId: 1,
-							Scenario:     tc.scenario,
-							Value:        pm,
-						}), []sdk.ValAddress{}, 1,
-						1, time.Now(), "", nil, nil, ExecuteGasLimit,
-					)
+					owasmVM, compiledCode, req := InitOwasmTestEnv(b, cacheSize, tc.scenario, pm)
 
 					b.ResetTimer()
 					b.StopTimer()
 
 					// call prepare on new env
 					for i := 0; i < b.N; i++ {
-						env := types.NewPrepareEnv(
+						env := oracletypes.NewPrepareEnv(
 							req,
-							int64(types.DefaultMaxCalldataSize),
-							int64(types.DefaultMaxRawRequestCount),
+							int64(oracletypes.DefaultMaxCalldataSize),
+							int64(oracletypes.DefaultMaxRawRequestCount),
 						)
 						b.StartTimer()
 						_, _ = owasmVM.Prepare(
 							compiledCode,
 							oraclekeeper.ConvertToOwasmGas(PrepareGasLimit),
-							int64(types.DefaultMaxCalldataSize),
+							int64(oracletypes.DefaultMaxCalldataSize),
 							env,
 						)
 						b.StopTimer()
@@ -122,38 +101,20 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 					name,
 					pm,
 				), func(b *testing.B) {
-					// prepare owasm vm
-					owasmVM, err := owasm.NewVm(cacheSize)
-					require.NoError(b, err)
-
-					// prepare owasm code
-					oCode, err := GetBenchmarkWasm()
-					require.NoError(b, err)
-					compiledCode, err := owasmVM.Compile(oCode, types.MaxCompiledWasmCodeSize)
-					require.NoError(b, err)
-
-					// prepare request
-					req := types.NewRequest(
-						1, obi.MustEncode(BenchmarkCalldata{
-							DataSourceId: 1,
-							Scenario:     tc.scenario,
-							Value:        pm,
-						}), []sdk.ValAddress{}, 1,
-						1, time.Now(), "", nil, nil, ExecuteGasLimit,
-					)
+					owasmVM, compiledCode, req := InitOwasmTestEnv(b, cacheSize, tc.scenario, pm)
 
 					b.ResetTimer()
 					b.StopTimer()
 
 					// call execute on new env
 					for i := 0; i < b.N; i++ {
-						env := types.NewExecuteEnv(req, []types.Report{}, time.Now())
+						env := oracletypes.NewExecuteEnv(req, []oracletypes.Report{}, time.Now())
 
 						b.StartTimer()
 						_, _ = owasmVM.Execute(
 							compiledCode,
 							oraclekeeper.ConvertToOwasmGas(ExecuteGasLimit),
-							int64(types.DefaultMaxCalldataSize),
+							int64(oracletypes.DefaultMaxCalldataSize),
 							env,
 						)
 						b.StopTimer()

@@ -5,12 +5,15 @@ import (
 	"math"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	owasm "github.com/bandprotocol/go-owasm/api"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 	types "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -177,4 +180,33 @@ func GetFirstEventValue(events []types.Event) (int, error) {
 	value, err := strconv.Atoi(string(attr.Value))
 
 	return value, err
+}
+
+func InitOwasmTestEnv(
+	b testing.TB,
+	cacheSize uint32,
+	scenario uint64,
+	parameter uint64,
+) (*owasm.Vm, []byte, oracletypes.Request) {
+	// prepare owasm vm
+	owasmVM, err := owasm.NewVm(cacheSize)
+	require.NoError(b, err)
+
+	// prepare owasm code
+	oCode, err := GetBenchmarkWasm()
+	require.NoError(b, err)
+	compiledCode, err := owasmVM.Compile(oCode, oracletypes.MaxCompiledWasmCodeSize)
+	require.NoError(b, err)
+
+	// prepare request
+	req := oracletypes.NewRequest(
+		1, obi.MustEncode(BenchmarkCalldata{
+			DataSourceId: 1,
+			Scenario:     scenario,
+			Value:        parameter,
+		}), []sdk.ValAddress{}, 1,
+		1, time.Now(), "", nil, nil, ExecuteGasLimit,
+	)
+
+	return owasmVM, compiledCode, req
 }
