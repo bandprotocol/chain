@@ -10,7 +10,6 @@ linters:
     - misspell
     - typecheck
     - whitespace
-    - ireturn
 
 run:
   timeout: 5m
