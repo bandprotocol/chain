@@ -1,0 +1,15 @@
+linters-settings:
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - depguard
+    - gofmt
+    - goimports
+    - misspell
+    - typecheck
+    - whitespace
+    - ireturn
+
+run:
