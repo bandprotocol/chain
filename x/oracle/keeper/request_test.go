@@ -104,10 +104,16 @@ func TestAddDataSourceBasic(t *testing.T) {
 		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 	))
 	// Adding the first request should return ID 1.
-	id := k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
+	id := k.AddRequest(
+		ctx,
+		types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0),
+	)
 	require.Equal(t, id, types.RequestID(1))
 	// Adding another request should return ID 2.
-	id = k.AddRequest(ctx, types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
+	id = k.AddRequest(
+		ctx,
+		types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0),
+	)
 	require.Equal(t, id, types.RequestID(2))
 }
 

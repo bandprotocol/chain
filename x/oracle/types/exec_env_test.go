@@ -31,7 +31,18 @@ func mockExecEnv() *ExecuteEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
+	request := NewRequest(
+		oracleScriptID,
+		calldata,
+		valAddresses,
+		minCount,
+		requestHeight,
+		requestTime,
+		clientID,
+		nil,
+		nil,
+		0,
+	)
 	rawReport1 := NewRawReport(1, 0, []byte("DATA1"))
 	rawReport2 := NewRawReport(2, 1, []byte("DATA2"))
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
@@ -49,7 +60,18 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
+	request := NewRequest(
+		oracleScriptID,
+		calldata,
+		valAddresses,
+		minCount,
+		requestHeight,
+		requestTime,
+		clientID,
+		nil,
+		nil,
+		0,
+	)
 	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
 	return env
 }

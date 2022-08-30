@@ -51,11 +51,24 @@ type AnteTestSuit struct {
 
 func (suite *AnteTestSuit) SetupTest() {
 	_, suite.ctx, suite.oracleKeeper = testapp.CreateTestInput(true)
-	suite.ctx = suite.ctx.WithBlockHeight(999).WithIsCheckTx(true).WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(14000)}})
+	suite.ctx = suite.ctx.WithBlockHeight(999).
+		WithIsCheckTx(true).
+		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(14000)}})
 
 	suite.oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
 
-	req := types.NewRequest(1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
+	req := types.NewRequest(
+		1,
+		BasicCalldata,
+		[]sdk.ValAddress{testapp.Validators[0].ValAddress},
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		nil,
+		nil,
+		0,
+	)
 	suite.requestId = suite.oracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.mockAnte = new(MyMockAnte)
@@ -92,7 +105,9 @@ func (suite *AnteTestSuit) TestNotValidRawReport() {
 }
 
 func (suite *AnteTestSuit) TestValidReport() {
-	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	reportMsgs := []sdk.Msg{
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+	}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
@@ -109,7 +124,9 @@ func (suite *AnteTestSuit) TestValidReport() {
 }
 
 func (suite *AnteTestSuit) TestNoAuthzReport() {
-	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	reportMsgs := []sdk.Msg{
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+	}
 	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
@@ -122,7 +139,9 @@ func (suite *AnteTestSuit) TestNoAuthzReport() {
 }
 
 func (suite *AnteTestSuit) TestNotValidReport() {
-	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	reportMsgs := []sdk.Msg{
+		types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, testapp.Validators[0].ValAddress),
+	}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
@@ -135,7 +154,17 @@ func (suite *AnteTestSuit) TestNotValidReport() {
 }
 
 func (suite *AnteTestSuit) TestNotReportMsg() {
-	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requestMsg := types.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		testapp.Coins100000000uband,
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address,
+	)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
 	//makes an expectation when call function 'Ante' of 'mockAnte' object
@@ -150,10 +179,22 @@ func (suite *AnteTestSuit) TestNotReportMsg() {
 }
 
 func (suite *AnteTestSuit) TestNotReportMsgOnReportOnlyBlockByCash() {
-	reportMsgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	reportMsgs := []sdk.Msg{
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+	}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTxReport := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
-	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requestMsg := types.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		testapp.Coins100000000uband,
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address,
+	)
 	stubTxNotReport := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
 	//makes an expectation when call function 'Ante' of 'mockAnte' object
@@ -178,12 +219,23 @@ func (suite *AnteTestSuit) TestNotReportMsgOnReportOnlyBlockByCash() {
 	suite.mockAnte.AssertExpectations(suite.T())
 	//the method 'Ante' was called only 2 times because the last 'feelessAnte' execution had been rejected by the block reserved for report txs only reason
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 2)
-	suite.Require().EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
+	suite.Require().
+		EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
 }
 
 func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
 	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
-	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requestMsg := types.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		testapp.Coins100000000uband,
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address,
+	)
 	msgs := []sdk.Msg{reportMsg, requestMsg}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, msgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
@@ -201,7 +253,17 @@ func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
 
 func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
-	requestMsg := types.NewMsgRequestData(1, BasicCalldata, 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	requestMsg := types.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		testapp.Coins100000000uband,
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address,
+	)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{reportMsg, requestMsg}}
 
 	//makes an expectation when call function 'Ante' of 'mockAnte' object

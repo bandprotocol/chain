@@ -27,8 +27,11 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}
-	require.Equal(t,
-		[]byte(`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`),
+	require.Equal(
+		t,
+		[]byte(
+			`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`,
+		),
 		req.GetBytes(),
 	)
 }
@@ -43,5 +46,11 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("4bb10e0000000000"),
 	}
-	require.Equal(t, []byte(`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA="}`), res.GetBytes())
+	require.Equal(
+		t,
+		[]byte(
+			`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA="}`,
+		),
+		res.GetBytes(),
+	)
 }

@@ -10,6 +10,5 @@ linters:
     - misspell
     - typecheck
     - whitespace
-    - ireturn
 
 run:
