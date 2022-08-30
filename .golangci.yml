@@ -10,5 +10,8 @@ linters:
     - misspell
     - typecheck
     - whitespace
+    - ireturn
 
 run:
+  timeout: 5m
+  go: '1.18'

@@ -1,5 +1,5 @@
 repos:
-  - repo: https://github.com/tekwizely/pre-commit-golang
-    rev: v0.8.3
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.49.0
     hooks:
       - id: golangci-lint

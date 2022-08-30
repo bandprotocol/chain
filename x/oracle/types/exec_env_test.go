@@ -104,7 +104,6 @@ func TestSetReturnData(t *testing.T) {
 	eenv := mockExecEnv()
 	eenv.SetReturnData(result)
 	require.Equal(t, result, eenv.Retdata)
-
 }
 func TestGetAskCount(t *testing.T) {
 	// Can call on both environment

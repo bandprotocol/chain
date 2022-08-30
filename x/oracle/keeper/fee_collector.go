@@ -21,7 +21,6 @@ type feeCollector struct {
 }
 
 func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-
 	return &feeCollector{
 		bankKeeper: bankKeeper,
 		payer:      payer,

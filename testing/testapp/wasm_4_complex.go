@@ -5,10 +5,11 @@ import (
 )
 
 // An oracle script for testing complex interactions.
-//   PREPARE:
-//     Call into the given data source ids with the given calldata.
-//   EXECUTE:
-//     Assume all validators report, append all reports to the final result.
+//
+//	PREPARE:
+//	  Call into the given data source ids with the given calldata.
+//	EXECUTE:
+//	  Assume all validators report, append all reports to the final result.
 var Wasm4 []byte
 
 type Wasm4Input struct {

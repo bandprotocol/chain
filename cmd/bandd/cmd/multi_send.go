@@ -44,7 +44,6 @@ func MultiSendTxCmd() *cobra.Command {
 				outputs,
 			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
