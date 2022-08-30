@@ -3,6 +3,7 @@ package benchmark
 import (
 	"io/ioutil"
 	"math"
+	"strconv"
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
@@ -168,4 +169,12 @@ func LogEvents(b testing.TB, events []types.Event) {
 	if len(evs) == 0 {
 		b.Logf("No Event")
 	}
+}
+
+func GetFirstEventValue(events []types.Event) (int, error) {
+	evt := events[len(events)-1]
+	attr := evt.Attributes[0]
+	value, err := strconv.Atoi(string(attr.Value))
+
+	return value, err
 }

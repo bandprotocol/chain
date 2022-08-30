@@ -1,7 +1,6 @@
 package benchmark
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -57,16 +56,22 @@ func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
 	require.NoError(b, err)
-	oid := ba.SendMsgCreateOracleScript(ba.Sender, oCode)
+	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
+	require.NoError(b, err)
+	oid, err := GetFirstEventValue(res.Events)
+	require.NoError(b, err)
 	ba.Oid = uint64(oid)
 
 	// create data source
 	dCode := []byte("hello")
-	did := ba.SendMsgCreateDataSource(ba.Sender, dCode)
+	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
+	require.NoError(b, err)
+	did, err := GetFirstEventValue(res.Events)
+	require.NoError(b, err)
 	ba.Did = uint64(did)
 
 	// activate oracle
-	ba.SendMsgActivate(ba.Validator)
+	_, _, _ = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
 
 	ba.CallEndBlock()
 	ba.Commit()
@@ -74,36 +79,10 @@ func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
 	return ba
 }
 
-func (ba *BenchmarkApp) SendMsgCreateOracleScript(account *Account, code []byte) int {
-	tx := GenSequenceOfTxs(ba.TxConfig, GenMsgCreateOracleScript(account, code), account, 1)[0]
-	_, res, err := ba.CallDeliver(tx)
-	require.NoError(ba.TB, err)
-
-	evt := res.Events[len(res.Events)-1]
-	attr := evt.Attributes[0]
-	oid, err := strconv.Atoi(string(attr.Value))
-	require.NoError(ba.TB, err)
-
-	return oid
-}
-
-func (ba *BenchmarkApp) SendMsgCreateDataSource(account *Account, code []byte) int {
-	tx := GenSequenceOfTxs(ba.TxConfig, GenMsgCreateDataSource(account, code), account, 1)[0]
-	_, res, err := ba.CallDeliver(tx)
-	require.NoError(ba.TB, err)
-
-	evt := res.Events[len(res.Events)-1]
-	attr := evt.Attributes[0]
-	did, err := strconv.Atoi(string(attr.Value))
-	require.NoError(ba.TB, err)
-
-	return did
-}
-
-func (ba *BenchmarkApp) SendMsgActivate(account *Account) {
-	tx := GenSequenceOfTxs(ba.TxConfig, GenMsgActivate(account), account, 1)[0]
-	_, _, err := ba.CallDeliver(tx)
-	require.NoError(ba.TB, err)
+func (ba *BenchmarkApp) DeliverMsg(account *Account, msgs []sdk.Msg) (sdk.GasInfo, *sdk.Result, error) {
+	tx := GenSequenceOfTxs(ba.TxConfig, msgs, account, 1)[0]
+	gas, res, err := ba.CallDeliver(tx)
+	return gas, res, err
 }
 
 func (ba *BenchmarkApp) CallBeginBlock() abci.ResponseBeginBlock {
@@ -143,16 +122,8 @@ func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
 		}
 		require.NoError(ba.TB, err)
 
-		tx := GenSequenceOfTxs(
-			ba.TxConfig,
-			GenMsgReportData(account, rid, eids),
-			account,
-			1,
-		)[0]
-
 		// deliver MsgReportData for the request
-		_, _, err = ba.CallDeliver(tx)
+		_, _, err = ba.DeliverMsg(account, GenMsgReportData(account, rid, eids))
 		require.NoError(ba.TB, err)
-
 	}
 }
