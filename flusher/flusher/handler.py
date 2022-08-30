@@ -386,12 +386,16 @@ class Handler(object):
     def handle_new_incoming_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
-        self.conn.execute(insert(incoming_packets).values(**msg))
+        self.conn.execute(
+            insert(incoming_packets).values(**msg).on_conflict_do_nothing(constraint="incoming_packets_pkey")
+        )
 
     def handle_new_outgoing_packet(self, msg):
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
-        self.conn.execute(insert(outgoing_packets).values(**msg))
+        self.conn.execute(
+            insert(outgoing_packets).values(**msg).on_conflict_do_nothing(constraint="outgoing_packets_pkey")
+        )
 
     def handle_update_outgoing_packet(self, msg):
         condition = True
