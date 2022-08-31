@@ -508,7 +508,7 @@ func NewBandApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// create evidence keeper with router.
+	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
