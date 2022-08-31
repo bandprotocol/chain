@@ -20,7 +20,7 @@ type ReportersPerValidator struct {
 // Params represents parameters for oracle module
 type Params struct {
 	MaxRawRequestCount      uint64 `json:"max_raw_request_count,omitempty"`
-	MaxAskCount             uint64 `                                           son:"max_ask_count,omitempty"`
+	MaxAskCount             uint64 `json:"max_ask_count,omitempty"`
 	ExpirationBlockCount    uint64 `json:"expiration_block_count,omitempty"`
 	BaseRequestGas          uint64 `json:"base_request_gas,omitempty"`
 	PerValidatorRequestGas  uint64 `json:"per_validator_request_gas,omitempty"`
