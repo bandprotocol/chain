@@ -36,7 +36,7 @@ type MyMockAnte struct {
 
 func (m *MyMockAnte) Ante(ctx sdk.Context, tx sdk.Tx, simulate bool) (newCtx sdk.Context, err error) {
 	m.Called(ctx, tx, simulate)
-	//make the function return the same contex as in argument list and no error for the ease of testing
+	// make the function return the same contex as in argument list and no error for the ease of testing
 	return ctx, nil
 }
 
@@ -79,14 +79,14 @@ func (suite *AnteTestSuit) TestValidRawReport() {
 	msgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
 	stubTx := &MyStubTx{Msgs: msgs}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//valid report Msg was called by ante function without minGasPrice
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// valid report Msg was called by ante function without minGasPrice
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
-	//the contex's minGasPrice should be the same as before had been validated by ante function
+	// the contex's minGasPrice should be the same as before had been validated by ante function
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
 	suite.Require().NoError(err)
 }
@@ -95,10 +95,10 @@ func (suite *AnteTestSuit) TestNotValidRawReport() {
 	msgs := []sdk.Msg{types.NewMsgReportData(1, []types.RawReport{}, testapp.Alice.ValAddress)}
 	stubTx := &MyStubTx{Msgs: msgs}
 
-	//no need to make an expectation because ante function will not be called by this condition
+	// no need to make an expectation because ante function will not be called by this condition
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//make sure that ante function was not called
+	// make sure that ante function was not called
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().Equal(ctx, suite.ctx)
 	suite.Require().Error(err)
@@ -111,14 +111,14 @@ func (suite *AnteTestSuit) TestValidReport() {
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//valid report Msg was called by ante function without minGasPrice
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// valid report Msg was called by ante function without minGasPrice
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
-	//the contex's minGasPrice should be the same as before had been validated by ante function
+	// the contex's minGasPrice should be the same as before had been validated by ante function
 	suite.Require().Equal(ctx.MinGasPrices(), suite.ctx.MinGasPrices())
 	suite.Require().NoError(err)
 }
@@ -130,10 +130,10 @@ func (suite *AnteTestSuit) TestNoAuthzReport() {
 	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
-	//no need to make an expectation because ante function will not be called by this condition
+	// no need to make an expectation because ante function will not be called by this condition
 	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//make sure that ante function was not called
+	// make sure that ante function was not called
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().EqualError(err, sdkerrors.ErrUnauthorized.Wrap("authorization not found").Error())
 }
@@ -145,10 +145,10 @@ func (suite *AnteTestSuit) TestNotValidReport() {
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
-	//no need to make an expectation because ante function will not be called by this condition
+	// no need to make an expectation because ante function will not be called by this condition
 	_, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//make sure that ante function was not called
+	// make sure that ante function was not called
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 0)
 	suite.Require().Error(err)
 }
@@ -167,12 +167,12 @@ func (suite *AnteTestSuit) TestNotReportMsg() {
 	)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//others type Msg was normally called by ante function
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// others type Msg was normally called by ante function
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx, suite.ctx)
 	suite.Require().NoError(err)
@@ -197,27 +197,27 @@ func (suite *AnteTestSuit) TestNotReportMsgOnReportOnlyBlockByCash() {
 	)
 	stubTxNotReport := &MyStubTx{Msgs: []sdk.Msg{requestMsg}}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//valid report Msg was called by ante function without minGasPrice
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// valid report Msg was called by ante function without minGasPrice
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTxReport, false)
 	suite.feelessAnte(suite.ctx, stubTxReport, false)
 
-	//do the simulating as the proposal block had been passed for 21 blocks
+	// do the simulating as the proposal block had been passed for 21 blocks
 	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 21)
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//valid report Msg was called by ante function without minGasPrice
-	//need to make another expectation because blockHeight of 'suite.ctx' have been changed
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// valid report Msg was called by ante function without minGasPrice
+	// need to make another expectation because blockHeight of 'suite.ctx' have been changed
 	suite.mockAnte.On("Ante", suite.ctx.WithMinGasPrices(sdk.DecCoins{}), stubTxReport, false)
 	suite.feelessAnte(suite.ctx, stubTxReport, false)
 
-	//do the simulating as the proposal block had passed for a block
+	// do the simulating as the proposal block had passed for a block
 	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
-	//no need to make an expectation because ante function will not be called by this condition
+	// no need to make an expectation because ante function will not be called by this condition
 	_, err := suite.feelessAnte(suite.ctx, stubTxNotReport, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
-	//the method 'Ante' was called only 2 times because the last 'feelessAnte' execution had been rejected by the block reserved for report txs only reason
+	// the method 'Ante' was called only 2 times because the last 'feelessAnte' execution had been rejected by the block reserved for report txs only reason
 	suite.mockAnte.AssertNumberOfCalls(suite.T(), "Ante", 2)
 	suite.Require().
 		EqualError(err, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Block reserved for report txs").Error())
@@ -240,12 +240,12 @@ func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, msgs)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{&authzMsg}}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//the authzMsgs have others type Msg was normally called by ante function
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// the authzMsgs have others type Msg was normally called by ante function
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx, suite.ctx)
 	suite.Require().NoError(err)
@@ -266,12 +266,12 @@ func (suite *AnteTestSuit) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	)
 	stubTx := &MyStubTx{Msgs: []sdk.Msg{reportMsg, requestMsg}}
 
-	//makes an expectation when call function 'Ante' of 'mockAnte' object
-	//the tx has others type Msg was normally called by ante function
+	// makes an expectation when call function 'Ante' of 'mockAnte' object
+	// the tx has others type Msg was normally called by ante function
 	suite.mockAnte.On("Ante", suite.ctx, stubTx, false)
 	ctx, err := suite.feelessAnte(suite.ctx, stubTx, false)
 
-	//asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
+	// asserts all everything specificed with 'On' was in fact called as expected of the 'mockAnte' object
 	suite.mockAnte.AssertExpectations(suite.T())
 	suite.Require().Equal(ctx, suite.ctx)
 	suite.Require().NoError(err)
