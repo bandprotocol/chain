@@ -258,7 +258,6 @@ func NewBandApp(
 	emitterFlag, requestSearchFlag, pricerFlag string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
-
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry

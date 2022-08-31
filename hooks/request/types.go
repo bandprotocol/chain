@@ -95,7 +95,12 @@ func NewReport(requestID types.RequestID, valAddr string, rawReports []RawReport
 }
 
 // NewRawRequest creates new instance of RawRequest
-func NewRawRequest(requestID types.RequestID, externalID types.ExternalID, dataSourceID types.DataSourceID, calldata []byte) RawRequest {
+func NewRawRequest(
+	requestID types.RequestID,
+	externalID types.ExternalID,
+	dataSourceID types.DataSourceID,
+	calldata []byte,
+) RawRequest {
 	return RawRequest{
 		RequestID:    uint(requestID),
 		ExternalID:   int64(externalID),

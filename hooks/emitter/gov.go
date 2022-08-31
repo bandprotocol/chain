@@ -38,7 +38,6 @@ func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []type
 	required_options := map[string]string{"yes": "0", "abstain": "0", "no": "0", "no_with_veto": "0"}
 
 	for _, item := range options {
-
 		switch item.Option {
 		case types.OptionYes:
 			required_options["yes"] = item.Weight.String()
@@ -106,7 +105,6 @@ func (h *Hook) handleMsgVote(
 	h.emitSetVoteWeighted(setVoteWeighted, types.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
-
 }
 
 // handleMsgVoteWeighted implements emitter handler for MsgVoteWeighted.
@@ -121,7 +119,6 @@ func (h *Hook) handleMsgVoteWeighted(
 	h.emitSetVoteWeighted(setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 	detail["title"] = proposal.GetTitle()
-
 }
 
 func (h *Hook) handleEventInactiveProposal(evMap common.EvMap) {

@@ -107,5 +107,4 @@ func handleRequest(gc *gin.Context, c *Context) {
 	gc.JSON(200, Response{
 		TxHash: res.TxHash,
 	})
-
 }

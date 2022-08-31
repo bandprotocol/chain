@@ -84,7 +84,12 @@ func (msg MsgRequestData) ValidateBasic() error {
 		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", msg.ExecuteGas)
 	}
 	if msg.PrepareGas+msg.ExecuteGas > MaximumOwasmGas {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "sum of prepare gas and execute gas (%d) exceed %d", msg.PrepareGas+msg.ExecuteGas, MaximumOwasmGas)
+		return sdkerrors.Wrapf(
+			ErrInvalidOwasmGas,
+			"sum of prepare gas and execute gas (%d) exceed %d",
+			msg.PrepareGas+msg.ExecuteGas,
+			MaximumOwasmGas,
+		)
 	}
 	if !msg.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())
@@ -229,7 +234,12 @@ func (msg MsgCreateDataSource) GetSignBytes() []byte {
 
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
 func NewMsgEditDataSource(
-	dataSourceID DataSourceID, name string, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
+	dataSourceID DataSourceID,
+	name string,
+	description string,
+	executable []byte,
+	fee sdk.Coins,
+	treasury, owner, sender sdk.AccAddress,
 ) *MsgEditDataSource {
 	return &MsgEditDataSource{
 		DataSourceID: dataSourceID,
@@ -375,7 +385,10 @@ func (msg MsgCreateOracleScript) GetSignBytes() []byte {
 
 // NewMsgEditOracleScript creates a new MsgEditOracleScript instance
 func NewMsgEditOracleScript(
-	oracleScriptID OracleScriptID, name, description, schema, sourceCodeURL string, code []byte, owner, sender sdk.AccAddress,
+	oracleScriptID OracleScriptID,
+	name, description, schema, sourceCodeURL string,
+	code []byte,
+	owner, sender sdk.AccAddress,
 ) *MsgEditOracleScript {
 	return &MsgEditOracleScript{
 		OracleScriptID: oracleScriptID,

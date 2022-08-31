@@ -181,11 +181,9 @@ func (k Keeper) CollectFee(
 	askCount uint64,
 	rawRequests []types.RawRequest,
 ) (sdk.Coins, error) {
-
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {
-
 		ds, err := k.GetDataSource(ctx, r.DataSourceID)
 		if err != nil {
 			return nil, err

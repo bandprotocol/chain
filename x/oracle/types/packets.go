@@ -7,7 +7,14 @@ import (
 
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
-	clientID string, oracleScriptID OracleScriptID, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, prepareGas uint64, executeGas uint64,
+	clientID string,
+	oracleScriptID OracleScriptID,
+	calldata []byte,
+	askCount uint64,
+	minCount uint64,
+	feeLimit sdk.Coins,
+	prepareGas uint64,
+	executeGas uint64,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
@@ -39,7 +46,12 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", p.ExecuteGas)
 	}
 	if p.PrepareGas+p.ExecuteGas > MaximumOwasmGas {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "sum of prepare gas and execute gas (%d) exceed %d", p.PrepareGas+p.ExecuteGas, MaximumOwasmGas)
+		return sdkerrors.Wrapf(
+			ErrInvalidOwasmGas,
+			"sum of prepare gas and execute gas (%d) exceed %d",
+			p.PrepareGas+p.ExecuteGas,
+			MaximumOwasmGas,
+		)
 	}
 	if !p.FeeLimit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, p.FeeLimit.String())

@@ -27,7 +27,6 @@ func TestChooseOneOne(t *testing.T) {
 	require.Equal(t, 2, bandrng.ChooseOne(r, weights)) // rng NextUint64() will return 5751621621077249396
 	require.Equal(t, 1, bandrng.ChooseOne(r, weights)) // rng NextUint64() will return 16474548556352052882
 	require.Equal(t, 2, bandrng.ChooseOne(r, weights)) // rng NextUint64() will return 17097048712898369316
-
 }
 
 func TestChooseOnePanic(t *testing.T) {

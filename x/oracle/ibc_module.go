@@ -193,7 +193,6 @@ func (im IBCModule) OnRecvPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-
 	var data types.OracleRequestPacketData
 	if !im.keeper.IBCRequestEnabled(ctx) {
 		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled.Error())

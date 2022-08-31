@@ -134,7 +134,6 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 }
 
 func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
-
 	req, err := GetRequest(c, l, id)
 	if err != nil {
 		l.Error(":skull: Failed to get request with error: %s", c, err.Error())
@@ -150,7 +149,6 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 
 	// prepare raw requests
 	for _, raw := range req.RawRequests {
-
 		hash, err := GetDataSourceHash(c, l, raw.DataSourceID)
 		if err != nil {
 			l.Error(":skull: Failed to get data source hash with error: %s", c, err.Error())

@@ -1,10 +1,11 @@
 package testapp
 
 // A silly oracle script, primarily to test that you must make at least one raw request:
-//   PREPARE:
-//     DO NOTHING
-//   EXECUTE:
-//     DO NOTHING
+//
+//	PREPARE:
+//	  DO NOTHING
+//	EXECUTE:
+//	  DO NOTHING
 var Wasm3 []byte = wat2wasm([]byte(`
 (module
 	(type $t0 (func))
