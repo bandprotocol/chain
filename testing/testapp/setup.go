@@ -91,7 +91,7 @@ const (
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
-		MaxGas:   2000000,
+		MaxGas:   -1,
 	},
 	Evidence: &tmproto.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
@@ -366,9 +366,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
-		ChainId:       chainID,
-		Validators:    []abci.ValidatorUpdate{},
-		AppStateBytes: stateBytes,
+		ChainId:         chainID,
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
 	})
 	return app
 }
