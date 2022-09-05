@@ -50,6 +50,7 @@ func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
 func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
 	// If distrKeeper is not set OR we want to burn coins in distr itself, we will
 	// just use the original BurnCoins function.
+
 	if k.distrKeeper == nil || moduleName == distrtypes.ModuleName {
 		return k.Keeper.BurnCoins(ctx, moduleName, amt)
 	}

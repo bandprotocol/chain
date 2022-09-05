@@ -97,7 +97,6 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 }
 
 func GenMsgReportData(account *Account, rid uint64, eids []int64) []sdk.Msg {
-
 	rawReports := []oracletypes.RawReport{}
 
 	for _, eid := range eids {

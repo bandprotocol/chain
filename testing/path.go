@@ -46,7 +46,6 @@ func (path *Path) RelayPacket(packet channeltypes.Packet, ack []byte) error {
 		packet.GetSequence(),
 	)
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointA.Chain.App.AppCodec(), packet)) {
-
 		// packet found, relay from A to B
 		path.EndpointB.UpdateClient()
 
@@ -58,7 +57,6 @@ func (path *Path) RelayPacket(packet channeltypes.Packet, ack []byte) error {
 			return err
 		}
 		return nil
-
 	}
 
 	pc = path.EndpointB.Chain.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(
@@ -68,7 +66,6 @@ func (path *Path) RelayPacket(packet channeltypes.Packet, ack []byte) error {
 		packet.GetSequence(),
 	)
 	if bytes.Equal(pc, channeltypes.CommitPacket(path.EndpointB.Chain.App.AppCodec(), packet)) {
-
 		// packet found, relay B to A
 		path.EndpointA.UpdateClient()
 

@@ -186,7 +186,6 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 						b.StopTimer()
 
 						for i := 0; i < b.N; i++ {
-
 							// deliver MsgRequestData to the first block
 							ba.CallBeginBlock()
 
@@ -209,7 +208,6 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 
 							ba.Commit()
 						}
-
 					},
 				)
 			}

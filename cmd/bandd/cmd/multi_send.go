@@ -14,7 +14,7 @@ func MultiSendTxCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "multi-send [amount_per_account] [to_address1] [to_address2] ....",
 		Short: "Send token to multiple accounts",
-		Long: "Send equal amount of token to multiple accounts",
+		Long:  "Send equal amount of token to multiple accounts",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -44,7 +44,6 @@ func MultiSendTxCmd() *cobra.Command {
 				outputs,
 			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)

@@ -8,16 +8,18 @@ import (
 
 // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
 // compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
-//                                              ________________[AppHash]_________________
-//                                             /                                          \
-//                         _________________[I14]_________________                     __[I15]__
-//                        /                                        \				 /          \
-//             _______[I12]______                          _______[I13]________    [G]         [H]
-//            /                  \                        /                    \
-//       __[I8]__             __[I9]__                __[I10]__              __[I11]__
-//      /         \          /         \            /          \            /         \
-//    [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
-//   /   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
+//
+//	                                           ________________[AppHash]_________________
+//	                                          /                                          \
+//	                      _________________[I14]_________________                     __[I15]__
+//	                     /                                        \				 /          \
+//	          _______[I12]______                          _______[I13]________    [G]         [H]
+//	         /                  \                        /                    \
+//	    __[I8]__             __[I9]__                __[I10]__              __[I11]__
+//	   /         \          /         \            /          \            /         \
+//	 [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
+//	/   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
+//
 // [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
 // [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
 // [6] - evidence   [7] - feegrant [8] - gov      [9] - ibccore    [A] - icahost  [B] - mint
