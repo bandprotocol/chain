@@ -149,7 +149,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		detail,
 		"{\"grant\":{\"authorization\":{\"max_tokens\":{\"denom\":\"uband\",\"amount\":\"1\"},\"Validators\":{\"allow_list\":{\"address\":[\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"]}},\"authorization_type\":1},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
-
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgRevoke() {
@@ -177,7 +176,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgExec() {
 		detail,
 		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"raw_reports\":null,\"request_id\":0,\"type\":\"/oracle.v1.MsgReportData\",\"validator\":\"\"}]}",
 	)
-
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
@@ -334,7 +332,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 		detail,
 		"{\"content\":{\"title\":\"Title\",\"description\":\"Desc\"},\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
-
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {

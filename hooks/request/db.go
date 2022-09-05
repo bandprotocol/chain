@@ -99,7 +99,12 @@ func (h *Hook) removeOldRecords(request types.QueryRequestResponse) {
 		Delete(&Request{})
 }
 
-func (h *Hook) getLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (*Request, error) {
+func (h *Hook) getLatestRequest(
+	oid types.OracleScriptID,
+	calldata []byte,
+	askCount uint64,
+	minCount uint64,
+) (*Request, error) {
 	var result Request
 	queryCondition := Request{
 		OracleScriptID: int64(oid),

@@ -21,7 +21,6 @@ type feeCollector struct {
 }
 
 func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.AccAddress) FeeCollector {
-
 	return &feeCollector{
 		bankKeeper: bankKeeper,
 		payer:      payer,
@@ -37,7 +36,13 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 	for _, c := range coll.collected {
 		limitAmt := coll.limit.AmountOf(c.Denom)
 		if c.Amount.GT(limitAmt) {
-			return sdkerrors.Wrapf(types.ErrNotEnoughFee, "require: %s, max: %s%s", c.String(), limitAmt.String(), c.Denom)
+			return sdkerrors.Wrapf(
+				types.ErrNotEnoughFee,
+				"require: %s, max: %s%s",
+				c.String(),
+				limitAmt.String(),
+				c.Denom,
+			)
 		}
 	}
 

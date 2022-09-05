@@ -258,7 +258,6 @@ func NewBandApp(
 	emitterFlag, requestSearchFlag, pricerFlag string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
-
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -509,7 +508,7 @@ func NewBandApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// create evidence keeper with router.
+	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
