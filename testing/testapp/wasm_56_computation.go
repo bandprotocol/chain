@@ -5,10 +5,11 @@ import (
 )
 
 // An oracle script to test heavy computation.
-//   PREPARE:
-//     Loop for `time` times and ask external data with calldata "new beeb".
-//   EXECUTE:
-//     Loop for `time` times and set return data "new beeb".
+//
+//	PREPARE:
+//	  Loop for `time` times and ask external data with calldata "new beeb".
+//	EXECUTE:
+//	  Loop for `time` times and set return data "new beeb".
 func Wasm56(time int) []byte {
 	return wat2wasm([]byte(fmt.Sprintf(`(module
 	 (type $t0 (func))

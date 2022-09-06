@@ -67,7 +67,6 @@ func TestCompress(t *testing.T) {
 		compressedBytes,
 	)
 	require.NoError(t, err)
-
 }
 
 func TestIsGzip(t *testing.T) {

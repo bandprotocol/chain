@@ -69,7 +69,9 @@ func getIAVLParentHash(path IAVLMerklePath, subtreeHash []byte) []byte {
 
 func TestGetMerklePaths(t *testing.T) {
 	key := base64ToBytes("/wAAAAAAAAAB")
-	data := base64ToBytes("CocCCgn/AAAAAAAAAAESOxABGhMAAAABAAAAA0JUQwAAAAAAAYagIAEoATABOAFAk6mTiQZIl6mTiQZQAVoMAAAAAQAAAAEk7AeMGgwIARgBIAEqBAACsgMiKggBEiYCBLIDIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9ICIqCAESJgQIsgMgGEcQdQfV57TNmUHrb/4WlCZK80xoXBncR4vq3aJlpXggIioIARImBgyyAyDoCq5YHsAEI5hUxNkNgUjoXx+Q0HBKc2aP0tpE3AzqUyAiKwgBEicKIM6GAyB0G3lGJNvpTWfNae6o1Xqqdo0upy8fylYaS++2eDbp4SA=")
+	data := base64ToBytes(
+		"CocCCgn/AAAAAAAAAAESOxABGhMAAAABAAAAA0JUQwAAAAAAAYagIAEoATABOAFAk6mTiQZIl6mTiQZQAVoMAAAAAQAAAAEk7AeMGgwIARgBIAEqBAACsgMiKggBEiYCBLIDIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9ICIqCAESJgQIsgMgGEcQdQfV57TNmUHrb/4WlCZK80xoXBncR4vq3aJlpXggIioIARImBgyyAyDoCq5YHsAEI5hUxNkNgUjoXx+Q0HBKc2aP0tpE3AzqUyAiKwgBEicKIM6GAyB0G3lGJNvpTWfNae6o1Xqqdo0upy8fylYaS++2eDbp4SA=",
+	)
 
 	var iavlOps storetypes.CommitmentOp
 	proof := &ics23.CommitmentProof{}

@@ -44,7 +44,9 @@ import (
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
-	data := base64ToBytes("Cv4BCgZvcmFjbGUSIMT+mWz9fL7gX5H1AiW7yVAXmGUkktBlOeF2V6DQGHBAGgkIARgBIAEqAQAiJwgBEgEBGiBbVrrKUHwejOlFfIHXQOt1ZoVSkjhvUdN4/Le2pMMIBCInCAESAQEaIP5aDHMJD2XUGAb1AQTE6wOzhWF4vcLj2B7mTftzbPaSIiUIARIhAdatdSzIzkclfVSgUbUYtE2UuzHMmNx1Zkh8sG7XoWWzIiUIARIhAVJHpAk7sdhIumCm11lfSzUrQRkm0DU2fR7tsB05bvlMIicIARIBARog5djvzlhwOubP4S4dKLAi3GdB5eja1e2Yt3kP9mOtxZg=")
+	data := base64ToBytes(
+		"Cv4BCgZvcmFjbGUSIMT+mWz9fL7gX5H1AiW7yVAXmGUkktBlOeF2V6DQGHBAGgkIARgBIAEqAQAiJwgBEgEBGiBbVrrKUHwejOlFfIHXQOt1ZoVSkjhvUdN4/Le2pMMIBCInCAESAQEaIP5aDHMJD2XUGAb1AQTE6wOzhWF4vcLj2B7mTftzbPaSIiUIARIhAdatdSzIzkclfVSgUbUYtE2UuzHMmNx1Zkh8sG7XoWWzIiUIARIhAVJHpAk7sdhIumCm11lfSzUrQRkm0DU2fR7tsB05bvlMIicIARIBARog5djvzlhwOubP4S4dKLAi3GdB5eja1e2Yt3kP9mOtxZg=",
+	)
 
 	var multistoreOps storetypes.CommitmentOp
 	proof := &ics23.CommitmentProof{}

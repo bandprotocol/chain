@@ -244,7 +244,6 @@ func NewBandApp(
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
 	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
-
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -435,14 +434,12 @@ func NewBandApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// create evidence keeper with router.
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
-	/****  Module Options ****/
 
 	/****  Module Options ****/
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment

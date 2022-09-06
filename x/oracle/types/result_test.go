@@ -21,7 +21,9 @@ func TestEncodeResult(t *testing.T) {
 		RESOLVE_STATUS_SUCCESS,
 		mustDecodeString("00000000009443ee"),
 	)
-	expectedEncodedResult := mustDecodeString("0a046265656210011a0f0000000342544300000000000003e8200128013002380140d8f7f8f60548daf7f8f60550015a0800000000009443ee")
+	expectedEncodedResult := mustDecodeString(
+		"0a046265656210011a0f0000000342544300000000000003e8200128013002380140d8f7f8f60548daf7f8f60550015a0800000000009443ee",
+	)
 	require.Equal(t, expectedEncodedResult, ModuleCdc.MustMarshal(&result))
 }
 
@@ -39,7 +41,9 @@ func TestEncodeResultOfEmptyClientID(t *testing.T) {
 		RESOLVE_STATUS_SUCCESS,
 		mustDecodeString("0000000000944387"),
 	)
-	expectedEncodedResult := mustDecodeString("10011a0f0000000342544300000000000003e82001280130013801409af6f8f605489df6f8f60550015a080000000000944387")
+	expectedEncodedResult := mustDecodeString(
+		"10011a0f0000000342544300000000000003e82001280130013801409af6f8f605489df6f8f60550015a080000000000944387",
+	)
 	require.Equal(t, expectedEncodedResult, ModuleCdc.MustMarshal(&result))
 }
 
@@ -57,6 +61,8 @@ func TestEncodeFailResult(t *testing.T) {
 		RESOLVE_STATUS_FAILURE,
 		[]byte{},
 	)
-	expectedEncodedResult := mustDecodeString("0a09636c69656e745f696410011a0f0000000342544300000000000003e82001280130013801409af6f8f605489df6f8f6055002")
+	expectedEncodedResult := mustDecodeString(
+		"0a09636c69656e745f696410011a0f0000000342544300000000000003e82001280130013801409af6f8f605489df6f8f6055002",
+	)
 	require.Equal(t, expectedEncodedResult, ModuleCdc.MustMarshal(&result))
 }

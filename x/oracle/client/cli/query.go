@@ -133,7 +133,10 @@ func GetQueryCmdOracleScript() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.OracleScript(context.Background(), &types.QueryOracleScriptRequest{OracleScriptId: id})
+			r, err := queryClient.OracleScript(
+				context.Background(),
+				&types.QueryOracleScriptRequest{OracleScriptId: id},
+			)
 			if err != nil {
 				return err
 			}
@@ -195,7 +198,10 @@ func GetQueryCmdValidatorStatus() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Validator(context.Background(), &types.QueryValidatorRequest{ValidatorAddress: valAddress.String()})
+			r, err := queryClient.Validator(
+				context.Background(),
+				&types.QueryValidatorRequest{ValidatorAddress: valAddress.String()},
+			)
 			if err != nil {
 				return err
 			}
@@ -220,7 +226,10 @@ func GetQueryCmdReporters() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Reporters(context.Background(), &types.QueryReportersRequest{ValidatorAddress: args[0]})
+			r, err := queryClient.Reporters(
+				context.Background(),
+				&types.QueryReportersRequest{ValidatorAddress: args[0]},
+			)
 			if err != nil {
 				return err
 			}

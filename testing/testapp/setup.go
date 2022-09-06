@@ -91,7 +91,7 @@ const (
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
-		MaxGas:   2000000,
+		MaxGas:   -1,
 	},
 	Evidence: &tmproto.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
@@ -366,9 +366,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
-		ChainId:       chainID,
-		Validators:    []abci.ValidatorUpdate{},
-		AppStateBytes: stateBytes,
+		ChainId:         chainID,
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
 	})
 	return app
 }
@@ -475,7 +476,6 @@ func SetupWithGenesisValSet(
 			delegations,
 			stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
 		)
-
 	}
 
 	// set validators and delegations
@@ -614,7 +614,6 @@ func SignAndDeliver(
 	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
-
 	tx, err := GenTx(
 		txCfg,
 		msgs,
