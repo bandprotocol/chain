@@ -30,18 +30,18 @@ var ExecuteCases = map[string]struct {
 		scenario:   101,
 		parameters: []uint64{0},
 	},
-	"arithmatic_ops": {
-		scenario:   102,
-		parameters: []uint64{1, 10, 1000, 10000, 100000},
-	},
-	"allocate_mem": {
-		scenario:   103,
-		parameters: []uint64{1, 10, 1000, 10000, 100000},
-	},
-	"find_median": {
-		scenario:   104,
-		parameters: []uint64{0, 1, 10, 50, 100},
-	},
+	// "arithmatic_ops": {
+	// 	scenario:   102,
+	// 	parameters: []uint64{1, 10, 1000, 10000, 100000},
+	// },
+	// "allocate_mem": {
+	// 	scenario:   103,
+	// 	parameters: []uint64{1, 10, 1000, 10000, 100000},
+	// },
+	// "find_median": {
+	// 	scenario:   104,
+	// 	parameters: []uint64{0, 1, 10, 50, 100},
+	// },
 }
 
 var CacheCases = map[string]uint32{
@@ -164,7 +164,7 @@ func BenchmarkRequestDataDeliver(b *testing.B) {
 func BenchmarkRequestDataEndBlock(b *testing.B) {
 	for name, tc := range ExecuteCases {
 		for _, pm := range tc.parameters {
-			for _, nr := range []int{0, 1, 5, 10, 20} {
+			for _, nr := range []int{0, 1, 2, 3, 4} {
 				b.Run(
 					fmt.Sprintf(
 						"%s (param: %d) - %d requests/block",

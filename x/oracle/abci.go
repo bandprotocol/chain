@@ -21,6 +21,18 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keep
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
 }
 
+// normal infinite_loop endblock time
+// 1 579364959 ns/op
+// 2 2938453136 ns/op
+// 3 5861987516 ns/op
+// 4 11741768645 ns/op
+
+// parallel infinite_loop endblock time
+// 1 561351578 ns/op
+// 2 1171098667 ns/op
+// 3 1798620753 ns/op
+// 4 3196217537 ns/op
+
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
