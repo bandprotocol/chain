@@ -49,7 +49,7 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 }
 
 // ResolveSuccess resolves the given request as success with the given result.
-func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint32) {
+func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint64) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,

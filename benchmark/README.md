@@ -35,5 +35,6 @@ Output {
 ## How to run benchmark
 
 ```
+cd benchmark
 go test -v -bench=. -benchtime=1s -benchmem -cpu 4
 ```

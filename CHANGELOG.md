@@ -8,6 +8,7 @@
 - (chain) Add MaxDelay parameter for request verification query
 - (chain) Add snapshot extension for oracle module
 - (yoda) Add BAND_DATA_SOURCE_ID in header
+- (chain) change max gas per block to 50M
 
 ## [v2.3.3](https://github.com/bandprotocol/chain/releases/tag/v2.3.3)
 

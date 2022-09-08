@@ -13,11 +13,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// 1 cosmos gas is equal to 7 owasm gas
-const gasConversionFactor = 7
+// 1 cosmos gas is equal to 31500000 owasm gas
+const gasConversionFactor = 31_500_000
 
-func ConvertToOwasmGas(cosmos uint64) uint32 {
-	return uint32(cosmos * gasConversionFactor)
+func ConvertToOwasmGas(cosmos uint64) uint64 {
+	return uint64(cosmos * gasConversionFactor)
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
