@@ -1,7 +1,7 @@
 package oracle
 
 import (
-	"fmt"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -30,32 +30,23 @@ func reverseArray(arr []types.RequestID) []types.RequestID {
 
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
-	// jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
+	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
 
-	// var wg sync.WaitGroup
+	var wg sync.WaitGroup
 
 	// Loops through all requests in the resolvable list to parallel resolve all of them!
-	rPendingResolveList := reverseArray(k.GetPendingResolveList(ctx))
+	for _, reqID := range k.GetPendingResolveList(ctx) {
+		wg.Add(1)
+		go func(ctx sdk.Context, reqID types.RequestID) {
+			defer wg.Done()
 
-	fmt.Println("**************************")
-	fmt.Printf("len pendingResolve: %d\n", len(rPendingResolveList))
-	fmt.Println("**************************")
-	for _, reqID := range rPendingResolveList {
-		k.ResolveRequest(ctx, reqID)
+			// Create an empty struct to signal when the job finishes
+			jobc <- struct{}{}
+			k.ResolveRequest(ctx, reqID)
+			<-jobc
+		}(ctx, reqID)
 	}
-
-	// for _, reqID := range k.GetPendingResolveList(ctx) {
-	// 	wg.Add(1)
-	// 	go func(ctx sdk.Context, reqID types.RequestID) {
-	// 		defer wg.Done()
-
-	// 		// Create an empty struct to signal when the job finishes
-	// 		jobc <- struct{}{}
-	// 		k.ResolveRequest(ctx, reqID)
-	// 		<-jobc
-	// 	}(ctx, reqID)
-	// }
-	// wg.Wait()
+	wg.Wait()
 
 	// Once all the requests are resolved, we can clear the list.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
