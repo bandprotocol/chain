@@ -1,0 +1,16 @@
+linters-settings:
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - depguard
+    - gofmt
+    - goimports
+    - misspell
+    - typecheck
+    - whitespace
+
+run:
+  timeout: 5m
+  go: '1.18'

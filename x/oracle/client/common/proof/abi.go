@@ -6,32 +6,32 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "authToFeeGrantStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "govToIbcCoreStoresMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "mintStoreMerkleHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
         "name": "oracleIAVLStateHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "paramsToTransferStoresMerkleHash",
+        "name": "paramsStoreMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "upgradeStoreMerkleHash",
+        "name": "slashingToStakingStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "govToMintStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "authToFeegrantStoresMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "transferToUpgradeStoresMerkleHash",
         "type": "bytes32"
       }
     ],
@@ -89,6 +89,23 @@ var relayFormat = []byte(`
   {
     "components": [
       {
+        "internalType": "bytes",
+        "name": "signedDataPrefix",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signedDataSuffix",
+        "type": "bytes"
+      }
+    ],
+    "internalType": "struct CommonEncodedVotePart.Data",
+    "name": "commonEncodedVotePart",
+    "type": "tuple"
+  },
+  {
+    "components": [
+      {
         "internalType": "bytes32",
         "name": "r",
         "type": "bytes32"
@@ -105,12 +122,7 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes",
-        "name": "signedDataPrefix",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signedDataSuffix",
+        "name": "encodedTimestamp",
         "type": "bytes"
       }
     ],

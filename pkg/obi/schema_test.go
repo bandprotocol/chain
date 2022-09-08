@@ -61,7 +61,11 @@ func TestEmptySchemaFail(t *testing.T) {
 }
 
 func TestMissingOBISchemaFail(t *testing.T) {
-	require.PanicsWithError(t, "obi: no obi tag found for field NoOBITag of NoOBITagStruct", func() { MustGetSchema(NoOBITagStruct{}) })
+	require.PanicsWithError(
+		t,
+		"obi: no obi tag found for field NoOBITag of NoOBITagStruct",
+		func() { MustGetSchema(NoOBITagStruct{}) },
+	)
 }
 
 func TestUnsupportedTypeFail(t *testing.T) {
@@ -69,11 +73,19 @@ func TestUnsupportedTypeFail(t *testing.T) {
 }
 
 func TestSchemaSupportedNumberTypeSuccess(t *testing.T) {
-	require.Equal(t, "{numUint8:u8,numUint16:u16,numUint32:u32,numUint64:u64,numInt8:i8,numInt16:i16,numInt32:i32,numInt64:i64}", MustGetSchema(AllData{}))
+	require.Equal(
+		t,
+		"{numUint8:u8,numUint16:u16,numUint32:u32,numUint64:u64,numInt8:i8,numInt16:i16,numInt32:i32,numInt64:i64}",
+		MustGetSchema(AllData{}),
+	)
 }
 
 func TestSchemaSupportedNumberAliasTypeSuccess(t *testing.T) {
-	require.Equal(t, "{numUint8:u8,numUint16:u16,numUint32:u32,numUint64:u64,numInt8:i8,numInt16:i16,numInt32:i32,numInt64:i64}", MustGetSchema(AllDataAlias{}))
+	require.Equal(
+		t,
+		"{numUint8:u8,numUint16:u16,numUint32:u32,numUint64:u64,numInt8:i8,numInt16:i16,numInt32:i32,numInt64:i64}",
+		MustGetSchema(AllDataAlias{}),
+	)
 }
 
 func TestSchemaInvalidSliceFail(t *testing.T) {

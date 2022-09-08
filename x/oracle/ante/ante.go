@@ -126,7 +126,6 @@ func NewFeelessReportsAnteHandler(ante sdk.AnteHandler, oracleKeeper keeper.Keep
 						isValidReportTx = false
 						break
 					}
-
 				}
 			}
 			if isRepOnlyBlock && !isValidReportTx {

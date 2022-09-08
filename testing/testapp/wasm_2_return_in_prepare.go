@@ -1,10 +1,11 @@
 package testapp
 
 // A bad Owasm script with the following specification:
-//   PREPARE:
-//     CALL set_return_data with RETDATA "beeb" -- Not allowed during prepare
-//   EXECUTE:
-//     DO NOTHING
+//
+//	PREPARE:
+//	  CALL set_return_data with RETDATA "beeb" -- Not allowed during prepare
+//	EXECUTE:
+//	  DO NOTHING
 var Wasm2 []byte = wat2wasm([]byte(`
 (module
 	(type $t0 (func))

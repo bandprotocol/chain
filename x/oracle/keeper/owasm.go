@@ -16,7 +16,7 @@ import (
 // 1 cosmos gas is equal to 7 owasm gas
 const gasConversionFactor = 7
 
-func convertToOwasmGas(cosmos uint64) uint32 {
+func ConvertToOwasmGas(cosmos uint64) uint32 {
 	return uint32(cosmos * gasConversionFactor)
 }
 
@@ -94,7 +94,7 @@ func (k Keeper) PrepareRequest(
 	ctx.GasMeter().ConsumeGas(k.BaseOwasmGas(ctx), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, convertToOwasmGas(r.GetPrepareGas()), int64(k.MaxCalldataSize(ctx)), env)
+	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), int64(k.MaxCalldataSize(ctx)), env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
@@ -158,7 +158,13 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(code, convertToOwasmGas(req.GetExecuteGas()), int64(k.MaxReportDataSize(ctx)), env)
+	output, err := k.owasmVM.Execute(
+		code,
+		ConvertToOwasmGas(req.GetExecuteGas()),
+		int64(k.MaxReportDataSize(ctx)),
+		env,
+	)
+
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
 	} else if env.Retdata == nil {
@@ -169,12 +175,16 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 }
 
 // CollectFee subtract fee from fee payer and send them to treasury
-func (k Keeper) CollectFee(ctx sdk.Context, payer sdk.AccAddress, feeLimit sdk.Coins, askCount uint64, rawRequests []types.RawRequest) (sdk.Coins, error) {
-
+func (k Keeper) CollectFee(
+	ctx sdk.Context,
+	payer sdk.AccAddress,
+	feeLimit sdk.Coins,
+	askCount uint64,
+	rawRequests []types.RawRequest,
+) (sdk.Coins, error) {
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {
-
 		ds, err := k.GetDataSource(ctx, r.DataSourceID)
 		if err != nil {
 			return nil, err
