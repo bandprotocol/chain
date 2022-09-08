@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-const MAX_CONCURRENT_JOBS = 5
+const MAX_CONCURRENT_JOBS = 4
 
 // handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.
 func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
@@ -19,13 +19,6 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keep
 	k.SetRollingSeed(ctx, append(rollingSeed[1:], req.GetHash()[0]))
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
-}
-
-func reverseArray(arr []types.RequestID) []types.RequestID {
-	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
-		arr[i], arr[j] = arr[j], arr[i]
-	}
-	return arr
 }
 
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
