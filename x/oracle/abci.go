@@ -1,6 +1,8 @@
 package oracle
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -19,6 +21,13 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keep
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
 }
 
+func reverseArray(arr []types.RequestID) []types.RequestID {
+	for i, j := 0, len(arr)-1; i < j; i, j = i+1, j-1 {
+		arr[i], arr[j] = arr[j], arr[i]
+	}
+	return arr
+}
+
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
@@ -26,9 +35,11 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// var wg sync.WaitGroup
 
 	// Loops through all requests in the resolvable list to parallel resolve all of them!
-	pendingResolveList := k.GetPendingResolveList(ctx)
-	for i := len(pendingResolveList) - 1; i > 0; i-- {
-		k.ResolveRequest(ctx, pendingResolveList[i])
+	rPendingResolveList := reverseArray(k.GetPendingResolveList(ctx))
+	for _, reqID := range rPendingResolveList {
+		fmt.Println("pending resolve list")
+		fmt.Println(reqID)
+		k.ResolveRequest(ctx, reqID)
 	}
 
 	// for _, reqID := range k.GetPendingResolveList(ctx) {
