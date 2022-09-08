@@ -37,7 +37,7 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Loops through all requests in the resolvable list to parallel resolve all of them!
 	rPendingResolveList := reverseArray(k.GetPendingResolveList(ctx))
 
-	fmt.Println("len pendingResolve:", len(rPendingResolveList))
+	fmt.Printf("\n\n\n\nlen pendingResolve: %d \n\n\n\n", len(rPendingResolveList))
 	for _, reqID := range rPendingResolveList {
 		fmt.Println("pending resolve list")
 		k.ResolveRequest(ctx, reqID)
