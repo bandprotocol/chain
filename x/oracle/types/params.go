@@ -18,7 +18,7 @@ const (
 	DefaultMaxCalldataSize         = uint64(256) // 256B
 	DefaultMaxReportDataSize       = uint64(512) // 512B
 	DefaultExpirationBlockCount    = uint64(100)
-	DefaultBaseRequestGas          = uint64(20000)
+	DefaultBaseRequestGas          = uint64(35000)
 	DefaultPerValidatorRequestGas  = uint64(0)
 	DefaultSamplingTryCount        = uint64(3)
 	DefaultOracleRewardPercentage  = uint64(70)

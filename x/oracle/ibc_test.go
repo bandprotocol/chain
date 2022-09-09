@@ -334,7 +334,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		100,
+		1,
 		testapp.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
