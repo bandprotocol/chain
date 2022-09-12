@@ -23,7 +23,7 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keep
 
 // handleEndBlock cleans up the state during end block. See comment in the implementation!
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
-	jobc := make(chan struct{}, MAX_CONCURRENT_JOBS)
+	jobc := make(chan struct{}, types.MaxConcurentResolvingRequests)
 
 	var wg sync.WaitGroup
 
