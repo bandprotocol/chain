@@ -32,7 +32,7 @@ func signAndBroadcast(
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		BroadcastMode:     "async",
+		BroadcastMode:     "sync",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 	acc, err := queryAccount(clientCtx, key)
