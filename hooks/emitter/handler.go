@@ -107,7 +107,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *authz.MsgRevoke:
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
-		h.handleMsgExec(ctx, txHash, msg, detail)
+		h.handleMsgExec(ctx, txHash, msg, log, detail)
 	default:
 		break
 	}

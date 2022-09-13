@@ -43,7 +43,13 @@ func (h *Hook) handleMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 	detail["url"] = msg.MsgTypeUrl
 }
 
-func (h *Hook) handleMsgExec(ctx sdk.Context, txHash []byte, msg *authz.MsgExec, detail common.JsDict) {
+func (h *Hook) handleMsgExec(
+	ctx sdk.Context,
+	txHash []byte,
+	msg *authz.MsgExec,
+	log sdk.ABCIMessageLog,
+	detail common.JsDict,
+) {
 	msgs, _ := msg.GetMessages()
 	grantee := msg.Grantee
 	for _, msg := range msgs {
@@ -51,7 +57,14 @@ func (h *Hook) handleMsgExec(ctx sdk.Context, txHash []byte, msg *authz.MsgExec,
 		case *oracletypes.MsgReportData:
 			h.handleMsgReportDataFromGrantee(ctx, txHash, msg, grantee)
 		default:
-			break
+			// add signers for this message into the transaction
+			signers := msg.GetSigners()
+			addrs := make([]string, len(signers))
+			for idx, signer := range signers {
+				addrs[idx] = signer.String()
+			}
+			h.AddAccountsInTx(addrs...)
+			h.handleMsg(ctx, txHash, msg, log, detail)
 		}
 	}
 }

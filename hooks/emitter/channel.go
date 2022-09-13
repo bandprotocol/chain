@@ -301,7 +301,7 @@ func (h *Hook) extractInterchainAccountPacket(
 
 				// decode message
 				msgDetail := make(common.JsDict)
-				h.DecodeMsg(ctx, msg, msgDetail)
+				DecodeMsg(msg, msgDetail)
 				innerMessages = append(innerMessages, common.JsDict{
 					"type": sdk.MsgTypeURL(msg),
 					"msg":  msgDetail,
