@@ -30,7 +30,7 @@ var ExecuteCases = map[string]struct {
 		scenario:   101,
 		parameters: []uint64{0},
 	},
-	"arithmatic_ops": {
+	"arithmetic_ops": {
 		scenario:   102,
 		parameters: []uint64{1, 10, 1000, 10000, 100000},
 	},
