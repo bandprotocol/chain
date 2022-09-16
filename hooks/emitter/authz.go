@@ -46,16 +46,16 @@ func (h *Hook) handleMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 func (h *Hook) handleMsgExec(
 	ctx sdk.Context,
 	txHash []byte,
-	msg *authz.MsgExec,
+	emsg *authz.MsgExec,
 	log sdk.ABCIMessageLog,
 	detail common.JsDict,
 ) {
-	msgs, _ := msg.GetMessages()
-	grantee := msg.Grantee
+	msgs, _ := emsg.GetMessages()
+	grantee := emsg.Grantee
 	for _, msg := range msgs {
 		switch msg := msg.(type) {
 		case *oracletypes.MsgReportData:
-			h.handleMsgReportDataFromGrantee(ctx, txHash, msg, grantee)
+			h.handleMsgReportData(ctx, txHash, msg, grantee)
 		default:
 			// add signers for this message into the transaction
 			signers := msg.GetSigners()

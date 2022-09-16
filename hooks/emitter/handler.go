@@ -37,7 +37,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *oracletypes.MsgRequestData:
 		h.handleMsgRequestData(ctx, txHash, msg, evMap, detail)
 	case *oracletypes.MsgReportData:
-		h.handleMsgReportData(ctx, txHash, msg, evMap)
+		h.handleMsgReportData(ctx, txHash, msg, "")
 	case *oracletypes.MsgCreateDataSource:
 		h.handleMsgCreateDataSource(ctx, txHash, evMap, detail)
 	case *oracletypes.MsgCreateOracleScript:
