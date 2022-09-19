@@ -13,7 +13,13 @@ var (
 
 // BaseEnv combines shared functions used in prepare and execution Owasm program,
 type BaseEnv struct {
-	request Request
+	request     Request
+	maxSpanSize int64
+}
+
+// GetSpanSize implements Owasm ExecEnv interface.
+func (env *BaseEnv) GetSpanSize() int64 {
+	return env.maxSpanSize
 }
 
 // GetCalldata implements Owasm ExecEnv interface.
@@ -75,10 +81,11 @@ type PrepareEnv struct {
 }
 
 // NewPrepareEnv creates a new environment instance for prepare period.
-func NewPrepareEnv(req Request, maxCalldataSize int64, maxRawRequests int64) *PrepareEnv {
+func NewPrepareEnv(req Request, maxCalldataSize int64, maxRawRequests int64, spanSize int64) *PrepareEnv {
 	return &PrepareEnv{
 		BaseEnv: BaseEnv{
-			request: req,
+			request:     req,
+			maxSpanSize: spanSize,
 		},
 		maxCalldataSize: maxCalldataSize,
 		maxRawRequests:  maxRawRequests,
@@ -118,7 +125,7 @@ type ExecuteEnv struct {
 }
 
 // NewExecuteEnv creates a new environment instance for execution period.
-func NewExecuteEnv(req Request, reports []Report, executeTime time.Time) *ExecuteEnv {
+func NewExecuteEnv(req Request, reports []Report, executeTime time.Time, spanSize int64) *ExecuteEnv {
 	envReports := make(map[string]map[ExternalID]RawReport)
 	for _, report := range reports {
 		valReports := make(map[ExternalID]RawReport)
@@ -129,7 +136,8 @@ func NewExecuteEnv(req Request, reports []Report, executeTime time.Time) *Execut
 	}
 	return &ExecuteEnv{
 		BaseEnv: BaseEnv{
-			request: req,
+			request:     req,
+			maxSpanSize: spanSize,
 		},
 		reports:     envReports,
 		ExecuteTime: executeTime.Unix(),

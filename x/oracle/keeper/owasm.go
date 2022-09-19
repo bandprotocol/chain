@@ -84,7 +84,12 @@ func (k Keeper) PrepareRequest(
 	)
 
 	// Create an execution environment and call Owasm prepare function.
-	env := types.NewPrepareEnv(req, int64(k.MaxCalldataSize(ctx)), int64(k.MaxRawRequestCount(ctx)))
+	env := types.NewPrepareEnv(
+		req,
+		int64(k.MaxCalldataSize(ctx)),
+		int64(k.MaxRawRequestCount(ctx)),
+		int64(k.MaxCalldataSize(ctx)),
+	)
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
 		return 0, err
@@ -94,7 +99,7 @@ func (k Keeper) PrepareRequest(
 	ctx.GasMeter().ConsumeGas(k.BaseOwasmGas(ctx), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), int64(k.MaxCalldataSize(ctx)), env)
+	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
@@ -155,15 +160,10 @@ func (k Keeper) PrepareRequest(
 // assumes that the given request is in a resolvable state with sufficient reporters.
 func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
-	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
+	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.MaxCalldataSize(ctx)))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(
-		code,
-		ConvertToOwasmGas(req.GetExecuteGas()),
-		int64(k.MaxReportDataSize(ctx)),
-		env,
-	)
+	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)
 
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
@@ -182,11 +182,9 @@ func (k Keeper) CollectFee(
 	askCount uint64,
 	rawRequests []types.RawRequest,
 ) (sdk.Coins, error) {
-
 	collector := newFeeCollector(k.bankKeeper, feeLimit, payer)
 
 	for _, r := range rawRequests {
-
 		ds, err := k.GetDataSource(ctx, r.DataSourceID)
 		if err != nil {
 			return nil, err

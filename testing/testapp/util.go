@@ -62,7 +62,10 @@ func NewGasMeterWrapper(meter sdk.GasMeter) *GasMeterWrapper {
 }
 
 func MustGetBalances(ctx sdk.Context, bankKeeper bankkeeper.WrappedBankKeeper, address sdk.AccAddress) sdk.Coins {
-	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
+	balancesRes, err := bankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -77,7 +80,10 @@ func CheckBalances(
 	address sdk.AccAddress,
 	expected sdk.Coins,
 ) {
-	balancesRes, err := bankKeeper.AllBalances(sdk.WrapSDKContext(ctx), banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}))
+	balancesRes, err := bankKeeper.AllBalances(
+		sdk.WrapSDKContext(ctx),
+		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}),
+	)
 	require.NoError(t, err)
 
 	require.True(t, expected.IsEqual(balancesRes.Balances))

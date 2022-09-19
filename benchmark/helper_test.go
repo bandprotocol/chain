@@ -30,7 +30,7 @@ type BenchmarkCalldata struct {
 }
 
 func GetBenchmarkWasm() ([]byte, error) {
-	oCode, err := ioutil.ReadFile("./testdata/benchmark-oracle-script.wasm")
+	oCode, err := ioutil.ReadFile("./testdata/benchmark-withvrf1000.wasm")
 	return oCode, err
 }
 
@@ -97,7 +97,6 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 }
 
 func GenMsgReportData(account *Account, rid uint64, eids []int64) []sdk.Msg {
-
 	rawReports := []oracletypes.RawReport{}
 
 	for _, eid := range eids {

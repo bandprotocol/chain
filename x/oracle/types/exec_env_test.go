@@ -31,13 +31,24 @@ func mockExecEnv() *ExecuteEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
+	request := NewRequest(
+		oracleScriptID,
+		calldata,
+		valAddresses,
+		minCount,
+		requestHeight,
+		requestTime,
+		clientID,
+		nil,
+		nil,
+		0,
+	)
 	rawReport1 := NewRawReport(1, 0, []byte("DATA1"))
 	rawReport2 := NewRawReport(2, 1, []byte("DATA2"))
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
 	report1 := NewReport(validatorAddress1, true, []RawReport{rawReport1, rawReport2})
 	report2 := NewReport(validatorAddress2, true, []RawReport{rawReport3})
-	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0))
+	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0), 1024)
 	return env
 }
 
@@ -49,8 +60,19 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
 	clientID := "beeb"
-	request := NewRequest(oracleScriptID, calldata, valAddresses, minCount, requestHeight, requestTime, clientID, nil, nil, 0)
-	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
+	request := NewRequest(
+		oracleScriptID,
+		calldata,
+		valAddresses,
+		minCount,
+		requestHeight,
+		requestTime,
+		clientID,
+		nil,
+		nil,
+		0,
+	)
+	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3, 1024)
 	return env
 }
 
@@ -82,7 +104,6 @@ func TestSetReturnData(t *testing.T) {
 	eenv := mockExecEnv()
 	eenv.SetReturnData(result)
 	require.Equal(t, result, eenv.Retdata)
-
 }
 func TestGetAskCount(t *testing.T) {
 	// Can call on both environment

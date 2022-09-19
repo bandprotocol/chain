@@ -39,7 +39,6 @@ func (suite *OracleTestSuite) SetupTest() {
 	suite.path.EndpointB.ChannelConfig.PortID = ibctesting.OraclePort
 
 	suite.coordinator.Setup(suite.path)
-
 }
 
 func (suite *OracleTestSuite) sendOracleRequestPacket(

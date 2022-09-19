@@ -9,6 +9,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/stretchr/testify/require"
+	// "github.com/stretchr/testify/require"
 )
 
 var PrepareCases = map[string]struct {
@@ -26,11 +27,15 @@ var ExecuteCases = map[string]struct {
 	parameters  []uint64
 	numRequests []int
 }{
+	"nothing": {
+		scenario:   0,
+		parameters: []uint64{0},
+	},
 	"infinite_loop": {
 		scenario:   101,
 		parameters: []uint64{0},
 	},
-	"arithmatic_ops": {
+	"arithmetic_ops": {
 		scenario:   102,
 		parameters: []uint64{1, 10, 1000, 10000, 100000},
 	},
@@ -74,12 +79,12 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 							req,
 							int64(oracletypes.DefaultMaxCalldataSize),
 							int64(oracletypes.DefaultMaxRawRequestCount),
+							int64(oracletypes.DefaultMaxCalldataSize),
 						)
 						b.StartTimer()
 						_, _ = owasmVM.Prepare(
 							compiledCode,
 							oraclekeeper.ConvertToOwasmGas(PrepareGasLimit),
-							int64(oracletypes.DefaultMaxCalldataSize),
 							env,
 						)
 						b.StopTimer()
@@ -87,6 +92,22 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 				})
 			}
 		}
+	}
+}
+
+func generateReports() []oracletypes.Report {
+	return []oracletypes.Report{
+		{
+			Validator:       "",
+			InBeforeResolve: true,
+			RawReports: []oracletypes.RawReport{
+				{
+					ExternalID: 1,
+					ExitCode:   0,
+					Data:       []byte{},
+				},
+			},
+		},
 	}
 }
 
@@ -108,13 +129,17 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 
 					// call execute on new env
 					for i := 0; i < b.N; i++ {
-						env := oracletypes.NewExecuteEnv(req, []oracletypes.Report{}, time.Now())
+						env := oracletypes.NewExecuteEnv(
+							req,
+							generateReports(),
+							time.Now(),
+							int64(oracletypes.DefaultMaxCalldataSize),
+						)
 
 						b.StartTimer()
 						_, _ = owasmVM.Execute(
 							compiledCode,
 							oraclekeeper.ConvertToOwasmGas(ExecuteGasLimit),
-							int64(oracletypes.DefaultMaxCalldataSize),
 							env,
 						)
 						b.StopTimer()
@@ -186,7 +211,6 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 						b.StopTimer()
 
 						for i := 0; i < b.N; i++ {
-
 							// deliver MsgRequestData to the first block
 							ba.CallBeginBlock()
 
@@ -209,7 +233,6 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 
 							ba.Commit()
 						}
-
 					},
 				)
 			}
