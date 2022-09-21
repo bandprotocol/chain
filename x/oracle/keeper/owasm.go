@@ -13,8 +13,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// 1 cosmos gas is equal to 13000000 owasm gas
-const gasConversionFactor = 13_000_000
+// 1 cosmos gas is equal to 20000000 owasm gas
+const gasConversionFactor = 20_000_000
 
 func ConvertToOwasmGas(cosmos uint64) uint64 {
 	return uint64(cosmos * gasConversionFactor)
