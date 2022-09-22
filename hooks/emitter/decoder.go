@@ -20,7 +20,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-func (h *Hook) DecodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
+func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 	switch msg := msg.(type) {
 	case *oracletypes.MsgRequestData:
 		DecodeMsgRequestData(msg, detail)
@@ -34,10 +34,6 @@ func (h *Hook) DecodeMsg(ctx sdk.Context, msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgEditDataSource(msg, detail)
 	case *oracletypes.MsgEditOracleScript:
 		DecodeMsgEditOracleScript(msg, detail)
-	// case *oracletypes.MsgAddReporter:
-	// 	DecodeMsgAddReporter(msg, detail)
-	// case *oracletypes.MsgRemoveReporter:
-	// 	DecodeMsgRemoveReporter(msg, detail)
 	case *oracletypes.MsgActivate:
 		DecodeMsgActivate(msg, detail)
 	case *clienttypes.MsgCreateClient:
@@ -141,18 +137,14 @@ func DecodeMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 func DecodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
 	detail["grantee"] = msg.Grantee
 	msgs, _ := msg.GetMessages()
-	execMsgs := make([]common.JsDict, 0)
-	for _, msg := range msgs {
-		execMsg := make(common.JsDict)
-		switch msg := msg.(type) {
-		case *oracletypes.MsgReportData:
-			DecodeMsgReportData(msg, execMsg)
-		case *banktypes.MsgSend:
-			DecodeMsgSend(msg, execMsg)
-			// TODO: Add more MsgType
+	execMsgs := make([]common.JsDict, len(msgs))
+	for i, msg := range msgs {
+		detail := make(common.JsDict)
+		DecodeMsg(msg, detail)
+		execMsgs[i] = common.JsDict{
+			"msg":  detail,
+			"type": sdk.MsgTypeURL(msg),
 		}
-		execMsg["type"] = sdk.MsgTypeURL(msg)
-		execMsgs = append(execMsgs, execMsg)
 	}
 	detail["msgs"] = execMsgs
 }
@@ -198,7 +190,6 @@ func DecodeMsgReportData(msg *oracletypes.MsgReportData, detail common.JsDict) {
 	detail["request_id"] = msg.GetRequestID()
 	detail["raw_reports"] = msg.GetRawReports()
 	detail["validator"] = msg.GetValidator()
-	// detail["reporter"] = msg.GetReporter()
 }
 
 func DecodeMsgCreateDataSource(msg *oracletypes.MsgCreateDataSource, detail common.JsDict) {
