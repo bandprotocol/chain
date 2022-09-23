@@ -10,7 +10,7 @@ echo HASURA_CONSOLE=$HASURA_CONSOLE
 docker rm -f hasura
 docker run -d -p 80:8080 \
 --name hasura \
--v /home/ubuntu/chain/docker-config/hasura-metadata:/hasura-metadata \
+-v ${HOME}/chain/docker-config/hasura-metadata:/hasura-metadata \
 --env HASURA_GRAPHQL_DATABASE_URL=$HASURA_DB_URL \
 --env HASURA_GRAPHQL_METADATA_DATABASE_URL=$HASURA_METADATA_DB_URL \
 --env HASURA_GRAPHQL_ENABLE_CONSOLE=$HASURA_CONSOLE \
