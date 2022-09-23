@@ -160,7 +160,7 @@ func (k Keeper) PrepareRequest(
 // assumes that the given request is in a resolvable state with sufficient reporters.
 func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
-	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.MaxCalldataSize(ctx)))
+	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.MaxReportDataSize(ctx)))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)

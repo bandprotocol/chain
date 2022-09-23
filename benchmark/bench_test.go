@@ -133,7 +133,7 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 							req,
 							generateReports(),
 							time.Now(),
-							int64(oracletypes.DefaultMaxCalldataSize),
+							int64(oracletypes.DefaultMaxReportDataSize),
 						)
 
 						b.StartTimer()
