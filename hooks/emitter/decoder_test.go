@@ -175,7 +175,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgExec() {
 	emitter.DecodeMsgExec(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"raw_reports\":null,\"request_id\":0,\"type\":\"/oracle.v1.MsgReportData\",\"validator\":\"\"}]}",
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"msg\":{\"raw_reports\":null,\"request_id\":0,\"validator\":\"\"},\"type\":\"/oracle.v1.MsgReportData\"}]}",
 	)
 
 }
