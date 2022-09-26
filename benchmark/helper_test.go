@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"math"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -27,10 +28,11 @@ type BenchmarkCalldata struct {
 	DataSourceId uint64
 	Scenario     uint64
 	Value        uint64
+	Text         string
 }
 
 func GetBenchmarkWasm() ([]byte, error) {
-	oCode, err := ioutil.ReadFile("./testdata/benchmark-withvrf1000.wasm")
+	oCode, err := ioutil.ReadFile("./testdata/benchmark-oracle-script.wasm")
 	return oCode, err
 }
 
@@ -40,6 +42,7 @@ func GenMsgRequestData(
 	dataSourceId uint64,
 	scenario uint64,
 	value uint64,
+	stringLength int,
 ) []sdk.Msg {
 	msg := oracletypes.MsgRequestData{
 		OracleScriptID: oracletypes.OracleScriptID(oracleScriptId),
@@ -47,6 +50,7 @@ func GenMsgRequestData(
 			DataSourceId: dataSourceId,
 			Scenario:     scenario,
 			Value:        value,
+			Text:         strings.Repeat("#", stringLength),
 		}),
 		AskCount:   1,
 		MinCount:   1,
@@ -186,6 +190,7 @@ func InitOwasmTestEnv(
 	cacheSize uint32,
 	scenario uint64,
 	parameter uint64,
+	stringLength int,
 ) (*owasm.Vm, []byte, oracletypes.Request) {
 	// prepare owasm vm
 	owasmVM, err := owasm.NewVm(cacheSize)
@@ -203,6 +208,7 @@ func InitOwasmTestEnv(
 			DataSourceId: 1,
 			Scenario:     scenario,
 			Value:        parameter,
+			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{}, 1,
 		1, time.Now(), "", nil, nil, ExecuteGasLimit,
 	)

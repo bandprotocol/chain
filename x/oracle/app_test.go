@@ -112,7 +112,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
 		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
 		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("711250000")},
+		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
 	}}}
 
 	require.Equal(t, expectEvents, result.GetEvents())
