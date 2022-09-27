@@ -28,7 +28,7 @@ type BenchmarkApp struct {
 	Querier   keeper.Querier
 }
 
-func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
+func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	ba := &BenchmarkApp{
 		TestingApp: testapp.NewTestApp("", log.NewNopLogger()),
 		Sender: &Account{
@@ -52,6 +52,8 @@ func InitializeBenchmarkApp(b testing.TB) *BenchmarkApp {
 
 	ba.Commit()
 	ba.CallBeginBlock()
+
+	ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
@@ -102,8 +104,34 @@ func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error)
 	return ba.Deliver(ba.TxEncoder, tx)
 }
 
-func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
-	// query all pending requests
+func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
+	// maximum of request blocks is only 20 because after that it will become report only block because of ante
+	for block := 0; block < 20; block++ {
+		ba.CallBeginBlock()
+
+		var totalGas uint64 = 0
+		for {
+			tx := GenSequenceOfTxs(
+				ba.TxConfig,
+				msg,
+				ba.Sender,
+				1,
+			)[0]
+
+			gas, _, _ := ba.CallDeliver(tx)
+
+			totalGas += gas.GasUsed
+			if totalGas+gas.GasUsed >= uint64(BlockMaxGas) {
+				break
+			}
+		}
+
+		ba.CallEndBlock()
+		ba.Commit()
+	}
+}
+
+func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.QueryPendingRequestsResponse {
 	res, err := ba.Querier.PendingRequests(
 		sdk.WrapSDKContext(ba.Ctx),
 		&oracletypes.QueryPendingRequestsRequest{
@@ -112,7 +140,23 @@ func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
 	)
 	require.NoError(ba.TB, err)
 
+	return res
+}
+
+func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
+	// query all pending requests
+	res := ba.GetAllPendingRequests(account)
+
 	for _, rid := range res.RequestIDs {
+		_, _, err := ba.DeliverMsg(account, ba.GenMsgReportData(account, []uint64{rid}))
+		require.NoError(ba.TB, err)
+	}
+}
+
+func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.Msg {
+	msgs := make([]sdk.Msg, 0)
+
+	for _, rid := range rids {
 		request, err := ba.OracleKeeper.GetRequest(ba.Ctx, oracletypes.RequestID(rid))
 
 		// find  all external ids of the request
@@ -122,8 +166,22 @@ func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
 		}
 		require.NoError(ba.TB, err)
 
-		// deliver MsgReportData for the request
-		_, _, err = ba.DeliverMsg(account, GenMsgReportData(account, rid, eids))
-		require.NoError(ba.TB, err)
+		rawReports := []oracletypes.RawReport{}
+
+		for _, eid := range eids {
+			rawReports = append(rawReports, oracletypes.RawReport{
+				ExternalID: oracletypes.ExternalID(eid),
+				ExitCode:   0,
+				Data:       []byte(""),
+			})
+		}
+
+		msgs = append(msgs, &oracletypes.MsgReportData{
+			RequestID:  oracletypes.RequestID(rid),
+			RawReports: rawReports,
+			Validator:  account.ValAddress.String(),
+		})
 	}
+
+	return msgs
 }

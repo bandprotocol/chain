@@ -20,6 +20,14 @@ func ConvertToOwasmGas(cosmos uint64) uint64 {
 	return uint64(cosmos * gasConversionFactor)
 }
 
+// GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
+func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
+	if k.MaxReportDataSize(ctx) > k.MaxCalldataSize(ctx) {
+		return k.MaxReportDataSize(ctx)
+	}
+	return k.MaxReportDataSize(ctx)
+}
+
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
 // chance of getting selected directly proportional to the amount of voting power it has.
 func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk.ValAddress, error) {
@@ -59,8 +67,8 @@ func (k Keeper) PrepareRequest(
 	ibcChannel *types.IBCChannel,
 ) (types.RequestID, error) {
 	calldataSize := len(r.GetCalldata())
-	if calldataSize > int(k.MaxCalldataSize(ctx)) {
-		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, calldataSize, int(k.MaxCalldataSize(ctx)))
+	if calldataSize > int(k.GetSpanSize(ctx)) {
+		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, calldataSize, int(k.GetSpanSize(ctx)))
 	}
 
 	askCount := r.GetAskCount()
@@ -88,7 +96,7 @@ func (k Keeper) PrepareRequest(
 		req,
 		int64(k.MaxCalldataSize(ctx)),
 		int64(k.MaxRawRequestCount(ctx)),
-		int64(k.MaxCalldataSize(ctx)),
+		int64(k.GetSpanSize(ctx)),
 	)
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
@@ -160,7 +168,7 @@ func (k Keeper) PrepareRequest(
 // assumes that the given request is in a resolvable state with sufficient reporters.
 func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
-	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.MaxReportDataSize(ctx)))
+	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.GetSpanSize(ctx)))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)
