@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## [v2.3.5](https://github.com/bandprotocol/chain/releases/tag/v2.3.5)
+
+- (bump) Use go-owasm package v0.1.1
+- (yoda) Update to broadcast transactions by sync mode
+
 ## [v2.3.4](https://github.com/bandprotocol/chain/releases/tag/v2.3.4)
 
 - (app) Add MaxDelay parameter for request verification query
