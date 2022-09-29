@@ -15,8 +15,6 @@ const (
 	MaxCompiledWasmCodeSize = 1 * 1024 * 1024 // 1MB
 
 	MaximumOwasmGas = 8000000 // The same as block gas limit
-
-	MaxConcurentResolvingRequests = 4
 )
 
 // nolint
