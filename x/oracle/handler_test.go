@@ -483,7 +483,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
 			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("785")},
+			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("5294700000")},
 			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
@@ -565,7 +565,7 @@ func TestRequestDataFail(t *testing.T) {
 			testapp.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 256")
+	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
 	require.Nil(t, res)
 	// Too high ask count
 	res, err = oracle.NewHandler(

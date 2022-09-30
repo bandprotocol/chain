@@ -215,7 +215,8 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	if err != nil {
 		panic(err)
 	}
-	db := dbm.NewMemDB()
+	// db := dbm.NewMemDB()
+	db, _ := dbm.NewGoLevelDB("db", dir)
 	encCdc := bandapp.MakeEncodingConfig()
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")

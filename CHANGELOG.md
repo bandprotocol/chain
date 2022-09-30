@@ -4,10 +4,16 @@
 
 - (bump) Use go 1.19
 - (bump) Use cosmos-sdk package v0.45.7 / tendermint v0.34.20 / ibc-go v3.2.0
+- (bump) Use go-owasm v0.2.0
 - (chain) Add ICA host module
 - (chain) Add MaxDelay parameter for request verification query
+- (chain) Add IsDelay parameter for request verification response
 - (chain) Add snapshot extension for oracle module
+- (chain) change MaxGas to 50M
+- (chain) change DefaultBaseRequestGas to 50k
+- (chain) change multiplier of cosmos gas to owasm gas to 20M
 - (yoda) Add BAND_DATA_SOURCE_ID in header
+- (yoda) Update to broadcast transactions by sync mode
 
 ## [v2.3.3](https://github.com/bandprotocol/chain/releases/tag/v2.3.3)
 
