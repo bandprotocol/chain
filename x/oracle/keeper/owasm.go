@@ -25,7 +25,7 @@ func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
 	if k.MaxReportDataSize(ctx) > k.MaxCalldataSize(ctx) {
 		return k.MaxReportDataSize(ctx)
 	}
-	return k.MaxReportDataSize(ctx)
+	return k.MaxCalldataSize(ctx)
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
