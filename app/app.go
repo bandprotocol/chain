@@ -798,7 +798,7 @@ func initParamsKeeper(
 
 func (app *BandApp) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
-		"v23-to-v24",
+		"v2.4",
 		func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
 			// hardcode version of all modules of v2.3.x
 			fromVM := map[string]uint64{
@@ -877,7 +877,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 		return
 	}
 
-	if upgradeInfo.Name == "v23-to-v24" {
+	if upgradeInfo.Name == "v2.4" {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.StoreKey},
 		}
