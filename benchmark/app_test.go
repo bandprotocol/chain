@@ -106,7 +106,7 @@ func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error)
 
 func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
 	// maximum of request blocks is only 20 because after that it will become report only block because of ante
-	for block := 0; block < 20; block++ {
+	for block := 0; block < 10; block++ {
 		ba.CallBeginBlock()
 
 		var totalGas uint64 = 0

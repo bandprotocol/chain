@@ -352,7 +352,7 @@ func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
 		testapp.Alice.Address,
 	)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "got: 2000, max: 256: too large calldata")
+	require.EqualError(t, err, "got: 2000, max: 512: too large calldata")
 }
 
 func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {

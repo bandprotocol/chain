@@ -13,36 +13,34 @@ import (
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMaxRawRequestCount             = uint64(16)
-	DefaultMaxAskCount                    = uint64(16)
-	DefaultMaxCalldataSize                = uint64(256) // 256B
-	DefaultMaxReportDataSize              = uint64(512) // 512B
-	DefaultExpirationBlockCount           = uint64(100)
-	DefaultBaseRequestGas                 = uint64(50000)
-	DefaultPerValidatorRequestGas         = uint64(0)
-	DefaultSamplingTryCount               = uint64(3)
-	DefaultOracleRewardPercentage         = uint64(70)
-	DefaultInactivePenaltyDuration        = uint64(10 * time.Minute)
-	DefaultIBCRequestEnabled              = true
-	DefaultMaxConcurrentResolvingRequests = uint64(1)
+	DefaultMaxRawRequestCount      = uint64(16)
+	DefaultMaxAskCount             = uint64(16)
+	DefaultMaxCalldataSize         = uint64(256) // 256B
+	DefaultMaxReportDataSize       = uint64(512) // 512B
+	DefaultExpirationBlockCount    = uint64(100)
+	DefaultBaseRequestGas          = uint64(50000)
+	DefaultPerValidatorRequestGas  = uint64(0)
+	DefaultSamplingTryCount        = uint64(3)
+	DefaultOracleRewardPercentage  = uint64(70)
+	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
+	DefaultIBCRequestEnabled       = true
 )
 
 // nolint
 var (
 	// Each value below is the key to store the respective oracle module parameter. See comments
 	// in types.proto for explanation for each parameter.
-	KeyMaxRawRequestCount             = []byte("MaxRawRequestCount")
-	KeyMaxAskCount                    = []byte("MaxAskCount")
-	KeyMaxCalldataSize                = []byte("MaxCalldataSize")
-	KeyMaxReportDataSize              = []byte("MaxReportDataSize")
-	KeyExpirationBlockCount           = []byte("ExpirationBlockCount")
-	KeyBaseOwasmGas                   = []byte("BaseOwasmGas")
-	KeyPerValidatorRequestGas         = []byte("PerValidatorRequestGas")
-	KeySamplingTryCount               = []byte("SamplingTryCount")
-	KeyOracleRewardPercentage         = []byte("OracleRewardPercentage")
-	KeyInactivePenaltyDuration        = []byte("InactivePenaltyDuration")
-	KeyIBCRequestEnabled              = []byte("IBCRequestEnabled")
-	KeyMaxConcurrentResolvingRequests = []byte("MaxConcurrentResolvingRequests")
+	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
+	KeyMaxAskCount             = []byte("MaxAskCount")
+	KeyMaxCalldataSize         = []byte("MaxCalldataSize")
+	KeyMaxReportDataSize       = []byte("MaxReportDataSize")
+	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
+	KeyBaseOwasmGas            = []byte("BaseOwasmGas")
+	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
+	KeySamplingTryCount        = []byte("SamplingTryCount")
+	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
+	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
+	KeyIBCRequestEnabled       = []byte("IBCRequestEnabled")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -57,21 +55,19 @@ func NewParams(
 	maxRawRequestCount, maxAskCount, maxCalldataSize, maxReportDataSize, expirationBlockCount, baseRequestGas, perValidatorRequestGas,
 	samplingTryCount, oracleRewardPercentage, inactivePenaltyDuration uint64,
 	ibcRequestEnabled bool,
-	maxConcurrentResolvingRequests uint64,
 ) Params {
 	return Params{
-		MaxRawRequestCount:             maxRawRequestCount,
-		MaxAskCount:                    maxAskCount,
-		MaxCalldataSize:                maxCalldataSize,
-		MaxReportDataSize:              maxReportDataSize,
-		ExpirationBlockCount:           expirationBlockCount,
-		BaseOwasmGas:                   baseRequestGas,
-		PerValidatorRequestGas:         perValidatorRequestGas,
-		SamplingTryCount:               samplingTryCount,
-		OracleRewardPercentage:         oracleRewardPercentage,
-		InactivePenaltyDuration:        inactivePenaltyDuration,
-		IBCRequestEnabled:              ibcRequestEnabled,
-		MaxConcurrentResolvingRequests: maxConcurrentResolvingRequests,
+		MaxRawRequestCount:      maxRawRequestCount,
+		MaxAskCount:             maxAskCount,
+		MaxCalldataSize:         maxCalldataSize,
+		MaxReportDataSize:       maxReportDataSize,
+		ExpirationBlockCount:    expirationBlockCount,
+		BaseOwasmGas:            baseRequestGas,
+		PerValidatorRequestGas:  perValidatorRequestGas,
+		SamplingTryCount:        samplingTryCount,
+		OracleRewardPercentage:  oracleRewardPercentage,
+		InactivePenaltyDuration: inactivePenaltyDuration,
+		IBCRequestEnabled:       ibcRequestEnabled,
 	}
 }
 
@@ -117,11 +113,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			validateUint64("inactive penalty duration", false),
 		),
 		paramtypes.NewParamSetPair(KeyIBCRequestEnabled, &p.IBCRequestEnabled, validateBool()),
-		paramtypes.NewParamSetPair(
-			KeyMaxConcurrentResolvingRequests,
-			&p.MaxConcurrentResolvingRequests,
-			validateUint64("max concurrent resolving requests", false),
-		),
 	}
 }
 
@@ -139,7 +130,6 @@ func DefaultParams() Params {
 		DefaultOracleRewardPercentage,
 		DefaultInactivePenaltyDuration,
 		DefaultIBCRequestEnabled,
-		DefaultMaxConcurrentResolvingRequests,
 	)
 }
 

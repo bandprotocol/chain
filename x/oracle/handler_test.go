@@ -565,7 +565,7 @@ func TestRequestDataFail(t *testing.T) {
 			testapp.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 256")
+	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
 	require.Nil(t, res)
 	// Too high ask count
 	res, err = oracle.NewHandler(

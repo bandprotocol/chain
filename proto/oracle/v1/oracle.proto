@@ -331,9 +331,6 @@ message Params {
   // IBC is allowed
   bool ibc_request_enabled = 11
       [ (gogoproto.customname) = "IBCRequestEnabled" ];
-  // MaxConcurrentResolvingRequests is a parameter that define how much go routine 
-  // using for resolve request at end block time
-  uint64 MaxConcurrentResolvingRequests = 12;
 }
 
 // PendingResolveList is a list of requests that are waiting to be resolved

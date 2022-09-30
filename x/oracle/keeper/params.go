@@ -25,7 +25,6 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 		k.OracleRewardPercentage(ctx),
 		k.InactivePenaltyDuration(ctx),
 		k.IBCRequestEnabled(ctx),
-		k.MaxConcurrentResolvingRequests(ctx),
 	)
 }
 
@@ -99,10 +98,5 @@ func (k Keeper) InactivePenaltyDuration(ctx sdk.Context) (res uint64) {
 // IBC is allowed or not
 func (k Keeper) IBCRequestEnabled(ctx sdk.Context) (res bool) {
 	k.paramstore.Get(ctx, types.KeyIBCRequestEnabled, &res)
-	return
-}
-
-func (k Keeper) MaxConcurrentResolvingRequests(ctx sdk.Context) (res uint64) {
-	k.paramstore.Get(ctx, types.KeyMaxConcurrentResolvingRequests, &res)
 	return
 }
