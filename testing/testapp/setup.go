@@ -240,7 +240,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			encCdc,
 			EmptyAppOptions{},
 			false,
-			0,
+			100,
 			"", "", "",
 			baseapp.SetSnapshotStore(snapshotStore),
 			baseapp.SetSnapshotKeepRecent(2),
