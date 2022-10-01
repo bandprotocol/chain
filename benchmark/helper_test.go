@@ -256,7 +256,7 @@ func GenOracleReports() []oracletypes.Report {
 			InBeforeResolve: true,
 			RawReports: []oracletypes.RawReport{
 				{
-					ExternalID: 1,
+					ExternalID: 0,
 					ExitCode:   0,
 					Data:       []byte{},
 				},
