@@ -853,7 +853,9 @@ func (app *BandApp) setupUpgradeHandlers() {
 				},
 			}
 
+			// Oracle DefaultParams only upgrade BaseRequestGas to 50000
 			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
+
 			consensusParam := app.GetConsensusParams(ctx)
 			consensusParam.Block.MaxGas = 50_000_000
 			app.StoreConsensusParams(ctx, consensusParam)
