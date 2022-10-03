@@ -208,7 +208,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
-			sdk.NewAttribute(types.AttributeKeyGasUsed, "785"),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "5294700000"),
 			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
 		), sdk.NewEvent(
@@ -352,7 +352,7 @@ func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
 		testapp.Alice.Address,
 	)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
-	require.EqualError(t, err, "got: 2000, max: 256: too large calldata")
+	require.EqualError(t, err, "got: 2000, max: 512: too large calldata")
 }
 
 func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
@@ -369,7 +369,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.EmptyCoins,
-		100,
+		1,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
 	)
@@ -379,7 +379,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 
 	params := k.GetParams(ctx)
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
-	require.Equal(t, 1, wrappedGasMeter.CountRecord(100, "OWASM_PREPARE_FEE"))
+	require.Equal(t, 0, wrappedGasMeter.CountRecord(100, "OWASM_PREPARE_FEE"))
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 }
 
@@ -705,7 +705,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "516"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
 	)}, ctx.EventManager().Events())
 }
 
@@ -754,7 +754,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			types.AttributeKeyResult,
 			"000000206265656264317631626565626431763262656562643276316265656264327632",
 		),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "10274"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "32492250000"),
 	)}, ctx.EventManager().Events())
 }
 
@@ -824,7 +824,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "9293"),
+		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
 	)}, ctx.EventManager().Events())
 }
 
@@ -836,7 +836,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 		3, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
 		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0,
+		}, nil, 1,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{

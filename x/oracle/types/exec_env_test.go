@@ -48,7 +48,7 @@ func mockExecEnv() *ExecuteEnv {
 	rawReport3 := NewRawReport(3, 0, []byte("DATA3"))
 	report1 := NewReport(validatorAddress1, true, []RawReport{rawReport1, rawReport2})
 	report2 := NewReport(validatorAddress2, true, []RawReport{rawReport3})
-	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0))
+	env := NewExecuteEnv(request, []Report{report1, report2}, time.Unix(1581589710, 0), 1024)
 	return env
 }
 
@@ -72,7 +72,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 		nil,
 		0,
 	)
-	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3)
+	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3, 1024)
 	return env
 }
 

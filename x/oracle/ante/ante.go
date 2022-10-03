@@ -40,8 +40,8 @@ func updateCache(val string, rid types.RequestID, block int64) (trigger bool) {
 	// Check if we already seen this report
 	if ok {
 		start := value.(int64)
-		// If the report has been seen more than 20 then make the next block will be only reporter
-		return block-start > 20
+		// If the report has been seen more than 10 then make the next block will be only reporter
+		return block-start > 10
 	} else {
 		firstBlockSeen.Add(key, block)
 		return false
