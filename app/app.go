@@ -795,7 +795,7 @@ func initParamsKeeper(
 
 func (app *BandApp) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2.4",
+		"v2_4",
 		func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
 			// hardcode version of all modules of v2.3.x
 			fromVM := map[string]uint64{
@@ -852,6 +852,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					"/ibc.applications.transfer.v1.MsgTransfer",
 				},
 			}
+			fmt.Println(hostParams.AllowMessages)
 
 			// initialize ICS27 module
 			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
@@ -874,7 +875,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 		return
 	}
 
-	if upgradeInfo.Name == "v2.4" {
+	if upgradeInfo.Name == "v2_4" {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.StoreKey},
 		}
