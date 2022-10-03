@@ -852,7 +852,6 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 				},
 			}
-			fmt.Println(hostParams.AllowMessages)
 
 			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
 			consensusParam := app.GetConsensusParams(ctx)
