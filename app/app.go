@@ -854,6 +854,8 @@ func (app *BandApp) setupUpgradeHandlers() {
 			}
 			fmt.Println(hostParams.AllowMessages)
 
+			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
+
 			// initialize ICS27 module
 			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
 			icaModule.InitModule(ctx, controllerParams, hostParams)
