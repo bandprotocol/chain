@@ -855,6 +855,9 @@ func (app *BandApp) setupUpgradeHandlers() {
 			fmt.Println(hostParams.AllowMessages)
 
 			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
+			consensusParam := app.GetConsensusParams(ctx)
+			consensusParam.Block.MaxGas = 50_000_000
+			app.StoreConsensusParams(ctx, consensusParam)
 
 			// initialize ICS27 module
 			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
