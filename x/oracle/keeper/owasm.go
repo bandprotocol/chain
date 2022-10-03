@@ -13,11 +13,19 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// 1 cosmos gas is equal to 7 owasm gas
-const gasConversionFactor = 7
+// 1 cosmos gas is equal to 20000000 owasm gas
+const gasConversionFactor = 20_000_000
 
-func ConvertToOwasmGas(cosmos uint64) uint32 {
-	return uint32(cosmos * gasConversionFactor)
+func ConvertToOwasmGas(cosmos uint64) uint64 {
+	return uint64(cosmos * gasConversionFactor)
+}
+
+// GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
+func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
+	if k.MaxReportDataSize(ctx) > k.MaxCalldataSize(ctx) {
+		return k.MaxReportDataSize(ctx)
+	}
+	return k.MaxCalldataSize(ctx)
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -59,8 +67,8 @@ func (k Keeper) PrepareRequest(
 	ibcChannel *types.IBCChannel,
 ) (types.RequestID, error) {
 	calldataSize := len(r.GetCalldata())
-	if calldataSize > int(k.MaxCalldataSize(ctx)) {
-		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, calldataSize, int(k.MaxCalldataSize(ctx)))
+	if calldataSize > int(k.GetSpanSize(ctx)) {
+		return 0, types.WrapMaxError(types.ErrTooLargeCalldata, calldataSize, int(k.GetSpanSize(ctx)))
 	}
 
 	askCount := r.GetAskCount()
@@ -84,7 +92,12 @@ func (k Keeper) PrepareRequest(
 	)
 
 	// Create an execution environment and call Owasm prepare function.
-	env := types.NewPrepareEnv(req, int64(k.MaxCalldataSize(ctx)), int64(k.MaxRawRequestCount(ctx)))
+	env := types.NewPrepareEnv(
+		req,
+		int64(k.MaxCalldataSize(ctx)),
+		int64(k.MaxRawRequestCount(ctx)),
+		int64(k.GetSpanSize(ctx)),
+	)
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
 	if err != nil {
 		return 0, err
@@ -94,7 +107,7 @@ func (k Keeper) PrepareRequest(
 	ctx.GasMeter().ConsumeGas(k.BaseOwasmGas(ctx), "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), int64(k.MaxCalldataSize(ctx)), env)
+	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), env)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
 	}
@@ -155,15 +168,10 @@ func (k Keeper) PrepareRequest(
 // assumes that the given request is in a resolvable state with sufficient reporters.
 func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	req := k.MustGetRequest(ctx, reqID)
-	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime())
+	env := types.NewExecuteEnv(req, k.GetReports(ctx, reqID), ctx.BlockTime(), int64(k.GetSpanSize(ctx)))
 	script := k.MustGetOracleScript(ctx, req.OracleScriptID)
 	code := k.GetFile(script.Filename)
-	output, err := k.owasmVM.Execute(
-		code,
-		ConvertToOwasmGas(req.GetExecuteGas()),
-		int64(k.MaxReportDataSize(ctx)),
-		env,
-	)
+	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)
 
 	if err != nil {
 		k.ResolveFailure(ctx, reqID, err.Error())
