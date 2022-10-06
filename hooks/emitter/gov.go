@@ -71,13 +71,13 @@ func (app *Hook) handleMsgSubmitProposal(
 		"title":            content.GetTitle(),
 		"description":      content.GetDescription(),
 		"proposal_route":   content.ProposalRoute(),
-		"content":          content,
 		"status":           int(proposal.Status),
 		"submit_time":      proposal.SubmitTime.UnixNano(),
 		"deposit_end_time": proposal.DepositEndTime.UnixNano(),
 		"total_deposit":    proposal.TotalDeposit.String(),
 		"voting_time":      proposal.VotingStartTime.UnixNano(),
 		"voting_end_time":  proposal.VotingEndTime.UnixNano(),
+		"content":          content,
 	})
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
 	app.emitSetDeposit(ctx, txHash, proposalId, proposer)

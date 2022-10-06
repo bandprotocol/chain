@@ -318,13 +318,13 @@ proposals = sa.Table(
     Column("title", sa.String),
     Column("description", sa.String),
     Column("proposal_route", sa.String),
-    Column("content", sa.JSON, nullable=True),
     Column("status", CustomProposalStatus),
     Column("submit_time", CustomDateTime),
     Column("deposit_end_time", CustomDateTime),
     Column("total_deposit", sa.String),  # uband suffix
     Column("voting_time", CustomDateTime),
     Column("voting_end_time", CustomDateTime),
+    Column("content", sa.JSON, nullable=True),
 )
 
 deposits = sa.Table(
