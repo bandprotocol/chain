@@ -318,6 +318,7 @@ proposals = sa.Table(
     Column("title", sa.String),
     Column("description", sa.String),
     Column("proposal_route", sa.String),
+    Column("content", sa.JSON),
     Column("status", CustomProposalStatus),
     Column("submit_time", CustomDateTime),
     Column("deposit_end_time", CustomDateTime),
