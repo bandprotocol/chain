@@ -284,9 +284,6 @@
       using:
         foreign_key_constraint_on: tx_id
 - table:
-    name: last_report
-    schema: public
-- table:
     name: non_validator_vote_proposals_view
     schema: public
 - table:
@@ -521,9 +518,6 @@
           table:
             name: val_requests
             schema: public
-- table:
-    name: stats
-    schema: public
 - table:
     name: tracking
     schema: public
