@@ -63,6 +63,7 @@ func (app *Hook) handleMsgSubmitProposal(
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
 	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
 	content := msg.GetContent()
+
 	app.Write("NEW_PROPOSAL", common.JsDict{
 		"id":               proposalId,
 		"proposer":         msg.Proposer,
@@ -76,6 +77,7 @@ func (app *Hook) handleMsgSubmitProposal(
 		"total_deposit":    proposal.TotalDeposit.String(),
 		"voting_time":      proposal.VotingStartTime.UnixNano(),
 		"voting_end_time":  proposal.VotingEndTime.UnixNano(),
+		"content":          content,
 	})
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
 	app.emitSetDeposit(ctx, txHash, proposalId, proposer)
