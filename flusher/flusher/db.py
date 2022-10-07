@@ -164,6 +164,7 @@ oracle_scripts = sa.Table(
     Column("codehash", sa.String),
     Column("source_code_url", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("version", sa.Integer, nullable=True),
 )
 
 requests = sa.Table(
@@ -315,6 +316,7 @@ proposals = sa.Table(
     Column("total_deposit", sa.String),  # uband suffix
     Column("voting_time", CustomDateTime),
     Column("voting_end_time", CustomDateTime),
+    Column("content", sa.JSON, nullable=True),
 )
 
 deposits = sa.Table(
