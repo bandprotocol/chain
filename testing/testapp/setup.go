@@ -16,6 +16,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/snapshots"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -89,7 +90,7 @@ const (
 var DefaultConsensusParams = &abci.ConsensusParams{
 	Block: &abci.BlockParams{
 		MaxBytes: 200000,
-		MaxGas:   2000000,
+		MaxGas:   -1,
 	},
 	Evidence: &tmproto.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
@@ -214,8 +215,20 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	if err != nil {
 		panic(err)
 	}
-	db := dbm.NewMemDB()
+	// db := dbm.NewMemDB()
+	db, _ := dbm.NewGoLevelDB("db", dir)
 	encCdc := bandapp.MakeEncodingConfig()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -228,10 +241,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			encCdc,
 			EmptyAppOptions{},
 			false,
-			0,
-			"",
-			"",
-			"",
+			100,
+			"", "", "",
+			baseapp.SetSnapshotStore(snapshotStore),
+			baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
@@ -354,9 +367,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
-		ChainId:       chainID,
-		Validators:    []abci.ValidatorUpdate{},
-		AppStateBytes: stateBytes,
+		ChainId:         chainID,
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
 	})
 	return app
 }
@@ -380,6 +394,17 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	}
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -392,13 +417,22 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			encCdc,
 			EmptyAppOptions{},
 			false,
-			0, "", "", "",
+			0,
+			"", "", "",
+			baseapp.SetSnapshotStore(snapshotStore),
+			baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
 	return app, bandapp.GenesisState{}, dir
+}
+
+// SetupWithEmptyStore setup a TestingApp instance with empty DB
+func SetupWithEmptyStore() *TestingApp {
+	app, _, _ := setup(false, 0)
+	return app
 }
 
 // SetupWithGenesisValSet initializes a new TestingApp with a validator set and genesis accounts
@@ -444,7 +478,6 @@ func SetupWithGenesisValSet(
 			delegations,
 			stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
 		)
-
 	}
 
 	// set validators and delegations
@@ -583,7 +616,6 @@ func SignAndDeliver(
 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
-
 	tx, err := GenTx(
 		txCfg,
 		msgs,

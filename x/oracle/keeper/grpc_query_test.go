@@ -3,10 +3,12 @@ package keeper_test
 import (
 	"encoding/hex"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -24,13 +26,14 @@ type RequestVerificationTestSuite struct {
 
 	reporterPrivKey cryptotypes.PrivKey
 	reporterAddr    sdk.AccAddress
+	granteeAddr     sdk.AccAddress
 
 	ctx sdk.Context
 }
 
 func (suite *RequestVerificationTestSuite) SetupTest() {
 	suite.assert = require.New(suite.T())
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 
 	suite.querier = keeper.Querier{
 		Keeper: k,
@@ -55,10 +58,14 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	)
 	suite.reporterPrivKey = secp256k1.GenPrivKey()
 	suite.reporterAddr = sdk.AccAddress(suite.reporterPrivKey.PubKey().Address())
+	suite.granteeAddr = sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
 	k.SetRequestCount(ctx, 1)
 	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
+		authz.NewGenericAuthorization("some url"), ctx.BlockTime().Add(10*time.Minute),
+	)
 	suite.assert.NoError(err)
 }
 
@@ -72,7 +79,13 @@ func (suite *RequestVerificationTestSuite) TestSuccess() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -101,7 +114,13 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestIDNotExist() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -123,7 +142,13 @@ func (suite *RequestVerificationTestSuite) TestRequestInDelayRange() {
 		MaxDelay:     5,
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -153,7 +178,13 @@ func (suite *RequestVerificationTestSuite) TestFailedExceedDelayRange() {
 		MaxDelay:     5,
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -174,14 +205,24 @@ func (suite *RequestVerificationTestSuite) TestFailedDataSourceIDNotMatch() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
 
 	res, err := suite.querier.RequestVerification(sdk.WrapSDKContext(suite.ctx), req)
 
-	suite.assert.Contains(err.Error(), "is not match with data source id provided in request", "RequestVerification should failed")
+	suite.assert.Contains(
+		err.Error(),
+		"is not match with data source id provided in request",
+		"RequestVerification should failed",
+	)
 	suite.assert.Nil(res, "response should be nil")
 }
 
@@ -202,14 +243,24 @@ func (suite *RequestVerificationTestSuite) TestFailedChainIDNotMatch() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
 
 	res, err := suite.querier.RequestVerification(sdk.WrapSDKContext(suite.ctx), req)
 
-	suite.assert.Contains(err.Error(), "provided chain ID does not match the validator's chain ID", "RequestVerification should failed")
+	suite.assert.Contains(
+		err.Error(),
+		"provided chain ID does not match the validator's chain ID",
+		"RequestVerification should failed",
+	)
 	suite.assert.Nil(res, "response should be nil")
 }
 
@@ -223,7 +274,13 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidValidatorAddr() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -244,7 +301,13 @@ func (suite *RequestVerificationTestSuite) TestFailedInvalidReporterPubKey() {
 		Reporter:     "RANDOM STRING",
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -283,7 +346,13 @@ func (suite *RequestVerificationTestSuite) TestFailedReporterUnauthorized() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -307,7 +376,13 @@ func (suite *RequestVerificationTestSuite) TestFailedUnselectedValidator() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -331,7 +406,13 @@ func (suite *RequestVerificationTestSuite) TestFailedNoDataSourceFound() {
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -343,11 +424,15 @@ func (suite *RequestVerificationTestSuite) TestFailedNoDataSourceFound() {
 }
 
 func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() {
-	err := suite.querier.Keeper.AddReport(suite.ctx, types.RequestID(1), types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
-		types.NewRawReport(1, 0, []byte("testdata")),
-		types.NewRawReport(2, 0, []byte("testdata")),
-		types.NewRawReport(3, 0, []byte("testdata")),
-	}))
+	err := suite.querier.Keeper.AddReport(
+		suite.ctx,
+		types.RequestID(1),
+		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("testdata")),
+			types.NewRawReport(2, 0, []byte("testdata")),
+			types.NewRawReport(3, 0, []byte("testdata")),
+		}),
+	)
 	suite.assert.NoError(err)
 
 	req := &types.QueryRequestVerificationRequest{
@@ -359,7 +444,13 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 		Reporter:     hex.EncodeToString(suite.reporterPrivKey.PubKey().Bytes()),
 	}
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -382,7 +473,13 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
 
 	suite.ctx = suite.ctx.WithBlockHeight(1000)
 
-	requestVerification := types.NewRequestVerification(req.ChainId, testapp.Validators[0].ValAddress, types.RequestID(req.RequestId), types.ExternalID(req.ExternalId), types.DataSourceID(req.DataSourceId))
+	requestVerification := types.NewRequestVerification(
+		req.ChainId,
+		testapp.Validators[0].ValAddress,
+		types.RequestID(req.RequestId),
+		types.ExternalID(req.ExternalId),
+		types.DataSourceID(req.DataSourceId),
+	)
 	signature, err := suite.reporterPrivKey.Sign(requestVerification.GetSignBytes())
 	suite.assert.NoError(err)
 	req.Signature = signature
@@ -391,6 +488,75 @@ func (suite *RequestVerificationTestSuite) TestFailedRequestAlreadyExpired() {
 
 	suite.assert.Contains(err.Error(), "Request with ID 1 is already expired", "RequestVerification should failed")
 	suite.assert.Nil(res, "response should be nil")
+}
+
+func (suite *RequestVerificationTestSuite) TestGetReporters() {
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{suite.reporterAddr.String()},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestGetExpiredReporters() {
+	suite.ctx = suite.ctx.WithBlockTime(suite.ctx.BlockTime().Add(10 * time.Minute))
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestIsReporter() {
+	req := &types.QueryIsReporterRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+		ReporterAddress:  suite.reporterAddr.String(),
+	}
+	res, err := suite.querier.IsReporter(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryIsReporterResponse{
+		IsReporter: true,
+	}
+	suite.assert.NoError(err, "IsReporter should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestIsNotReporter() {
+	req := &types.QueryIsReporterRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+		ReporterAddress:  suite.granteeAddr.String(),
+	}
+	res, err := suite.querier.IsReporter(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryIsReporterResponse{
+		IsReporter: false,
+	}
+	suite.assert.NoError(err, "IsReporter should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
+}
+
+func (suite *RequestVerificationTestSuite) TestRevokeReporters() {
+	suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	req := &types.QueryReportersRequest{
+		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
+	}
+	res, err := suite.querier.Reporters(sdk.WrapSDKContext(suite.ctx), req)
+
+	expectedResult := &types.QueryReportersResponse{
+		Reporter: []string{},
+	}
+	suite.assert.NoError(err, "Reporters should success")
+	suite.assert.Equal(expectedResult, res, "Expected result should be matched")
 }
 
 type PendingRequestsTestSuite struct {
@@ -490,21 +656,33 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(6), assignedButReportedReq)
 	suite.querier.Keeper.SetRequestCount(suite.ctx, 4)
 	suite.querier.Keeper.SetRequestLastExpired(suite.ctx, 2)
-	suite.querier.Keeper.SetReport(suite.ctx, 5, types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
-		types.NewRawReport(1, 0, []byte("testdata")),
-		types.NewRawReport(2, 0, []byte("testdata")),
-		types.NewRawReport(3, 0, []byte("testdata")),
-	}))
-	suite.querier.Keeper.SetReport(suite.ctx, 5, types.NewReport(testapp.Validators[1].ValAddress, true, []types.RawReport{
-		types.NewRawReport(1, 0, []byte("testdata")),
-		types.NewRawReport(2, 0, []byte("testdata")),
-		types.NewRawReport(3, 0, []byte("testdata")),
-	}))
-	suite.querier.Keeper.SetReport(suite.ctx, 6, types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
-		types.NewRawReport(1, 0, []byte("testdata")),
-		types.NewRawReport(2, 0, []byte("testdata")),
-		types.NewRawReport(3, 0, []byte("testdata")),
-	}))
+	suite.querier.Keeper.SetReport(
+		suite.ctx,
+		5,
+		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("testdata")),
+			types.NewRawReport(2, 0, []byte("testdata")),
+			types.NewRawReport(3, 0, []byte("testdata")),
+		}),
+	)
+	suite.querier.Keeper.SetReport(
+		suite.ctx,
+		5,
+		types.NewReport(testapp.Validators[1].ValAddress, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("testdata")),
+			types.NewRawReport(2, 0, []byte("testdata")),
+			types.NewRawReport(3, 0, []byte("testdata")),
+		}),
+	)
+	suite.querier.Keeper.SetReport(
+		suite.ctx,
+		6,
+		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("testdata")),
+			types.NewRawReport(2, 0, []byte("testdata")),
+			types.NewRawReport(3, 0, []byte("testdata")),
+		}),
+	)
 
 	r, err := suite.querier.PendingRequests(sdk.WrapSDKContext(suite.ctx), &types.QueryPendingRequestsRequest{
 		ValidatorAddress: sdk.ValAddress(testapp.Validators[0].Address).String(),

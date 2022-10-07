@@ -38,10 +38,10 @@ const (
 )
 
 type printInfo struct {
-	Moniker    string          `json:"moniker" yaml:"moniker"`
-	ChainID    string          `json:"chain_id" yaml:"chain_id"`
-	NodeID     string          `json:"node_id" yaml:"node_id"`
-	GenTxsDir  string          `json:"gentxs_dir" yaml:"gentxs_dir"`
+	Moniker    string          `json:"moniker"     yaml:"moniker"`
+	ChainID    string          `json:"chain_id"    yaml:"chain_id"`
+	NodeID     string          `json:"node_id"     yaml:"node_id"`
+	GenTxsDir  string          `json:"gentxs_dir"  yaml:"gentxs_dir"`
 	AppMessage json.RawMessage `json:"app_message" yaml:"app_message"`
 }
 
@@ -175,7 +175,7 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 			genDoc.ConsensusParams = types.DefaultConsensusParams()
 
 			genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
-			genDoc.ConsensusParams.Block.MaxGas = 8000000   // 8M gas
+			genDoc.ConsensusParams.Block.MaxGas = 50000000  // 50M gas
 			genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {

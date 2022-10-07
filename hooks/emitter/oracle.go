@@ -49,7 +49,12 @@ func (h *Hook) emitHistoricalValidatorStatus(ctx sdk.Context, operatorAddress sd
 	})
 }
 
-func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.RequestID, req types.Request, evMap common.EvMap) {
+func (h *Hook) emitRawRequestAndValRequest(
+	ctx sdk.Context,
+	requestID types.RequestID,
+	req types.Request,
+	evMap common.EvMap,
+) {
 	for id, raw := range req.RawRequests {
 		fee, err := sdk.ParseCoinNormalized(evMap[types.EventTypeRawRequest+"."+types.AttributeKeyFee][id])
 		if err != nil {
@@ -75,7 +80,11 @@ func (h *Hook) emitRawRequestAndValRequest(ctx sdk.Context, requestID types.Requ
 }
 
 func (app *Hook) emitReportAndRawReport(
-	txHash []byte, rid types.RequestID, validator sdk.ValAddress, reporter sdk.AccAddress, rawReports []types.RawReport,
+	txHash []byte,
+	rid types.RequestID,
+	validator sdk.ValAddress,
+	reporter sdk.AccAddress,
+	rawReports []types.RawReport,
 ) {
 	app.Write("NEW_REPORT", common.JsDict{
 		"tx_hash":    txHash,
@@ -138,20 +147,14 @@ func (h *Hook) handleMsgRequestData(
 }
 
 // handleMsgReportData implements emitter handler for MsgReportData.
-func (h *Hook) handleMsgReportData(
-	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, evMap common.EvMap,
-) {
+func (h *Hook) handleMsgReportData(_ sdk.Context, txHash []byte, msg *types.MsgReportData, reporter string) {
 	val, _ := sdk.ValAddressFromBech32(msg.Validator)
 	rep := sdk.AccAddress(val)
-	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
-}
 
-// handleMsgReportDataFromGrantee implements emitter handler for MsgReportData.
-func (h *Hook) handleMsgReportDataFromGrantee(
-	ctx sdk.Context, txHash []byte, msg *types.MsgReportData, grantee string,
-) {
-	val, _ := sdk.ValAddressFromBech32(msg.Validator)
-	rep, _ := sdk.AccAddressFromBech32(grantee)
+	// If report come from MsgExec
+	if reporter != "" {
+		rep, _ = sdk.AccAddressFromBech32(reporter)
+	}
 	h.emitReportAndRawReport(txHash, msg.RequestID, val, rep, msg.RawReports)
 }
 
@@ -205,7 +208,11 @@ func (h *Hook) handleMsgEditOracleScript(
 // handleEventRequestExecute implements emitter handler for EventRequestExecute.
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), reasons[0])
+		h.emitUpdateResult(
+			ctx,
+			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
+			reasons[0],
+		)
 	} else {
 		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "")
 	}

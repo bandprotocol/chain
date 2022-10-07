@@ -316,7 +316,7 @@ message QueryRequestVerificationResponse {
   // DataSourceID is the ID of a data source that relates to the targeted
   // external ID
   uint64 data_source_id = 5;
-  // IsDelay is a flag to tell that this request is not exist yet but in 
+  // IsDelay is a flag to tell that this request is not exist yet but in
   // MaxDelay range
   bool is_delay = 6;
 }

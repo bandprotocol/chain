@@ -23,6 +23,7 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		k.ResolveRequest(ctx, reqID)
 	}
+
 	// Once all the requests are resolved, we can clear the list.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
 	// Lastly, we clean up data requests that are supposed to be expired.

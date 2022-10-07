@@ -252,7 +252,6 @@ func (chain *TestChain) sendMsgs(msgs ...sdk.Msg) error {
 // number and updates the TestChain's headers. It returns the result and error if one
 // occurred.
 func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
-
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
@@ -423,7 +422,6 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(
 	header.TrustedValidators = trustedVals
 
 	return header, nil
-
 }
 
 // ExpireClient fast forwards the chain's block time by the provided amount of time which will
@@ -533,7 +531,6 @@ func MakeBlockID(hash []byte, partSetSize uint32, partSetHash []byte) tmtypes.Bl
 // The sorting is first by .VotingPower (descending), with secondary index of .Address (ascending).
 func CreateSortedSignerArray(altPrivVal, suitePrivVal tmtypes.PrivValidator,
 	altVal, suiteVal *tmtypes.Validator) []tmtypes.PrivValidator {
-
 	switch {
 	case altVal.VotingPower > suiteVal.VotingPower:
 		return []tmtypes.PrivValidator{altPrivVal, suitePrivVal}

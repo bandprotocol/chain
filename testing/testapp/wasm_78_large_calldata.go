@@ -6,10 +6,11 @@ import (
 )
 
 // An oracle script to test large calldata
-//   PREPARE:
-//     Ask external data with calldata "b"*time
-//   EXECUTE:
-//     Return with data "b"*time
+//
+//	PREPARE:
+//	  Ask external data with calldata "b"*time
+//	EXECUTE:
+//	  Return with data "b"*time
 func Wasm78(time int) []byte {
 	var b strings.Builder
 	for idx := 0; idx < time; idx++ {

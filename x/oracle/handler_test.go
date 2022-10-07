@@ -32,15 +32,29 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 	executable := []byte("executable")
 	executableHash := sha256.Sum256(executable)
 	filename := hex.EncodeToString(executableHash[:])
-	msg := types.NewMsgCreateDataSource(name, description, executable, testapp.EmptyCoins, treasury, owner, testapp.Alice.Address)
+	msg := types.NewMsgCreateDataSource(
+		name,
+		description,
+		executable,
+		testapp.EmptyCoins,
+		treasury,
+		owner,
+		testapp.Alice.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, types.DataSourceID(dsCount+1))
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins, treasury), ds)
+	require.Equal(
+		t,
+		types.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins, treasury),
+		ds,
+	)
 	event := abci.Event{
-		Type:       types.EventTypeCreateDataSource,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))}},
+		Type: types.EventTypeCreateDataSource,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))},
+		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
@@ -57,7 +71,15 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 	zw.Write(executable)
 	zw.Close()
 	sender := testapp.Alice.Address
-	msg := types.NewMsgCreateDataSource(name, description, buf.Bytes()[:5], testapp.EmptyCoins, treasury, owner, sender)
+	msg := types.NewMsgCreateDataSource(
+		name,
+		description,
+		buf.Bytes()[:5],
+		testapp.EmptyCoins,
+		treasury,
+		owner,
+		sender,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	require.Nil(t, res)
@@ -70,12 +92,32 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	newExecutable := []byte("executable2")
 	newExecutableHash := sha256.Sum256(newExecutable)
 	newFilename := hex.EncodeToString(newExecutableHash[:])
-	msg := types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.Coins1000000uband, testapp.Treasury.Address, testapp.Alice.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditDataSource(
+		1,
+		newName,
+		newDescription,
+		newExecutable,
+		testapp.Coins1000000uband,
+		testapp.Treasury.Address,
+		testapp.Alice.Address,
+		testapp.Owner.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	ds, err := k.GetDataSource(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewDataSource(testapp.Alice.Address, newName, newDescription, newFilename, testapp.Coins1000000uband, testapp.Treasury.Address), ds)
+	require.Equal(
+		t,
+		types.NewDataSource(
+			testapp.Alice.Address,
+			newName,
+			newDescription,
+			newFilename,
+			testapp.Coins1000000uband,
+			testapp.Treasury.Address,
+		),
+		ds,
+	)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
 		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
@@ -89,12 +131,30 @@ func TestEditDataSourceFail(t *testing.T) {
 	newDescription := "new_description"
 	newExecutable := []byte("executable2")
 	// Bad ID
-	msg := types.NewMsgEditDataSource(42, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditDataSource(
+		42,
+		newName,
+		newDescription,
+		newExecutable,
+		testapp.EmptyCoins,
+		testapp.Treasury.Address,
+		testapp.Owner.Address,
+		testapp.Owner.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	testapp.CheckErrorf(t, err, types.ErrDataSourceNotFound, "id: 42")
 	require.Nil(t, res)
 	// Not owner
-	msg = types.NewMsgEditDataSource(1, newName, newDescription, newExecutable, testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Bob.Address)
+	msg = types.NewMsgEditDataSource(
+		1,
+		newName,
+		newDescription,
+		newExecutable,
+		testapp.EmptyCoins,
+		testapp.Treasury.Address,
+		testapp.Owner.Address,
+		testapp.Bob.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrEditorNotAuthorized)
 	require.Nil(t, res)
@@ -103,7 +163,16 @@ func TestEditDataSourceFail(t *testing.T) {
 	zw := gz.NewWriter(&buf)
 	zw.Write(newExecutable)
 	zw.Close()
-	msg = types.NewMsgEditDataSource(1, newName, newDescription, buf.Bytes()[:5], testapp.EmptyCoins, testapp.Treasury.Address, testapp.Owner.Address, testapp.Owner.Address)
+	msg = types.NewMsgEditDataSource(
+		1,
+		newName,
+		newDescription,
+		buf.Bytes()[:5],
+		testapp.EmptyCoins,
+		testapp.Treasury.Address,
+		testapp.Owner.Address,
+		testapp.Owner.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	require.Nil(t, res)
@@ -117,16 +186,30 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	code := testapp.WasmExtra1
 	schema := "schema"
 	url := "url"
-	msg := types.NewMsgCreateOracleScript(name, description, schema, url, code, testapp.Owner.Address, testapp.Alice.Address)
+	msg := types.NewMsgCreateOracleScript(
+		name,
+		description,
+		schema,
+		url,
+		code,
+		testapp.Owner.Address,
+		testapp.Alice.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	os, err := k.GetOracleScript(ctx, types.OracleScriptID(osCount+1))
 	require.NoError(t, err)
-	require.Equal(t, types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url), os)
+	require.Equal(
+		t,
+		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		os,
+	)
 
 	event := abci.Event{
-		Type:       types.EventTypeCreateOracleScript,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))}},
+		Type: types.EventTypeCreateOracleScript,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
@@ -142,16 +225,30 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	zw := gz.NewWriter(&buf)
 	zw.Write(testapp.WasmExtra1)
 	zw.Close()
-	msg := types.NewMsgCreateOracleScript(name, description, schema, url, buf.Bytes(), testapp.Owner.Address, testapp.Alice.Address)
+	msg := types.NewMsgCreateOracleScript(
+		name,
+		description,
+		schema,
+		url,
+		buf.Bytes(),
+		testapp.Owner.Address,
+		testapp.Alice.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	os, err := k.GetOracleScript(ctx, types.OracleScriptID(osCount+1))
 	require.NoError(t, err)
-	require.Equal(t, types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url), os)
+	require.Equal(
+		t,
+		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		os,
+	)
 
 	event := abci.Event{
-		Type:       types.EventTypeCreateOracleScript,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))}},
+		Type: types.EventTypeCreateOracleScript,
+		Attributes: []abci.EventAttribute{
+			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
@@ -163,7 +260,15 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	schema := "schema"
 	url := "url"
 	// Bad Owasm code
-	msg := types.NewMsgCreateOracleScript(name, description, schema, url, []byte("BAD"), testapp.Owner.Address, testapp.Alice.Address)
+	msg := types.NewMsgCreateOracleScript(
+		name,
+		description,
+		schema,
+		url,
+		[]byte("BAD"),
+		testapp.Owner.Address,
+		testapp.Alice.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
@@ -172,7 +277,15 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	zw := gz.NewWriter(&buf)
 	zw.Write(testapp.WasmExtra1)
 	zw.Close()
-	msg = types.NewMsgCreateOracleScript(name, description, schema, url, buf.Bytes()[:5], testapp.Owner.Address, testapp.Alice.Address)
+	msg = types.NewMsgCreateOracleScript(
+		name,
+		description,
+		schema,
+		url,
+		buf.Bytes()[:5],
+		testapp.Owner.Address,
+		testapp.Alice.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	require.Nil(t, res)
@@ -185,12 +298,32 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 	newCode := testapp.WasmExtra2
 	newSchema := "new_schema"
 	newURL := "new_url"
-	msg := types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, newCode, testapp.Alice.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditOracleScript(
+		1,
+		newName,
+		newDescription,
+		newSchema,
+		newURL,
+		newCode,
+		testapp.Alice.Address,
+		testapp.Owner.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	os, err := k.GetOracleScript(ctx, 1)
 	require.NoError(t, err)
-	require.Equal(t, types.NewOracleScript(testapp.Alice.Address, newName, newDescription, testapp.WasmExtra2FileName, newSchema, newURL), os)
+	require.Equal(
+		t,
+		types.NewOracleScript(
+			testapp.Alice.Address,
+			newName,
+			newDescription,
+			testapp.WasmExtra2FileName,
+			newSchema,
+			newURL,
+		),
+		os,
+	)
 
 	event := abci.Event{
 		Type:       types.EventTypeEditOracleScript,
@@ -207,17 +340,44 @@ func TestEditOracleScriptFail(t *testing.T) {
 	newSchema := "new_schema"
 	newURL := "new_url"
 	// Bad ID
-	msg := types.NewMsgEditOracleScript(999, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Owner.Address)
+	msg := types.NewMsgEditOracleScript(
+		999,
+		newName,
+		newDescription,
+		newSchema,
+		newURL,
+		newCode,
+		testapp.Owner.Address,
+		testapp.Owner.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not owner
-	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, newCode, testapp.Owner.Address, testapp.Bob.Address)
+	msg = types.NewMsgEditOracleScript(
+		1,
+		newName,
+		newDescription,
+		newSchema,
+		newURL,
+		newCode,
+		testapp.Owner.Address,
+		testapp.Bob.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.EqualError(t, err, "editor not authorized")
 	require.Nil(t, res)
 	// Bad Owasm code
-	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, []byte("BAD_CODE"), testapp.Owner.Address, testapp.Owner.Address)
+	msg = types.NewMsgEditOracleScript(
+		1,
+		newName,
+		newDescription,
+		newSchema,
+		newURL,
+		[]byte("BAD_CODE"),
+		testapp.Owner.Address,
+		testapp.Owner.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
@@ -226,7 +386,16 @@ func TestEditOracleScriptFail(t *testing.T) {
 	zw := gz.NewWriter(&buf)
 	zw.Write(testapp.WasmExtra2)
 	zw.Close()
-	msg = types.NewMsgEditOracleScript(1, newName, newDescription, newSchema, newURL, buf.Bytes()[:5], testapp.Owner.Address, testapp.Owner.Address)
+	msg = types.NewMsgEditOracleScript(
+		1,
+		newName,
+		newDescription,
+		newSchema,
+		newURL,
+		buf.Bytes()[:5],
+		testapp.Owner.Address,
+		testapp.Owner.Address,
+	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
 	require.Nil(t, res)
@@ -235,7 +404,17 @@ func TestEditOracleScriptFail(t *testing.T) {
 func TestRequestDataSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
-	msg := types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address)
+	msg := types.NewMsgRequestData(
+		1,
+		[]byte("beeb"),
+		2,
+		2,
+		"CID",
+		testapp.Coins100000000uband,
+		testapp.TestDefaultPrepareGas,
+		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address,
+	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
@@ -304,7 +483,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
 			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("785")},
+			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("5294700000")},
 			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
@@ -349,25 +528,100 @@ func TestRequestDataSuccess(t *testing.T) {
 func TestRequestDataFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	// No active oracle validators
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err := oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgRequestData(
+			1,
+			[]byte("beeb"),
+			2,
+			2,
+			"CID",
+			testapp.Coins100000000uband,
+			testapp.TestDefaultPrepareGas,
+			testapp.TestDefaultExecuteGas,
+			testapp.FeePayer.Address,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
 	require.Nil(t, res)
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	// Too large calldata
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte(strings.Repeat("beeb", 2000)), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
-	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 256")
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgRequestData(
+			1,
+			[]byte(strings.Repeat("beeb", 2000)),
+			2,
+			2,
+			"CID",
+			testapp.Coins100000000uband,
+			testapp.TestDefaultPrepareGas,
+			testapp.TestDefaultExecuteGas,
+			testapp.FeePayer.Address,
+		),
+	)
+	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
 	require.Nil(t, res)
 	// Too high ask count
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 3, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgRequestData(
+			1,
+			[]byte("beeb"),
+			3,
+			2,
+			"CID",
+			testapp.Coins100000000uband,
+			testapp.TestDefaultPrepareGas,
+			testapp.TestDefaultExecuteGas,
+			testapp.FeePayer.Address,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
 	require.Nil(t, res)
 	// Bad oracle script ID
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(999, []byte("beeb"), 2, 2, "CID", testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgRequestData(
+			999,
+			[]byte("beeb"),
+			2,
+			2,
+			"CID",
+			testapp.Coins100000000uband,
+			testapp.TestDefaultPrepareGas,
+			testapp.TestDefaultExecuteGas,
+			testapp.FeePayer.Address,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Pay not enough fee
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgRequestData(1, []byte("beeb"), 2, 2, "CID", testapp.EmptyCoins, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.FeePayer.Address))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgRequestData(
+			1,
+			[]byte("beeb"),
+			2,
+			2,
+			"CID",
+			testapp.EmptyCoins,
+			testapp.TestDefaultPrepareGas,
+			testapp.TestDefaultExecuteGas,
+			testapp.FeePayer.Address,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrNotEnoughFee, "require: 2000000uband, max: 0uband")
 	require.Nil(t, res)
 }
@@ -378,7 +632,11 @@ func TestReportSuccess(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		1,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[1].ValAddress, testapp.Validators[0].ValAddress},
+		[]sdk.ValAddress{
+			testapp.Validators[2].ValAddress,
+			testapp.Validators[1].ValAddress,
+			testapp.Validators[0].ValAddress,
+		},
 		2,
 		124,
 		testapp.ParseTime(1581589790),
@@ -442,7 +700,11 @@ func TestReportFail(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		1,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[1].ValAddress, testapp.Validators[0].ValAddress},
+		[]sdk.ValAddress{
+			testapp.Validators[2].ValAddress,
+			testapp.Validators[1].ValAddress,
+			testapp.Validators[0].ValAddress,
+		},
 		2,
 		124,
 		testapp.ParseTime(1581589790),
@@ -462,18 +724,54 @@ func TestReportFail(t *testing.T) {
 	require.Nil(t, res)
 	// Not-asked validator
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress))
-	testapp.CheckErrorf(t, err, types.ErrValidatorNotRequested, "reqID: 42, val: %s", testapp.Alice.ValAddress.String())
+	testapp.CheckErrorf(
+		t,
+		err,
+		types.ErrValidatorNotRequested,
+		"reqID: 42, val: %s",
+		testapp.Alice.ValAddress.String(),
+	)
 	require.Nil(t, res)
 	// Too large report data size
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000)))}, testapp.Validators[0].ValAddress))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgReportData(
+			42,
+			[]types.RawReport{
+				types.NewRawReport(1, 0, []byte("data1")),
+				types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000))),
+			},
+			testapp.Validators[0].ValAddress,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrTooLargeRawReportData, "got: 10000, max: 512")
 	require.Nil(t, res)
 	// Not having all raw reports
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1"))}, testapp.Validators[0].ValAddress))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgReportData(
+			42,
+			[]types.RawReport{types.NewRawReport(1, 0, []byte("data1"))},
+			testapp.Validators[0].ValAddress,
+		),
+	)
 	require.ErrorIs(t, err, types.ErrInvalidReportSize)
 	require.Nil(t, res)
 	// Incorrect external IDs
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))}, testapp.Validators[0].ValAddress))
+	res, err = oracle.NewHandler(
+		k,
+	)(
+		ctx,
+		types.NewMsgReportData(
+			42,
+			[]types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))},
+			testapp.Validators[0].ValAddress,
+		),
+	)
 	testapp.CheckErrorf(t, err, types.ErrRawRequestNotFound, "reqID: 42, extID: 42")
 	require.Nil(t, res)
 	// Request already expired

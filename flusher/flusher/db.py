@@ -70,7 +70,7 @@ class CustomBase64(sa.types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        return b64.decodestring(value.encode())
+        return b64.decodebytes(value.encode())
 
 
 class CustomDate(sa.types.TypeDecorator):

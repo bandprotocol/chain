@@ -51,7 +51,6 @@ func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChanne
 }
 
 func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
-
 	switch msg.PortId {
 	case "icahost":
 		h.handleIcahostChannelOpenTry(ctx, msg, evMap)
@@ -228,7 +227,6 @@ func (h *Hook) extractOracleRequestPacket(
 				"status":     "success",
 				"request_id": id,
 			}
-
 		} else {
 			packet["type"] = "oracle_request"
 			packet["data"] = common.JsDict{
@@ -268,7 +266,6 @@ func (h *Hook) extractInterchainAccountPacket(
 	var data icatypes.InterchainAccountPacketData
 	err := icatypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
-
 		var status string
 		if events, ok := evMap[icatypes.EventTypePacket+"."+icatypes.AttributeKeyAckSuccess]; ok {
 			if events[0] == "true" {
@@ -276,7 +273,6 @@ func (h *Hook) extractInterchainAccountPacket(
 				packet["acknowledgement"] = common.JsDict{
 					"status": status,
 				}
-
 			} else {
 				status = "failure"
 				packet["acknowledgement"] = common.JsDict{
@@ -305,7 +301,7 @@ func (h *Hook) extractInterchainAccountPacket(
 
 				// decode message
 				msgDetail := make(common.JsDict)
-				h.DecodeMsg(ctx, msg, msgDetail)
+				DecodeMsg(msg, msgDetail)
 				innerMessages = append(innerMessages, common.JsDict{
 					"type": sdk.MsgTypeURL(msg),
 					"msg":  msgDetail,

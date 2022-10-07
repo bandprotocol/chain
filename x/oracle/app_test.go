@@ -42,7 +42,11 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	expectRequest := types.NewRequest(
 		types.OracleScriptID(1),
 		[]byte("calldata"),
-		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		[]sdk.ValAddress{
+			testapp.Validators[2].ValAddress,
+			testapp.Validators[0].ValAddress,
+			testapp.Validators[1].ValAddress,
+		},
 		2,
 		4,
 		testapp.ParseTime(1581589790),
@@ -108,7 +112,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
 		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
 		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("516")},
+		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
 	}}}
 
 	require.Equal(t, expectEvents, result.GetEvents())
@@ -147,7 +151,11 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	expectRequest := types.NewRequest(
 		types.OracleScriptID(1),
 		[]byte("calldata"),
-		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		[]sdk.ValAddress{
+			testapp.Validators[2].ValAddress,
+			testapp.Validators[0].ValAddress,
+			testapp.Validators[1].ValAddress,
+		},
 		2,
 		4,
 		testapp.ParseTime(1581589790),
@@ -174,22 +182,34 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		Type: types.EventTypeResolve,
 		Attributes: []abci.EventAttribute{
 			{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-			{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
+			{
+				Key:   []byte(types.AttributeKeyResolveStatus),
+				Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
+			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validators[2].ValAddress.String())},
+			{
+				Key:   []byte(types.AttributeKeyValidator),
+				Value: parseEventAttribute(testapp.Validators[2].ValAddress.String()),
+			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validators[0].ValAddress.String())},
+			{
+				Key:   []byte(types.AttributeKeyValidator),
+				Value: parseEventAttribute(testapp.Validators[0].ValAddress.String()),
+			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: parseEventAttribute(testapp.Validators[1].ValAddress.String())},
+			{
+				Key:   []byte(types.AttributeKeyValidator),
+				Value: parseEventAttribute(testapp.Validators[1].ValAddress.String()),
+			},
 		},
 	}}
 

@@ -138,7 +138,7 @@ var (
 		gov.NewAppModuleBasic(
 			paramsclient.ProposalHandler,
 			distrclient.ProposalHandler,
-			upgradeclient.CancelProposalHandler,
+			upgradeclient.ProposalHandler,
 			upgradeclient.CancelProposalHandler,
 			ibcclientclient.UpdateClientProposalHandler,
 			ibcclientclient.UpgradeProposalHandler,
@@ -205,7 +205,7 @@ type BandApp struct {
 	ICAHostKeeper  icahostkeeper.Keeper
 	EvidenceKeeper evidencekeeper.Keeper
 	TransferKeeper ibctransferkeeper.Keeper
-	FeeGrantKeeper feegrantkeeper.Keeper
+	FeegrantKeeper feegrantkeeper.Keeper
 	AuthzKeeper    authzkeeper.Keeper
 	OracleKeeper   oraclekeeper.Keeper
 
@@ -258,7 +258,6 @@ func NewBandApp(
 	emitterFlag, requestSearchFlag, pricerFlag string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
-
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -361,7 +360,7 @@ func NewBandApp(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
 
-	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
+	app.FeegrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		keys[upgradetypes.StoreKey],
@@ -509,7 +508,7 @@ func NewBandApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// create evidence keeper with router.
+	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
 	)
@@ -531,7 +530,7 @@ func NewBandApp(
 			appCodec,
 			app.AccountKeeper,
 			app.BankKeeper,
-			app.FeeGrantKeeper,
+			app.FeegrantKeeper,
 			app.interfaceRegistry,
 		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
@@ -643,7 +642,7 @@ func NewBandApp(
 			AccountKeeper:   app.AccountKeeper,
 			BankKeeper:      app.BankKeeper,
 			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
+			FeegrantKeeper:  app.FeegrantKeeper,
 			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 		},
 	)
@@ -655,6 +654,17 @@ func NewBandApp(
 	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
+
+	// if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
+	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
+		err := snapshotManager.RegisterExtensions(
+			oraclekeeper.NewOracleSnapshotter(app.CommitMultiStore(), &app.OracleKeeper),
+		)
+		if err != nil {
+			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
+		}
+	}
+
 	if loadLatest {
 		err := app.LoadLatestVersion()
 		if err != nil {

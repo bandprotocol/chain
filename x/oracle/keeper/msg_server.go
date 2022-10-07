@@ -23,7 +23,10 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-func (k msgServer) RequestData(goCtx context.Context, msg *types.MsgRequestData) (*types.MsgRequestDataResponse, error) {
+func (k msgServer) RequestData(
+	goCtx context.Context,
+	msg *types.MsgRequestData,
+) (*types.MsgRequestDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	payer, err := sdk.AccAddressFromBech32(msg.Sender)
@@ -82,7 +85,10 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	return &types.MsgReportDataResponse{}, nil
 }
 
-func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateDataSource) (*types.MsgCreateDataSourceResponse, error) {
+func (k msgServer) CreateDataSource(
+	goCtx context.Context,
+	msg *types.MsgCreateDataSource,
+) (*types.MsgCreateDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// unzip if it's a zip file
@@ -116,7 +122,10 @@ func (k msgServer) CreateDataSource(goCtx context.Context, msg *types.MsgCreateD
 	return &types.MsgCreateDataSourceResponse{}, nil
 }
 
-func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataSource) (*types.MsgEditDataSourceResponse, error) {
+func (k msgServer) EditDataSource(
+	goCtx context.Context,
+	msg *types.MsgEditDataSource,
+) (*types.MsgEditDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	dataSource, err := k.GetDataSource(ctx, msg.DataSourceID)
@@ -170,7 +179,10 @@ func (k msgServer) EditDataSource(goCtx context.Context, msg *types.MsgEditDataS
 	return &types.MsgEditDataSourceResponse{}, nil
 }
 
-func (k msgServer) CreateOracleScript(goCtx context.Context, msg *types.MsgCreateOracleScript) (*types.MsgCreateOracleScriptResponse, error) {
+func (k msgServer) CreateOracleScript(
+	goCtx context.Context,
+	msg *types.MsgCreateOracleScript,
+) (*types.MsgCreateOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// unzip if it's a zip file
@@ -204,7 +216,10 @@ func (k msgServer) CreateOracleScript(goCtx context.Context, msg *types.MsgCreat
 	return &types.MsgCreateOracleScriptResponse{}, nil
 }
 
-func (k msgServer) EditOracleScript(goCtx context.Context, msg *types.MsgEditOracleScript) (*types.MsgEditOracleScriptResponse, error) {
+func (k msgServer) EditOracleScript(
+	goCtx context.Context,
+	msg *types.MsgEditOracleScript,
+) (*types.MsgEditOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	oracleScript, err := k.GetOracleScript(ctx, msg.OracleScriptID)

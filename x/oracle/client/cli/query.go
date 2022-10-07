@@ -142,7 +142,10 @@ func GetQueryCmdOracleScript() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.OracleScript(context.Background(), &types.QueryOracleScriptRequest{OracleScriptId: id})
+			r, err := queryClient.OracleScript(
+				context.Background(),
+				&types.QueryOracleScriptRequest{OracleScriptId: id},
+			)
 			if err != nil {
 				return err
 			}
@@ -248,7 +251,10 @@ func GetQueryCmdValidatorStatus() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Validator(context.Background(), &types.QueryValidatorRequest{ValidatorAddress: valAddress.String()})
+			r, err := queryClient.Validator(
+				context.Background(),
+				&types.QueryValidatorRequest{ValidatorAddress: valAddress.String()},
+			)
 			if err != nil {
 				return err
 			}
@@ -273,7 +279,10 @@ func GetQueryCmdReporters() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Reporters(context.Background(), &types.QueryReportersRequest{ValidatorAddress: args[0]})
+			r, err := queryClient.Reporters(
+				context.Background(),
+				&types.QueryReportersRequest{ValidatorAddress: args[0]},
+			)
 			if err != nil {
 				return err
 			}
@@ -426,8 +435,10 @@ func GetQueryRequestPrice() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
-	cmd.Flags().Uint64(flagAskCount, 0, "The number of validators that have been chosen to respond to the request, if not provided use Band standard dataset standard.")
-	cmd.Flags().Uint64(flagMinCount, 0, "The minimum number of BandChain's validators that need to responds to consider the request successful, iif not provided use Band standard dataset standard")
+	cmd.Flags().
+		Uint64(flagAskCount, 0, "The number of validators that have been chosen to respond to the request, if not provided use Band standard dataset standard.")
+	cmd.Flags().
+		Uint64(flagMinCount, 0, "The minimum number of BandChain's validators that need to responds to consider the request successful, iif not provided use Band standard dataset standard")
 
 	return cmd
 }

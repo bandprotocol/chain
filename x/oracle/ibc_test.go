@@ -39,7 +39,6 @@ func (suite *OracleTestSuite) SetupTest() {
 	suite.path.EndpointB.ChannelConfig.PortID = ibctesting.OraclePort
 
 	suite.coordinator.Setup(suite.path)
-
 }
 
 func (suite *OracleTestSuite) sendOracleRequestPacket(
@@ -155,7 +154,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		types.NewOracleRequestPacketData(
 			clientID,
 			1,
-			[]byte(strings.Repeat("beeb", 65)),
+			[]byte(strings.Repeat("beeb", 130)),
 			1,
 			1,
 			coins,
@@ -216,7 +215,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		),
 	}
 	expectedErrs := []string{
-		"got: 260, max: 256: too large calldata",
+		"got: 520, max: 512: too large calldata",
 		"got: 0: invalid min count",
 		"got: 1, min count: 2: invalid ask count",
 		"got: 135, max: 128: too long client id",
@@ -318,7 +317,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("got: 8000, max: 256: too large calldata")
+	ack := channeltypes.NewErrorAcknowledgement("got: 8000, max: 512: too large calldata")
 	err := path.RelayPacket(packet, ack.Acknowledgement())
 	suite.Require().NoError(err) // relay committed
 }
@@ -334,7 +333,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		100,
+		1,
 		testapp.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)

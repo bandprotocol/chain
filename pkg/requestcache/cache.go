@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/peterbourgon/diskv"
-	
+
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -33,7 +33,13 @@ func getFilename(oid types.OracleScriptID, calldata []byte, askCount uint64, min
 }
 
 // SaveLatestRequest saves the latest request id to a file with key that combined from event attributes.
-func (c Cache) SaveLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64, reqID types.RequestID) error {
+func (c Cache) SaveLatestRequest(
+	oid types.OracleScriptID,
+	calldata []byte,
+	askCount uint64,
+	minCount uint64,
+	reqID types.RequestID,
+) error {
 	bz, err := json.Marshal(reqID)
 	if err != nil {
 		return err
@@ -42,7 +48,12 @@ func (c Cache) SaveLatestRequest(oid types.OracleScriptID, calldata []byte, askC
 }
 
 // GetLatestRequest loads the latest request from the file storage. Returns error if the file does not exist.
-func (c Cache) GetLatestRequest(oid types.OracleScriptID, calldata []byte, askCount uint64, minCount uint64) (types.RequestID, error) {
+func (c Cache) GetLatestRequest(
+	oid types.OracleScriptID,
+	calldata []byte,
+	askCount uint64,
+	minCount uint64,
+) (types.RequestID, error) {
 	bz, err := c.kv.Read(getFilename(oid, calldata, askCount, minCount))
 	if err != nil {
 		return 0, err
