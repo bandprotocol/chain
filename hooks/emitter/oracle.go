@@ -37,6 +37,7 @@ func (h *Hook) emitSetOracleScript(id types.OracleScriptID, os types.OracleScrip
 		"codehash":        os.Filename,
 		"source_code_url": os.SourceCodeURL,
 		"tx_hash":         txHash,
+		"version":         2,
 	})
 }
 
