@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -75,6 +76,7 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
+	icacontrollertypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/types"
@@ -655,6 +657,9 @@ func NewBandApp(
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
+	app.setupUpgradeHandlers()
+	app.setupUpgradeStoreLoaders()
+
 	// if there is no snapshot manager, it's ok to skip extension registration. chain can still run normally.
 	if snapshotManager := app.SnapshotManager(); snapshotManager != nil {
 		err := snapshotManager.RegisterExtensions(
@@ -721,6 +726,7 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
+	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 	app.hooks.AfterInitChain(ctx, req, res)
 
@@ -876,4 +882,101 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func (app *BandApp) setupUpgradeHandlers() {
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_4",
+		func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
+			// hardcode version of all modules of v2.3.x
+			fromVM := map[string]uint64{
+				"auth":         2,
+				"authz":        1,
+				"bank":         2,
+				"capability":   1,
+				"crisis":       1,
+				"distribution": 2,
+				"evidence":     1,
+				"feegrant":     1,
+				"genutil":      1,
+				"gov":          2,
+				"ibc":          2,
+				"mint":         1,
+				"oracle":       1,
+				"params":       1,
+				"slashing":     2,
+				"staking":      2,
+				"transfer":     1,
+				"upgrade":      1,
+				"vesting":      1,
+			}
+
+			// set version of ica so that it won't run initgenesis again
+			fromVM["interchainaccounts"] = 1
+
+			// prepare ICS27 controller and host params
+			controllerParams := icacontrollertypes.Params{}
+			hostParams := icahosttypes.Params{
+				HostEnabled: true,
+				AllowMessages: []string{
+					sdk.MsgTypeURL(&authz.MsgExec{}),
+					sdk.MsgTypeURL(&authz.MsgGrant{}),
+					sdk.MsgTypeURL(&authz.MsgRevoke{}),
+					sdk.MsgTypeURL(&banktypes.MsgSend{}),
+					sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+					sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
+					sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
+					sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
+					sdk.MsgTypeURL(&govtypes.MsgSubmitProposal{}),
+					sdk.MsgTypeURL(&govtypes.MsgDeposit{}),
+					sdk.MsgTypeURL(&govtypes.MsgVote{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+					sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+				},
+			}
+
+			// Oracle DefaultParams only upgrade BaseRequestGas to 50000
+			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
+
+			consensusParam := app.GetConsensusParams(ctx)
+			consensusParam.Block.MaxGas = 50_000_000
+			app.StoreConsensusParams(ctx, consensusParam)
+
+			// initialize ICS27 module
+			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
+			icaModule.InitModule(ctx, controllerParams, hostParams)
+
+			// run migration
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+}
+
+// configure store loader that checks if version == upgradeHeight and applies store upgrades
+func (app *BandApp) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	if upgradeInfo.Name == "v2_4" {
+		storeUpgrades := storetypes.StoreUpgrades{
+			Added: []string{icahosttypes.StoreKey},
+		}
+
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
 }
