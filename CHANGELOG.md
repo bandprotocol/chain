@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [v2.3.6](https://github.com/bandprotocol/chain/releases/tag/v2.3.6)
+
+- (bump) Use cosmos-sdk v0.44.5-patch / ibc-go 1.1.7
+
 ## [v2.3.5](https://github.com/bandprotocol/chain/releases/tag/v2.3.5)
 
 - (bump) Use go-owasm package v0.1.1
