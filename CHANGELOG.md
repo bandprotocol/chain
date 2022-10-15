@@ -3,7 +3,7 @@
 ## Unreleased
 
 - (bump) Use go 1.19
-- (bump) Use cosmos-sdk package v0.45.8 / tendermint v0.34.21 / ibc-go v3.3.0
+- (bump) Use cosmos-sdk package v0.45.9 / tendermint v0.34.21 / ibc-go v3.3.0
 - (bump) Use go-owasm v0.2.1
 - (chain) Add ICA host module
 - (chain) Add MaxDelay parameter for request verification query
