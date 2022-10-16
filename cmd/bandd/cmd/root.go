@@ -77,7 +77,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			return server.InterceptConfigsPreRunHandler(cmd, "", nil)
+			customAppConfigTemplate, customAppConfig := initAppConfig()
+
+			return server.InterceptConfigsPreRunHandler(cmd, customAppConfigTemplate, customAppConfig)
 		},
 	}
 
