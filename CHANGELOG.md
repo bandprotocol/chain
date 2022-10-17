@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## [v2.4.0](https://github.com/bandprotocol/chain/releases/tag/v2.4.0)
 
 - (bump) Use go 1.19
-- (bump) Use cosmos-sdk package v0.45.8 / tendermint v0.34.21 / ibc-go v3.3.0
-- (bump) Use go-owasm v0.2.1
+- (bump) Use cosmos-sdk package v0.45.9 / tendermint v0.34.21 / ibc-go v3.3.0
+- (bump) Use go-owasm v0.2.2
 - (chain) Add ICA host module
 - (chain) Add MaxDelay parameter for request verification query
 - (chain) Add IsDelay parameter for request verification response
