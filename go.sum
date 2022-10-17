@@ -121,8 +121,8 @@ github.com/aws/aws-sdk-go-v2/service/route53 v1.1.1/go.mod h1:rLiOUrPLW/Er5kRcQ7
 github.com/aws/aws-sdk-go-v2/service/sso v1.1.1/go.mod h1:SuZJxklHxLAXgLTc1iFXbEWkXs7QRTQpCLGaKIprQW0=
 github.com/aws/aws-sdk-go-v2/service/sts v1.1.1/go.mod h1:Wi0EBZwiz/K44YliU0EKxqTCJGUfYTWXrrBwkq736bM=
 github.com/aws/smithy-go v1.1.0/go.mod h1:EzMw8dbp/YJL4A5/sbhGddag+NPT7q084agLbB9LgIw=
-github.com/bandprotocol/go-owasm v0.2.1 h1:jHd0udmbNaiVOgrELe2aC26yup5jTBeDYAg0BYkAaFw=
-github.com/bandprotocol/go-owasm v0.2.1/go.mod h1:G1ZNqG9+h3Ye82odMF+SWknV0m41Q3Zu6qSKf1vJrHU=
+github.com/bandprotocol/go-owasm v0.2.2 h1:yugObzNjwSIki+6KqoqfVOEG2V9T/b8iBi3xzs9f+hU=
+github.com/bandprotocol/go-owasm v0.2.2/go.mod h1:G1ZNqG9+h3Ye82odMF+SWknV0m41Q3Zu6qSKf1vJrHU=
 github.com/benbjohnson/clock v1.0.2/go.mod h1:bGMdMPoPVvcYyt1gHDf4J2KE153Yf9BuiUKYMaxlTDM=
 github.com/benbjohnson/clock v1.0.3/go.mod h1:bGMdMPoPVvcYyt1gHDf4J2KE153Yf9BuiUKYMaxlTDM=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
