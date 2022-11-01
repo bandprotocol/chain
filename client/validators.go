@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -31,7 +32,7 @@ func GetEVMValidators(cliCtx client.Context) http.HandlerFunc {
 		// Get top 100 validators for now
 		var page int = 1
 		var perPage int = 100
-		validators, err := node.Validators(nil, nil, &page, &perPage)
+		validators, err := node.Validators(context.Background(), nil, &page, &perPage)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
