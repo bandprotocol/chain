@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -110,6 +111,10 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		DecodeMsgExec(msg, detail)
+	case *feegranttypes.MsgGrantAllowance:
+		DecodeMsgGrantAllowance(msg, detail)
+	case *feegranttypes.MsgRevokeAllowance:
+		DecodeMsgRevokeAllowance(msg, detail)
 	default:
 		break
 	}
@@ -147,6 +152,55 @@ func DecodeMsgExec(msg *authz.MsgExec, detail common.JsDict) {
 		}
 	}
 	detail["msgs"] = execMsgs
+}
+
+func DecodeAllowance(allowance feegranttypes.FeeAllowanceI, detail common.JsDict) {
+	switch allowance := allowance.(type) {
+	case *feegranttypes.BasicAllowance:
+		DecodeBasicAllowance(allowance, detail)
+	case *feegranttypes.PeriodicAllowance:
+		DecodePeriodicAllowance(allowance, detail)
+	case *feegranttypes.AllowedMsgAllowance:
+		DecodeAllowedMsgAllowance(allowance, detail)
+	}
+}
+
+func DecodeBasicAllowance(allowance *feegranttypes.BasicAllowance, detail common.JsDict) {
+	detail["spend_limit"] = allowance.GetSpendLimit()
+	detail["expiration"] = allowance.GetExpiration()
+	detail["type"] = "/cosmos.feegrant.v1beta1.BasicAllowance"
+}
+
+func DecodePeriodicAllowance(allowance *feegranttypes.PeriodicAllowance, detail common.JsDict) {
+	detail["basic"] = allowance.GetBasic()
+	detail["period"] = allowance.GetPeriod()
+	detail["period_spend_limit"] = allowance.GetPeriodSpendLimit()
+	detail["period_can_spend"] = allowance.GetPeriodCanSpend()
+	detail["period_reset"] = allowance.GetPeriodReset()
+	detail["type"] = "/cosmos.feegrant.v1beta1.PeriodicAllowance"
+}
+
+func DecodeAllowedMsgAllowance(allowance *feegranttypes.AllowedMsgAllowance, detail common.JsDict) {
+	detail["allowed_messages"] = allowance.AllowedMessages
+	sub_allowance, _ := allowance.GetAllowance()
+	allowance_detail := make(common.JsDict)
+	DecodeAllowance(sub_allowance, allowance_detail)
+	detail["allowance"] = allowance_detail
+	detail["type"] = "/cosmos.feegrant.v1beta1.AllowedMsgAllowance"
+}
+
+func DecodeMsgGrantAllowance(msg *feegranttypes.MsgGrantAllowance, detail common.JsDict) {
+	detail["granter"] = msg.GetGranter()
+	detail["grantee"] = msg.GetGrantee()
+	allowance, _ := msg.GetFeeAllowanceI()
+	allowance_detail := make(common.JsDict)
+	DecodeAllowance(allowance, allowance_detail)
+	detail["allowance"] = allowance_detail
+}
+
+func DecodeMsgRevokeAllowance(msg *feegranttypes.MsgRevokeAllowance, detail common.JsDict) {
+	detail["granter"] = msg.GetGranter()
+	detail["grantee"] = msg.GetGrantee()
 }
 
 func DecodeHeight(h clienttypes.Height) common.JsDict {
