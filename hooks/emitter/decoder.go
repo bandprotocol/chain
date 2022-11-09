@@ -185,7 +185,7 @@ func DecodeAllowedMsgAllowance(allowance *feegranttypes.AllowedMsgAllowance, det
 	detail["allowance"] = nil
 	detail["type"] = "/cosmos.feegrant.v1beta1.AllowedMsgAllowance"
 	sub_allowance, err := allowance.GetAllowance()
-	if err != nil {
+	if err == nil {
 		allowance_detail := make(common.JsDict)
 		DecodeAllowance(sub_allowance, allowance_detail)
 		detail["allowance"] = allowance_detail
@@ -197,7 +197,7 @@ func DecodeMsgGrantAllowance(msg *feegranttypes.MsgGrantAllowance, detail common
 	detail["grantee"] = msg.GetGrantee()
 	detail["allowance"] = nil
 	allowance, err := msg.GetFeeAllowanceI()
-	if err != nil {
+	if err == nil {
 		allowance_detail := make(common.JsDict)
 		DecodeAllowance(allowance, allowance_detail)
 		detail["allowance"] = allowance_detail
