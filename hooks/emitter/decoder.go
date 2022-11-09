@@ -182,20 +182,26 @@ func DecodePeriodicAllowance(allowance *feegranttypes.PeriodicAllowance, detail 
 
 func DecodeAllowedMsgAllowance(allowance *feegranttypes.AllowedMsgAllowance, detail common.JsDict) {
 	detail["allowed_messages"] = allowance.AllowedMessages
-	sub_allowance, _ := allowance.GetAllowance()
-	allowance_detail := make(common.JsDict)
-	DecodeAllowance(sub_allowance, allowance_detail)
-	detail["allowance"] = allowance_detail
+	detail["allowance"] = nil
 	detail["type"] = "/cosmos.feegrant.v1beta1.AllowedMsgAllowance"
+	sub_allowance, err := allowance.GetAllowance()
+	if err != nil {
+		allowance_detail := make(common.JsDict)
+		DecodeAllowance(sub_allowance, allowance_detail)
+		detail["allowance"] = allowance_detail
+	}
 }
 
 func DecodeMsgGrantAllowance(msg *feegranttypes.MsgGrantAllowance, detail common.JsDict) {
 	detail["granter"] = msg.GetGranter()
 	detail["grantee"] = msg.GetGrantee()
-	allowance, _ := msg.GetFeeAllowanceI()
-	allowance_detail := make(common.JsDict)
-	DecodeAllowance(allowance, allowance_detail)
-	detail["allowance"] = allowance_detail
+	detail["allowance"] = nil
+	allowance, err := msg.GetFeeAllowanceI()
+	if err != nil {
+		allowance_detail := make(common.JsDict)
+		DecodeAllowance(allowance, allowance_detail)
+		detail["allowance"] = allowance_detail
+	}
 }
 
 func DecodeMsgRevokeAllowance(msg *feegranttypes.MsgRevokeAllowance, detail common.JsDict) {

@@ -348,6 +348,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	if !res.IsOK() {
 		errMsg = &res.Log
 	}
+
 	txDict := common.JsDict{
 		"hash":         txHash,
 		"block_height": ctx.BlockHeight(),
