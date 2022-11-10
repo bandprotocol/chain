@@ -61,8 +61,8 @@ func runCmd(c *Context) *cobra.Command {
 			})
 
 			store := memory.NewStore()
-			// Define a limit rate to 5 requests per hour.
-			rate, err := limiter.NewRateFromFormatted("5-H")
+			// Define a limit rate to 1 requests per hour.
+			rate, err := limiter.NewRateFromFormatted("1-H")
 			if err != nil {
 				return err
 			}
