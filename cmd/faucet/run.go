@@ -10,9 +10,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
-	"github.com/ulule/limiter/v3"
-	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
-	"github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
 func runCmd(c *Context) *cobra.Command {
@@ -46,7 +43,6 @@ func runCmd(c *Context) *cobra.Command {
 			}
 			c.amount = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(cfg.Amount)))
 			r := gin.Default()
-			r.ForwardedByClientIP = true
 			r.Use(func(c *gin.Context) {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -60,15 +56,18 @@ func runCmd(c *Context) *cobra.Command {
 				}
 			})
 
-			store := memory.NewStore()
-			// Define a limit rate to 1 requests per hour.
-			rate, err := limiter.NewRateFromFormatted("1-H")
-			if err != nil {
-				return err
-			}
-			// Create a new middleware with the limiter instance.
-			middleware := mgin.NewMiddleware(limiter.New(store, rate))
-			r.Use(middleware)
+			r.Use(NewRateLimiter(func(gc *gin.Context) (string, error) {
+				return gc.ClientIP(), nil
+			}))
+
+			r.Use(NewRateLimiter(func(gc *gin.Context) (string, error) {
+				var req Request
+				if err := gc.ShouldBindJSON(&req); err != nil {
+					return "", err
+				}
+				return req.Address, nil
+			}))
+
 			r.POST("/request", func(gc *gin.Context) {
 				handleRequest(gc, c)
 			})
