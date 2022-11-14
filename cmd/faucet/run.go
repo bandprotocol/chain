@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
@@ -62,7 +63,7 @@ func runCmd(c *Context) *cobra.Command {
 
 			r.Use(NewRateLimiter(func(gc *gin.Context) (string, error) {
 				var req Request
-				if err := gc.ShouldBindJSON(&req); err != nil {
+				if err := gc.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 					return "", err
 				}
 				return req.Address, nil
