@@ -23,6 +23,7 @@ func NewRateLimitMiddleware(keyFunc func(*gin.Context) (string, error)) gin.Hand
 		// set limiter for the key
 		limiter, ok := cacher.Get(key)
 		if !ok {
+			// 1 request per hour
 			limiter = rate.NewLimiter(rate.Every(time.Hour), 1)
 			cacher.Set(key, limiter, 0)
 		}
