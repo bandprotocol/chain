@@ -11,7 +11,7 @@ import (
 
 var cacher = cache.New(time.Hour, time.Hour)
 
-func NewRateLimiter(keyFunc func(*gin.Context) (string, error)) gin.HandlerFunc {
+func NewRateLimitMiddleware(keyFunc func(*gin.Context) (string, error)) gin.HandlerFunc {
 	return func(gc *gin.Context) {
 		// get key for cache
 		key, err := keyFunc(gc)

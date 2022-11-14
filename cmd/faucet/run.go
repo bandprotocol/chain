@@ -44,6 +44,8 @@ func runCmd(c *Context) *cobra.Command {
 			}
 			c.amount = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(cfg.Amount)))
 			r := gin.Default()
+
+			// add cors
 			r.Use(func(c *gin.Context) {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -57,11 +59,13 @@ func runCmd(c *Context) *cobra.Command {
 				}
 			})
 
-			r.Use(NewRateLimiter(func(gc *gin.Context) (string, error) {
+			// rate limit by ip
+			r.Use(NewRateLimitMiddleware(func(gc *gin.Context) (string, error) {
 				return gc.ClientIP(), nil
 			}))
 
-			r.Use(NewRateLimiter(func(gc *gin.Context) (string, error) {
+			// rate limit by address
+			r.Use(NewRateLimitMiddleware(func(gc *gin.Context) (string, error) {
 				var req Request
 				if err := gc.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 					return "", err
