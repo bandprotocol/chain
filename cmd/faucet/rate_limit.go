@@ -16,7 +16,7 @@ func NewRateLimiter(keyFunc func(*gin.Context) (string, error)) gin.HandlerFunc 
 		// get key for cache
 		key, err := keyFunc(gc)
 		if err != nil {
-			gc.JSON(http.StatusTooManyRequests, gin.H{"error": err.Error()})
+			gc.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -30,7 +30,7 @@ func NewRateLimiter(keyFunc func(*gin.Context) (string, error)) gin.HandlerFunc 
 		// check if it reaches limit or not
 		ok = limiter.(*rate.Limiter).Allow()
 		if !ok {
-			gc.JSON(http.StatusTooManyRequests, gin.H{"error": "Too many requests"})
+			gc.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "Too many requests"})
 			return
 		}
 
