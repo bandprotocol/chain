@@ -348,6 +348,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	if !res.IsOK() {
 		errMsg = &res.Log
 	}
+
 	txDict := common.JsDict{
 		"hash":         txHash,
 		"block_height": ctx.BlockHeight(),
@@ -358,6 +359,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		"sender":       tx.GetMsgs()[0].GetSigners()[0].String(),
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
+		"fee_payer":    feeTx.FeeGranter(),
 	}
 	// NOTE: We add txDict to the list of pending Kafka messages here, but it will still be
 	// mutated in the loop below as we know the messages won't get flushed until ABCI Commit.

@@ -129,6 +129,7 @@ transactions = sa.Table(
     Column("sender", sa.String),
     Column("memo", sa.String),
     Column("messages", sa.JSON),
+    Column("fee_payer", sa.String, nullable=True),
 )
 
 accounts = sa.Table(
