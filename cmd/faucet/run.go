@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
@@ -43,6 +44,8 @@ func runCmd(c *Context) *cobra.Command {
 			}
 			c.amount = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(cfg.Amount)))
 			r := gin.Default()
+
+			// add cors
 			r.Use(func(c *gin.Context) {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -55,6 +58,20 @@ func runCmd(c *Context) *cobra.Command {
 					return
 				}
 			})
+
+			// rate limit by ip
+			r.Use(NewRateLimitMiddleware(func(gc *gin.Context) (string, error) {
+				return gc.ClientIP(), nil
+			}))
+
+			// rate limit by address
+			r.Use(NewRateLimitMiddleware(func(gc *gin.Context) (string, error) {
+				var req Request
+				if err := gc.ShouldBindBodyWith(&req, binding.JSON); err != nil {
+					return "", err
+				}
+				return req.Address, nil
+			}))
 
 			r.POST("/request", func(gc *gin.Context) {
 				handleRequest(gc, c)

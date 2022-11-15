@@ -43,8 +43,10 @@ require (
 )
 
 require (
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/segmentio/kafka-go v0.3.7
 	github.com/syndtr/goleveldb v1.0.1-0.20210305035536-64b5b1c73954
+	golang.org/x/time v0.2.0
 )
 
 require (

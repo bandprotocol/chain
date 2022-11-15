@@ -10,6 +10,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 
 	band "github.com/bandprotocol/chain/v2/app"
 )
@@ -33,7 +34,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}()
 
 	var req Request
-	if err := gc.ShouldBindJSON(&req); err != nil {
+	if err := gc.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
