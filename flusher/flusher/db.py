@@ -327,6 +327,11 @@ proposals = sa.Table(
     Column("voting_time", CustomDateTime),
     Column("voting_end_time", CustomDateTime),
     Column("content", sa.JSON, nullable=True),
+    Column("total_bonded_tokens", sa.BigInteger, nullable=True),
+    Column("yes_vote", sa.BigInteger, nullable=True),
+    Column("no_vote", sa.BigInteger, nullable=True),
+    Column("no_with_veto_vote", sa.BigInteger, nullable=True),
+    Column("abstain_vote", sa.BigInteger, nullable=True),
 )
 
 deposits = sa.Table(

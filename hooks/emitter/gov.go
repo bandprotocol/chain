@@ -134,7 +134,12 @@ func (h *Hook) handleEventTypeActiveProposal(ctx sdk.Context, evMap common.EvMap
 	id := uint64(common.Atoi(evMap[types.EventTypeActiveProposal+"."+types.AttributeKeyProposalID][0]))
 	proposal, _ := h.govKeeper.GetProposal(ctx, id)
 	h.Write("UPDATE_PROPOSAL", common.JsDict{
-		"id":     id,
-		"status": int(proposal.Status),
+		"id":                  id,
+		"status":              int(proposal.Status),
+		"total_bonded_tokens": h.stakingKeeper.TotalBondedTokens(ctx),
+		"yes_vote":            proposal.FinalTallyResult.Yes,
+		"no_vote":             proposal.FinalTallyResult.No,
+		"no_with_veto_vote":   proposal.FinalTallyResult.NoWithVeto,
+		"abstain_vote":        proposal.FinalTallyResult.Abstain,
 	})
 }
