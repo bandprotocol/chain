@@ -47,9 +47,7 @@ services:
     networks:
       bandchain:
         ipv4_address: 172.18.0.15
-    command:
-      sh -c "chmod +x ./run.sh && ./run.sh query-node"
-
+    command: sh -c "chmod +x ./run.sh && ./run.sh query-node"
       # rest-server:
       #   image: band-validator:latest
       #   networks:
@@ -98,7 +96,9 @@ services:
       POSTGRES_PASSWORD: postgrespassword
 
   graphql-engine:
-    image: hasura/graphql-engine:v2.9.0.cli-migrations-v2
+    build:
+      context: ./hasura
+    image: hasura:latest
     ports:
       - "5433:5433"
     depends_on:
