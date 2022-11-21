@@ -116,7 +116,7 @@ services:
       HASURA_GRAPHQL_SERVER_PORT: 5433
       HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES: "true"
     volumes:
-      - ./docker-config/hasura-metadata:/hasura-metadata
+      - ./hasura/hasura-metadata:/hasura-metadata
 
   # TODO: Expose port to consume kafka from other
   zookeeper:
