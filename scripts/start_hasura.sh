@@ -9,6 +9,7 @@ echo HASURA_DB_URL=$HASURA_DB_URL
 echo HASURA_METADATA_DB_URL=$HASURA_METADATA_DB_URL
 echo HASURA_CONSOLE=$HASURA_CONSOLE
 
+docker update --restart=no hasura
 docker rm -f hasura
 docker build -t hasura:latest $(pwd)/hasura
 docker run -d -p 80:8080 \
