@@ -9,5 +9,3 @@ RUN chmod +x alert.sh
 
 HEALTHCHECK --start-period=2m --interval=1m --timeout=20s \
     CMD curl -s --fail http://localhost:8080/healthz || (./alert.sh ${ALERT_SERVICE} ${ALERT_KEY} && kill 1)
-
-
