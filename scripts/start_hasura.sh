@@ -1,4 +1,6 @@
 HASURA_CONSOLE="${HASURA_CONSOLE:-false}"
+ALERT_SERVICE="${ALERT_SERVICE:-}"
+ALERT_KEY="${ALERT_KEY:-}"
 
 : "${HASURA_DB_URL?Need to set HASURA_DB_URL env}"
 : "${HASURA_METADATA_DB_URL?Need to set HASURA_METADATA_DB_URL env}"
@@ -12,7 +14,8 @@ docker build -t hasura:latest $(pwd)/hasura
 docker run -d -p 80:8080 \
     --name hasura --restart=always \
     -v $(pwd)/hasura/hasura-metadata:/hasura-metadata \
-    --health-cmd "curl -s --fail http://localhost:8080/healthz || kill 1" --health-start-period=2m --health-interval=1m --health-timeout=20s \
+    --env ALERT_SERVICE=$ALERT_SERVICE \
+    --env ALERT_KEY=$ALERT_KEY \
     --env HASURA_GRAPHQL_DATABASE_URL=$HASURA_DB_URL \
     --env HASURA_GRAPHQL_METADATA_DATABASE_URL=$HASURA_METADATA_DB_URL \
     --env HASURA_GRAPHQL_ENABLE_CONSOLE=$HASURA_CONSOLE \
