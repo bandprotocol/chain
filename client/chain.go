@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -20,7 +21,7 @@ func GetGenesisHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		genesis, err := node.Genesis(nil)
+		genesis, err := node.Genesis(context.Background())
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
