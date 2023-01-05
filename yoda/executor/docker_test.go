@@ -13,7 +13,7 @@ func SetupDockerTest(t *testing.T) {
 func TestDockerSuccess(t *testing.T) {
 	// TODO: Enable test when CI has docker installed.
 	// Prerequisite: please build docker image before running test
-	e := NewDockerExec("python-docker", 120*time.Second, 10, 5000, 5009)
+	e := NewDockerExec("ongartbandprotocol/band-testing", 120*time.Second, 10, 5000, 5009)
 	for i := 0; i < 20; i++ {
 		res, err := e.Exec([]byte(
 			"#!/usr/bin/env python3\nimport os\nimport sys\nprint(sys.argv[1], os.getenv('BAND_CHAIN_ID'))",
