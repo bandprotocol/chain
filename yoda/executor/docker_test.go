@@ -2,48 +2,31 @@ package executor
 
 import (
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 )
+
+func SetupDockerTest(t *testing.T) {
+}
 
 func TestDockerSuccess(t *testing.T) {
 	// TODO: Enable test when CI has docker installed.
-	// 	e := NewDockerExec("bandprotocol/runtime:1.0.2", 10*time.Second)
-	// 	res, err := e.Exec([]byte(`#!/usr/bin/env python3
-	// import json
-	// import urllib.request
-	// import sys
-
-	// BINANCE_URL = "https://api.binance.com/api/v1/depth?symbol={}USDT&limit=5"
-
-	// def make_json_request(url):
-	// 	req = urllib.request.Request(url)
-	// 	req.add_header(
-	// 		"User-Agent",
-	// 		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
-	// 	)
-	// 	return json.loads(urllib.request.urlopen(req).read())
-
-	// def main(symbol):
-	// 	res = make_json_request(BINANCE_URL.format(symbol))
-	// 	bid = float(res["bids"][0][0])
-	// 	ask = float(res["asks"][0][0])
-	// 	return (bid + ask) / 2
-
-	// if __name__ == "__main__":
-	// 	try:
-	// 		print(main(*sys.argv[1:]))
-	// 	except Exception as e:
-	// 		print(str(e), file=sys.stderr)
-	// 		sys.exit(1)
-	// `), "BTC")
-	// 	fmt.Println(string(res.Output), res.Code, err)
-	// 	require.True(t, false)
-}
-
-func TestDockerLongStdout(t *testing.T) {
-	// TODO: Enable test when CI has docker installed.
-	// e := NewDockerExec("bandprotocol/runtime:1.0.2", 10*time.Second)
-	// res, err := e.Exec([]byte(`#!/usr/bin/env python3
-	// print("A"*1000)`), "BTC")
-	// fmt.Println(string(res.Output), res.Code, err)
-	// require.True(t, false)
+	// Prerequisite: please build docker image before running test
+	e := NewDockerExec("python-docker", 120*time.Second, 1, 5000, 5009)
+	for i := 0; i < 20; i++ {
+		res, err := e.Exec([]byte(
+			"#!/usr/bin/env python3\nimport os\nimport sys\nprint(sys.argv[1], os.getenv('BAND_CHAIN_ID'))",
+		), "TEST_ARG", map[string]interface{}{
+			"BAND_CHAIN_ID":    "test-chain-id",
+			"BAND_VALIDATOR":   "test-validator",
+			"BAND_REQUEST_ID":  "test-request-id",
+			"BAND_EXTERNAL_ID": "test-external-id",
+			"BAND_REPORTER":    "test-reporter",
+			"BAND_SIGNATURE":   "test-signature",
+		})
+		require.Equal(t, []byte("TEST_ARG test-chain-id\n"), res.Output)
+		require.Equal(t, uint32(0), res.Code)
+		require.NoError(t, err)
+	}
 }

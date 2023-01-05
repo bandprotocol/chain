@@ -4,17 +4,21 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const (
-	flagQueryTimeout = "timeout"
+	flagQueryTimeout   = "timeout"
+	flagQueryMaxTry    = "maxTry"
+	flagQueryPortRange = "portRange"
 )
 
 var (
 	ErrExecutionimeout = errors.New("execution timeout")
 	ErrRestNotOk       = errors.New("rest return non 2XX response")
+	ErrReachMaxTry     = errors.New("execution reach max try")
 )
 
 type ExecResult struct {
@@ -33,7 +37,7 @@ var testProgram []byte = []byte(
 
 // NewExecutor returns executor by name and executor URL
 func NewExecutor(executor string) (exec Executor, err error) {
-	name, base, timeout, err := parseExecutor(executor)
+	name, base, timeout, maxTry, startPort, endPort, err := parseExecutor(executor)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +45,13 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	case "rest":
 		exec = NewRestExec(base, timeout)
 	case "docker":
-		return nil, fmt.Errorf("Docker executor is currently not supported")
+		if endPort <= startPort {
+			return nil, fmt.Errorf("portRange invalid: startPort: %d, endPort: %d", startPort, endPort)
+		}
+		if maxTry < 1 {
+			return nil, fmt.Errorf("maxTry invalid: %d", maxTry)
+		}
+		exec = NewDockerExec(base, timeout, maxTry, startPort, endPort)
 	default:
 		return nil, fmt.Errorf("Invalid executor name: %s, base: %s", name, base)
 	}
@@ -68,29 +78,61 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	return exec, nil
 }
 
-// parseExecutor splits the executor string in the form of "name:base?timeout=" into parts.
-func parseExecutor(executorStr string) (name string, base string, timeout time.Duration, err error) {
+// parseExecutor splits the executor string in the form of "name:base?timeout=&maxTry=&portRange=" into parts.
+func parseExecutor(
+	executorStr string,
+) (name string, base string, timeout time.Duration, maxTry int, startPort int, endPort int, err error) {
 	executor := strings.SplitN(executorStr, ":", 2)
 	if len(executor) != 2 {
-		return "", "", 0, fmt.Errorf("Invalid executor, cannot parse executor: %s", executorStr)
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid executor, cannot parse executor: %s", executorStr)
 	}
 	u, err := url.Parse(executor[1])
 	if err != nil {
-		return "", "", 0, fmt.Errorf("Invalid url, cannot parse %s to url with error: %s", executor[1], err.Error())
+		return "", "", 0, 0, 0, 0, fmt.Errorf(
+			"Invalid url, cannot parse %s to url with error: %s",
+			executor[1],
+			err.Error(),
+		)
 	}
 
 	query := u.Query()
 	timeoutStr := query.Get(flagQueryTimeout)
 	if timeoutStr == "" {
-		return "", "", 0, fmt.Errorf("Invalid timeout, executor requires query timeout")
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid timeout, executor requires query timeout")
 	}
-	// Remove timeout from query because we need to return `base`
-	query.Del(flagQueryTimeout)
-	u.RawQuery = query.Encode()
-
 	timeout, err = time.ParseDuration(timeoutStr)
 	if err != nil {
-		return "", "", 0, fmt.Errorf("Invalid timeout, cannot parse duration with error: %s", err.Error())
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid timeout, cannot parse duration with error: %s", err.Error())
 	}
-	return executor[0], u.String(), timeout, nil
+
+	maxTryStr := query.Get(flagQueryMaxTry)
+	if maxTryStr == "" {
+		maxTryStr = "1"
+	}
+	maxTry, err = strconv.Atoi(maxTryStr)
+	if err != nil {
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid maxTry, cannot parse integer with error: %s", err.Error())
+	}
+
+	portRangeStr := query.Get(flagQueryPortRange)
+	ports := strings.SplitN(portRangeStr, "-", 2)
+	if len(ports) != 2 {
+		ports = []string{"0", "0"}
+	}
+	startPort, err = strconv.Atoi(ports[0])
+	if err != nil {
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid portRange, cannot parse integer with error: %s", err.Error())
+	}
+	endPort, err = strconv.Atoi(ports[1])
+	if err != nil {
+		return "", "", 0, 0, 0, 0, fmt.Errorf("Invalid portRange, cannot parse integer with error: %s", err.Error())
+	}
+
+	// Remove timeout from query because we need to return `base`
+	query.Del(flagQueryTimeout)
+	query.Del(flagQueryMaxTry)
+	query.Del(flagQueryPortRange)
+
+	u.RawQuery = query.Encode()
+	return executor[0], u.String(), timeout, maxTry, startPort, endPort, nil
 }
