@@ -13,6 +13,7 @@ import (
 	"github.com/levigross/grequests"
 )
 
+// Only use in testnet. No intensive testing, use at your own risk
 type DockerExec struct {
 	image     string
 	name      string
@@ -62,7 +63,7 @@ func (e *DockerExec) PostRequest(
 ) (ExecResult, error) {
 	executable := base64.StdEncoding.EncodeToString(code)
 	resp, err := grequests.Post(
-		"http://127.0.0.1:"+port,
+		"http://localhost:"+port,
 		&grequests.RequestOptions{
 			Headers: map[string]string{
 				"Content-Type": "application/json",
