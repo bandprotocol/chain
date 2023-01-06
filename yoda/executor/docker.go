@@ -24,7 +24,7 @@ type DockerExec struct {
 
 func NewDockerExec(image string, timeout time.Duration, maxTry int, startPort int, endPort int) *DockerExec {
 	ctx := context.Background()
-	portLists := make(chan string, 10)
+	portLists := make(chan string, endPort-startPort+1)
 	name := "docker-runtime-executor-"
 	for i := startPort; i <= endPort; i++ {
 		port := strconv.Itoa(i)
