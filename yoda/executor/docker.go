@@ -99,7 +99,12 @@ func (e *DockerExec) PostRequest(
 	}
 
 	go func() {
-		StartContainer(name, ctx, port, e.image)
+		// StartContainer(name, ctx, port, e.image)
+		cmd := exec.CommandContext(ctx, "docker", "restart", name+port)
+		err := cmd.Run()
+		for err != nil {
+			err = StartContainer(name, ctx, port, e.image)
+		}
 		e.portLists <- port
 	}()
 	if r.Returncode == 0 {
