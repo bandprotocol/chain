@@ -35,20 +35,23 @@ func NewDockerExec(image string, timeout time.Duration, maxTry int, startPort in
 }
 
 func StartContainer(name string, port string, image string) error {
-	exec.Command("docker", "kill", name+port).Run()
-	dockerArgs := append([]string{
-		"run",
-		"--name", name + port,
-		"-p", port + ":5000",
-		"--memory=512m",
-		image,
-	})
+	err := exec.Command("docker", "restart", name+port).Run()
+	if err != nil {
+		dockerArgs := append([]string{
+			"run",
+			"--name", name + port,
+			"-p", port + ":5000",
+			"--restart=always",
+			"--memory=512m",
+			image,
+		})
 
-	cmd := exec.CommandContext(context.Background(), "docker", dockerArgs...)
-	var buf bytes.Buffer
-	cmd.Stdout = &buf
-	cmd.Stderr = &buf
-	err := cmd.Start()
+		cmd := exec.CommandContext(context.Background(), "docker", dockerArgs...)
+		var buf bytes.Buffer
+		cmd.Stdout = &buf
+		cmd.Stderr = &buf
+		err = cmd.Start()
+	}
 	return err
 }
 
@@ -98,8 +101,7 @@ func (e *DockerExec) PostRequest(
 
 	go func() {
 		// StartContainer(name, port, e.image)
-		cmd := exec.CommandContext(context.Background(), "docker", "restart", name+port)
-		err := cmd.Run()
+		err := exec.Command("docker", "restart", name+port).Run()
 		for err != nil {
 			err = StartContainer(name, port, e.image)
 		}
