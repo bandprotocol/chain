@@ -103,8 +103,8 @@ github.com/aws/aws-lambda-go v1.13.3/go.mod h1:4UKl9IzQMoD+QF79YdCuzCwp8VbmG4VAQ
 github.com/aws/aws-sdk-go v1.25.48/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.27.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
-github.com/bandprotocol/go-owasm v0.2.2 h1:yugObzNjwSIki+6KqoqfVOEG2V9T/b8iBi3xzs9f+hU=
-github.com/bandprotocol/go-owasm v0.2.2/go.mod h1:G1ZNqG9+h3Ye82odMF+SWknV0m41Q3Zu6qSKf1vJrHU=
+github.com/bandprotocol/go-owasm v0.2.2-static-test h1:YZb/OtNii0rlXVL/gvGN/nux7lP0pyWHaBdH3CVfKyo=
+github.com/bandprotocol/go-owasm v0.2.2-static-test/go.mod h1:G1ZNqG9+h3Ye82odMF+SWknV0m41Q3Zu6qSKf1vJrHU=
 github.com/benbjohnson/clock v1.0.2/go.mod h1:bGMdMPoPVvcYyt1gHDf4J2KE153Yf9BuiUKYMaxlTDM=
 github.com/benbjohnson/clock v1.0.3/go.mod h1:bGMdMPoPVvcYyt1gHDf4J2KE153Yf9BuiUKYMaxlTDM=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
