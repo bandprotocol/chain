@@ -23,29 +23,28 @@ type DockerExec struct {
 }
 
 func NewDockerExec(image string, timeout time.Duration, maxTry int, startPort int, endPort int) *DockerExec {
-	ctx := context.Background()
 	portLists := make(chan string, endPort-startPort+1)
 	name := "docker-runtime-executor-"
 	for i := startPort; i <= endPort; i++ {
 		port := strconv.Itoa(i)
-		StartContainer(name, ctx, port, image)
+		StartContainer(name, port, image)
 		portLists <- port
 	}
 
 	return &DockerExec{image: image, name: name, timeout: timeout, portLists: portLists, maxTry: maxTry}
 }
 
-func StartContainer(name string, ctx context.Context, port string, image string) error {
+func StartContainer(name string, port string, image string) error {
 	exec.Command("docker", "kill", name+port).Run()
 	dockerArgs := append([]string{
-		"run", "--rm",
+		"run",
 		"--name", name + port,
 		"-p", port + ":5000",
 		"--memory=512m",
 		image,
 	})
 
-	cmd := exec.CommandContext(ctx, "docker", dockerArgs...)
+	cmd := exec.CommandContext(context.Background(), "docker", dockerArgs...)
 	var buf bytes.Buffer
 	cmd.Stdout = &buf
 	cmd.Stderr = &buf
@@ -58,7 +57,6 @@ func (e *DockerExec) PostRequest(
 	arg string,
 	env interface{},
 	name string,
-	ctx context.Context,
 	port string,
 ) (ExecResult, error) {
 	executable := base64.StdEncoding.EncodeToString(code)
@@ -99,11 +97,11 @@ func (e *DockerExec) PostRequest(
 	}
 
 	go func() {
-		// StartContainer(name, ctx, port, e.image)
-		cmd := exec.CommandContext(ctx, "docker", "restart", name+port)
+		// StartContainer(name, port, e.image)
+		cmd := exec.CommandContext(context.Background(), "docker", "restart", name+port)
 		err := cmd.Run()
 		for err != nil {
-			err = StartContainer(name, ctx, port, e.image)
+			err = StartContainer(name, port, e.image)
 		}
 		e.portLists <- port
 	}()
@@ -115,11 +113,10 @@ func (e *DockerExec) PostRequest(
 }
 
 func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
-	ctx := context.Background()
 	port := <-e.portLists
 	errs := []error{}
 	for i := 0; i < e.maxTry; i++ {
-		execResult, err := e.PostRequest(code, arg, env, e.name, ctx, port)
+		execResult, err := e.PostRequest(code, arg, env, e.name, port)
 		if err == nil {
 			return execResult, err
 		}
