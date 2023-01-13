@@ -51,7 +51,7 @@ func TestParseExecutorInvalidTimeoutError(t *testing.T) {
 
 func TestExecuteDockerExecutorSuccess(t *testing.T) {
 	e, err := NewExecutor(
-		"docker:ongartbandprotocol/band-testing:python-runtime?timeout=120s&maxTry=100&portRange=5000-5009",
+		"docker:ongartbandprotocol/band-testing:python-runtime-2?timeout=12s&maxTry=100&portRange=40001-40001",
 	)
 	require.NoError(t, err)
 	for i := 0; i < 20; i++ {

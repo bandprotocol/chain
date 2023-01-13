@@ -46,7 +46,7 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		exec = NewRestExec(base, timeout)
 	case "docker":
 		// Only use in testnet. No intensive testing, use at your own risk
-		if endPort <= startPort {
+		if endPort < startPort {
 			return nil, fmt.Errorf("portRange invalid: startPort: %d, endPort: %d", startPort, endPort)
 		}
 		if maxTry < 1 {

@@ -15,23 +15,24 @@ import (
 
 // Only use in testnet. No intensive testing, use at your own risk
 type DockerExec struct {
-	image     string
-	name      string
-	timeout   time.Duration
-	portLists chan string
-	maxTry    int
+	image   string
+	name    string
+	timeout time.Duration
+	// portLists chan string
+	port   string
+	maxTry int
 }
 
 func NewDockerExec(image string, timeout time.Duration, maxTry int, startPort int, endPort int) *DockerExec {
-	portLists := make(chan string, endPort-startPort+1)
+	// portLists := make(chan string, endPort-startPort+1)
 	name := "docker-runtime-executor-"
 	for i := startPort; i <= endPort; i++ {
 		port := strconv.Itoa(i)
 		StartContainer(name, port, image)
-		portLists <- port
+		// portLists <- port
 	}
 
-	return &DockerExec{image: image, name: name, timeout: timeout, portLists: portLists, maxTry: maxTry}
+	return &DockerExec{image: image, name: name, timeout: timeout, port: strconv.Itoa(startPort), maxTry: maxTry}
 }
 
 func StartContainer(name string, port string, image string) error {
@@ -99,14 +100,14 @@ func (e *DockerExec) PostRequest(
 		return ExecResult{}, err
 	}
 
-	go func() {
-		// StartContainer(name, port, e.image)
-		err := exec.Command("docker", "restart", name+port).Run()
-		for err != nil {
-			err = StartContainer(name, port, e.image)
-		}
-		e.portLists <- port
-	}()
+	// go func() {
+	// 	// StartContainer(name, port, e.image)
+	// 	err := exec.Command("docker", "restart", name+port).Run()
+	// 	for err != nil {
+	// 		err = StartContainer(name, port, e.image)
+	// 	}
+	// 	e.portLists <- port
+	// }()
 	if r.Returncode == 0 {
 		return ExecResult{Output: []byte(r.Stdout), Code: 0, Version: r.Version}, nil
 	} else {
@@ -115,10 +116,10 @@ func (e *DockerExec) PostRequest(
 }
 
 func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
-	port := <-e.portLists
+	// port := <-e.portLists
 	errs := []error{}
 	for i := 0; i < e.maxTry; i++ {
-		execResult, err := e.PostRequest(code, arg, env, e.name, port)
+		execResult, err := e.PostRequest(code, arg, env, e.name, e.port)
 		if err == nil {
 			return execResult, err
 		}
