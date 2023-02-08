@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v[0-9]+.*
+
+jobs:
+  build_static_bin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build statically linked binaries
+        run: |
+          mkdir artifacts
+          docker build -t chain:static -f Dockerfile.static .
+          id=$(docker create chain:static)
+          docker cp $id:/usr/bin/bandd artifacts/bandd-${{ github.ref_name }}-linux-amd64
+          docker rm -v $id
+
+      - name: Create checksums
+        working-directory: artifacts
+        run: sha256sum * > checksums.txt && cat checksums.txt
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/**
