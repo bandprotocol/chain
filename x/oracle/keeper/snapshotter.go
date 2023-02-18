@@ -73,6 +73,14 @@ func (os *OracleSnapshotter) Snapshot(height uint64, protoWriter protoio.Writer)
 	return nil
 }
 
+func (os *OracleSnapshotter) PruneSnapshotHeight(height int64) {
+	// TODO: wait for implement
+}
+
+func (os *OracleSnapshotter) SetSnapshotInterval(snapshotInterval uint64) {
+	// TODO: wait for implement
+}
+
 func (os *OracleSnapshotter) Restore(
 	height uint64, format uint32, protoReader protoio.Reader,
 ) (snapshot.SnapshotItem, error) {

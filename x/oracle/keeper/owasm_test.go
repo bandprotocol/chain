@@ -241,10 +241,10 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
 
-	paid := sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000))
+	paid := sdk.NewInt64Coin("uband", 3000000)
 	feePayerBalances = feePayerBalances.Sub(paid)
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
-	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
+	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, sdk.NewCoins(paid))
 }
 
 func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {

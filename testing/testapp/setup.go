@@ -17,7 +17,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/snapshots"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -28,7 +27,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -220,15 +219,15 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	db, _ := dbm.NewGoLevelDB("db", dir)
 	encCdc := bandapp.MakeEncodingConfig()
 
-	snapshotDir := filepath.Join(dir, "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	if err != nil {
-		panic(err)
-	}
+	// snapshotDir := filepath.Join(dir, "data", "snapshots")
+	// snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
@@ -243,8 +242,8 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			EmptyAppOptions{},
 			false,
 			100,
-			baseapp.SetSnapshotStore(snapshotStore),
-			baseapp.SetSnapshotKeepRecent(2),
+			// baseapp.SetSnapshot(snapshotStore),
+			// baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
@@ -395,15 +394,15 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 	db := dbm.NewMemDB()
 	encCdc := bandapp.MakeEncodingConfig()
 
-	snapshotDir := filepath.Join(dir, "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	if err != nil {
-		panic(err)
-	}
+	// snapshotDir := filepath.Join(dir, "data", "snapshots")
+	// snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
@@ -418,8 +417,8 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			EmptyAppOptions{},
 			false,
 			0,
-			baseapp.SetSnapshotStore(snapshotStore),
-			baseapp.SetSnapshotKeepRecent(2),
+			// baseapp.SetSnapshotStore(snapshotStore),
+			// baseapp.SetSnapshotKeepRecent(2),
 		),
 	}
 	if withGenesis {
@@ -629,7 +628,7 @@ func SignAndDeliver(
 
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(abci.RequestBeginBlock{Header: header, Hash: header.AppHash})
-	gInfo, res, err := app.Deliver(txCfg.TxEncoder(), tx)
+	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	app.EndBlock(abci.RequestEndBlock{})
 	app.Commit()

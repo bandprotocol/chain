@@ -91,7 +91,7 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		kb, err = keyring.New("band", "test", home, nil)
+		kb, err = keyring.New("band", "test", home, nil, nil)
 		if err != nil {
 			return err
 		}

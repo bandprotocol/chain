@@ -1,7 +1,7 @@
 package types
 
 import (
-	"context"
+	context "context"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,8 +10,8 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	ibcexported "github.com/cosmos/ibc-go/v3/modules/core/exported"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -59,18 +59,14 @@ type PortKeeper interface {
 
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
 type AuthzKeeper interface {
-	GetCleanAuthorization(
-		ctx sdk.Context,
-		grantee sdk.AccAddress,
-		granter sdk.AccAddress,
-		msgType string,
-	) (cap authz.Authorization, expiration time.Time)
-
+	DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []sdk.Msg) ([][]byte, error)
+	GetAuthorization(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) (authz.Authorization, *time.Time)
+	GetAuthorizations(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress) ([]authz.Authorization, error)
 	SaveGrant(
 		ctx sdk.Context,
 		grantee, granter sdk.AccAddress,
 		authorization authz.Authorization,
-		expiration time.Time,
+		expiration *time.Time,
 	) error
 	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
 	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)

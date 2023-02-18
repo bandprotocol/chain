@@ -88,7 +88,13 @@ func keysAddCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Address: %s\n", info.GetAddress().String())
+
+			address, err := info.GetAddress()
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("Address: %s\n", address.String())
 			return nil
 		},
 	}
@@ -151,13 +157,18 @@ func keysListCmd(c *Context) *cobra.Command {
 			}
 			isShowAddr := viper.GetBool(flagAddress)
 			for _, key := range keys {
+				address, err := key.GetAddress()
+				if err != nil {
+					return err
+				}
+
 				if isShowAddr {
-					fmt.Printf("%s ", key.GetAddress().String())
+					fmt.Printf("%s ", address.String())
 				} else {
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsReporter(
 						context.Background(),
-						&types.QueryIsReporterRequest{ValidatorAddress: cfg.Validator, ReporterAddress: key.GetAddress().String()},
+						&types.QueryIsReporterRequest{ValidatorAddress: cfg.Validator, ReporterAddress: address.String()},
 					)
 					s := ":question:"
 					if err == nil {
@@ -167,7 +178,7 @@ func keysListCmd(c *Context) *cobra.Command {
 							s = ":x:"
 						}
 					}
-					emoji.Printf("%s%s => %s\n", s, key.GetName(), key.GetAddress().String())
+					emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 				}
 			}
 
@@ -195,7 +206,12 @@ func keysShowCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(key.GetAddress().String())
+
+			address, err := key.GetAddress()
+			if err != nil {
+				return err
+			}
+			fmt.Println(address.String())
 			return nil
 		},
 	}
