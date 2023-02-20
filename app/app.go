@@ -726,7 +726,7 @@ func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 // API server.
 func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
-	// // // removed by cosmos-sdk (v0.46.9)
+	// // removed by cosmos-sdk (v0.46.9)
 	// rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	// Register legacy tx routes.
