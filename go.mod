@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bandprotocol/go-owasm v0.2.3
 	github.com/confio/ics23/go v0.9.0
-	github.com/cosmos/cosmos-sdk v0.46.9
+	github.com/cosmos/cosmos-sdk v0.46.10
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v5 v5.2.0
 	github.com/ethereum/go-ethereum v1.10.22
@@ -33,6 +33,8 @@ require (
 	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+require github.com/go-playground/validator/v10 v10.4.1 // indirect
 
 require (
 	cloud.google.com/go v0.107.0 // indirect
@@ -62,7 +64,6 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.5 // indirect
-	github.com/cosmos/ibc-go/v3 v3.4.0
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -164,7 +165,6 @@ require (
 )
 
 replace (
-	github.com/confio/ics23/go => github.com/cosmos/cosmos-sdk/ics23/go v0.8.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// use informal system fork of tendermint
 	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
