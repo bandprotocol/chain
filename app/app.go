@@ -726,11 +726,11 @@ func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 // API server.
 func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
-	// // removed by cosmos-sdk (v0.46.9)
+	// // removed by cosmos-sdk (v0.46.10)
 	// rpc.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	// Register legacy tx routes.
-	// // removed by cosmos-sdk (v0.46.9)
+	// // removed by cosmos-sdk (v0.46.10)
 	// authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
 
 	// Register new tx routes from grpc-gateway.
@@ -739,13 +739,13 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register legacy and grpc-gateway routes for all modules.
-	// // removed by cosmos-sdk (v0.46.9)
+	// // removed by cosmos-sdk (v0.46.10)
 	// ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
 
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// Register BandChain rpc routes
-	// // removed by cosmos-sdk (v0.46.9)
+	// // removed by cosmos-sdk (v0.46.10)
 	// bandclient.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	// register swagger API from root so that other applications can override easily

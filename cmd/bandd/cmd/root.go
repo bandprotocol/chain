@@ -89,7 +89,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
-		// TODO: implement for support cosmos-sdk (v0.46.9)
+		// TODO: implement for support cosmos-sdk (v0.46.10)
 		// band.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
 			band.ModuleBasics,
@@ -206,7 +206,7 @@ func (ac appCreator) newApp(
 		panic(err)
 	}
 
-	// TODO: implement for support cosmos-sdk (v0.46.9)
+	// TODO: implement for support cosmos-sdk (v0.46.10)
 	// snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
 	// snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
 	// if err != nil {

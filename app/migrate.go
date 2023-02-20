@@ -38,7 +38,7 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 
 // MigrateGenesisCmd returns a command to execute genesis state migration.
 // nolint: funlen
-// TODO: implement for support cosmos-sdk (v0.46.9)
+// TODO: implement for support cosmos-sdk (v0.46.10)
 func MigrateGenesisCmd() *cobra.Command {
 	// 	cmd := &cobra.Command{
 	// 		Use:   "migrate [genesis-file]",
