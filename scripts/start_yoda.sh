@@ -9,7 +9,7 @@ yoda config chain-id bandchain
 yoda config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup execution endpoint
-yoda config executor "rest:https://iv3lgtv11a.execute-api.ap-southeast-1.amazonaws.com/live/master?timeout=10s"
+yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
 # setup broadcast-timeout to yoda config
 yoda config broadcast-timeout "5m"
@@ -32,7 +32,7 @@ do
 done
 
 # send band tokens to reporters
-echo "y" | bandd tx bank send  validator $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx bank send validator $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
 
 # wait for sending band tokens transaction success
 sleep 2

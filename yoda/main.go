@@ -70,6 +70,8 @@ func Main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
 
+	cdc := band.MakeEncodingConfig().Marshaler
+
 	ctx := &Context{}
 	rootCmd := &cobra.Command{
 		Use:   "yoda",
@@ -91,7 +93,7 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		kb, err = keyring.New("band", "test", home, nil, nil)
+		kb, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
 		if err != nil {
 			return err
 		}

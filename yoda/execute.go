@@ -93,6 +93,10 @@ func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account
 		return nil, err
 	}
 
+	fmt.Print("\n\n*********************************************\n")
+	fmt.Println(address.String())
+	fmt.Print("*********************************************\n")
+
 	acc, err := accountRetriever.GetAccount(clientCtx, address)
 	if err != nil {
 		return nil, err
@@ -139,6 +143,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+		Codec:             band.MakeEncodingConfig().Marshaler,
 	}
 
 	gasLimit := estimateGas(c, l, msgs, feeEstimations)
