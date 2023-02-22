@@ -135,7 +135,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	}
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
-	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
