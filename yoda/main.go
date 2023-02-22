@@ -70,8 +70,6 @@ func Main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
 
-	cdc := band.MakeEncodingConfig().Marshaler
-
 	ctx := &Context{}
 	rootCmd := &cobra.Command{
 		Use:   "yoda",
