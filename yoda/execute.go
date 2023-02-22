@@ -31,6 +31,7 @@ func signAndBroadcast(
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "sync",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
@@ -93,10 +94,6 @@ func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account
 		return nil, err
 	}
 
-	fmt.Print("\n\n*********************************************\n")
-	fmt.Println(address.String())
-	fmt.Print("*********************************************\n")
-
 	acc, err := accountRetriever.GetAccount(clientCtx, address)
 	if err != nil {
 		return nil, err
@@ -138,12 +135,11 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	}
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
-	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
-		Codec:             band.MakeEncodingConfig().Marshaler,
 	}
 
 	gasLimit := estimateGas(c, l, msgs, feeEstimations)

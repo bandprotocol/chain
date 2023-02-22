@@ -62,11 +62,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return gs.Validate()
 }
 
-// // RegisterRESTRoutes adds oracle REST endpoints to the main mux (SDK AppModuleBasic interface).
-// func (AppModuleBasic) RegisterRESTRoutes(ctx client.Context, rtr *mux.Router) {
-// 	rest.RegisterHandlers(ctx, rtr)
-// }
-
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the oracle module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
 	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
