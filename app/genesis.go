@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -27,10 +28,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
+	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransafertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
@@ -54,6 +56,7 @@ func NewDefaultGenesisState() GenesisState {
 	govGenesis := govv1beta1.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
+	icaGenesis := icatypes.DefaultGenesis()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
@@ -71,6 +74,35 @@ func NewDefaultGenesisState() GenesisState {
 	slashingGenesis.Params.DowntimeJailDuration = 60 * 10 * time.Second       // 10 minutes
 	slashingGenesis.Params.SlashFractionDoubleSign = sdk.NewDecWithPrec(5, 2) // 5%
 	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
+
+	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
+		HostEnabled: true,
+		AllowMessages: []string{
+			sdk.MsgTypeURL(&authz.MsgExec{}),
+			sdk.MsgTypeURL(&authz.MsgGrant{}),
+			sdk.MsgTypeURL(&authz.MsgRevoke{}),
+			sdk.MsgTypeURL(&banktypes.MsgSend{}),
+			sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+			sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+			sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+			sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+			sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+			sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
+			sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+		},
+	}
+
 	return GenesisState{
 		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
 		genutiltypes.ModuleName:      genutil.AppModuleBasic{}.DefaultGenesis(cdc),
@@ -88,7 +120,7 @@ func NewDefaultGenesisState() GenesisState {
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
-		icatypes.ModuleName:          ica.AppModuleBasic{}.DefaultGenesis(cdc),
+		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

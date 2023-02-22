@@ -27,3 +27,7 @@ sed -i -e \
     "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0uband\"/" \
     ~/.band/config/app.toml
 
+sed -i -e \
+  '/\[api\]/,+10 s/enable = .*/enable = true/' \
+  ~/.band/config/app.toml
+
