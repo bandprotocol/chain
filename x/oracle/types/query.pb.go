@@ -4,7 +4,7 @@
 package types
 
 import (
-	"context"
+	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/codec/types"
 	_ "github.com/cosmos/cosmos-sdk/types"

@@ -3,7 +3,6 @@ package proof
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tendermint/tendermint/crypto/merkle"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/types"
 )
 
@@ -33,16 +32,6 @@ import (
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [2], [3], and [A]. In fact, only
 // [1A], [2B], [1E], [B], and [2D] are needed in order to compute [BlockHeader].
-type BlockHeaderMerkleParts struct {
-	VersionAndChainIdHash             tmbytes.HexBytes `json:"version_and_chain_id_hash"`
-	Height                            uint64           `json:"height"`
-	TimeSecond                        uint64           `json:"time_second"`
-	TimeNanoSecond                    uint32           `json:"time_nano_second"`
-	LastBlockIdAndOther               tmbytes.HexBytes `json:"last_block_id_and_other"`
-	NextValidatorHashAndConsensusHash tmbytes.HexBytes `json:"next_validator_hash_and_consensus_hash"`
-	LastResultsHash                   tmbytes.HexBytes `json:"last_results_hash"`
-	EvidenceAndProposerHash           tmbytes.HexBytes `json:"evidence_and_proposer_hash"`
-}
 
 // BlockHeaderMerklePartsEthereum is an Ethereum version of BlockHeaderMerkleParts for solidity ABI-encoding.
 type BlockHeaderMerklePartsEthereum struct {
@@ -70,7 +59,7 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 }
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
-func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
+func GetBlockHeaderMerkleParts(block *types.Header) *BlockHeaderMerkleParts {
 	// based on https://github.com/tendermint/tendermint/blob/master/types/block.go#L448
 	hbz, err := block.Version.Marshal()
 	if err != nil {
@@ -83,30 +72,30 @@ func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
 		panic(err)
 	}
 
-	return BlockHeaderMerkleParts{
+	return &BlockHeaderMerkleParts{
 		VersionAndChainIdHash: merkle.HashFromByteSlices([][]byte{
 			hbz,
-			cdcEncode(block.ChainID),
+			CDCEncode(block.ChainID),
 		}),
 		Height:         uint64(block.Height),
 		TimeSecond:     uint64(block.Time.Unix()),
 		TimeNanoSecond: uint32(block.Time.Nanosecond()),
 		LastBlockIdAndOther: merkle.HashFromByteSlices([][]byte{
 			bzbi,
-			cdcEncode(block.LastCommitHash),
-			cdcEncode(block.DataHash),
-			cdcEncode(block.ValidatorsHash),
+			CDCEncode(block.LastCommitHash),
+			CDCEncode(block.DataHash),
+			CDCEncode(block.ValidatorsHash),
 		}),
 		NextValidatorHashAndConsensusHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(block.NextValidatorsHash),
-			cdcEncode(block.ConsensusHash),
+			CDCEncode(block.NextValidatorsHash),
+			CDCEncode(block.ConsensusHash),
 		}),
 		LastResultsHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(block.LastResultsHash),
+			CDCEncode(block.LastResultsHash),
 		}),
 		EvidenceAndProposerHash: merkle.HashFromByteSlices([][]byte{
-			cdcEncode(block.EvidenceHash),
-			cdcEncode(block.ProposerAddress),
+			CDCEncode(block.EvidenceHash),
+			CDCEncode(block.ProposerAddress),
 		}),
 	}
 }

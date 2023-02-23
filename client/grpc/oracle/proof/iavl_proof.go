@@ -6,17 +6,9 @@ import (
 
 	ics23 "github.com/confio/ics23/go"
 	"github.com/ethereum/go-ethereum/common"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
 // MerklePath represents a Merkle step to a leaf data node in an iAVL tree.
-type IAVLMerklePath struct {
-	IsDataOnRight  bool             `json:"is_data_on_right"`
-	SubtreeHeight  uint8            `json:"subtree_height"`
-	SubtreeSize    uint64           `json:"subtree_size"`
-	SubtreeVersion uint64           `json:"subtree_version"`
-	SiblingHash    tmbytes.HexBytes `json:"sibling_hash"`
-}
 
 // IAVLMerklePathEthereum is an Ethereum version of IAVLMerklePath for solidity ABI-encoding.
 type IAVLMerklePathEthereum struct {
@@ -30,14 +22,14 @@ type IAVLMerklePathEthereum struct {
 func (merklePath *IAVLMerklePath) encodeToEthFormat() IAVLMerklePathEthereum {
 	return IAVLMerklePathEthereum{
 		merklePath.IsDataOnRight,
-		merklePath.SubtreeHeight,
+		uint8(merklePath.SubtreeHeight),
 		big.NewInt(int64(merklePath.SubtreeSize)),
 		big.NewInt(int64(merklePath.SubtreeVersion)),
 		common.BytesToHash(merklePath.SiblingHash),
 	}
 }
 
-func decodeIAVLLeafPrefix(prefix []byte) uint64 {
+func DecodeIAVLLeafPrefix(prefix []byte) uint64 {
 	// ref: https://github.com/cosmos/iavl/blob/master/proof_ics23.go#L96
 	_, n1 := binary.Varint(prefix)
 	_, n2 := binary.Varint(prefix[n1:])
@@ -46,8 +38,8 @@ func decodeIAVLLeafPrefix(prefix []byte) uint64 {
 }
 
 // GetMerklePaths returns the list of MerklePath elements from the given iAVL proof.
-func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
-	paths := make([]IAVLMerklePath, 0)
+func GetMerklePaths(iavlEp *ics23.ExistenceProof) []*IAVLMerklePath {
+	paths := make([]*IAVLMerklePath, 0)
 	for _, step := range iavlEp.Path {
 		if step.Hash != ics23.HashOp_SHA256 {
 			// Tendermint v0.34.9 is using SHA256 only.
@@ -61,7 +53,7 @@ func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
 		subtreeSize, n2 := binary.Varint(step.Prefix[n1:])
 		subtreeVersion, n3 := binary.Varint(step.Prefix[n1+n2:])
 
-		imp.SubtreeHeight = uint8(subtreeHeight)
+		imp.SubtreeHeight = uint32(subtreeHeight)
 		imp.SubtreeSize = uint64(subtreeSize)
 		imp.SubtreeVersion = uint64(subtreeVersion)
 
@@ -73,7 +65,7 @@ func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
 			imp.IsDataOnRight = false
 			imp.SiblingHash = step.Suffix[1:] // remove 0x20
 		}
-		paths = append(paths, imp)
+		paths = append(paths, &imp)
 	}
 	return paths
 }
