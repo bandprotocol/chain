@@ -31,3 +31,6 @@ sed -i -e \
   '/\[api\]/,+10 s/enable = .*/enable = true/' \
   ~/.band/config/app.toml
 
+sed -i -e \
+  '/\[mempool\]/,+10 s/version = .*/version = \"v1\"/' \
+  ~/.band/config/config.toml
