@@ -129,6 +129,9 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 		height = nil
 	}
 	requestIDs := req.RequestIds
+	if len(requestIDs) == 0 {
+		return nil, fmt.Errorf("please provide request ids")
+	}
 
 	commit, err := cliCtx.Client.Commit(context.Background(), height)
 	if err != nil {
