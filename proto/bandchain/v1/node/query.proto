@@ -1,0 +1,37 @@
+syntax = "proto3";
+package bandchain.v1.node;
+
+option go_package = "github.com/bandprotocol/chain/client/grpc/node";
+
+import "google/api/annotations.proto";
+
+
+// Service defines the gRPC querier service.
+service Service {
+  rpc ChainID(QueryChainIDRequest) returns (QueryChainIDResponse) {
+    option (google.api.http).get = "/bandchain/v1/chain_id";
+  }
+
+  rpc EVMValidators(QueryEVMValidatorsRequest) returns (QueryEVMValidatorsResponse) {
+    option (google.api.http).get = "/bandchain/v1/evm-validators";
+  }
+}
+
+message QueryChainIDRequest {}
+
+message QueryChainIDResponse {
+  string chain_id = 1;
+}
+
+message QueryEVMValidatorsRequest {}
+
+message QueryEVMValidatorsResponse {
+  int64 block_height = 1;
+  repeated ValidatorMinimal validators = 2;
+
+}
+
+message ValidatorMinimal {
+	string address = 1;
+	int64 voting_power = 2;
+}

@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/libs/protoio"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tendermint/tendermint/types"
@@ -19,12 +18,6 @@ import (
 // Tendermint's precommit data, which includes the block hash and some additional information prepended
 // and appended to the block hash. The prepended part (prefix) and the appended part (suffix) are
 // different for each signer (including signature size, machine clock, validator index, etc).
-type TMSignature struct {
-	R                tmbytes.HexBytes `json:"r"`
-	S                tmbytes.HexBytes `json:"s"`
-	V                uint8            `json:"v"`
-	EncodedTimestamp tmbytes.HexBytes `json:"encoded_timestamp"`
-}
 
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.
 type TMSignatureEthereum struct {
@@ -38,7 +31,7 @@ func (signature *TMSignature) encodeToEthFormat() TMSignatureEthereum {
 	return TMSignatureEthereum{
 		R:                common.BytesToHash(signature.R),
 		S:                common.BytesToHash(signature.S),
-		V:                signature.V,
+		V:                uint8(signature.V),
 		EncodedTimestamp: signature.EncodedTimestamp,
 	}
 }
@@ -78,9 +71,9 @@ func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, erro
 }
 
 // GetSignaturesAndPrefix returns a list of TMSignature from Tendermint signed header.
-func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
+func GetSignaturesAndPrefix(info *types.SignedHeader) ([]*TMSignature, CommonEncodedVotePart, error) {
 	addrs := []string{}
-	mapAddrs := map[string]TMSignature{}
+	mapAddrs := map[string]*TMSignature{}
 
 	prefix, err := GetPrefix(tmproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
 	if err != nil {
@@ -131,10 +124,10 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 			return nil, CommonEncodedVotePart{}, err
 		}
 		addrs = append(addrs, string(addr))
-		mapAddrs[string(addr)] = TMSignature{
+		mapAddrs[string(addr)] = &TMSignature{
 			vote.Signature[:32],
 			vote.Signature[32:],
-			v,
+			uint32(v),
 			encodedTimestamp,
 		}
 	}
@@ -142,7 +135,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 		return nil, CommonEncodedVotePart{}, fmt.Errorf("No valid precommit")
 	}
 
-	signatures := make([]TMSignature, len(addrs))
+	signatures := make([]*TMSignature, len(addrs))
 	sort.Strings(addrs)
 	for i, addr := range addrs {
 		signatures[i] = mapAddrs[addr]

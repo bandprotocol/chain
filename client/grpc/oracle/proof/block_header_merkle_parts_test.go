@@ -80,7 +80,7 @@ func TestBlockHeaderMerkleParts(t *testing.T) {
 			innerHash(
 				blockMerkleParts.VersionAndChainIdHash,
 				innerHash(
-					leafHash(cdcEncode(header.Height)),
+					leafHash(CDCEncode(header.Height)),
 					leafHash(encodeTime(header.Time)),
 				),
 			),
@@ -90,7 +90,7 @@ func TestBlockHeaderMerkleParts(t *testing.T) {
 			innerHash(
 				blockMerkleParts.NextValidatorHashAndConsensusHash,
 				innerHash(
-					leafHash(cdcEncode(appHash)),
+					leafHash(CDCEncode(appHash)),
 					blockMerkleParts.LastResultsHash,
 				),
 			),

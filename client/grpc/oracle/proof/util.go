@@ -12,7 +12,7 @@ import (
 )
 
 // Copied from https://github.com/tendermint/tendermint/blob/master/types/encoding_helper.go
-func cdcEncode(item interface{}) []byte {
+func CDCEncode(item interface{}) []byte {
 	if item != nil && !isTypedNil(item) && !isEmpty(item) {
 		switch item := item.(type) {
 		case string:

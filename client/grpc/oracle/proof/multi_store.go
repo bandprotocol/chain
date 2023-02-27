@@ -27,14 +27,6 @@ import (
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [C] In fact, only
 // [D], [I7], [I10], [I12], and [I15] are needed in order to compute [AppHash].
-type MultiStoreProof struct {
-	OracleIAVLStateHash               tmbytes.HexBytes `json:"oracle_iavl_state_hash"`
-	ParamsStoreMerkleHash             tmbytes.HexBytes `json:"params_store_merkle_hash"`
-	SlashingToStakingStoresMerkleHash tmbytes.HexBytes `json:"slashing_to_staking_stores_merkle_hash"`
-	GovToMintStoresMerkleHash         tmbytes.HexBytes `json:"gov_to_mint_stores_merkle_hash"`
-	AuthToFeegrantStoresMerkleHash    tmbytes.HexBytes `json:"auth_to_fee_grant_stores_merkle_hash"`
-	TransferToUpgradeStoresMerkleHash tmbytes.HexBytes `json:"transfer_to_upgrade_stores_merkle_hash"`
-}
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
 type MultiStoreProofEthereum struct {
@@ -48,23 +40,23 @@ type MultiStoreProofEthereum struct {
 
 func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 	return MultiStoreProofEthereum{
-		OracleIAVLStateHash:               common.BytesToHash(m.OracleIAVLStateHash),
+		OracleIAVLStateHash:               common.BytesToHash(m.OracleIavlStateHash),
 		ParamsStoreMerkleHash:             common.BytesToHash(m.ParamsStoreMerkleHash),
 		SlashingToStakingStoresMerkleHash: common.BytesToHash(m.SlashingToStakingStoresMerkleHash),
 		GovToMintStoresMerkleHash:         common.BytesToHash(m.GovToMintStoresMerkleHash),
-		AuthToFeegrantStoresMerkleHash:    common.BytesToHash(m.AuthToFeegrantStoresMerkleHash),
+		AuthToFeegrantStoresMerkleHash:    common.BytesToHash(m.AuthToFeeGrantStoresMerkleHash),
 		TransferToUpgradeStoresMerkleHash: common.BytesToHash(m.TransferToUpgradeStoresMerkleHash),
 	}
 }
 
 // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
-func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
-	return MultiStoreProof{
-		OracleIAVLStateHash:               tmbytes.HexBytes(multiStoreEp.Value),
+func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) *MultiStoreProof {
+	return &MultiStoreProof{
+		OracleIavlStateHash:               tmbytes.HexBytes(multiStoreEp.Value),
 		ParamsStoreMerkleHash:             tmbytes.HexBytes(multiStoreEp.Path[0].Suffix),
 		SlashingToStakingStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[1].Suffix),
 		GovToMintStoresMerkleHash:         tmbytes.HexBytes(multiStoreEp.Path[2].Prefix[1:]),
-		AuthToFeegrantStoresMerkleHash:    tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
+		AuthToFeeGrantStoresMerkleHash:    tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
 		TransferToUpgradeStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[4].Suffix),
 	}
 }

@@ -86,7 +86,7 @@ func TestGetMerklePaths(t *testing.T) {
 	expectOracleMerkleHash, err = iavlEp.Calculate()
 	require.Nil(t, err)
 
-	version := decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix)
+	version := DecodeIAVLLeafPrefix(iavlEp.Leaf.Prefix)
 	value := iavlEp.Value
 
 	leafNode := []byte{}
@@ -101,7 +101,7 @@ func TestGetMerklePaths(t *testing.T) {
 
 	paths := GetMerklePaths(iavlEp)
 	for _, path := range paths {
-		currentHash = getIAVLParentHash(path, currentHash)
+		currentHash = getIAVLParentHash(*path, currentHash)
 	}
 	require.Equal(t, expectOracleMerkleHash, currentHash)
 }
