@@ -117,11 +117,11 @@ message BlockRelayProof {
 
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1;
-  bytes params_store_merkle_hash = 2;
-  bytes slashing_to_staking_stores_merkle_hash = 3;
-  bytes gov_to_mint_stores_merkle_hash = 4;
+  bytes mint_store_merkle_hash = 2;
+  bytes params_to_slashing_stores_merkle_hash = 3;
+  bytes gov_to_icahost_stores_merkle_hash = 4;
   bytes auth_to_fee_grant_stores_merkle_hash = 5;
-  bytes transfer_to_upgrade_stores_merkle_hash = 6;
+  bytes staking_to_upgrade_stores_merkle_hash = 6;
 }
 
 message BlockHeaderMerkleParts {

@@ -6,32 +6,32 @@ var relayFormat = []byte(`
     "components": [
       {
         "internalType": "bytes32",
-        "name": "oracleIAVLStateHash",
+        "name": "oracleIavlStateHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "paramsStoreMerkleHash",
+        "name": "mintStoreMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "slashingToStakingStoresMerkleHash",
+        "name": "paramsToSlashingStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "govToMintStoresMerkleHash",
+        "name": "govToIcahostStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "authToFeegrantStoresMerkleHash",
+        "name": "authToFeeGrantStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "transferToUpgradeStoresMerkleHash",
+        "name": "stakingToUpgradeStoresMerkleHash",
         "type": "bytes32"
       }
     ],

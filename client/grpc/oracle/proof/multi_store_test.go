@@ -10,42 +10,43 @@ import (
 )
 
 /*
+query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc000000000000000&prove=true
 {
-  "jsonrpc": "2.0",
-  "id": -1,
-  "result": {
-    "response": {
-      "code": 0,
-      "log": "",
-      "info": "",
-      "index": "0",
-      "key": "/wAAAAAAAAAB",
-      "value": "Cglmcm9tX3NjYW4QJRoTAAAAAQAAAANCVEMAAAAAAAAAASABKAEwATgBQKanv5YGSK+nv5YGUAFaDAAAAAEAAAAAAABN/Q==",
-      "proofOps": {
-        "ops": [
-          {
-            "type": "ics23:iavl",
-            "key": "/wAAAAAAAAAB",
-            "data": "CqUGCgn/AAAAAAAAAAESRgoJZnJvbV9zY2FuECUaEwAAAAEAAAADQlRDAAAAAAAAAAEgASgBMAE4AUCmp7+WBkivp7+WBlABWgwAAAABAAAAAAAATf0aDAgBGAEgASoEAAKmByIsCAESBQIE7hwgGiEg1kJHijYj4LXp7yJdxjqkPo1FYMt7NsL1DgnLfcqHmrUiKwgBEicGCojlJiBruUg1auzUMVLTXFfhlxNtRoCleLipdQyUAQuvZhx+fyAiKwgBEicIGrCGOiDc8vTqp23PLI+oqAnnaDPJ5GfYbLHiNdUJp59OYzjl8CAiLQgBEgYKKrCGOiAaISDCrXQBFImjzEn6+MVNaUaQrZEY2AyxmmzqCavgq60qgSItCAESBgxKsIY6IBohIJtuvkFtWGPei1qDTLXIZD7Ua6ZZ6KQuABApK3urzrARIi4IARIHDooBsIY6IBohIDu44+RuyYrbayuQe9zSKS2kfo3iiazsZxs29UC6p4uiIiwIARIoEqoCpv9iICUQIPm6ilAKFaP6zfxWKH5au2ycdLVu3KdJnCVevEpqICIsCAESKBT6BKb/YiC5WKeSxCylF6XFCXxPMdhjeAe8hrcu0XlArfX8zxnWyCAiLggBEgcW+hSm/2IgGiEgpog44xpWyLZXFui26rY9TlSODHRdPE2IN6XCIDZb1y0iLAgBEigYuCOghmMgMUJfh9gYQaFEMjNlMtn9poGw2jOWSWg3a4p1463g/ZEgIi4IARIHGrhjoIZjIBohICMdVLMGqkr1rdg50jeCKxEttaaHJxXglzuX4wAu12YLIi8IARIIHOLcAaCGYyAaISC3g4DiugORMOVwBeE4oFver75z8GfW4MXztGjZJQ+I3SIvCAESCB7W0gOghmMgGiEgAQQIRNgVUpqsc1RS1ScymHSQNSk1tbLiT7T+iPX6at8iLwgBEgggstEHoIZjIBohIF1wseSwNKeXO1EDG4rW5r1qPAZbpcnYe4uSBWFK9INnIi8IARIIIrjcDqCGYyAaISAJFRWlM+9T5V8l/DexmzuAlvZ2iqB8//umaCVK27GMUQ=="
-          },
-          {
-            "type": "ics23:simple",
-            "key": "b3JhY2xl",
-            "data": "Cv4BCgZvcmFjbGUSIMT+mWz9fL7gX5H1AiW7yVAXmGUkktBlOeF2V6DQGHBAGgkIARgBIAEqAQAiJwgBEgEBGiBbVrrKUHwejOlFfIHXQOt1ZoVSkjhvUdN4/Le2pMMIBCInCAESAQEaIP5aDHMJD2XUGAb1AQTE6wOzhWF4vcLj2B7mTftzbPaSIiUIARIhAdatdSzIzkclfVSgUbUYtE2UuzHMmNx1Zkh8sG7XoWWzIiUIARIhAVJHpAk7sdhIumCm11lfSzUrQRkm0DU2fR7tsB05bvlMIicIARIBARog5djvzlhwOubP4S4dKLAi3GdB5eja1e2Yt3kP9mOtxZg="
-          }
-        ]
-      },
-      "height": "811408",
-      "codespace": ""
+    "jsonrpc": "2.0",
+    "id": -1,
+    "result": {
+        "response": {
+            "code": 0,
+            "log": "",
+            "info": "",
+            "index": "0",
+            "key": "wAAAAAAAAAA=",
+            "value": null,
+            "proofOps": {
+                "ops": [
+                    {
+                        "type": "ics23:iavl",
+                        "key": "wAAAAAAAAAA=",
+                        "data": "EsMDCgjAAAAAAAAAABLpAQoVBQ1eS8RW3fDH5wAMd46Ih4w7Tw0SEhAIARIMCPLi8Z8GEMDCo+ABGgwIARgBIAEqBAAC+CUiKggBEiYCBPglIMOXtvsiuUKm461Mtf/w7SDhGVqba09R5L1VU2Y2HGeOICIsCAESBQQI5CYgGiEgubs5NRGOw8xaesuOPr7hPvlY1LNxamfQ5qwMMKn8l80iKggBEiYGDOQmIAqGoK3PW8B0zAWNvdrvKtLMf9f2nUvJ/8HUfbG+mLCDICIqCAESJgga+isgwVjErYVeGYGfWDSJS9zW6U1GPMLdybMMGp3k+lT5x+ggGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTkJiAaISCUHaTOnLkieD5s4z9auzNnWGOptSWVA3As2DTxLWzmZyIqCAESJgQI5CYg5zZMcUYFSwmSAmz9ub37BrR2v3mWJNOfELL/z1YSFJggIioIARImBgzkJiAKhqCtz1vAdMwFjb3a7yrSzH/X9p1Lyf/B1H2xvpiwgyAiKggBEiYIGvorIMFYxK2FXhmBn1g0iUvc1ulNRjzC3cmzDBqd5PpU+cfoIA=="
+                    },
+                    {
+                        "type": "ics23:simple",
+                        "key": "b3JhY2xl",
+                        "data": "CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ"
+                    }
+                ]
+            },
+            "height": "2813",
+            "codespace": ""
+        }
     }
-  }
 }
 */
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"Cv4BCgZvcmFjbGUSIMT+mWz9fL7gX5H1AiW7yVAXmGUkktBlOeF2V6DQGHBAGgkIARgBIAEqAQAiJwgBEgEBGiBbVrrKUHwejOlFfIHXQOt1ZoVSkjhvUdN4/Le2pMMIBCInCAESAQEaIP5aDHMJD2XUGAb1AQTE6wOzhWF4vcLj2B7mTftzbPaSIiUIARIhAdatdSzIzkclfVSgUbUYtE2UuzHMmNx1Zkh8sG7XoWWzIiUIARIhAVJHpAk7sdhIumCm11lfSzUrQRkm0DU2fR7tsB05bvlMIicIARIBARog5djvzlhwOubP4S4dKLAi3GdB5eja1e2Yt3kP9mOtxZg=",
+		"CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -73,17 +74,17 @@ func TestGetMultiStoreProof(t *testing.T) {
 		innerHash(
 			m.AuthToFeeGrantStoresMerkleHash,
 			innerHash(
-				m.GovToMintStoresMerkleHash,
+				m.GovToIcahostStoresMerkleHash,
 				innerHash(
 					innerHash(
+						m.MintStoreMerkleHash,
 						leafHash(append(prefix, tmhash.Sum(m.OracleIavlStateHash)...)),
-						m.ParamsStoreMerkleHash,
 					),
-					m.SlashingToStakingStoresMerkleHash,
+					m.ParamsToSlashingStoresMerkleHash,
 				),
 			),
 		),
-		m.TransferToUpgradeStoresMerkleHash,
+		m.StakingToUpgradeStoresMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)

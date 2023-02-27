@@ -84,6 +84,11 @@ func base64ToBytes(s string) []byte {
 	return decodedString
 }
 
+func bytesToBase64(b []byte) string {
+	encodedString := base64.StdEncoding.EncodeToString(b)
+	return encodedString
+}
+
 // func encodeStoreMerkleHash(key string, value []byte) []byte {
 // 	bytesKey := []byte(key)
 // 	keyBytes := append([]byte{uint8(len(bytesKey))}, bytesKey...)

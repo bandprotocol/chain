@@ -32,19 +32,19 @@ func TestEncodeRelay(t *testing.T) {
 			OracleIavlStateHash: hexToBytes(
 				"5248463E932D16F7D092E268C0DED87B23D3B0E71856F1C6AE2AA91F6C713320",
 			),
-			ParamsStoreMerkleHash: hexToBytes(
+			MintStoreMerkleHash: hexToBytes(
 				"7FD5F5C7C2920C187618542901CDC5717BE8204F24BE856E80902A1BB04737E4",
 			),
-			SlashingToStakingStoresMerkleHash: hexToBytes(
+			ParamsToSlashingStoresMerkleHash: hexToBytes(
 				"F981716562A49DE06E3DCAFBFB6388C294BAA4FA9D45777E25740A92F81CF65E",
 			),
-			GovToMintStoresMerkleHash: hexToBytes(
+			GovToIcahostStoresMerkleHash: hexToBytes(
 				"E8E27CBB44BB654F64EEEF4667868AD48667CEB28E3DB5C4DF7A4B4B87F0C04B",
 			),
 			AuthToFeeGrantStoresMerkleHash: hexToBytes(
 				"FC96CFFD30E5B8979EA66F9D0DA1CBAB16F69669E8B2A1FB2E1BEB457C9726E8",
 			),
-			TransferToUpgradeStoresMerkleHash: hexToBytes(
+			StakingToUpgradeStoresMerkleHash: hexToBytes(
 				"C9C8849ED125CC7681329C4D27B83B1FC8ACF7A865C9D1D1DF575CCA56F48DBE",
 			),
 		},
