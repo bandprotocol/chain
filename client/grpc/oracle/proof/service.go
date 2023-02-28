@@ -40,6 +40,7 @@ func NewProofServer(clientCtx client.Context) ServiceServer {
 
 func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryProofResponse, error) {
 	cliCtx := s.clientCtx
+	cliCtx.Height = req.Height
 	height := &cliCtx.Height
 	if cliCtx.Height == 0 {
 		height = nil
