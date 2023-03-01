@@ -121,7 +121,7 @@ func TestGetSignaturesAndPrefix(t *testing.T) {
 	sig, commonVote, err := GetSignaturesAndPrefix(&sh)
 	require.NoError(t, err)
 
-	expectedSigs := []TMSignature{
+	expectedSigs := []*TMSignature{
 		{
 			R:                hexToBytes("84B8585B71240FEE0E674952B79ED25D793F1B31B42DD37B80F75B98510B5754"),
 			S:                hexToBytes("1EC44DD7C5389474DF8E5C25CC6ED8B573CCA2E009AA824EE825BDC693935927"),
