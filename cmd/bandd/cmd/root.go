@@ -37,6 +37,7 @@ import (
 const (
 	flagDisableFeelessReports = "disable-feeless-reports"
 	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagSeed                  = "seed"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -123,6 +124,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
 	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
+	startCmd.Flags().Uint32(flagSeed, 0, "to generate different hash")
 }
 
 func queryCommand() *cobra.Command {
@@ -223,6 +225,7 @@ func (ac appCreator) newApp(
 		appOpts,
 		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		cast.ToUint32(appOpts.Get(flagSeed)),
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -264,6 +267,7 @@ func (ac appCreator) appExport(
 		appOpts,
 		false,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		cast.ToUint32(appOpts.Get(flagSeed)),
 	)
 
 	if height != -1 {

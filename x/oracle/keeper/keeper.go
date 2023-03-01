@@ -40,6 +40,7 @@ type Keeper struct {
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
+	seed          uint32
 }
 
 // NewKeeper creates a new oracle Keeper instance.
@@ -58,6 +59,7 @@ func NewKeeper(
 	portKeeper types.PortKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
+	seed uint32,
 ) Keeper {
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
@@ -77,6 +79,7 @@ func NewKeeper(
 		channelKeeper:    channelKeeper,
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
+		seed:             seed,
 	}
 }
 
@@ -124,8 +127,8 @@ func (k Keeper) GetRequestLastExpired(ctx sdk.Context) types.RequestID {
 // GetNextRequestID increments and returns the current number of requests.
 func (k Keeper) GetNextRequestID(ctx sdk.Context) types.RequestID {
 	requestNumber := k.GetRequestCount(ctx)
-	k.SetRequestCount(ctx, requestNumber+1)
-	return types.RequestID(requestNumber + 1)
+	k.SetRequestCount(ctx, requestNumber+1+uint64(k.seed))
+	return types.RequestID(requestNumber + 1 + uint64(k.seed))
 }
 
 // SetDataSourceCount sets the number of data source count to the given value.
@@ -144,8 +147,8 @@ func (k Keeper) GetDataSourceCount(ctx sdk.Context) uint64 {
 // GetNextDataSourceID increments and returns the current number of data sources.
 func (k Keeper) GetNextDataSourceID(ctx sdk.Context) types.DataSourceID {
 	dataSourceCount := k.GetDataSourceCount(ctx)
-	k.SetDataSourceCount(ctx, dataSourceCount+1)
-	return types.DataSourceID(dataSourceCount + 1)
+	k.SetDataSourceCount(ctx, dataSourceCount+1+uint64(k.seed))
+	return types.DataSourceID(dataSourceCount + 1 + uint64(k.seed))
 }
 
 // SetOracleScriptCount sets the number of oracle script count to the given value.
@@ -164,8 +167,8 @@ func (k Keeper) GetOracleScriptCount(ctx sdk.Context) uint64 {
 // GetNextOracleScriptID increments and returns the current number of oracle scripts.
 func (k Keeper) GetNextOracleScriptID(ctx sdk.Context) types.OracleScriptID {
 	oracleScriptCount := k.GetOracleScriptCount(ctx)
-	k.SetOracleScriptCount(ctx, oracleScriptCount+1)
-	return types.OracleScriptID(oracleScriptCount + 1)
+	k.SetOracleScriptCount(ctx, oracleScriptCount+1+uint64(k.seed))
+	return types.OracleScriptID(oracleScriptCount + 1 + uint64(k.seed))
 }
 
 // GetFile loads the file from the file storage. Panics if the file does not exist.
