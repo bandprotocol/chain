@@ -32,6 +32,6 @@ message QueryEVMValidatorsResponse {
 }
 
 message ValidatorMinimal {
-	string address = 1;
-	int64 voting_power = 2;
+  string address = 1;
+  int64 voting_power = 2;
 }
