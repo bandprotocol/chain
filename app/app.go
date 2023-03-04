@@ -113,6 +113,7 @@ import (
 	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 )
 
 const (
@@ -779,6 +780,7 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 
 	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	proofservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	cosmosnodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
 	if apiConfig.Swagger {
@@ -799,6 +801,7 @@ func (app *BandApp) RegisterTendermintService(clientCtx client.Context) {
 func (app *BandApp) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 	proofservice.RegisterProofService(clientCtx, app.GRPCQueryRouter())
+	cosmosnodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // RegisterSwaggerAPI registers swagger route with API Server

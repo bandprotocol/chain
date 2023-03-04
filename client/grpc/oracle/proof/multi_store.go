@@ -31,21 +31,21 @@ import (
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
 type MultiStoreProofEthereum struct {
-	OracleIavlStateHash              common.Hash
+	OracleIAVLStateHash              common.Hash
 	MintStoreMerkleHash              common.Hash
 	ParamsToSlashingStoresMerkleHash common.Hash
 	GovToIcahostStoresMerkleHash     common.Hash
-	AuthToFeeGrantStoresMerkleHash   common.Hash
+	AuthToFeegrantStoresMerkleHash   common.Hash
 	StakingToUpgradeStoresMerkleHash common.Hash
 }
 
 func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 	return MultiStoreProofEthereum{
-		OracleIavlStateHash:              common.BytesToHash(m.OracleIavlStateHash),
+		OracleIAVLStateHash:              common.BytesToHash(m.OracleIAVLStateHash),
 		MintStoreMerkleHash:              common.BytesToHash(m.MintStoreMerkleHash),
 		ParamsToSlashingStoresMerkleHash: common.BytesToHash(m.ParamsToSlashingStoresMerkleHash),
 		GovToIcahostStoresMerkleHash:     common.BytesToHash(m.GovToIcahostStoresMerkleHash),
-		AuthToFeeGrantStoresMerkleHash:   common.BytesToHash(m.AuthToFeeGrantStoresMerkleHash),
+		AuthToFeegrantStoresMerkleHash:   common.BytesToHash(m.AuthToFeegrantStoresMerkleHash),
 		StakingToUpgradeStoresMerkleHash: common.BytesToHash(m.StakingToUpgradeStoresMerkleHash),
 	}
 }
@@ -53,11 +53,11 @@ func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
 func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) *MultiStoreProof {
 	return &MultiStoreProof{
-		OracleIavlStateHash:              tmbytes.HexBytes(multiStoreEp.Value),
+		OracleIAVLStateHash:              tmbytes.HexBytes(multiStoreEp.Value),
 		MintStoreMerkleHash:              tmbytes.HexBytes(multiStoreEp.Path[0].Prefix[1:]),
 		ParamsToSlashingStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[1].Suffix),
 		GovToIcahostStoresMerkleHash:     tmbytes.HexBytes(multiStoreEp.Path[2].Prefix[1:]),
-		AuthToFeeGrantStoresMerkleHash:   tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
+		AuthToFeegrantStoresMerkleHash:   tmbytes.HexBytes(multiStoreEp.Path[3].Prefix[1:]),
 		StakingToUpgradeStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[4].Suffix),
 	}
 }

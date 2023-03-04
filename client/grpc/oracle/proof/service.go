@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -40,6 +41,7 @@ func NewProofServer(clientCtx client.Context) ServiceServer {
 
 func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryProofResponse, error) {
 	cliCtx := s.clientCtx
+	cliCtx.Height = req.Height
 	height := &cliCtx.Height
 	if cliCtx.Height == 0 {
 		height = nil
@@ -73,7 +75,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 		Signatures:             signatures,
 	}
 
-	var rs Result
+	var rs oracletypes.Result
 	types.ModuleCdc.MustUnmarshal(value, &rs)
 
 	oracleData := OracleDataProof{
@@ -165,7 +167,7 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 			return nil, err
 		}
 
-		var rs Result
+		var rs oracletypes.Result
 		types.ModuleCdc.MustUnmarshal(value, &rs)
 
 		oracleData := OracleDataProof{

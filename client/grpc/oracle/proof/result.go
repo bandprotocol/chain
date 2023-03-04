@@ -1,5 +1,9 @@
 package proof
 
+import (
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+)
+
 // ResultEthereum is an Ethereum version of Result for solidity ABI-encoding.
 type ResultEthereum struct {
 	ClientID       string
@@ -15,14 +19,14 @@ type ResultEthereum struct {
 	Result         []byte
 }
 
-func transformResult(r Result) ResultEthereum {
+func transformResult(r oracletypes.Result) ResultEthereum {
 	return ResultEthereum{
-		ClientID:       r.ClientId,
-		OracleScriptID: uint64(r.OracleScriptId),
+		ClientID:       r.ClientID,
+		OracleScriptID: uint64(r.OracleScriptID),
 		Params:         r.Calldata,
 		AskCount:       uint64(r.AskCount),
 		MinCount:       uint64(r.MinCount),
-		RequestID:      uint64(r.RequestId),
+		RequestID:      uint64(r.RequestID),
 		AnsCount:       uint64(r.AnsCount),
 		RequestTime:    uint64(r.RequestTime),
 		ResolveTime:    uint64(r.ResolveTime),

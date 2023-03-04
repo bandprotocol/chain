@@ -1,29 +1,31 @@
 syntax = "proto3";
 package bandchain.v1.oracle;
 
-option go_package = "github.com/bandprotocol/chain/client/grpc/oracle/proof";
+option go_package = "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof";
 
 import "google/api/annotations.proto";
-
+import "gogoproto/gogo.proto";
+import "oracle/v1/oracle.proto";
 
 // Service defines the gRPC querier service.
 service Service {
   rpc Proof(QueryProofRequest) returns (QueryProofResponse) {
-    option (google.api.http).get = "/oracle/v1/proof/{request_id}";
+    option (google.api.http).get = "/bandchain/v1/oracle/proof/{request_id}";
   }
 
   rpc MultiProof(QueryMultiProofRequest) returns (QueryMultiProofResponse) {
-    option (google.api.http).get = "/oracle/v1/multi_proof";
+    option (google.api.http).get = "/bandchain/v1/oracle/multi_proof";
   }
 
   rpc RequestCountProof(QueryRequestCountProofRequest) returns (QueryRequestCountProofResponse) {
-    option (google.api.http).get = "/oracle/v1/requests_count_proof";
+    option (google.api.http).get = "/bandchain/v1/oracle/requests_count_proof";
   }
 }
 
 message QueryProofRequest {
     // RequestID is ID of an oracle request
     uint64 request_id = 1;
+    int64 height = 2;
 }
 
 message QueryProofResponse {
@@ -81,23 +83,9 @@ message CountProof {
 }
 
 message OracleDataProof {
-  Result result = 1;
+  oracle.v1.Result result = 1;
   uint64 version = 2;
   repeated IAVLMerklePath merkle_paths = 3;
-}
-
-message Result {
-  string client_id = 1;
-  uint64 oracle_script_id = 2;
-  bytes calldata = 3;
-  uint64 ask_count = 4;
-  uint64 min_count = 5;
-  uint64 request_id = 6;
-  uint64 ans_count = 7;
-  int64 request_time = 8;
-  int64 resolve_time = 9;
-  int32 resolve_status = 10;
-  bytes result = 11;
 }
 
 message IAVLMerklePath {
@@ -116,11 +104,11 @@ message BlockRelayProof {
 }
 
 message MultiStoreProof {
-  bytes oracle_iavl_state_hash = 1;
+  bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
   bytes mint_store_merkle_hash = 2;
   bytes params_to_slashing_stores_merkle_hash = 3;
   bytes gov_to_icahost_stores_merkle_hash = 4;
-  bytes auth_to_fee_grant_stores_merkle_hash = 5;
+  bytes auth_to_feegrant_stores_merkle_hash = 5;
   bytes staking_to_upgrade_stores_merkle_hash = 6;
 }
 

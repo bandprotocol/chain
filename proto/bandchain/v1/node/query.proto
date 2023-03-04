@@ -1,10 +1,10 @@
 syntax = "proto3";
 package bandchain.v1.node;
 
-option go_package = "github.com/bandprotocol/chain/client/grpc/node";
+option go_package = "github.com/bandprotocol/chain/v2/client/grpc/node";
 
 import "google/api/annotations.proto";
-
+import "gogoproto/gogo.proto";
 
 // Service defines the gRPC querier service.
 service Service {
@@ -20,7 +20,7 @@ service Service {
 message QueryChainIDRequest {}
 
 message QueryChainIDResponse {
-  string chain_id = 1;
+  string chain_id = 1 [ (gogoproto.customname) = "ChainID" ];
 }
 
 message QueryEVMValidatorsRequest {}
@@ -32,6 +32,6 @@ message QueryEVMValidatorsResponse {
 }
 
 message ValidatorMinimal {
-	string address = 1;
-	int64 voting_power = 2;
+  string address = 1;
+  int64 voting_power = 2;
 }
