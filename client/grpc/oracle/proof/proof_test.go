@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"testing"
 
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 )
@@ -112,7 +113,7 @@ func TestEncodeRelay(t *testing.T) {
 func TestEncodeVerify(t *testing.T) {
 	data := OracleDataProof{
 		Version: 217,
-		Result: &Result{
+		Result: &oracletypes.Result{
 			ClientID:       "",
 			OracleScriptID: 1,
 			Calldata:       hexToBytes("000000010000000342544300000000000186a0"),

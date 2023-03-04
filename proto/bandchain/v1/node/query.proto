@@ -1,7 +1,7 @@
 syntax = "proto3";
 package bandchain.v1.node;
 
-option go_package = "github.com/bandprotocol/chain/client/grpc/node";
+option go_package = "github.com/bandprotocol/chain/v2/client/grpc/node";
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
