@@ -4,7 +4,7 @@ package bandchain.v1.oracle;
 option go_package = "github.com/bandprotocol/chain/client/grpc/oracle/proof";
 
 import "google/api/annotations.proto";
-
+import "gogoproto/gogo.proto";
 
 // Service defines the gRPC querier service.
 service Service {
@@ -88,12 +88,12 @@ message OracleDataProof {
 }
 
 message Result {
-  string client_id = 1;
-  uint64 oracle_script_id = 2;
+  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+  uint64 oracle_script_id = 2 [ (gogoproto.customname) = "OracleScriptID" ];
   bytes calldata = 3;
   uint64 ask_count = 4;
   uint64 min_count = 5;
-  uint64 request_id = 6;
+  uint64 request_id = 6 [ (gogoproto.customname) = "RequestID" ];
   uint64 ans_count = 7;
   int64 request_time = 8;
   int64 resolve_time = 9;
@@ -117,11 +117,11 @@ message BlockRelayProof {
 }
 
 message MultiStoreProof {
-  bytes oracle_iavl_state_hash = 1;
+  bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
   bytes params_store_merkle_hash = 2;
   bytes slashing_to_staking_stores_merkle_hash = 3;
   bytes gov_to_mint_stores_merkle_hash = 4;
-  bytes auth_to_fee_grant_stores_merkle_hash = 5;
+  bytes auth_to_feegrant_stores_merkle_hash = 5;
   bytes transfer_to_upgrade_stores_merkle_hash = 6;
 }
 

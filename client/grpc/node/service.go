@@ -40,7 +40,7 @@ func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*Quer
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
 	return &QueryChainIDResponse{
-		ChainId: sdkCtx.ChainID(),
+		ChainID: sdkCtx.ChainID(),
 	}, nil
 }
 

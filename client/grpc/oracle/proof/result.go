@@ -17,12 +17,12 @@ type ResultEthereum struct {
 
 func transformResult(r Result) ResultEthereum {
 	return ResultEthereum{
-		ClientID:       r.ClientId,
-		OracleScriptID: uint64(r.OracleScriptId),
+		ClientID:       r.ClientID,
+		OracleScriptID: uint64(r.OracleScriptID),
 		Params:         r.Calldata,
 		AskCount:       uint64(r.AskCount),
 		MinCount:       uint64(r.MinCount),
-		RequestID:      uint64(r.RequestId),
+		RequestID:      uint64(r.RequestID),
 		AnsCount:       uint64(r.AnsCount),
 		RequestTime:    uint64(r.RequestTime),
 		ResolveTime:    uint64(r.ResolveTime),

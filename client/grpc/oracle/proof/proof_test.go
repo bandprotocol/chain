@@ -29,7 +29,7 @@ func innerHash(left, right []byte) []byte {
 func TestEncodeRelay(t *testing.T) {
 	block := BlockRelayProof{
 		MultiStoreProof: &MultiStoreProof{
-			OracleIavlStateHash: hexToBytes(
+			OracleIAVLStateHash: hexToBytes(
 				"5248463E932D16F7D092E268C0DED87B23D3B0E71856F1C6AE2AA91F6C713320",
 			),
 			ParamsStoreMerkleHash: hexToBytes(
@@ -41,7 +41,7 @@ func TestEncodeRelay(t *testing.T) {
 			GovToMintStoresMerkleHash: hexToBytes(
 				"E8E27CBB44BB654F64EEEF4667868AD48667CEB28E3DB5C4DF7A4B4B87F0C04B",
 			),
-			AuthToFeeGrantStoresMerkleHash: hexToBytes(
+			AuthToFeegrantStoresMerkleHash: hexToBytes(
 				"FC96CFFD30E5B8979EA66F9D0DA1CBAB16F69669E8B2A1FB2E1BEB457C9726E8",
 			),
 			TransferToUpgradeStoresMerkleHash: hexToBytes(
@@ -113,12 +113,12 @@ func TestEncodeVerify(t *testing.T) {
 	data := OracleDataProof{
 		Version: 217,
 		Result: &Result{
-			ClientId:       "",
-			OracleScriptId: 1,
+			ClientID:       "",
+			OracleScriptID: 1,
 			Calldata:       hexToBytes("000000010000000342544300000000000186a0"),
 			AskCount:       1,
 			MinCount:       1,
-			RequestId:      1,
+			RequestID:      1,
 			AnsCount:       1,
 			RequestTime:    1629803667,
 			ResolveTime:    1629803671,
