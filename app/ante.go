@@ -7,7 +7,7 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v5/modules/core/ante"
 	"github.com/cosmos/ibc-go/v5/modules/core/keeper"
 
-	bandante "github.com/bandprotocol/chain/v2/ante"
+	"github.com/bandprotocol/chain/v2/app/fee"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 )
 
@@ -19,7 +19,7 @@ type HandlerOptions struct {
 	IBCKeeper    *keeper.Keeper
 }
 
-func NewAnteHandler(options HandlerOptions, disableFeelessReports bool) (sdk.AnteHandler, error) {
+func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
 	}
@@ -41,22 +41,9 @@ func NewAnteHandler(options HandlerOptions, disableFeelessReports bool) (sdk.Ant
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
 
-	var deductFeeDecorator sdk.AnteDecorator
-	if !disableFeelessReports {
-		deductFeeDecorator = bandante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			*options.OracleKeeper,
-			options.TxFeeChecker,
-		)
-	} else {
-		deductFeeDecorator = ante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			options.TxFeeChecker,
-		)
+	if options.TxFeeChecker == nil {
+		feeChecker := fee.NewFeeChecker(options.OracleKeeper)
+		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
@@ -66,7 +53,12 @@ func NewAnteHandler(options HandlerOptions, disableFeelessReports bool) (sdk.Ant
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		deductFeeDecorator,
+		ante.NewDeductFeeDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
+			options.TxFeeChecker,
+		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
