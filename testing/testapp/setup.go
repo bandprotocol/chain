@@ -628,7 +628,7 @@ func SignAndDeliver(
 	tx, err := GenTx(
 		txCfg,
 		msgs,
-		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		sdk.Coins{sdk.NewInt64Coin("uband", 2500)},
 		DefaultGenTxGas,
 		chainID,
 		accNums,

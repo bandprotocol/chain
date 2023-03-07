@@ -20,7 +20,7 @@ yoda config rpc-poll-interval "1s"
 # setup max-try to yoda config
 yoda config max-try 5
 
-echo "y" | bandd tx oracle activate --from validator --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx oracle activate --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for activation transaction success
 sleep 2
@@ -32,13 +32,13 @@ do
 done
 
 # send band tokens to reporters
-echo "y" | bandd tx bank send validator $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx bank send validator $(yoda keys list -a) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for sending band tokens transaction success
 sleep 2
 
 # add reporter to bandchain
-echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for addding reporter transaction success
 sleep 2

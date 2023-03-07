@@ -6,16 +6,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ibcante "github.com/cosmos/ibc-go/v5/modules/core/ante"
 	"github.com/cosmos/ibc-go/v5/modules/core/keeper"
+
+	bandante "github.com/bandprotocol/chain/v2/ante"
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	IBCKeeper *keeper.Keeper
+	OracleKeeper *oraclekeeper.Keeper
+	IBCKeeper    *keeper.Keeper
 }
 
-func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+func NewAnteHandler(options HandlerOptions, disableFeelessReports bool) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
 	}
@@ -24,6 +28,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 	if options.SignModeHandler == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+	}
+	if options.OracleKeeper == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "oracle keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for AnteHandler")
@@ -34,6 +41,24 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
 	}
 
+	var deductFeeDecorator sdk.AnteDecorator
+	if !disableFeelessReports {
+		deductFeeDecorator = bandante.NewDeductFeeDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
+			*options.OracleKeeper,
+			options.TxFeeChecker,
+		)
+	} else {
+		deductFeeDecorator = ante.NewDeductFeeDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeegrantKeeper,
+			options.TxFeeChecker,
+		)
+	}
+
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called firs(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
@@ -41,12 +66,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			options.TxFeeChecker,
-		),
+		deductFeeDecorator,
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

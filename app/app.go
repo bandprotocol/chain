@@ -105,7 +105,6 @@ import (
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle"
-	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -589,15 +588,15 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			IBCKeeper: app.IBCKeeper,
+			OracleKeeper: &app.OracleKeeper,
+			IBCKeeper:    app.IBCKeeper,
 		},
+		disableFeelessReports,
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
-	if !disableFeelessReports {
-		anteHandler = bandante.NewFeelessReportsAnteHandler(anteHandler, app.OracleKeeper)
-	}
+
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
