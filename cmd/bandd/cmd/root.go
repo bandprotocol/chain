@@ -32,8 +32,7 @@ import (
 )
 
 const (
-	flagDisableFeelessReports = "disable-feeless-reports"
-	flagWithOwasmCacheSize    = "oracle-script-cache-size"
+	flagWithOwasmCacheSize = "oracle-script-cache-size"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -86,8 +85,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
-		// TODO: implement for support cosmos-sdk (v0.46.10)
-		// band.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
 			band.ModuleBasics,
 			encodingConfig.TxConfig,
@@ -120,7 +117,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
-	startCmd.Flags().Bool(flagDisableFeelessReports, false, "Disable feeless reports during congestion")
 }
 
 func queryCommand() *cobra.Command {
@@ -200,7 +196,6 @@ func (ac appCreator) newApp(
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,
 		appOpts,
-		cast.ToBool(appOpts.Get(flagDisableFeelessReports)),
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 		baseappOptions...,
 	)
@@ -231,7 +226,6 @@ func (ac appCreator) appExport(
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg,
 		appOpts,
-		false,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 	)
 

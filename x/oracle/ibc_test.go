@@ -94,7 +94,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
 
 	raws1 := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -239,11 +239,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 
 	// Use Carol as a relayer
 	carol := testapp.Carol
-	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000)))
+	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2492500)))
 	suite.chainB.SendMsgs(banktypes.NewMsgSend(
 		suite.chainB.SenderAccount.GetAddress(),
 		carol.Address,
-		carolExpectedBalance,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000))),
 	))
 	suite.chainB.SenderPrivKey = carol.PrivKey
 	suite.chainB.SenderAccount = suite.chainB.App.AccountKeeper.GetAccount(suite.chainB.GetContext(), carol.Address)
@@ -262,7 +262,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	expectedBalance := suite.chainB.App.BankKeeper.GetAllBalances(
 		suite.chainB.GetContext(),
 		suite.chainB.SenderAccount.GetAddress(),
-	)
+	).Sub(sdk.NewCoin("uband", sdk.NewInt(7500)))
 
 	// send request from A to B
 	timeoutHeight := clienttypes.NewHeight(0, 110)
@@ -588,7 +588,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
 
 	raws := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -648,7 +648,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(5970000))))
 
 	raws1 := []types.RawReport{types.NewRawReport(0, 0, nil), types.NewRawReport(1, 0, []byte("beebd2v1"))}
 	suite.chainB.SendReport(1, raws1, testapp.Validators[0])

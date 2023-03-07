@@ -110,7 +110,6 @@ import (
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle"
-	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -138,12 +137,14 @@ var (
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		gov.NewAppModuleBasic(
-			[]govclient.ProposalHandler{paramsclient.ProposalHandler,
+			[]govclient.ProposalHandler{
+				paramsclient.ProposalHandler,
 				distrclient.ProposalHandler,
 				upgradeclient.LegacyProposalHandler,
 				upgradeclient.LegacyCancelProposalHandler,
 				ibcclientclient.UpdateClientProposalHandler,
-				ibcclientclient.UpgradeProposalHandler},
+				ibcclientclient.UpgradeProposalHandler,
+			},
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -252,7 +253,7 @@ func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	disableFeelessReports bool, owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
+	owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
@@ -612,15 +613,14 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			IBCKeeper: app.IBCKeeper,
+			OracleKeeper: &app.OracleKeeper,
+			IBCKeeper:    app.IBCKeeper,
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
-	if !disableFeelessReports {
-		anteHandler = bandante.NewFeelessReportsAnteHandler(anteHandler, app.OracleKeeper)
-	}
+
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
@@ -756,27 +756,14 @@ func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 // API server.
 func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
-	// // removed by cosmos-sdk (v0.46.10)
-	// rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-
-	// Register legacy tx routes.
-	// // removed by cosmos-sdk (v0.46.10)
-	// authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
 
 	// Register new tx routes from grpc-gateway.
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
-	// Register legacy and grpc-gateway routes for all modules.
-	// // removed by cosmos-sdk (v0.46.10)
-	// ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
-
+	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	// Register BandChain rpc routes
-	// // removed by cosmos-sdk (v0.46.10)
-	// bandclient.RegisterRoutes(clientCtx, apiSvr.Router)
 
 	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	proofservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
