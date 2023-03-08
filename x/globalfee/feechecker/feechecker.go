@@ -62,7 +62,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	if ctx.IsCheckTx() {
-		isValidReportTx, err := fc.checkReportTx(ctx, tx)
+		isValidReportTx, err := fc.CheckReportTx(ctx, tx)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -72,7 +72,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		}
 
 		requiredFees := getMinGasPrice(ctx, feeTx)
-		requiredGlobalFees, err := fc.getGlobalFee(ctx, feeTx)
+		requiredGlobalFees, err := fc.GetGlobalFee(ctx, feeTx)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -93,7 +93,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	return feeCoins, priority, nil
 }
 
-func (fc FeeChecker) checkReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
+func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
 	isValidReportTx := true
 
 	for _, msg := range tx.GetMsgs() {
@@ -116,7 +116,7 @@ func (fc FeeChecker) checkReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
 	return isValidReportTx, nil
 }
 
-func (fc FeeChecker) getGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {
+func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {
 	var (
 		globalMinGasPrices sdk.DecCoins
 		err                error
@@ -142,7 +142,7 @@ func (fc FeeChecker) getGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, 
 }
 
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {
-	bondDenom := fc.getBondDenom(ctx)
+	bondDenom := fc.GetBondDenom(ctx)
 	if bondDenom == "" {
 		return nil, errors.New("empty staking bond denomination")
 	}
@@ -150,7 +150,7 @@ func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
 }
 
-func (fc FeeChecker) getBondDenom(ctx sdk.Context) string {
+func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
 	var bondDenom string
 	if fc.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
 		fc.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
