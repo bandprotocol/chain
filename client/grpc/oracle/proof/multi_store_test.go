@@ -12,41 +12,41 @@ import (
 /*
 query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc000000000000000&prove=true
 {
-    "jsonrpc": "2.0",
-    "id": -1,
-    "result": {
-        "response": {
-            "code": 0,
-            "log": "",
-            "info": "",
-            "index": "0",
+  "jsonrpc": "2.0",
+  "id": -1,
+  "result": {
+    "response": {
+      "code": 0,
+      "log": "",
+      "info": "",
+      "index": "0",
+      "key": "wAAAAAAAAAA=",
+      "value": null,
+      "proofOps": {
+        "ops": [
+          {
+            "type": "ics23:iavl",
             "key": "wAAAAAAAAAA=",
-            "value": null,
-            "proofOps": {
-                "ops": [
-                    {
-                        "type": "ics23:iavl",
-                        "key": "wAAAAAAAAAA=",
-                        "data": "EsMDCgjAAAAAAAAAABLpAQoVBQ1eS8RW3fDH5wAMd46Ih4w7Tw0SEhAIARIMCPLi8Z8GEMDCo+ABGgwIARgBIAEqBAAC+CUiKggBEiYCBPglIMOXtvsiuUKm461Mtf/w7SDhGVqba09R5L1VU2Y2HGeOICIsCAESBQQI5CYgGiEgubs5NRGOw8xaesuOPr7hPvlY1LNxamfQ5qwMMKn8l80iKggBEiYGDOQmIAqGoK3PW8B0zAWNvdrvKtLMf9f2nUvJ/8HUfbG+mLCDICIqCAESJgga+isgwVjErYVeGYGfWDSJS9zW6U1GPMLdybMMGp3k+lT5x+ggGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTkJiAaISCUHaTOnLkieD5s4z9auzNnWGOptSWVA3As2DTxLWzmZyIqCAESJgQI5CYg5zZMcUYFSwmSAmz9ub37BrR2v3mWJNOfELL/z1YSFJggIioIARImBgzkJiAKhqCtz1vAdMwFjb3a7yrSzH/X9p1Lyf/B1H2xvpiwgyAiKggBEiYIGvorIMFYxK2FXhmBn1g0iUvc1ulNRjzC3cmzDBqd5PpU+cfoIA=="
-                    },
-                    {
-                        "type": "ics23:simple",
-                        "key": "b3JhY2xl",
-                        "data": "CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ"
-                    }
-                ]
-            },
-            "height": "2813",
-            "codespace": ""
-        }
+            "data": "EukCCgjAAAAAAAAAABLAAQoMAFJvbGxpbmdTZWVkEiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD13RoLCAEYASABKgMAAgQiKwgBEgQCBAQgGiEg63Obsi9It/MFOpC6K6T+B/qyYsrfhmRIlWXFD/UFuL0iKQgBEiUEBgQgOPVbl2MlK7tUwSUqLqOhd+lAIX1aT9o7NkgqkJjpFrYgIikIARIlBg4EIIpoijzfRLFsIvVCTSu9GhYO4qILFWJ0NGlfvKonBnpgIBqZAQoB8BIGb3JhY2xlGgsIARgBIAEqAwACAiIpCAESJQIEBCBYKdm973ulzdqUE+jnuc4DZHxw3sjFNe5vcSIW8V+YriAiKQgBEiUEBgQgOPVbl2MlK7tUwSUqLqOhd+lAIX1aT9o7NkgqkJjpFrYgIikIARIlBg4EIIpoijzfRLFsIvVCTSu9GhYO4qILFWJ0NGlfvKonBnpgIA=="
+          },
+          {
+            "type": "ics23:simple",
+            "key": "b3JhY2xl",
+            "data": "CvwBCgZvcmFjbGUSIAvDBkyKB8SaeNb7cGjhsWvPuddSyVYD9YcDwBR1XwurGgkIARgBIAEqAQAiJQgBEiEB9VTw+0c6LUfGylARB2nWup+a0Lz0aC9eeJV6X5WGNNgiJwgBEgEBGiBF9TB9QwOUKdGmWOos/jVWy3EgicQNb+oMRkFqtXgauCIlCAESIQFrz6rMKwx5aOJG+y8vmBEz/VRqaHlgjqkS4ZLcVkrS8yIlCAESIQGpKs2CX3ZSYSnuK+8DM0QNNX6m1D6h39qoUzEUlgljrSInCAESAQEaICBo1MHdfzcpuU+TfQKKlkDcXlZOWyByO22ZEEhqErrz"
+          }
+        ]
+      },
+      "height": "2",
+      "codespace": ""
     }
+  }
 }
 */
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ",
+		"CvwBCgZvcmFjbGUSIAvDBkyKB8SaeNb7cGjhsWvPuddSyVYD9YcDwBR1XwurGgkIARgBIAEqAQAiJQgBEiEB9VTw+0c6LUfGylARB2nWup+a0Lz0aC9eeJV6X5WGNNgiJwgBEgEBGiBF9TB9QwOUKdGmWOos/jVWy3EgicQNb+oMRkFqtXgauCIlCAESIQFrz6rMKwx5aOJG+y8vmBEz/VRqaHlgjqkS4ZLcVkrS8yIlCAESIQGpKs2CX3ZSYSnuK+8DM0QNNX6m1D6h39qoUzEUlgljrSInCAESAQEaICBo1MHdfzcpuU+TfQKKlkDcXlZOWyByO22ZEEhqErrz",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -74,17 +74,17 @@ func TestGetMultiStoreProof(t *testing.T) {
 		innerHash(
 			m.AuthToFeegrantStoresMerkleHash,
 			innerHash(
-				m.GovToIcahostStoresMerkleHash,
+				m.GlobalfeeToIbccoreStoresMerkleHash,
 				innerHash(
+					m.IcahostToMintStoresMerkleHash,
 					innerHash(
-						m.MintStoreMerkleHash,
 						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
+						m.ParamsStoreMerkleHash,
 					),
-					m.ParamsToSlashingStoresMerkleHash,
 				),
 			),
 		),
-		m.StakingToUpgradeStoresMerkleHash,
+		m.SlashingToUpgradeStoresMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)

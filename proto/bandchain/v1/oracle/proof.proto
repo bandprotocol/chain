@@ -105,11 +105,11 @@ message BlockRelayProof {
 
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
-  bytes mint_store_merkle_hash = 2;
-  bytes params_to_slashing_stores_merkle_hash = 3;
-  bytes gov_to_icahost_stores_merkle_hash = 4;
+  bytes params_store_merkle_hash = 2;
+  bytes icahost_to_mint_stores_merkle_hash = 3;
+  bytes globalfee_to_ibccore_stores_merkle_hash = 4;
   bytes auth_to_feegrant_stores_merkle_hash = 5;
-  bytes staking_to_upgrade_stores_merkle_hash = 6;
+  bytes slashing_to_upgrade_stores_merkle_hash = 6;
 }
 
 message BlockHeaderMerkleParts {
