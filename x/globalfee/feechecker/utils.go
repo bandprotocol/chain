@@ -1,4 +1,4 @@
-package fee
+package feechecker
 
 import (
 	"math"
@@ -33,7 +33,6 @@ func getTxPriority(fee sdk.Coins, gas int64) int64 {
 	return priority
 }
 
-// Get below functions from https://github.com/cosmos/gaia/blob/main/x/globalfee/ante/fee_utils.go
 // getMinGasPrice will also return sorted coins
 func getMinGasPrice(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
 	minGasPrices := ctx.MinGasPrices()
@@ -69,7 +68,7 @@ func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
 	var allFees sdk.Coins
 	for _, fee := range globalFees {
 		// min_gas_price denom in global fee
-		ok, c := Find(minGasPrices, fee.Denom)
+		ok, c := minGasPrices.Find(fee.Denom)
 		if ok && c.Amount.GT(fee.Amount) {
 			allFees = append(allFees, c)
 		} else {
@@ -78,33 +77,6 @@ func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
 	}
 
 	return allFees.Sort()
-}
-
-// Find replaces the functionality of Coins.Find from SDK v0.46.x
-func Find(coins sdk.Coins, denom string) (bool, sdk.Coin) {
-	switch len(coins) {
-	case 0:
-		return false, sdk.Coin{}
-
-	case 1:
-		coin := coins[0]
-		if coin.Denom == denom {
-			return true, coin
-		}
-		return false, sdk.Coin{}
-
-	default:
-		midIdx := len(coins) / 2 // 2:1, 3:1, 4:2
-		coin := coins[midIdx]
-		switch {
-		case denom < coin.Denom:
-			return Find(coins[:midIdx], denom)
-		case denom == coin.Denom:
-			return true, coin
-		default:
-			return Find(coins[midIdx+1:], denom)
-		}
-	}
 }
 
 func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *types.MsgReportData) error {
@@ -126,12 +98,12 @@ func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.
 	// If cannot get message, then pretend as non-free transaction
 	msgs, err := me.GetMessages()
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 
 	grantee, err := sdk.AccAddressFromBech32(me.Grantee)
 	if err != nil {
-		return false, err
+		return false, nil
 	}
 
 	allValidReportMsg := true
@@ -159,10 +131,6 @@ func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.
 			return false, err
 		}
 	}
-	// If this exec msg has other non-report msg, disable feeless and skip other msgs in tx
-	if !allValidReportMsg {
-		return false, nil
-	}
-
-	return true, nil
+	// Return false if this exec msg has other non-report msg
+	return allValidReportMsg, nil
 }
