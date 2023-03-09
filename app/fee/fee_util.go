@@ -11,23 +11,19 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
-// provided in a transaction.
-// NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
-// where txs with multiple coins could not be prioritize as expected.
+// getTxPriority returns priority of the provided fee based on gas prices of uband
 func getTxPriority(fee sdk.Coins, gas int64) int64 {
-	var priority int64
-	for _, c := range fee {
-		p := int64(math.MaxInt64)
-		// multiplied by 1000 first because priority is int64.
-		// otherwise, if gas_price < 1, the priority will be 0.
-		gasPrice := c.Amount.MulRaw(1000).QuoRaw(gas)
-		if gasPrice.IsInt64() {
-			p = gasPrice.Int64()
-		}
-		if priority == 0 || p < priority {
-			priority = p
-		}
+	ok, c := fee.Find("uband")
+	if !ok {
+		return 0
+	}
+
+	// multiplied by 10000 first to support our current standard (0.0025) because priority is int64.
+	// otherwise, if gas_price < 1, the priority will be 0.
+	priority := int64(math.MaxInt64)
+	gasPrice := c.Amount.MulRaw(10000).QuoRaw(gas)
+	if gasPrice.IsInt64() {
+		priority = gasPrice.Int64()
 	}
 
 	return priority
