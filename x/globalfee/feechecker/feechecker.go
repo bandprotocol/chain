@@ -15,12 +15,6 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// TODO: move to be params of globalfee module
-var (
-	Denom                   = "uband"
-	ConsensusMinFee sdk.Dec = sdk.NewDecWithPrec(25, 4)
-)
-
 type FeeChecker struct {
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalMinFee    globalfee.ParamSource
