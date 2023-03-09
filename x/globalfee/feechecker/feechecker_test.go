@@ -39,6 +39,7 @@ func (st *StubTx) ValidateBasic() error {
 func (st *StubTx) GetGas() uint64 {
 	return 1000000
 }
+
 func (st *StubTx) GetFee() sdk.Coins {
 	fees := make(sdk.Coins, len(st.GasPrices))
 
@@ -183,7 +184,18 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
 	)
-	stubTx := &StubTx{Msgs: []sdk.Msg{requestMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
+	stubTx := &StubTx{
+		Msgs: []sdk.Msg{requestMsg},
+		GasPrices: sdk.NewDecCoins(
+			sdk.NewDecCoinFromDec("uaaaa", sdk.NewDecWithPrec(100, 3)),
+			sdk.NewDecCoinFromDec("uaaab", sdk.NewDecWithPrec(1, 3)),
+			sdk.NewDecCoinFromDec("uaaac", sdk.NewDecWithPrec(0, 3)),
+			sdk.NewDecCoinFromDec("uband", sdk.NewDecWithPrec(3, 3)),
+			sdk.NewDecCoinFromDec("uccca", sdk.NewDecWithPrec(0, 3)),
+			sdk.NewDecCoinFromDec("ucccb", sdk.NewDecWithPrec(1, 3)),
+			sdk.NewDecCoinFromDec("ucccc", sdk.NewDecWithPrec(100, 3)),
+		),
+	}
 
 	// test - check report tx
 	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
@@ -194,7 +206,7 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
-	suite.Require().Equal(int64(1000), priority)
+	suite.Require().Equal(int64(30), priority)
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
@@ -223,7 +235,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
-	suite.Require().Equal(int64(1000), priority)
+	suite.Require().Equal(int64(10000), priority)
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
@@ -253,7 +265,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
-	suite.Require().Equal(int64(1000), priority)
+	suite.Require().Equal(int64(10000), priority)
 }
 
 func (suite *FeeCheckerTestSuite) TestGetBondDenom() {

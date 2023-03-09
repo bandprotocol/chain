@@ -83,7 +83,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		}
 	}
 
-	priority := getTxPriority(feeCoins, int64(gas))
+	priority := getTxPriority(feeCoins, int64(gas), fc.GetBondDenom(ctx))
 	return feeCoins, priority, nil
 }
 

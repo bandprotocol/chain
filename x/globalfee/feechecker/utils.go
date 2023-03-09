@@ -12,8 +12,8 @@ import (
 )
 
 // getTxPriority returns priority of the provided fee based on gas prices of uband
-func getTxPriority(fee sdk.Coins, gas int64) int64 {
-	ok, c := fee.Find("uband")
+func getTxPriority(fee sdk.Coins, gas int64, denom string) int64 {
+	ok, c := fee.Find(denom)
 	if !ok {
 		return 0
 	}
