@@ -258,6 +258,7 @@ func NewBandApp(
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
 	disableFeelessReports bool, owasmCacheSize uint32,
 	emitterFlag, requestSearchFlag, pricerFlag string,
+	seed uint32,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 	appCodec := encodingConfig.Marshaler
@@ -437,6 +438,7 @@ func NewBandApp(
 		&app.IBCKeeper.PortKeeper,
 		scopedOracleKeeper,
 		owasmVM,
+		seed,
 	)
 
 	if emitterFlag != "" {

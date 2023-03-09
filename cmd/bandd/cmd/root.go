@@ -42,6 +42,7 @@ const (
 	flagWithRequestSearch      = "with-request-search"
 	flagRequestSearchCacheSize = "request-search-cache-size"
 	flagWithOwasmCacheSize     = "oracle-script-cache-size"
+	flagSeed                   = "seed"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -134,6 +135,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().
 		String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
+	startCmd.Flags().Uint32(flagSeed, 0, "to generate different hash")
 }
 
 func queryCommand() *cobra.Command {
@@ -237,6 +239,7 @@ func (ac appCreator) newApp(
 		cast.ToString(appOpts.Get(flagWithEmitter)),
 		cast.ToString(appOpts.Get(flagWithRequestSearch)),
 		cast.ToString(appOpts.Get(flagWithPricer)),
+		cast.ToUint32(appOpts.Get(flagSeed)),
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
@@ -281,6 +284,7 @@ func (ac appCreator) appExport(
 		cast.ToString(appOpts.Get(flagWithEmitter)),
 		cast.ToString(appOpts.Get(flagWithRequestSearch)),
 		cast.ToString(appOpts.Get(flagWithPricer)),
+		cast.ToUint32(appOpts.Get(flagSeed)),
 	)
 
 	if height != -1 {
