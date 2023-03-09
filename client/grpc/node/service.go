@@ -24,18 +24,22 @@ func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.Serv
 	_ = RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
 }
 
+// to check queryServer implements ServiceServer
 var _ ServiceServer = queryServer{}
 
+// queryServer implements ServiceServer
 type queryServer struct {
 	clientCtx client.Context
 }
 
+// NewQueryServer returns new queryServer from provided client.Context
 func NewQueryServer(clientCtx client.Context) ServiceServer {
 	return queryServer{
 		clientCtx: clientCtx,
 	}
 }
 
+// ChainID returns QueryChainIDResponse that has chain id from ctx
 func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*QueryChainIDResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
@@ -44,6 +48,7 @@ func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*Quer
 	}, nil
 }
 
+// EVMValidators returns top 100 validators' address and voting power order by voting power
 func (s queryServer) EVMValidators(
 	ctx context.Context,
 	_ *QueryEVMValidatorsRequest,
@@ -65,6 +70,7 @@ func (s queryServer) EVMValidators(
 	evmValidatorsResponse.BlockHeight = validators.BlockHeight
 	evmValidatorsResponse.Validators = []*ValidatorMinimal{}
 
+	// put each validator's address and voting power to the response
 	for _, validator := range validators.Validators {
 		pubKeyBytes, ok := validator.PubKey.(secp256k1.PubKey)
 		if !ok {

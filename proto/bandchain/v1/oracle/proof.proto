@@ -9,85 +9,106 @@ import "oracle/v1/oracle.proto";
 
 // Service defines the gRPC querier service.
 service Service {
+  // Proof queries the proof for given request ID
   rpc Proof(QueryProofRequest) returns (QueryProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/proof/{request_id}";
   }
 
+  // MultiProof queries multiple proofs for given list of request IDs
   rpc MultiProof(QueryMultiProofRequest) returns (QueryMultiProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/multi_proof";
   }
 
+  // RequestCountProof queries the count proof
   rpc RequestCountProof(QueryRequestCountProofRequest) returns (QueryRequestCountProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/requests_count_proof";
   }
 }
 
+// QueryProofRequest is request type for the Service/Proof RPC method.
 message QueryProofRequest {
     // RequestID is ID of an oracle request
     uint64 request_id = 1;
+    // height is block height
     int64 height = 2;
 }
 
+// QueryChainIDResponse is response type for the Service/Proof RPC method.
 message QueryProofResponse {
+  // height is block height
   int64 height = 1;
+  // result is the proof
   SingleProofResponse result = 2;
 }
 
+// QueryMultiProofRequest is request type for the Service/MultiProof RPC method.
 message QueryMultiProofRequest {
+  // request_ids is the list of request IDs
   repeated uint64 request_ids = 1;
 }
 
+// QueryMultiProofResponse is response type for the Service/MultiProof RPC method.
 message QueryMultiProofResponse {
   int64 height = 1;
   MultiProofResponse result = 2;
 }
 
+// QueryRequestCountProofRequest is request type for the Service/RequestCountProof RPC method.
 message QueryRequestCountProofRequest {}
 
+// QueryRequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
 message QueryRequestCountProofResponse {
   int64 height = 1;
   CountProofResponse result = 2;
 }
 
+// SingleProofResponse is the data structure for response of single proof
 message SingleProofResponse {
   SingleProof proof = 1;
   bytes evm_proof_bytes = 2;
 }
 
+// MultiProofResponse is the data structure for response of multi proof
 message MultiProofResponse {
   MultiProof proof = 1;
   bytes evm_proof_bytes = 2;
 }
 
+// CountProofResponse is the data structure for response of count proof
 message CountProofResponse {
   CountProof proof = 1;
   bytes evm_proof_bytes = 2;
 }
 
+// SingleProof contains block height, oracle data proof and block relay proof
 message SingleProof {
   uint64 block_height = 1;
   OracleDataProof oracle_data_proof = 2;
   BlockRelayProof block_relay_proof = 3;
 }
 
+// MultiProof contains block height, list of oracle data proof and block relay proof
 message MultiProof {
   uint64 block_height = 1;
   repeated OracleDataProof oracle_data_multi_proof = 2;
   BlockRelayProof block_relay_proof = 3;
 }
 
+// CountProof contains block height, count proof and block relay proof
 message CountProof {
   uint64 block_height = 1;
   RequestsCountProof count_proof = 2;
   BlockRelayProof block_relay_proof = 3;
 }
 
+// OracleDataProof contains result, version and merkle paths
 message OracleDataProof {
   oracle.v1.Result result = 1;
   uint64 version = 2;
   repeated IAVLMerklePath merkle_paths = 3;
 }
 
+// IAVLMerklePath represents a Merkle step to a leaf data node in an iAVL tree.
 message IAVLMerklePath {
   bool is_data_on_right = 1;
   uint32 subtree_height = 2;
@@ -96,6 +117,7 @@ message IAVLMerklePath {
   bytes sibling_hash = 5;
 }
 
+// BlockRelayProof contains multi store proof, block header merkle parts, common encoded part and signatures
 message BlockRelayProof {
   MultiStoreProof multi_store_proof = 1;
   BlockHeaderMerkleParts block_header_merkle_parts = 2;
@@ -103,6 +125,9 @@ message BlockRelayProof {
   repeated TMSignature signatures = 4;
 }
 
+// MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
+// compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
+// see more detail in multi_store.go file
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
   bytes params_store_merkle_hash = 2;
@@ -112,6 +137,9 @@ message MultiStoreProof {
   bytes transfer_to_upgrade_stores_merkle_hash = 6;
 }
 
+// BlockHeaderMerkleParts stores a group of hashes using for computing Tendermint's block
+// header hash from app hash, and height.
+// see more detail in block_header_merkle_parts.go file
 message BlockHeaderMerkleParts {
   bytes version_and_chain_id_hash = 1;
   uint64 height = 2;
@@ -123,11 +151,13 @@ message BlockHeaderMerkleParts {
   bytes evidence_and_proposer_hash = 8;
 }
 
+// CommonEncodedVotePart represents the common part of encoded vote
 message CommonEncodedVotePart {
   bytes signed_data_prefix = 1;
   bytes signed_data_suffix = 2;
 }
 
+// TMSignature represents the tendermint singature
 message TMSignature {
   bytes r = 1;
   bytes s = 2;
@@ -135,6 +165,7 @@ message TMSignature {
   bytes encoded_timestamp = 4;
 }
 
+// RequestsCountProof contains count, version and merkle paths
 message RequestsCountProof {
   uint64 count = 1;
   uint64 version = 2;
