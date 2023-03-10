@@ -47,10 +47,10 @@ func (s *utilsTestSuite) TestCombinedFeeRequirement() {
 			c:        coinsEmpty,
 			combined: coinsEmpty,
 		},
-		"global fee empty, min fee nonempty, combined fee empty": {
+		"global fee empty, min fee nonempty, combined fee nonempty": {
 			cGlobal:  coinsEmpty,
 			c:        coinsNonEmpty,
-			combined: coinsEmpty,
+			combined: coinsNonEmpty,
 		},
 		"global fee nonempty, min fee empty, combined fee = global fee": {
 			cGlobal:  coinsNonEmpty,
