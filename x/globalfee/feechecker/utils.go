@@ -102,13 +102,11 @@ func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.
 		return false, nil
 	}
 
-	allValidReportMsg := true
 	for _, m := range msgs {
 		r, ok := m.(*types.MsgReportData)
 		// If this is not report msg, skip other msgs on this exec msg
 		if !ok {
-			allValidReportMsg = false
-			break
+			return false, nil
 		}
 
 		// Fail to parse validator, then discard this transaction
@@ -127,6 +125,7 @@ func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.
 			return false, err
 		}
 	}
+
 	// Return false if this exec msg has other non-report msg
-	return allValidReportMsg, nil
+	return true, nil
 }
