@@ -57,7 +57,7 @@ func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
 	}
 	// empty global fee is not possible if we set default global fee
 	if len(globalFees) == 0 && len(minGasPrices) != 0 {
-		return globalFees
+		return minGasPrices
 	}
 
 	// if min_gas_price denom is in globalfee, and the amount is higher than globalfee, add min_gas_price to allFees
