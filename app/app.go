@@ -919,6 +919,14 @@ func (app *BandApp) setupUpgradeHandlers() {
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_5",
+		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			// app.GetSubspace(globalfee.ModuleName).SetParamSet()
+			return fromVM, nil
+		},
+	)
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
