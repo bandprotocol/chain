@@ -392,7 +392,7 @@ class Handler(object):
             )
 
     def handle_new_incoming_packet(self, msg):
-        self.update_last_update_channel(msg)
+        self.update_last_update_channel(msg['dst_port'], msg['dst_channel'], msg['block_time'])
         del msg["block_time"]
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
@@ -402,7 +402,7 @@ class Handler(object):
         )
 
     def handle_new_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg)
+        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
         del msg["block_time"]
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
@@ -413,7 +413,7 @@ class Handler(object):
         )
 
     def handle_update_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg)
+        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
         del msg["block_time"]
 
         condition = True
@@ -450,9 +450,9 @@ class Handler(object):
     def handle_set_channel(self, msg):
         self.conn.execute(insert(channels).values(**msg).on_conflict_do_update(constraint="channels_pkey", set_=msg))
 
-    def update_last_update_channel(self, msg):
+    def update_last_update_channel(self, port, channel, timestamp):
         self.conn.execute(
-            channels.update().where((channels.c.port == msg['dst_port']) & (channels.c.port == msg['dst_channel'])).values(
-                last_update=msg['block_time']
+            channels.update().where((channels.c.port == port) & (channels.c.channel == channel)).values(
+                last_update=timestamp
             )
         )
