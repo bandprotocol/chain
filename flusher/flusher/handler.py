@@ -399,13 +399,26 @@ class Handler(object):
         )
 
     def handle_new_outgoing_packet(self, msg):
+        self.conn.execute(
+            channels.update(channels.c.port == msg['src_port'] & channels.c.port == msg['src_channel']).values(
+                last_update=msg['block_time']
+            )
+        )
+
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
+
         self.conn.execute(
             insert(outgoing_packets).values(**msg).on_conflict_do_nothing(constraint="outgoing_packets_pkey")
         )
 
     def handle_update_outgoing_packet(self, msg):
+        self.conn.execute(
+            channels.update(channels.c.port == msg['dst_port'] & channels.c.port == msg['dst_channel']).values(
+                last_update=msg['block_time']
+            )
+        )
+
         condition = True
         for col in outgoing_packets.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition

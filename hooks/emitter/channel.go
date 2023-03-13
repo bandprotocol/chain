@@ -25,6 +25,7 @@ func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) 
 		"counterparty_channel": channel.Counterparty.ChannelId,
 		"state":                channel.State,
 		"order":                channel.Ordering,
+		"last_update":          ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -109,6 +110,7 @@ func newPacket(
 ) common.JsDict {
 	return common.JsDict{
 		"block_height": ctx.BlockHeight(),
+		"block_time":   ctx.BlockTime().UnixNano(),
 		"src_channel":  srcChannel,
 		"src_port":     srcPort,
 		"sequence":     sequence,
