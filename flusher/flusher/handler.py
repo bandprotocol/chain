@@ -452,7 +452,7 @@ class Handler(object):
 
     def update_last_update_channel(self, msg):
         self.conn.execute(
-            channels.update().where(channels.c.port == msg['dst_port'] & channels.c.port == msg['dst_channel']).values(
+            channels.update().where((channels.c.port == msg['dst_port']) & (channels.c.port == msg['dst_channel'])).values(
                 last_update=msg['block_time']
             )
         )
