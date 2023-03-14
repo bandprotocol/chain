@@ -119,7 +119,7 @@ func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, 
 	if fc.GlobalMinFee.Has(ctx, types.ParamStoreKeyMinGasPrices) {
 		fc.GlobalMinFee.Get(ctx, types.ParamStoreKeyMinGasPrices, &globalMinGasPrices)
 	}
-	// global fee is empty set, set global fee to 0uatom
+	// global fee is empty set, set global fee to 0uband (bondDenom)
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices, err = fc.DefaultZeroGlobalFee(ctx)
 	}
