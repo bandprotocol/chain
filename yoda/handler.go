@@ -185,7 +185,7 @@ func handleRawRequests(
 	l *Logger,
 	id types.RequestID,
 	reqs []rawRequest,
-	key keyring.Info,
+	key *keyring.Record,
 ) (reports []types.RawReport, execVersions []string) {
 	resultsChan := make(chan processingResult, len(reqs))
 	for _, req := range reqs {
@@ -220,7 +220,7 @@ func handleRawRequest(
 	c *Context,
 	l *Logger,
 	req rawRequest,
-	key keyring.Info,
+	key *keyring.Record,
 	id types.RequestID,
 	processingResultCh chan processingResult,
 ) {
@@ -240,7 +240,7 @@ func handleRawRequest(
 	}
 
 	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
-	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
+	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
 		processingResultCh <- processingResult{

@@ -33,7 +33,7 @@ type Context struct {
 	client           rpcclient.Client
 	validator        sdk.ValAddress
 	gasPrices        string
-	keys             []keyring.Info
+	keys             []*keyring.Record
 	executor         executor.Executor
 	fileCache        filecache.Cache
 	broadcastTimeout time.Duration

@@ -3,13 +3,14 @@ package ibctesting
 import (
 	"fmt"
 
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v3/modules/core/exported"
-	ibctmtypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
+	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -188,7 +189,6 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 	counterpartyClient, proofClient, proofConsensus, consensusHeight, proofInit, proofHeight := endpoint.QueryConnectionHandshakeProof()
 
 	msg := connectiontypes.NewMsgConnectionOpenTry(
-		"",
 		endpoint.ClientID, // does not support handshake continuation
 		endpoint.Counterparty.ConnectionID,
 		endpoint.Counterparty.ClientID,
@@ -309,7 +309,6 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 
 	msg := channeltypes.NewMsgChannelOpenTry(
 		endpoint.ChannelConfig.PortID,
-		"", // does not support handshake continuation
 		endpoint.ChannelConfig.Version,
 		endpoint.ChannelConfig.Order,
 		[]string{endpoint.ConnectionID},
@@ -398,23 +397,34 @@ func (endpoint *Endpoint) SendPacket(packet exported.PacketI) error {
 // RecvPacket receives a packet on the associated endpoint.
 // The counterparty client is updated.
 func (endpoint *Endpoint) RecvPacket(packet channeltypes.Packet) error {
+	_, err := endpoint.RecvPacketWithResult(packet)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RecvPacketWithResult receives a packet on the associated endpoint and the result
+// of the transaction is returned. The counterparty client is updated.
+func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk.Result, error) {
 	// get proof of packet commitment on source
 	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.Chain.QueryProof(packetKey)
 
-	recvMsg := channeltypes.NewMsgRecvPacket(
-		packet,
-		proof,
-		proofHeight,
-		endpoint.Chain.SenderAccount.GetAddress().String(),
-	)
+	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
 
 	// receive on counterparty and update source client
-	if err := endpoint.Chain.sendMsgs(recvMsg); err != nil {
-		return err
+	res, err := endpoint.Chain.SendMsgs(recvMsg)
+	if err != nil {
+		return nil, err
 	}
 
-	return endpoint.Counterparty.UpdateClient()
+	if err := endpoint.Counterparty.UpdateClient(); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // WriteAcknowledgement writes an acknowledgement on the channel associated with the endpoint.

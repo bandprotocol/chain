@@ -23,4 +23,14 @@ bandd gentx validator 100000000uband \
 # collect genesis transactions
 bandd collect-gentxs
 
+sed -i -e \
+    "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025uband\"/" \
+    ~/.band/config/app.toml
 
+sed -i -e \
+  '/\[api\]/,+10 s/enable = .*/enable = true/' \
+  ~/.band/config/app.toml
+
+sed -i -e \
+  '/\[mempool\]/,+10 s/version = .*/version = \"v1\"/' \
+  ~/.band/config/config.toml
