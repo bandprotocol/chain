@@ -20,6 +20,10 @@ func ConvertToOwasmGas(cosmos uint64) uint64 {
 	return uint64(cosmos * gasConversionFactor)
 }
 
+func ConvertToGas(owasm uint64) uint64 {
+	return uint64(owasm / gasConversionFactor)
+}
+
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
 func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
 	if k.MaxReportDataSize(ctx) > k.MaxCalldataSize(ctx) {

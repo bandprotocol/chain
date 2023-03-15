@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -114,7 +115,7 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, reason stri
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":               id,
-		"execute_gas_used": common.OwasmToCosmosGas(gasUsed),
+		"execute_gas_used": oraclekeeper.ConvertToGas(gasUsed),
 		"request_time":     result.RequestTime,
 		"resolve_time":     result.ResolveTime,
 		"resolve_status":   result.ResolveStatus,
@@ -143,7 +144,7 @@ func (h *Hook) handleMsgRequestData(
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 		"prepare_gas":      msg.PrepareGas,
-		"prepare_gas_used": common.OwasmToCosmosGas(common.Atoui(evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed][0])),
+		"prepare_gas_used": oraclekeeper.ConvertToGas(common.Atoui(evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed][0])),
 		"execute_gas":      msg.ExecuteGas,
 		"execute_gas_used": 0,
 		"fee_limit":        msg.FeeLimit.String(),
