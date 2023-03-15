@@ -6,6 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// 1 cosmos gas is equal to 7 owasm gas
+const gasConversionFactor = 7
+
 // EvMap is a type alias for SDK events mapping from Attr.Key to the list of values.
 type EvMap map[string][]string
 
@@ -45,4 +48,8 @@ func ParseEvents(events sdk.StringEvents) EvMap {
 		}
 	}
 	return evMap
+}
+
+func OwasmToCosmosGas(owasm uint64) uint64 {
+	return uint64(owasm / gasConversionFactor)
 }

@@ -104,16 +104,23 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, reason string) {
+func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, reason string, evMap common.EvMap) {
+	var gasUsed uint64
 	result := h.oracleKeeper.MustGetResult(ctx, id)
+
+	if gasUsedMap, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
+		gasUsed = common.Atoui(gasUsedMap[0])
+	}
+
 	h.Write("UPDATE_REQUEST", common.JsDict{
-		"id":             id,
-		"request_time":   result.RequestTime,
-		"resolve_time":   result.ResolveTime,
-		"resolve_status": result.ResolveStatus,
-		"resolve_height": ctx.BlockHeight(),
-		"reason":         reason,
-		"result":         parseBytes(result.Result),
+		"id":               id,
+		"execute_gas_used": common.OwasmToCosmosGas(gasUsed),
+		"request_time":     result.RequestTime,
+		"resolve_time":     result.ResolveTime,
+		"resolve_status":   result.ResolveStatus,
+		"resolve_height":   ctx.BlockHeight(),
+		"reason":           reason,
+		"result":           parseBytes(result.Result),
 	})
 }
 
@@ -122,6 +129,7 @@ func (h *Hook) handleMsgRequestData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRequestData, evMap common.EvMap, detail common.JsDict,
 ) {
 	id := types.RequestID(common.Atoi(evMap[types.EventTypeRequest+"."+types.AttributeKeyID][0]))
+
 	req := h.oracleKeeper.MustGetRequest(ctx, id)
 	h.Write("NEW_REQUEST", common.JsDict{
 		"id":               id,
@@ -135,7 +143,9 @@ func (h *Hook) handleMsgRequestData(
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 		"prepare_gas":      msg.PrepareGas,
+		"prepare_gas_used": common.OwasmToCosmosGas(common.Atoui(evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed][0])),
 		"execute_gas":      msg.ExecuteGas,
+		"execute_gas_used": 0,
 		"fee_limit":        msg.FeeLimit.String(),
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
@@ -213,9 +223,10 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 			ctx,
 			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
 			reasons[0],
+			evMap,
 		)
 	} else {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "")
+		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "", evMap)
 	}
 }
 
