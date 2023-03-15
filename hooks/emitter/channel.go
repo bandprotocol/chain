@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -195,7 +196,9 @@ func (h *Hook) extractOracleRequestPacket(
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
 				"prepare_gas":      data.PrepareGas,
+				"prepare_gas_used": oraclekeeper.ConvertToGas(common.Atoui(evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed][0])),
 				"execute_gas":      data.ExecuteGas,
+				"execute_gas_used": 0,
 				"fee_limit":        data.FeeLimit.String(),
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,
