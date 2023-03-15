@@ -105,13 +105,8 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, reason string, evMap common.EvMap) {
-	var gasUsed uint64
+func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, gasUsed uint64, reason string) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
-
-	if gasUsedMap, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
-		gasUsed = common.Atoui(gasUsedMap[0])
-	}
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":               id,
@@ -223,11 +218,11 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 		h.emitUpdateResult(
 			ctx,
 			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
+			0,
 			reasons[0],
-			evMap,
 		)
 	} else {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), "", evMap)
+		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), common.Atoui(evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed][0]), "")
 	}
 }
 
