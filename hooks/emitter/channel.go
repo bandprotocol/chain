@@ -198,7 +198,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"prepare_gas":      data.PrepareGas,
 				"prepare_gas_used": oraclekeeper.ConvertToGas(common.Atoui(evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed][0])),
 				"execute_gas":      data.ExecuteGas,
-				"execute_gas_used": 0,
+				"execute_gas_used": nil,
 				"fee_limit":        data.FeeLimit.String(),
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,

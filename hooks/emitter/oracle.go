@@ -146,7 +146,7 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas":      msg.PrepareGas,
 		"prepare_gas_used": oraclekeeper.ConvertToGas(common.Atoui(evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed][0])),
 		"execute_gas":      msg.ExecuteGas,
-		"execute_gas_used": 0,
+		"execute_gas_used": nil,
 		"fee_limit":        msg.FeeLimit.String(),
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
