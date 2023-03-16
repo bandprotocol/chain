@@ -922,7 +922,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 	)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2_5",
+		"v2_6",
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			hostParams := icahosttypes.Params{
 				HostEnabled: true,
@@ -1008,7 +1008,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 
-	if upgradeInfo.Name == "v2_5" {
+	if upgradeInfo.Name == "v2_6" {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{group.StoreKey, globalfee.ModuleName},
 		}
