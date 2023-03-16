@@ -182,6 +182,11 @@ func (h *Hook) extractOracleRequestPacket(
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
+			var prepareGasUsedI interface{}
+			if prepareGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
+				prepareGasUsedI = oraclekeeper.ConvertToGas(common.Atoui(prepareGasUsed[0]))
+			}
+
 			id := oracletypes.RequestID(common.Atoi(events[0]))
 			req := h.oracleKeeper.MustGetRequest(ctx, id)
 			h.Write("NEW_REQUEST", common.JsDict{
@@ -196,7 +201,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
 				"prepare_gas":      data.PrepareGas,
-				"prepare_gas_used": oraclekeeper.ConvertToGas(common.Atoui(evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed][0])),
+				"prepare_gas_used": prepareGasUsedI,
 				"execute_gas":      data.ExecuteGas,
 				"execute_gas_used": nil,
 				"fee_limit":        data.FeeLimit.String(),
