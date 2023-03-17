@@ -7,6 +7,10 @@ cp /chain/docker-config/$1/node_key.json ~/.band/config/node_key.json
 cp /chain/docker-config/genesis.json ~/.band/config/genesis.json
 cp -r /chain/docker-config/files ~/.band
 
+sed -E -i \
+  "s/timeout_commit = \".*\"/timeout_commit = \"3s\"/" \
+  ~/.band/config/config.toml
+
 if [ "$1" == "query-node" ];then
     cp /chain/docker-config/app.toml ~/.band/config/app.toml
 fi
