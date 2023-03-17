@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source ~/.profile
+# docker rm --force $(docker ps -a -q)
+
 DIR=`dirname "$0"`
 
 # remove old genesis
