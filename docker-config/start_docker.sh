@@ -109,6 +109,28 @@ bandd collect-gentxs
 cp ~/.band/config/genesis.json $DIR/genesis.json
 sed -i -e 's/\"allow_messages\":.*/\"allow_messages\": [\"\/cosmos.authz.v1beta1.MsgExec\", \"\/cosmos.authz.v1beta1.MsgGrant\", \"\/cosmos.authz.v1beta1.MsgRevoke\", \"\/cosmos.bank.v1beta1.MsgSend\", \"\/cosmos.bank.v1beta1.MsgMultiSend\", \"\/cosmos.distribution.v1beta1.MsgSetWithdrawAddress\", \"\/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission\", \"\/cosmos.distribution.v1beta1.MsgFundCommunityPool\", \"\/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward\", \"\/cosmos.feegrant.v1beta1.MsgGrantAllowance\", \"\/cosmos.feegrant.v1beta1.MsgRevokeAllowance\", \"\/cosmos.gov.v1beta1.MsgVoteWeighted\", \"\/cosmos.gov.v1beta1.MsgSubmitProposal\", \"\/cosmos.gov.v1beta1.MsgDeposit\", \"\/cosmos.gov.v1beta1.MsgVote\", \"\/cosmos.staking.v1beta1.MsgEditValidator\", \"\/cosmos.staking.v1beta1.MsgDelegate\", \"\/cosmos.staking.v1beta1.MsgUndelegate\", \"\/cosmos.staking.v1beta1.MsgBeginRedelegate\", \"\/cosmos.staking.v1beta1.MsgCreateValidator\", \"\/cosmos.vesting.v1beta1.MsgCreateVestingAccount\", \"\/ibc.applications.transfer.v1.MsgTransfer\"]/g' $DIR/genesis.json
 
+# Create faucet container
+rm -rf ~/.faucet
+faucet config chain-id bandchain
+faucet config node tcp://host.docker.internal:26657
+faucet config port 5005
+for i in $(eval echo {1..5})
+do
+    # add worker key
+    faucet keys add worker$i
+
+    # send band tokens to worker
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain -b block
+
+    # wait for addding reporter transaction success
+    sleep 2
+done
+
+docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
+docker cp ~/.faucet bandchain_faucet:/root/.faucet
+docker start bandchain_faucet
+
+# Build
 docker-compose up -d --build
 
 sleep 10
@@ -117,7 +139,7 @@ for v in {1..4}
 do
     rm -rf ~/.yoda
     yoda config chain-id bandchain
-    yoda config node tcp://localhost:26657
+    yoda config node tcp://multi-validator$v-node:26657
     yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
@@ -149,24 +171,3 @@ do
     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
     docker start bandchain_oracle${v}
 done
-
-# Create faucet container
-rm -rf ~/.faucet
-faucet config chain-id bandchain
-faucet config node tcp://localhost:26657
-faucet config port 5005
-for i in $(eval echo {1..5})
-do
-    # add worker key
-    faucet keys add worker$i
-
-    # send band tokens to worker
-    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain -b block
-
-    # wait for addding reporter transaction success
-    sleep 2
-done
-
-docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
-docker cp ~/.faucet bandchain_faucet:/root/.faucet
-docker start bandchain_faucet

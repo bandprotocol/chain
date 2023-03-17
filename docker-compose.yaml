@@ -133,4 +133,3 @@ services:
 
 networks:
   bandchain:
-    driver: default
