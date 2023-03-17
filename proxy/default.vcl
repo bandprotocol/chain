@@ -16,7 +16,7 @@ backend hasura {
 }
 
 backend faucet {
-  .host = "host.docker.internal";
+  .host = "bandchain_faucet";
   .port = "5005";
 }
 

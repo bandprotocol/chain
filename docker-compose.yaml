@@ -48,6 +48,7 @@ services:
     build:
       context: ./proxy
     image: proxy-server:latest
+    restart: always
     networks:
       - bandchain
     depends_on:
@@ -59,6 +60,7 @@ services:
     build:
       context: ./proxy-ssl
     image: proxy-ssl-server:latest
+    restart: always
     networks:
       - bandchain
     depends_on:
@@ -133,3 +135,5 @@ services:
 
 networks:
   bandchain:
+
+
