@@ -7,35 +7,31 @@ services:
       dockerfile: Dockerfile
     image: band-validator:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.11
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh validator1"
 
   multi-validator2-node:
     image: band-validator:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.12
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh validator2"
 
   multi-validator3-node:
     image: band-validator:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.13
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh validator3"
 
   multi-validator4-node:
     image: band-validator:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.14
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh validator4"
 
   emitter-node:
     image: band-validator:latest
     networks:
-      bandchain:
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh emitter"
 
   query-node:
@@ -45,26 +41,15 @@ services:
       - 1317:1317
       - 9090:9090
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.15
+      - bandchain
     command: sh -c "chmod +x ./run.sh && ./run.sh query-node"
-      # rest-server:
-      #   image: band-validator:latest
-      #   networks:
-      #     bandchain:
-      #       ipv4_address: 172.18.0.20
-      #   restart: always
-      #   ports:
-      #     - 1317:1317
-      #   command: bandcli rest-server --laddr tcp://0.0.0.0:1317 --node tcp://172.18.0.15:26657 --chain-id bandchain --trust-node
 
   proxy-server:
     build:
       context: ./proxy
     image: proxy-server:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.99
+      - bandchain
     depends_on:
       - query-node
     ports:
@@ -75,8 +60,7 @@ services:
       context: ./proxy-ssl
     image: proxy-ssl-server:latest
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.98
+      - bandchain
     depends_on:
       - query-node
     ports:
@@ -89,9 +73,10 @@ services:
   postgres:
     image: postgres:12
     restart: always
+    ports:
+      - "5432:5432"
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.88
+      - bandchain
     environment:
       POSTGRES_PASSWORD: postgrespassword
 
@@ -100,44 +85,35 @@ services:
       context: ./hasura
     image: hasura:latest
     ports:
-      - "5433:5433"
+      - "5433:8080"
     depends_on:
       - "postgres"
     restart: always
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.89
+      - bandchain
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@172.18.0.88:5432/postgres
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_SERVER_HOST: 0.0.0.0
-      HASURA_GRAPHQL_SERVER_PORT: 5433
       HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES: "true"
     volumes:
       - ./hasura/hasura-metadata:/hasura-metadata
 
-  # TODO: Expose port to consume kafka from other
   zookeeper:
     image: wurstmeister/zookeeper
-    # ports:
-    #   - "2181:2181"
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.30
+      - bandchain
   kafka:
     image: wurstmeister/kafka
-    # ports:
-    #   - "9092:9092"
     networks:
-      bandchain:
-        ipv4_address: 172.18.0.31
+      - bandchain
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 172.18.0.31
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_CREATE_TOPICS: test:1:1
-      KAFKA_ZOOKEEPER_CONNECT: 172.18.0.30:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -147,17 +123,14 @@ services:
     image: bandchain_flusher:latest
     networks:
       bandchain:
-    command: sh -c "sleep 30 && python main.py init bandchain test replay --db postgres:postgrespassword@172.18.0.88:5432/postgres"
+    command: sh -c "sleep 30 && python main.py init bandchain test replay --db postgres:postgrespassword@postgres:5432/postgres"
 
   flusher-daemon:
     image: bandchain_flusher:latest
     networks:
-      bandchain:
+      - bandchain
     restart: always
 
 networks:
   bandchain:
-    ipam:
-      driver: default
-      config:
-        - subnet: "172.18.0.0/16"
+    driver: default
