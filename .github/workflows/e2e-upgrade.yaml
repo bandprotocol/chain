@@ -12,14 +12,14 @@ jobs:
       - name: Build docker images
         run: docker build -t bandd:v2.4.0
 
-  upgrade-v25:
-    - uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
-      with:
-        chain-image: ghcr.io/cosmos/ibc-go-simd
-        chain-binary: simd
-        chain-a-tag: v4.3.0
-        chain-b-tag: v4.3.0
-        chain-upgrade-tag: v5.1.0
-        upgrade-plan-name: "normal upgrade"
-        test-entry-point:  "TestUpgradeTestSuite"
-        test: "TestIBCChainUpgrade"
+  upgrade-v5:
+    uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
+    with:
+      chain-image: ghcr.io/cosmos/ibc-go-simd
+      chain-binary: simd
+      chain-a-tag: v4.3.0
+      chain-b-tag: v4.3.0
+      chain-upgrade-tag: v5.1.0
+      upgrade-plan-name: "normal upgrade"
+      test-entry-point:  "TestUpgradeTestSuite"
+      test: "TestIBCChainUpgrade"
