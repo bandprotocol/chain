@@ -69,9 +69,9 @@ jobs:
     with:
       chain-image: ghcr.io/bandprotocol/chain
       chain-binary: bandd
-      chain-a-tag: "${{ env.OLD_TAG }}"
-      chain-b-tag: "${{ env.OLD_TAG }}"
-      chain-upgrade-tag: "${{ env.NEW_TAG }}"
-      upgrade-plan-name: "${{ env.UPGRADE_NAME }}"
+      chain-a-tag: ${{ env.OLD_TAG }}
+      chain-b-tag: ${{ env.OLD_TAG }}
+      chain-upgrade-tag: ${{ env.NEW_TAG }}
+      upgrade-plan-name: ${{ env.UPGRADE_NAME }}
       test-entry-point:  "TestUpgradeTestSuite"
       test: "TestIBCChainUpgrade"
