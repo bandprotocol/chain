@@ -29,6 +29,8 @@ env:
 jobs:
   build-old-docker:
     runs-on: ubuntu-latest
+    outputs:
+      old-tag: ${{ env.OLD_TAG }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -47,6 +49,9 @@ jobs:
 
   build-new-docker:
     runs-on: ubuntu-latest
+    outputs:
+      new-tag: ${{ env.NEW_TAG }}
+      upgrade-name: ${{ env.UPGRADE_NAME }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -64,14 +69,14 @@ jobs:
           docker push "${REGISTRY}/${ORG}/${IMAGE_NAME}:${NEW_TAG}"
 
   test-upgrade:
-    needs: [build-original-docker, build-upgraded-docker]
+    needs: [build-old-docker, build-new-docker]
     uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
     with:
       chain-image: ghcr.io/bandprotocol/chain
       chain-binary: bandd
-      chain-a-tag: ${{ env.OLD_TAG }}
-      chain-b-tag: ${{ env.OLD_TAG }}
-      chain-upgrade-tag: ${{ env.NEW_TAG }}
-      upgrade-plan-name: ${{ env.UPGRADE_NAME }}
+      chain-a-tag: ${{ needs.build-old-docker.outputs.old-tag }}
+      chain-b-tag: ${{ needs.build-old-docker.outputs.old-tag }}
+      chain-upgrade-tag: ${{ needs.build-new-docker.outputs.new-tag }}
+      upgrade-plan-name: ${{ needs.build-new-docker.outputs.upgrade-name }}
       test-entry-point:  "TestUpgradeTestSuite"
       test: "TestIBCChainUpgrade"
