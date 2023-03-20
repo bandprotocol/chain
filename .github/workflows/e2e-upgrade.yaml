@@ -4,13 +4,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  upgrade-v25:
+  build-docker:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Build docker images
-        run: docker build -t bandd:v2.5
+        run: docker build -t bandd:v2.4.0
+
+  upgrade-v25:
       - uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
         with:
           chain-image: ghcr.io/cosmos/ibc-go-simd
