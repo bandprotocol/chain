@@ -86,14 +86,12 @@ class Handler(object):
         return self.conn.execute(select([oracle_scripts.c.id]).where(oracle_scripts.c.id == id)).scalar()
 
     def get_ibc_received_txs(self, date, port, channel, address):
-        return self.conn.execute(
-            select([relayer_tx_stat_days.c.ibc_received_txs]).where(
-                relayer_tx_stat_days.c.date == date,
-                relayer_tx_stat_days.c.port == port,
-                relayer_tx_stat_days.c.channel == channel,
-                relayer_tx_stat_days.c.address == address,
-            )
-        ).scalar()
+        msg = {"date": date, "port": port, "channel": channel, "address": address}
+        condition = True
+        for col in oracle_scripts.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+
+        return self.conn.execute(select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)).scalar()
 
     def handle_new_block(self, msg):
         self.conn.execute(blocks.insert(), msg)
