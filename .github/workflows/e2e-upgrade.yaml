@@ -1,0 +1,23 @@
+
+name: Tests / E2E Upgrade
+on: 
+  workflow_dispatch:
+
+jobs:
+  upgrade-v25:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Build docker images
+        run: docker build -t bandd:v2.5
+      - uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
+        with:
+          chain-image: ghcr.io/cosmos/ibc-go-simd
+          chain-binary: simd
+          chain-a-tag: v4.3.0
+          chain-b-tag: v4.3.0
+          chain-upgrade-tag: v5.1.0
+          upgrade-plan-name: "normal upgrade"
+          test-entry-point:  "TestUpgradeTestSuite"
+          test: "TestIBCChainUpgrade"
