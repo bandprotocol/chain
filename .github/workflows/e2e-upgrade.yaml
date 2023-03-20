@@ -72,7 +72,7 @@ jobs:
     needs: [build-old-docker, build-new-docker]
     uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
     with:
-      chain-image: docker.io/kitipong/bandd:v2.4.1
+      chain-image: docker.io/kitipong/bandd
       chain-binary: bandd
       chain-a-tag: ${{ needs.build-old-docker.outputs.old-tag }}
       chain-b-tag: ${{ needs.build-old-docker.outputs.old-tag }}
