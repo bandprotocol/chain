@@ -15,16 +15,14 @@ on:
         description: 'The name of upgrade'
         required: true
         type: string
-  push:
 
 env:
    REGISTRY: ghcr.io
    ORG: bandprotocol
    IMAGE_NAME: chain
-  #  GIT_TAG: "${{ inputs.old-tag }}"
-   OLD_TAG: "v2.4.1"
-   NEW_TAG: "patch-ibc-v4"
-   UPGRADE_NAME: "v2_5"
+   OLD_TAG: "${{ inputs.old-tag }}"
+   NEW_TAG: "${{ inputs.new-tag }}"
+   UPGRADE_NAME: "${{ inputs.upgrade-name }}"
 
 jobs:
   build-old-docker:
@@ -72,7 +70,7 @@ jobs:
     needs: [build-old-docker, build-new-docker]
     uses: cosmos/ibc-go/.github/workflows/e2e-test-workflow-call.yml@main
     with:
-      chain-image: docker.io/kitipong/bandd
+      chain-image: ghcr.io/bandprotocol/chain
       chain-binary: bandd
       chain-a-tag: ${{ needs.build-old-docker.outputs.old-tag }}
       chain-b-tag: ${{ needs.build-old-docker.outputs.old-tag }}
