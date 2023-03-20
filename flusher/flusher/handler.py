@@ -88,7 +88,7 @@ class Handler(object):
     def get_ibc_received_txs(self, date, port, channel, address):
         msg = {"date": date, "port": port, "channel": channel, "address": address}
         condition = True
-        for col in oracle_scripts.primary_key.columns.values():
+        for col in relayer_tx_stat_days.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
 
         return self.conn.execute(select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)).scalar()
