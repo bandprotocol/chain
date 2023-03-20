@@ -1,7 +1,8 @@
 
 name: Tests / E2E Upgrade
 on: 
-  workflow_dispatch:
+  - workflow_dispatch
+  - push
 
 jobs:
   build-docker:
