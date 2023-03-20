@@ -9,7 +9,7 @@ yoda config chain-id bandchain
 yoda config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup execution endpoint
-yoda config executor $EXECUTOR_URL
+yoda config executor "rest:$EXECUTOR_URL/live/master?timeout=10s"
 
 # setup broadcast-timeout to yoda config
 yoda config broadcast-timeout "5m"
