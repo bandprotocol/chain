@@ -532,7 +532,7 @@ class Handler(object):
 
     def handle_set_relayer_tx_stat_days(self, port, channel, timestamp, address):
         relayer_tx_stat_day = {
-            "date": datetime.fromtimestamp(timestamp / 1e9),
+            "date": timestamp,
             "port": port,
             "channel": channel,
             "address": address,
