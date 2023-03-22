@@ -16,4 +16,10 @@ func RegisterHandlers(cliCtx client.Context, rtr *mux.Router) {
 	r.HandleFunc(fmt.Sprintf("/oracle/proof/{%s}", proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc("/oracle/multi_proof", proof.GetMutiProofHandlerFn(cliCtx)).Methods("GET")
 	r.HandleFunc("/oracle/requests_count_proof", proof.GetRequestsCountProofHandlerFn(cliCtx)).Methods("GET")
+
+	r.HandleFunc(fmt.Sprintf("/bandchain/v1/oracle/proof/{%s}", proof.RequestIDTag), proof.GetProofHandlerFn(cliCtx)).
+		Methods("GET")
+	r.HandleFunc("/bandchain/v1/oracle/multi_proof", proof.GetMutiProofHandlerFn(cliCtx)).Methods("GET")
+	r.HandleFunc("/bandchain/v1/oracle/requests_count_proof", proof.GetRequestsCountProofHandlerFn(cliCtx)).
+		Methods("GET")
 }
