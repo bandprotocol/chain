@@ -59,7 +59,7 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 }
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
-func GetBlockHeaderMerkleParts(block *types.Header) *BlockHeaderMerkleParts {
+func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
 	// based on https://github.com/tendermint/tendermint/blob/master/types/block.go#L448
 	hbz, err := block.Version.Marshal()
 	if err != nil {
@@ -72,30 +72,30 @@ func GetBlockHeaderMerkleParts(block *types.Header) *BlockHeaderMerkleParts {
 		panic(err)
 	}
 
-	return &BlockHeaderMerkleParts{
+	return BlockHeaderMerkleParts{
 		VersionAndChainIdHash: merkle.HashFromByteSlices([][]byte{
 			hbz,
-			CDCEncode(block.ChainID),
+			cdcEncode(block.ChainID),
 		}),
 		Height:         uint64(block.Height),
 		TimeSecond:     uint64(block.Time.Unix()),
 		TimeNanoSecond: uint32(block.Time.Nanosecond()),
 		LastBlockIdAndOther: merkle.HashFromByteSlices([][]byte{
 			bzbi,
-			CDCEncode(block.LastCommitHash),
-			CDCEncode(block.DataHash),
-			CDCEncode(block.ValidatorsHash),
+			cdcEncode(block.LastCommitHash),
+			cdcEncode(block.DataHash),
+			cdcEncode(block.ValidatorsHash),
 		}),
 		NextValidatorHashAndConsensusHash: merkle.HashFromByteSlices([][]byte{
-			CDCEncode(block.NextValidatorsHash),
-			CDCEncode(block.ConsensusHash),
+			cdcEncode(block.NextValidatorsHash),
+			cdcEncode(block.ConsensusHash),
 		}),
 		LastResultsHash: merkle.HashFromByteSlices([][]byte{
-			CDCEncode(block.LastResultsHash),
+			cdcEncode(block.LastResultsHash),
 		}),
 		EvidenceAndProposerHash: merkle.HashFromByteSlices([][]byte{
-			CDCEncode(block.EvidenceHash),
-			CDCEncode(block.ProposerAddress),
+			cdcEncode(block.EvidenceHash),
+			cdcEncode(block.ProposerAddress),
 		}),
 	}
 }

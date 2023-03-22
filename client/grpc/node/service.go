@@ -68,7 +68,7 @@ func (s queryServer) EVMValidators(
 
 	evmValidatorsResponse := QueryEVMValidatorsResponse{}
 	evmValidatorsResponse.BlockHeight = validators.BlockHeight
-	evmValidatorsResponse.Validators = []*ValidatorMinimal{}
+	evmValidatorsResponse.Validators = []ValidatorMinimal{}
 
 	// put each validator's address and voting power to the response
 	for _, validator := range validators.Validators {
@@ -82,7 +82,7 @@ func (s queryServer) EVMValidators(
 		} else {
 			evmValidatorsResponse.Validators = append(
 				evmValidatorsResponse.Validators,
-				&ValidatorMinimal{
+				ValidatorMinimal{
 					Address:     crypto.PubkeyToAddress(*pubkey).String(),
 					VotingPower: validator.VotingPower,
 				},

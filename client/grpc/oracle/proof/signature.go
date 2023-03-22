@@ -71,9 +71,9 @@ func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, erro
 }
 
 // GetSignaturesAndPrefix returns a list of TMSignature from Tendermint signed header.
-func GetSignaturesAndPrefix(info *types.SignedHeader) ([]*TMSignature, CommonEncodedVotePart, error) {
+func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
 	addrs := []string{}
-	mapAddrs := map[string]*TMSignature{}
+	mapAddrs := map[string]TMSignature{}
 
 	prefix, err := GetPrefix(tmproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
 	if err != nil {
@@ -124,7 +124,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]*TMSignature, CommonEnc
 			return nil, CommonEncodedVotePart{}, err
 		}
 		addrs = append(addrs, string(addr))
-		mapAddrs[string(addr)] = &TMSignature{
+		mapAddrs[string(addr)] = TMSignature{
 			vote.Signature[:32],
 			vote.Signature[32:],
 			uint32(v),
@@ -135,7 +135,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]*TMSignature, CommonEnc
 		return nil, CommonEncodedVotePart{}, fmt.Errorf("No valid precommit")
 	}
 
-	signatures := make([]*TMSignature, len(addrs))
+	signatures := make([]TMSignature, len(addrs))
 	sort.Strings(addrs)
 	for i, addr := range addrs {
 		signatures[i] = mapAddrs[addr]

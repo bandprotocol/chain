@@ -38,7 +38,7 @@ message QueryProofResponse {
   // height is block height
   int64 height = 1;
   // result is the proof
-  SingleProofResponse result = 2;
+  SingleProofResponse result = 2 [ (gogoproto.nullable) = false ];
 }
 
 // QueryMultiProofRequest is request type for the Service/MultiProof RPC method.
@@ -50,7 +50,7 @@ message QueryMultiProofRequest {
 // QueryMultiProofResponse is response type for the Service/MultiProof RPC method.
 message QueryMultiProofResponse {
   int64 height = 1;
-  MultiProofResponse result = 2;
+  MultiProofResponse result = 2 [ (gogoproto.nullable) = false ];
 }
 
 // QueryRequestCountProofRequest is request type for the Service/RequestCountProof RPC method.
@@ -59,53 +59,53 @@ message QueryRequestCountProofRequest {}
 // QueryRequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
 message QueryRequestCountProofResponse {
   int64 height = 1;
-  CountProofResponse result = 2;
+  CountProofResponse result = 2 [ (gogoproto.nullable) = false ];
 }
 
 // SingleProofResponse is the data structure for response of single proof
 message SingleProofResponse {
-  SingleProof proof = 1;
+  SingleProof proof = 1 [ (gogoproto.nullable) = false ];
   bytes evm_proof_bytes = 2;
 }
 
 // MultiProofResponse is the data structure for response of multi proof
 message MultiProofResponse {
-  MultiProof proof = 1;
+  MultiProof proof = 1 [ (gogoproto.nullable) = false ];
   bytes evm_proof_bytes = 2;
 }
 
 // CountProofResponse is the data structure for response of count proof
 message CountProofResponse {
-  CountProof proof = 1;
+  CountProof proof = 1 [ (gogoproto.nullable) = false ];
   bytes evm_proof_bytes = 2;
 }
 
 // SingleProof contains block height, oracle data proof and block relay proof
 message SingleProof {
   uint64 block_height = 1;
-  OracleDataProof oracle_data_proof = 2;
-  BlockRelayProof block_relay_proof = 3;
+  OracleDataProof oracle_data_proof = 2 [ (gogoproto.nullable) = false ];
+  BlockRelayProof block_relay_proof = 3 [ (gogoproto.nullable) = false ];
 }
 
 // MultiProof contains block height, list of oracle data proof and block relay proof
 message MultiProof {
   uint64 block_height = 1;
-  repeated OracleDataProof oracle_data_multi_proof = 2;
-  BlockRelayProof block_relay_proof = 3;
+  repeated OracleDataProof oracle_data_multi_proof = 2 [ (gogoproto.nullable) = false ];
+  BlockRelayProof block_relay_proof = 3 [ (gogoproto.nullable) = false ];
 }
 
 // CountProof contains block height, count proof and block relay proof
 message CountProof {
   uint64 block_height = 1;
-  RequestsCountProof count_proof = 2;
-  BlockRelayProof block_relay_proof = 3;
+  RequestsCountProof count_proof = 2 [ (gogoproto.nullable) = false ];
+  BlockRelayProof block_relay_proof = 3 [ (gogoproto.nullable) = false ];
 }
 
 // OracleDataProof contains result, version and merkle paths
 message OracleDataProof {
-  oracle.v1.Result result = 1;
+  oracle.v1.Result result = 1 [ (gogoproto.nullable) = false ];
   uint64 version = 2;
-  repeated IAVLMerklePath merkle_paths = 3;
+  repeated IAVLMerklePath merkle_paths = 3 [ (gogoproto.nullable) = false ];
 }
 
 // IAVLMerklePath represents a Merkle step to a leaf data node in an iAVL tree.
@@ -119,10 +119,10 @@ message IAVLMerklePath {
 
 // BlockRelayProof contains multi store proof, block header merkle parts, common encoded part and signatures
 message BlockRelayProof {
-  MultiStoreProof multi_store_proof = 1;
-  BlockHeaderMerkleParts block_header_merkle_parts = 2;
-  CommonEncodedVotePart common_encoded_vote_part = 3;
-  repeated TMSignature signatures = 4;
+  MultiStoreProof multi_store_proof = 1 [ (gogoproto.nullable) = false ];
+  BlockHeaderMerkleParts block_header_merkle_parts = 2 [ (gogoproto.nullable) = false ];
+  CommonEncodedVotePart common_encoded_vote_part = 3 [ (gogoproto.nullable) = false ];
+  repeated TMSignature signatures = 4 [ (gogoproto.nullable) = false ];
 }
 
 // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
@@ -169,5 +169,5 @@ message TMSignature {
 message RequestsCountProof {
   uint64 count = 1;
   uint64 version = 2;
-  repeated IAVLMerklePath merkle_paths = 3;
+  repeated IAVLMerklePath merkle_paths = 3 [ (gogoproto.nullable) = false ];
 }

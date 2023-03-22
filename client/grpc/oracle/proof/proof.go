@@ -38,7 +38,7 @@ func init() {
 	}
 }
 
-func (blockRelay *BlockRelayProof) EncodeToEthData() ([]byte, error) {
+func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
 	for i, sig := range blockRelay.Signatures {
 		parseSignatures[i] = sig.encodeToEthFormat()
@@ -58,7 +58,7 @@ func (o *OracleDataProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
 	}
 	return verifyArguments.Pack(
 		big.NewInt(int64(blockHeight)),
-		transformResult(*o.Result),
+		transformResult(o.Result),
 		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
