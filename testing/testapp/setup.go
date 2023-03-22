@@ -3,8 +3,8 @@ package testapp
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"path/filepath"
 	"sort"
 	"testing"
@@ -27,7 +27,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibckeeper "github.com/cosmos/ibc-go/v3/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -211,7 +211,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 // NewTestApp creates instance of our app using in test.
 func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// Set HomeFlag to a temp folder for simulation run.
-	dir, err := ioutil.TempDir("", "bandd")
+	dir, err := os.MkdirTemp("", "bandd")
 	if err != nil {
 		panic(err)
 	}
@@ -388,7 +388,7 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 }
 
 func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
-	dir, err := ioutil.TempDir("", "bandibc")
+	dir, err := os.MkdirTemp("", "bandibc")
 	if err != nil {
 		panic(err)
 	}
@@ -619,7 +619,7 @@ func SignAndDeliver(
 	tx, err := GenTx(
 		txCfg,
 		msgs,
-		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		sdk.Coins{sdk.NewInt64Coin("uband", 2500)},
 		DefaultGenTxGas,
 		chainID,
 		accNums,

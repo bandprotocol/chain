@@ -1,6 +1,12 @@
 # Changelog
 
+## [v2.5.0](https://github.com/bandprotocol/chain/releases/tag/v2.5.0)
+
+- (bump) Use cosmos-sdk package v0.45.14 / tendermint v0.34.26 / ibc-go v4.3.0
+- (chain) add new rest paths to prepare for the moving from rest to grpc in 2.6.x
+
 ## [v2.4.1](https://github.com/bandprotocol/chain/releases/tag/v2.4.1)
+
 - (bump) Use cosmos-sdk package v0.45.10 / tendermint v0.34.22 / ibc-go v3.3.1
 
 ## [v2.4.0](https://github.com/bandprotocol/chain/releases/tag/v2.4.0)
