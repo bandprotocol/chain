@@ -63,7 +63,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	}
 
 	// Get the proofs for the requested id and height
-	value, iavlEp, multiStoreEp, err := GetProofsByKey(
+	value, iavlEp, multiStoreEp, err := getProofsByKey(
 		cliCtx,
 		types.ResultStoreKey(requestID),
 		rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -110,7 +110,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	if err != nil {
 		return nil, err
 	}
-	oracleDataBytes, err := oracleData.EncodeToEthData(uint64(commit.Height))
+	oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +183,7 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 	for idx, intRequestID := range requestIDs {
 		requestID := types.RequestID(intRequestID)
 
-		value, iavlEp, multiStoreEp, err := GetProofsByKey(
+		value, iavlEp, multiStoreEp, err := getProofsByKey(
 			cliCtx,
 			types.ResultStoreKey(requestID),
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -204,7 +204,7 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 			MerklePaths: GetMerklePaths(iavlEp),
 		}
 		// Encode the oracle data proof into Ethereum-compatible format
-		oracleDataBytes, err := oracleData.EncodeToEthData(uint64(commit.Height))
+		oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
 		if err != nil {
 			return nil, err
 		}
@@ -277,7 +277,7 @@ func (s proofServer) RequestCountProof(
 	}
 
 	// Get the proofs for the count from the IAVL tree
-	value, iavlEp, multiStoreEp, err := GetProofsByKey(
+	value, iavlEp, multiStoreEp, err := getProofsByKey(
 		cliCtx,
 		types.RequestCountStoreKey,
 		rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -323,7 +323,7 @@ func (s proofServer) RequestCountProof(
 		return nil, err
 	}
 
-	requestsCountBytes, err := requestsCountProof.EncodeToEthData(uint64(commit.Height))
+	requestsCountBytes, err := requestsCountProof.encodeToEthData(uint64(commit.Height))
 	if err != nil {
 		return nil, err
 	}
