@@ -86,13 +86,11 @@ func (fc FeeChecker) checkReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
 				return false, err
 			}
 
-			isValidReportTx = isValid
+			isValidReportTx = isValidReportTx && isValid
 		}
 	}
-	if isValidReportTx {
-		return true, nil
-	}
-	return false, nil
+
+	return isValidReportTx, nil
 }
 
 func (fc FeeChecker) getGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
