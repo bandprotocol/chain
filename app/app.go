@@ -998,4 +998,9 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
+
+	if upgradeInfo.Name == "v2_5" {
+		storeUpgrades := storetypes.StoreUpgrades{}
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
 }
