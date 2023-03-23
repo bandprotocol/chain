@@ -3,7 +3,7 @@
 ## [v2.5.1](https://github.com/bandprotocol/chain/releases/tag/v2.5.1)
 
 - (bump) Use cosmos-sdk package v0.45.15 / tendermint v0.34.27
-- (bump) Use go-owasm v0.2.2
+- (bump) Use go-owasm v0.2.3
 - (chain) Support statically linked binary for bandd
 
 ## [v2.5.0](https://github.com/bandprotocol/chain/releases/tag/v2.5.0)
