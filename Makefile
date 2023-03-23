@@ -3,20 +3,38 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
 BINDIR ?= $(GOPATH)/bin
+
 DOCKER := $(shell which docker)
 DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf
 
+export GO111MODULE = on
+
+build_tags = netgo
 ifeq ($(LEDGER_ENABLED),true)
 	build_tags += ledger
 endif
+
+build_tags += $(BUILD_TAGS)
+build_tags := $(strip $(build_tags))
+
+whitespace :=
+empty = $(whitespace) $(whitespace)
+comma := ,
+build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=bandchain \
 	-X github.com/cosmos/cosmos-sdk/version.AppName=bandd \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags)"
+	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
-BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
+ifeq ($(LINK_STATICALLY),true)
+	ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
+endif
+ldflags += $(LDFLAGS)
+ldflags := $(strip $(ldflags))
+
+BUILD_FLAGS := -tags "$(build_tags_comma_sep)" -ldflags '$(ldflags)'
 
 all: install
 
