@@ -1,0 +1,61 @@
+syntax = "proto3";
+package tss.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option (gogoproto.equal_all) = true;
+
+message Point {
+  uint32 parity = 1;
+  uint64 x = 2;
+}
+
+message Signature {
+  Point r = 1;
+  uint64 z = 2;
+}
+
+message Group {
+  uint32 size = 1;
+  uint32 treshold = 2;
+  Point pub_key = 3;
+  uint32 status = 4;
+}
+
+message DE {
+  Point d = 1;
+  Point e = 2;
+}
+
+message DEQueue {
+  uint64 head = 1;
+  uint64 tail = 2;
+}
+
+message Complaint {
+  uint64 i = 1;
+  uint64 j = 2;
+  Point key_sym = 3;
+  Point a1 = 4;
+  Point a2 = 5;
+  uint64 pi = 6;
+}
+
+message Confirmation { Signature sig_on_pub_key_and_context = 1; }
+
+message Signing {
+  uint64 group_id = 1;
+  repeated uint64 assignedParticipants = 2;
+  bytes message = 3;
+  Signature sig = 4;
+}
+
+message Member {
+  string signer = 1;
+  string pubkey  = 2;
+}
+
+
+
+

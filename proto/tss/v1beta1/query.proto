@@ -1,0 +1,4 @@
+syntax = "proto3";
+package tss.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/x/tss/types";

@@ -107,6 +107,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/tss"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -152,6 +155,7 @@ var (
 		vesting.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		tss.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -205,12 +209,14 @@ type BandApp struct {
 	FeegrantKeeper feegrantkeeper.Keeper
 	AuthzKeeper    authzkeeper.Keeper
 	OracleKeeper   oraclekeeper.Keeper
+	TSSKeeper      tsskeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
+	ScopedTSSKeeper      capabilitykeeper.ScopedKeeper
 
 	// Module manager.
 	mm *module.Manager
@@ -262,7 +268,7 @@ func NewBandApp(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		feegrant.StoreKey, authzkeeper.StoreKey, icahosttypes.StoreKey,
-		oracletypes.StoreKey,
+		oracletypes.StoreKey, tsstypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -303,6 +309,7 @@ func NewBandApp(
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	scopedTSSKeeper := app.CapabilityKeeper.ScopeToModule(tsstypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.CapabilityKeeper.Seal()
 
@@ -437,6 +444,9 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
+	app.TSSKeeper = tsskeeper.NewKeeper(appCodec, keys[tsstypes.StoreKey], scopedTSSKeeper)
+	tssModule := tss.NewAppModule(app.TSSKeeper)
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.
@@ -487,6 +497,7 @@ func NewBandApp(
 		transferModule,
 		icaModule,
 		oracleModule,
+		tssModule,
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -498,6 +509,7 @@ func NewBandApp(
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -520,6 +532,7 @@ func NewBandApp(
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
 		icatypes.ModuleName,
@@ -563,6 +576,7 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -622,6 +636,7 @@ func NewBandApp(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedOracleKeeper = scopedOracleKeeper
+	app.ScopedTSSKeeper = scopedTSSKeeper
 
 	return app
 }
