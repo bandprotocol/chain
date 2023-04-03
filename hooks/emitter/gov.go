@@ -3,6 +3,8 @@ package emitter
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 )
@@ -18,7 +20,7 @@ func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, deposit
 	h.Write("SET_DEPOSIT", common.JsDict{
 		"proposal_id": id,
 		"depositor":   depositor,
-		"amount":      deposit.Amount.String(),
+		"amount":      sdk.NewCoins(deposit.Amount...).String(),
 		"tx_hash":     txHash,
 	})
 }
@@ -28,24 +30,24 @@ func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
 	h.Write("UPDATE_PROPOSAL", common.JsDict{
 		"id":              id,
 		"status":          int(proposal.Status),
-		"total_deposit":   proposal.TotalDeposit.String(),
+		"total_deposit":   sdk.NewCoins(proposal.TotalDeposit...).String(),
 		"voting_time":     proposal.VotingStartTime.UnixNano(),
 		"voting_end_time": proposal.VotingEndTime.UnixNano(),
 	})
 }
 
-func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []types.WeightedVoteOption) {
+func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []v1beta1.WeightedVoteOption) {
 	required_options := map[string]string{"yes": "0", "abstain": "0", "no": "0", "no_with_veto": "0"}
 
 	for _, item := range options {
 		switch item.Option {
-		case types.OptionYes:
+		case v1beta1.OptionYes:
 			required_options["yes"] = item.Weight.String()
-		case types.OptionAbstain:
+		case v1beta1.OptionAbstain:
 			required_options["abstain"] = item.Weight.String()
-		case types.OptionNo:
+		case v1beta1.OptionNo:
 			required_options["no"] = item.Weight.String()
-		case types.OptionNoWithVeto:
+		case v1beta1.OptionNoWithVeto:
 			required_options["no_with_veto"] = item.Weight.String()
 		}
 	}
@@ -58,7 +60,7 @@ func (h *Hook) emitSetVoteWeighted(setVoteWeighted common.JsDict, options []type
 
 // handleMsgSubmitProposal implements emitter handler for MsgSubmitProposal.
 func (app *Hook) handleMsgSubmitProposal(
-	ctx sdk.Context, txHash []byte, msg *types.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
 	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
@@ -74,7 +76,7 @@ func (app *Hook) handleMsgSubmitProposal(
 		"status":           int(proposal.Status),
 		"submit_time":      proposal.SubmitTime.UnixNano(),
 		"deposit_end_time": proposal.DepositEndTime.UnixNano(),
-		"total_deposit":    proposal.TotalDeposit.String(),
+		"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
 		"voting_time":      proposal.VotingStartTime.UnixNano(),
 		"voting_end_time":  proposal.VotingEndTime.UnixNano(),
 		"content":          content,
@@ -86,32 +88,32 @@ func (app *Hook) handleMsgSubmitProposal(
 
 // handleMsgDeposit implements emitter handler for MsgDeposit.
 func (h *Hook) handleMsgDeposit(
-	ctx sdk.Context, txHash []byte, msg *types.MsgDeposit, detail common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgDeposit, detail common.JsDict,
 ) {
 	depositor, _ := sdk.AccAddressFromBech32(msg.Depositor)
 	h.emitSetDeposit(ctx, txHash, msg.ProposalId, depositor)
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.GetTitle()
+	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
 }
 
 // handleMsgVote implements emitter handler for MsgVote.
 func (h *Hook) handleMsgVote(
-	ctx sdk.Context, txHash []byte, msg *types.MsgVote, detail common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgVote, detail common.JsDict,
 ) {
 	setVoteWeighted := common.JsDict{
 		"proposal_id": msg.ProposalId,
 		"voter":       msg.Voter,
 		"tx_hash":     txHash,
 	}
-	h.emitSetVoteWeighted(setVoteWeighted, types.NewNonSplitVoteOption(msg.Option))
+	h.emitSetVoteWeighted(setVoteWeighted, v1beta1.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.GetTitle()
+	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
 }
 
 // handleMsgVoteWeighted implements emitter handler for MsgVoteWeighted.
 func (h *Hook) handleMsgVoteWeighted(
-	ctx sdk.Context, txHash []byte, msg *types.MsgVoteWeighted, detail common.JsDict,
+	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgVoteWeighted, detail common.JsDict,
 ) {
 	setVoteWeighted := common.JsDict{
 		"proposal_id": msg.ProposalId,
@@ -120,7 +122,7 @@ func (h *Hook) handleMsgVoteWeighted(
 	}
 	h.emitSetVoteWeighted(setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.GetTitle()
+	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
 }
 
 func (h *Hook) handleEventInactiveProposal(evMap common.EvMap) {
@@ -137,9 +139,9 @@ func (h *Hook) handleEventTypeActiveProposal(ctx sdk.Context, evMap common.EvMap
 		"id":                  id,
 		"status":              int(proposal.Status),
 		"total_bonded_tokens": h.stakingKeeper.TotalBondedTokens(ctx),
-		"yes_vote":            proposal.FinalTallyResult.Yes,
-		"no_vote":             proposal.FinalTallyResult.No,
-		"no_with_veto_vote":   proposal.FinalTallyResult.NoWithVeto,
-		"abstain_vote":        proposal.FinalTallyResult.Abstain,
+		"yes_vote":            proposal.FinalTallyResult.YesCount,
+		"no_vote":             proposal.FinalTallyResult.NoCount,
+		"no_with_veto_vote":   proposal.FinalTallyResult.NoWithVetoCount,
+		"abstain_vote":        proposal.FinalTallyResult.AbstainCount,
 	})
 }

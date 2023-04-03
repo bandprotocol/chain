@@ -9,13 +9,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -87,13 +87,13 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgUnjail(msg, detail)
 	case *transfertypes.MsgTransfer:
 		DecodeMsgTransfer(msg, detail)
-	case *govtypes.MsgSubmitProposal:
+	case *govv1beta1.MsgSubmitProposal:
 		DecodeMsgSubmitProposal(msg, detail)
-	case *govtypes.MsgDeposit:
+	case *govv1beta1.MsgDeposit:
 		DecodeMsgDeposit(msg, detail)
-	case *govtypes.MsgVote:
+	case *govv1beta1.MsgVote:
 		DecodeMsgVote(msg, detail)
-	case *govtypes.MsgVoteWeighted:
+	case *govv1beta1.MsgVoteWeighted:
 		DecodeMsgVoteWeighted(msg, detail)
 	case *stakingtypes.MsgCreateValidator:
 		DecodeMsgCreateValidator(msg, detail)
@@ -121,8 +121,9 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 }
 
 func DecodeGrant(g authz.Grant) common.JsDict {
+	authorization, _ := g.GetAuthorization()
 	return common.JsDict{
-		"authorization": g.GetAuthorization(),
+		"authorization": authorization,
 		"expiration":    g.Expiration,
 	}
 }
@@ -307,25 +308,25 @@ func DecodeMsgCreateClient(msg *clienttypes.MsgCreateClient, detail common.JsDic
 	detail["signer"] = msg.Signer
 }
 
-func DecodeMsgSubmitProposal(msg *govtypes.MsgSubmitProposal, detail common.JsDict) {
+func DecodeMsgSubmitProposal(msg *govv1beta1.MsgSubmitProposal, detail common.JsDict) {
 	detail["content"] = msg.GetContent()
 	detail["initial_deposit"] = msg.GetInitialDeposit()
 	detail["proposer"] = msg.GetProposer()
 }
 
-func DecodeMsgDeposit(msg *govtypes.MsgDeposit, detail common.JsDict) {
+func DecodeMsgDeposit(msg *govv1beta1.MsgDeposit, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["depositor"] = msg.Depositor
 	detail["amount"] = msg.Amount
 }
 
-func DecodeMsgVote(msg *govtypes.MsgVote, detail common.JsDict) {
+func DecodeMsgVote(msg *govv1beta1.MsgVote, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["voter"] = msg.Voter
 	detail["option"] = msg.Option
 }
 
-func DecodeMsgVoteWeighted(msg *govtypes.MsgVoteWeighted, detail common.JsDict) {
+func DecodeMsgVoteWeighted(msg *govv1beta1.MsgVoteWeighted, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["voter"] = msg.Voter
 	detail["options"] = msg.Options

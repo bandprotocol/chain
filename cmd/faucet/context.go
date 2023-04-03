@@ -9,6 +9,6 @@ import (
 type Context struct {
 	client    rpcclient.Client
 	gasPrices sdk.DecCoins
-	keys      chan keyring.Info
+	keys      chan keyring.Record
 	amount    sdk.Coins
 }

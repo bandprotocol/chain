@@ -101,7 +101,7 @@ func (ba *BenchmarkApp) CallEndBlock() abci.ResponseEndBlock {
 }
 
 func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
-	return ba.Deliver(ba.TxEncoder, tx)
+	return ba.SimDeliver(ba.TxEncoder, tx)
 }
 
 func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {

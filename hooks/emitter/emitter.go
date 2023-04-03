@@ -16,13 +16,14 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahostkeeper "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/host/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v3/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v3/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v3/modules/core/04-channel/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v5/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v5/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v5/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -211,7 +212,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 
 	// Gov module
-	var govState govtypes.GenesisState
+	var govState govv1beta1.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[govtypes.ModuleName], &govState)
 	for _, proposal := range govState.Proposals {
 		content := proposal.GetContent()

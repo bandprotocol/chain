@@ -30,9 +30,9 @@ func runCmd(c *Context) *cobra.Command {
 			if len(keys) == 0 {
 				return errors.New("No key available")
 			}
-			c.keys = make(chan keyring.Info, len(keys))
+			c.keys = make(chan keyring.Record, len(keys))
 			for _, key := range keys {
-				c.keys <- key
+				c.keys <- *key
 			}
 			c.gasPrices, err = sdk.ParseDecCoins(cfg.GasPrices)
 			if err != nil {

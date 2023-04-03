@@ -13,14 +13,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v3/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v3/modules/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -43,7 +43,7 @@ var (
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
-	content = govtypes.ContentFromProposalType("Title", "Desc", "Text")
+	content, _ = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
 
 	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
 	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
@@ -115,8 +115,9 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		GranterAddress,
 		GranteeAddress,
 		banktypes.NewSendAuthorization(spendLimit),
-		expiration,
+		&expiration,
 	)
+
 	emitter.DecodeMsgGrant(sendMsg, detail)
 	suite.testCompareJson(
 		detail,
@@ -128,7 +129,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		GranterAddress,
 		GranteeAddress,
 		authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})),
-		expiration,
+		&expiration,
 	)
 	emitter.DecodeMsgGrant(genericMsg, detail)
 	suite.testCompareJson(
@@ -143,7 +144,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE,
 		&Amount,
 	)
-	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, expiration)
+	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, &expiration)
 	emitter.DecodeMsgGrant(stakeMsg, detail)
 	suite.testCompareJson(
 		detail,
@@ -326,7 +327,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 	detail := make(common.JsDict)
-	msg, _ := govtypes.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
+	msg, _ := govv1beta1.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
 	emitter.DecodeMsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -336,7 +337,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govtypes.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
 	emitter.DecodeMsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -346,7 +347,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgVote() {
 	detail := make(common.JsDict)
-	msg := govtypes.NewMsgVote(SenderAddress, 1, 0)
+	msg := govv1beta1.NewMsgVote(SenderAddress, 1, 0)
 	emitter.DecodeMsgVote(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
@@ -560,7 +561,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 		false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenTry(
-		path.EndpointA.ConnectionID,
 		path.EndpointA.ClientID,
 		path.EndpointB.ConnectionID,
 		path.EndpointB.ClientID,
@@ -578,7 +578,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 	emitter.DecodeMsgConnectionOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"connection-0\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -657,7 +657,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenTry() {
 	suite.coordinator.Setup(path)
 	msg := channeltypes.NewMsgChannelOpenTry(
 		path.EndpointA.ChannelConfig.PortID,
-		path.EndpointA.Counterparty.ChannelConfig.PortID,
 		path.EndpointA.ChannelConfig.Version,
 		channeltypes.ORDERED,
 		path.EndpointA.GetChannel().ConnectionHops,
@@ -671,7 +670,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgChannelOpenTry() {
 	emitter.DecodeMsgChannelOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"counterparty_version\":\"bandchain-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"oracle\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"channel\":{\"state\":2,\"ordering\":2,\"counterparty\":{\"port_id\":\"oracle\",\"channel_id\":\"channel-0\"},\"connection_hops\":[\"connection-0\"],\"version\":\"bandchain-1\"},\"counterparty_version\":\"bandchain-1\",\"port_id\":\"oracle\",\"previous_channel_id\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 

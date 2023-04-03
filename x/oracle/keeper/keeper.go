@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	host "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 	"github.com/tendermint/tendermint/libs/log"
 
 	owasm "github.com/bandprotocol/go-owasm/api"
@@ -25,7 +26,7 @@ const (
 )
 
 type Keeper struct {
-	storeKey         sdk.StoreKey
+	storeKey         storetypes.StoreKey
 	cdc              codec.BinaryCodec
 	fileCache        filecache.Cache
 	feeCollectorName string
@@ -45,7 +46,7 @@ type Keeper struct {
 // NewKeeper creates a new oracle Keeper instance.
 func NewKeeper(
 	cdc codec.BinaryCodec,
-	key sdk.StoreKey,
+	key storetypes.StoreKey,
 	ps paramtypes.Subspace,
 	fileDir string,
 	feeCollectorName string,
@@ -211,7 +212,7 @@ func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability
 
 // IsReporter checks if the validator granted to the reporter
 func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) bool {
-	cap, _ := k.authzKeeper.GetCleanAuthorization(
+	cap, _ := k.authzKeeper.GetAuthorization(
 		ctx,
 		reporter,
 		sdk.AccAddress(validator),
@@ -222,8 +223,9 @@ func (k Keeper) IsReporter(ctx sdk.Context, validator sdk.ValAddress, reporter s
 
 // GrantReporter grants the reporter to validator for testing
 func (k Keeper) GrantReporter(ctx sdk.Context, validator sdk.ValAddress, reporter sdk.AccAddress) error {
+	expiration := ctx.BlockTime().Add(10 * time.Minute)
 	return k.authzKeeper.SaveGrant(ctx, reporter, sdk.AccAddress(validator),
-		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})), ctx.BlockTime().Add(10*time.Minute),
+		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})), &expiration,
 	)
 }
 

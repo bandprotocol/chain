@@ -1,6 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- (bump) Use cosmos-sdk package v0.46.11 / tendermint v0.34.27 / ibc-go v5.2.0
+- (chain) Remove disablefeeless flag
+- (chain) Remove old oracle ante
+- (chain) Remove legacy migrate cmd
+- (chain) Use priority based on gas_prices of uband but MsgReport will have the highest priority
+- (chain) Add globalfee module to set the min-gas-price on protocol level (MinimumGasPrice param)
+- (chain) Add group module from cosmos-sdk
+- (chain) Set MinimumGasPrice to 0.0025uband
+- (chain) Update proof to support newly added module
+- (chain) Migrate REST Endpoint to GRPC
+
 ## [v2.4.1](https://github.com/bandprotocol/chain/releases/tag/v2.4.1)
+
 - (bump) Use cosmos-sdk package v0.45.10 / tendermint v0.34.22 / ibc-go v3.3.1
 
 ## [v2.4.0](https://github.com/bandprotocol/chain/releases/tag/v2.4.0)

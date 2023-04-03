@@ -63,8 +63,9 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
 	k.SetRequestCount(ctx, 1)
 	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	expiration := ctx.BlockTime().Add(10 * time.Minute)
 	app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
-		authz.NewGenericAuthorization("some url"), ctx.BlockTime().Add(10*time.Minute),
+		authz.NewGenericAuthorization("some url"), &expiration,
 	)
 	suite.assert.NoError(err)
 }

@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -21,18 +22,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/cosmos-sdk/x/group"
+	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts"
-	icatypes "github.com/cosmos/ibc-go/v3/modules/apps/27-interchain-accounts/types"
-	ibctransfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
-	ibctransafertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v3/modules/core"
-	ibchost "github.com/cosmos/ibc-go/v3/modules/core/24-host"
+	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
+	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
+	ibctransafertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v5/modules/core"
+	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v2/x/globalfee"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -43,15 +50,18 @@ type GenesisState map[string]json.RawMessage
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	cdc := MakeEncodingConfig().Marshaler
+	ModuleBasics.DefaultGenesis(cdc)
 	denom := "uband"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 	distrGenesis := distrtypes.DefaultGenesisState()
 	mintGenesis := minttypes.DefaultGenesisState()
-	govGenesis := govtypes.DefaultGenesisState()
+	govGenesis := govv1beta1.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
+	icaGenesis := icatypes.DefaultGenesis()
+	globalfeeGenesis := globalfeetypes.DefaultGenesisState()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
@@ -69,6 +79,60 @@ func NewDefaultGenesisState() GenesisState {
 	slashingGenesis.Params.DowntimeJailDuration = 60 * 10 * time.Second       // 10 minutes
 	slashingGenesis.Params.SlashFractionDoubleSign = sdk.NewDecWithPrec(5, 2) // 5%
 	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
+
+	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
+		HostEnabled: true,
+		AllowMessages: []string{
+			sdk.MsgTypeURL(&authz.MsgExec{}),
+			sdk.MsgTypeURL(&authz.MsgGrant{}),
+			sdk.MsgTypeURL(&authz.MsgRevoke{}),
+			sdk.MsgTypeURL(&banktypes.MsgSend{}),
+			sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+			sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+			sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+			sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+			sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+			sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
+			sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
+			sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroup{}),
+			sdk.MsgTypeURL(&group.MsgExec{}),
+			sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
+			sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
+			sdk.MsgTypeURL(&group.MsgVote{}),
+			sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+			sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
+			sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
+			sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
+			sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
+			sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
+			sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
+			sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+			sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+			sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+		},
+	}
+
+	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
+		sdk.NewDecCoinFromDec(denom, sdk.NewDecWithPrec(25, 4)),
+	)
+
 	return GenesisState{
 		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
 		genutiltypes.ModuleName:      genutil.AppModuleBasic{}.DefaultGenesis(cdc),
@@ -85,8 +149,10 @@ func NewDefaultGenesisState() GenesisState {
 		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
+		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
-		icatypes.ModuleName:          ica.AppModuleBasic{}.DefaultGenesis(cdc),
+		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		globalfee.ModuleName:         cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

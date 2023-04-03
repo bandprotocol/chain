@@ -79,7 +79,13 @@ func keysAddCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Address: %s\n", info.GetAddress().String())
+
+			address, err := info.GetAddress()
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("Address: %s\n", address.String())
 			return nil
 		},
 	}
@@ -135,7 +141,12 @@ func keysListCmd(c *Context) *cobra.Command {
 				return err
 			}
 			for _, key := range keys {
-				fmt.Printf("%s => %s\n", key.GetName(), key.GetAddress().String())
+				address, err := key.GetAddress()
+				if err != nil {
+					return err
+				}
+
+				fmt.Printf("%s => %s\n", key.Name, address.String())
 			}
 			return nil
 		},
@@ -156,7 +167,13 @@ func keysShowCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(key.GetAddress().String())
+
+			address, err := key.GetAddress()
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(address.String())
 			return nil
 		},
 	}

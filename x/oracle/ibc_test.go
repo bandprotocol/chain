@@ -6,8 +6,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
@@ -90,14 +90,11 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewResultAcknowledgement(
-		types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)),
-	)
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
 
 	raws1 := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -214,23 +211,12 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			testapp.TestDefaultExecuteGas,
 		),
 	}
-	expectedErrs := []string{
-		"got: 520, max: 512: too large calldata",
-		"got: 0: invalid min count",
-		"got: 1, min count: 2: invalid ask count",
-		"got: 135, max: 128: too long client id",
-		"invalid prepare gas: 0: invalid owasm gas",
-		"invalid execute gas: 0: invalid owasm gas",
-		"sum of prepare gas and execute gas (16000000) exceed 8000000: invalid owasm gas",
-		"-1uband: invalid coins",
-	}
 
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	for i, requestPacket := range oracleRequestPackets {
 		packet := suite.sendOracleRequestPacket(path, uint64(i)+1, requestPacket, timeoutHeight)
 
-		ack := channeltypes.NewErrorAcknowledgement(expectedErrs[i])
-		err := path.RelayPacket(packet, ack.Acknowledgement())
+		err := path.RelayPacket(packet)
 		suite.Require().NoError(err) // relay committed
 	}
 }
@@ -253,19 +239,18 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 
 	// Use Carol as a relayer
 	carol := testapp.Carol
-	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000)))
+	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2492500)))
 	suite.chainB.SendMsgs(banktypes.NewMsgSend(
 		suite.chainB.SenderAccount.GetAddress(),
 		carol.Address,
-		carolExpectedBalance,
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000))),
 	))
 	suite.chainB.SenderPrivKey = carol.PrivKey
 	suite.chainB.SenderAccount = suite.chainB.App.AccountKeeper.GetAccount(suite.chainB.GetContext(), carol.Address)
 
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("500000uband is smaller than 1000000uband: insufficient funds")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	carolBalance := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), carol.Address)
@@ -277,7 +262,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	expectedBalance := suite.chainB.App.BankKeeper.GetAllBalances(
 		suite.chainB.GetContext(),
 		suite.chainB.SenderAccount.GetAddress(),
-	)
+	).Sub(sdk.NewCoin("uband", sdk.NewInt(7500)))
 
 	// send request from A to B
 	timeoutHeight := clienttypes.NewHeight(0, 110)
@@ -293,8 +278,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("require: 3000000uband, max: 2000000uband: not enough fee")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBSenderBalances(expectedBalance)
@@ -317,8 +301,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("got: 8000, max: 512: too large calldata")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -338,8 +321,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -360,8 +342,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("got: 17, max: 16: invalid ask count")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	oracleRequestPacket = types.NewOracleRequestPacketData(
@@ -376,8 +357,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 	)
 	packet = suite.sendOracleRequestPacket(path, 2, oracleRequestPacket, timeoutHeight)
 
-	ack = channeltypes.NewErrorAcknowledgement("2 < 3: insufficient available validators")
-	err = path.RelayPacket(packet, ack.Acknowledgement())
+	err = path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -404,8 +384,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	// ConsumeGas panics due to insufficient gas, so ErrAcknowledgement is not created.
-	ack := channeltypes.NewErrorAcknowledgement("")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().Contains(err.Error(), "BASE_OWASM_FEE; gasWanted: 1000000")
 }
 
@@ -431,8 +410,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	// ConsumeGas panics due to insufficient gas, so ErrAcknowledgement is not created.
-	ack := channeltypes.NewErrorAcknowledgement("")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().Contains(err.Error(), "PER_VALIDATOR_REQUEST_FEE; gasWanted: 1000000")
 }
 
@@ -453,8 +431,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("id: 100: oracle script not found")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -475,8 +452,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("OEI action to invoke is not available: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -497,8 +473,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("empty raw requests")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -519,8 +494,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("runtime error while executing the Wasm script: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -548,8 +522,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("too many external data requests: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -570,8 +543,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("out-of-gas while executing the wasm script: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -591,8 +563,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewErrorAcknowledgement("span to write is too small: bad wasm execution")
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 }
 
@@ -613,14 +584,11 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewResultAcknowledgement(
-		types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)),
-	)
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
 
 	raws := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -676,14 +644,11 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
-	ack := channeltypes.NewResultAcknowledgement(
-		types.ModuleCdc.MustMarshalJSON(types.NewOracleRequestPacketAcknowledgement(1)),
-	)
-	err := path.RelayPacket(packet, ack.Acknowledgement())
+	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(5970000))))
 
 	raws1 := []types.RawReport{types.NewRawReport(0, 0, nil), types.NewRawReport(1, 0, []byte("beebd2v1"))}
 	suite.chainB.SendReport(1, raws1, testapp.Validators[0])

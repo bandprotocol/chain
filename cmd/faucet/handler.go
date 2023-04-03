@@ -43,7 +43,14 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	msg := banktypes.NewMsgSend(key.GetAddress(), to, c.amount)
+
+	address, err := key.GetAddress()
+	if err != nil {
+		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	msg := banktypes.NewMsgSend(address, to, c.amount)
 	if err := msg.ValidateBasic(); err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -56,7 +63,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	acc, err := accountRetriever.GetAccount(clientCtx, address)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -73,13 +80,13 @@ func handleRequest(gc *gin.Context, c *Context) {
 		WithKeybase(keybase).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := tx.BuildUnsignedTx(txf, msg)
+	txb, err := txf.BuildUnsignedTx(msg)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = tx.Sign(txf, key.GetName(), txb, true)
+	err = tx.Sign(txf, key.Name, txb, true)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

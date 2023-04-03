@@ -1,0 +1,142 @@
+syntax = "proto3";
+package bandchain.v1.oracle;
+
+option go_package = "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof";
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+import "oracle/v1/oracle.proto";
+
+// Service defines the gRPC querier service.
+service Service {
+  rpc Proof(QueryProofRequest) returns (QueryProofResponse) {
+    option (google.api.http).get = "/bandchain/v1/oracle/proof/{request_id}";
+  }
+
+  rpc MultiProof(QueryMultiProofRequest) returns (QueryMultiProofResponse) {
+    option (google.api.http).get = "/bandchain/v1/oracle/multi_proof";
+  }
+
+  rpc RequestCountProof(QueryRequestCountProofRequest) returns (QueryRequestCountProofResponse) {
+    option (google.api.http).get = "/bandchain/v1/oracle/requests_count_proof";
+  }
+}
+
+message QueryProofRequest {
+    // RequestID is ID of an oracle request
+    uint64 request_id = 1;
+    int64 height = 2;
+}
+
+message QueryProofResponse {
+  int64 height = 1;
+  SingleProofResponse result = 2;
+}
+
+message QueryMultiProofRequest {
+  repeated uint64 request_ids = 1;
+}
+
+message QueryMultiProofResponse {
+  int64 height = 1;
+  MultiProofResponse result = 2;
+}
+
+message QueryRequestCountProofRequest {}
+
+message QueryRequestCountProofResponse {
+  int64 height = 1;
+  CountProofResponse result = 2;
+}
+
+message SingleProofResponse {
+  SingleProof proof = 1;
+  bytes evm_proof_bytes = 2;
+}
+
+message MultiProofResponse {
+  MultiProof proof = 1;
+  bytes evm_proof_bytes = 2;
+}
+
+message CountProofResponse {
+  CountProof proof = 1;
+  bytes evm_proof_bytes = 2;
+}
+
+message SingleProof {
+  uint64 block_height = 1;
+  OracleDataProof oracle_data_proof = 2;
+  BlockRelayProof block_relay_proof = 3;
+}
+
+message MultiProof {
+  uint64 block_height = 1;
+  repeated OracleDataProof oracle_data_multi_proof = 2;
+  BlockRelayProof block_relay_proof = 3;
+}
+
+message CountProof {
+  uint64 block_height = 1;
+  RequestsCountProof count_proof = 2;
+  BlockRelayProof block_relay_proof = 3;
+}
+
+message OracleDataProof {
+  oracle.v1.Result result = 1;
+  uint64 version = 2;
+  repeated IAVLMerklePath merkle_paths = 3;
+}
+
+message IAVLMerklePath {
+  bool is_data_on_right = 1;
+  uint32 subtree_height = 2;
+  uint64 subtree_size = 3;
+  uint64 subtree_version = 4;
+  bytes sibling_hash = 5;
+}
+
+message BlockRelayProof {
+  MultiStoreProof multi_store_proof = 1;
+  BlockHeaderMerkleParts block_header_merkle_parts = 2;
+  CommonEncodedVotePart common_encoded_vote_part = 3;
+  repeated TMSignature signatures = 4;
+}
+
+message MultiStoreProof {
+  bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
+  bytes mint_store_merkle_hash = 2;
+  bytes params_to_slashing_stores_merkle_hash = 3;
+  bytes gov_to_icahost_stores_merkle_hash = 4;
+  bytes auth_to_feegrant_stores_merkle_hash = 5;
+  bytes staking_to_upgrade_stores_merkle_hash = 6;
+}
+
+message BlockHeaderMerkleParts {
+  bytes version_and_chain_id_hash = 1;
+  uint64 height = 2;
+  uint64 time_second = 3;
+  uint32 time_nano_second = 4;
+  bytes last_block_id_and_other = 5;
+  bytes next_validator_hash_and_consensus_hash = 6;
+  bytes last_results_hash = 7;
+  bytes evidence_and_proposer_hash = 8;
+}
+
+message CommonEncodedVotePart {
+  bytes signed_data_prefix = 1;
+  bytes signed_data_suffix = 2;
+}
+
+message TMSignature {
+  bytes r = 1;
+  bytes s = 2;
+  uint32 v = 3;
+  bytes encoded_timestamp = 4;
+}
+
+message RequestsCountProof {
+  uint64 count = 1;
+  uint64 version = 2;
+  repeated IAVLMerklePath merkle_paths = 3;
+}

@@ -6,12 +6,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v3/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -70,13 +71,13 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgWithdrawValidatorCommission(ctx, msg, evMap, detail)
 	case *slashingtypes.MsgUnjail:
 		h.handleMsgUnjail(ctx, msg)
-	case *govtypes.MsgSubmitProposal:
+	case *govv1beta1.MsgSubmitProposal:
 		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, detail)
-	case *govtypes.MsgVote:
+	case *govv1beta1.MsgVote:
 		h.handleMsgVote(ctx, txHash, msg, detail)
-	case *govtypes.MsgVoteWeighted:
+	case *govv1beta1.MsgVoteWeighted:
 		h.handleMsgVoteWeighted(ctx, txHash, msg, detail)
-	case *govtypes.MsgDeposit:
+	case *govv1beta1.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)
