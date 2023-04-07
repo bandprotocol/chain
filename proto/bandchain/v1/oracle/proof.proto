@@ -65,19 +65,25 @@ message QueryRequestCountProofResponse {
 // SingleProofResponse is the data structure for response of single proof
 message SingleProofResponse {
   SingleProof proof = 1 [ (gogoproto.nullable) = false ];
-  bytes evm_proof_bytes = 2;
+  bytes evm_proof_bytes = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // MultiProofResponse is the data structure for response of multi proof
 message MultiProofResponse {
   MultiProof proof = 1 [ (gogoproto.nullable) = false ];
-  bytes evm_proof_bytes = 2;
+  bytes evm_proof_bytes = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // CountProofResponse is the data structure for response of count proof
 message CountProofResponse {
   CountProof proof = 1 [ (gogoproto.nullable) = false ];
-  bytes evm_proof_bytes = 2;
+  bytes evm_proof_bytes = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // SingleProof contains block height, oracle data proof and block relay proof
@@ -114,7 +120,9 @@ message IAVLMerklePath {
   uint32 subtree_height = 2;
   uint64 subtree_size = 3;
   uint64 subtree_version = 4;
-  bytes sibling_hash = 5;
+  bytes sibling_hash = 5 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // BlockRelayProof contains multi store proof, block header merkle parts, common encoded part and signatures
@@ -125,44 +133,123 @@ message BlockRelayProof {
   repeated TMSignature signatures = 4 [ (gogoproto.nullable) = false ];
 }
 
+
 // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
 // compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
-// see more detail in multi_store.go file
+//
+//	                                           ________________[AppHash]_________________
+//	                                          /                                          \
+//	                      _________________[I14]_________________                     __[I15]__
+//	                     /                                        \				 /          \
+//	          _______[I12]______                          _______[I13]________    [G]         [H]
+//	         /                  \                        /                    \
+//	    __[I8]__             __[I9]__                __[I10]__              __[I11]__
+//	   /         \          /         \            /          \            /         \
+//	 [I0]       [I1]     [I2]        [I3]        [I4]        [I5]        [I6]       [I7]
+//	/   \      /   \    /    \      /    \      /    \      /    \      /    \     /    \
+//
+// [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
+// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
+// [6] - evidence   [7] - feegrant [8] - gov      [9] - ibccore    [A] - icahost  [B] - mint
+// [C] - oracle     [D] - params   [E] - slashing [F] - staking    [G] - transfer [H] - upgrade
+// Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
+// root hash, since we only want to validate the correctness of [C] In fact, only
+// [D], [I7], [I10], [I12], and [I15] are needed in order to compute [AppHash].
 message MultiStoreProof {
-  bytes oracle_iavl_state_hash = 1 [ (gogoproto.customname) = "OracleIAVLStateHash" ];
-  bytes params_store_merkle_hash = 2;
-  bytes slashing_to_staking_stores_merkle_hash = 3;
-  bytes gov_to_mint_stores_merkle_hash = 4;
-  bytes auth_to_feegrant_stores_merkle_hash = 5;
-  bytes transfer_to_upgrade_stores_merkle_hash = 6;
+  bytes oracle_iavl_state_hash = 1 [ 
+    (gogoproto.customname) = "OracleIAVLStateHash",
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+    ];
+  bytes params_store_merkle_hash = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes slashing_to_staking_stores_merkle_hash = 3 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes gov_to_mint_stores_merkle_hash = 4 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes auth_to_feegrant_stores_merkle_hash = 5 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes transfer_to_upgrade_stores_merkle_hash = 6 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // BlockHeaderMerkleParts stores a group of hashes using for computing Tendermint's block
 // header hash from app hash, and height.
-// see more detail in block_header_merkle_parts.go file
+//
+// In Tendermint, a block header hash is the Merkle hash of a binary tree with 14 leaf nodes.
+// Each node encodes a data piece of the blockchain. The notable data leaves are: [A] app_hash,
+// [2] height. All data pieces are combined into one 32-byte hash to be signed
+// by block validators. The structure of the Merkle tree is shown below.
+//
+//	                                 [BlockHeader]
+//	                              /                \
+//	                 [3A]                                    [3B]
+//	               /      \                                /      \
+//	       [2A]                [2B]                [2C]                [2D]
+//	      /    \              /    \              /    \              /    \
+//	  [1A]      [1B]      [1C]      [1D]      [1E]      [1F]        [C]    [D]
+//	  /  \      /  \      /  \      /  \      /  \      /  \
+//	[0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]  [8]  [9]  [A]  [B]
+//
+//	[0] - version               [1] - chain_id            [2] - height        [3] - time
+//	[4] - last_block_id         [5] - last_commit_hash    [6] - data_hash     [7] - validators_hash
+//	[8] - next_validators_hash  [9] - consensus_hash      [A] - app_hash      [B] - last_results_hash
+//	[C] - evidence_hash         [D] - proposer_address
+//
+// Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
+// root hash, since we only want to validate the correctness of [2], [3], and [A]. In fact, only
+// [1A], [2B], [1E], [B], and [2D] are needed in order to compute [BlockHeader].
 message BlockHeaderMerkleParts {
-  bytes version_and_chain_id_hash = 1;
+  bytes version_and_chain_id_hash = 1 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
   uint64 height = 2;
   uint64 time_second = 3;
   uint32 time_nano_second = 4;
-  bytes last_block_id_and_other = 5;
-  bytes next_validator_hash_and_consensus_hash = 6;
-  bytes last_results_hash = 7;
-  bytes evidence_and_proposer_hash = 8;
+  bytes last_block_id_and_other = 5 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes next_validator_hash_and_consensus_hash = 6 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes last_results_hash = 7 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes evidence_and_proposer_hash = 8 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // CommonEncodedVotePart represents the common part of encoded vote
 message CommonEncodedVotePart {
-  bytes signed_data_prefix = 1;
-  bytes signed_data_suffix = 2;
+  bytes signed_data_prefix = 1 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes signed_data_suffix = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
-// TMSignature represents the tendermint singature
+// TMSignature contains all details of validator signature for performing signer recovery for ECDSA
+// secp256k1 signature. Note that this struct is written specifically for signature signed on
+// Tendermint's precommit data, which includes the block hash and some additional information prepended
+// and appended to the block hash. The prepended part (prefix) and the appended part (suffix) are
+// different for each signer (including signature size, machine clock, validator index, etc).
 message TMSignature {
-  bytes r = 1;
-  bytes s = 2;
+  bytes r = 1 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
+  bytes s = 2 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
   uint32 v = 3;
-  bytes encoded_timestamp = 4;
+  bytes encoded_timestamp = 4 [
+    (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
+  ];
 }
 
 // RequestsCountProof contains count, version and merkle paths

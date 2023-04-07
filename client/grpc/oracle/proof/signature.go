@@ -13,12 +13,6 @@ import (
 	"github.com/tendermint/tendermint/types"
 )
 
-// TMSignature contains all details of validator signature for performing signer recovery for ECDSA
-// secp256k1 signature. Note that this struct is written specifically for signature signed on
-// Tendermint's precommit data, which includes the block hash and some additional information prepended
-// and appended to the block hash. The prepended part (prefix) and the appended part (suffix) are
-// different for each signer (including signature size, machine clock, validator index, etc).
-
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.
 type TMSignatureEthereum struct {
 	R                common.Hash
