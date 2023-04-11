@@ -4,7 +4,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 )
 
-const DefaultMultiplier = uint64(100000000)
+const DefaultMultiplier = uint64(1000000000)
 
 type CommonOutput struct {
 	Symbols    []string
@@ -27,72 +27,72 @@ type Input struct {
 }
 
 type Output struct {
-	Responses []Responses
+	Responses []Response
 }
 
-type Responses struct {
+type Response struct {
 	Symbol       string
 	ResponseCode uint8
 	Rate         uint64
 }
 
 func MustDecodeResult(calldata, result []byte) CommonOutput {
-	var symbols []string
-	var rates []uint64
-
-	responses, err := DecodeResult(result)
+	commonOutput, err := DecodeResult(result)
 	if err == nil {
-		for _, r := range responses {
-			if r.ResponseCode != 0 {
-				continue
-			}
-
-			symbols = append(symbols, r.Symbol)
-			rates = append(rates, r.Rate)
-		}
-
-		return CommonOutput{
-			Symbols:    symbols,
-			Rates:      rates,
-			Multiplier: DefaultMultiplier,
-		}
+		return commonOutput
 	}
 
-	legacyInput, legacyOutput, err := DecodeLegacyResult(calldata, result)
+	commonOutput, err = DecodeLegacyResult(calldata, result)
 	if err != nil {
 		panic(err)
 	}
 
-	return CommonOutput{
-		Symbols:    legacyInput.Symbols,
-		Rates:      legacyOutput.Rates,
-		Multiplier: legacyInput.Multiplier,
-	}
+	return commonOutput
 }
 
-func DecodeLegacyResult(calldata, result []byte) (LegacyInput, LegacyOutput, error) {
+func DecodeLegacyResult(calldata, result []byte) (CommonOutput, error) {
 	var legacyInput LegacyInput
 	var legacyOutput LegacyOutput
 
 	err := obi.Decode(calldata, &legacyInput)
 	if err != nil {
-		return LegacyInput{}, LegacyOutput{}, err
+		return CommonOutput{}, err
 	}
 
 	err = obi.Decode(result, &legacyOutput)
 	if err != nil {
-		return LegacyInput{}, LegacyOutput{}, err
+		return CommonOutput{}, err
 	}
 
-	return legacyInput, legacyOutput, nil
+	return CommonOutput{
+		Symbols:    legacyInput.Symbols,
+		Rates:      legacyOutput.Rates,
+		Multiplier: DefaultMultiplier,
+	}, nil
 }
 
-func DecodeResult(result []byte) ([]Responses, error) {
+func DecodeResult(result []byte) (CommonOutput, error) {
 	var out Output
-	err := obi.Decode(result, &out)
+	var symbols []string
+	var rates []uint64
 
+	err := obi.Decode(result, &out)
 	if err != nil {
-		return nil, err
+		return CommonOutput{}, err
 	}
-	return out.Responses, nil
+
+	for _, r := range out.Responses {
+		if r.ResponseCode != 0 {
+			continue
+		}
+
+		symbols = append(symbols, r.Symbol)
+		rates = append(rates, r.Rate)
+	}
+
+	return CommonOutput{
+		Symbols:    symbols,
+		Rates:      rates,
+		Multiplier: DefaultMultiplier,
+	}, nil
 }
