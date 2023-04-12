@@ -922,10 +922,26 @@ func (app *BandApp) setupUpgradeHandlers() {
 	)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_5",
+		func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			ctx.Logger().Info("Starting module migrations...")
+
+			vm, err := app.mm.RunMigrations(ctx, app.configurator, vm)
+			if err != nil {
+				return vm, err
+			}
+
+			ctx.Logger().Info("Upgrade complete")
+			return vm, err
+		},
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
 		"v2_6",
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			hostParams := icahosttypes.Params{
 				HostEnabled: true,
+				// Specifying the whole list instead of adding and removing. Less fragile.
 				AllowMessages: []string{
 					sdk.MsgTypeURL(&authz.MsgExec{}),
 					sdk.MsgTypeURL(&authz.MsgGrant{}),
@@ -942,6 +958,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+					// Change: add messages from Group module
 					sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroup{}),
@@ -956,6 +973,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
 					sdk.MsgTypeURL(&group.MsgVote{}),
 					sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+					// Change: add messages from Oracle module
 					sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
@@ -963,6 +981,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
 					sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
 					sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
+
 					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
@@ -1005,6 +1024,11 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 			Added: []string{icahosttypes.StoreKey},
 		}
 
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
+	if upgradeInfo.Name == "v2_5" {
+		storeUpgrades := storetypes.StoreUpgrades{}
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 
