@@ -61,6 +61,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
+	require.NoError(t, err)
 	require.Equal(t, expectRequest, request)
 
 	reportMsg1 := types.NewMsgReportData(
@@ -170,6 +171,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
+	require.NoError(t, err)
 	require.Equal(t, expectRequest, request)
 
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))

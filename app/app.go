@@ -922,6 +922,21 @@ func (app *BandApp) setupUpgradeHandlers() {
 	)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_5",
+		func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			ctx.Logger().Info("Starting module migrations...")
+
+			vm, err := app.mm.RunMigrations(ctx, app.configurator, vm)
+			if err != nil {
+				return vm, err
+			}
+
+			ctx.Logger().Info("Upgrade complete")
+			return vm, err
+		},
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
 		"v2_6",
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			hostParams := icahosttypes.Params{
@@ -1009,6 +1024,11 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 			Added: []string{icahosttypes.StoreKey},
 		}
 
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
+	if upgradeInfo.Name == "v2_5" {
+		storeUpgrades := storetypes.StoreUpgrades{}
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 
