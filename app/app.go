@@ -926,6 +926,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			hostParams := icahosttypes.Params{
 				HostEnabled: true,
+				// Specifying the whole list instead of adding and removing. Less fragile.
 				AllowMessages: []string{
 					sdk.MsgTypeURL(&authz.MsgExec{}),
 					sdk.MsgTypeURL(&authz.MsgGrant{}),
@@ -942,6 +943,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+					// Change: add messages from Group module
 					sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroup{}),
@@ -956,6 +958,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
 					sdk.MsgTypeURL(&group.MsgVote{}),
 					sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+					// Change: add messages from Oracle module
 					sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
@@ -963,6 +966,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
 					sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
 					sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
+
 					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
