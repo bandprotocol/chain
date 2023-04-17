@@ -6,7 +6,6 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func parseBytes(b []byte) []byte {
@@ -106,12 +105,12 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, gasUsedI interface{}, reason string) {
+func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasUsed interface{}, reason string) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
 		"id":               id,
-		"execute_gas_used": gasUsedI,
+		"execute_gas_used": executeGasUsed,
 		"request_time":     result.RequestTime,
 		"resolve_time":     result.ResolveTime,
 		"resolve_status":   result.ResolveStatus,
@@ -125,9 +124,9 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, gasUsedI in
 func (h *Hook) handleMsgRequestData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRequestData, evMap common.EvMap, detail common.JsDict,
 ) {
-	var prepareGasUsedI interface{}
-	if prepareGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
-		prepareGasUsedI = oraclekeeper.ConvertToGas(common.Atoui(prepareGasUsed[0]))
+	var prepareGasUsed interface{}
+	if requestEventGasUsed, ok := evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed]; ok {
+		prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(requestEventGasUsed[0]))
 	}
 
 	id := types.RequestID(common.Atoi(evMap[types.EventTypeRequest+"."+types.AttributeKeyID][0]))
@@ -145,7 +144,7 @@ func (h *Hook) handleMsgRequestData(
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
 		"prepare_gas":      msg.PrepareGas,
-		"prepare_gas_used": prepareGasUsedI,
+		"prepare_gas_used": prepareGasUsed,
 		"execute_gas":      msg.ExecuteGas,
 		"execute_gas_used": nil,
 		"fee_limit":        msg.FeeLimit.String(),
@@ -220,20 +219,20 @@ func (h *Hook) handleMsgEditOracleScript(
 
 // handleEventRequestExecute implements emitter handler for EventRequestExecute.
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
-	var gasUsedI interface{}
-	if gasUsedMap, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
-		gasUsedI = oraclekeeper.ConvertToGas(common.Atoui(gasUsedMap[0]))
+	var executeGasUsed interface{}
+	if resolveEventGasUsed, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
+		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(resolveEventGasUsed[0]))
 	}
 
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
 		h.emitUpdateResult(
 			ctx,
 			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
-			gasUsedI,
+			executeGasUsed,
 			reasons[0],
 		)
 	} else {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), gasUsedI, "")
+		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), executeGasUsed, "")
 	}
 }
 
