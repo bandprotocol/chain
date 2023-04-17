@@ -73,7 +73,7 @@ class Handler(object):
         self.conn.execute(blocks.insert(), msg)
 
     def handle_new_transaction(self, msg):
-        msg["fee_payer"] = msg["fee_payer"] if len(msg["fee_payer"]) else None
+        msg["fee_payer"] = msg["fee_payer"] if "fee_payer" in msg and len(msg["fee_payer"]) else None
         self.conn.execute(
             insert(transactions).values(**msg).on_conflict_do_update(constraint="transactions_pkey", set_=msg)
         )
@@ -392,6 +392,9 @@ class Handler(object):
             )
 
     def handle_new_incoming_packet(self, msg):
+        self.update_last_update_channel(msg['dst_port'], msg['dst_channel'], msg['block_time'])
+        del msg["block_time"]
+
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
         self.conn.execute(
@@ -399,13 +402,20 @@ class Handler(object):
         )
 
     def handle_new_outgoing_packet(self, msg):
+        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        del msg["block_time"]
+
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
+
         self.conn.execute(
             insert(outgoing_packets).values(**msg).on_conflict_do_nothing(constraint="outgoing_packets_pkey")
         )
 
     def handle_update_outgoing_packet(self, msg):
+        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        del msg["block_time"]
+
         condition = True
         for col in outgoing_packets.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
@@ -439,3 +449,10 @@ class Handler(object):
 
     def handle_set_channel(self, msg):
         self.conn.execute(insert(channels).values(**msg).on_conflict_do_update(constraint="channels_pkey", set_=msg))
+
+    def update_last_update_channel(self, port, channel, timestamp):
+        self.conn.execute(
+            channels.update().where((channels.c.port == port) & (channels.c.channel == channel)).values(
+                last_update=timestamp
+            )
+        )

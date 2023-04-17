@@ -460,4 +460,5 @@ channels = sa.Table(
     Column("counterparty_channel", sa.String),
     Column("state", sa.Integer),
     Column("order", sa.String),
+    Column("last_update", CustomDateTime, index=True),
 )

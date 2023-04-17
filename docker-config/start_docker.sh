@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source ~/.profile
+# docker rm --force $(docker ps -a -q)
+
 DIR=`dirname "$0"`
 
 # remove old genesis
@@ -57,7 +60,7 @@ bandd gentx validator1 100000000uband \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A/V/OZek6B2PMh6XEJJ+IsLm0w+22PdJqeSgevs7O3kJ"}' \
     --details "Alice's Adventures in Wonderland (commonly shortened to Alice in Wonderland) is an 1865 novel written by English author Charles Lutwidge Dodgson under the pseudonym Lewis Carroll." \
     --website "https://www.alice.org/" \
-    --ip 172.18.0.11 \
+    --ip multi-validator1-node \
     --keyring-backend test
 
 # modify moniker
@@ -69,7 +72,7 @@ bandd gentx validator2 100000000uband \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AnJK4pz+t0lwUdCe39joIjUsTINht1dkdkW3jIzHTOiF"}' \
     --details "Fish is best known for his appearances with Ring of Honor (ROH) from 2013 to 2017, where he wrestled as one-half of the tag team reDRagon and held the ROH World Tag Team Championship three times and the ROH World Television Championship once." \
     --website "https://www.wwe.com/superstars/bobby-fish" \
-    --ip 172.18.0.12 \
+    --ip multi-validator2-node \
     --keyring-backend test
 
 # modify moniker
@@ -81,7 +84,7 @@ bandd gentx validator3 100000000uband \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A6VP+qhMjy95h4Lei5YqhHhOKISHp0eBOghXJDpg4roz"}' \
     --details "Carol Susan Jane Danvers is a fictional superhero appearing in American comic books published by Marvel Comics. Created by writer Roy Thomas and artist Gene Colan." \
     --website "https://www.marvel.com/characters/captain-marvel-carol-danvers" \
-    --ip 172.18.0.13 \
+    --ip multi-validator3-node \
     --keyring-backend test
 
 # modify moniker
@@ -93,7 +96,7 @@ bandd gentx validator4 100000000uband \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A9A3CPFh0Vg/SeQmCkKysI07oYbXgDojzDrNEvB02ddv"}' \
     --details "Evil is an American supernatural drama television series created by Robert King and Michelle King that premiered on September 26, 2019, on CBS. The series is produced by CBS Television Studios and King Size Productions." \
     --website "https://www.imdb.com/title/tt9055008/" \
-    --ip 172.18.0.14 \
+    --ip multi-validator4-node \
     --keyring-backend test
 
 # remove temp test
@@ -106,6 +109,7 @@ bandd collect-gentxs
 cp ~/.band/config/genesis.json $DIR/genesis.json
 sed -i -e 's/\"allow_messages\":.*/\"allow_messages\": [\"\/cosmos.authz.v1beta1.MsgExec\", \"\/cosmos.authz.v1beta1.MsgGrant\", \"\/cosmos.authz.v1beta1.MsgRevoke\", \"\/cosmos.bank.v1beta1.MsgSend\", \"\/cosmos.bank.v1beta1.MsgMultiSend\", \"\/cosmos.distribution.v1beta1.MsgSetWithdrawAddress\", \"\/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission\", \"\/cosmos.distribution.v1beta1.MsgFundCommunityPool\", \"\/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward\", \"\/cosmos.feegrant.v1beta1.MsgGrantAllowance\", \"\/cosmos.feegrant.v1beta1.MsgRevokeAllowance\", \"\/cosmos.gov.v1beta1.MsgVoteWeighted\", \"\/cosmos.gov.v1beta1.MsgSubmitProposal\", \"\/cosmos.gov.v1beta1.MsgDeposit\", \"\/cosmos.gov.v1beta1.MsgVote\", \"\/cosmos.staking.v1beta1.MsgEditValidator\", \"\/cosmos.staking.v1beta1.MsgDelegate\", \"\/cosmos.staking.v1beta1.MsgUndelegate\", \"\/cosmos.staking.v1beta1.MsgBeginRedelegate\", \"\/cosmos.staking.v1beta1.MsgCreateValidator\", \"\/cosmos.vesting.v1beta1.MsgCreateVestingAccount\", \"\/ibc.applications.transfer.v1.MsgTransfer\"]/g' $DIR/genesis.json
 
+# Build
 docker-compose up -d --build
 
 sleep 10
@@ -114,8 +118,7 @@ for v in {1..4}
 do
     rm -rf ~/.yoda
     yoda config chain-id bandchain
-    yoda config node tcp://172.18.0.1$v:26657
-    yoda config chain-rest-server http://172.18.0.20:1317
+    yoda config node tcp://multi-validator$v-node:26657
     yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
@@ -151,7 +154,7 @@ done
 # Create faucet container
 rm -rf ~/.faucet
 faucet config chain-id bandchain
-faucet config node tcp://172.18.0.15:26657
+faucet config node tcp://query-node:26657
 faucet config port 5005
 for i in $(eval echo {1..5})
 do
@@ -165,6 +168,6 @@ do
     sleep 2
 done
 
-docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 --ip 172.18.0.17 band-validator:latest faucet r
+docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
 docker cp ~/.faucet bandchain_faucet:/root/.faucet
 docker start bandchain_faucet
