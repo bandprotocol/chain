@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -15,19 +14,15 @@ import (
 type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
-
-	scopeKeeper capabilitykeeper.ScopedKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	scopeKeeper capabilitykeeper.ScopedKeeper,
 ) Keeper {
 	return Keeper{
-		cdc:         cdc,
-		storeKey:    storeKey,
-		scopeKeeper: scopeKeeper,
+		cdc:      cdc,
+		storeKey: storeKey,
 	}
 }
 

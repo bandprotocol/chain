@@ -216,7 +216,6 @@ type BandApp struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
-	ScopedTSSKeeper      capabilitykeeper.ScopedKeeper
 
 	// Module manager.
 	mm *module.Manager
@@ -309,7 +308,6 @@ func NewBandApp(
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
-	scopedTSSKeeper := app.CapabilityKeeper.ScopeToModule(tsstypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	app.CapabilityKeeper.Seal()
 
@@ -444,7 +442,7 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.TSSKeeper = tsskeeper.NewKeeper(appCodec, keys[tsstypes.StoreKey], scopedTSSKeeper)
+	app.TSSKeeper = tsskeeper.NewKeeper(appCodec, keys[tsstypes.StoreKey])
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -636,7 +634,6 @@ func NewBandApp(
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
 	app.ScopedOracleKeeper = scopedOracleKeeper
-	app.ScopedTSSKeeper = scopedTSSKeeper
 
 	return app
 }

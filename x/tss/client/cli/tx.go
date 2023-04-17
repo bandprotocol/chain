@@ -7,7 +7,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// NewTxCmd returns a root CLI command handler for all x/crisis transaction commands.
+// NewTxCmd returns a root CLI command handler for all x/tss transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
