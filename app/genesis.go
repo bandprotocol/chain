@@ -38,6 +38,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/tss"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -122,5 +124,6 @@ func NewDefaultGenesisState() GenesisState {
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

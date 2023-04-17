@@ -18,9 +18,9 @@ message Signature {
 
 message Group {
   uint32 size = 1;
-  uint32 treshold = 2;
+  uint32 threshold = 2;
   Point pub_key = 3;
-  uint32 status = 4;
+  GroupStatus status = 4;
 }
 
 message DE {
@@ -45,7 +45,7 @@ message Complaint {
 message Confirmation { Signature sig_on_pub_key_and_context = 1; }
 
 message Signing {
-  uint64 group_id = 1;
+  uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
   repeated uint64 assignedParticipants = 2;
   bytes message = 3;
   Signature sig = 4;
@@ -53,9 +53,20 @@ message Signing {
 
 message Member {
   string signer = 1;
-  string pubkey  = 2;
+  string pub_key = 2;
 }
 
+enum GroupStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
 
-
-
+  ROUND_1 = 0
+      [ (gogoproto.enumvalue_customname) = "ROUND_1" ];
+  ROUND_2 = 1
+      [ (gogoproto.enumvalue_customname) = "ROUND_2" ];
+  PENDING = 2
+      [ (gogoproto.enumvalue_customname) = "PENDING" ];
+  ACTIVE = 3
+      [ (gogoproto.enumvalue_customname) = "ACTIVE" ];
+  FALLEN = 4
+      [ (gogoproto.enumvalue_customname) = "FALLEN" ];
+}

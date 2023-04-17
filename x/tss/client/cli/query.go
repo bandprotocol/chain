@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -17,7 +20,78 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand()
+	cmd.AddCommand(QueryGroupCmd())
+	cmd.AddCommand(QueryMembersCmd())
+
+	return cmd
+}
+
+// QueryGroupCmd creates a CLI command for Query/Group.
+func QueryGroupCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "group [id]",
+		Short: "Query group by group id",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Group(cmd.Context(), &types.QueryGroupRequest{
+				GroupID: uint32(groupID),
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// QueryMembersCmd creates a CLI command for Query/Members.
+func QueryMembersCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "members [group-id]",
+		Short: "Query members by group id",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
+				GroupID: uint32(groupID),
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

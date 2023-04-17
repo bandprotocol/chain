@@ -1,0 +1,8 @@
+syntax = "proto3";
+package oracle.v1;
+
+option go_package = "github.com/bandprotocol/chain/x/tss/types";
+
+// GenesisState defines the tss module's genesis state.
+message GenesisState {
+}

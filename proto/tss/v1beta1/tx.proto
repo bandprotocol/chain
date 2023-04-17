@@ -1,9 +1,24 @@
 syntax = "proto3";
 package tss.v1beta1;
 
-import "gogoproto/gogo.proto";
-
 option go_package = "github.com/bandprotocol/chain/x/tss/types";
-option (gogoproto.equal_all) = true;
 
+// Msg defines the tss Msg service.
+service Msg {
+  // CreateGroup creates a new group with a list of members.
+  rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
+}
 
+// CreateGroup is the Msg/CreateGroup request type.
+message MsgCreateGroup {
+  // members is a list of members in this group
+  repeated string members = 1;
+  // threshold is a minimum number of signers required to produce a group
+  // signature.
+  uint32 threshold = 2;
+  // Sender is an account address of message sender.
+  string sender = 3;
+}
+
+// MsgCreateGroupResponse is the Msg/CreateGroup response type.
+message MsgCreateGroupResponse {}

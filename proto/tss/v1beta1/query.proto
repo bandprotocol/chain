@@ -1,4 +1,39 @@
 syntax = "proto3";
 package tss.v1beta1;
 
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "tss/v1beta1/tss.proto";
+
 option go_package = "github.com/bandprotocol/chain/x/tss/types";
+
+service Query {
+  rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
+    option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
+  }
+  rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
+    option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Group RPC method
+message QueryGroupRequest {
+    // group_id defines the unique id of the group.
+    uint32 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
+}
+
+// QueryParamsResponse is the response type for the Query/Group RPC method
+message QueryGroupResponse {
+    Group group = 1;
+}
+
+// QueryMembersRequest is the request type for the Query/Members RPC method
+message QueryMembersRequest {
+    // group_id defines the unique id of the group.
+    uint32 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
+}
+
+// QueryMembersResponse is the response type for the Query/Members RPC method
+message QueryMembersResponse {
+   repeated Member members = 1 [ (gogoproto.nullable) = false ];
+}
