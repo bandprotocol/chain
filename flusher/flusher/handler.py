@@ -73,7 +73,7 @@ class Handler(object):
         self.conn.execute(blocks.insert(), msg)
 
     def handle_new_transaction(self, msg):
-        msg["fee_payer"] = msg["fee_payer"] if len(msg["fee_payer"]) else None
+        msg["fee_payer"] = msg["fee_payer"] if "fee_payer" in msg and len(msg["fee_payer"]) else None
         self.conn.execute(
             insert(transactions).values(**msg).on_conflict_do_update(constraint="transactions_pkey", set_=msg)
         )
