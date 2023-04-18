@@ -81,6 +81,7 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 		"src_channel": msg.Packet.SourceChannel,
 		"src_port":    msg.Packet.SourcePort,
 		"sequence":    msg.Packet.Sequence,
+		"block_time":  ctx.BlockTime().UnixNano(),
 	}
 	var data ibcxfertypes.FungibleTokenPacketData
 	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
