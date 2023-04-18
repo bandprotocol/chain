@@ -78,7 +78,6 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icacontrollertypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
@@ -104,13 +103,17 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	"github.com/bandprotocol/chain/v2/app/keepers"
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_4"
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_5"
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
-	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -174,6 +177,8 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
+
+	Upgrades = []upgrades.Upgrade{v2_4.Upgrade, v2_5.Upgrade, v2_6.Upgrade}
 )
 
 var (
@@ -184,6 +189,8 @@ var (
 // BandApp is the application of BandChain, extended base ABCI application.
 type BandApp struct {
 	*baseapp.BaseApp
+	keepers.AppKeepers
+
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
@@ -194,34 +201,6 @@ type BandApp struct {
 	keys    map[string]*storetypes.KVStoreKey
 	tkeys   map[string]*storetypes.TransientStoreKey
 	memKeys map[string]*storetypes.MemoryStoreKey
-
-	// keepers
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bandbankkeeper.WrappedBankKeeper
-	CapabilityKeeper *capabilitykeeper.Keeper
-	StakingKeeper    stakingkeeper.Keeper
-	SlashingKeeper   slashingkeeper.Keeper
-	MintKeeper       mintkeeper.Keeper
-	DistrKeeper      distrkeeper.Keeper
-	GovKeeper        govkeeper.Keeper
-	CrisisKeeper     crisiskeeper.Keeper
-	UpgradeKeeper    upgradekeeper.Keeper
-	ParamsKeeper     paramskeeper.Keeper
-	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	IBCKeeper      *ibckeeper.Keeper
-	ICAHostKeeper  icahostkeeper.Keeper
-	EvidenceKeeper evidencekeeper.Keeper
-	TransferKeeper ibctransferkeeper.Keeper
-	FeegrantKeeper feegrantkeeper.Keeper
-	AuthzKeeper    authzkeeper.Keeper
-	GroupKeeper    groupkeeper.Keeper
-	OracleKeeper   oraclekeeper.Keeper
-
-	// make scoped keepers public for test purposes
-	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
-	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
-	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
 
 	// Module manager.
 	mm *module.Manager
@@ -754,8 +733,6 @@ func (app *BandApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 }
 
 // GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
@@ -846,166 +823,17 @@ func initParamsKeeper(
 }
 
 func (app *BandApp) setupUpgradeHandlers() {
-	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2_4",
-		func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
-			// hardcode version of all modules of v2.3.x
-			fromVM := map[string]uint64{
-				"auth":         2,
-				"authz":        1,
-				"bank":         2,
-				"capability":   1,
-				"crisis":       1,
-				"distribution": 2,
-				"evidence":     1,
-				"feegrant":     1,
-				"genutil":      1,
-				"gov":          2,
-				"ibc":          2,
-				"mint":         1,
-				"oracle":       1,
-				"params":       1,
-				"slashing":     2,
-				"staking":      2,
-				"transfer":     1,
-				"upgrade":      1,
-				"vesting":      1,
-			}
-
-			// set version of ica so that it won't run initgenesis again
-			fromVM["interchainaccounts"] = 1
-
-			// prepare ICS27 controller and host params
-			controllerParams := icacontrollertypes.Params{}
-			hostParams := icahosttypes.Params{
-				HostEnabled: true,
-				AllowMessages: []string{
-					sdk.MsgTypeURL(&authz.MsgExec{}),
-					sdk.MsgTypeURL(&authz.MsgGrant{}),
-					sdk.MsgTypeURL(&authz.MsgRevoke{}),
-					sdk.MsgTypeURL(&banktypes.MsgSend{}),
-					sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
-					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
-					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
-					sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
-					sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
-					sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-				},
-			}
-
-			// Oracle DefaultParams only upgrade BaseRequestGas to 50000
-			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
-
-			consensusParam := app.GetConsensusParams(ctx)
-			consensusParam.Block.MaxGas = 50_000_000
-			app.StoreConsensusParams(ctx, consensusParam)
-
-			// initialize ICS27 module
-			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
-			icaModule.InitModule(ctx, controllerParams, hostParams)
-
-			// run migration
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
-
-	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2_5",
-		func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-			ctx.Logger().Info("Starting module migrations...")
-
-			vm, err := app.mm.RunMigrations(ctx, app.configurator, vm)
-			if err != nil {
-				return vm, err
-			}
-
-			ctx.Logger().Info("Upgrade complete")
-			return vm, err
-		},
-	)
-
-	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2_6",
-		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			hostParams := icahosttypes.Params{
-				HostEnabled: true,
-				// Specifying the whole list instead of adding and removing. Less fragile.
-				AllowMessages: []string{
-					sdk.MsgTypeURL(&authz.MsgExec{}),
-					sdk.MsgTypeURL(&authz.MsgGrant{}),
-					sdk.MsgTypeURL(&authz.MsgRevoke{}),
-					sdk.MsgTypeURL(&banktypes.MsgSend{}),
-					sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
-					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
-					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
-					sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
-					sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-					// Change: add messages from Group module
-					sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
-					sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
-					sdk.MsgTypeURL(&group.MsgCreateGroup{}),
-					sdk.MsgTypeURL(&group.MsgExec{}),
-					sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
-					sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
-					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
-					sdk.MsgTypeURL(&group.MsgVote{}),
-					sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
-					// Change: add messages from Oracle module
-					sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
-					sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
-					sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
-					sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
-					sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
-					sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
-					sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
-
-					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
-					sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-				},
-			}
-			app.ICAHostKeeper.SetParams(ctx, hostParams)
-
-			minGasPriceGenesisState := &globalfeetypes.GenesisState{
-				Params: globalfeetypes.Params{
-					MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdk.NewDecWithPrec(25, 4))},
-				},
-			}
-			app.GetSubspace(globalfee.ModuleName).SetParamSet(ctx, &minGasPriceGenesisState.Params)
-
-			// set version of globalfee so that it won't run initgenesis again
-			fromVM["globalfee"] = 1
-
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
+	for _, upgrade := range Upgrades {
+		app.UpgradeKeeper.SetUpgradeHandler(
+			upgrade.UpgradeName,
+			upgrade.CreateUpgradeHandler(
+				app.mm,
+				app.configurator,
+				app,
+				&app.AppKeepers,
+			),
+		)
+	}
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
@@ -1019,24 +847,9 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 		return
 	}
 
-	if upgradeInfo.Name == "v2_4" {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{icahosttypes.StoreKey},
+	for _, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
 		}
-
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
-	}
-
-	if upgradeInfo.Name == "v2_5" {
-		storeUpgrades := storetypes.StoreUpgrades{}
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
-	}
-
-	if upgradeInfo.Name == "v2_6" {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{group.StoreKey, globalfee.ModuleName},
-		}
-
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 }
