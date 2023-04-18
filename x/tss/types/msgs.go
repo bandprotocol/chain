@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -37,6 +39,11 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(err, "sender")
+	}
+
+	// validate threshold must be less than or equal to members
+	if m.Threshold > uint32(len(m.Members)) {
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members")
 	}
 
 	return nil
