@@ -106,8 +106,6 @@ import (
 	"github.com/bandprotocol/chain/v2/app/keepers"
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/app/upgrades"
-	"github.com/bandprotocol/chain/v2/app/upgrades/v2_4"
-	"github.com/bandprotocol/chain/v2/app/upgrades/v2_5"
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
@@ -178,7 +176,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
 
-	Upgrades = []upgrades.Upgrade{v2_4.Upgrade, v2_5.Upgrade, v2_6.Upgrade}
+	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
 )
 
 var (
