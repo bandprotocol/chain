@@ -3,6 +3,7 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
+	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -21,7 +22,7 @@ func ConvertToOwasmGas(cosmos uint64) uint64 {
 }
 
 func ConvertToGas(owasm uint64) uint64 {
-	return uint64(owasm / gasConversionFactor)
+	return uint64(math.Ceil(float64(owasm) / float64(gasConversionFactor)))
 }
 
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
