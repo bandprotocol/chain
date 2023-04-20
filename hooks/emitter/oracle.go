@@ -146,7 +146,7 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas":      msg.PrepareGas,
 		"prepare_gas_used": prepareGasUsed,
 		"execute_gas":      msg.ExecuteGas,
-		"execute_gas_used": nil,
+		"execute_gas_used": uint64(0),
 		"fee_limit":        msg.FeeLimit.String(),
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
