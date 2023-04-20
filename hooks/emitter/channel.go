@@ -182,9 +182,9 @@ func (h *Hook) extractOracleRequestPacket(
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
-			var prepareGasUsedI interface{}
-			if prepareGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
-				prepareGasUsedI = oraclekeeper.ConvertToGas(common.Atoui(prepareGasUsed[0]))
+			var prepareGasUsed uint64
+			if eventRequestGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
+				prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
 			}
 
 			id := oracletypes.RequestID(common.Atoi(events[0]))
@@ -201,9 +201,9 @@ func (h *Hook) extractOracleRequestPacket(
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
 				"prepare_gas":      data.PrepareGas,
-				"prepare_gas_used": prepareGasUsedI,
+				"prepare_gas_used": prepareGasUsed,
 				"execute_gas":      data.ExecuteGas,
-				"execute_gas_used": nil,
+				"execute_gas_used": uint64(0),
 				"fee_limit":        data.FeeLimit.String(),
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,

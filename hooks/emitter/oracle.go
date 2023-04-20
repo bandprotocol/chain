@@ -105,7 +105,7 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasUsed interface{}, reason string) {
+func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasUsed uint64, reason string) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
@@ -124,9 +124,9 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasU
 func (h *Hook) handleMsgRequestData(
 	ctx sdk.Context, txHash []byte, msg *types.MsgRequestData, evMap common.EvMap, detail common.JsDict,
 ) {
-	var prepareGasUsed interface{}
-	if requestEventGasUsed, ok := evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed]; ok {
-		prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(requestEventGasUsed[0]))
+	var prepareGasUsed uint64
+	if eventRequestGasUsed, ok := evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed]; ok {
+		prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
 	}
 
 	id := types.RequestID(common.Atoi(evMap[types.EventTypeRequest+"."+types.AttributeKeyID][0]))
@@ -219,9 +219,9 @@ func (h *Hook) handleMsgEditOracleScript(
 
 // handleEventRequestExecute implements emitter handler for EventRequestExecute.
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
-	var executeGasUsed interface{}
-	if resolveEventGasUsed, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
-		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(resolveEventGasUsed[0]))
+	executeGasUsed := uint64(0)
+	if eventResolveGasUsed, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
+		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
 	}
 
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
