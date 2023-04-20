@@ -219,7 +219,7 @@ func (h *Hook) handleMsgEditOracleScript(
 
 // handleEventRequestExecute implements emitter handler for EventRequestExecute.
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
-	executeGasUsed := uint64(0)
+	var executeGasUsed uint64
 	if eventResolveGasUsed, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
 		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
 	}
