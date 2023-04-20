@@ -188,7 +188,7 @@ requests = sa.Table(
     Column("min_count", sa.Integer),
     Column("fee_limit", sa.String),
     Column("prepare_gas", sa.Integer),
-    Column("prepare_gas_used", sa.Integer, nullable=True),
+    Column("prepare_gas_used", sa.Integer),
     Column("execute_gas", sa.Integer),
     Column("execute_gas_used", sa.Integer),
     Column("sender", sa.String, nullable=True),
