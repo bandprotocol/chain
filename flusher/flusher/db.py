@@ -190,7 +190,7 @@ requests = sa.Table(
     Column("prepare_gas", sa.Integer),
     Column("prepare_gas_used", sa.Integer),
     Column("execute_gas", sa.Integer),
-    Column("execute_gas_used", sa.Integer),
+    Column("execute_gas_used", sa.Integer, nullable=True),
     Column("sender", sa.String, nullable=True),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True),
