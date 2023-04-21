@@ -38,7 +38,7 @@ func init() {
 	}
 }
 
-func (blockRelay *BlockRelayProof) EncodeToEthData() ([]byte, error) {
+func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
 	for i, sig := range blockRelay.Signatures {
 		parseSignatures[i] = sig.encodeToEthFormat()
@@ -51,20 +51,20 @@ func (blockRelay *BlockRelayProof) EncodeToEthData() ([]byte, error) {
 	)
 }
 
-func (o *OracleDataProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
+func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
 	}
 	return verifyArguments.Pack(
 		big.NewInt(int64(blockHeight)),
-		transformResult(*o.Result),
+		transformResult(o.Result),
 		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
 }
 
-func (o *RequestsCountProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
+func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
@@ -89,7 +89,7 @@ func (commonVote *CommonEncodedVotePart) encodeToEthFormat() CommonEncodedVotePa
 	}
 }
 
-func GetProofsByKey(
+func getProofsByKey(
 	ctx client.Context,
 	key []byte,
 	queryOptions rpcclient.ABCIQueryOptions,

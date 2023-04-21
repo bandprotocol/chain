@@ -8,8 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// MerklePath represents a Merkle step to a leaf data node in an iAVL tree.
-
 // IAVLMerklePathEthereum is an Ethereum version of IAVLMerklePath for solidity ABI-encoding.
 type IAVLMerklePathEthereum struct {
 	IsDataOnRight  bool
@@ -29,7 +27,7 @@ func (merklePath *IAVLMerklePath) encodeToEthFormat() IAVLMerklePathEthereum {
 	}
 }
 
-func DecodeIAVLLeafPrefix(prefix []byte) uint64 {
+func decodeIAVLLeafPrefix(prefix []byte) uint64 {
 	// ref: https://github.com/cosmos/iavl/blob/master/proof_ics23.go#L96
 	_, n1 := binary.Varint(prefix)
 	_, n2 := binary.Varint(prefix[n1:])
@@ -38,8 +36,8 @@ func DecodeIAVLLeafPrefix(prefix []byte) uint64 {
 }
 
 // GetMerklePaths returns the list of MerklePath elements from the given iAVL proof.
-func GetMerklePaths(iavlEp *ics23.ExistenceProof) []*IAVLMerklePath {
-	paths := make([]*IAVLMerklePath, 0)
+func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
+	paths := make([]IAVLMerklePath, 0)
 	for _, step := range iavlEp.Path {
 		if step.Hash != ics23.HashOp_SHA256 {
 			// Tendermint v0.34.9 is using SHA256 only.
@@ -65,7 +63,7 @@ func GetMerklePaths(iavlEp *ics23.ExistenceProof) []*IAVLMerklePath {
 			imp.IsDataOnRight = false
 			imp.SiblingHash = step.Suffix[1:] // remove 0x20
 		}
-		paths = append(paths, &imp)
+		paths = append(paths, imp)
 	}
 	return paths
 }

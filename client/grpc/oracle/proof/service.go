@@ -1,19 +1,18 @@
 package proof
 
 import (
-	context "context"
+	"context"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-
-	"github.com/cosmos/cosmos-sdk/client"
 )
 
 // RegisterProofService registers the node gRPC service on the provided gRPC router.
@@ -64,7 +63,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	}
 
 	// Get the proofs for the requested id and height
-	value, iavlEp, multiStoreEp, err := GetProofsByKey(
+	value, iavlEp, multiStoreEp, err := getProofsByKey(
 		cliCtx,
 		types.ResultStoreKey(requestID),
 		rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -84,7 +83,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	blockRelay := BlockRelayProof{
 		MultiStoreProof:        GetMultiStoreProof(multiStoreEp),
 		BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
-		CommonEncodedVotePart:  &commonVote,
+		CommonEncodedVotePart:  commonVote,
 		Signatures:             signatures,
 	}
 
@@ -94,8 +93,8 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 
 	// Create an OracleDataProof object with the relevant information
 	oracleData := OracleDataProof{
-		Result:      &rs,
-		Version:     DecodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
+		Result:      rs,
+		Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 		MerklePaths: GetMerklePaths(iavlEp),
 	}
 
@@ -107,11 +106,11 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 		panic(err)
 	}
 
-	blockRelayBytes, err := blockRelay.EncodeToEthData()
+	blockRelayBytes, err := blockRelay.encodeToEthData()
 	if err != nil {
 		return nil, err
 	}
-	oracleDataBytes, err := oracleData.EncodeToEthData(uint64(commit.Height))
+	oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
 	if err != nil {
 		return nil, err
 	}
@@ -130,11 +129,11 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	// Return a QueryProofResponse object with the relevant information
 	return &QueryProofResponse{
 		Height: cliCtx.Height,
-		Result: &SingleProofResponse{
-			Proof: &SingleProof{
+		Result: SingleProofResponse{
+			Proof: SingleProof{
 				BlockHeight:     uint64(commit.Height),
-				OracleDataProof: &oracleData,
-				BlockRelayProof: &blockRelay,
+				OracleDataProof: oracleData,
+				BlockRelayProof: blockRelay,
 			},
 			EvmProofBytes: evmProofBytes,
 		},
@@ -172,19 +171,19 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 	// Create a BlockRelayProof object with the relevant information
 	blockRelay := BlockRelayProof{
 		BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
-		CommonEncodedVotePart:  &commonVote,
+		CommonEncodedVotePart:  commonVote,
 		Signatures:             signatures,
 	}
 
 	// Create lists to store the oracle data proof objects and encoded bytes for each request ID
 	oracleDataBytesList := make([][]byte, len(requestIDs))
-	oracleDataList := make([]*OracleDataProof, len(requestIDs))
+	oracleDataList := make([]OracleDataProof, len(requestIDs))
 
 	// Loop through each request ID and get the relevant proofs
 	for idx, intRequestID := range requestIDs {
 		requestID := types.RequestID(intRequestID)
 
-		value, iavlEp, multiStoreEp, err := GetProofsByKey(
+		value, iavlEp, multiStoreEp, err := getProofsByKey(
 			cliCtx,
 			types.ResultStoreKey(requestID),
 			rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -200,18 +199,18 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 
 		// Create an OracleDataProof object with the relevant information
 		oracleData := OracleDataProof{
-			Result:      &rs,
-			Version:     DecodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
+			Result:      rs,
+			Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 			MerklePaths: GetMerklePaths(iavlEp),
 		}
 		// Encode the oracle data proof into Ethereum-compatible format
-		oracleDataBytes, err := oracleData.EncodeToEthData(uint64(commit.Height))
+		oracleDataBytes, err := oracleData.encodeToEthData(uint64(commit.Height))
 		if err != nil {
 			return nil, err
 		}
 		// Append the encoded oracle data proof to the list
 		oracleDataBytesList[idx] = oracleDataBytes
-		oracleDataList[idx] = &oracleData
+		oracleDataList[idx] = oracleData
 
 		// If this is the first iteration, set the multiStoreProof in the blockRelay object
 		if idx == 0 {
@@ -220,7 +219,7 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 	}
 
 	// Encode the block relay proof
-	blockRelayBytes, err := blockRelay.EncodeToEthData()
+	blockRelayBytes, err := blockRelay.encodeToEthData()
 	if err != nil {
 		return nil, err
 	}
@@ -247,11 +246,11 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 	// Return a QueryMultiProofResponse object with the relevant information
 	return &QueryMultiProofResponse{
 		Height: cliCtx.Height,
-		Result: &MultiProofResponse{
-			Proof: &MultiProof{
+		Result: MultiProofResponse{
+			Proof: MultiProof{
 				BlockHeight:          uint64(commit.Height),
 				OracleDataMultiProof: oracleDataList,
-				BlockRelayProof:      &blockRelay,
+				BlockRelayProof:      blockRelay,
 			},
 			EvmProofBytes: evmProofBytes,
 		},
@@ -278,7 +277,7 @@ func (s proofServer) RequestCountProof(
 	}
 
 	// Get the proofs for the count from the IAVL tree
-	value, iavlEp, multiStoreEp, err := GetProofsByKey(
+	value, iavlEp, multiStoreEp, err := getProofsByKey(
 		cliCtx,
 		types.RequestCountStoreKey,
 		rpcclient.ABCIQueryOptions{Height: commit.Height - 1, Prove: true},
@@ -296,7 +295,7 @@ func (s proofServer) RequestCountProof(
 	blockRelay := BlockRelayProof{
 		MultiStoreProof:        GetMultiStoreProof(multiStoreEp),
 		BlockHeaderMerkleParts: GetBlockHeaderMerkleParts(commit.Header),
-		CommonEncodedVotePart:  &commonVote,
+		CommonEncodedVotePart:  commonVote,
 		Signatures:             signatures,
 	}
 
@@ -306,7 +305,7 @@ func (s proofServer) RequestCountProof(
 	// Create a RequestsCountProof object with the relevant information
 	requestsCountProof := RequestsCountProof{
 		Count:       rs,
-		Version:     DecodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
+		Version:     decodeIAVLLeafPrefix(iavlEp.Leaf.Prefix),
 		MerklePaths: GetMerklePaths(iavlEp),
 	}
 
@@ -319,12 +318,12 @@ func (s proofServer) RequestCountProof(
 	}
 
 	// Encode the block relay proof and the requests count proof into Ethereum-compatible format
-	blockRelayBytes, err := blockRelay.EncodeToEthData()
+	blockRelayBytes, err := blockRelay.encodeToEthData()
 	if err != nil {
 		return nil, err
 	}
 
-	requestsCountBytes, err := requestsCountProof.EncodeToEthData(uint64(commit.Height))
+	requestsCountBytes, err := requestsCountProof.encodeToEthData(uint64(commit.Height))
 	if err != nil {
 		return nil, err
 	}
@@ -343,11 +342,11 @@ func (s proofServer) RequestCountProof(
 	// Return the QueryRequestCountProofResponse object with the relevant information
 	return &QueryRequestCountProofResponse{
 		Height: cliCtx.Height,
-		Result: &CountProofResponse{
-			Proof: &CountProof{
+		Result: CountProofResponse{
+			Proof: CountProof{
 				BlockHeight:     uint64(commit.Height),
-				CountProof:      &requestsCountProof,
-				BlockRelayProof: &blockRelay,
+				CountProof:      requestsCountProof,
+				BlockRelayProof: blockRelay,
 			},
 			EvmProofBytes: evmProofBytes,
 		},

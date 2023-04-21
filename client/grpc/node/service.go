@@ -1,7 +1,7 @@
 package node
 
 import (
-	context "context"
+	"context"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -21,7 +21,7 @@ func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server) {
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
 // on the given mux object.
 func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.ServeMux) {
-	_ = RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
+	RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
 }
 
 // to check queryServer implements ServiceServer
@@ -68,7 +68,7 @@ func (s queryServer) EVMValidators(
 
 	evmValidatorsResponse := QueryEVMValidatorsResponse{}
 	evmValidatorsResponse.BlockHeight = validators.BlockHeight
-	evmValidatorsResponse.Validators = []*ValidatorMinimal{}
+	evmValidatorsResponse.Validators = []ValidatorMinimal{}
 
 	// put each validator's address and voting power to the response
 	for _, validator := range validators.Validators {
@@ -82,7 +82,7 @@ func (s queryServer) EVMValidators(
 		} else {
 			evmValidatorsResponse.Validators = append(
 				evmValidatorsResponse.Validators,
-				&ValidatorMinimal{
+				ValidatorMinimal{
 					Address:     crypto.PubkeyToAddress(*pubkey).String(),
 					VotingPower: validator.VotingPower,
 				},

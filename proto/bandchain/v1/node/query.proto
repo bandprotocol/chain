@@ -35,7 +35,7 @@ message QueryEVMValidatorsResponse {
   // BlockHeight is the latest block height
   int64 block_height = 1;
   // Validators is list of validator's addresss and voting power
-  repeated ValidatorMinimal validators = 2;
+  repeated ValidatorMinimal validators = 2 [ (gogoproto.nullable) = false ];
 
 }
 
