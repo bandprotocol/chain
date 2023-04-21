@@ -21,7 +21,7 @@ func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server) {
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
 // on the given mux object.
 func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.ServeMux) {
-	_ = RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
+	RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
 }
 
 // to check queryServer implements ServiceServer
