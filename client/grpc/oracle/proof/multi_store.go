@@ -29,7 +29,7 @@ func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 
 // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
 func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
-	return &MultiStoreProof{
+	return MultiStoreProof{
 		OracleIAVLStateHash:              tmbytes.HexBytes(multiStoreEp.Value),
 		MintStoreMerkleHash:              tmbytes.HexBytes(multiStoreEp.Path[0].Prefix[1:]),
 		ParamsToSlashingStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[1].Suffix),
