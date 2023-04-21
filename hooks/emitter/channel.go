@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 
+	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -184,6 +185,11 @@ func (h *Hook) extractOracleRequestPacket(
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
 	if err == nil {
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
+			var prepareGasUsed uint64
+			if eventRequestGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
+				prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
+			}
+
 			id := oracletypes.RequestID(common.Atoi(events[0]))
 			req := h.oracleKeeper.MustGetRequest(ctx, id)
 			h.Write("NEW_REQUEST", common.JsDict{
@@ -198,7 +204,9 @@ func (h *Hook) extractOracleRequestPacket(
 				"resolve_status":   oracletypes.RESOLVE_STATUS_OPEN,
 				"timestamp":        ctx.BlockTime().UnixNano(),
 				"prepare_gas":      data.PrepareGas,
+				"prepare_gas_used": prepareGasUsed,
 				"execute_gas":      data.ExecuteGas,
+				"execute_gas_used": uint64(0),
 				"fee_limit":        data.FeeLimit.String(),
 				"total_fees":       evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyTotalFees][0],
 				"is_ibc":           req.IBCChannel != nil,
