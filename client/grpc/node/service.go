@@ -1,7 +1,7 @@
 package node
 
 import (
-	context "context"
+	"context"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"
