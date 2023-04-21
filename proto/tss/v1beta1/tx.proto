@@ -1,12 +1,19 @@
 syntax = "proto3";
 package tss.v1beta1;
 
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "tss/v1beta1/tss.proto";
+
 option go_package = "github.com/bandprotocol/chain/x/tss/types";
+
 
 // Msg defines the tss Msg service.
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
+  // SubmmitDKGRound1 submmit dkg for compute round 1.
+  rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
 }
 
 // CreateGroup is the Msg/CreateGroup request type.
@@ -16,9 +23,27 @@ message MsgCreateGroup {
   // threshold is a minimum number of signers required to produce a group
   // signature.
   uint32 threshold = 2;
-  // Sender is an account address of message sender.
+  // sender is an account address of message sender.
   string sender = 3;
 }
 
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.
 message MsgCreateGroupResponse {}
+
+
+message MsgSubmitDKGRound1 {
+  // group_id is ID of the group.
+  uint64 group_id = 1;
+  // coefficients_commit is commitment of all coefficients.
+  repeated google.protobuf.Any coefficients_commit = 2 [ (gogoproto.nullable) = false ];
+  // one_time_pub_key is a one-time used public key for sending secret shares.
+  google.protobuf.Any one_time_pub_key = 3;
+  // a0_sing is a proof of knowledge on a0.
+  google.protobuf.Any a0_sing = 4;
+  // one_time_sign is a proof of knowledge on the OneTimePublicKey.
+  google.protobuf.Any one_time_sign = 5;
+  // sender is an account address of message sender.
+  string sender = 6;
+}
+
+message MsgSubmitDKGRound1Response {}

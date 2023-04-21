@@ -46,7 +46,7 @@ func QueryGroupCmd() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Group(cmd.Context(), &types.QueryGroupRequest{
-				GroupID: uint32(groupID),
+				GroupId: groupID,
 			})
 			if err != nil {
 				return err
@@ -81,7 +81,7 @@ func QueryMembersCmd() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
-				GroupID: uint32(groupID),
+				GroupId: groupID,
 			})
 			if err != nil {
 				return err

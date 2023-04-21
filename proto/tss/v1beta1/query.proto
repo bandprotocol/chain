@@ -19,7 +19,7 @@ service Query {
 // QueryParamsRequest is the request type for the Query/Group RPC method
 message QueryGroupRequest {
     // group_id defines the unique id of the group.
-    uint32 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
+    uint64 group_id = 1;
 }
 
 // QueryParamsResponse is the response type for the Query/Group RPC method
@@ -30,7 +30,7 @@ message QueryGroupResponse {
 // QueryMembersRequest is the request type for the Query/Members RPC method
 message QueryMembersRequest {
     // group_id defines the unique id of the group.
-    uint32 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
+    uint64 group_id = 1;
 }
 
 // QueryMembersResponse is the response type for the Query/Members RPC method

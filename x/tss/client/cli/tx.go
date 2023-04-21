@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
@@ -25,6 +26,7 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(MsgCreateGroupCmd())
+	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
 
 	return txCmd
 }
@@ -58,6 +60,46 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 				Members:   members,
 				Threshold: uint32(threshold),
 				Sender:    clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func MsgSubmitDKGRound1Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "submit-dkg-round1 [group_id] [coefficients_commit1,coefficients_commit2,...] [one_time_pub_key] [a0_sing] [one_time_sign]",
+		Args:  cobra.ExactArgs(5),
+		Short: "",
+		Long:  "",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			// casting type
+
+			msg := &types.MsgSubmitDKGRound1{
+				GroupId:            groupID,
+				CoefficientsCommit: []codectypes.Any{},
+				OneTimePubKey:      &codectypes.Any{},
+				A0Sing:             &codectypes.Any{},
+				OneTimeSign:        &codectypes.Any{},
+				Sender:             clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)

@@ -48,3 +48,26 @@ func (m MsgCreateGroup) ValidateBasic() error {
 
 	return nil
 }
+
+var _ sdk.Msg = &MsgSubmitDKGRound1{}
+
+// Route Implements Msg.
+func (m MsgSubmitDKGRound1) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgSubmitDKGRound1) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgSubmitDKGRound1) ValidateBasic() error {
+	return nil
+}
