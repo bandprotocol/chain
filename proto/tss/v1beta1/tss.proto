@@ -3,7 +3,7 @@ package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
 
 message Point {
@@ -18,7 +18,7 @@ message Signature {
 
 message Group {
   uint32 size = 1;
-  uint32 treshold = 2;
+  uint32 threshold = 2;
   Point pub_key = 3;
   uint32 status = 4;
 }
@@ -55,7 +55,3 @@ message Member {
   string signer = 1;
   string pubkey  = 2;
 }
-
-
-
-

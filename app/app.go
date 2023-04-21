@@ -7,8 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
+	owasm "github.com/bandprotocol/go-owasm/api"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -98,8 +100,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
-	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
