@@ -8,23 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/libs/protoio"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tendermint/tendermint/types"
 )
-
-// TMSignature contains all details of validator signature for performing signer recovery for ECDSA
-// secp256k1 signature. Note that this struct is written specifically for signature signed on
-// Tendermint's precommit data, which includes the block hash and some additional information prepended
-// and appended to the block hash. The prepended part (prefix) and the appended part (suffix) are
-// different for each signer (including signature size, machine clock, validator index, etc).
-type TMSignature struct {
-	R                tmbytes.HexBytes `json:"r"`
-	S                tmbytes.HexBytes `json:"s"`
-	V                uint8            `json:"v"`
-	EncodedTimestamp tmbytes.HexBytes `json:"encoded_timestamp"`
-}
 
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.
 type TMSignatureEthereum struct {
@@ -38,7 +25,7 @@ func (signature *TMSignature) encodeToEthFormat() TMSignatureEthereum {
 	return TMSignatureEthereum{
 		R:                common.BytesToHash(signature.R),
 		S:                common.BytesToHash(signature.S),
-		V:                signature.V,
+		V:                uint8(signature.V),
 		EncodedTimestamp: signature.EncodedTimestamp,
 	}
 }
@@ -134,7 +121,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 		mapAddrs[string(addr)] = TMSignature{
 			vote.Signature[:32],
 			vote.Signature[32:],
-			v,
+			uint32(v),
 			encodedTimestamp,
 		}
 	}
