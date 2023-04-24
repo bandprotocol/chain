@@ -49,5 +49,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 }
 
 func (k Keeper) SubmitDKGRound1(goCtx context.Context, req *types.MsgSubmitDKGRound1) (*types.MsgSubmitDKGRound1Response, error) {
+	// TODO: handle round1 msg
+	fmt.Printf("%+v \n", req)
+
 	return nil, nil
 }

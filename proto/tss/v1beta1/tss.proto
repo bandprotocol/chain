@@ -7,8 +7,8 @@ option go_package = "github.com/bandprotocol/chain/x/tss/types";
 option (gogoproto.equal_all) = true;
 
 message Point {
-  uint32 parity = 1;
-  uint64 x = 2;
+  bytes x = 1;
+  bytes y = 2;
 }
 
 message Signature {
