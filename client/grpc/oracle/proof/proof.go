@@ -10,10 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
-
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (
@@ -41,13 +38,6 @@ func init() {
 	}
 }
 
-type BlockRelayProof struct {
-	MultiStoreProof        MultiStoreProof        `json:"multi_store_proof"`
-	BlockHeaderMerkleParts BlockHeaderMerkleParts `json:"block_header_merkle_parts"`
-	CommonEncodedVotePart  CommonEncodedVotePart  `json:"common_encoded_vote_part"`
-	Signatures             []TMSignature          `json:"signatures"`
-}
-
 func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
 	for i, sig := range blockRelay.Signatures {
@@ -59,12 +49,6 @@ func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 		blockRelay.CommonEncodedVotePart.encodeToEthFormat(),
 		parseSignatures,
 	)
-}
-
-type OracleDataProof struct {
-	Result      types.Result     `json:"result"`
-	Version     uint64           `json:"version"`
-	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
 }
 
 func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
@@ -80,12 +64,6 @@ func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	)
 }
 
-type RequestsCountProof struct {
-	Count       uint64           `json:"count"`
-	Version     uint64           `json:"version"`
-	MerklePaths []IAVLMerklePath `json:"merkle_paths"`
-}
-
 func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
@@ -97,11 +75,6 @@ func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error)
 		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
-}
-
-type CommonEncodedVotePart struct {
-	SignedDataPrefix tmbytes.HexBytes `json:"signed_data_prefix"`
-	SignedDataSuffix tmbytes.HexBytes `json:"signed_data_suffix"`
 }
 
 type CommonEncodedVotePartEthereum struct {

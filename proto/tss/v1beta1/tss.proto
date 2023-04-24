@@ -3,7 +3,7 @@ package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
 
 message Point {

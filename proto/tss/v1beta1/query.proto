@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "tss/v1beta1/tss.proto";
 
-option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
 service Query {
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {

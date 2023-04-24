@@ -1,7 +1,7 @@
 syntax = "proto3";
 package tss.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
 // Msg defines the tss Msg service.
 service Msg {
