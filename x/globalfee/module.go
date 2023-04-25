@@ -11,7 +11,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -56,9 +55,6 @@ func (a AppModuleBasic) ValidateGenesis(
 }
 
 func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-}
-
-func (a AppModuleBasic) RegisterRESTRoutes(context client.Context, router *mux.Router) {
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
