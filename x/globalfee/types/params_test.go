@@ -12,7 +12,7 @@ func TestDefaultParams(t *testing.T) {
 	require.EqualValues(t, p.MinimumGasPrices, sdk.DecCoins{})
 }
 
-func Test_validateParams(t *testing.T) {
+func TestValidateParams(t *testing.T) {
 	tests := map[string]struct {
 		coins     interface{} // not sdk.DeCoins, but Decoins defined in glboalfee
 		expectErr bool

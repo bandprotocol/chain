@@ -23,7 +23,7 @@ import (
 func TestDefaultGenesis(t *testing.T) {
 	encCfg := simapp.MakeTestEncodingConfig()
 	gotJSON := AppModuleBasic{}.DefaultGenesis(encCfg.Codec)
-	assert.JSONEq(t, `{"params":{"minimum_gas_prices":[]}}`, string(gotJSON), string(gotJSON))
+	assert.JSONEq(t, `{"params":{"minimum_gas_prices":[]}}`, string(gotJSON))
 }
 
 func TestValidateGenesis(t *testing.T) {
