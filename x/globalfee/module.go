@@ -58,7 +58,7 @@ func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	_ = types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
