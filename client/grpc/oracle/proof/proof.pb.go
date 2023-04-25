@@ -10,6 +10,7 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_tendermint_tendermint_libs_bytes "github.com/tendermint/tendermint/libs/bytes"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -30,10 +31,12 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// QueryProofRequest is request type for the Service/Proof RPC method.
 type QueryProofRequest struct {
 	// RequestID is ID of an oracle request
 	RequestId uint64 `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	Height    int64  `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
+	// height is block height
+	Height int64 `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
 }
 
 func (m *QueryProofRequest) Reset()         { *m = QueryProofRequest{} }
@@ -83,9 +86,12 @@ func (m *QueryProofRequest) GetHeight() int64 {
 	return 0
 }
 
+// QueryChainIDResponse is response type for the Service/Proof RPC method.
 type QueryProofResponse struct {
-	Height int64                `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
-	Result *SingleProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	// height is block height
+	Height int64 `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
+	// result is the proof
+	Result SingleProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result"`
 }
 
 func (m *QueryProofResponse) Reset()         { *m = QueryProofResponse{} }
@@ -128,14 +134,16 @@ func (m *QueryProofResponse) GetHeight() int64 {
 	return 0
 }
 
-func (m *QueryProofResponse) GetResult() *SingleProofResponse {
+func (m *QueryProofResponse) GetResult() SingleProofResponse {
 	if m != nil {
 		return m.Result
 	}
-	return nil
+	return SingleProofResponse{}
 }
 
+// QueryMultiProofRequest is request type for the Service/MultiProof RPC method.
 type QueryMultiProofRequest struct {
+	// request_ids is the list of request IDs
 	RequestIds []uint64 `protobuf:"varint,1,rep,packed,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
 }
 
@@ -179,9 +187,10 @@ func (m *QueryMultiProofRequest) GetRequestIds() []uint64 {
 	return nil
 }
 
+// QueryMultiProofResponse is response type for the Service/MultiProof RPC method.
 type QueryMultiProofResponse struct {
-	Height int64               `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
-	Result *MultiProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	Height int64              `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
+	Result MultiProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result"`
 }
 
 func (m *QueryMultiProofResponse) Reset()         { *m = QueryMultiProofResponse{} }
@@ -224,13 +233,14 @@ func (m *QueryMultiProofResponse) GetHeight() int64 {
 	return 0
 }
 
-func (m *QueryMultiProofResponse) GetResult() *MultiProofResponse {
+func (m *QueryMultiProofResponse) GetResult() MultiProofResponse {
 	if m != nil {
 		return m.Result
 	}
-	return nil
+	return MultiProofResponse{}
 }
 
+// QueryRequestCountProofRequest is request type for the Service/RequestCountProof RPC method.
 type QueryRequestCountProofRequest struct {
 }
 
@@ -267,9 +277,10 @@ func (m *QueryRequestCountProofRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryRequestCountProofRequest proto.InternalMessageInfo
 
+// QueryRequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
 type QueryRequestCountProofResponse struct {
-	Height int64               `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
-	Result *CountProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	Height int64              `protobuf:"varint,1,opt,name=height,proto3" json:"height,omitempty"`
+	Result CountProofResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result"`
 }
 
 func (m *QueryRequestCountProofResponse) Reset()         { *m = QueryRequestCountProofResponse{} }
@@ -312,16 +323,17 @@ func (m *QueryRequestCountProofResponse) GetHeight() int64 {
 	return 0
 }
 
-func (m *QueryRequestCountProofResponse) GetResult() *CountProofResponse {
+func (m *QueryRequestCountProofResponse) GetResult() CountProofResponse {
 	if m != nil {
 		return m.Result
 	}
-	return nil
+	return CountProofResponse{}
 }
 
+// SingleProofResponse is the data structure for response of single proof
 type SingleProofResponse struct {
-	Proof         *SingleProof `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof,omitempty"`
-	EvmProofBytes []byte       `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3" json:"evm_proof_bytes,omitempty"`
+	Proof         SingleProof                                          `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof"`
+	EvmProofBytes github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"evm_proof_bytes,omitempty"`
 }
 
 func (m *SingleProofResponse) Reset()         { *m = SingleProofResponse{} }
@@ -357,23 +369,24 @@ func (m *SingleProofResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_SingleProofResponse proto.InternalMessageInfo
 
-func (m *SingleProofResponse) GetProof() *SingleProof {
+func (m *SingleProofResponse) GetProof() SingleProof {
 	if m != nil {
 		return m.Proof
 	}
-	return nil
+	return SingleProof{}
 }
 
-func (m *SingleProofResponse) GetEvmProofBytes() []byte {
+func (m *SingleProofResponse) GetEvmProofBytes() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.EvmProofBytes
 	}
 	return nil
 }
 
+// MultiProofResponse is the data structure for response of multi proof
 type MultiProofResponse struct {
-	Proof         *MultiProof `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof,omitempty"`
-	EvmProofBytes []byte      `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3" json:"evm_proof_bytes,omitempty"`
+	Proof         MultiProof                                           `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof"`
+	EvmProofBytes github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"evm_proof_bytes,omitempty"`
 }
 
 func (m *MultiProofResponse) Reset()         { *m = MultiProofResponse{} }
@@ -409,23 +422,24 @@ func (m *MultiProofResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MultiProofResponse proto.InternalMessageInfo
 
-func (m *MultiProofResponse) GetProof() *MultiProof {
+func (m *MultiProofResponse) GetProof() MultiProof {
 	if m != nil {
 		return m.Proof
 	}
-	return nil
+	return MultiProof{}
 }
 
-func (m *MultiProofResponse) GetEvmProofBytes() []byte {
+func (m *MultiProofResponse) GetEvmProofBytes() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.EvmProofBytes
 	}
 	return nil
 }
 
+// CountProofResponse is the data structure for response of count proof
 type CountProofResponse struct {
-	Proof         *CountProof `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof,omitempty"`
-	EvmProofBytes []byte      `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3" json:"evm_proof_bytes,omitempty"`
+	Proof         CountProof                                           `protobuf:"bytes,1,opt,name=proof,proto3" json:"proof"`
+	EvmProofBytes github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=evm_proof_bytes,json=evmProofBytes,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"evm_proof_bytes,omitempty"`
 }
 
 func (m *CountProofResponse) Reset()         { *m = CountProofResponse{} }
@@ -461,24 +475,25 @@ func (m *CountProofResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CountProofResponse proto.InternalMessageInfo
 
-func (m *CountProofResponse) GetProof() *CountProof {
+func (m *CountProofResponse) GetProof() CountProof {
 	if m != nil {
 		return m.Proof
 	}
-	return nil
+	return CountProof{}
 }
 
-func (m *CountProofResponse) GetEvmProofBytes() []byte {
+func (m *CountProofResponse) GetEvmProofBytes() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.EvmProofBytes
 	}
 	return nil
 }
 
+// SingleProof contains block height, oracle data proof and block relay proof
 type SingleProof struct {
-	BlockHeight     uint64           `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
-	OracleDataProof *OracleDataProof `protobuf:"bytes,2,opt,name=oracle_data_proof,json=oracleDataProof,proto3" json:"oracle_data_proof,omitempty"`
-	BlockRelayProof *BlockRelayProof `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof,omitempty"`
+	BlockHeight     uint64          `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
+	OracleDataProof OracleDataProof `protobuf:"bytes,2,opt,name=oracle_data_proof,json=oracleDataProof,proto3" json:"oracle_data_proof"`
+	BlockRelayProof BlockRelayProof `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof"`
 }
 
 func (m *SingleProof) Reset()         { *m = SingleProof{} }
@@ -521,24 +536,25 @@ func (m *SingleProof) GetBlockHeight() uint64 {
 	return 0
 }
 
-func (m *SingleProof) GetOracleDataProof() *OracleDataProof {
+func (m *SingleProof) GetOracleDataProof() OracleDataProof {
 	if m != nil {
 		return m.OracleDataProof
 	}
-	return nil
+	return OracleDataProof{}
 }
 
-func (m *SingleProof) GetBlockRelayProof() *BlockRelayProof {
+func (m *SingleProof) GetBlockRelayProof() BlockRelayProof {
 	if m != nil {
 		return m.BlockRelayProof
 	}
-	return nil
+	return BlockRelayProof{}
 }
 
+// MultiProof contains block height, list of oracle data proof and block relay proof
 type MultiProof struct {
-	BlockHeight          uint64             `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
-	OracleDataMultiProof []*OracleDataProof `protobuf:"bytes,2,rep,name=oracle_data_multi_proof,json=oracleDataMultiProof,proto3" json:"oracle_data_multi_proof,omitempty"`
-	BlockRelayProof      *BlockRelayProof   `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof,omitempty"`
+	BlockHeight          uint64            `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
+	OracleDataMultiProof []OracleDataProof `protobuf:"bytes,2,rep,name=oracle_data_multi_proof,json=oracleDataMultiProof,proto3" json:"oracle_data_multi_proof"`
+	BlockRelayProof      BlockRelayProof   `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof"`
 }
 
 func (m *MultiProof) Reset()         { *m = MultiProof{} }
@@ -581,24 +597,25 @@ func (m *MultiProof) GetBlockHeight() uint64 {
 	return 0
 }
 
-func (m *MultiProof) GetOracleDataMultiProof() []*OracleDataProof {
+func (m *MultiProof) GetOracleDataMultiProof() []OracleDataProof {
 	if m != nil {
 		return m.OracleDataMultiProof
 	}
 	return nil
 }
 
-func (m *MultiProof) GetBlockRelayProof() *BlockRelayProof {
+func (m *MultiProof) GetBlockRelayProof() BlockRelayProof {
 	if m != nil {
 		return m.BlockRelayProof
 	}
-	return nil
+	return BlockRelayProof{}
 }
 
+// CountProof contains block height, count proof and block relay proof
 type CountProof struct {
-	BlockHeight     uint64              `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
-	CountProof      *RequestsCountProof `protobuf:"bytes,2,opt,name=count_proof,json=countProof,proto3" json:"count_proof,omitempty"`
-	BlockRelayProof *BlockRelayProof    `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof,omitempty"`
+	BlockHeight     uint64             `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
+	CountProof      RequestsCountProof `protobuf:"bytes,2,opt,name=count_proof,json=countProof,proto3" json:"count_proof"`
+	BlockRelayProof BlockRelayProof    `protobuf:"bytes,3,opt,name=block_relay_proof,json=blockRelayProof,proto3" json:"block_relay_proof"`
 }
 
 func (m *CountProof) Reset()         { *m = CountProof{} }
@@ -641,24 +658,25 @@ func (m *CountProof) GetBlockHeight() uint64 {
 	return 0
 }
 
-func (m *CountProof) GetCountProof() *RequestsCountProof {
+func (m *CountProof) GetCountProof() RequestsCountProof {
 	if m != nil {
 		return m.CountProof
 	}
-	return nil
+	return RequestsCountProof{}
 }
 
-func (m *CountProof) GetBlockRelayProof() *BlockRelayProof {
+func (m *CountProof) GetBlockRelayProof() BlockRelayProof {
 	if m != nil {
 		return m.BlockRelayProof
 	}
-	return nil
+	return BlockRelayProof{}
 }
 
+// OracleDataProof contains result, version and merkle paths
 type OracleDataProof struct {
-	Result      *types.Result     `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
-	Version     uint64            `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
-	MerklePaths []*IAVLMerklePath `protobuf:"bytes,3,rep,name=merkle_paths,json=merklePaths,proto3" json:"merkle_paths,omitempty"`
+	Result      types.Result     `protobuf:"bytes,1,opt,name=result,proto3" json:"result"`
+	Version     uint64           `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	MerklePaths []IAVLMerklePath `protobuf:"bytes,3,rep,name=merkle_paths,json=merklePaths,proto3" json:"merkle_paths"`
 }
 
 func (m *OracleDataProof) Reset()         { *m = OracleDataProof{} }
@@ -694,11 +712,11 @@ func (m *OracleDataProof) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_OracleDataProof proto.InternalMessageInfo
 
-func (m *OracleDataProof) GetResult() *types.Result {
+func (m *OracleDataProof) GetResult() types.Result {
 	if m != nil {
 		return m.Result
 	}
-	return nil
+	return types.Result{}
 }
 
 func (m *OracleDataProof) GetVersion() uint64 {
@@ -708,19 +726,20 @@ func (m *OracleDataProof) GetVersion() uint64 {
 	return 0
 }
 
-func (m *OracleDataProof) GetMerklePaths() []*IAVLMerklePath {
+func (m *OracleDataProof) GetMerklePaths() []IAVLMerklePath {
 	if m != nil {
 		return m.MerklePaths
 	}
 	return nil
 }
 
+// IAVLMerklePath represents a Merkle step to a leaf data node in an iAVL tree.
 type IAVLMerklePath struct {
-	IsDataOnRight  bool   `protobuf:"varint,1,opt,name=is_data_on_right,json=isDataOnRight,proto3" json:"is_data_on_right,omitempty"`
-	SubtreeHeight  uint32 `protobuf:"varint,2,opt,name=subtree_height,json=subtreeHeight,proto3" json:"subtree_height,omitempty"`
-	SubtreeSize    uint64 `protobuf:"varint,3,opt,name=subtree_size,json=subtreeSize,proto3" json:"subtree_size,omitempty"`
-	SubtreeVersion uint64 `protobuf:"varint,4,opt,name=subtree_version,json=subtreeVersion,proto3" json:"subtree_version,omitempty"`
-	SiblingHash    []byte `protobuf:"bytes,5,opt,name=sibling_hash,json=siblingHash,proto3" json:"sibling_hash,omitempty"`
+	IsDataOnRight  bool                                                 `protobuf:"varint,1,opt,name=is_data_on_right,json=isDataOnRight,proto3" json:"is_data_on_right,omitempty"`
+	SubtreeHeight  uint32                                               `protobuf:"varint,2,opt,name=subtree_height,json=subtreeHeight,proto3" json:"subtree_height,omitempty"`
+	SubtreeSize    uint64                                               `protobuf:"varint,3,opt,name=subtree_size,json=subtreeSize,proto3" json:"subtree_size,omitempty"`
+	SubtreeVersion uint64                                               `protobuf:"varint,4,opt,name=subtree_version,json=subtreeVersion,proto3" json:"subtree_version,omitempty"`
+	SiblingHash    github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,5,opt,name=sibling_hash,json=siblingHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"sibling_hash,omitempty"`
 }
 
 func (m *IAVLMerklePath) Reset()         { *m = IAVLMerklePath{} }
@@ -784,18 +803,19 @@ func (m *IAVLMerklePath) GetSubtreeVersion() uint64 {
 	return 0
 }
 
-func (m *IAVLMerklePath) GetSiblingHash() []byte {
+func (m *IAVLMerklePath) GetSiblingHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.SiblingHash
 	}
 	return nil
 }
 
+// BlockRelayProof contains multi store proof, block header merkle parts, common encoded part and signatures
 type BlockRelayProof struct {
-	MultiStoreProof        *MultiStoreProof        `protobuf:"bytes,1,opt,name=multi_store_proof,json=multiStoreProof,proto3" json:"multi_store_proof,omitempty"`
-	BlockHeaderMerkleParts *BlockHeaderMerkleParts `protobuf:"bytes,2,opt,name=block_header_merkle_parts,json=blockHeaderMerkleParts,proto3" json:"block_header_merkle_parts,omitempty"`
-	CommonEncodedVotePart  *CommonEncodedVotePart  `protobuf:"bytes,3,opt,name=common_encoded_vote_part,json=commonEncodedVotePart,proto3" json:"common_encoded_vote_part,omitempty"`
-	Signatures             []*TMSignature          `protobuf:"bytes,4,rep,name=signatures,proto3" json:"signatures,omitempty"`
+	MultiStoreProof        MultiStoreProof        `protobuf:"bytes,1,opt,name=multi_store_proof,json=multiStoreProof,proto3" json:"multi_store_proof"`
+	BlockHeaderMerkleParts BlockHeaderMerkleParts `protobuf:"bytes,2,opt,name=block_header_merkle_parts,json=blockHeaderMerkleParts,proto3" json:"block_header_merkle_parts"`
+	CommonEncodedVotePart  CommonEncodedVotePart  `protobuf:"bytes,3,opt,name=common_encoded_vote_part,json=commonEncodedVotePart,proto3" json:"common_encoded_vote_part"`
+	Signatures             []TMSignature          `protobuf:"bytes,4,rep,name=signatures,proto3" json:"signatures"`
 }
 
 func (m *BlockRelayProof) Reset()         { *m = BlockRelayProof{} }
@@ -831,41 +851,63 @@ func (m *BlockRelayProof) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BlockRelayProof proto.InternalMessageInfo
 
-func (m *BlockRelayProof) GetMultiStoreProof() *MultiStoreProof {
+func (m *BlockRelayProof) GetMultiStoreProof() MultiStoreProof {
 	if m != nil {
 		return m.MultiStoreProof
 	}
-	return nil
+	return MultiStoreProof{}
 }
 
-func (m *BlockRelayProof) GetBlockHeaderMerkleParts() *BlockHeaderMerkleParts {
+func (m *BlockRelayProof) GetBlockHeaderMerkleParts() BlockHeaderMerkleParts {
 	if m != nil {
 		return m.BlockHeaderMerkleParts
 	}
-	return nil
+	return BlockHeaderMerkleParts{}
 }
 
-func (m *BlockRelayProof) GetCommonEncodedVotePart() *CommonEncodedVotePart {
+func (m *BlockRelayProof) GetCommonEncodedVotePart() CommonEncodedVotePart {
 	if m != nil {
 		return m.CommonEncodedVotePart
 	}
-	return nil
+	return CommonEncodedVotePart{}
 }
 
-func (m *BlockRelayProof) GetSignatures() []*TMSignature {
+func (m *BlockRelayProof) GetSignatures() []TMSignature {
 	if m != nil {
 		return m.Signatures
 	}
 	return nil
 }
 
+// MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
+// compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
+//
+//	                                           ________________[AppHash]_________________________
+//	                                          /                                                  \
+//	                      _________________[N15]_________________                             __[N16]___
+//	                     /                                        \                          /          \
+//	          _______[N12]______                          _______[N13]________             [N14]        [I]
+//	         /                  \                        /                    \           /     \
+//	    __[N8]__             __[N9]__                __[N10]__              __[N11]__    [G]   [H]
+//	   /         \          /         \            /          \            /         \
+//	  [N0]       [N1]      [N2]       [N3]       [N4]        [N5]         [N6]       [N7]
+//	/     \     /    \    /    \     /     \     /     \     /     \     /     \     /    \
+//
+// [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
+//
+// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
+// [6] - evidence   [7] - feegrant [8] - gov      [9] - group      [A] - ibccore    [B] - icahost
+// [C] - mint       [D] - oracle   [E] - params   [F] - slashing   [G] - staking    [H] - transfer [I] - upgrade
+// Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
+// root hash, since we only want to validate the correctness of [D] In fact, only
+// [C], [N7], [N10], [N12], and [N16] are needed in order to compute [AppHash].
 type MultiStoreProof struct {
-	OracleIAVLStateHash              []byte `protobuf:"bytes,1,opt,name=oracle_iavl_state_hash,json=oracleIavlStateHash,proto3" json:"oracle_iavl_state_hash,omitempty"`
-	MintStoreMerkleHash              []byte `protobuf:"bytes,2,opt,name=mint_store_merkle_hash,json=mintStoreMerkleHash,proto3" json:"mint_store_merkle_hash,omitempty"`
-	ParamsToSlashingStoresMerkleHash []byte `protobuf:"bytes,3,opt,name=params_to_slashing_stores_merkle_hash,json=paramsToSlashingStoresMerkleHash,proto3" json:"params_to_slashing_stores_merkle_hash,omitempty"`
-	GovToIcahostStoresMerkleHash     []byte `protobuf:"bytes,4,opt,name=gov_to_icahost_stores_merkle_hash,json=govToIcahostStoresMerkleHash,proto3" json:"gov_to_icahost_stores_merkle_hash,omitempty"`
-	AuthToFeegrantStoresMerkleHash   []byte `protobuf:"bytes,5,opt,name=auth_to_feegrant_stores_merkle_hash,json=authToFeegrantStoresMerkleHash,proto3" json:"auth_to_feegrant_stores_merkle_hash,omitempty"`
-	StakingToUpgradeStoresMerkleHash []byte `protobuf:"bytes,6,opt,name=staking_to_upgrade_stores_merkle_hash,json=stakingToUpgradeStoresMerkleHash,proto3" json:"staking_to_upgrade_stores_merkle_hash,omitempty"`
+	OracleIAVLStateHash              github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=oracle_iavl_state_hash,json=oracleIavlStateHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"oracle_iavl_state_hash,omitempty"`
+	MintStoreMerkleHash              github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=mint_store_merkle_hash,json=mintStoreMerkleHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"mint_store_merkle_hash,omitempty"`
+	ParamsToSlashingStoresMerkleHash github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,3,opt,name=params_to_slashing_stores_merkle_hash,json=paramsToSlashingStoresMerkleHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"params_to_slashing_stores_merkle_hash,omitempty"`
+	GovToIcahostStoresMerkleHash     github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,4,opt,name=gov_to_icahost_stores_merkle_hash,json=govToIcahostStoresMerkleHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"gov_to_icahost_stores_merkle_hash,omitempty"`
+	AuthToFeegrantStoresMerkleHash   github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,5,opt,name=auth_to_feegrant_stores_merkle_hash,json=authToFeegrantStoresMerkleHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"auth_to_feegrant_stores_merkle_hash,omitempty"`
+	StakingToUpgradeStoresMerkleHash github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,6,opt,name=staking_to_upgrade_stores_merkle_hash,json=stakingToUpgradeStoresMerkleHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"staking_to_upgrade_stores_merkle_hash,omitempty"`
 }
 
 func (m *MultiStoreProof) Reset()         { *m = MultiStoreProof{} }
@@ -901,57 +943,83 @@ func (m *MultiStoreProof) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MultiStoreProof proto.InternalMessageInfo
 
-func (m *MultiStoreProof) GetOracleIAVLStateHash() []byte {
+func (m *MultiStoreProof) GetOracleIAVLStateHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.OracleIAVLStateHash
 	}
 	return nil
 }
 
-func (m *MultiStoreProof) GetMintStoreMerkleHash() []byte {
+func (m *MultiStoreProof) GetMintStoreMerkleHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.MintStoreMerkleHash
 	}
 	return nil
 }
 
-func (m *MultiStoreProof) GetParamsToSlashingStoresMerkleHash() []byte {
+func (m *MultiStoreProof) GetParamsToSlashingStoresMerkleHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.ParamsToSlashingStoresMerkleHash
 	}
 	return nil
 }
 
-func (m *MultiStoreProof) GetGovToIcahostStoresMerkleHash() []byte {
+func (m *MultiStoreProof) GetGovToIcahostStoresMerkleHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.GovToIcahostStoresMerkleHash
 	}
 	return nil
 }
 
-func (m *MultiStoreProof) GetAuthToFeegrantStoresMerkleHash() []byte {
+func (m *MultiStoreProof) GetAuthToFeegrantStoresMerkleHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.AuthToFeegrantStoresMerkleHash
 	}
 	return nil
 }
 
-func (m *MultiStoreProof) GetStakingToUpgradeStoresMerkleHash() []byte {
+func (m *MultiStoreProof) GetStakingToUpgradeStoresMerkleHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.StakingToUpgradeStoresMerkleHash
 	}
 	return nil
 }
 
+// BlockHeaderMerkleParts stores a group of hashes using for computing Tendermint's block
+// header hash from app hash, and height.
+//
+// In Tendermint, a block header hash is the Merkle hash of a binary tree with 14 leaf nodes.
+// Each node encodes a data piece of the blockchain. The notable data leaves are: [A] app_hash,
+// [2] height. All data pieces are combined into one 32-byte hash to be signed
+// by block validators. The structure of the Merkle tree is shown below.
+//
+//	                                 [BlockHeader]
+//	                              /                \
+//	                 [3A]                                    [3B]
+//	               /      \                                /      \
+//	       [2A]                [2B]                [2C]                [2D]
+//	      /    \              /    \              /    \              /    \
+//	  [1A]      [1B]      [1C]      [1D]      [1E]      [1F]        [C]    [D]
+//	  /  \      /  \      /  \      /  \      /  \      /  \
+//	[0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]  [8]  [9]  [A]  [B]
+//
+//	[0] - version               [1] - chain_id            [2] - height        [3] - time
+//	[4] - last_block_id         [5] - last_commit_hash    [6] - data_hash     [7] - validators_hash
+//	[8] - next_validators_hash  [9] - consensus_hash      [A] - app_hash      [B] - last_results_hash
+//	[C] - evidence_hash         [D] - proposer_address
+//
+// Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
+// root hash, since we only want to validate the correctness of [2], [3], and [A]. In fact, only
+// [1A], [2B], [1E], [B], and [2D] are needed in order to compute [BlockHeader].
 type BlockHeaderMerkleParts struct {
-	VersionAndChainIdHash             []byte `protobuf:"bytes,1,opt,name=version_and_chain_id_hash,json=versionAndChainIdHash,proto3" json:"version_and_chain_id_hash,omitempty"`
-	Height                            uint64 `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
-	TimeSecond                        uint64 `protobuf:"varint,3,opt,name=time_second,json=timeSecond,proto3" json:"time_second,omitempty"`
-	TimeNanoSecond                    uint32 `protobuf:"varint,4,opt,name=time_nano_second,json=timeNanoSecond,proto3" json:"time_nano_second,omitempty"`
-	LastBlockIdAndOther               []byte `protobuf:"bytes,5,opt,name=last_block_id_and_other,json=lastBlockIdAndOther,proto3" json:"last_block_id_and_other,omitempty"`
-	NextValidatorHashAndConsensusHash []byte `protobuf:"bytes,6,opt,name=next_validator_hash_and_consensus_hash,json=nextValidatorHashAndConsensusHash,proto3" json:"next_validator_hash_and_consensus_hash,omitempty"`
-	LastResultsHash                   []byte `protobuf:"bytes,7,opt,name=last_results_hash,json=lastResultsHash,proto3" json:"last_results_hash,omitempty"`
-	EvidenceAndProposerHash           []byte `protobuf:"bytes,8,opt,name=evidence_and_proposer_hash,json=evidenceAndProposerHash,proto3" json:"evidence_and_proposer_hash,omitempty"`
+	VersionAndChainIdHash             github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=version_and_chain_id_hash,json=versionAndChainIdHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"version_and_chain_id_hash,omitempty"`
+	Height                            uint64                                               `protobuf:"varint,2,opt,name=height,proto3" json:"height,omitempty"`
+	TimeSecond                        uint64                                               `protobuf:"varint,3,opt,name=time_second,json=timeSecond,proto3" json:"time_second,omitempty"`
+	TimeNanoSecond                    uint32                                               `protobuf:"varint,4,opt,name=time_nano_second,json=timeNanoSecond,proto3" json:"time_nano_second,omitempty"`
+	LastBlockIdAndOther               github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,5,opt,name=last_block_id_and_other,json=lastBlockIdAndOther,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"last_block_id_and_other,omitempty"`
+	NextValidatorHashAndConsensusHash github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,6,opt,name=next_validator_hash_and_consensus_hash,json=nextValidatorHashAndConsensusHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"next_validator_hash_and_consensus_hash,omitempty"`
+	LastResultsHash                   github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,7,opt,name=last_results_hash,json=lastResultsHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"last_results_hash,omitempty"`
+	EvidenceAndProposerHash           github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,8,opt,name=evidence_and_proposer_hash,json=evidenceAndProposerHash,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"evidence_and_proposer_hash,omitempty"`
 }
 
 func (m *BlockHeaderMerkleParts) Reset()         { *m = BlockHeaderMerkleParts{} }
@@ -987,7 +1055,7 @@ func (m *BlockHeaderMerkleParts) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BlockHeaderMerkleParts proto.InternalMessageInfo
 
-func (m *BlockHeaderMerkleParts) GetVersionAndChainIdHash() []byte {
+func (m *BlockHeaderMerkleParts) GetVersionAndChainIdHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.VersionAndChainIdHash
 	}
@@ -1015,37 +1083,38 @@ func (m *BlockHeaderMerkleParts) GetTimeNanoSecond() uint32 {
 	return 0
 }
 
-func (m *BlockHeaderMerkleParts) GetLastBlockIdAndOther() []byte {
+func (m *BlockHeaderMerkleParts) GetLastBlockIdAndOther() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.LastBlockIdAndOther
 	}
 	return nil
 }
 
-func (m *BlockHeaderMerkleParts) GetNextValidatorHashAndConsensusHash() []byte {
+func (m *BlockHeaderMerkleParts) GetNextValidatorHashAndConsensusHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.NextValidatorHashAndConsensusHash
 	}
 	return nil
 }
 
-func (m *BlockHeaderMerkleParts) GetLastResultsHash() []byte {
+func (m *BlockHeaderMerkleParts) GetLastResultsHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.LastResultsHash
 	}
 	return nil
 }
 
-func (m *BlockHeaderMerkleParts) GetEvidenceAndProposerHash() []byte {
+func (m *BlockHeaderMerkleParts) GetEvidenceAndProposerHash() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.EvidenceAndProposerHash
 	}
 	return nil
 }
 
+// CommonEncodedVotePart represents the common part of encoded vote
 type CommonEncodedVotePart struct {
-	SignedDataPrefix []byte `protobuf:"bytes,1,opt,name=signed_data_prefix,json=signedDataPrefix,proto3" json:"signed_data_prefix,omitempty"`
-	SignedDataSuffix []byte `protobuf:"bytes,2,opt,name=signed_data_suffix,json=signedDataSuffix,proto3" json:"signed_data_suffix,omitempty"`
+	SignedDataPrefix github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=signed_data_prefix,json=signedDataPrefix,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"signed_data_prefix,omitempty"`
+	SignedDataSuffix github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=signed_data_suffix,json=signedDataSuffix,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"signed_data_suffix,omitempty"`
 }
 
 func (m *CommonEncodedVotePart) Reset()         { *m = CommonEncodedVotePart{} }
@@ -1081,25 +1150,30 @@ func (m *CommonEncodedVotePart) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CommonEncodedVotePart proto.InternalMessageInfo
 
-func (m *CommonEncodedVotePart) GetSignedDataPrefix() []byte {
+func (m *CommonEncodedVotePart) GetSignedDataPrefix() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.SignedDataPrefix
 	}
 	return nil
 }
 
-func (m *CommonEncodedVotePart) GetSignedDataSuffix() []byte {
+func (m *CommonEncodedVotePart) GetSignedDataSuffix() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.SignedDataSuffix
 	}
 	return nil
 }
 
+// TMSignature contains all details of validator signature for performing signer recovery for ECDSA
+// secp256k1 signature. Note that this struct is written specifically for signature signed on
+// Tendermint's precommit data, which includes the block hash and some additional information prepended
+// and appended to the block hash. The prepended part (prefix) and the appended part (suffix) are
+// different for each signer (including signature size, machine clock, validator index, etc).
 type TMSignature struct {
-	R                []byte `protobuf:"bytes,1,opt,name=r,proto3" json:"r,omitempty"`
-	S                []byte `protobuf:"bytes,2,opt,name=s,proto3" json:"s,omitempty"`
-	V                uint32 `protobuf:"varint,3,opt,name=v,proto3" json:"v,omitempty"`
-	EncodedTimestamp []byte `protobuf:"bytes,4,opt,name=encoded_timestamp,json=encodedTimestamp,proto3" json:"encoded_timestamp,omitempty"`
+	R                github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=r,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"r,omitempty"`
+	S                github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=s,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"s,omitempty"`
+	V                uint32                                               `protobuf:"varint,3,opt,name=v,proto3" json:"v,omitempty"`
+	EncodedTimestamp github_com_tendermint_tendermint_libs_bytes.HexBytes `protobuf:"bytes,4,opt,name=encoded_timestamp,json=encodedTimestamp,proto3,casttype=github.com/tendermint/tendermint/libs/bytes.HexBytes" json:"encoded_timestamp,omitempty"`
 }
 
 func (m *TMSignature) Reset()         { *m = TMSignature{} }
@@ -1135,14 +1209,14 @@ func (m *TMSignature) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_TMSignature proto.InternalMessageInfo
 
-func (m *TMSignature) GetR() []byte {
+func (m *TMSignature) GetR() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.R
 	}
 	return nil
 }
 
-func (m *TMSignature) GetS() []byte {
+func (m *TMSignature) GetS() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.S
 	}
@@ -1156,17 +1230,18 @@ func (m *TMSignature) GetV() uint32 {
 	return 0
 }
 
-func (m *TMSignature) GetEncodedTimestamp() []byte {
+func (m *TMSignature) GetEncodedTimestamp() github_com_tendermint_tendermint_libs_bytes.HexBytes {
 	if m != nil {
 		return m.EncodedTimestamp
 	}
 	return nil
 }
 
+// RequestsCountProof contains count, version and merkle paths
 type RequestsCountProof struct {
-	Count       uint64            `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
-	Version     uint64            `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
-	MerklePaths []*IAVLMerklePath `protobuf:"bytes,3,rep,name=merkle_paths,json=merklePaths,proto3" json:"merkle_paths,omitempty"`
+	Count       uint64           `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	Version     uint64           `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	MerklePaths []IAVLMerklePath `protobuf:"bytes,3,rep,name=merkle_paths,json=merklePaths,proto3" json:"merkle_paths"`
 }
 
 func (m *RequestsCountProof) Reset()         { *m = RequestsCountProof{} }
@@ -1216,7 +1291,7 @@ func (m *RequestsCountProof) GetVersion() uint64 {
 	return 0
 }
 
-func (m *RequestsCountProof) GetMerklePaths() []*IAVLMerklePath {
+func (m *RequestsCountProof) GetMerklePaths() []IAVLMerklePath {
 	if m != nil {
 		return m.MerklePaths
 	}
@@ -1249,99 +1324,105 @@ func init() {
 func init() { proto.RegisterFile("bandchain/v1/oracle/proof.proto", fileDescriptor_ae72765f9c902173) }
 
 var fileDescriptor_ae72765f9c902173 = []byte{
-	// 1471 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0x4f, 0x6f, 0x1b, 0x45,
-	0x1b, 0xef, 0xc6, 0x4e, 0xda, 0xf7, 0x71, 0xd2, 0x24, 0x93, 0x36, 0x71, 0xa3, 0xd6, 0x49, 0xb6,
-	0x7f, 0x92, 0x36, 0x95, 0xad, 0xa4, 0xef, 0xfb, 0x8a, 0x8a, 0x03, 0x4d, 0x0a, 0x25, 0x81, 0x96,
-	0xa4, 0xeb, 0x90, 0x03, 0x1c, 0x56, 0xe3, 0xdd, 0xc9, 0x7a, 0xd5, 0xf5, 0x8c, 0xd9, 0x19, 0xaf,
-	0x9a, 0x22, 0x2e, 0xdc, 0x90, 0x38, 0x80, 0xb8, 0x73, 0xe5, 0xc8, 0xd7, 0x40, 0x02, 0x89, 0x4a,
-	0x70, 0x40, 0x42, 0xaa, 0x50, 0xca, 0x27, 0xe0, 0x13, 0xa0, 0xf9, 0xb3, 0xce, 0xda, 0x5e, 0x93,
-	0x54, 0x2a, 0x27, 0x7b, 0x9f, 0xf9, 0x3d, 0xbf, 0xe7, 0xef, 0x3c, 0x33, 0x03, 0x0b, 0x0d, 0x4c,
-	0x7d, 0xaf, 0x89, 0x43, 0x5a, 0x4b, 0xd6, 0x6a, 0x2c, 0xc6, 0x5e, 0x44, 0x6a, 0xed, 0x98, 0xb1,
-	0x83, 0x6a, 0x3b, 0x66, 0x82, 0xa1, 0x99, 0x2e, 0xa0, 0x9a, 0xac, 0x55, 0x35, 0x60, 0xfe, 0x72,
-	0xc0, 0x58, 0x10, 0x91, 0x1a, 0x6e, 0x87, 0x35, 0x4c, 0x29, 0x13, 0x58, 0x84, 0x8c, 0x72, 0xad,
-	0x32, 0x7f, 0x21, 0x60, 0x01, 0x53, 0x7f, 0x6b, 0xf2, 0x9f, 0x91, 0xce, 0x1a, 0xf2, 0xae, 0x19,
-	0x2d, 0xb7, 0xdf, 0x83, 0xe9, 0xc7, 0x1d, 0x12, 0x1f, 0xee, 0x4a, 0xa3, 0x0e, 0xf9, 0xa4, 0x43,
-	0xb8, 0x40, 0x57, 0x00, 0x62, 0xfd, 0xd7, 0x0d, 0xfd, 0xb2, 0xb5, 0x68, 0xad, 0x14, 0x9d, 0xff,
-	0x18, 0xc9, 0xb6, 0x8f, 0x66, 0x61, 0xac, 0x49, 0xc2, 0xa0, 0x29, 0xca, 0x23, 0x8b, 0xd6, 0x4a,
-	0xc1, 0x31, 0x5f, 0x36, 0x05, 0x94, 0xe5, 0xe2, 0x6d, 0x46, 0x39, 0xc9, 0xa0, 0xad, 0x2c, 0x1a,
-	0xdd, 0x83, 0xb1, 0x98, 0xf0, 0x4e, 0xa4, 0x59, 0x4a, 0xeb, 0x2b, 0xd5, 0x9c, 0x58, 0xab, 0xf5,
-	0x90, 0x06, 0x11, 0xe9, 0x61, 0x74, 0x8c, 0x9e, 0x7d, 0x17, 0x66, 0x95, 0xbd, 0x47, 0x9d, 0x48,
-	0x84, 0x3d, 0x01, 0x2c, 0x40, 0xe9, 0x38, 0x00, 0x5e, 0xb6, 0x16, 0x0b, 0x2b, 0x45, 0x07, 0xba,
-	0x11, 0x70, 0x3b, 0x86, 0xb9, 0x01, 0xd5, 0x13, 0xfc, 0x7d, 0xab, 0xcf, 0xdf, 0xe5, 0x5c, 0x7f,
-	0x07, 0x09, 0xbb, 0xee, 0x2e, 0xc0, 0x15, 0x65, 0xd3, 0x38, 0x79, 0x9f, 0x75, 0xa8, 0xc8, 0x7a,
-	0x6d, 0x1f, 0x42, 0x65, 0x18, 0xe0, 0xb5, 0xf8, 0x36, 0x48, 0xd8, 0xf5, 0xad, 0x03, 0x33, 0x39,
-	0x99, 0x46, 0xff, 0x87, 0x51, 0xd5, 0x8d, 0xca, 0x5c, 0x69, 0x7d, 0xf1, 0xc4, 0x12, 0x69, 0x38,
-	0xba, 0x01, 0x93, 0x24, 0x69, 0xb9, 0xea, 0xc3, 0x6d, 0x1c, 0x0a, 0xc2, 0x95, 0x63, 0xe3, 0xce,
-	0x04, 0x49, 0x5a, 0x0a, 0xb9, 0x29, 0x85, 0x36, 0x07, 0x94, 0x53, 0x81, 0xff, 0xf5, 0x5a, 0x5d,
-	0x38, 0x29, 0xd1, 0xaf, 0x6e, 0x34, 0x27, 0xb5, 0xa7, 0x32, 0x9a, 0xd1, 0x7b, 0x45, 0xa3, 0xbf,
-	0x5a, 0x50, 0xca, 0x24, 0x0a, 0x2d, 0xc1, 0x78, 0x23, 0x62, 0xde, 0x13, 0x37, 0x53, 0xcf, 0xa2,
-	0x53, 0x52, 0xb2, 0x2d, 0x5d, 0xd4, 0x5d, 0x98, 0xd6, 0x66, 0x5d, 0x1f, 0x0b, 0xac, 0x4d, 0x98,
-	0xfa, 0x5e, 0xcb, 0xf5, 0x6e, 0x47, 0xfd, 0xbc, 0x8d, 0x05, 0xd6, 0x2e, 0x4e, 0xb2, 0x5e, 0x81,
-	0x64, 0xd4, 0x46, 0x63, 0x12, 0xe1, 0x43, 0xc3, 0x58, 0xf8, 0x07, 0xc6, 0x4d, 0x89, 0x76, 0x24,
-	0xd8, 0x30, 0x36, 0x7a, 0x05, 0xf6, 0x0b, 0x0b, 0xe0, 0xb8, 0x12, 0xa7, 0x89, 0xea, 0x63, 0x98,
-	0xcb, 0x46, 0xd5, 0x92, 0xca, 0xdd, 0xd8, 0x0a, 0xa7, 0x8e, 0xed, 0xc2, 0x71, 0x6c, 0x19, 0xfb,
-	0xaf, 0x3f, 0xc0, 0x1f, 0x2d, 0x80, 0xe3, 0xaa, 0x9f, 0x26, 0xc0, 0x2d, 0x28, 0x79, 0x52, 0xa1,
-	0xa7, 0x60, 0xf9, 0x1b, 0xd2, 0x6c, 0x74, 0x9e, 0x69, 0x2b, 0xf0, 0x8e, 0x8d, 0xbd, 0xfe, 0x68,
-	0xbe, 0xb5, 0x60, 0xb2, 0x2f, 0x93, 0xe8, 0x66, 0x77, 0x76, 0xe8, 0xce, 0x9f, 0x4e, 0xd9, 0x92,
-	0xb5, 0xaa, 0xa3, 0x16, 0xd2, 0x29, 0x81, 0xca, 0x70, 0x36, 0x21, 0x31, 0x0f, 0x19, 0x55, 0x61,
-	0x15, 0x9d, 0xf4, 0x13, 0x3d, 0x80, 0xf1, 0x16, 0x89, 0x9f, 0x44, 0xc4, 0x6d, 0x63, 0xd1, 0xe4,
-	0xe5, 0x82, 0x2a, 0xe5, 0xd5, 0x5c, 0x2f, 0xb7, 0x37, 0xf6, 0x1f, 0x3e, 0x52, 0xe0, 0x5d, 0x2c,
-	0x9a, 0x4e, 0xa9, 0xd5, 0xfd, 0xcf, 0xed, 0x9f, 0x2d, 0x38, 0xdf, 0xbb, 0x8e, 0x96, 0x61, 0x2a,
-	0xe4, 0xba, 0x59, 0x18, 0x75, 0xe3, 0x6e, 0xda, 0xcf, 0x39, 0x13, 0x21, 0x97, 0x61, 0xec, 0x50,
-	0x47, 0x25, 0xfe, 0x3a, 0x9c, 0xe7, 0x9d, 0x86, 0x88, 0x09, 0x71, 0x33, 0xc7, 0xd3, 0x84, 0x33,
-	0x61, 0xa4, 0xa6, 0x3e, 0x4b, 0x30, 0x9e, 0xc2, 0x78, 0xf8, 0x8c, 0xa8, 0x84, 0x16, 0x9d, 0x92,
-	0x91, 0xd5, 0xc3, 0x67, 0x04, 0x2d, 0xc3, 0x64, 0x0a, 0x49, 0xe3, 0x2d, 0x2a, 0x54, 0x6a, 0x60,
-	0xdf, 0x84, 0x2d, 0xb9, 0xc2, 0x46, 0x14, 0xd2, 0xc0, 0x6d, 0x62, 0xde, 0x2c, 0x8f, 0xaa, 0xad,
-	0x5f, 0x32, 0xb2, 0x2d, 0xcc, 0x9b, 0xf6, 0x5f, 0x23, 0x30, 0xd9, 0x57, 0x17, 0x59, 0x58, 0xdd,
-	0xf7, 0x5c, 0xb0, 0x98, 0xb8, 0xd9, 0xb9, 0x73, 0x6d, 0xf8, 0xb0, 0xab, 0x4b, 0xb0, 0x29, 0x6c,
-	0xab, 0x57, 0x80, 0x0e, 0xe0, 0x52, 0xda, 0x97, 0xd8, 0x27, 0xb1, 0xdb, 0x2d, 0x46, 0x2c, 0xb8,
-	0x69, 0xc1, 0xd5, 0xe1, 0x2d, 0xb3, 0xa5, 0x94, 0xd2, 0x9c, 0xc7, 0x82, 0x3b, 0xb3, 0x8d, 0x5c,
-	0x39, 0xf2, 0xa0, 0xec, 0xb1, 0x56, 0x8b, 0x51, 0x97, 0x50, 0x8f, 0xf9, 0xc4, 0x77, 0x13, 0x26,
-	0xb4, 0x1d, 0xd3, 0x99, 0xb7, 0x86, 0x0c, 0x4e, 0xa9, 0xf4, 0x8e, 0xd6, 0xd9, 0x67, 0x42, 0xd1,
-	0x39, 0x17, 0xbd, 0x3c, 0x31, 0xba, 0x07, 0xc0, 0xc3, 0x80, 0x62, 0xd1, 0x89, 0x09, 0x2f, 0x17,
-	0x55, 0x2b, 0xe5, 0x1f, 0x3d, 0x7b, 0x8f, 0xea, 0x29, 0xd0, 0xc9, 0xe8, 0xd8, 0x3f, 0x15, 0x60,
-	0xb2, 0x2f, 0x67, 0xe8, 0x21, 0x98, 0x3b, 0x90, 0x1b, 0xe2, 0x24, 0x72, 0xb9, 0xc0, 0x82, 0xe8,
-	0xaa, 0xc9, 0xcc, 0x8f, 0x6f, 0xce, 0x1d, 0xbd, 0x58, 0x98, 0xd1, 0x9b, 0x43, 0x76, 0x60, 0x5d,
-	0xae, 0xcb, 0x0a, 0x3a, 0x33, 0x5a, 0x6d, 0x1b, 0x27, 0x51, 0x57, 0x88, 0xee, 0xc0, 0x6c, 0x2b,
-	0xa4, 0xc2, 0x54, 0xd0, 0xa4, 0x5b, 0xb1, 0xe9, 0xf1, 0x3f, 0x23, 0x57, 0x95, 0x75, 0x9d, 0x3e,
-	0xa5, 0xb4, 0x03, 0xd7, 0xdb, 0x38, 0xc6, 0x2d, 0xee, 0x0a, 0xe6, 0xf2, 0x08, 0xf3, 0xa6, 0xec,
-	0x1c, 0x45, 0xc1, 0x7b, 0x38, 0x0a, 0x8a, 0x63, 0x51, 0x83, 0xf7, 0x58, 0xdd, 0x40, 0x15, 0x1f,
-	0xcf, 0x10, 0xbe, 0x0b, 0x4b, 0x01, 0x4b, 0x24, 0x5b, 0xe8, 0xe1, 0x26, 0xe3, 0x22, 0x8f, 0xac,
-	0xa8, 0xc8, 0x2e, 0x07, 0x2c, 0xd9, 0x63, 0xdb, 0x1a, 0x36, 0x40, 0xf4, 0x3e, 0x5c, 0xc5, 0x1d,
-	0xd1, 0x94, 0x4c, 0x07, 0x84, 0x04, 0x31, 0xa6, 0xb9, 0x54, 0xba, 0xbf, 0x2b, 0x12, 0xba, 0xc7,
-	0x1e, 0x18, 0xe0, 0x00, 0xd9, 0x0e, 0x5c, 0xe7, 0x02, 0x3f, 0x91, 0xb1, 0x09, 0xe6, 0x76, 0xda,
-	0x41, 0x8c, 0x7d, 0x92, 0x47, 0x37, 0xa6, 0xc3, 0x34, 0xe0, 0x3d, 0xf6, 0xa1, 0x86, 0xf6, 0x13,
-	0xda, 0xdf, 0x15, 0x60, 0x36, 0xbf, 0x51, 0xd1, 0x1b, 0x70, 0xc9, 0x6c, 0x51, 0x17, 0x53, 0xdf,
-	0x55, 0x0d, 0xe2, 0x86, 0x7e, 0xa6, 0xb0, 0xce, 0x45, 0x03, 0xd8, 0xa0, 0xfe, 0x7d, 0xb9, 0xbc,
-	0xed, 0x2b, 0x2f, 0x7b, 0x6f, 0xb1, 0xc5, 0xee, 0x5d, 0x6a, 0x01, 0x4a, 0x22, 0x6c, 0x11, 0x97,
-	0x13, 0x8f, 0x51, 0xdf, 0x8c, 0x07, 0x90, 0xa2, 0xba, 0x92, 0xa0, 0x15, 0x98, 0x52, 0x00, 0x8a,
-	0x29, 0x4b, 0x51, 0x45, 0x35, 0x69, 0xce, 0x4b, 0xf9, 0x07, 0x98, 0x32, 0x83, 0xfc, 0x2f, 0xcc,
-	0x45, 0x98, 0x0b, 0x57, 0x6f, 0xcd, 0xd0, 0x57, 0x2e, 0x32, 0xd1, 0x24, 0xb1, 0xc9, 0xe4, 0x8c,
-	0x5c, 0x56, 0x91, 0x6d, 0xfb, 0x1b, 0xd4, 0xdf, 0x91, 0x4b, 0xe8, 0x31, 0xdc, 0xa0, 0xe4, 0xa9,
-	0x70, 0x13, 0x1c, 0x85, 0x3e, 0x16, 0x2c, 0x56, 0xc1, 0xe8, 0xf0, 0xe4, 0x55, 0x85, 0xf2, 0x0e,
-	0xcf, 0xe6, 0x6f, 0x49, 0xa2, 0xf7, 0x53, 0xb0, 0x8c, 0x4d, 0x46, 0x9a, 0x22, 0x55, 0xac, 0xb7,
-	0x60, 0x5a, 0x39, 0xa2, 0xe7, 0xb8, 0xd1, 0x3e, 0xab, 0xb4, 0x27, 0xe5, 0x82, 0x9e, 0xf3, 0x1a,
-	0xfb, 0x26, 0xcc, 0x93, 0x24, 0xf4, 0x09, 0xf5, 0x88, 0xb2, 0xd9, 0x8e, 0x59, 0x9b, 0x71, 0xa2,
-	0xbd, 0x28, 0x9f, 0x53, 0x4a, 0x73, 0x29, 0x62, 0x83, 0xfa, 0xbb, 0x66, 0x5d, 0x55, 0x8a, 0xc3,
-	0xc5, 0xdc, 0xad, 0x8e, 0x6e, 0x03, 0x92, 0xfb, 0x93, 0xf8, 0xe9, 0x65, 0x86, 0x1c, 0x84, 0x4f,
-	0x4d, 0x81, 0xa6, 0xf4, 0x8a, 0x3e, 0x92, 0xa4, 0xbc, 0x1f, 0xcd, 0x3b, 0x07, 0x12, 0x3d, 0xd2,
-	0x8f, 0xae, 0x2b, 0xb9, 0xed, 0x43, 0x29, 0x33, 0x08, 0xd0, 0x38, 0x58, 0xb1, 0x61, 0xb6, 0x62,
-	0xf9, 0x95, 0x5e, 0xc9, 0x2c, 0x2e, 0xbf, 0x12, 0x55, 0xd2, 0x09, 0xc7, 0x4a, 0xd0, 0x2a, 0x4c,
-	0xa7, 0x63, 0x4c, 0x56, 0x8e, 0x0b, 0xdc, 0x6a, 0x9b, 0xed, 0x32, 0x65, 0x16, 0xf6, 0x52, 0xb9,
-	0xfd, 0xa5, 0x05, 0x68, 0xf0, 0xc0, 0x46, 0x17, 0x60, 0x54, 0x1d, 0xd9, 0xe6, 0x2a, 0xa0, 0x3f,
-	0xfe, 0xfd, 0x93, 0x72, 0xfd, 0xf7, 0x02, 0x9c, 0xad, 0x93, 0x38, 0x09, 0x3d, 0x82, 0xbe, 0xb0,
-	0x60, 0x54, 0x7b, 0x73, 0x23, 0x97, 0x67, 0xe0, 0x85, 0x37, 0xbf, 0x7c, 0x22, 0x4e, 0x5f, 0x8b,
-	0xed, 0xda, 0xe7, 0xbf, 0xfc, 0xf9, 0xcd, 0xc8, 0x4d, 0xb4, 0x5c, 0x1b, 0xfa, 0x54, 0xad, 0x7d,
-	0x7a, 0xfc, 0xd6, 0xfa, 0x0c, 0x7d, 0xdd, 0x7b, 0x23, 0x5c, 0x1d, 0x6e, 0x68, 0xe0, 0xd9, 0x36,
-	0x7f, 0xfb, 0x74, 0x60, 0xe3, 0xda, 0x8a, 0x72, 0xcd, 0x46, 0x8b, 0xb9, 0xae, 0x65, 0x2e, 0x96,
-	0xe8, 0x7b, 0x0b, 0xa6, 0x07, 0x1e, 0x55, 0x68, 0x7d, 0xb8, 0xb5, 0x61, 0x4f, 0xb4, 0xf9, 0x3b,
-	0xaf, 0xa4, 0x63, 0x1c, 0x5d, 0x53, 0x8e, 0xae, 0xa2, 0x9b, 0xb9, 0x8e, 0x9a, 0xe4, 0x71, 0x37,
-	0x73, 0x6b, 0xdc, 0xac, 0xff, 0x70, 0x54, 0xb1, 0x9e, 0x1f, 0x55, 0xac, 0x3f, 0x8e, 0x2a, 0xd6,
-	0x57, 0x2f, 0x2b, 0x67, 0x9e, 0xbf, 0xac, 0x9c, 0xf9, 0xed, 0x65, 0xe5, 0xcc, 0x47, 0x77, 0x83,
-	0x50, 0x34, 0x3b, 0x8d, 0xaa, 0xc7, 0x5a, 0x8a, 0x4e, 0x3d, 0xe3, 0x3d, 0x16, 0xd5, 0x0c, 0xef,
-	0x7a, 0xcd, 0x8b, 0x42, 0x42, 0x45, 0x2d, 0x88, 0xdb, 0x5e, 0x4f, 0x9d, 0x1a, 0x63, 0x0a, 0x7b,
-	0xe7, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x17, 0x97, 0x15, 0xde, 0x76, 0x10, 0x00, 0x00,
+	// 1562 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x58, 0xcd, 0x6e, 0x1b, 0x47,
+	0x12, 0xd6, 0x88, 0x94, 0xec, 0x2d, 0x4a, 0x96, 0xd4, 0xb2, 0x25, 0x5a, 0xb0, 0x49, 0x89, 0xfe,
+	0x91, 0xbc, 0x5e, 0x90, 0x90, 0xbc, 0x87, 0x35, 0x76, 0x2f, 0x92, 0xd7, 0x82, 0xb4, 0xb0, 0x2d,
+	0x2f, 0xa9, 0xd5, 0x61, 0x73, 0x98, 0x34, 0x67, 0x5a, 0xe4, 0xc0, 0xc3, 0x6e, 0x66, 0xba, 0x39,
+	0x90, 0x1d, 0x04, 0x41, 0x82, 0xe4, 0xe0, 0xe4, 0x92, 0x38, 0x6f, 0x91, 0x1c, 0x72, 0x08, 0xf2,
+	0x0e, 0x46, 0x4e, 0x06, 0x72, 0x48, 0x80, 0x00, 0x86, 0x21, 0x07, 0x08, 0x90, 0x47, 0xc8, 0x29,
+	0xe8, 0x9f, 0x21, 0x87, 0xe4, 0x30, 0x92, 0x4d, 0xdb, 0x39, 0x91, 0xd3, 0x53, 0xf5, 0x7d, 0x5f,
+	0x75, 0x55, 0x57, 0x77, 0x0f, 0xe4, 0xab, 0x98, 0xba, 0x4e, 0x1d, 0x7b, 0xb4, 0x14, 0xae, 0x96,
+	0x58, 0x80, 0x1d, 0x9f, 0x94, 0x9a, 0x01, 0x63, 0xfb, 0xc5, 0x66, 0xc0, 0x04, 0x43, 0xb3, 0x6d,
+	0x83, 0x62, 0xb8, 0x5a, 0xd4, 0x06, 0x0b, 0xe7, 0x6a, 0x8c, 0xd5, 0x7c, 0x52, 0xc2, 0x4d, 0xaf,
+	0x84, 0x29, 0x65, 0x02, 0x0b, 0x8f, 0x51, 0xae, 0x5d, 0x16, 0x4e, 0xd7, 0x58, 0x8d, 0xa9, 0xbf,
+	0x25, 0xf9, 0xcf, 0x8c, 0xce, 0x19, 0xf0, 0x36, 0x8d, 0x1e, 0x2f, 0xfc, 0x07, 0x66, 0xfe, 0xdb,
+	0x22, 0xc1, 0xfd, 0xbb, 0x92, 0xb4, 0x4c, 0xde, 0x69, 0x11, 0x2e, 0xd0, 0x79, 0x80, 0x40, 0xff,
+	0xb5, 0x3d, 0x37, 0x6b, 0x2d, 0x5a, 0x2b, 0xe9, 0xf2, 0x5f, 0xcc, 0xc8, 0xb6, 0x8b, 0xe6, 0x60,
+	0xbc, 0x4e, 0xbc, 0x5a, 0x5d, 0x64, 0x47, 0x17, 0xad, 0x95, 0x54, 0xd9, 0x3c, 0x15, 0x04, 0xa0,
+	0x38, 0x16, 0x6f, 0x32, 0xca, 0x49, 0xcc, 0xda, 0x8a, 0x5b, 0xa3, 0x4d, 0x18, 0x0f, 0x08, 0x6f,
+	0xf9, 0x1a, 0x25, 0xb3, 0xb6, 0x52, 0x4c, 0x88, 0xb5, 0x58, 0xf1, 0x68, 0xcd, 0x27, 0x5d, 0x88,
+	0x1b, 0xe9, 0xc7, 0x4f, 0xf3, 0x23, 0x65, 0xe3, 0x5d, 0xb8, 0x0e, 0x73, 0x8a, 0xf5, 0x76, 0xcb,
+	0x17, 0x5e, 0x57, 0x18, 0x79, 0xc8, 0x74, 0xc2, 0xe0, 0x59, 0x6b, 0x31, 0xb5, 0x92, 0x2e, 0x43,
+	0x3b, 0x0e, 0x5e, 0x38, 0x80, 0xf9, 0x3e, 0xd7, 0x23, 0x54, 0xdf, 0xec, 0x51, 0xbd, 0x9c, 0xa8,
+	0xba, 0x1f, 0xb0, 0x47, 0x74, 0x1e, 0xce, 0x2b, 0x66, 0x23, 0xf5, 0x06, 0x6b, 0x51, 0x11, 0xd7,
+	0x5e, 0x78, 0x1f, 0x72, 0x83, 0x0c, 0x5e, 0x89, 0xc2, 0x7e, 0xc0, 0x1e, 0x85, 0xdf, 0x5a, 0x30,
+	0x9b, 0x30, 0xf9, 0xe8, 0x5f, 0x30, 0xa6, 0x0a, 0x54, 0xb1, 0x66, 0xd6, 0x16, 0x8f, 0xca, 0x9a,
+	0x81, 0xd5, 0x4e, 0xe8, 0x6d, 0x98, 0x22, 0x61, 0xc3, 0x56, 0x0f, 0x76, 0xf5, 0xbe, 0x20, 0x5c,
+	0xa9, 0x9c, 0xd8, 0xf8, 0xc7, 0x6f, 0x4f, 0xf3, 0x7f, 0xaf, 0x79, 0xa2, 0xde, 0xaa, 0x16, 0x1d,
+	0xd6, 0x28, 0x09, 0x42, 0x5d, 0x12, 0x34, 0x3c, 0x2a, 0xe2, 0x7f, 0x7d, 0xaf, 0xca, 0x4b, 0xca,
+	0xad, 0xb8, 0x45, 0x0e, 0x36, 0xe4, 0x9f, 0xf2, 0x24, 0x09, 0x1b, 0x9a, 0x49, 0x3e, 0x16, 0xbe,
+	0xb1, 0x00, 0x25, 0xe4, 0xf3, 0x9f, 0xdd, 0xb2, 0xf3, 0x47, 0xa4, 0xed, 0xcf, 0x50, 0x9d, 0x90,
+	0xe3, 0x63, 0xa9, 0xee, 0xf8, 0xbd, 0x69, 0xd5, 0xcf, 0x2c, 0xc8, 0xc4, 0x52, 0x8d, 0x96, 0x60,
+	0xa2, 0xea, 0x33, 0xe7, 0x9e, 0x1d, 0x2b, 0xcc, 0x74, 0x39, 0xa3, 0xc6, 0xb6, 0x74, 0x75, 0xee,
+	0xc1, 0x8c, 0x96, 0x6d, 0xbb, 0x58, 0x60, 0x2d, 0xce, 0x14, 0xea, 0xc5, 0xc4, 0xe8, 0x76, 0xd4,
+	0xcf, 0xbf, 0xb1, 0xc0, 0xf1, 0x10, 0xa7, 0x58, 0xf7, 0xb0, 0xc4, 0xd5, 0xd4, 0x01, 0xf1, 0xf1,
+	0x7d, 0x83, 0x9b, 0xfa, 0x03, 0xdc, 0x0d, 0x69, 0x5d, 0x96, 0xc6, 0x5d, 0xb8, 0xd5, 0xee, 0xe1,
+	0xc2, 0xaf, 0x16, 0x40, 0xa7, 0x2c, 0x8e, 0x13, 0x21, 0x86, 0xf9, 0x78, 0x84, 0x0d, 0xe9, 0xdc,
+	0x8e, 0x33, 0xf5, 0x82, 0x71, 0x9e, 0xee, 0xc4, 0x19, 0x53, 0xf1, 0xba, 0x82, 0xfd, 0xc1, 0x02,
+	0xe8, 0x54, 0xd3, 0x71, 0x82, 0xbd, 0x03, 0x19, 0x47, 0x3a, 0x74, 0x25, 0x32, 0xb9, 0xe3, 0x98,
+	0x4e, 0xc6, 0xfb, 0xca, 0x15, 0x9c, 0x0e, 0xe5, 0xeb, 0x8a, 0xec, 0x4b, 0x0b, 0xa6, 0x7a, 0x66,
+	0x18, 0x95, 0xda, 0x8d, 0x52, 0xaf, 0xae, 0x99, 0x08, 0x33, 0x5c, 0x2d, 0x96, 0xd5, 0x8b, 0xee,
+	0x96, 0x88, 0xb2, 0x70, 0x22, 0x24, 0x01, 0xf7, 0x18, 0x55, 0x81, 0xa6, 0xcb, 0xd1, 0x23, 0xba,
+	0x05, 0x13, 0x0d, 0x12, 0xdc, 0xf3, 0x89, 0xdd, 0xc4, 0xa2, 0xce, 0xb3, 0x29, 0x95, 0xe8, 0x0b,
+	0x89, 0x8a, 0xb7, 0xd7, 0xf7, 0x6e, 0xdd, 0x56, 0xc6, 0x77, 0xb1, 0xa8, 0x1b, 0x8a, 0x4c, 0xa3,
+	0x3d, 0xc2, 0x0b, 0x0f, 0x47, 0xe1, 0x54, 0xb7, 0x15, 0x5a, 0x86, 0x69, 0x8f, 0xeb, 0x82, 0x62,
+	0xd4, 0x0e, 0xda, 0xe9, 0x38, 0x59, 0x9e, 0xf4, 0xb8, 0x0c, 0x69, 0x87, 0x96, 0x55, 0x42, 0x2e,
+	0xc1, 0x29, 0xde, 0xaa, 0x8a, 0x80, 0x10, 0x3b, 0xb6, 0x47, 0x4f, 0x96, 0x27, 0xcd, 0xa8, 0xc9,
+	0xdb, 0x12, 0x4c, 0x44, 0x66, 0xdc, 0x7b, 0x40, 0xd4, 0x14, 0xa7, 0xcb, 0x19, 0x33, 0x56, 0xf1,
+	0x1e, 0x10, 0xb4, 0x0c, 0x53, 0x91, 0x49, 0x14, 0x75, 0x5a, 0x59, 0x45, 0x04, 0x7b, 0x26, 0xf8,
+	0xb7, 0x60, 0x82, 0x7b, 0x55, 0xdf, 0xa3, 0x35, 0xbb, 0x8e, 0x79, 0x3d, 0x3b, 0x36, 0x64, 0x93,
+	0xc9, 0x18, 0xb4, 0x2d, 0xcc, 0xeb, 0x85, 0x4f, 0x52, 0x30, 0xd5, 0x93, 0x63, 0x59, 0x24, 0x7a,
+	0x55, 0x71, 0xc1, 0x02, 0x62, 0xc7, 0x3b, 0xe4, 0xc5, 0xc1, 0x7d, 0xbd, 0x22, 0x8d, 0xbb, 0x8a,
+	0xa4, 0xd1, 0x3d, 0x8c, 0x7c, 0x38, 0x1b, 0xd5, 0x3b, 0x76, 0x49, 0x60, 0xb7, 0x53, 0x1a, 0x08,
+	0x6e, 0x4a, 0xfb, 0xea, 0xe0, 0x22, 0xdc, 0x52, 0x4e, 0x51, 0xce, 0x02, 0xc1, 0x0d, 0xcd, 0x5c,
+	0x35, 0xf1, 0x2d, 0xf2, 0x20, 0xeb, 0xb0, 0x46, 0x83, 0x51, 0x9b, 0x50, 0x87, 0xb9, 0xc4, 0xb5,
+	0x43, 0x26, 0x34, 0x9b, 0xa9, 0xf8, 0xbf, 0x0e, 0x68, 0xf7, 0xd2, 0xe9, 0xa6, 0xf6, 0xd9, 0x63,
+	0x42, 0xc1, 0x19, 0xae, 0x33, 0x4e, 0xd2, 0x4b, 0xb4, 0x09, 0xc0, 0xbd, 0x1a, 0xc5, 0xa2, 0x15,
+	0x10, 0x9e, 0x4d, 0xab, 0xe2, 0x4c, 0xde, 0xb8, 0x77, 0x6f, 0x57, 0x22, 0xc3, 0x68, 0x75, 0x76,
+	0x3c, 0x0b, 0x5f, 0x8d, 0xc3, 0x54, 0xcf, 0x5c, 0xa2, 0x8f, 0x2c, 0x30, 0x67, 0x4b, 0xdb, 0xc3,
+	0xa1, 0x6f, 0x73, 0x81, 0x05, 0xd1, 0x85, 0x60, 0xa9, 0x42, 0xd8, 0x39, 0x7c, 0x9a, 0x9f, 0xd5,
+	0x6b, 0x4f, 0x16, 0x75, 0x45, 0xbe, 0x97, 0xa9, 0x7d, 0xe9, 0xfa, 0x98, 0xd5, 0x74, 0xdb, 0x38,
+	0xf4, 0xdb, 0x60, 0xa8, 0x01, 0x73, 0xd2, 0xc1, 0x94, 0x84, 0xc9, 0x9c, 0x52, 0x31, 0xec, 0x9e,
+	0x37, 0x2b, 0xdf, 0xa8, 0x80, 0x75, 0xf6, 0x14, 0xdd, 0x43, 0x0b, 0x2e, 0x35, 0x71, 0x80, 0x1b,
+	0xdc, 0x16, 0xcc, 0xe6, 0x3e, 0xe6, 0x75, 0x59, 0xff, 0x8a, 0x9d, 0x77, 0xd1, 0xa7, 0x86, 0xa4,
+	0x5f, 0xd4, 0x34, 0xbb, 0xac, 0x62, 0x48, 0x94, 0x14, 0x1e, 0xd3, 0xf2, 0x81, 0x05, 0x4b, 0x35,
+	0x16, 0x4a, 0x21, 0x9e, 0x83, 0xeb, 0x8c, 0x8b, 0x24, 0x1d, 0xe9, 0x21, 0x75, 0x9c, 0xab, 0xb1,
+	0x70, 0x97, 0x6d, 0x6b, 0x82, 0x3e, 0x0d, 0x1f, 0x5b, 0x70, 0x01, 0xb7, 0x44, 0x5d, 0x8a, 0xd8,
+	0x27, 0xa4, 0x16, 0x60, 0x9a, 0xa8, 0x62, 0xd8, 0xde, 0x90, 0x93, 0x24, 0xbb, 0x6c, 0xd3, 0x50,
+	0xf4, 0xe9, 0x90, 0x79, 0xe1, 0x02, 0xdf, 0x93, 0xc9, 0x10, 0xcc, 0x6e, 0x35, 0x6b, 0x01, 0x76,
+	0x49, 0x92, 0x92, 0xf1, 0x61, 0xf3, 0x62, 0x68, 0x76, 0xd9, 0xff, 0x34, 0x49, 0xaf, 0x96, 0xc2,
+	0x77, 0x63, 0x30, 0x97, 0xdc, 0x19, 0x50, 0x00, 0x67, 0x4d, 0x4f, 0xb5, 0x31, 0x75, 0x6d, 0xb5,
+	0x0a, 0x6d, 0xcf, 0x8d, 0x2f, 0x9b, 0x97, 0x57, 0x76, 0xc6, 0x40, 0xaf, 0x53, 0xf7, 0x86, 0x04,
+	0xde, 0x76, 0xd5, 0xd4, 0x74, 0xdf, 0xda, 0xd2, 0xed, 0xfb, 0x42, 0x1e, 0x32, 0xc2, 0x6b, 0x10,
+	0x9b, 0x13, 0x87, 0x51, 0xd7, 0xec, 0x04, 0x20, 0x87, 0x2a, 0x6a, 0x04, 0xad, 0xc0, 0xb4, 0x32,
+	0xa0, 0x98, 0xb2, 0xc8, 0x2a, 0xad, 0x36, 0x95, 0x53, 0x72, 0xfc, 0x0e, 0xa6, 0xcc, 0x58, 0x52,
+	0x98, 0xf7, 0x31, 0x17, 0xb6, 0xee, 0xa2, 0x9e, 0xab, 0x82, 0x63, 0xa2, 0x4e, 0x82, 0xa1, 0x13,
+	0x3f, 0x2b, 0x81, 0xd5, 0x6c, 0x6e, 0xbb, 0xeb, 0xd4, 0xdd, 0x91, 0xa0, 0xe8, 0x53, 0x0b, 0x2e,
+	0x53, 0x72, 0x20, 0xec, 0x10, 0xfb, 0x9e, 0x8b, 0x05, 0x0b, 0xd4, 0x0c, 0xea, 0x39, 0x95, 0x07,
+	0x68, 0xca, 0x5b, 0xfc, 0xd5, 0xa4, 0x7b, 0x49, 0xf2, 0xec, 0x45, 0x34, 0x72, 0x42, 0xe5, 0xf4,
+	0x46, 0x1c, 0x6a, 0x82, 0x5d, 0x98, 0x51, 0xd1, 0xeb, 0xd3, 0x82, 0xe1, 0x3d, 0x31, 0x24, 0xef,
+	0x94, 0x84, 0xd4, 0xa7, 0x11, 0xcd, 0xd2, 0x82, 0x05, 0x12, 0x7a, 0x2e, 0xa1, 0x0e, 0x51, 0x71,
+	0x36, 0x03, 0xd6, 0x64, 0x9c, 0xe8, 0xc8, 0xb3, 0x27, 0x87, 0xa4, 0x9b, 0x8f, 0xb0, 0xd7, 0xa9,
+	0x7b, 0xd7, 0x20, 0xab, 0x62, 0xfe, 0xc5, 0x82, 0x33, 0x89, 0x3b, 0x0f, 0xda, 0x07, 0x24, 0xb7,
+	0x08, 0xe2, 0x46, 0x27, 0x7a, 0xb2, 0xef, 0x1d, 0x0c, 0x5d, 0xc4, 0xd3, 0x1a, 0x53, 0x9f, 0xd6,
+	0x24, 0x62, 0x2f, 0x0f, 0x6f, 0xed, 0x4b, 0x9e, 0xd1, 0x57, 0xc7, 0x53, 0x51, 0x88, 0x85, 0x47,
+	0xa3, 0x90, 0x89, 0x6d, 0x83, 0x68, 0x13, 0xac, 0x60, 0xe8, 0x70, 0xac, 0x40, 0xe2, 0x0c, 0x7f,
+	0x01, 0xb3, 0x38, 0x9a, 0x00, 0x2b, 0x54, 0xab, 0x74, 0xb2, 0x6c, 0x85, 0x88, 0xc0, 0x4c, 0x74,
+	0x7c, 0x90, 0x8b, 0x91, 0x0b, 0xdc, 0x68, 0x0e, 0xdd, 0xeb, 0xa7, 0x0d, 0xe4, 0x6e, 0x84, 0x58,
+	0x78, 0x64, 0x01, 0xea, 0x3f, 0xc0, 0xa3, 0xd3, 0x30, 0xa6, 0x0e, 0xef, 0xe6, 0x6a, 0xa0, 0x1f,
+	0xde, 0xd4, 0x39, 0x79, 0xed, 0xa7, 0x14, 0x9c, 0xa8, 0x90, 0x20, 0xf4, 0x1c, 0x22, 0x1b, 0xff,
+	0x98, 0xd6, 0x74, 0x39, 0x11, 0xad, 0xef, 0x23, 0xd7, 0xc2, 0xf2, 0x91, 0x76, 0xfa, 0x12, 0x5e,
+	0x28, 0x7d, 0xf8, 0xfd, 0xcf, 0x5f, 0x8c, 0x5e, 0x41, 0xcb, 0xa5, 0x81, 0x5f, 0xeb, 0x4a, 0xef,
+	0x76, 0x3e, 0x34, 0xbd, 0x87, 0x3e, 0xef, 0xbe, 0x33, 0x5e, 0x1d, 0x4c, 0xd4, 0xf7, 0xcd, 0x6a,
+	0xe1, 0x6f, 0xc7, 0x33, 0x36, 0xd2, 0x56, 0x94, 0xb4, 0x02, 0x5a, 0x4c, 0x94, 0x16, 0xbb, 0x7a,
+	0xa2, 0xaf, 0x2d, 0x98, 0xe9, 0xfb, 0x96, 0x84, 0xd6, 0x06, 0xb3, 0x0d, 0xfa, 0x32, 0xb5, 0x70,
+	0xed, 0x85, 0x7c, 0x8c, 0xd0, 0x55, 0x25, 0xf4, 0x2a, 0xba, 0x92, 0x28, 0xd4, 0x4c, 0x1e, 0xb7,
+	0x63, 0x77, 0xc9, 0x8d, 0xca, 0xe3, 0xc3, 0x9c, 0xf5, 0xe4, 0x30, 0x67, 0x3d, 0x3b, 0xcc, 0x59,
+	0x9f, 0x3d, 0xcf, 0x8d, 0x3c, 0x79, 0x9e, 0x1b, 0xf9, 0xf1, 0x79, 0x6e, 0xe4, 0xff, 0xd7, 0x63,
+	0x45, 0x2d, 0xe1, 0xd4, 0x97, 0x4c, 0x87, 0xf9, 0x25, 0x83, 0xbb, 0x56, 0x72, 0x7c, 0x8f, 0x50,
+	0x51, 0xaa, 0x05, 0x4d, 0xa7, 0x2b, 0x4f, 0xd5, 0x71, 0x65, 0x7b, 0xed, 0xf7, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x5b, 0xcf, 0xde, 0xaf, 0x79, 0x15, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1356,8 +1437,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ServiceClient interface {
+	// Proof queries the proof for given request ID
 	Proof(ctx context.Context, in *QueryProofRequest, opts ...grpc.CallOption) (*QueryProofResponse, error)
+	// MultiProof queries multiple proofs for given list of request IDs
 	MultiProof(ctx context.Context, in *QueryMultiProofRequest, opts ...grpc.CallOption) (*QueryMultiProofResponse, error)
+	// RequestCountProof queries the count proof
 	RequestCountProof(ctx context.Context, in *QueryRequestCountProofRequest, opts ...grpc.CallOption) (*QueryRequestCountProofResponse, error)
 }
 
@@ -1398,8 +1482,11 @@ func (c *serviceClient) RequestCountProof(ctx context.Context, in *QueryRequestC
 
 // ServiceServer is the server API for Service service.
 type ServiceServer interface {
+	// Proof queries the proof for given request ID
 	Proof(context.Context, *QueryProofRequest) (*QueryProofResponse, error)
+	// MultiProof queries multiple proofs for given list of request IDs
 	MultiProof(context.Context, *QueryMultiProofRequest) (*QueryMultiProofResponse, error)
+	// RequestCountProof queries the count proof
 	RequestCountProof(context.Context, *QueryRequestCountProofRequest) (*QueryRequestCountProofResponse, error)
 }
 
@@ -1549,18 +1636,16 @@ func (m *QueryProofResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Result != nil {
-		{
-			size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.Height != 0 {
 		i = encodeVarintProof(dAtA, i, uint64(m.Height))
 		i--
@@ -1630,18 +1715,16 @@ func (m *QueryMultiProofResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
-	if m.Result != nil {
-		{
-			size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.Height != 0 {
 		i = encodeVarintProof(dAtA, i, uint64(m.Height))
 		i--
@@ -1693,18 +1776,16 @@ func (m *QueryRequestCountProofResponse) MarshalToSizedBuffer(dAtA []byte) (int,
 	_ = i
 	var l int
 	_ = l
-	if m.Result != nil {
-		{
-			size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.Height != 0 {
 		i = encodeVarintProof(dAtA, i, uint64(m.Height))
 		i--
@@ -1740,18 +1821,16 @@ func (m *SingleProofResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.Proof != nil {
-		{
-			size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1782,18 +1861,16 @@ func (m *MultiProofResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.Proof != nil {
-		{
-			size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1824,18 +1901,16 @@ func (m *CountProofResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.Proof != nil {
-		{
-			size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Proof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1859,30 +1934,26 @@ func (m *SingleProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BlockRelayProof != nil {
-		{
-			size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1a
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
-	if m.OracleDataProof != nil {
-		{
-			size, err := m.OracleDataProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.OracleDataProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.BlockHeight != 0 {
 		i = encodeVarintProof(dAtA, i, uint64(m.BlockHeight))
 		i--
@@ -1911,18 +1982,16 @@ func (m *MultiProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BlockRelayProof != nil {
-		{
-			size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1a
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x1a
 	if len(m.OracleDataMultiProof) > 0 {
 		for iNdEx := len(m.OracleDataMultiProof) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -1965,30 +2034,26 @@ func (m *CountProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BlockRelayProof != nil {
-		{
-			size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.BlockRelayProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1a
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
-	if m.CountProof != nil {
-		{
-			size, err := m.CountProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.CountProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if m.BlockHeight != 0 {
 		i = encodeVarintProof(dAtA, i, uint64(m.BlockHeight))
 		i--
@@ -2036,18 +2101,16 @@ func (m *OracleDataProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if m.Result != nil {
-		{
-			size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.Result.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -2140,42 +2203,36 @@ func (m *BlockRelayProof) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x22
 		}
 	}
-	if m.CommonEncodedVotePart != nil {
-		{
-			size, err := m.CommonEncodedVotePart.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	{
+		size, err := m.CommonEncodedVotePart.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x1a
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
-	if m.BlockHeaderMerkleParts != nil {
-		{
-			size, err := m.BlockHeaderMerkleParts.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.BlockHeaderMerkleParts.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0x12
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
-	if m.MultiStoreProof != nil {
-		{
-			size, err := m.MultiStoreProof.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintProof(dAtA, i, uint64(size))
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.MultiStoreProof.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
-		i--
-		dAtA[i] = 0xa
+		i -= size
+		i = encodeVarintProof(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -2485,10 +2542,8 @@ func (m *QueryProofResponse) Size() (n int) {
 	if m.Height != 0 {
 		n += 1 + sovProof(uint64(m.Height))
 	}
-	if m.Result != nil {
-		l = m.Result.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Result.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2517,10 +2572,8 @@ func (m *QueryMultiProofResponse) Size() (n int) {
 	if m.Height != 0 {
 		n += 1 + sovProof(uint64(m.Height))
 	}
-	if m.Result != nil {
-		l = m.Result.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Result.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2542,10 +2595,8 @@ func (m *QueryRequestCountProofResponse) Size() (n int) {
 	if m.Height != 0 {
 		n += 1 + sovProof(uint64(m.Height))
 	}
-	if m.Result != nil {
-		l = m.Result.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Result.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2555,10 +2606,8 @@ func (m *SingleProofResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Proof != nil {
-		l = m.Proof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Proof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	l = len(m.EvmProofBytes)
 	if l > 0 {
 		n += 1 + l + sovProof(uint64(l))
@@ -2572,10 +2621,8 @@ func (m *MultiProofResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Proof != nil {
-		l = m.Proof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Proof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	l = len(m.EvmProofBytes)
 	if l > 0 {
 		n += 1 + l + sovProof(uint64(l))
@@ -2589,10 +2636,8 @@ func (m *CountProofResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Proof != nil {
-		l = m.Proof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Proof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	l = len(m.EvmProofBytes)
 	if l > 0 {
 		n += 1 + l + sovProof(uint64(l))
@@ -2609,14 +2654,10 @@ func (m *SingleProof) Size() (n int) {
 	if m.BlockHeight != 0 {
 		n += 1 + sovProof(uint64(m.BlockHeight))
 	}
-	if m.OracleDataProof != nil {
-		l = m.OracleDataProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
-	if m.BlockRelayProof != nil {
-		l = m.BlockRelayProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.OracleDataProof.Size()
+	n += 1 + l + sovProof(uint64(l))
+	l = m.BlockRelayProof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2635,10 +2676,8 @@ func (m *MultiProof) Size() (n int) {
 			n += 1 + l + sovProof(uint64(l))
 		}
 	}
-	if m.BlockRelayProof != nil {
-		l = m.BlockRelayProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.BlockRelayProof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2651,14 +2690,10 @@ func (m *CountProof) Size() (n int) {
 	if m.BlockHeight != 0 {
 		n += 1 + sovProof(uint64(m.BlockHeight))
 	}
-	if m.CountProof != nil {
-		l = m.CountProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
-	if m.BlockRelayProof != nil {
-		l = m.BlockRelayProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.CountProof.Size()
+	n += 1 + l + sovProof(uint64(l))
+	l = m.BlockRelayProof.Size()
+	n += 1 + l + sovProof(uint64(l))
 	return n
 }
 
@@ -2668,10 +2703,8 @@ func (m *OracleDataProof) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Result != nil {
-		l = m.Result.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.Result.Size()
+	n += 1 + l + sovProof(uint64(l))
 	if m.Version != 0 {
 		n += 1 + sovProof(uint64(m.Version))
 	}
@@ -2715,18 +2748,12 @@ func (m *BlockRelayProof) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.MultiStoreProof != nil {
-		l = m.MultiStoreProof.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
-	if m.BlockHeaderMerkleParts != nil {
-		l = m.BlockHeaderMerkleParts.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
-	if m.CommonEncodedVotePart != nil {
-		l = m.CommonEncodedVotePart.Size()
-		n += 1 + l + sovProof(uint64(l))
-	}
+	l = m.MultiStoreProof.Size()
+	n += 1 + l + sovProof(uint64(l))
+	l = m.BlockHeaderMerkleParts.Size()
+	n += 1 + l + sovProof(uint64(l))
+	l = m.CommonEncodedVotePart.Size()
+	n += 1 + l + sovProof(uint64(l))
 	if len(m.Signatures) > 0 {
 		for _, e := range m.Signatures {
 			l = e.Size()
@@ -3040,9 +3067,6 @@ func (m *QueryProofResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Result == nil {
-				m.Result = &SingleProofResponse{}
-			}
 			if err := m.Result.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3271,9 +3295,6 @@ func (m *QueryMultiProofResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Result == nil {
-				m.Result = &MultiProofResponse{}
-			}
 			if err := m.Result.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3426,9 +3447,6 @@ func (m *QueryRequestCountProofResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Result == nil {
-				m.Result = &CountProofResponse{}
-			}
 			if err := m.Result.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3511,9 +3529,6 @@ func (m *SingleProofResponse) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.Proof == nil {
-				m.Proof = &SingleProof{}
 			}
 			if err := m.Proof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -3632,9 +3647,6 @@ func (m *MultiProofResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Proof == nil {
-				m.Proof = &MultiProof{}
-			}
 			if err := m.Proof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3751,9 +3763,6 @@ func (m *CountProofResponse) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.Proof == nil {
-				m.Proof = &CountProof{}
 			}
 			if err := m.Proof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -3891,9 +3900,6 @@ func (m *SingleProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.OracleDataProof == nil {
-				m.OracleDataProof = &OracleDataProof{}
-			}
 			if err := m.OracleDataProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3926,9 +3932,6 @@ func (m *SingleProof) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.BlockRelayProof == nil {
-				m.BlockRelayProof = &BlockRelayProof{}
 			}
 			if err := m.BlockRelayProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4032,7 +4035,7 @@ func (m *MultiProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.OracleDataMultiProof = append(m.OracleDataMultiProof, &OracleDataProof{})
+			m.OracleDataMultiProof = append(m.OracleDataMultiProof, OracleDataProof{})
 			if err := m.OracleDataMultiProof[len(m.OracleDataMultiProof)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4065,9 +4068,6 @@ func (m *MultiProof) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.BlockRelayProof == nil {
-				m.BlockRelayProof = &BlockRelayProof{}
 			}
 			if err := m.BlockRelayProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4171,9 +4171,6 @@ func (m *CountProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.CountProof == nil {
-				m.CountProof = &RequestsCountProof{}
-			}
 			if err := m.CountProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4206,9 +4203,6 @@ func (m *CountProof) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.BlockRelayProof == nil {
-				m.BlockRelayProof = &BlockRelayProof{}
 			}
 			if err := m.BlockRelayProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4293,9 +4287,6 @@ func (m *OracleDataProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Result == nil {
-				m.Result = &types.Result{}
-			}
 			if err := m.Result.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4348,7 +4339,7 @@ func (m *OracleDataProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.MerklePaths = append(m.MerklePaths, &IAVLMerklePath{})
+			m.MerklePaths = append(m.MerklePaths, IAVLMerklePath{})
 			if err := m.MerklePaths[len(m.MerklePaths)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4593,9 +4584,6 @@ func (m *BlockRelayProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.MultiStoreProof == nil {
-				m.MultiStoreProof = &MultiStoreProof{}
-			}
 			if err := m.MultiStoreProof.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4628,9 +4616,6 @@ func (m *BlockRelayProof) Unmarshal(dAtA []byte) error {
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.BlockHeaderMerkleParts == nil {
-				m.BlockHeaderMerkleParts = &BlockHeaderMerkleParts{}
 			}
 			if err := m.BlockHeaderMerkleParts.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4665,9 +4650,6 @@ func (m *BlockRelayProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.CommonEncodedVotePart == nil {
-				m.CommonEncodedVotePart = &CommonEncodedVotePart{}
-			}
 			if err := m.CommonEncodedVotePart.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -4701,7 +4683,7 @@ func (m *BlockRelayProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Signatures = append(m.Signatures, &TMSignature{})
+			m.Signatures = append(m.Signatures, TMSignature{})
 			if err := m.Signatures[len(m.Signatures)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -5643,7 +5625,7 @@ func (m *RequestsCountProof) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.MerklePaths = append(m.MerklePaths, &IAVLMerklePath{})
+			m.MerklePaths = append(m.MerklePaths, IAVLMerklePath{})
 			if err := m.MerklePaths[len(m.MerklePaths)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

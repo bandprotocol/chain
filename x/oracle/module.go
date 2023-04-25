@@ -13,7 +13,6 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
 	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
