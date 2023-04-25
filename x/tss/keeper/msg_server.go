@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -24,15 +25,6 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		Status:    types.ROUND_1,
 	})
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeCreateGroup,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
-		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", req.Threshold)),
-		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
-		sdk.NewAttribute(types.AttributeKeyStatus, types.ROUND_2.String()),
-	))
-
 	// set members
 	for i, member := range req.Members {
 		k.SetMember(ctx, groupID, uint64(i), types.Member{
@@ -44,6 +36,16 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	// use LastCommitHash as a dkgContext
 	dkgContext := ctx.BlockHeader().LastCommitHash
 	k.SetDKGContext(ctx, groupID, dkgContext)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeCreateGroup,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
+		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", req.Threshold)),
+		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
+		sdk.NewAttribute(types.AttributeMembers, strings.Join([]string(req.Members), ",")),
+		sdk.NewAttribute(types.AttributeKeyStatus, types.ROUND_1.String()),
+	))
 
 	return &types.MsgCreateGroupResponse{}, nil
 }

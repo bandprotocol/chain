@@ -23,6 +23,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/cosmos/cosmos-sdk/x/group"
+	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -95,6 +97,18 @@ func NewDefaultGenesisState() GenesisState {
 			sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 			sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 			sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
+			sdk.MsgTypeURL(&group.MsgCreateGroup{}),
+			sdk.MsgTypeURL(&group.MsgExec{}),
+			sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
+			sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
+			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
@@ -121,6 +135,7 @@ func NewDefaultGenesisState() GenesisState {
 		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
+		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),

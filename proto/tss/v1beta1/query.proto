@@ -5,14 +5,14 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "tss/v1beta1/tss.proto";
 
-option go_package = "github.com/bandprotocol/chain/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
 service Query {
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
-    option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
+    option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
   }
 }
 

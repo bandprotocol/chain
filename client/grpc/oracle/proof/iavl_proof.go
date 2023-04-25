@@ -6,17 +6,7 @@ import (
 
 	ics23 "github.com/confio/ics23/go"
 	"github.com/ethereum/go-ethereum/common"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
-
-// MerklePath represents a Merkle step to a leaf data node in an iAVL tree.
-type IAVLMerklePath struct {
-	IsDataOnRight  bool             `json:"is_data_on_right"`
-	SubtreeHeight  uint8            `json:"subtree_height"`
-	SubtreeSize    uint64           `json:"subtree_size"`
-	SubtreeVersion uint64           `json:"subtree_version"`
-	SiblingHash    tmbytes.HexBytes `json:"sibling_hash"`
-}
 
 // IAVLMerklePathEthereum is an Ethereum version of IAVLMerklePath for solidity ABI-encoding.
 type IAVLMerklePathEthereum struct {
@@ -30,7 +20,7 @@ type IAVLMerklePathEthereum struct {
 func (merklePath *IAVLMerklePath) encodeToEthFormat() IAVLMerklePathEthereum {
 	return IAVLMerklePathEthereum{
 		merklePath.IsDataOnRight,
-		merklePath.SubtreeHeight,
+		uint8(merklePath.SubtreeHeight),
 		big.NewInt(int64(merklePath.SubtreeSize)),
 		big.NewInt(int64(merklePath.SubtreeVersion)),
 		common.BytesToHash(merklePath.SiblingHash),
@@ -61,7 +51,7 @@ func GetMerklePaths(iavlEp *ics23.ExistenceProof) []IAVLMerklePath {
 		subtreeSize, n2 := binary.Varint(step.Prefix[n1:])
 		subtreeVersion, n3 := binary.Varint(step.Prefix[n1+n2:])
 
-		imp.SubtreeHeight = uint8(subtreeHeight)
+		imp.SubtreeHeight = uint32(subtreeHeight)
 		imp.SubtreeSize = uint64(subtreeSize)
 		imp.SubtreeVersion = uint64(subtreeVersion)
 
