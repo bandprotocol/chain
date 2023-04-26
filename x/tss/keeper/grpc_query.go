@@ -26,3 +26,15 @@ func (k Keeper) Members(goCtx context.Context, req *types.QueryMembersRequest) (
 		Members: members,
 	}, nil
 }
+
+// TODO-CYLINDER: RETURN CORRECT VALUE
+func (k Keeper) IsSigner(
+	goCtx context.Context,
+	req *types.QueryIsSignerRequest,
+) (*types.QueryIsSignerResponse, error) {
+	_ = sdk.UnwrapSDKContext(goCtx)
+
+	return &types.QueryIsSignerResponse{
+		IsSigner: true,
+	}, nil
+}

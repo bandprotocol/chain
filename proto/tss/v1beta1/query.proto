@@ -14,6 +14,12 @@ service Query {
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
   }
+
+  // IsSigner queries grant of account on this validator.
+  rpc IsSigner(QueryIsSignerRequest) returns (QueryIsSignerResponse) {
+    option (google.api.http).get =
+        "/tss/v1beta1/signer/{validator_address}/{signer_address}";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Group RPC method
@@ -36,4 +42,18 @@ message QueryMembersRequest {
 // QueryMembersResponse is the response type for the Query/Members RPC method
 message QueryMembersResponse {
    repeated Member members = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
+message QueryIsSignerRequest {
+  // ValidatorAddress is a validator address
+  string validator_address = 1;
+  // SignerAddress is a candidate account
+  string signer_address = 2;
+}
+
+// QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
+message QueryIsSignerResponse {
+  // IsSigner is true if this account has been granted by validator
+  bool is_signer = 1;
 }
