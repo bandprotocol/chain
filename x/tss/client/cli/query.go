@@ -20,8 +20,40 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
+	cmd.AddCommand(QueryIsGrantee())
 	cmd.AddCommand(QueryGroupCmd())
 	cmd.AddCommand(QueryMembersCmd())
+
+	return cmd
+}
+
+// QueryIsGrantee creates a CLI command for Query/IsGrantee.
+func QueryIsGrantee() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "is-grantee [granter_address] [grantee_address]",
+		Short: "Query is grantee",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
+				GranterAddress: args[0],
+				GranteeAddress: args[1],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

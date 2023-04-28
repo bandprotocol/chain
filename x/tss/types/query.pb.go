@@ -212,25 +212,25 @@ func (m *QueryMembersResponse) GetMembers() []Member {
 }
 
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
-type QueryIsSignerRequest struct {
-	// ValidatorAddress is a validator address
-	ValidatorAddress string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
-	// SignerAddress is a candidate account
-	SignerAddress string `protobuf:"bytes,2,opt,name=signer_address,json=signerAddress,proto3" json:"signer_address,omitempty"`
+type QueryIsGranteeRequest struct {
+	// Granter is a granter address
+	GranterAddress string `protobuf:"bytes,1,opt,name=granter_address,json=granterAddress,proto3" json:"granter_address,omitempty"`
+	// Grantee is a candidate account
+	GranteeAddress string `protobuf:"bytes,2,opt,name=grantee_address,json=granteeAddress,proto3" json:"grantee_address,omitempty"`
 }
 
-func (m *QueryIsSignerRequest) Reset()         { *m = QueryIsSignerRequest{} }
-func (m *QueryIsSignerRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryIsSignerRequest) ProtoMessage()    {}
-func (*QueryIsSignerRequest) Descriptor() ([]byte, []int) {
+func (m *QueryIsGranteeRequest) Reset()         { *m = QueryIsGranteeRequest{} }
+func (m *QueryIsGranteeRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryIsGranteeRequest) ProtoMessage()    {}
+func (*QueryIsGranteeRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9e98857940a4a89, []int{4}
 }
-func (m *QueryIsSignerRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryIsGranteeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryIsSignerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryIsGranteeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryIsSignerRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryIsGranteeRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -240,50 +240,50 @@ func (m *QueryIsSignerRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryIsSignerRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryIsSignerRequest.Merge(m, src)
+func (m *QueryIsGranteeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryIsGranteeRequest.Merge(m, src)
 }
-func (m *QueryIsSignerRequest) XXX_Size() int {
+func (m *QueryIsGranteeRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryIsSignerRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryIsSignerRequest.DiscardUnknown(m)
+func (m *QueryIsGranteeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryIsGranteeRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryIsSignerRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryIsGranteeRequest proto.InternalMessageInfo
 
-func (m *QueryIsSignerRequest) GetValidatorAddress() string {
+func (m *QueryIsGranteeRequest) GetGranterAddress() string {
 	if m != nil {
-		return m.ValidatorAddress
+		return m.GranterAddress
 	}
 	return ""
 }
 
-func (m *QueryIsSignerRequest) GetSignerAddress() string {
+func (m *QueryIsGranteeRequest) GetGranteeAddress() string {
 	if m != nil {
-		return m.SignerAddress
+		return m.GranteeAddress
 	}
 	return ""
 }
 
 // QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
-type QueryIsSignerResponse struct {
-	// IsSigner is true if this account has been granted by validator
-	IsSigner bool `protobuf:"varint,1,opt,name=is_signer,json=isSigner,proto3" json:"is_signer,omitempty"`
+type QueryIsGranteeResponse struct {
+	// IsGrantee is true if this account has been granted by granter
+	IsGrantee bool `protobuf:"varint,1,opt,name=is_grantee,json=isGrantee,proto3" json:"is_grantee,omitempty"`
 }
 
-func (m *QueryIsSignerResponse) Reset()         { *m = QueryIsSignerResponse{} }
-func (m *QueryIsSignerResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryIsSignerResponse) ProtoMessage()    {}
-func (*QueryIsSignerResponse) Descriptor() ([]byte, []int) {
+func (m *QueryIsGranteeResponse) Reset()         { *m = QueryIsGranteeResponse{} }
+func (m *QueryIsGranteeResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryIsGranteeResponse) ProtoMessage()    {}
+func (*QueryIsGranteeResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9e98857940a4a89, []int{5}
 }
-func (m *QueryIsSignerResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryIsGranteeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryIsSignerResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryIsGranteeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryIsSignerResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryIsGranteeResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -293,21 +293,21 @@ func (m *QueryIsSignerResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryIsSignerResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryIsSignerResponse.Merge(m, src)
+func (m *QueryIsGranteeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryIsGranteeResponse.Merge(m, src)
 }
-func (m *QueryIsSignerResponse) XXX_Size() int {
+func (m *QueryIsGranteeResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryIsSignerResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryIsSignerResponse.DiscardUnknown(m)
+func (m *QueryIsGranteeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryIsGranteeResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryIsSignerResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryIsGranteeResponse proto.InternalMessageInfo
 
-func (m *QueryIsSignerResponse) GetIsSigner() bool {
+func (m *QueryIsGranteeResponse) GetIsGrantee() bool {
 	if m != nil {
-		return m.IsSigner
+		return m.IsGrantee
 	}
 	return false
 }
@@ -317,45 +317,45 @@ func init() {
 	proto.RegisterType((*QueryGroupResponse)(nil), "tss.v1beta1.QueryGroupResponse")
 	proto.RegisterType((*QueryMembersRequest)(nil), "tss.v1beta1.QueryMembersRequest")
 	proto.RegisterType((*QueryMembersResponse)(nil), "tss.v1beta1.QueryMembersResponse")
-	proto.RegisterType((*QueryIsSignerRequest)(nil), "tss.v1beta1.QueryIsSignerRequest")
-	proto.RegisterType((*QueryIsSignerResponse)(nil), "tss.v1beta1.QueryIsSignerResponse")
+	proto.RegisterType((*QueryIsGranteeRequest)(nil), "tss.v1beta1.QueryIsGranteeRequest")
+	proto.RegisterType((*QueryIsGranteeResponse)(nil), "tss.v1beta1.QueryIsGranteeResponse")
 }
 
 func init() { proto.RegisterFile("tss/v1beta1/query.proto", fileDescriptor_b9e98857940a4a89) }
 
 var fileDescriptor_b9e98857940a4a89 = []byte{
-	// 490 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x41, 0x6b, 0x13, 0x41,
-	0x14, 0x80, 0xb3, 0x6d, 0x63, 0xd2, 0x09, 0x8a, 0x9d, 0xb6, 0x58, 0x57, 0xd9, 0xc6, 0x05, 0x4b,
-	0x40, 0xd9, 0xb1, 0xa9, 0x07, 0xf1, 0x20, 0xda, 0x83, 0x52, 0xc4, 0x83, 0xeb, 0xcd, 0x4b, 0x98,
-	0xcd, 0x0e, 0xdb, 0x91, 0x64, 0x67, 0xbb, 0x6f, 0x12, 0x2c, 0x21, 0x1e, 0xfc, 0x03, 0x0a, 0xfd,
-	0x53, 0x3d, 0x16, 0xbc, 0x78, 0x12, 0x49, 0xfc, 0x21, 0x92, 0x37, 0x93, 0xb2, 0xdb, 0x68, 0xe8,
-	0x2d, 0xf3, 0xde, 0xf7, 0xde, 0xf7, 0xf2, 0x5e, 0x42, 0xee, 0x68, 0x00, 0x36, 0xdc, 0x8f, 0x84,
-	0xe6, 0xfb, 0xec, 0x64, 0x20, 0xf2, 0xd3, 0x20, 0xcb, 0x95, 0x56, 0xb4, 0xa1, 0x01, 0x02, 0x9b,
-	0x70, 0xb7, 0x12, 0x95, 0x28, 0x8c, 0xb3, 0xd9, 0x27, 0x83, 0xb8, 0xf7, 0x13, 0xa5, 0x92, 0x9e,
-	0x60, 0x3c, 0x93, 0x8c, 0xa7, 0xa9, 0xd2, 0x5c, 0x4b, 0x95, 0x82, 0xcd, 0x6e, 0x17, 0x3b, 0xcf,
-	0x9a, 0x61, 0xd8, 0x0f, 0xc8, 0xc6, 0xfb, 0x99, 0xe6, 0x4d, 0xae, 0x06, 0x59, 0x28, 0x4e, 0x06,
-	0x02, 0x34, 0xbd, 0x4b, 0xea, 0xc9, 0xec, 0xdd, 0x91, 0xf1, 0x8e, 0xd3, 0x74, 0x5a, 0x6b, 0x61,
-	0x0d, 0xdf, 0x47, 0xb1, 0xff, 0x82, 0xd0, 0x22, 0x0f, 0x99, 0x4a, 0x41, 0xd0, 0x16, 0xa9, 0x22,
-	0x80, 0x74, 0xa3, 0x4d, 0x83, 0xc2, 0xb4, 0x81, 0x41, 0x0d, 0xe0, 0x3f, 0x21, 0x9b, 0x58, 0xff,
-	0x4e, 0xf4, 0x23, 0x91, 0xc3, 0x35, 0x8c, 0x6f, 0xc9, 0x56, 0xb9, 0xc2, 0x3a, 0x0f, 0x48, 0xad,
-	0x6f, 0x42, 0x3b, 0x4e, 0x73, 0xb5, 0xd5, 0x68, 0x6f, 0x96, 0xac, 0x06, 0x3f, 0x5c, 0x3b, 0xff,
-	0xb5, 0x5b, 0x09, 0xe7, 0xa4, 0xff, 0xc9, 0x36, 0x3b, 0x82, 0x0f, 0x32, 0x49, 0x45, 0x3e, 0xf7,
-	0x3f, 0x22, 0x1b, 0x43, 0xde, 0x93, 0x31, 0xd7, 0x2a, 0xef, 0xf0, 0x38, 0xce, 0x05, 0x00, 0x0e,
-	0xb2, 0x1e, 0xde, 0xbe, 0x4c, 0xbc, 0x32, 0x71, 0xfa, 0x90, 0xdc, 0x02, 0xac, 0xbe, 0x24, 0x57,
-	0x90, 0xbc, 0x69, 0xa2, 0x16, 0xf3, 0x9f, 0x92, 0xed, 0x2b, 0x2e, 0x3b, 0xf9, 0x3d, 0xb2, 0x2e,
-	0xa1, 0x63, 0x60, 0x94, 0xd4, 0xc3, 0xba, 0xb4, 0x50, 0xfb, 0xdb, 0x2a, 0xa9, 0x62, 0x19, 0xcd,
-	0x48, 0x15, 0x57, 0x47, 0xbd, 0xd2, 0x17, 0x5b, 0x38, 0x97, 0xbb, 0xfb, 0xdf, 0xbc, 0x11, 0xfa,
-	0x7b, 0x5f, 0x7f, 0xfc, 0x39, 0x5b, 0x69, 0x52, 0x8f, 0x15, 0x7f, 0x04, 0xb8, 0x60, 0x60, 0xa3,
-	0xf9, 0xe2, 0xc7, 0xf4, 0x0b, 0xa9, 0xd9, 0x2d, 0xd3, 0xe6, 0x62, 0xcf, 0xf2, 0xc9, 0xdc, 0x07,
-	0x4b, 0x08, 0xeb, 0x0d, 0xd0, 0xdb, 0xa2, 0x7b, 0xcb, 0xbd, 0xcc, 0x5e, 0x87, 0x9e, 0x39, 0xa4,
-	0x3e, 0xdf, 0x16, 0xfd, 0x47, 0xff, 0x2b, 0x57, 0x73, 0xfd, 0x65, 0x88, 0x9d, 0xe1, 0x25, 0xce,
-	0xf0, 0x9c, 0x3e, 0x2b, 0xcd, 0x60, 0x96, 0xcf, 0x46, 0x0b, 0x47, 0x1f, 0xb3, 0x51, 0xf9, 0xb6,
-	0xe3, 0xc3, 0xd7, 0xe7, 0x13, 0xcf, 0xb9, 0x98, 0x78, 0xce, 0xef, 0x89, 0xe7, 0x7c, 0x9f, 0x7a,
-	0x95, 0x8b, 0xa9, 0x57, 0xf9, 0x39, 0xf5, 0x2a, 0x1f, 0x1f, 0x27, 0x52, 0x1f, 0x0f, 0xa2, 0xa0,
-	0xab, 0xfa, 0x2c, 0xe2, 0x69, 0x8c, 0x7f, 0xa9, 0xae, 0xea, 0xb1, 0xee, 0x31, 0x97, 0x29, 0x1b,
-	0xb6, 0xd9, 0x67, 0xb4, 0xea, 0xd3, 0x4c, 0x40, 0x74, 0x03, 0xd3, 0x07, 0x7f, 0x03, 0x00, 0x00,
-	0xff, 0xff, 0x00, 0xa7, 0x9e, 0xec, 0xe4, 0x03, 0x00, 0x00,
+	// 484 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xc1, 0x6e, 0xd3, 0x40,
+	0x10, 0x86, 0xe3, 0xb6, 0x21, 0xcd, 0x44, 0x02, 0xb1, 0x6d, 0xa1, 0x58, 0xe0, 0x06, 0x23, 0x95,
+	0x1c, 0x90, 0x97, 0xa6, 0x07, 0x10, 0x07, 0x04, 0x3d, 0x50, 0x55, 0x88, 0x03, 0x3e, 0x72, 0x89,
+	0xd6, 0xf1, 0xca, 0x5d, 0xa9, 0xf1, 0xba, 0xde, 0x75, 0x45, 0x85, 0xc2, 0x81, 0x27, 0x40, 0x20,
+	0xf1, 0x4c, 0x3d, 0x46, 0xe2, 0xc2, 0x09, 0xa1, 0x84, 0x07, 0x41, 0x1e, 0xaf, 0x83, 0x9d, 0x88,
+	0x88, 0x9b, 0xf7, 0x9f, 0x6f, 0xe7, 0xff, 0x3d, 0x63, 0xc3, 0x6d, 0xad, 0x14, 0xbd, 0x38, 0x08,
+	0xb8, 0x66, 0x07, 0xf4, 0x3c, 0xe3, 0xe9, 0xa5, 0x97, 0xa4, 0x52, 0x4b, 0xd2, 0xd1, 0x4a, 0x79,
+	0xa6, 0x60, 0x6f, 0x47, 0x32, 0x92, 0xa8, 0xd3, 0xfc, 0xa9, 0x40, 0xec, 0xbb, 0x91, 0x94, 0xd1,
+	0x19, 0xa7, 0x2c, 0x11, 0x94, 0xc5, 0xb1, 0xd4, 0x4c, 0x0b, 0x19, 0x2b, 0x53, 0xdd, 0xa9, 0x76,
+	0xce, 0x9b, 0xa1, 0xec, 0x7a, 0x70, 0xf3, 0x6d, 0x6e, 0x73, 0x9c, 0xca, 0x2c, 0xf1, 0xf9, 0x79,
+	0xc6, 0x95, 0x26, 0x77, 0x60, 0x33, 0xca, 0xcf, 0x03, 0x11, 0xee, 0x5a, 0x5d, 0xab, 0xb7, 0xe1,
+	0xb7, 0xf0, 0x7c, 0x12, 0xba, 0xcf, 0x81, 0x54, 0x79, 0x95, 0xc8, 0x58, 0x71, 0xd2, 0x83, 0x26,
+	0x02, 0x48, 0x77, 0xfa, 0xc4, 0xab, 0xa4, 0xf5, 0x0a, 0xb4, 0x00, 0xdc, 0xc7, 0xb0, 0x85, 0xf7,
+	0xdf, 0xf0, 0x51, 0xc0, 0x53, 0xf5, 0x1f, 0x8e, 0xaf, 0x61, 0xbb, 0x7e, 0xc3, 0x78, 0x1e, 0x42,
+	0x6b, 0x54, 0x48, 0xbb, 0x56, 0x77, 0xbd, 0xd7, 0xe9, 0x6f, 0xd5, 0x5c, 0x0b, 0xfc, 0x68, 0xe3,
+	0xea, 0xe7, 0x5e, 0xc3, 0x2f, 0x49, 0x57, 0xc0, 0x0e, 0x36, 0x3b, 0x51, 0xc7, 0x29, 0x8b, 0x35,
+	0xe7, 0x65, 0x80, 0x87, 0x70, 0x23, 0x42, 0x25, 0x1d, 0xb0, 0x30, 0x4c, 0xb9, 0x52, 0x98, 0xa3,
+	0xed, 0x5f, 0x37, 0xf2, 0xcb, 0x42, 0xfd, 0x0b, 0xf2, 0x39, 0xb8, 0x56, 0x05, 0xb9, 0x01, 0xdd,
+	0x27, 0x70, 0x6b, 0xd1, 0xca, 0x24, 0xbf, 0x07, 0x20, 0xd4, 0xc0, 0xe0, 0x68, 0xb3, 0xe9, 0xb7,
+	0x45, 0x89, 0xf5, 0xbf, 0xac, 0x43, 0x13, 0x6f, 0x92, 0x04, 0x9a, 0x38, 0x3c, 0xe2, 0xd4, 0x5e,
+	0x6d, 0x69, 0x61, 0xf6, 0xde, 0x3f, 0xeb, 0x85, 0xa5, 0xbb, 0xff, 0xe9, 0xfb, 0xef, 0xaf, 0x6b,
+	0x5d, 0xe2, 0xd0, 0xea, 0x67, 0x80, 0x23, 0x56, 0xf4, 0x43, 0x39, 0xfa, 0x31, 0xf9, 0x08, 0x2d,
+	0x33, 0x67, 0xd2, 0x5d, 0xee, 0x59, 0x5f, 0x9a, 0x7d, 0x7f, 0x05, 0x61, 0x7c, 0x3d, 0xf4, 0xed,
+	0x91, 0xfd, 0xd5, 0xbe, 0xd4, 0xec, 0x87, 0x7c, 0xb3, 0xa0, 0x3d, 0x1f, 0x18, 0x71, 0x97, 0x0d,
+	0x16, 0x17, 0x67, 0x3f, 0x58, 0xc9, 0x98, 0x18, 0x2f, 0x30, 0xc6, 0x33, 0xf2, 0x74, 0x21, 0x06,
+	0x52, 0x79, 0x8e, 0xda, 0xe6, 0xc7, 0xa5, 0x32, 0x5f, 0xf1, 0xf8, 0xe8, 0xd5, 0xd5, 0xd4, 0xb1,
+	0x26, 0x53, 0xc7, 0xfa, 0x35, 0x75, 0xac, 0xcf, 0x33, 0xa7, 0x31, 0x99, 0x39, 0x8d, 0x1f, 0x33,
+	0xa7, 0xf1, 0xee, 0x51, 0x24, 0xf4, 0x69, 0x16, 0x78, 0x43, 0x39, 0xa2, 0x01, 0x8b, 0x43, 0xfc,
+	0xaf, 0x86, 0xf2, 0x8c, 0x0e, 0x4f, 0x99, 0x88, 0xe9, 0x45, 0x9f, 0xbe, 0x47, 0x57, 0x7d, 0x99,
+	0x70, 0x15, 0x5c, 0xc3, 0xf2, 0xe1, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x81, 0x1a, 0x19, 0x12,
+	0xe9, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -372,8 +372,8 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
-	// IsSigner queries grant of account on this validator.
-	IsSigner(ctx context.Context, in *QueryIsSignerRequest, opts ...grpc.CallOption) (*QueryIsSignerResponse, error)
+	// IsGrantee queries grant of account on this granter.
+	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 }
 
 type queryClient struct {
@@ -402,9 +402,9 @@ func (c *queryClient) Members(ctx context.Context, in *QueryMembersRequest, opts
 	return out, nil
 }
 
-func (c *queryClient) IsSigner(ctx context.Context, in *QueryIsSignerRequest, opts ...grpc.CallOption) (*QueryIsSignerResponse, error) {
-	out := new(QueryIsSignerResponse)
-	err := c.cc.Invoke(ctx, "/tss.v1beta1.Query/IsSigner", in, out, opts...)
+func (c *queryClient) IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error) {
+	out := new(QueryIsGranteeResponse)
+	err := c.cc.Invoke(ctx, "/tss.v1beta1.Query/IsGrantee", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -415,8 +415,8 @@ func (c *queryClient) IsSigner(ctx context.Context, in *QueryIsSignerRequest, op
 type QueryServer interface {
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
-	// IsSigner queries grant of account on this validator.
-	IsSigner(context.Context, *QueryIsSignerRequest) (*QueryIsSignerResponse, error)
+	// IsGrantee queries grant of account on this granter.
+	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -429,8 +429,8 @@ func (*UnimplementedQueryServer) Group(ctx context.Context, req *QueryGroupReque
 func (*UnimplementedQueryServer) Members(ctx context.Context, req *QueryMembersRequest) (*QueryMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
 }
-func (*UnimplementedQueryServer) IsSigner(ctx context.Context, req *QueryIsSignerRequest) (*QueryIsSignerResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IsSigner not implemented")
+func (*UnimplementedQueryServer) IsGrantee(ctx context.Context, req *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IsGrantee not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -473,20 +473,20 @@ func _Query_Members_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_IsSigner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryIsSignerRequest)
+func _Query_IsGrantee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryIsGranteeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).IsSigner(ctx, in)
+		return srv.(QueryServer).IsGrantee(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/tss.v1beta1.Query/IsSigner",
+		FullMethod: "/tss.v1beta1.Query/IsGrantee",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).IsSigner(ctx, req.(*QueryIsSignerRequest))
+		return srv.(QueryServer).IsGrantee(ctx, req.(*QueryIsGranteeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -504,8 +504,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Members_Handler,
 		},
 		{
-			MethodName: "IsSigner",
-			Handler:    _Query_IsSigner_Handler,
+			MethodName: "IsGrantee",
+			Handler:    _Query_IsGrantee_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -640,7 +640,7 @@ func (m *QueryMembersResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryIsSignerRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryIsGranteeRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -650,34 +650,34 @@ func (m *QueryIsSignerRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryIsSignerRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryIsGranteeRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryIsSignerRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryIsGranteeRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.SignerAddress) > 0 {
-		i -= len(m.SignerAddress)
-		copy(dAtA[i:], m.SignerAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.SignerAddress)))
+	if len(m.GranteeAddress) > 0 {
+		i -= len(m.GranteeAddress)
+		copy(dAtA[i:], m.GranteeAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.GranteeAddress)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.ValidatorAddress) > 0 {
-		i -= len(m.ValidatorAddress)
-		copy(dAtA[i:], m.ValidatorAddress)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.ValidatorAddress)))
+	if len(m.GranterAddress) > 0 {
+		i -= len(m.GranterAddress)
+		copy(dAtA[i:], m.GranterAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.GranterAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryIsSignerResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryIsGranteeResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -687,19 +687,19 @@ func (m *QueryIsSignerResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryIsSignerResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryIsGranteeResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryIsSignerResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryIsGranteeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.IsSigner {
+	if m.IsGrantee {
 		i--
-		if m.IsSigner {
+		if m.IsGrantee {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
@@ -773,30 +773,30 @@ func (m *QueryMembersResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryIsSignerRequest) Size() (n int) {
+func (m *QueryIsGranteeRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ValidatorAddress)
+	l = len(m.GranterAddress)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
-	l = len(m.SignerAddress)
+	l = len(m.GranteeAddress)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *QueryIsSignerResponse) Size() (n int) {
+func (m *QueryIsGranteeResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.IsSigner {
+	if m.IsGrantee {
 		n += 2
 	}
 	return n
@@ -1116,7 +1116,7 @@ func (m *QueryMembersResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryIsSignerRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryIsGranteeRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1139,15 +1139,15 @@ func (m *QueryIsSignerRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryIsSignerRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryIsGranteeRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryIsSignerRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryIsGranteeRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GranterAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1175,11 +1175,11 @@ func (m *QueryIsSignerRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			m.GranterAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignerAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GranteeAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1207,7 +1207,7 @@ func (m *QueryIsSignerRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SignerAddress = string(dAtA[iNdEx:postIndex])
+			m.GranteeAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -1230,7 +1230,7 @@ func (m *QueryIsSignerRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryIsSignerResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryIsGranteeResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1253,15 +1253,15 @@ func (m *QueryIsSignerResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryIsSignerResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryIsGranteeResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryIsSignerResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryIsGranteeResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IsSigner", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IsGrantee", wireType)
 			}
 			var v int
 			for shift := uint(0); ; shift += 7 {
@@ -1278,7 +1278,7 @@ func (m *QueryIsSignerResponse) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-			m.IsSigner = bool(v != 0)
+			m.IsGrantee = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipQuery(dAtA[iNdEx:])

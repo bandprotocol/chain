@@ -7,9 +7,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _ types.QueryServer = Keeper{}
+type Querier struct {
+	Keeper
+}
 
-func (k Keeper) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
+var _ types.QueryServer = Querier{}
+
+func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	group := k.GetGroup(ctx, req.GroupId)
@@ -18,7 +22,7 @@ func (k Keeper) Group(goCtx context.Context, req *types.QueryGroupRequest) (*typ
 	}, nil
 }
 
-func (k Keeper) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
+func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	members := k.GetMembers(ctx, req.GroupId)
@@ -27,14 +31,22 @@ func (k Keeper) Members(goCtx context.Context, req *types.QueryMembersRequest) (
 	}, nil
 }
 
-// TODO-CYLINDER: RETURN CORRECT VALUE
-func (k Keeper) IsSigner(
+func (k Querier) IsGrantee(
 	goCtx context.Context,
-	req *types.QueryIsSignerRequest,
-) (*types.QueryIsSignerResponse, error) {
-	_ = sdk.UnwrapSDKContext(goCtx)
+	req *types.QueryIsGranteeRequest,
+) (*types.QueryIsGranteeResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QueryIsSignerResponse{
-		IsSigner: true,
+	granter, err := sdk.AccAddressFromBech32(req.GranterAddress)
+	if err != nil {
+		return &types.QueryIsGranteeResponse{}, err
+	}
+	grantee, err := sdk.AccAddressFromBech32(req.GranteeAddress)
+	if err != nil {
+		return &types.QueryIsGranteeResponse{}, err
+	}
+
+	return &types.QueryIsGranteeResponse{
+		IsGrantee: k.Keeper.IsGrantee(ctx, granter, grantee),
 	}, nil
 }

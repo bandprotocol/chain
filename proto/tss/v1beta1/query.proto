@@ -15,10 +15,10 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
   }
 
-  // IsSigner queries grant of account on this validator.
-  rpc IsSigner(QueryIsSignerRequest) returns (QueryIsSignerResponse) {
+  // IsGrantee queries grant of account on this granter.
+  rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get =
-        "/tss/v1beta1/signer/{validator_address}/{signer_address}";
+        "/tss/v1beta1/grantee/{granter_address}/{grantee_address}";
   }
 }
 
@@ -45,15 +45,15 @@ message QueryMembersResponse {
 }
 
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
-message QueryIsSignerRequest {
-  // ValidatorAddress is a validator address
-  string validator_address = 1;
-  // SignerAddress is a candidate account
-  string signer_address = 2;
+message QueryIsGranteeRequest {
+  // Granter is a granter address
+  string granter_address = 1;
+  // Grantee is a candidate account
+  string grantee_address = 2;
 }
 
 // QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
-message QueryIsSignerResponse {
-  // IsSigner is true if this account has been granted by validator
-  bool is_signer = 1;
+message QueryIsGranteeResponse {
+  // IsGrantee is true if this account has been granted by granter
+  bool is_grantee = 1;
 }

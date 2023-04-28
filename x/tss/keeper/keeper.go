@@ -15,15 +15,20 @@ import (
 type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
+
+	authzKeeper types.AuthzKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
+
+	authzKeeper types.AuthzKeeper,
 ) Keeper {
 	return Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
+		cdc:         cdc,
+		storeKey:    storeKey,
+		authzKeeper: authzKeeper,
 	}
 }
 
@@ -45,6 +50,24 @@ func (k Keeper) GetNextGroupID(ctx sdk.Context) uint64 {
 	groupNumber := k.GetGroupCount(ctx)
 	k.SetGroupCount(ctx, groupNumber+1)
 	return groupNumber + 1
+}
+
+// IsGrantee checks if the granter granted to the grantee
+func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
+	for _, msg := range types.MsgGrants {
+		cap, _ := k.authzKeeper.GetAuthorization(
+			ctx,
+			grantee,
+			granter,
+			msg,
+		)
+
+		if cap == nil {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) uint64 {
