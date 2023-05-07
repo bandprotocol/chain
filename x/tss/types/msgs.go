@@ -64,7 +64,7 @@ func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
 func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
 
 // ValidateBasic does a sanity check on the provided data

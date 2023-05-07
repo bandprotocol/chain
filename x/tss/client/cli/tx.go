@@ -218,7 +218,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			a0Sign, err := hex.DecodeString(args[2])
+			a0Sig, err := hex.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
@@ -237,9 +237,9 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				GroupId:            groupID,
 				CoefficientsCommit: coefficientsCommit,
 				OneTimePubKey:      oneTimePubKey,
-				A0Sing:             a0Sign,
+				A0Sig:              a0Sig,
 				OneTimeSign:        oneTimeSign,
-				Sender:             clientCtx.GetFromAddress().String(),
+				Member:             clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
