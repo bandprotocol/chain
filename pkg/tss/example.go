@@ -1,4 +1,4 @@
-package crypto
+package tss
 
 import (
 	"encoding/hex"

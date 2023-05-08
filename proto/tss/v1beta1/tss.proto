@@ -6,26 +6,16 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
 
-message Point {
-  bytes x = 1;
-  bytes y = 2;
-}
-
-message Signature {
-  Point r = 1;
-  uint64 z = 2;
-}
-
 message Group {
   uint32 size = 1;
   uint32 threshold = 2;
-  Point pub_key = 3;
+  bytes pub_key = 3;
   GroupStatus status = 4;
 }
 
 message DE {
-  Point d = 1;
-  Point e = 2;
+  bytes d = 1;
+  bytes e = 2;
 }
 
 message DEQueue {
@@ -36,19 +26,21 @@ message DEQueue {
 message Complaint {
   uint64 i = 1;
   uint64 j = 2;
-  Point key_sym = 3;
-  Point a1 = 4;
-  Point a2 = 5;
+  bytes key_sym = 3;
+  bytes a1 = 4;
+  bytes a2 = 5;
   uint64 pi = 6;
 }
 
-message Confirmation { Signature sig_on_pub_key_and_context = 1; }
+message Confirmation { 
+  bytes sig_on_pub_key_and_context = 1; 
+}
 
 message Signing {
   uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
   repeated uint64 assignedParticipants = 2;
   bytes message = 3;
-  Signature sig = 4;
+  bytes sig = 4;
 }
 
 message Member {

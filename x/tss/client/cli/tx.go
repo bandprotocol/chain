@@ -181,27 +181,13 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 
 func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit-json-file]",
+		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.ExactArgs(5),
 		Short: "submit tss round 1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
-		Example: fmt.Sprintf(`
-		%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] coefficients-commit.json
-		
-		where coefficients-commit.json contains:
-		
-		{
-			"points": [
-			  	{
-					"x": "d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c00575",
-					"y": "131c670d414c4546b88ac3ff664611b1c38ceb1c21d76369d7a7a0969d61d97d"
-				},
-				{
-					"x": "d74bf844b0862475103d96a611cf2d898447e288d34b360bc885cb8ce7c00575",
-					"y": "131c670d414c4546b88ac3ff664611b1c38ceb1c21d76369d7a7a0969d61d97d"
-				}
-			]
-		  }
-		`, version.AppName),
+		Example: fmt.Sprintf(
+			`%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
+			version.AppName,
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -223,22 +209,27 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			oneTimeSign, err := hex.DecodeString(args[3])
+			oneTimeSig, err := hex.DecodeString(args[3])
 			if err != nil {
 				return err
 			}
 
-			coefficientsCommit, err := parsePoints(args[4])
-			if err != nil {
-				return err
+			var coefficientsCommit types.Points
+			for i := 4; i < len(args); i++ {
+				coefficientCommit, err := hex.DecodeString(args[i])
+				if err != nil {
+					return err
+				}
+
+				coefficientsCommit = append(coefficientsCommit, types.Point(coefficientCommit))
 			}
 
 			msg := &types.MsgSubmitDKGRound1{
-				GroupId:            groupID,
+				GroupID:            types.GroupID(groupID),
 				CoefficientsCommit: coefficientsCommit,
 				OneTimePubKey:      oneTimePubKey,
 				A0Sig:              a0Sig,
-				OneTimeSign:        oneTimeSign,
+				OneTimeSig:         oneTimeSig,
 				Member:             clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
