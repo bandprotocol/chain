@@ -33,17 +33,33 @@ message MsgCreateGroupResponse {}
 
 message MsgSubmitDKGRound1 {
   // group_id is ID of the group.
-  uint64 group_id = 1;
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "GroupID"
+  ];
+  // member_id is ID of the member in the group.
+  uint64 member_id = 2 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "MemberID"
+  ];
   // coefficients_commit is commitment of all coefficients.
-  repeated Point coefficients_commit = 2 [ (gogoproto.nullable) = false ];
+  repeated bytes coefficients_commit = 3 [
+    (gogoproto.castrepeated) = "Points"
+  ];
   // one_time_pub_key is a one-time used public key for sending secret shares.
-  bytes one_time_pub_key = 3;
+  bytes one_time_pub_key = 4 [
+    (gogoproto.casttype) = "PublicKey"
+  ];
   // a0_sig is a proof of knowledge on a0.
-  bytes a0_sig = 4;
-  // one_time_sign is a proof of knowledge on the OneTimePublicKey.
-  bytes one_time_sign = 5;
+  bytes a0_sig = 5 [
+    (gogoproto.casttype) = "Signature"
+  ];
+  // one_time_sig is a proof of knowledge on the OneTimePublicKey.
+  bytes one_time_sig = 6 [
+    (gogoproto.casttype) = "Signature"
+  ];
   // sender is an account address of message sender.
-  string member = 6;
+  string member = 7;
 }
 
 message MsgSubmitDKGRound1Response {}
