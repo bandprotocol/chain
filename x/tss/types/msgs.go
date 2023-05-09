@@ -42,7 +42,7 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	}
 
 	// validate threshold must be less than or equal to members
-	if m.Threshold > uint32(len(m.Members)) {
+	if m.Threshold > uint64(len(m.Members)) {
 		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members")
 	}
 

@@ -27,6 +27,12 @@ var (
 
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x3}
+
+	// Round1NoteStoreKey is the key that keep track round 1 process on the group
+	Round1NoteStoreKeyPrefix = []byte{0x04}
+
+	// Round1Commitments is the key that keeps the member commitments on round 1
+	Round1CommitmentsStoreKeyPrefix = []byte{0x05}
 )
 
 func GroupStoreKey(groupID uint64) []byte {
@@ -43,6 +49,20 @@ func MembersStoreKey(groupID uint64) []byte {
 
 func MemberOfGroupKey(groupID uint64, memberID uint64) []byte {
 	buf := append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+	buf = append(buf, sdk.Uint64ToBigEndian(memberID)...)
+	return buf
+}
+
+func Round1NoteStoreKey(groupID uint64) []byte {
+	return append(Round1NoteStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+}
+
+func Round1CommitmentsStoreKey(groupID uint64) []byte {
+	return append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+}
+
+func Round1CommitmentsMemberStoreKey(groupID uint64, memberID uint64) []byte {
+	buf := append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
 	buf = append(buf, sdk.Uint64ToBigEndian(memberID)...)
 	return buf
 }

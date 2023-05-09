@@ -22,7 +22,7 @@ message MsgCreateGroup {
   repeated string members = 1;
   // threshold is a minimum number of signers required to produce a group
   // signature.
-  uint32 threshold = 2;
+  uint64 threshold = 2;
   // sender is an account address of message sender.
   string sender = 3;
 }

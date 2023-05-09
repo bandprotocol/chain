@@ -16,7 +16,7 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*types.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	groupSize := uint32(len(req.Members))
+	groupSize := uint64(len(req.Members))
 
 	// create new group
 	groupID := k.CreateNewGroup(ctx, types.Group{
@@ -27,9 +27,9 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	})
 
 	// set members
-	for i, member := range req.Members {
+	for i, m := range req.Members {
 		k.SetMember(ctx, groupID, uint64(i), types.Member{
-			Signer: member,
+			Signer: m,
 			PubKey: "",
 		})
 	}
@@ -47,8 +47,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		sdk.NewAttribute(types.AttributeKeyStatus, types.ROUND_1.String()),
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
 	)
-	for _, member := range req.Members {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyMember, member))
+	for _, m := range req.Members {
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyMember, m))
 	}
 	ctx.EventManager().EmitEvent(event)
 
@@ -60,25 +60,51 @@ func (k Keeper) SubmitDKGRound1(
 	req *types.MsgSubmitDKGRound1,
 ) (*types.MsgSubmitDKGRound1Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := uint64(req.GroupID)
 
-	// TODO-CYLINDER: handle round1 msg
-	fmt.Printf("req %+v \n", req)
+	// check members
+	memberID, found := k.GetMemberID(ctx, groupID, req.Member)
+	if !found {
+		return nil, types.ErrMemberNotAuthorized
+	}
 
-	dkgContext := k.GetDKGContext(ctx, uint64(req.GroupID))
+	// check group status
+	group := k.GetGroup(ctx, groupID)
+	if group.Status != types.ROUND_1 {
+		return nil, types.ErrRound1AlreadyExpired
+	}
+
+	// check previous commitment
+	_, err := k.GetRound1CommitmentsMember(ctx, groupID, memberID)
+	if err == nil {
+		return nil, types.ErrAlreadyCommitRound1
+	}
+
+	dkgContext := k.GetDKGContext(ctx, groupID)
 
 	valid, err := tss.VerifyOneTimeSig(req.GroupID, dkgContext, req.OneTimeSig, req.OneTimePubKey)
-	if err != nil {
-		return nil, err
+	if !valid || err != nil {
+		return nil, types.ErrVerifyOneTimeSigFailed
 	}
-
-	fmt.Printf("result: %+v\n", valid)
 
 	valid, err = tss.VerifyA0Sig(req.GroupID, dkgContext, req.A0Sig, types.PublicKey(req.CoefficientsCommit[0]))
-	if err != nil {
-		return nil, err
+	if !valid || err != nil {
+		return nil, types.ErrVerifyA0SigFailed
 	}
 
-	fmt.Printf("result: %+v\n", valid)
+	round1Commitments := types.Round1Commitments{
+		CoefficientsCommit: req.CoefficientsCommit,
+		OneTimePubKey:      req.OneTimePubKey,
+		A0Sig:              req.A0Sig,
+		OneTimeSig:         req.OneTimeSig,
+	}
+	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+
+	count := k.GetRound1CommitmentsCount(ctx, groupID)
+	if count == group.Size_ {
+		group.Status = types.ROUND_2
+		k.UpdateGroup(ctx, groupID, group)
+	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }

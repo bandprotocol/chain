@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -83,6 +84,10 @@ func (k Keeper) GetGroup(ctx sdk.Context, groupID uint64) types.Group {
 	return group
 }
 
+func (k Keeper) UpdateGroup(ctx sdk.Context, groupID uint64, group types.Group) {
+	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(groupID), k.cdc.MustMarshal(&group))
+}
+
 func (k Keeper) SetDKGContext(ctx sdk.Context, groupID uint64, dkgContext []byte) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)
 }
@@ -112,6 +117,59 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID uint64) (members []types.Mem
 		members = append(members, member)
 	}
 	return members
+}
+
+func (k Keeper) GetMemberID(ctx sdk.Context, groupID uint64, memberAddress string) (uint64, bool) {
+	members := k.GetMembers(ctx, groupID)
+	for i, m := range members {
+		if m.Signer == memberAddress {
+			return uint64(i), true
+		}
+	}
+
+	return 0, false
+}
+
+func (k Keeper) SetRound1Note(ctx sdk.Context, groupID uint64, round1Note types.Round1Note) {
+	ctx.KVStore(k.storeKey).Set(types.Round1NoteStoreKey(groupID), k.cdc.MustMarshal(&round1Note))
+}
+
+func (k Keeper) GetRound1Note(ctx sdk.Context, groupID uint64) (types.Round1Note, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1NoteStoreKey(groupID))
+	if bz == nil {
+		return types.Round1Note{}, sdkerrors.Wrapf(types.ErrRound1NoteNotFound, "groupID: %d", groupID)
+	}
+	var r1n types.Round1Note
+	k.cdc.MustUnmarshal(bz, &r1n)
+	return r1n, nil
+}
+
+func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64, round1Commitment types.Round1Commitments) {
+	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
+}
+
+func (k Keeper) GetRound1CommitmentsMember(ctx sdk.Context, groupID uint64, memberID uint64) (types.Round1Commitments, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
+	if bz == nil {
+		return types.Round1Commitments{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "groupID: %d, memberID: %d", groupID, memberID)
+	}
+	var r1c types.Round1Commitments
+	k.cdc.MustUnmarshal(bz, &r1c)
+	return r1c, nil
+}
+
+func (k Keeper) GetRound1CommitmentsIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentsStoreKey(groupID))
+}
+
+func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID uint64) uint64 {
+	var count uint64
+	iterator := k.GetRound1CommitmentsIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		count += 1
+	}
+	return count
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

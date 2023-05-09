@@ -163,7 +163,7 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 
 			msg := &types.MsgCreateGroup{
 				Members:   members,
-				Threshold: uint32(threshold),
+				Threshold: threshold,
 				Sender:    clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
