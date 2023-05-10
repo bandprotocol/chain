@@ -100,8 +100,11 @@ func (k Keeper) SetMember(ctx sdk.Context, groupID, memberID uint64, member type
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
 }
 
-func (k Keeper) GetMember(ctx sdk.Context, groupID, memberID uint64, member types.Member) {
-	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
+func (k Keeper) GetMember(ctx sdk.Context, groupID, memberID uint64) types.Member {
+	member := types.Member{}
+	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
+	k.cdc.MustUnmarshal(bz, &member)
+	return member
 }
 
 func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
@@ -130,25 +133,11 @@ func (k Keeper) GetMemberID(ctx sdk.Context, groupID uint64, memberAddress strin
 	return 0, false
 }
 
-func (k Keeper) SetRound1Note(ctx sdk.Context, groupID uint64, round1Note types.Round1Note) {
-	ctx.KVStore(k.storeKey).Set(types.Round1NoteStoreKey(groupID), k.cdc.MustMarshal(&round1Note))
-}
-
-func (k Keeper) GetRound1Note(ctx sdk.Context, groupID uint64) (types.Round1Note, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1NoteStoreKey(groupID))
-	if bz == nil {
-		return types.Round1Note{}, sdkerrors.Wrapf(types.ErrRound1NoteNotFound, "groupID: %d", groupID)
-	}
-	var r1n types.Round1Note
-	k.cdc.MustUnmarshal(bz, &r1n)
-	return r1n, nil
-}
-
 func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64, round1Commitment types.Round1Commitments) {
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
-func (k Keeper) GetRound1CommitmentsMember(ctx sdk.Context, groupID uint64, memberID uint64) (types.Round1Commitments, error) {
+func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64) (types.Round1Commitments, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Round1Commitments{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "groupID: %d, memberID: %d", groupID, memberID)
@@ -158,13 +147,13 @@ func (k Keeper) GetRound1CommitmentsMember(ctx sdk.Context, groupID uint64, memb
 	return r1c, nil
 }
 
-func (k Keeper) GetRound1CommitmentsIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
+func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentsStoreKey(groupID))
 }
 
 func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID uint64) uint64 {
 	var count uint64
-	iterator := k.GetRound1CommitmentsIterator(ctx, groupID)
+	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		count += 1

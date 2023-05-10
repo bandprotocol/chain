@@ -75,7 +75,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// check previous commitment
-	_, err := k.GetRound1CommitmentsMember(ctx, groupID, memberID)
+	_, err := k.GetRound1Commitments(ctx, groupID, memberID)
 	if err == nil {
 		return nil, types.ErrAlreadyCommitRound1
 	}
