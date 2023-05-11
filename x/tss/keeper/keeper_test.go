@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
@@ -26,7 +27,15 @@ type KeeperTestSuite struct {
 
 func (s *KeeperTestSuite) SetupTest() {
 	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
-	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
+
+	// commit genesis for test get LastCommitHash in msg create group
+	app.Commit()
+	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		Height:  app.LastBlockHeight() + 1,
+		AppHash: app.LastCommitID().Hash,
+	}, Hash: app.LastCommitID().Hash})
+
+	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: app.LastCommitID().Hash})
 
 	s.app = app
 	s.ctx = ctx
