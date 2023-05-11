@@ -73,5 +73,5 @@ func Verify(
 	}
 
 	err = schnorr.Verify(sig, commitment, pubKey, generator)
-	return err == nil, nil
+	return err == nil, err
 }
