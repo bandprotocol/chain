@@ -78,7 +78,7 @@ func VerifyA0Sig(
 	dkgContext []byte,
 	signature Signature,
 	a0Pub PublicKey,
-) (bool, error) {
+) error {
 	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
 	return Verify(signature, commitment, a0Pub, nil)
 }
@@ -98,7 +98,7 @@ func VerifyOneTimeSig(
 	dkgContext []byte,
 	signature Signature,
 	oneTimePub PublicKey,
-) (bool, error) {
+) error {
 	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
 	return Verify(signature, commitment, oneTimePub, nil)
 }

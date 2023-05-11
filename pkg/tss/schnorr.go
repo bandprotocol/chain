@@ -53,25 +53,25 @@ func Verify(
 	commitment []byte,
 	rawPubKey PublicKey,
 	rawGenerator Point,
-) (bool, error) {
+) error {
 	sig, err := rawSignature.Parse()
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	pubKey, err := rawPubKey.Parse()
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	var generator *secp256k1.JacobianPoint
 	if rawGenerator != nil {
 		generator, err = rawGenerator.Parse()
 		if err != nil {
-			return false, err
+			return err
 		}
 	}
 
 	err = schnorr.Verify(sig, commitment, pubKey, generator)
-	return err == nil, err
+	return err
 }
