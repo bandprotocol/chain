@@ -5,12 +5,13 @@ import (
 	"strconv"
 
 	"github.com/bandprotocol/chain/v2/pkg/event"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Event struct {
-	GroupID    types.GroupID
+	GroupID    tss.GroupID
 	Threshold  uint64
 	DKGContext []byte
 	Members    []string
@@ -50,7 +51,7 @@ func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
 	members := event.GetEventValues(log, types.EventTypeCreateGroup, types.AttributeKeyMember)
 
 	return &Event{
-		GroupID:    types.GroupID(gid),
+		GroupID:    tss.GroupID(gid),
 		Threshold:  threshold,
 		DKGContext: dkgContext,
 		Members:    members,

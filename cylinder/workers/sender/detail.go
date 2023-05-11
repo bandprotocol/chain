@@ -1,12 +1,13 @@
 package sender
 
 import (
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Detail struct {
-	GroupID types.GroupID
+	GroupID tss.GroupID
 	Type    string
 }
 

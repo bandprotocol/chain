@@ -3,7 +3,7 @@ package store
 import (
 	"encoding/json"
 
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -17,7 +17,7 @@ func NewStore(db dbm.DB) *Store {
 	}
 }
 
-func (s *Store) SetGroup(groupID types.GroupID, group Group) error {
+func (s *Store) SetGroup(groupID tss.GroupID, group Group) error {
 	bytes, err := json.Marshal(group)
 	if err != nil {
 		return err
@@ -26,7 +26,7 @@ func (s *Store) SetGroup(groupID types.GroupID, group Group) error {
 	return s.DB.Set(GroupStoreKey(groupID), bytes)
 }
 
-func (s *Store) GetGroup(groupID types.GroupID) (Group, error) {
+func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 	bytes, err := s.DB.Get(GroupStoreKey(groupID))
 
 	var group Group

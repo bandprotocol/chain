@@ -79,10 +79,10 @@ func (r *Round1) handleEvent(event *Event) {
 	logger := r.logger.With("gid", event.GroupID)
 	logger.Info(":delivery_truck: Processing incoming group event")
 
-	var mid types.MemberID
+	var mid tss.MemberID
 	for idx, member := range event.Members {
 		if member == r.context.Config.Granter {
-			mid = types.MemberID(idx)
+			mid = tss.MemberID(idx)
 		}
 	}
 
