@@ -1,14 +1,14 @@
 package store
 
-import "github.com/bandprotocol/chain/v2/x/tss/types"
+import "github.com/bandprotocol/chain/v2/pkg/tss"
 
 type Group struct {
 	// persistent
-	MemberID types.MemberID
-	PrivKey  types.PrivateKey
+	MemberID tss.MemberID
+	PrivKey  tss.PrivateKey
 
 	// temporary
-	Coefficients   types.Coefficients
-	OneTimePrivKey types.PrivateKey
-	KeySyms        types.PrivateKeys
+	Coefficients   tss.Scalars
+	OneTimePrivKey tss.PrivateKey
+	KeySyms        tss.PublicKeys
 }

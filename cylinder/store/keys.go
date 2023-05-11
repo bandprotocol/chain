@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,7 +18,7 @@ var (
 )
 
 // ReportStoreKey returns the key to retrieve all data reports for a request.
-func GroupStoreKey(groupID types.GroupID) []byte {
+func GroupStoreKey(groupID tss.GroupID) []byte {
 	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
