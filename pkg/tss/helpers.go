@@ -1,54 +1,70 @@
 package tss
 
 import (
-	"encoding/hex"
-
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// hexToBytes converts the passed hex string into bytes and will panic if there
-// is an error.  This is only provided for the hard-coded constants so errors in
-// the source code can be detected. It will only (and must only) be called with
-// hard-coded values.
-func HexToBytes(s string) []byte {
-	b, err := hex.DecodeString(s)
+func ConcatBytes(data ...[]byte) []byte {
+	var res []byte
+	for _, b := range data {
+		res = append(res, b...)
+	}
+	return res
+}
+
+func GenerateKeyPairs(n uint64) (types.KeyPairs, error) {
+	var kps types.KeyPairs
+	for i := uint64(0); i < n; i++ {
+		kp, err := GenerateKeyPair()
+		if err != nil {
+			return nil, err
+		}
+
+		kps = append(kps, kp)
+	}
+
+	return kps, nil
+}
+
+func GenerateKeyPair() (types.KeyPair, error) {
+	key, err := secp256k1.GeneratePrivateKey()
 	if err != nil {
-		panic("invalid hex in source file: " + s)
+		return types.KeyPair{}, err
 	}
-	return b
+
+	return types.KeyPair{
+		PrivateKey: key.Serialize(),
+		PublicKey:  key.PubKey().SerializeCompressed(),
+	}, nil
 }
 
-// hexToFieldVal converts the passed hex string into a FieldVal and will panic
-// if there is an error.  This is only provided for the hard-coded constants so
-// errors in the source code can be detected. It will only (and must only) be
-// called with hard-coded values.
-func HexToFieldVal(s string) *secp256k1.FieldVal {
-	b, err := hex.DecodeString(s)
+func GenerateKeySymIJ(privKeyIBytes types.PrivateKey, pubKeyJBytes types.PublicKey) ([]byte, error) {
+	privKeyI := secp256k1.PrivKeyFromBytes(privKeyIBytes)
+
+	pubKeyJ, err := secp256k1.ParsePubKey(pubKeyJBytes)
 	if err != nil {
-		panic("invalid hex in source file: " + s)
+		return nil, err
 	}
-	var f secp256k1.FieldVal
-	if overflow := f.SetByteSlice(b); overflow {
-		panic("hex in source file overflows mod P: " + s)
-	}
-	return &f
+
+	var pubKeyJPoint secp256k1.JacobianPoint
+	pubKeyJ.AsJacobian(&pubKeyJPoint)
+
+	var keySymIJ secp256k1.JacobianPoint
+	secp256k1.ScalarMultNonConst(&privKeyI.Key, &pubKeyJPoint, &keySymIJ)
+	keySymIJ.ToAffine()
+
+	return secp256k1.NewPublicKey(&keySymIJ.X, &keySymIJ.Y).SerializeCompressed(), nil
 }
 
-func BytesToFieldVal(b []byte) secp256k1.FieldVal {
-	var f secp256k1.FieldVal
-	if overflow := f.SetByteSlice(b); overflow {
-		panic("byte in source file overflows")
+func parseJacobianPoint(bytes []byte) (*secp256k1.JacobianPoint, error) {
+	pk, err := secp256k1.ParsePubKey(bytes)
+	if err != nil {
+		return nil, err
 	}
-	return f
-}
 
-// jacobianPointFromHex decodes the passed big-endian hex strings into a
-// Jacobian point with its internal fields set to the resulting values.  Only
-// the first 32-bytes are used.
-func JacobianPointFromHex(x, y string) secp256k1.JacobianPoint {
-	var p secp256k1.JacobianPoint
-	p.X.Set(HexToFieldVal(x))
-	p.Y.Set(HexToFieldVal(y))
-	p.Z.Set(HexToFieldVal("1"))
-	return p
+	var point secp256k1.JacobianPoint
+	pk.AsJacobian(&point)
+
+	return &point, nil
 }

@@ -6,44 +6,33 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func GenerateKeyPair() (types.KeyPair, error) {
-	key, err := secp256k1.GeneratePrivateKey()
-	if err != nil {
-		return types.KeyPair{}, err
-	}
-
-	return types.KeyPair{
-		PrivateKey: key.Serialize(),
-		PublicKey:  key.PubKey().SerializeCompressed(),
-	}, nil
-}
-func GenerateKeyPairs(n uint64) (types.KeyPairs, error) {
-	var kps types.KeyPairs
-	for i := uint64(0); i < n; i++ {
-		kp, err := GenerateKeyPair()
-		if err != nil {
-			return nil, err
-		}
-
-		kps = append(kps, kp)
-	}
-
-	return kps, nil
+func PublicKey(privKeyBytes types.PrivateKey) types.PublicKey {
+	privKey := secp256k1.PrivKeyFromBytes(privKeyBytes)
+	return privKey.PubKey().SerializeCompressed()
 }
 
-func PublicKey(privKey types.PrivateKey) types.PublicKey {
-	pk := secp256k1.PrivKeyFromBytes(privKey)
-	return pk.PubKey().SerializeCompressed()
+func Encrypt(value []byte, key types.PrivateKey) []byte {
+	hash := crypto.Keccak256(key)
+
+	var k secp256k1.ModNScalar
+	_ = k.SetByteSlice(hash)
+
+	var v secp256k1.ModNScalar
+	_ = v.SetByteSlice(value)
+
+	res := k.Add(&v).Bytes()
+	return res[:]
 }
 
-func Hash(salt []byte, data ...[]byte) []byte {
-	return crypto.Keccak256(data...)
-}
+func Decrypt(encValue []byte, key types.PrivateKey) []byte {
+	hash := crypto.Keccak256(key)
 
-func Hash1(data ...[]byte) []byte {
-	return Hash([]byte("round1A0"), data...)
-}
+	var k secp256k1.ModNScalar
+	_ = k.SetByteSlice(hash)
 
-func Hash2(data ...[]byte) []byte {
-	return Hash([]byte("round1Sk"), data...)
+	var ev secp256k1.ModNScalar
+	_ = ev.SetByteSlice(encValue)
+
+	res := k.Negate().Add(&ev).Bytes()
+	return res[:]
 }
