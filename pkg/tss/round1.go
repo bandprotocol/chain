@@ -68,7 +68,7 @@ func SignA0(
 	dkgContext []byte,
 	a0Pub PublicKey,
 	a0Priv PrivateKey,
-) ([]byte, error) {
+) (Signature, error) {
 	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
 	return Sign(a0Priv, commitment, nil, nil)
 }
@@ -88,7 +88,7 @@ func SignOneTime(
 	dkgContext []byte,
 	oneTimePub PublicKey,
 	onetimePriv PrivateKey,
-) ([]byte, error) {
+) (Signature, error) {
 	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
 	return Sign(onetimePriv, commitment, nil, nil)
 }

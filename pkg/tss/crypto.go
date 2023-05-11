@@ -4,7 +4,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func Encrypt(value Scalar, keySym PublicKey) []byte {
+func Encrypt(value Scalar, keySym PublicKey) Scalar {
 	k := Scalar(crypto.Keccak256(keySym)).Parse()
 	v := value.Parse()
 
@@ -12,7 +12,7 @@ func Encrypt(value Scalar, keySym PublicKey) []byte {
 	return res[:]
 }
 
-func Decrypt(encValue Scalar, keySym PublicKey) []byte {
+func Decrypt(encValue Scalar, keySym PublicKey) Scalar {
 	k := Scalar(crypto.Keccak256(keySym)).Parse()
 	ev := encValue.Parse()
 

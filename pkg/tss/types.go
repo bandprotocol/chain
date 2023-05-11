@@ -18,13 +18,14 @@ type MemberID uint64
 type Scalar []byte
 
 func ParseScalar(scalar secp256k1.ModNScalar) Scalar {
-	bytes := secp256k1.NewPrivateKey(&scalar).Serialize()
-	return Scalar(bytes)
+	bytes := scalar.Bytes()
+	return Scalar(bytes[:])
 }
 
 func (s Scalar) Parse() *secp256k1.ModNScalar {
-	privKey := PrivateKey(s).Parse()
-	return &privKey.Key
+	var scalar secp256k1.ModNScalar
+	scalar.SetByteSlice(s)
+	return &scalar
 }
 
 type Scalars []Scalar
@@ -41,26 +42,20 @@ func (ss Scalars) Parse() []*secp256k1.ModNScalar {
 // Point
 // /////////////////////////////////////////////
 type Point []byte
+type Points []Point
 
 func ParsePoint(point secp256k1.JacobianPoint) Point {
-	point.ToAffine()
-	bytes := secp256k1.NewPublicKey(&point.X, &point.Y).SerializeCompressed()
-	return Point(bytes)
+	return Point(ParsePublicKey(point))
 }
 
 func (p Point) Parse() (*secp256k1.JacobianPoint, error) {
-	pk, err := PublicKey(p).Parse()
+	point, err := PublicKey(p).Point()
 	if err != nil {
 		return nil, err
 	}
 
-	var point secp256k1.JacobianPoint
-	pk.AsJacobian(&point)
-
-	return &point, nil
+	return point, nil
 }
-
-type Points []Point
 
 func (ps Points) Parse() ([]*secp256k1.JacobianPoint, error) {
 	var points []*secp256k1.JacobianPoint
@@ -80,6 +75,7 @@ func (ps Points) Parse() ([]*secp256k1.JacobianPoint, error) {
 // Public key
 // /////////////////////////////////////////////
 type PublicKey []byte
+type PublicKeys []PublicKey
 
 func ParsePublicKey(point secp256k1.JacobianPoint) PublicKey {
 	point.ToAffine()
@@ -97,15 +93,16 @@ func (pk PublicKey) Parse() (*secp256k1.PublicKey, error) {
 }
 
 func (pk PublicKey) Point() (*secp256k1.JacobianPoint, error) {
-	point, err := Point(pk).Parse()
+	pubKey, err := pk.Parse()
 	if err != nil {
 		return nil, err
 	}
 
-	return point, nil
-}
+	var point secp256k1.JacobianPoint
+	pubKey.AsJacobian(&point)
 
-type PublicKeys []PublicKey
+	return &point, nil
+}
 
 func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 	var pubKeys []*secp256k1.PublicKey
@@ -125,6 +122,7 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 // Private key
 // /////////////////////////////////////////////
 type PrivateKey []byte
+type PrivateKeys []PrivateKey
 
 func ParsePrivateKey(scalar secp256k1.ModNScalar) PrivateKey {
 	bytes := secp256k1.NewPrivateKey(&scalar).Serialize()
@@ -136,11 +134,8 @@ func (pk PrivateKey) Parse() *secp256k1.PrivateKey {
 }
 
 func (pk PrivateKey) Scalar() *secp256k1.ModNScalar {
-	scalar := Scalar(pk).Parse()
-	return scalar
+	return &pk.Parse().Key
 }
-
-type PrivateKeys []PrivateKey
 
 func (pks PrivateKeys) Parse() []*secp256k1.PrivateKey {
 	var privKeys []*secp256k1.PrivateKey
