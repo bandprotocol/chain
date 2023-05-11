@@ -20,5 +20,5 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	ec := tss.Encrypt(ev, k)
 	value := tss.Decrypt(ec, k)
 
-	assert.Equal(t, ev, value)
+	assert.Equal(t, tss.Scalar(ev), value)
 }
