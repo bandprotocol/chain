@@ -35,28 +35,28 @@ message MsgSubmitDKGRound1 {
   // group_id is ID of the group.
   uint64 group_id = 1 [
     (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "GroupID"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
   // member_id is ID of the member in the group.
   uint64 member_id = 2 [
     (gogoproto.customname) = "MemberID",
-    (gogoproto.casttype) = "MemberID"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
   // coefficients_commit is commitment of all coefficients.
   repeated bytes coefficients_commit = 3 [
-    (gogoproto.castrepeated) = "Points"
+    (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
   // one_time_pub_key is a one-time used public key for sending secret shares.
   bytes one_time_pub_key = 4 [
-    (gogoproto.casttype) = "PublicKey"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   // a0_sig is a proof of knowledge on a0.
   bytes a0_sig = 5 [
-    (gogoproto.casttype) = "Signature"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // one_time_sig is a proof of knowledge on the OneTimePublicKey.
   bytes one_time_sig = 6 [
-    (gogoproto.casttype) = "Signature"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // sender is an account address of message sender.
   string member = 7;

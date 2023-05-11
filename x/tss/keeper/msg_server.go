@@ -95,7 +95,7 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
-	valid, err = tss.VerifyA0Sig(req.GroupID, dkgContext, req.A0Sig, types.PublicKey(req.CoefficientsCommit[0]))
+	valid, err = tss.VerifyA0Sig(req.GroupID, dkgContext, req.A0Sig, tss.PublicKey(req.CoefficientsCommit[0]))
 	if !valid || err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}

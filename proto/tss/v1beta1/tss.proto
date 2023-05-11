@@ -21,16 +21,16 @@ message Round1Note {
 
 message Round1Commitments {
   repeated bytes coefficients_commit = 3 [
-    (gogoproto.castrepeated) = "Points"
+    (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
   bytes one_time_pub_key = 4 [
-    (gogoproto.casttype) = "PublicKey"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes a0_sig = 5 [
-    (gogoproto.casttype) = "Signature"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   bytes one_time_sig = 6 [
-    (gogoproto.casttype) = "Signature"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
 

@@ -1,24 +1,23 @@
 package tss
 
 import (
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Round1Data struct {
-	OneTimePrivKey     types.PrivateKey
-	OneTimePubKey      types.PublicKey
-	OneTimeSig         types.Signature
-	A0PrivKey          types.PrivateKey
-	A0PubKey           types.PublicKey
-	A0Sig              types.Signature
-	Coefficients       types.Coefficients
-	CoefficientsCommit types.Points
+	OneTimePrivKey     PrivateKey
+	OneTimePubKey      PublicKey
+	OneTimeSig         Signature
+	A0PrivKey          PrivateKey
+	A0PubKey           PublicKey
+	A0Sig              Signature
+	Coefficients       Scalars
+	CoefficientsCommit Points
 }
 
 func GenerateRound1Data(
-	gid types.GroupID,
-	mid types.MemberID,
+	gid GroupID,
+	mid MemberID,
 	threshold uint64,
 	dkgContext []byte,
 ) (*Round1Data, error) {
@@ -45,11 +44,11 @@ func GenerateRound1Data(
 	}
 
 	// get coeffcients
-	var coefficientsCommit types.Points
-	var coefficients types.Coefficients
+	var coefficientsCommit Points
+	var coefficients Scalars
 	for i := 1; i < len(kps); i++ {
-		coefficientsCommit = append(coefficientsCommit, types.Point(kps[i].PublicKey))
-		coefficients = append(coefficients, types.Coefficient(kps[i].PrivateKey))
+		coefficientsCommit = append(coefficientsCommit, Point(kps[i].PublicKey))
+		coefficients = append(coefficients, Scalar(kps[i].PrivateKey))
 	}
 
 	return &Round1Data{
@@ -65,49 +64,49 @@ func GenerateRound1Data(
 }
 
 func SignA0(
-	gid types.GroupID,
+	gid GroupID,
 	dkgContext []byte,
-	a0Pub types.PublicKey,
-	a0Priv types.PrivateKey,
+	a0Pub PublicKey,
+	a0Priv PrivateKey,
 ) ([]byte, error) {
 	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
 	return Sign(a0Priv, commitment, nil, nil)
 }
 
 func VerifyA0Sig(
-	gid types.GroupID,
+	gid GroupID,
 	dkgContext []byte,
-	signature types.Signature,
-	a0Pub types.PublicKey,
+	signature Signature,
+	a0Pub PublicKey,
 ) (bool, error) {
 	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
 	return Verify(signature, commitment, a0Pub, nil)
 }
 
 func SignOneTime(
-	gid types.GroupID,
+	gid GroupID,
 	dkgContext []byte,
-	oneTimePub types.PublicKey,
-	onetimePriv types.PrivateKey,
+	oneTimePub PublicKey,
+	onetimePriv PrivateKey,
 ) ([]byte, error) {
 	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
 	return Sign(onetimePriv, commitment, nil, nil)
 }
 
 func VerifyOneTimeSig(
-	gid types.GroupID,
+	gid GroupID,
 	dkgContext []byte,
-	signature types.Signature,
-	oneTimePub types.PublicKey,
+	signature Signature,
+	oneTimePub PublicKey,
 ) (bool, error) {
 	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
 	return Verify(signature, commitment, oneTimePub, nil)
 }
 
-func generateCommitmentA0(gid types.GroupID, dkgContext []byte, a0Pub types.PublicKey) []byte {
+func generateCommitmentA0(gid GroupID, dkgContext []byte, a0Pub PublicKey) []byte {
 	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(gid)), dkgContext, a0Pub)
 }
 
-func generateCommitmentOneTime(gid types.GroupID, dkgContext []byte, oneTimePub types.PublicKey) []byte {
+func generateCommitmentOneTime(gid GroupID, dkgContext []byte, oneTimePub PublicKey) []byte {
 	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(gid)), dkgContext, oneTimePub)
 }

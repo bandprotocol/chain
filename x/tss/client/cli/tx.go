@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -214,18 +215,18 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			var coefficientsCommit types.Points
+			var coefficientsCommit tss.Points
 			for i := 4; i < len(args); i++ {
 				coefficientCommit, err := hex.DecodeString(args[i])
 				if err != nil {
 					return err
 				}
 
-				coefficientsCommit = append(coefficientsCommit, types.Point(coefficientCommit))
+				coefficientsCommit = append(coefficientsCommit, tss.Point(coefficientCommit))
 			}
 
 			msg := &types.MsgSubmitDKGRound1{
-				GroupID:            types.GroupID(groupID),
+				GroupID:            tss.GroupID(groupID),
 				CoefficientsCommit: coefficientsCommit,
 				OneTimePubKey:      oneTimePubKey,
 				A0Sig:              a0Sig,

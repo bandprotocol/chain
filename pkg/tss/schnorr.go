@@ -1,46 +1,44 @@
 package tss
 
 import (
-	"errors"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 func Sign(
-	privKeyBytes types.PrivateKey,
+	rawPrivKey PrivateKey,
 	commitment []byte,
-	generatorBytes *[]byte,
-	nonceBytes *[]byte,
-) (types.Signature, error) {
-	privKey := secp256k1.PrivKeyFromBytes(privKeyBytes)
+	rawGenerator Point,
+	rawNonce Scalar,
+) (Signature, error) {
+	privKey := rawPrivKey.Parse()
 	privKeyScalar := &privKey.Key
 
 	var generator *secp256k1.JacobianPoint
-	if generatorBytes != nil {
+	if rawGenerator != nil {
 		var err error
-		generator, err = parseJacobianPoint(*generatorBytes)
+		generator, err = rawGenerator.Parse()
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	for iterator := uint64(0); ; iterator++ {
-		var nonce secp256k1.ModNScalar
-		if nonceBytes == nil {
-			nonce = *secp256k1.NonceRFC6979(privKeyBytes, commitment, schnorr.RFC6979ExtraDataV0[:], nil, uint32(iterator))
-		} else {
-			overflow := nonce.SetByteSlice(*nonceBytes)
-			if overflow {
-				return nil, errors.New("nonce is overflow")
-			}
+		nonce := secp256k1.NonceRFC6979(
+			rawPrivKey,
+			commitment,
+			schnorr.RFC6979ExtraDataV0[:],
+			nil,
+			uint32(iterator),
+		)
+		if rawNonce != nil {
+			nonce = rawNonce.Parse()
 		}
 
-		sig, err := schnorr.Sign(privKeyScalar, &nonce, commitment, generator)
+		sig, err := schnorr.Sign(privKeyScalar, nonce, commitment, generator)
 		nonce.Zero()
 		if err != nil {
-			if nonceBytes == nil {
+			if rawNonce == nil {
 				continue
 			}
 			return nil, err
@@ -51,24 +49,24 @@ func Sign(
 }
 
 func Verify(
-	signatureBytes types.Signature,
+	rawSignature Signature,
 	commitment []byte,
-	pubKeyBytes types.PublicKey,
-	generatorBytes *[]byte,
+	rawPubKey PublicKey,
+	rawGenerator Point,
 ) (bool, error) {
-	sig, err := schnorr.ParseSignature(signatureBytes)
+	sig, err := rawSignature.Parse()
 	if err != nil {
 		return false, err
 	}
 
-	pubKey, err := secp256k1.ParsePubKey(pubKeyBytes)
+	pubKey, err := rawPubKey.Parse()
 	if err != nil {
 		return false, err
 	}
 
 	var generator *secp256k1.JacobianPoint
-	if generatorBytes != nil {
-		generator, err = parseJacobianPoint(*generatorBytes)
+	if rawGenerator != nil {
+		generator, err = rawGenerator.Parse()
 		if err != nil {
 			return false, err
 		}

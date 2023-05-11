@@ -53,7 +53,7 @@ func TestVerifyWithCustomGenerator(t *testing.T) {
 	fakeGenerator := []byte(fakeKp.PublicKey)
 
 	// sign
-	sig, err := tss.Sign(kp1.PrivateKey, commitment, &generator, nil)
+	sig, err := tss.Sign(kp1.PrivateKey, commitment, generator, nil)
 	assert.NoError(t, err)
 
 	// generate key sym
@@ -61,22 +61,22 @@ func TestVerifyWithCustomGenerator(t *testing.T) {
 	assert.NoError(t, err)
 
 	// success case
-	pass, err := tss.Verify(sig, commitment, keySym, &generator)
+	pass, err := tss.Verify(sig, commitment, keySym, generator)
 	assert.NoError(t, err)
 	assert.True(t, pass)
 
 	// wrong commitment case
-	pass, err = tss.Verify(sig, append(commitment, []byte("a")...), keySym, &generator)
+	pass, err = tss.Verify(sig, append(commitment, []byte("a")...), keySym, generator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 
 	// wrong key sym case
-	pass, err = tss.Verify(sig, commitment, fakeKp.PublicKey, &generator)
+	pass, err = tss.Verify(sig, commitment, fakeKp.PublicKey, generator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 
 	// wrong generator case
-	pass, err = tss.Verify(sig, commitment, keySym, &fakeGenerator)
+	pass, err = tss.Verify(sig, commitment, keySym, fakeGenerator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 }
@@ -93,7 +93,7 @@ func TestVerifyWithCustomNonce(t *testing.T) {
 	assert.NoError(t, err)
 
 	// sign
-	sig, err := tss.Sign(kp.PrivateKey, commitment, nil, &nonce)
+	sig, err := tss.Sign(kp.PrivateKey, commitment, nil, nonce)
 	assert.NoError(t, err)
 
 	// success case
@@ -129,29 +129,29 @@ func TestVerifyWithCustomNonceAndGenerator(t *testing.T) {
 	fakeGenerator := []byte(fakeKp.PublicKey)
 
 	// sign
-	sig, err := tss.Sign(kp1.PrivateKey, commitment, &generator, &nonce)
+	sig, err := tss.Sign(kp1.PrivateKey, commitment, generator, nonce)
 	assert.NoError(t, err)
 
 	keySym, err := tss.GenerateKeySymIJ(kp1.PrivateKey, generator)
 	assert.NoError(t, err)
 
 	// success case
-	pass, err := tss.Verify(sig, commitment, keySym, &generator)
+	pass, err := tss.Verify(sig, commitment, keySym, generator)
 	assert.NoError(t, err)
 	assert.True(t, pass)
 
 	// wrong commitment case
-	pass, err = tss.Verify(sig, append(commitment, []byte("a")...), keySym, &generator)
+	pass, err = tss.Verify(sig, append(commitment, []byte("a")...), keySym, generator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 
 	// wrong key sym case
-	pass, err = tss.Verify(sig, commitment, fakeKp.PublicKey, &generator)
+	pass, err = tss.Verify(sig, commitment, fakeKp.PublicKey, generator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 
 	// wrong generator case
-	pass, err = tss.Verify(sig, commitment, keySym, &fakeGenerator)
+	pass, err = tss.Verify(sig, commitment, keySym, fakeGenerator)
 	assert.NoError(t, err)
 	assert.False(t, pass)
 }
