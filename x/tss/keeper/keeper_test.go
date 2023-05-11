@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -35,7 +36,10 @@ func (s *KeeperTestSuite) SetupTest() {
 		AppHash: app.LastCommitID().Hash,
 	}, Hash: app.LastCommitID().Hash})
 
-	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: app.LastCommitID().Hash})
+	ctx := app.NewContext(
+		false,
+		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: app.LastCommitID().Hash},
+	)
 
 	s.app = app
 	s.ctx = ctx
@@ -203,7 +207,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 	k := s.app.TSSKeeper
 	groupID, memberID := uint64(1), uint64(1)
 	round1Commitments := types.Round1Commitments{
-		CoefficientsCommit: types.Points{
+		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
@@ -223,7 +227,7 @@ func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 	k := s.app.TSSKeeper
 	groupID, member0, member1 := uint64(1), uint64(0), uint64(1)
 	round1Commitments := types.Round1Commitments{
-		CoefficientsCommit: types.Points{
+		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
