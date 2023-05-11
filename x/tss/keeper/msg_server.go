@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -62,34 +63,41 @@ func (k Keeper) SubmitDKGRound1(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := uint64(req.GroupID)
 
+	// check group status
+	group, found := k.GetGroup(ctx, groupID)
+	if !found {
+		return nil, types.ErrGroupNotFound
+	}
+	if group.Status != types.ROUND_1 {
+		return nil, sdkerrors.Wrap(types.ErrRound1AlreadyExpired, "group status is not round1")
+	}
+
 	// check members
 	memberID, found := k.GetMemberID(ctx, groupID, req.Member)
 	if !found {
-		return nil, types.ErrMemberNotAuthorized
-	}
-
-	// check group status
-	group := k.GetGroup(ctx, groupID)
-	if group.Status != types.ROUND_1 {
-		return nil, types.ErrRound1AlreadyExpired
+		return nil, sdkerrors.Wrap(types.ErrMemberNotFound, "member id is not found")
 	}
 
 	// check previous commitment
-	_, err := k.GetRound1Commitments(ctx, groupID, memberID)
-	if err == nil {
-		return nil, types.ErrAlreadyCommitRound1
+	_, found = k.GetRound1Commitments(ctx, groupID, memberID)
+	if found {
+		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already commit round 1 ")
 	}
 
-	dkgContext := k.GetDKGContext(ctx, groupID)
+	// get dkg-context
+	dkgContext, found := k.GetDKGContext(ctx, groupID)
+	if !found {
+		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
+	}
 
 	valid, err := tss.VerifyOneTimeSig(req.GroupID, dkgContext, req.OneTimeSig, req.OneTimePubKey)
 	if !valid || err != nil {
-		return nil, types.ErrVerifyOneTimeSigFailed
+		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
 	valid, err = tss.VerifyA0Sig(req.GroupID, dkgContext, req.A0Sig, types.PublicKey(req.CoefficientsCommit[0]))
 	if !valid || err != nil {
-		return nil, types.ErrVerifyA0SigFailed
+		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
 	round1Commitments := types.Round1Commitments{

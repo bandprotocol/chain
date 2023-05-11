@@ -11,14 +11,17 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app *testapp.TestingApp
-	ctx sdk.Context
+	app     *testapp.TestingApp
+	ctx     sdk.Context
+	querier keeper.Querier
+	msgSrvr types.MsgServer
 }
 
 func (s *KeeperTestSuite) SetupTest() {
@@ -27,6 +30,10 @@ func (s *KeeperTestSuite) SetupTest() {
 
 	s.app = app
 	s.ctx = ctx
+	s.querier = keeper.Querier{
+		app.TSSKeeper,
+	}
+	s.msgSrvr = app.TSSKeeper
 }
 
 func (s *KeeperTestSuite) TestGetSetGroupCount() {
@@ -54,12 +61,10 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 	expTime := time.Unix(0, 0)
 
 	// Init grantee address
-	grantee, err := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	s.Require().NoError(err)
+	grantee, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
 	// Init granter address
-	granter, err := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().NoError(err)
+	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
 
 	// Save grant msgs to grantee
 	for _, m := range types.MsgGrants {
@@ -83,7 +88,8 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	groupID := k.CreateNewGroup(s.ctx, group)
 
 	// Get group by id
-	got := k.GetGroup(s.ctx, groupID)
+	got, found := k.GetGroup(s.ctx, groupID)
+	s.Require().True(found)
 	s.Require().Equal(group, got)
 }
 
@@ -104,9 +110,10 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 	k.UpdateGroup(s.ctx, groupID, group)
 
 	// get group from chain state
-	got := k.GetGroup(s.ctx, groupID)
+	got, found := k.GetGroup(s.ctx, groupID)
 
 	// validate group size value
+	s.Require().True(found)
 	s.Require().Equal(group.Size_, got.Size_)
 }
 
@@ -116,7 +123,8 @@ func (s *KeeperTestSuite) TestGetSetDKGContext() {
 	dkgContext := []byte("dkg-context sample")
 	k.SetDKGContext(s.ctx, 1, dkgContext)
 
-	got := k.GetDKGContext(s.ctx, 1)
+	got, found := k.GetDKGContext(s.ctx, 1)
+	s.Require().True(found)
 	s.Require().Equal(dkgContext, got)
 }
 
@@ -129,7 +137,8 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	}
 	k.SetMember(s.ctx, groupID, memberID, member)
 
-	got := k.GetMember(s.ctx, groupID, memberID)
+	got, found := k.GetMember(s.ctx, groupID, memberID)
+	s.Require().True(found)
 	s.Require().Equal(member, got)
 }
 
@@ -152,7 +161,8 @@ func (s *KeeperTestSuite) TestGetMembers() {
 		k.SetMember(s.ctx, groupID, uint64(i), m)
 	}
 
-	got := k.GetMembers(s.ctx, groupID)
+	got, found := k.GetMembers(s.ctx, groupID)
+	s.Require().True(found)
 	s.Require().Equal(members, got)
 }
 
@@ -195,8 +205,8 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 
 	k.SetRound1Commitments(s.ctx, groupID, memberID, round1Commitments)
 
-	got, err := k.GetRound1Commitments(s.ctx, groupID, memberID)
-	s.Require().NoError(err)
+	got, found := k.GetRound1Commitments(s.ctx, groupID, memberID)
+	s.Require().True(found)
 	s.Require().Equal(round1Commitments, got)
 }
 
