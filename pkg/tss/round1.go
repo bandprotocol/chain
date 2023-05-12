@@ -68,8 +68,8 @@ func SignA0(
 	a0Pub PublicKey,
 	a0Priv PrivateKey,
 ) (Signature, error) {
-	commitment := generateCommitmentA0(mid, dkgContext, a0Pub)
-	return Sign(a0Priv, commitment, nil, nil)
+	challenge := generateChallengeA0(mid, dkgContext, a0Pub)
+	return Sign(a0Priv, challenge, nil, nil)
 }
 
 func VerifyA0Sig(
@@ -78,8 +78,8 @@ func VerifyA0Sig(
 	signature Signature,
 	a0Pub PublicKey,
 ) error {
-	commitment := generateCommitmentA0(mid, dkgContext, a0Pub)
-	return Verify(signature, commitment, a0Pub, nil)
+	challenge := generateChallengeA0(mid, dkgContext, a0Pub)
+	return Verify(signature, challenge, a0Pub, nil)
 }
 
 func SignOneTime(
@@ -88,8 +88,8 @@ func SignOneTime(
 	oneTimePub PublicKey,
 	onetimePriv PrivateKey,
 ) (Signature, error) {
-	commitment := generateCommitmentOneTime(mid, dkgContext, oneTimePub)
-	return Sign(onetimePriv, commitment, nil, nil)
+	challenge := generateChallengeOneTime(mid, dkgContext, oneTimePub)
+	return Sign(onetimePriv, challenge, nil, nil)
 }
 
 func VerifyOneTimeSig(
@@ -98,14 +98,14 @@ func VerifyOneTimeSig(
 	signature Signature,
 	oneTimePub PublicKey,
 ) error {
-	commitment := generateCommitmentOneTime(mid, dkgContext, oneTimePub)
-	return Verify(signature, commitment, oneTimePub, nil)
+	challenge := generateChallengeOneTime(mid, dkgContext, oneTimePub)
+	return Verify(signature, challenge, oneTimePub, nil)
 }
 
-func generateCommitmentA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
+func generateChallengeA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
 	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, a0Pub)
 }
 
-func generateCommitmentOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
+func generateChallengeOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
 	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, oneTimePub)
 }

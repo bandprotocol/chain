@@ -109,10 +109,10 @@ func (sig Signature) IsEqual(otherSig *Signature) bool {
 	return sig.r.Equals(&otherSig.r) && sig.s.Equals(&otherSig.s)
 }
 
-// Verify attempt to verify the signature for the provided data, generator and
+// Verify attempt to verify the signature for the provided challenge, generator and
 // secp256k1 public key and either returns nil if successful or a specific error
 // indicating why it failed if not successful.
-func Verify(sig *Signature, data []byte, pubKey *secp256k1.PublicKey, generator *secp256k1.JacobianPoint) error {
+func Verify(sig *Signature, challenge []byte, pubKey *secp256k1.PublicKey, generator *secp256k1.JacobianPoint) error {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
 	// README.md and is reproduced here for reference:
 	//
@@ -153,7 +153,7 @@ func Verify(sig *Signature, data []byte, pubKey *secp256k1.PublicKey, generator 
 	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize]byte
 	sig.r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(commitmentInput[:], data)
+	commitment := crypto.Keccak256(commitmentInput[:], challenge)
 
 	// Step 5.
 	//
@@ -210,12 +210,12 @@ func Verify(sig *Signature, data []byte, pubKey *secp256k1.PublicKey, generator 
 }
 
 // Sign generates an EC-Schnorr-DCRv0 signature over the secp256k1 curve
-// for the provided data using the given nonce, private key, and generator.  The produced signature is
+// for the provided challenge using the given nonce, private key, and generator.  The produced signature is
 // deterministic (same message, nonce, generator, and key yield the same signature) and
 // canonical.
 func Sign(
 	privKey, nonce *secp256k1.ModNScalar,
-	data []byte,
+	challenge []byte,
 	generator *secp256k1.JacobianPoint,
 ) (*Signature, error) {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
@@ -276,7 +276,7 @@ func Sign(
 	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize]byte
 	r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(commitmentInput[:], data)
+	commitment := crypto.Keccak256(commitmentInput[:], challenge)
 
 	// Step 6.
 	//

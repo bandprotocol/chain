@@ -7,7 +7,7 @@ import (
 
 func Sign(
 	rawPrivKey PrivateKey,
-	commitment []byte,
+	challenge []byte,
 	rawGenerator Point,
 	rawNonce Scalar,
 ) (Signature, error) {
@@ -26,7 +26,7 @@ func Sign(
 	for iterator := uint64(0); ; iterator++ {
 		nonce := secp256k1.NonceRFC6979(
 			rawPrivKey,
-			commitment,
+			challenge,
 			schnorr.RFC6979ExtraDataV0[:],
 			nil,
 			uint32(iterator),
@@ -35,7 +35,7 @@ func Sign(
 			nonce = rawNonce.Parse()
 		}
 
-		sig, err := schnorr.Sign(privKeyScalar, nonce, commitment, generator)
+		sig, err := schnorr.Sign(privKeyScalar, nonce, challenge, generator)
 		nonce.Zero()
 		if err != nil {
 			if rawNonce == nil {
@@ -50,7 +50,7 @@ func Sign(
 
 func Verify(
 	rawSignature Signature,
-	commitment []byte,
+	challenge []byte,
 	rawPubKey PublicKey,
 	rawGenerator Point,
 ) error {
@@ -72,6 +72,6 @@ func Verify(
 		}
 	}
 
-	err = schnorr.Verify(sig, commitment, pubKey, generator)
+	err = schnorr.Verify(sig, challenge, pubKey, generator)
 	return err
 }
