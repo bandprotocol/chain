@@ -33,12 +33,12 @@ func (s *KeeperTestSuite) SetupTest() {
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:  app.LastBlockHeight() + 1,
-		AppHash: app.LastCommitID().Hash,
-	}, Hash: app.LastCommitID().Hash})
+		AppHash: []byte("app-hash sample"),
+	}, Hash: []byte("app-hash sample")})
 
 	ctx := app.NewContext(
 		false,
-		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: app.LastCommitID().Hash},
+		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: []byte("app-hash sample")},
 	)
 
 	s.app = app
@@ -179,7 +179,7 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
-func (s *KeeperTestSuite) TestGetMemberID() {
+func (s *KeeperTestSuite) TesVerifyMember() {
 	k := s.app.TSSKeeper
 	groupID := uint64(1)
 	members := []types.Member{
@@ -198,9 +198,10 @@ func (s *KeeperTestSuite) TestGetMemberID() {
 		k.SetMember(s.ctx, groupID, uint64(i), m)
 	}
 
-	memberID, found := k.GetMemberID(s.ctx, groupID, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().True(found)
-	s.Require().Equal(uint64(1), memberID)
+	isMember1 := k.VerifyMember(s.ctx, groupID, 0, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	s.Require().True(isMember1)
+	isMember2 := k.VerifyMember(s.ctx, groupID, 1, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	s.Require().True(isMember2)
 }
 
 func (s *KeeperTestSuite) TestGetSetRound1Commitments() {

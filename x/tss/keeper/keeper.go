@@ -137,14 +137,12 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID uint64) ([]types.Member, boo
 	return members, true
 }
 
-func (k Keeper) GetMemberID(ctx sdk.Context, groupID uint64, memberAddress string) (uint64, bool) {
-	members, _ := k.GetMembers(ctx, groupID)
-	for i, m := range members {
-		if m.Signer == memberAddress {
-			return uint64(i), true
-		}
+func (k Keeper) VerifyMember(ctx sdk.Context, groupID, memberID uint64, memberAddress string) bool {
+	member, found := k.GetMember(ctx, groupID, memberID)
+	if found && member.Signer == memberAddress {
+		return true
 	}
-	return 0, false
+	return false
 }
 
 func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64, round1Commitment types.Round1Commitments) {

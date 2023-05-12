@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -35,8 +36,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		})
 	}
 
-	// use LastCommitHash as a dkgContext
-	dkgContext := ctx.BlockHeader().LastCommitHash
+	// use LastCommitHash and groupID to hash to dkgContext
+	dkgContext := crypto.Keccak256(sdk.Uint64ToBigEndian(groupID), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	event := sdk.NewEvent(
@@ -68,18 +69,19 @@ func (k Keeper) SubmitDKGRound1(
 	if !found {
 		return nil, types.ErrGroupNotFound
 	}
+
 	if group.Status != types.ROUND_1 {
 		return nil, sdkerrors.Wrap(types.ErrRound1AlreadyExpired, "group status is not round1")
 	}
 
 	// check members
-	memberID, found := k.GetMemberID(ctx, groupID, req.Member)
-	if !found {
-		return nil, sdkerrors.Wrap(types.ErrMemberNotFound, "member id is not found")
+	isMember := k.VerifyMember(ctx, groupID, uint64(req.MemberID), req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrap(types.ErrMemberNotFound, fmt.Sprintf("address: %s is not the member of this group", req.Member))
 	}
 
 	// check previous commitment
-	_, found = k.GetRound1Commitments(ctx, groupID, memberID)
+	_, found = k.GetRound1Commitments(ctx, groupID, uint64(req.MemberID))
 	if found {
 		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already commit round 1 ")
 	}
@@ -106,7 +108,7 @@ func (k Keeper) SubmitDKGRound1(
 		A0Sig:              req.A0Sig,
 		OneTimeSig:         req.OneTimeSig,
 	}
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, uint64(req.MemberID), round1Commitments)
 
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
