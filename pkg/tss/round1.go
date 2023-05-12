@@ -16,7 +16,6 @@ type Round1Data struct {
 }
 
 func GenerateRound1Data(
-	gid GroupID,
 	mid MemberID,
 	threshold uint64,
 	dkgContext []byte,
@@ -30,7 +29,7 @@ func GenerateRound1Data(
 	// get one time information
 	oneTimePrivKey := kps[0].PrivateKey
 	oneTimePubKey := kps[0].PublicKey
-	oneTimeSig, err := SignOneTime(gid, dkgContext, oneTimePubKey, oneTimePrivKey)
+	oneTimeSig, err := SignOneTime(mid, dkgContext, oneTimePubKey, oneTimePrivKey)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +37,7 @@ func GenerateRound1Data(
 	// get a0 information
 	a0PrivKey := kps[1].PrivateKey
 	a0PubKey := kps[1].PublicKey
-	a0Sig, err := SignA0(gid, dkgContext, a0PubKey, a0PrivKey)
+	a0Sig, err := SignA0(mid, dkgContext, a0PubKey, a0PrivKey)
 	if err != nil {
 		return nil, err
 	}
@@ -64,49 +63,49 @@ func GenerateRound1Data(
 }
 
 func SignA0(
-	gid GroupID,
+	mid MemberID,
 	dkgContext []byte,
 	a0Pub PublicKey,
 	a0Priv PrivateKey,
 ) (Signature, error) {
-	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
+	commitment := generateCommitmentA0(mid, dkgContext, a0Pub)
 	return Sign(a0Priv, commitment, nil, nil)
 }
 
 func VerifyA0Sig(
-	gid GroupID,
+	mid MemberID,
 	dkgContext []byte,
 	signature Signature,
 	a0Pub PublicKey,
 ) error {
-	commitment := generateCommitmentA0(gid, dkgContext, a0Pub)
+	commitment := generateCommitmentA0(mid, dkgContext, a0Pub)
 	return Verify(signature, commitment, a0Pub, nil)
 }
 
 func SignOneTime(
-	gid GroupID,
+	mid MemberID,
 	dkgContext []byte,
 	oneTimePub PublicKey,
 	onetimePriv PrivateKey,
 ) (Signature, error) {
-	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
+	commitment := generateCommitmentOneTime(mid, dkgContext, oneTimePub)
 	return Sign(onetimePriv, commitment, nil, nil)
 }
 
 func VerifyOneTimeSig(
-	gid GroupID,
+	mid MemberID,
 	dkgContext []byte,
 	signature Signature,
 	oneTimePub PublicKey,
 ) error {
-	commitment := generateCommitmentOneTime(gid, dkgContext, oneTimePub)
+	commitment := generateCommitmentOneTime(mid, dkgContext, oneTimePub)
 	return Verify(signature, commitment, oneTimePub, nil)
 }
 
-func generateCommitmentA0(gid GroupID, dkgContext []byte, a0Pub PublicKey) []byte {
-	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(gid)), dkgContext, a0Pub)
+func generateCommitmentA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
+	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, a0Pub)
 }
 
-func generateCommitmentOneTime(gid GroupID, dkgContext []byte, oneTimePub PublicKey) []byte {
-	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(gid)), dkgContext, oneTimePub)
+func generateCommitmentOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
+	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, oneTimePub)
 }
