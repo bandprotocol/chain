@@ -37,7 +37,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			func(res *types.QueryGroupResponse) {},
 		},
 		{
-			"Success",
+			"success",
 			func() {
 				req = types.QueryGroupRequest{
 					GroupId: groupID,
@@ -100,7 +100,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 			func(res *types.QueryMembersResponse) {},
 		},
 		{
-			"Success",
+			"success",
 			func() {
 				req = types.QueryMembersRequest{
 					GroupId: 1,
@@ -185,7 +185,7 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 			},
 		},
 		{
-			"Success",
+			"success",
 			func() {
 				req = types.QueryIsGranteeRequest{
 					GranterAddress: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
