@@ -153,7 +153,7 @@ func Verify(sig *Signature, data []byte, pubKey *secp256k1.PublicKey, generator 
 	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize]byte
 	sig.r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(append(commitmentInput[:], data...))
+	commitment := crypto.Keccak256(commitmentInput[:], data)
 
 	// Step 5.
 	//
@@ -276,7 +276,7 @@ func Sign(
 	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
 	var commitmentInput [scalarSize]byte
 	r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(append(commitmentInput[:], data...))
+	commitment := crypto.Keccak256(commitmentInput[:], data)
 
 	// Step 6.
 	//

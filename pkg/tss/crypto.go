@@ -5,7 +5,7 @@ import (
 )
 
 func Encrypt(value Scalar, keySym PublicKey) Scalar {
-	k := Scalar(crypto.Keccak256(keySym)).Parse()
+	k := Scalar(Hash(keySym)).Parse()
 	v := value.Parse()
 
 	res := k.Add(v).Bytes()
@@ -13,9 +13,13 @@ func Encrypt(value Scalar, keySym PublicKey) Scalar {
 }
 
 func Decrypt(encValue Scalar, keySym PublicKey) Scalar {
-	k := Scalar(crypto.Keccak256(keySym)).Parse()
+	k := Scalar(Hash(keySym)).Parse()
 	ev := encValue.Parse()
 
 	res := k.Negate().Add(ev).Bytes()
 	return res[:]
+}
+
+func Hash(data ...[]byte) []byte {
+	return crypto.Keccak256(data...)
 }

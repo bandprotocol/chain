@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -37,7 +36,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	}
 
 	// use LastCommitHash and groupID to hash to dkgContext
-	dkgContext := crypto.Keccak256(sdk.Uint64ToBigEndian(groupID), ctx.BlockHeader().LastCommitHash)
+	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(groupID), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	event := sdk.NewEvent(
@@ -77,7 +76,10 @@ func (k Keeper) SubmitDKGRound1(
 	// check members
 	isMember := k.VerifyMember(ctx, groupID, uint64(req.MemberID), req.Member)
 	if !isMember {
-		return nil, sdkerrors.Wrap(types.ErrMemberNotFound, fmt.Sprintf("address: %s is not the member of this group", req.Member))
+		return nil, sdkerrors.Wrap(
+			types.ErrMemberNotFound,
+			fmt.Sprintf("address: %s is not the member of this group", req.Member),
+		)
 	}
 
 	// check previous commitment
