@@ -54,7 +54,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  0,
-					MemberID: 0,
+					MemberID: 1,
 					CoefficientsCommit: []tss.Point{
 						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
 						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
@@ -93,7 +93,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"round 1 already commit",
 			func() {
 				// Set round 1 commitments
-				tssKeeper.SetRound1Commitments(ctx, 1, 0, types.Round1Commitments{
+				tssKeeper.SetRound1Commitments(ctx, 1, 1, types.Round1Commitments{
 					CoefficientsCommit: []tss.Point{
 						[]byte("point1"),
 						[]byte("point2"),
@@ -106,7 +106,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
-					MemberID: 0,
+					MemberID: 1,
 					CoefficientsCommit: []tss.Point{
 						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
 						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
@@ -120,7 +120,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			},
 			false,
 			func() {
-				tssKeeper.DeleteRound1Commitments(ctx, 1, 0)
+				tssKeeper.DeleteRound1Commitments(ctx, 1, 1)
 			},
 		},
 		{
@@ -128,7 +128,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
-					MemberID: 0,
+					MemberID: 1,
 					CoefficientsCommit: []tss.Point{
 						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
 						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
@@ -148,7 +148,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
-					MemberID: 0,
+					MemberID: 1,
 					CoefficientsCommit: []tss.Point{
 						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
 						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
@@ -169,7 +169,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				// Key generated from GenerateRound1Data() ref. github.com/bandprotocol/chain/v2/pkg/tss
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
-					MemberID: 0,
+					MemberID: 1,
 					CoefficientsCommit: []tss.Point{
 						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
 						[]byte{2, 148, 129, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},

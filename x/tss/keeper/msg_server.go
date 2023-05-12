@@ -29,7 +29,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 
 	// set members
 	for i, m := range req.Members {
-		k.SetMember(ctx, groupID, uint64(i), types.Member{
+		// id start from 1
+		k.SetMember(ctx, groupID, uint64(i+1), types.Member{
 			Signer: m,
 			PubKey: "",
 		})
