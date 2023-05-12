@@ -48,11 +48,11 @@ func (k Querier) IsGrantee(
 
 	granter, err := sdk.AccAddressFromBech32(req.GranterAddress)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, err
+		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 	grantee, err := sdk.AccAddressFromBech32(req.GranteeAddress)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, err
+		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
 	return &types.QueryIsGranteeResponse{
