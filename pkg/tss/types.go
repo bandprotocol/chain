@@ -20,7 +20,7 @@ type MemberID uint64
 // /////////////////////////////////////////////
 type Scalar []byte
 
-func ParseScalar(scalar secp256k1.ModNScalar) Scalar {
+func ParseScalar(scalar *secp256k1.ModNScalar) Scalar {
 	bytes := scalar.Bytes()
 	return Scalar(bytes[:])
 }
@@ -47,7 +47,7 @@ func (ss Scalars) Parse() []*secp256k1.ModNScalar {
 type Point []byte
 type Points []Point
 
-func ParsePoint(point secp256k1.JacobianPoint) Point {
+func ParsePoint(point *secp256k1.JacobianPoint) Point {
 	return Point(ParsePublicKey(point))
 }
 
@@ -93,9 +93,11 @@ func (ps Points) ToString() string {
 type PublicKey []byte
 type PublicKeys []PublicKey
 
-func ParsePublicKey(point secp256k1.JacobianPoint) PublicKey {
-	point.ToAffine()
-	bytes := secp256k1.NewPublicKey(&point.X, &point.Y).SerializeCompressed()
+func ParsePublicKey(point *secp256k1.JacobianPoint) PublicKey {
+	affinePoint := *point
+	affinePoint.ToAffine()
+
+	bytes := secp256k1.NewPublicKey(&affinePoint.X, &affinePoint.Y).SerializeCompressed()
 	return PublicKey(bytes)
 }
 
