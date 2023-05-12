@@ -1,6 +1,9 @@
 package tss
 
 import (
+	"encoding/hex"
+	"fmt"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
@@ -69,6 +72,19 @@ func (ps Points) Parse() ([]*secp256k1.JacobianPoint, error) {
 	}
 
 	return points, nil
+}
+
+func (ps Points) ToString() string {
+	var points string
+	l := len(ps)
+	for i, p := range ps {
+		if i == l-1 {
+			points += hex.EncodeToString(p)
+		} else {
+			points += fmt.Sprintf("%s,", hex.EncodeToString(p))
+		}
+	}
+	return points
 }
 
 // /////////////////////////////////////////////

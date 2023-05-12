@@ -110,10 +110,28 @@ func (k Keeper) SubmitDKGRound1(
 	}
 	k.SetRound1Commitments(ctx, groupID, uint64(req.MemberID), round1Commitments)
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypSubmitDKGRound1,
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitments.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitments.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitments.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Commitments.OneTimeSig)),
+		),
+	)
+
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		k.UpdateGroup(ctx, groupID, group)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound1Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
