@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -32,30 +33,30 @@ var (
 	Round1CommitmentsStoreKeyPrefix = []byte{0x04}
 )
 
-func GroupStoreKey(groupID uint64) []byte {
-	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+func GroupStoreKey(groupID tss.GroupID) []byte {
+	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func DKGContextStoreKey(groupID uint64) []byte {
-	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+func DKGContextStoreKey(groupID tss.GroupID) []byte {
+	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func MembersStoreKey(groupID uint64) []byte {
+func MembersStoreKey(groupID tss.GroupID) []byte {
 	return append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func MemberOfGroupKey(groupID uint64, memberID uint64) []byte {
-	buf := append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
-	buf = append(buf, sdk.Uint64ToBigEndian(memberID)...)
+func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	buf := append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
 	return buf
 }
 
-func Round1CommitmentsStoreKey(groupID uint64) []byte {
-	return append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
+func Round1CommitmentsStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1CommitmentsMemberStoreKey(groupID uint64, memberID uint64) []byte {
-	buf := append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(groupID)...)
-	buf = append(buf, sdk.Uint64ToBigEndian(memberID)...)
+func Round1CommitmentsMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	buf := append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
 	return buf
 }

@@ -30,14 +30,14 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	// set members
 	for i, m := range req.Members {
 		// id start from 1
-		k.SetMember(ctx, groupID, uint64(i+1), types.Member{
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
 			Signer: m,
 			PubKey: "",
 		})
 	}
 
 	// use LastCommitHash and groupID to hash to dkgContext
-	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(groupID), ctx.BlockHeader().LastCommitHash)
+	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(uint64(groupID)), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	event := sdk.NewEvent(
@@ -62,7 +62,7 @@ func (k Keeper) SubmitDKGRound1(
 	req *types.MsgSubmitDKGRound1,
 ) (*types.MsgSubmitDKGRound1Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	groupID := uint64(req.GroupID)
+	groupID := req.GroupID
 
 	// check group status
 	group, found := k.GetGroup(ctx, groupID)
@@ -75,7 +75,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// check members
-	isMember := k.VerifyMember(ctx, groupID, uint64(req.MemberID), req.Member)
+	isMember := k.VerifyMember(ctx, groupID, req.MemberID, req.Member)
 	if !isMember {
 		return nil, sdkerrors.Wrap(
 			types.ErrMemberNotFound,
@@ -84,7 +84,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// check previous commitment
-	_, found = k.GetRound1Commitments(ctx, groupID, uint64(req.MemberID))
+	_, found = k.GetRound1Commitments(ctx, groupID, req.MemberID)
 	if found {
 		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already commit round 1 ")
 	}
@@ -111,7 +111,7 @@ func (k Keeper) SubmitDKGRound1(
 		A0Sig:              req.A0Sig,
 		OneTimeSig:         req.OneTimeSig,
 	}
-	k.SetRound1Commitments(ctx, groupID, uint64(req.MemberID), round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, req.MemberID, round1Commitments)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

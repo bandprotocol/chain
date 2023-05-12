@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -17,7 +18,7 @@ var _ types.QueryServer = Querier{}
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	group, found := k.GetGroup(ctx, req.GroupId)
+	group, found := k.GetGroup(ctx, tss.GroupID(req.GroupId))
 	if !found {
 		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrGroupNotFound, "groupID: %d")
 	}
@@ -30,7 +31,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	members, found := k.GetMembers(ctx, req.GroupId)
+	members, found := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 	if !found {
 		return &types.QueryMembersResponse{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "groupID: %d")
 	}

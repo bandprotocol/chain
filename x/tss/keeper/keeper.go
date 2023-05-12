@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -46,10 +47,10 @@ func (k Keeper) GetGroupCount(ctx sdk.Context) uint64 {
 }
 
 // GetNextGroupID increments and returns the current number of groups.
-func (k Keeper) GetNextGroupID(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
 	groupNumber := k.GetGroupCount(ctx)
 	k.SetGroupCount(ctx, groupNumber+1)
-	return groupNumber + 1
+	return tss.GroupID(groupNumber + 1)
 }
 
 // IsGrantee checks if the granter granted to the grantee
@@ -70,13 +71,13 @@ func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.A
 	return true
 }
 
-func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) uint64 {
+func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	id := k.GetNextGroupID(ctx)
-	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(id), k.cdc.MustMarshal(&group))
+	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(tss.GroupID(id)), k.cdc.MustMarshal(&group))
 	return id
 }
 
-func (k Keeper) GetGroup(ctx sdk.Context, groupID uint64) (types.Group, bool) {
+func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
 		return types.Group{}, false
@@ -87,15 +88,15 @@ func (k Keeper) GetGroup(ctx sdk.Context, groupID uint64) (types.Group, bool) {
 	return group, true
 }
 
-func (k Keeper) UpdateGroup(ctx sdk.Context, groupID uint64, group types.Group) {
+func (k Keeper) UpdateGroup(ctx sdk.Context, groupID tss.GroupID, group types.Group) {
 	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(groupID), k.cdc.MustMarshal(&group))
 }
 
-func (k Keeper) SetDKGContext(ctx sdk.Context, groupID uint64, dkgContext []byte) {
+func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext []byte) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)
 }
 
-func (k Keeper) GetDKGContext(ctx sdk.Context, groupID uint64) ([]byte, bool) {
+func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
 		return nil, false
@@ -103,11 +104,17 @@ func (k Keeper) GetDKGContext(ctx sdk.Context, groupID uint64) ([]byte, bool) {
 	return bz, true
 }
 
-func (k Keeper) SetMember(ctx sdk.Context, groupID, memberID uint64, member types.Member) {
+func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
 }
 
-func (k Keeper) GetMember(ctx sdk.Context, groupID, memberID uint64) (types.Member, bool) {
+func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types.Member) {
+	for i, m := range members {
+		ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, tss.MemberID(i+1)), k.cdc.MustMarshal(&m))
+	}
+}
+
+func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
 		return types.Member{}, false
@@ -118,11 +125,11 @@ func (k Keeper) GetMember(ctx sdk.Context, groupID, memberID uint64) (types.Memb
 	return member, true
 }
 
-func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
+func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
-func (k Keeper) GetMembers(ctx sdk.Context, groupID uint64) ([]types.Member, bool) {
+func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, bool) {
 	var members []types.Member
 	iterator := k.GetMembersIterator(ctx, groupID)
 	defer iterator.Close()
@@ -137,7 +144,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID uint64) ([]types.Member, boo
 	return members, true
 }
 
-func (k Keeper) VerifyMember(ctx sdk.Context, groupID, memberID uint64, memberAddress string) bool {
+func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
 	member, found := k.GetMember(ctx, groupID, memberID)
 	if found && member.Signer == memberAddress {
 		return true
@@ -145,11 +152,11 @@ func (k Keeper) VerifyMember(ctx sdk.Context, groupID, memberID uint64, memberAd
 	return false
 }
 
-func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64, round1Commitment types.Round1Commitments) {
+func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitments) {
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
-func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64) (types.Round1Commitments, bool) {
+func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitments, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Round1Commitments{}, false
@@ -159,15 +166,15 @@ func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID uint64, memberID u
 	return r1c, true
 }
 
-func (k Keeper) DeleteRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64) {
+func (k Keeper) DeleteRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
 }
 
-func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
+func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentsStoreKey(groupID))
 }
 
-func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID uint64) uint64 {
+func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	var count uint64
 	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
 	defer iterator.Close()

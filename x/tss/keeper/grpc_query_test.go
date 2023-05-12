@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -40,7 +41,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			"success",
 			func() {
 				req = types.QueryGroupRequest{
-					GroupId: groupID,
+					GroupId: uint64(groupID),
 				}
 			},
 			true,
@@ -78,9 +79,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	}
 
 	// set members
-	for i, m := range members {
-		k.SetMember(s.ctx, 1, uint64(i), m)
-	}
+	k.SetMembers(ctx, tss.GroupID(1), members)
 
 	var req types.QueryMembersRequest
 	testCases := []struct {
