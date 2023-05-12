@@ -82,11 +82,11 @@ func (r *Round1) handleEvent(event *Event) {
 	var mid tss.MemberID
 	for idx, member := range event.Members {
 		if member == r.context.Config.Granter {
-			mid = tss.MemberID(idx)
+			mid = tss.MemberID(idx + 1)
 		}
 	}
 
-	data, err := tss.GenerateRound1Data(event.GroupID, mid, event.Threshold, event.DKGContext)
+	data, err := tss.GenerateRound1Data(mid, event.Threshold, event.DKGContext)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err.Error())
 		return
