@@ -10,7 +10,7 @@ import (
 func (s *KeeperTestSuite) TestCreateGroupReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
-	s.Run("Create group", func() {
+	s.Run("create group", func() {
 		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members: []string{
 				"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -50,7 +50,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 		postTest func()
 	}{
 		{
-			"failed - group not found",
+			"group not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  0,
@@ -70,7 +70,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 		{
-			"failed - member not found",
+			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
@@ -90,7 +90,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 		{
-			"failed - round 1 already commit",
+			"round 1 already commit",
 			func() {
 				// Set round 1 commitments
 				tssKeeper.SetRound1Commitments(ctx, 1, 0, types.Round1Commitments{
@@ -124,7 +124,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			},
 		},
 		{
-			"failed - wrong one_time_sign",
+			"wrong one_time_sign",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
@@ -144,7 +144,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 		{
-			"failed - wrong a0_sig",
+			"wrong a0_sig",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:  1,
