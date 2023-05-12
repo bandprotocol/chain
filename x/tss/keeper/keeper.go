@@ -159,6 +159,10 @@ func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID uint64, memberID u
 	return r1c, true
 }
 
+func (k Keeper) DeleteRound1Commitments(ctx sdk.Context, groupID uint64, memberID uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
+}
+
 func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID uint64) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentsStoreKey(groupID))
 }

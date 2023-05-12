@@ -6,7 +6,7 @@ import (
 
 // x/tss module sentinel errors
 var (
-	ErrGroupNotFound             = sdkerrors.Register(ModuleName, 2, "fail to verify a0 sign")
+	ErrGroupNotFound             = sdkerrors.Register(ModuleName, 2, "group not found")
 	ErrMemberNotFound            = sdkerrors.Register(ModuleName, 3, "member not found")
 	ErrRound1CommitmentsNotFound = sdkerrors.Register(ModuleName, 4, "round 1 commitments not found")
 	ErrDKGContextNotFound        = sdkerrors.Register(ModuleName, 5, "dkg context not found")

@@ -50,27 +50,27 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) TestGetSetGroupCount() {
-	k := s.app.TSSKeeper
-	k.SetGroupCount(s.ctx, 1)
+	ctx, k := s.ctx, s.app.TSSKeeper
+	k.SetGroupCount(ctx, 1)
 
-	groupCount := k.GetGroupCount(s.ctx)
+	groupCount := k.GetGroupCount(ctx)
 	s.Require().Equal(uint64(1), groupCount)
 }
 
 func (s *KeeperTestSuite) TestGetNextGroupID() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 
 	// initial group count
-	k.SetGroupCount(s.ctx, 0)
+	k.SetGroupCount(ctx, 0)
 
-	groupID1 := k.GetNextGroupID(s.ctx)
+	groupID1 := k.GetNextGroupID(ctx)
 	s.Require().Equal(uint64(1), groupID1)
-	groupID2 := k.GetNextGroupID(s.ctx)
+	groupID2 := k.GetNextGroupID(ctx)
 	s.Require().Equal(uint64(2), groupID2)
 }
 
 func (s *KeeperTestSuite) TestIsGrantee() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	expTime := time.Unix(0, 0)
 
 	// Init grantee address
@@ -81,15 +81,15 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 	// Save grant msgs to grantee
 	for _, m := range types.MsgGrants {
-		s.app.AuthzKeeper.SaveGrant(s.ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
 	}
 
-	isGrantee := k.IsGrantee(s.ctx, granter, grantee)
+	isGrantee := k.IsGrantee(ctx, granter, grantee)
 	s.Require().True(isGrantee)
 }
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	group := types.Group{
 		Size_:     5,
 		Threshold: 3,
@@ -98,16 +98,16 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	}
 
 	// Create new group
-	groupID := k.CreateNewGroup(s.ctx, group)
+	groupID := k.CreateNewGroup(ctx, group)
 
 	// Get group by id
-	got, found := k.GetGroup(s.ctx, groupID)
+	got, found := k.GetGroup(ctx, groupID)
 	s.Require().True(found)
 	s.Require().Equal(group, got)
 }
 
 func (s *KeeperTestSuite) TestUpdateGroup() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	group := types.Group{
 		Size_:     5,
 		Threshold: 3,
@@ -116,14 +116,14 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 	}
 
 	// Create new group
-	groupID := k.CreateNewGroup(s.ctx, group)
+	groupID := k.CreateNewGroup(ctx, group)
 
 	// update group size value
 	group.Size_ = 6
-	k.UpdateGroup(s.ctx, groupID, group)
+	k.UpdateGroup(ctx, groupID, group)
 
 	// get group from chain state
-	got, found := k.GetGroup(s.ctx, groupID)
+	got, found := k.GetGroup(ctx, groupID)
 
 	// validate group size value
 	s.Require().True(found)
@@ -131,32 +131,32 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 }
 
 func (s *KeeperTestSuite) TestGetSetDKGContext() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 
 	dkgContext := []byte("dkg-context sample")
-	k.SetDKGContext(s.ctx, 1, dkgContext)
+	k.SetDKGContext(ctx, 1, dkgContext)
 
-	got, found := k.GetDKGContext(s.ctx, 1)
+	got, found := k.GetDKGContext(ctx, 1)
 	s.Require().True(found)
 	s.Require().Equal(dkgContext, got)
 }
 
 func (s *KeeperTestSuite) TestGetSetMember() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := uint64(1), uint64(1)
 	member := types.Member{
 		Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey: "",
 	}
-	k.SetMember(s.ctx, groupID, memberID, member)
+	k.SetMember(ctx, groupID, memberID, member)
 
-	got, found := k.GetMember(s.ctx, groupID, memberID)
+	got, found := k.GetMember(ctx, groupID, memberID)
 	s.Require().True(found)
 	s.Require().Equal(member, got)
 }
 
 func (s *KeeperTestSuite) TestGetMembers() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := uint64(1)
 	members := []types.Member{
 		{
@@ -171,16 +171,16 @@ func (s *KeeperTestSuite) TestGetMembers() {
 
 	// set members
 	for i, m := range members {
-		k.SetMember(s.ctx, groupID, uint64(i), m)
+		k.SetMember(ctx, groupID, uint64(i), m)
 	}
 
-	got, found := k.GetMembers(s.ctx, groupID)
+	got, found := k.GetMembers(ctx, groupID)
 	s.Require().True(found)
 	s.Require().Equal(members, got)
 }
 
 func (s *KeeperTestSuite) TesVerifyMember() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := uint64(1)
 	members := []types.Member{
 		{
@@ -195,17 +195,17 @@ func (s *KeeperTestSuite) TesVerifyMember() {
 
 	// set members
 	for i, m := range members {
-		k.SetMember(s.ctx, groupID, uint64(i), m)
+		k.SetMember(ctx, groupID, uint64(i), m)
 	}
 
-	isMember1 := k.VerifyMember(s.ctx, groupID, 0, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	isMember1 := k.VerifyMember(ctx, groupID, 0, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	s.Require().True(isMember1)
-	isMember2 := k.VerifyMember(s.ctx, groupID, 1, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	isMember2 := k.VerifyMember(ctx, groupID, 1, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
 	s.Require().True(isMember2)
 }
 
 func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := uint64(1), uint64(1)
 	round1Commitments := types.Round1Commitments{
 		CoefficientsCommit: tss.Points{
@@ -217,15 +217,40 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Commitments(s.ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
 
-	got, found := k.GetRound1Commitments(s.ctx, groupID, memberID)
+	got, found := k.GetRound1Commitments(ctx, groupID, memberID)
 	s.Require().True(found)
 	s.Require().Equal(round1Commitments, got)
 }
 
+func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := uint64(1), uint64(1)
+	round1Commitments := types.Round1Commitments{
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+
+	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+
+	got, found := k.GetRound1Commitments(ctx, groupID, memberID)
+	s.Require().True(found)
+	s.Require().Equal(round1Commitments, got)
+
+	k.DeleteRound1Commitments(ctx, groupID, memberID)
+
+	_, found = k.GetRound1Commitments(ctx, groupID, memberID)
+	s.Require().False(found)
+}
+
 func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
-	k := s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, member0, member1 := uint64(1), uint64(0), uint64(1)
 	round1Commitments := types.Round1Commitments{
 		CoefficientsCommit: tss.Points{
@@ -238,10 +263,10 @@ func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 	}
 
 	// Set round 1 commitments
-	k.SetRound1Commitments(s.ctx, groupID, member0, round1Commitments)
-	k.SetRound1Commitments(s.ctx, groupID, member1, round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
 
-	got := k.GetRound1CommitmentsCount(s.ctx, groupID)
+	got := k.GetRound1CommitmentsCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
 }
 
