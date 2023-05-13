@@ -20,7 +20,7 @@ func ComputeEncryptedSecretShares(
 			continue
 		}
 
-		keySym, err := GenerateKeySym(rawPrivKey, rawPubKey)
+		keySym, err := ComputeKeySym(rawPrivKey, rawPubKey)
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +62,7 @@ func EncryptSecretShares(
 
 func ComputeSecretShare(rawCoeffcients Scalars, rawX uint32) Scalar {
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
-	result := solveScalarEquation(rawCoeffcients.Parse(), x)
+	result := solveScalarPolynomial(rawCoeffcients.Parse(), x)
 
 	return ParseScalar(result)
 }
