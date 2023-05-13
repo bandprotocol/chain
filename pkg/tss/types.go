@@ -42,7 +42,7 @@ func (ss Scalars) Parse() []*secp256k1.ModNScalar {
 }
 
 // /////////////////////////////////////////////
-// Point
+// Point - use underly compress/decompress from public key
 // /////////////////////////////////////////////
 type Point []byte
 type Points []Point

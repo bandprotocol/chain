@@ -82,10 +82,10 @@ func TestVerifyWithCustomNonceAndGenerator(t *testing.T) {
 	sig, err := tss.Sign(kp1.PrivateKey, challenge, nonce)
 	assert.NoError(t, err)
 
-	keySym, err := tss.GenerateKeySym(kp1.PrivateKey, generator)
+	keySym, err := tss.ComputeKeySym(kp1.PrivateKey, generator)
 	assert.NoError(t, err)
 
-	nonceSym, err := tss.GenerateNonceSym(nonce, generator)
+	nonceSym, err := tss.ComputeNonceSym(nonce, generator)
 	assert.NoError(t, err)
 
 	// success case
