@@ -17,7 +17,7 @@ func ComputeOwnPublicKey(rawSumCommits Points, rawX uint32) (Point, error) {
 	}
 
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
-	result := solvePointEquation(sumCommits, x)
+	result := solvePointPolynomial(sumCommits, x)
 
 	return ParsePoint(result), nil
 }
@@ -69,7 +69,7 @@ func ComputeSecretShareCommit(rawCommits Points, rawX uint32) (Point, error) {
 	}
 
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
-	result := solvePointEquation(commits, x)
+	result := solvePointPolynomial(commits, x)
 
 	return ParsePoint(result), nil
 }
@@ -106,7 +106,7 @@ func SignComplain(
 	oneTimePubJ PublicKey,
 	oneTimePrivI PrivateKey,
 ) (Signature, PublicKey, PublicKey, error) {
-	keySym, err := GenerateKeySym(oneTimePrivI, oneTimePubJ)
+	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -118,7 +118,7 @@ func SignComplain(
 			iterator,
 		)
 
-		nonceSym, err := GenerateNonceSym(nonce, oneTimePubJ)
+		nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
 		if err != nil {
 			return nil, nil, nil, err
 		}
