@@ -73,7 +73,6 @@ func EncryptSecretShares(
 // ComputeSecretShare computes the secret share for a given set of coefficients and x.
 func ComputeSecretShare(rawCoeffcients Scalars, rawX uint32) (Scalar, error) {
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
-
 	coeffcients, err := rawCoeffcients.Parse()
 	if err != nil {
 		return nil, err
