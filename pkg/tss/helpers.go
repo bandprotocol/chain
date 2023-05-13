@@ -1,6 +1,7 @@
 package tss
 
 import (
+	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
@@ -39,18 +40,50 @@ func GenerateKeyPair() (KeyPair, error) {
 	}, nil
 }
 
-func GenerateKeySymIJ(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
-	privKeyI := rawPrivKeyI.Parse()
+func GenerateKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
+	privKeyI := rawPrivKeyI.Scalar()
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
 		return nil, err
 	}
 
-	var keySymIJ secp256k1.JacobianPoint
-	secp256k1.ScalarMultNonConst(&privKeyI.Key, pubKeyJ, &keySymIJ)
+	keySym := new(secp256k1.JacobianPoint)
+	secp256k1.ScalarMultNonConst(privKeyI, pubKeyJ, keySym)
 
-	return ParsePublicKey(&keySymIJ), nil
+	return ParsePublicKey(keySym), nil
+}
+
+func GenerateNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
+	pubKeyJ, err := rawPubKeyJ.Point()
+	if err != nil {
+		return nil, err
+	}
+
+	nonce := rawNonce.Parse()
+
+	nG := new(secp256k1.JacobianPoint)
+	secp256k1.ScalarBaseMultNonConst(nonce, nG)
+	nG.ToAffine()
+
+	if nG.Y.IsOdd() {
+		nonce.Negate()
+	}
+
+	nonceSym := new(secp256k1.JacobianPoint)
+	secp256k1.ScalarMultNonConst(nonce, pubKeyJ, nonceSym)
+
+	return ParsePublicKey(nonceSym), nil
+}
+
+func GenerateNonce(privKey PrivateKey, hash []byte, iterator uint32) Scalar {
+	return ParseScalar(secp256k1.NonceRFC6979(
+		privKey,
+		hash,
+		schnorr.RFC6979ExtraDataV0[:],
+		nil,
+		iterator,
+	))
 }
 
 func SumPoints(rawPoints ...Point) (Point, error) {

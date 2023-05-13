@@ -8,34 +8,24 @@ import (
 func Sign(
 	rawPrivKey PrivateKey,
 	challenge []byte,
-	rawGenerator Point,
 	rawNonce Scalar,
 ) (Signature, error) {
 	privKey := rawPrivKey.Parse()
 	privKeyScalar := &privKey.Key
 
-	var generator *secp256k1.JacobianPoint
-	if rawGenerator != nil {
-		var err error
-		generator, err = rawGenerator.Parse()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	for iterator := uint64(0); ; iterator++ {
-		nonce := secp256k1.NonceRFC6979(
-			rawPrivKey,
-			challenge,
-			schnorr.RFC6979ExtraDataV0[:],
-			nil,
-			uint32(iterator),
-		)
+	for iterator := uint32(0); ; iterator++ {
+		var nonce *secp256k1.ModNScalar
 		if rawNonce != nil {
 			nonce = rawNonce.Parse()
+		} else {
+			nonce = GenerateNonce(
+				rawPrivKey,
+				Hash(challenge),
+				iterator,
+			).Parse()
 		}
 
-		sig, err := schnorr.Sign(privKeyScalar, nonce, challenge, generator)
+		sig, err := schnorr.Sign(privKeyScalar, nonce, challenge)
 		nonce.Zero()
 		if err != nil {
 			if rawNonce == nil {
@@ -53,6 +43,7 @@ func Verify(
 	challenge []byte,
 	rawPubKey PublicKey,
 	rawGenerator Point,
+	rawOverrideSigR PublicKey,
 ) error {
 	sig, err := rawSignature.Parse()
 	if err != nil {
@@ -64,6 +55,14 @@ func Verify(
 		return err
 	}
 
+	var overrideSigR *secp256k1.JacobianPoint
+	if rawOverrideSigR != nil {
+		overrideSigR, err = rawOverrideSigR.Point()
+		if err != nil {
+			return err
+		}
+	}
+
 	var generator *secp256k1.JacobianPoint
 	if rawGenerator != nil {
 		generator, err = rawGenerator.Parse()
@@ -72,6 +71,6 @@ func Verify(
 		}
 	}
 
-	err = schnorr.Verify(sig, challenge, pubKey, generator)
+	err = schnorr.Verify(sig, challenge, pubKey, generator, overrideSigR)
 	return err
 }

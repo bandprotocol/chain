@@ -69,7 +69,7 @@ func SignA0(
 	a0Priv PrivateKey,
 ) (Signature, error) {
 	challenge := generateChallengeA0(mid, dkgContext, a0Pub)
-	return Sign(a0Priv, challenge, nil, nil)
+	return Sign(a0Priv, challenge, nil)
 }
 
 func VerifyA0Sig(
@@ -79,7 +79,7 @@ func VerifyA0Sig(
 	a0Pub PublicKey,
 ) error {
 	challenge := generateChallengeA0(mid, dkgContext, a0Pub)
-	return Verify(signature, challenge, a0Pub, nil)
+	return Verify(signature, challenge, a0Pub, nil, nil)
 }
 
 func SignOneTime(
@@ -89,7 +89,7 @@ func SignOneTime(
 	onetimePriv PrivateKey,
 ) (Signature, error) {
 	challenge := generateChallengeOneTime(mid, dkgContext, oneTimePub)
-	return Sign(onetimePriv, challenge, nil, nil)
+	return Sign(onetimePriv, challenge, nil)
 }
 
 func VerifyOneTimeSig(
@@ -99,7 +99,7 @@ func VerifyOneTimeSig(
 	oneTimePub PublicKey,
 ) error {
 	challenge := generateChallengeOneTime(mid, dkgContext, oneTimePub)
-	return Verify(signature, challenge, oneTimePub, nil)
+	return Verify(signature, challenge, oneTimePub, nil, nil)
 }
 
 func generateChallengeA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {

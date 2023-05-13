@@ -173,6 +173,10 @@ func (pks PrivateKeys) Parse() []*secp256k1.PrivateKey {
 // /////////////////////////////////////////////
 type Signature []byte
 
+func ParseSignature(signature *schnorr.Signature) Signature {
+	return signature.Serialize()
+}
+
 func (s Signature) Parse() (*schnorr.Signature, error) {
 	sig, err := schnorr.ParseSignature(s)
 	if err != nil {

@@ -112,11 +112,18 @@ func (sig Signature) IsEqual(otherSig *Signature) bool {
 // Verify attempt to verify the signature for the provided challenge, generator and
 // secp256k1 public key and either returns nil if successful or a specific error
 // indicating why it failed if not successful.
-func Verify(sig *Signature, challenge []byte, pubKey *secp256k1.PublicKey, generator *secp256k1.JacobianPoint) error {
+func Verify(
+	sig *Signature,
+	challenge []byte,
+	pubKey *secp256k1.PublicKey,
+	generator *secp256k1.JacobianPoint,
+	overrideSigR *secp256k1.JacobianPoint,
+) error {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
 	// README.md and is reproduced here for reference:
 	//
 	// G is default curve generator if generator from input is not specified.
+	// overrideSigR is the override r of signature. Use this to compare with final result instead if it isn't nil.
 	//
 	// 1. Fail if Q is not a point on the curve
 	// 2. Fail if r >= p
@@ -125,8 +132,13 @@ func Verify(sig *Signature, challenge []byte, pubKey *secp256k1.PublicKey, gener
 	// 5. Fail if e >= n
 	// 6. R = s*G + e*Q
 	// 7. Fail if R is the point at infinity
-	// 8. Fail if R.y is odd
-	// 9. Verified if R.x == r
+	// 8. Check if there is overrideSigR is sent to this function | no -> a.1, yes -> b.1
+	//
+	// a.1. Fail if R.y is odd
+	// a.2. Verified if R.x == r
+	//
+	// b.1. Verified if R == overrideSigR
+	//
 
 	// Step 1.
 	//
@@ -185,44 +197,63 @@ func Verify(sig *Signature, challenge []byte, pubKey *secp256k1.PublicKey, gener
 		return signatureError(ErrSigRNotOnCurve, str)
 	}
 
+	R.ToAffine()
+
 	// Step 8.
 	//
-	// Fail if R.y is odd
+	// Check if there is sigR is sent to this function
 	//
-	// Note that R must be in affine coordinates for this check.
-	R.ToAffine()
-	if R.Y.IsOdd() {
-		str := "calculated R y-value is odd"
-		return signatureError(ErrSigRYIsOdd, str)
-	}
+	// If no, go to step a.1.
+	// If yes, go to step b.1.
 
-	// Step 9.
-	//
-	// Verified if R.x == r
-	//
-	// Note that R must be in affine coordinates for this check.
-	if !sig.r.Equals(&R.X) {
-		str := "calculated R point was not given R"
-		return signatureError(ErrUnequalRValues, str)
+	if overrideSigR == nil {
+		// Step a.1.
+		//
+		// Fail if R.y is odd
+		//
+		// Note that R must be in affine coordinates for this check.
+		if R.Y.IsOdd() {
+			str := "calculated R y-value is odd"
+			return signatureError(ErrSigRYIsOdd, str)
+		}
+
+		// Step a.2.
+		//
+		// Verified if R.x == r
+		//
+		// Note that R must be in affine coordinates for this check.
+
+		if !sig.r.Equals(&R.X) {
+			str := "calculated R point was not given R"
+			return signatureError(ErrUnequalRValues, str)
+		}
+	} else {
+		// Step b.2.
+		//
+		// Verified if R == sigR
+		//
+		// Note that R must be in affine coordinates for this check.
+		if !overrideSigR.X.Equals(&R.X) || !overrideSigR.Y.Equals(&R.Y) || !overrideSigR.Z.Equals(&R.Z) {
+			str := "calculated R point was not given R"
+			return signatureError(ErrUnequalRValues, str)
+		}
 	}
 
 	return nil
 }
 
 // Sign generates an EC-Schnorr-DCRv0 signature over the secp256k1 curve
-// for the provided challenge using the given nonce, private key, and generator.  The produced signature is
-// deterministic (same message, nonce, generator, and key yield the same signature) and
+// for the provided challenge using the given nonce, and private key.  The produced signature is
+// deterministic (same message, nonce, and key yield the same signature) and
 // canonical.
 func Sign(
 	privKey, nonce *secp256k1.ModNScalar,
 	challenge []byte,
-	generator *secp256k1.JacobianPoint,
 ) (*Signature, error) {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
 	// README.md and is reproduced here for reference:
 	//
 	// G = curve generator
-	// P = custom curve generator from input
 	// n = curve order
 	// d = private key
 	// m = message
@@ -250,11 +281,7 @@ func Sign(
 	// R = kG if P is nil else kP
 	var R secp256k1.JacobianPoint
 	k := *nonce
-	if generator == nil {
-		secp256k1.ScalarBaseMultNonConst(&k, &R)
-	} else {
-		secp256k1.ScalarMultNonConst(&k, generator, &R)
-	}
+	secp256k1.ScalarBaseMultNonConst(&k, &R)
 
 	// Step 3.
 	//
