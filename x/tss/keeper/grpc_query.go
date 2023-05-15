@@ -23,8 +23,26 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrGroupNotFound, "groupID: %d")
 	}
 
+	members, found := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	if !found {
+		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "groupID: %d")
+	}
+
+	dkgContext, found := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
+	if !found {
+		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrDKGContextNotFound, "groupID: %d")
+	}
+
+	allRound1Commitments, found := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId))
+	if !found {
+		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "groupID: %d")
+	}
+
 	return &types.QueryGroupResponse{
-		Group: &group,
+		Group:                &group,
+		DKGContext:           dkgContext,
+		Members:              members,
+		AllRound1Commitments: allRound1Commitments,
 	}, nil
 }
 

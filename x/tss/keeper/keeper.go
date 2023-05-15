@@ -184,6 +184,23 @@ func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) 
 	return count
 }
 
+func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (map[uint64]types.Round1Commitments, bool) {
+	allRound1Commitments := make(map[uint64]types.Round1Commitments)
+	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round1Commitments types.Round1Commitments
+		// Get member id by remove store_key and group_id
+		memberID := sdk.BigEndianToUint64(iterator.Key()[9:])
+		k.cdc.MustUnmarshal(iterator.Value(), &round1Commitments)
+		allRound1Commitments[memberID] = round1Commitments
+	}
+	if len(allRound1Commitments) == 0 {
+		return nil, false
+	}
+	return allRound1Commitments, true
+}
+
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

@@ -24,15 +24,18 @@ service Query {
 
 // QueryParamsRequest is the request type for the Query/Group RPC method
 message QueryGroupRequest {
-    // group_id defines the unique id of the group.
-    uint64 group_id = 1;
+  // group_id defines the unique id of the group.
+  uint64 group_id = 1;
 }
 
 // QueryParamsResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-    Group group = 1;
+  Group group = 1;
+  bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
+  repeated Member members = 3 [ (gogoproto.nullable) = false ];
+  map<uint64, Round1Commitments> allRound1Commitments = 4 [ (gogoproto.nullable) = false ];
 }
-
+  
 // QueryMembersRequest is the request type for the Query/Members RPC method
 message QueryMembersRequest {
     // group_id defines the unique id of the group.
@@ -41,7 +44,7 @@ message QueryMembersRequest {
 
 // QueryMembersResponse is the response type for the Query/Members RPC method
 message QueryMembersResponse {
-   repeated Member members = 1 [ (gogoproto.nullable) = false ];
+  repeated Member members = 1 [ (gogoproto.nullable) = false ];
 }
 
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.

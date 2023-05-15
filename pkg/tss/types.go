@@ -42,7 +42,7 @@ func (ss Scalars) Parse() []*secp256k1.ModNScalar {
 }
 
 // /////////////////////////////////////////////
-// Point - use underly compress/decompress from public key
+// Point
 // /////////////////////////////////////////////
 type Point []byte
 type Points []Point
@@ -142,17 +142,13 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 type PrivateKey []byte
 type PrivateKeys []PrivateKey
 
-func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
-	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
+func ParsePrivateKey(scalar secp256k1.ModNScalar) PrivateKey {
+	bytes := secp256k1.NewPrivateKey(&scalar).Serialize()
 	return PrivateKey(bytes)
 }
 
 func (pk PrivateKey) Parse() *secp256k1.PrivateKey {
 	return secp256k1.PrivKeyFromBytes(pk)
-}
-
-func (pk PrivateKey) PublicKey() PublicKey {
-	return pk.Parse().PubKey().SerializeCompressed()
 }
 
 func (pk PrivateKey) Scalar() *secp256k1.ModNScalar {
@@ -172,10 +168,6 @@ func (pks PrivateKeys) Parse() []*secp256k1.PrivateKey {
 // Signature
 // /////////////////////////////////////////////
 type Signature []byte
-
-func ParseSignature(signature *schnorr.Signature) Signature {
-	return signature.Serialize()
-}
 
 func (s Signature) Parse() (*schnorr.Signature, error) {
 	sig, err := schnorr.ParseSignature(s)

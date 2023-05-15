@@ -11,14 +11,34 @@ import (
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
-	group := types.Group{
-		Size_:     5,
-		Threshold: 3,
-		PubKey:    []byte("pubkey"),
-		Status:    types.ROUND_1,
+	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
+
+	groupID := tss.GroupID(1)
+	round1Commitments := types.Round1Commitments{
+		CoefficientsCommit: []tss.Point{
+			[]byte("point1"),
+			[]byte("point2"),
+			[]byte("point3"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySample"),
+		A0Sig:         []byte("A0SigSample"),
+		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	groupID := k.CreateNewGroup(ctx, group)
+	members := []string{
+		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+	}
+
+	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		Members:   members,
+		Threshold: 3,
+		Sender:    members[0],
+	})
+	k.SetRound1Commitments(ctx, groupID, 1, round1Commitments)
+	k.SetRound1Commitments(ctx, groupID, 3, round1Commitments)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -46,7 +66,41 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			},
 			true,
 			func(res *types.QueryGroupResponse) {
-				s.Require().Equal(group, res.Group)
+				s.Require().Equal(&types.QueryGroupResponse{
+					Group: &types.Group{
+						Size_:     5,
+						Threshold: 3,
+						PubKey:    nil,
+						Status:    types.ROUND_1,
+					},
+					DKGContext: []byte{161, 205, 210, 52, 112, 43, 189, 189, 138, 79, 169, 252, 23, 242, 168, 61, 86, 159, 85, 58, 228, 189, 23, 85, 152, 94, 80, 57, 83, 45, 16, 140},
+					Members: []types.Member{
+						{
+							Signer: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+							PubKey: "",
+						},
+						{
+							Signer: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+							PubKey: "",
+						},
+						{
+							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							PubKey: "",
+						},
+						{
+							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							PubKey: "",
+						},
+						{
+							Signer: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+							PubKey: "",
+						},
+					},
+					AllRound1Commitments: map[uint64]types.Round1Commitments{
+						uint64(1): round1Commitments,
+						uint64(3): round1Commitments,
+					},
+				}, res)
 			},
 		},
 	}
@@ -55,12 +109,14 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			_, err := q.Group(ctx, &req)
+			res, err := q.Group(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
 				s.Require().Error(err)
 			}
+
+			tc.postTest(res)
 		})
 	}
 }
