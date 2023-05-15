@@ -82,15 +82,19 @@ func (r *Round2) handleEvent(event *Event) {
 		return
 	}
 
-	// TODO-CYLINDER: add all oneTimePubKeys from query to variable
-	var oneTimePubKeys tss.PublicKeys
 	gr, err := r.client.QueryGroup(event.GroupID)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
 		return
 	}
-	fmt.Printf("%+v", gr.Group)
 
+	// get all one time public keys in the group
+	oneTimePubKeys := make(tss.PublicKeys, gr.Group.Size_)
+	for mid, commitment := range gr.AllRound1Commitments {
+		oneTimePubKeys[mid-1] = commitment.OneTimePubKey
+	}
+
+	// calculate encrypted secret shares
 	encSecretShares, err := tss.ComputeEncryptedSecretShares(
 		group.MemberID,
 		group.OneTimePrivKey,
