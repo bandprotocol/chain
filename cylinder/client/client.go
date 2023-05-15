@@ -7,6 +7,8 @@ import (
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -100,8 +102,16 @@ func (c *Client) GetTxFromTxHash(
 	return nil, err
 }
 
+func (c *Client) QueryGroup(
+	groupID tss.GroupID,
+) (*types.QueryGroupResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+	return queryClient.Group(context.Background(), &types.QueryGroupRequest{
+		GroupId: uint64(groupID),
+	})
+}
+
 func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *sdk.TxResponse, err error) {
-	// TODO-CYLINDER: MOVE TO CONFIG
 	gasAdjust := c.gasAdjustStart
 
 	for try := uint64(1); try <= c.maxTry; try++ {
