@@ -1,10 +1,10 @@
 package types
 
 const (
-	EventTypeCreateGroup    = "create_group"
-	EventTypeUpdateGroup    = "update_group"
-	EventTypSubmitDKGRound1 = "submit_dkg_round1"
-	EventTypeRound1Success  = "round1_success"
+	EventTypeCreateGroup     = "create_group"
+	EventTypeUpdateGroup     = "update_group"
+	EventTypeSubmitDKGRound1 = "submit_dkg_round1"
+	EventTypeRound1Success   = "round1_success"
 
 	AttributeKeyGroupID            = "group_id"
 	AttributeKeyMember             = "member"
