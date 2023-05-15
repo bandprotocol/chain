@@ -142,8 +142,8 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 type PrivateKey []byte
 type PrivateKeys []PrivateKey
 
-func ParsePrivateKey(scalar secp256k1.ModNScalar) PrivateKey {
-	bytes := secp256k1.NewPrivateKey(&scalar).Serialize()
+func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
+	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
 	return PrivateKey(bytes)
 }
 
