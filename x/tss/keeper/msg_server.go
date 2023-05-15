@@ -115,7 +115,7 @@ func (k Keeper) SubmitDKGRound1(
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypSubmitDKGRound1,
+			types.EventTypeSubmitDKGRound1,
 			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitments.CoefficientsCommit.ToString()),
 			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitments.OneTimePubKey)),
 			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitments.A0Sig)),
