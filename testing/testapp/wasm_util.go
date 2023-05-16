@@ -1,7 +1,6 @@
 package testapp
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 
@@ -17,12 +16,12 @@ func compile(code []byte) []byte {
 }
 
 func wat2wasm(wat []byte) []byte {
-	inputFile, err := ioutil.TempFile("", "input")
+	inputFile, err := os.CreateTemp("", "input")
 	if err != nil {
 		panic(err)
 	}
 	defer os.Remove(inputFile.Name())
-	outputFile, err := ioutil.TempFile("", "output")
+	outputFile, err := os.CreateTemp("", "output")
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +32,7 @@ func wat2wasm(wat []byte) []byte {
 	if err := exec.Command("wat2wasm", inputFile.Name(), "-o", outputFile.Name()).Run(); err != nil {
 		panic(err)
 	}
-	output, err := ioutil.ReadFile(outputFile.Name())
+	output, err := os.ReadFile(outputFile.Name())
 	if err != nil {
 		panic(err)
 	}
