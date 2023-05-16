@@ -6,13 +6,14 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
+// ComputeEncryptedSecretShares computes the encrypted secret shares for a member.
 func ComputeEncryptedSecretShares(
 	mid MemberID,
 	rawPrivKey PrivateKey,
 	rawPubKeys PublicKeys,
 	rawCoeffcients Scalars,
 ) (Scalars, error) {
-	// compute key sym for each person 1..n except mid
+	// Compute the key sym for each member 1..n except mid.
 	var keySyms PublicKeys
 	for i, rawPubKey := range rawPubKeys {
 		idx := i + 1
@@ -28,7 +29,7 @@ func ComputeEncryptedSecretShares(
 		keySyms = append(keySyms, keySym)
 	}
 
-	// calculate secret share for each person 1..n except mid
+	// Calculate the secret share for each member 1..n except mid.
 	var secretShares Scalars
 	for i := uint32(1); i <= uint32(len(rawPubKeys)); i++ {
 		if MemberID(i) == mid {
@@ -39,10 +40,11 @@ func ComputeEncryptedSecretShares(
 		secretShares = append(secretShares, secretShare)
 	}
 
-	// encrypt each secret share by its own key sym
+	// Encrypt each secret share using its corresponding key sym.
 	return EncryptSecretShares(secretShares, keySyms)
 }
 
+// EncryptSecretShares encrypts secret shares using key syms.
 func EncryptSecretShares(
 	secretShares Scalars,
 	keySyms PublicKeys,
@@ -60,9 +62,9 @@ func EncryptSecretShares(
 	return encSecretShares, nil
 }
 
+// ComputeSecretShare computes the secret share for a given set of coefficients and x.
 func ComputeSecretShare(rawCoeffcients Scalars, rawX uint32) Scalar {
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
 	result := solveScalarPolynomial(rawCoeffcients.Parse(), x)
-
 	return ParseScalar(result)
 }
