@@ -2,6 +2,7 @@ package round1
 
 import (
 	"encoding/hex"
+	"errors"
 	"strconv"
 
 	"github.com/bandprotocol/chain/v2/pkg/event"
@@ -10,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Event represents the parsed information from a create_group event.
 type Event struct {
 	GroupID    tss.GroupID
 	Threshold  uint64
@@ -17,6 +19,8 @@ type Event struct {
 	Members    []string
 }
 
+// ParseEvent parses the ABCIMessageLog and extracts the relevant information to create a create_group event.
+// It returns the parsed Event or an error if parsing fails.
 func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
 	gidStr, err := event.GetEventValue(log, types.EventTypeCreateGroup, types.AttributeKeyGroupID)
 	if err != nil {
@@ -56,4 +60,17 @@ func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
 		DKGContext: dkgContext,
 		Members:    members,
 	}, nil
+}
+
+// getMemberID returns the member ID corresponding to the provided address.
+// It searches through the event's members and returns the member ID if found.
+// If no member with the given address is found, it returns an error.
+func (e *Event) getMemberID(address string) (tss.MemberID, error) {
+	for idx, member := range e.Members {
+		if member == address {
+			return tss.MemberID(idx + 1), nil
+		}
+	}
+
+	return 0, errors.New("failed to find member in the event")
 }

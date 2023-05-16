@@ -17,13 +17,13 @@ var (
 	DEStoreKeyPrefix = []byte{0x02}
 )
 
-// ReportStoreKey returns the key to retrieve all data reports for a request.
+// GroupStoreKey returns the key to retrieve all data for a group.
 func GroupStoreKey(groupID tss.GroupID) []byte {
 	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-// ReportStoreKey returns the key to retrieve all data reports for a request.
-func DEStoreKey(D uint64, E uint64) []byte {
-	bz := append(DEStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(D))...)
-	return append(bz, sdk.Uint64ToBigEndian(E)...)
+// DEStoreKey returns the key to retrieve private (d, e) by public (D, E).
+func DEStoreKey(pubD tss.PublicKey, pubE tss.PublicKey) []byte {
+	bz := append(DEStoreKeyPrefix, pubD...)
+	return append(bz, pubE...)
 }

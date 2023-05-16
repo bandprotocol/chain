@@ -20,6 +20,7 @@ var (
 	cdc         = band.MakeEncodingConfig().Marshaler
 )
 
+// initConfig initializes the configuration.
 func initConfig(ctx *Context, cmd *cobra.Command) error {
 	if err := os.MkdirAll(ctx.home, os.ModePerm); err != nil {
 		return err
@@ -41,6 +42,7 @@ func initConfig(ctx *Context, cmd *cobra.Command) error {
 	return nil
 }
 
+// NewRootCmd returns a new instance of the root command.
 func NewRootCmd() *cobra.Command {
 	ctx := &Context{}
 	rootCmd := &cobra.Command{

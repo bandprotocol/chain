@@ -7,16 +7,19 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
+// Store represents a data store for storing data information for Cylinder process
 type Store struct {
 	DB dbm.DB
 }
 
+// NewStore creates a new instance of Store with the provided database.
 func NewStore(db dbm.DB) *Store {
 	return &Store{
 		DB: db,
 	}
 }
 
+// SetGroup stores the group information by the given groupID.
 func (s *Store) SetGroup(groupID tss.GroupID, group Group) error {
 	bytes, err := json.Marshal(group)
 	if err != nil {
@@ -26,6 +29,7 @@ func (s *Store) SetGroup(groupID tss.GroupID, group Group) error {
 	return s.DB.Set(GroupStoreKey(groupID), bytes)
 }
 
+// GetGroup retrieves the group information by the given groupID.
 func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 	bytes, err := s.DB.Get(GroupStoreKey(groupID))
 
@@ -38,17 +42,19 @@ func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 	return group, err
 }
 
-func (s *Store) SetDE(D, E uint64, priv DE) error {
-	bytes, err := json.Marshal(priv)
+// SetDE stores the private (d, E) by the given public (D, E).
+func (s *Store) SetDE(pubD, pubE tss.PublicKey, privDE DE) error {
+	bytes, err := json.Marshal(privDE)
 	if err != nil {
 		return err
 	}
 
-	return s.DB.Set(DEStoreKey(D, E), bytes)
+	return s.DB.Set(DEStoreKey(pubD, pubE), bytes)
 }
 
-func (s *Store) GetDE(D, E uint64) (DE, error) {
-	bytes, err := s.DB.Get(DEStoreKey(D, E))
+// GetDE retrieves the private (d, E) by the given public (D, E)
+func (s *Store) GetDE(pubD, pubE tss.PublicKey) (DE, error) {
+	bytes, err := s.DB.Get(DEStoreKey(pubD, pubE))
 
 	var de DE
 	err = json.Unmarshal(bytes, &de)
@@ -59,6 +65,7 @@ func (s *Store) GetDE(D, E uint64) (DE, error) {
 	return de, err
 }
 
-func (s *Store) RemoveDE(D, E uint64) error {
-	return s.DB.DeleteSync(DEStoreKey(D, E))
+// RemoveDE deletes the private (d, E) by the given public (D, E)
+func (s *Store) RemoveDE(pubD, pubE tss.PublicKey) error {
+	return s.DB.DeleteSync(DEStoreKey(pubD, pubE))
 }
