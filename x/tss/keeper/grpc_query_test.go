@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -66,6 +67,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			},
 			true,
 			func(res *types.QueryGroupResponse) {
+				dkgContextB, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
+
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: &types.Group{
 						Size_:     5,
@@ -73,7 +76,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						PubKey:    nil,
 						Status:    types.ROUND_1,
 					},
-					DKGContext: []byte{161, 205, 210, 52, 112, 43, 189, 189, 138, 79, 169, 252, 23, 242, 168, 61, 86, 159, 85, 58, 228, 189, 23, 85, 152, 94, 80, 57, 83, 45, 16, 140},
+					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
 							Signer: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",

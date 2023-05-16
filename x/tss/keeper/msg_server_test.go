@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -28,6 +29,12 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 
 func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 	ctx, msgSrvr, tssKeeper := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	cof1B, _ := hex.DecodeString("034b42de7a79df51b189d9bca0979687991e60a0f3053746b04be9921d34568867")
+	cof2B, _ := hex.DecodeString("02212ca02b5d0669fe0826e1a2de4e86feba58fd68e565c2cff462d57a53cae3ad")
+	cof3B, _ := hex.DecodeString("03941243486f2f8a5ae7167a595e8232bf298b23b52f9ddebf70a9798178112653")
+	oneTimePubKeyB, _ := hex.DecodeString("024a93e11d3eababae00cdd7de33967b4e27723d8a94688276f67fd972901b897b")
+	a0SigB, _ := hex.DecodeString("537b9224b3a9b0f786f5a778f61924248b199458eb6c2b77c3afe287b77bb7135818541008f58995ed98e542b8a27678b9f0c1745229c8d4adb2b5d6b6cf92b5")
+	oneTimeSigB, _ := hex.DecodeString("dafa9ff77b42e9130b0f9246af01eb930b4bb34e17b5d7a9b956a769c040527f3b85c6873c755a1c95aab8072aaed4af7682ae42a4b187d99c211ef2baf67bad")
 
 	// create group for submit dkg context
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
@@ -53,17 +60,13 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"group not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  0,
-					MemberID: 1,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 111, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte{83, 123, 146, 36, 179, 169, 176, 247, 134, 245, 167, 120, 246, 25, 36, 36, 139, 25, 148, 88, 235, 108, 43, 119, 195, 175, 226, 135, 183, 123, 183, 19, 88, 24, 84, 16, 8, 245, 137, 149, 237, 152, 229, 66, 184, 162, 118, 120, 185, 240, 193, 116, 82, 41, 200, 212, 173, 178, 181, 214, 182, 207, 146, 181},
-					OneTimeSig:    []byte{218, 250, 159, 247, 123, 66, 233, 19, 11, 15, 146, 70, 175, 1, 235, 147, 11, 75, 179, 78, 23, 181, 215, 169, 185, 86, 167, 105, 192, 64, 82, 127, 59, 133, 198, 135, 60, 117, 90, 28, 149, 170, 184, 7, 42, 174, 212, 175, 118, 130, 174, 66, 164, 177, 135, 217, 156, 33, 30, 242, 186, 246, 123, 173},
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            0,
+					MemberID:           1,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         oneTimeSigB,
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -73,17 +76,13 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  1,
-					MemberID: 99,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 111, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte{83, 123, 146, 36, 179, 169, 176, 247, 134, 245, 167, 120, 246, 25, 36, 36, 139, 25, 148, 88, 235, 108, 43, 119, 195, 175, 226, 135, 183, 123, 183, 19, 88, 24, 84, 16, 8, 245, 137, 149, 237, 152, 229, 66, 184, 162, 118, 120, 185, 240, 193, 116, 82, 41, 200, 212, 173, 178, 181, 214, 182, 207, 146, 181},
-					OneTimeSig:    []byte{218, 250, 159, 247, 123, 66, 233, 19, 11, 15, 146, 70, 175, 1, 235, 147, 11, 75, 179, 78, 23, 181, 215, 169, 185, 86, 167, 105, 192, 64, 82, 127, 59, 133, 198, 135, 60, 117, 90, 28, 149, 170, 184, 7, 42, 174, 212, 175, 118, 130, 174, 66, 164, 177, 135, 217, 156, 33, 30, 242, 186, 246, 123, 173},
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            1,
+					MemberID:           99,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         oneTimeSigB,
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -94,28 +93,20 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				// Set round 1 commitments
 				tssKeeper.SetRound1Commitments(ctx, 1, 1, types.Round1Commitments{
-					CoefficientsCommit: []tss.Point{
-						[]byte("point1"),
-						[]byte("point2"),
-						[]byte("point3"),
-					},
-					OneTimePubKey: []byte("OneTimePubKeySample"),
-					A0Sig:         []byte("A0SigSample"),
-					OneTimeSig:    []byte("OneTimeSigSample"),
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         oneTimeSigB,
 				})
 
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  1,
-					MemberID: 1,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 111, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte{83, 123, 146, 36, 179, 169, 176, 247, 134, 245, 167, 120, 246, 25, 36, 36, 139, 25, 148, 88, 235, 108, 43, 119, 195, 175, 226, 135, 183, 123, 183, 19, 88, 24, 84, 16, 8, 245, 137, 149, 237, 152, 229, 66, 184, 162, 118, 120, 185, 240, 193, 116, 82, 41, 200, 212, 173, 178, 181, 214, 182, 207, 146, 181},
-					OneTimeSig:    []byte{218, 250, 159, 247, 123, 66, 233, 19, 11, 15, 146, 70, 175, 1, 235, 147, 11, 75, 179, 78, 23, 181, 215, 169, 185, 86, 167, 105, 192, 64, 82, 127, 59, 133, 198, 135, 60, 117, 90, 28, 149, 170, 184, 7, 42, 174, 212, 175, 118, 130, 174, 66, 164, 177, 135, 217, 156, 33, 30, 242, 186, 246, 123, 173},
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            1,
+					MemberID:           1,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         oneTimeSigB,
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -127,17 +118,13 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"wrong one_time_sign",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  1,
-					MemberID: 1,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 111, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte{83, 123, 146, 36, 179, 169, 176, 247, 134, 245, 167, 120, 246, 25, 36, 36, 139, 25, 148, 88, 235, 108, 43, 119, 195, 175, 226, 135, 183, 123, 183, 19, 88, 24, 84, 16, 8, 245, 137, 149, 237, 152, 229, 66, 184, 162, 118, 120, 185, 240, 193, 116, 82, 41, 200, 212, 173, 178, 181, 214, 182, 207, 146, 181},
-					OneTimeSig:    []byte("wrong one_time_sign"),
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            1,
+					MemberID:           1,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         []byte("wrong one_time_sign"),
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -147,17 +134,13 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"wrong a0_sig",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  1,
-					MemberID: 1,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 33, 44, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 111, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte("wrong a0_sig"),
-					OneTimeSig:    []byte{218, 250, 159, 247, 123, 66, 233, 19, 11, 15, 146, 70, 175, 1, 235, 147, 11, 75, 179, 78, 23, 181, 215, 169, 185, 86, 167, 105, 192, 64, 82, 127, 59, 133, 198, 135, 60, 117, 90, 28, 149, 170, 184, 7, 42, 174, 212, 175, 118, 130, 174, 66, 164, 177, 135, 217, 156, 33, 30, 242, 186, 246, 123, 173},
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            1,
+					MemberID:           1,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              []byte("wrong a0_sig"),
+					OneTimeSig:         oneTimeSigB,
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -168,17 +151,13 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				// Key generated from GenerateRound1Data() ref. github.com/bandprotocol/chain/v2/pkg/tss
 				req = types.MsgSubmitDKGRound1{
-					GroupID:  1,
-					MemberID: 1,
-					CoefficientsCommit: []tss.Point{
-						[]byte{3, 75, 66, 222, 122, 121, 223, 81, 177, 137, 217, 188, 160, 151, 150, 135, 153, 30, 96, 160, 243, 5, 55, 70, 176, 75, 233, 146, 29, 52, 86, 136, 103},
-						[]byte{2, 148, 129, 160, 43, 93, 6, 105, 254, 8, 38, 225, 162, 222, 78, 134, 254, 186, 88, 253, 104, 229, 101, 194, 207, 244, 98, 213, 122, 83, 202, 227, 173},
-						[]byte{3, 148, 18, 67, 72, 98, 47, 138, 90, 231, 22, 122, 89, 94, 130, 50, 191, 41, 139, 35, 181, 47, 157, 222, 191, 112, 169, 121, 129, 120, 17, 38, 83},
-					},
-					OneTimePubKey: []byte{2, 74, 147, 225, 29, 62, 171, 171, 174, 0, 205, 215, 222, 51, 150, 123, 78, 39, 114, 61, 138, 148, 104, 130, 118, 246, 127, 217, 114, 144, 27, 137, 123},
-					A0Sig:         []byte{83, 123, 146, 36, 179, 169, 176, 247, 134, 245, 167, 120, 246, 25, 36, 36, 139, 25, 148, 88, 235, 108, 43, 119, 195, 175, 226, 135, 183, 123, 183, 19, 88, 24, 84, 16, 8, 245, 137, 149, 237, 152, 229, 66, 184, 162, 118, 120, 185, 240, 193, 116, 82, 41, 200, 212, 173, 178, 181, 214, 182, 207, 146, 181},
-					OneTimeSig:    []byte{218, 250, 159, 247, 123, 66, 233, 19, 11, 15, 146, 70, 175, 1, 235, 147, 11, 75, 179, 78, 23, 181, 215, 169, 185, 86, 167, 105, 192, 64, 82, 127, 59, 133, 198, 135, 60, 117, 90, 28, 149, 170, 184, 7, 42, 174, 212, 175, 118, 130, 174, 66, 164, 177, 135, 217, 156, 33, 30, 242, 186, 246, 123, 173},
-					Member:        "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID:            1,
+					MemberID:           1,
+					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+					OneTimePubKey:      oneTimePubKeyB,
+					A0Sig:              a0SigB,
+					OneTimeSig:         oneTimeSigB,
+					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			true,
