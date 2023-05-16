@@ -65,9 +65,9 @@ func (k Keeper) SubmitDKGRound1(
 	groupID := req.GroupID
 
 	// check group status
-	group, found := k.GetGroup(ctx, groupID)
-	if !found {
-		return nil, types.ErrGroupNotFound
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
 	}
 
 	if group.Status != types.ROUND_1 {
@@ -84,18 +84,18 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// check previous commitment
-	_, found = k.GetRound1Commitments(ctx, groupID, req.MemberID)
-	if found {
+	_, err = k.GetRound1Commitments(ctx, groupID, req.MemberID)
+	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already commit round 1 ")
 	}
 
 	// get dkg-context
-	dkgContext, found := k.GetDKGContext(ctx, groupID)
-	if !found {
+	dkgContext, err := k.GetDKGContext(ctx, groupID)
+	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
 	}
 
-	err := tss.VerifyOneTimeSig(req.MemberID, dkgContext, req.OneTimeSig, req.OneTimePubKey)
+	err = tss.VerifyOneTimeSig(req.MemberID, dkgContext, req.OneTimeSig, req.OneTimePubKey)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -77,15 +78,15 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	return id
 }
 
-func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, bool) {
+func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
-		return types.Group{}, false
+		return types.Group{}, sdkerrors.Wrapf(types.ErrGroupNotFound, "failed to get group with groupID: %d", groupID)
 	}
 
 	group := types.Group{}
 	k.cdc.MustUnmarshal(bz, &group)
-	return group, true
+	return group, nil
 }
 
 func (k Keeper) UpdateGroup(ctx sdk.Context, groupID tss.GroupID, group types.Group) {
@@ -96,12 +97,12 @@ func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext [
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)
 }
 
-func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, bool) {
+func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
-		return nil, false
+		return nil, sdkerrors.Wrapf(types.ErrDKGContextNotFound, "failed to get dkg-context with groupID: %d", groupID)
 	}
-	return bz, true
+	return bz, nil
 }
 
 func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
@@ -114,22 +115,22 @@ func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types
 	}
 }
 
-func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, bool) {
+func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
-		return types.Member{}, false
+		return types.Member{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get member with groupID: %d and memberID: %d", groupID, memberID)
 	}
 
 	member := types.Member{}
 	k.cdc.MustUnmarshal(bz, &member)
-	return member, true
+	return member, nil
 }
 
 func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
-func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, bool) {
+func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member {
 	var members []types.Member
 	iterator := k.GetMembersIterator(ctx, groupID)
 	defer iterator.Close()
@@ -138,15 +139,12 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 		members = append(members, member)
 	}
-	if len(members) == 0 {
-		return []types.Member{}, false
-	}
-	return members, true
+	return members
 }
 
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
-	member, found := k.GetMember(ctx, groupID, memberID)
-	if found && member.Signer == memberAddress {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err == nil && member.Signer == memberAddress {
 		return true
 	}
 	return false
@@ -156,14 +154,14 @@ func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, membe
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
-func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitments, bool) {
+func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitments, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Commitments{}, false
+		return types.Round1Commitments{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "failed to get round 1 commitments with groupID: %d and memberID %d", groupID, memberID)
 	}
 	var r1c types.Round1Commitments
 	k.cdc.MustUnmarshal(bz, &r1c)
-	return r1c, true
+	return r1c, nil
 }
 
 func (k Keeper) DeleteRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
@@ -184,7 +182,7 @@ func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) 
 	return count
 }
 
-func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (map[uint64]types.Round1Commitments, bool) {
+func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (map[uint64]types.Round1Commitments, error) {
 	allRound1Commitments := make(map[uint64]types.Round1Commitments)
 	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
 	defer iterator.Close()
@@ -196,9 +194,9 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (m
 		allRound1Commitments[memberID] = round1Commitments
 	}
 	if len(allRound1Commitments) == 0 {
-		return nil, false
+		return nil, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "round 1 commitments have not been submit with groupID: %d", groupID)
 	}
-	return allRound1Commitments, true
+	return allRound1Commitments, nil
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

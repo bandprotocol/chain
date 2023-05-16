@@ -18,24 +18,21 @@ var _ types.QueryServer = Querier{}
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	group, found := k.GetGroup(ctx, tss.GroupID(req.GroupId))
-	if !found {
-		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrGroupNotFound, "groupID: %d")
+	group, err := k.GetGroup(ctx, tss.GroupID(req.GroupId))
+	if err != nil {
+		return &types.QueryGroupResponse{}, err
 	}
 
-	members, found := k.GetMembers(ctx, tss.GroupID(req.GroupId))
-	if !found {
-		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "groupID: %d")
+	members := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+
+	dkgContext, err := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
+	if err != nil {
+		return &types.QueryGroupResponse{}, err
 	}
 
-	dkgContext, found := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
-	if !found {
-		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrDKGContextNotFound, "groupID: %d")
-	}
-
-	allRound1Commitments, found := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId))
-	if !found {
-		return &types.QueryGroupResponse{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "groupID: %d")
+	allRound1Commitments, err := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId))
+	if err != nil {
+		return &types.QueryGroupResponse{}, err
 	}
 
 	return &types.QueryGroupResponse{
@@ -49,10 +46,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	members, found := k.GetMembers(ctx, tss.GroupID(req.GroupId))
-	if !found {
-		return &types.QueryMembersResponse{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "groupID: %d")
-	}
+	members := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 
 	return &types.QueryMembersResponse{
 		Members: members,

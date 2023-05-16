@@ -101,8 +101,8 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	groupID := k.CreateNewGroup(ctx, group)
 
 	// Get group by id
-	got, found := k.GetGroup(ctx, groupID)
-	s.Require().True(found)
+	got, err := k.GetGroup(ctx, groupID)
+	s.Require().NoError(err)
 	s.Require().Equal(group, got)
 }
 
@@ -123,10 +123,10 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 	k.UpdateGroup(ctx, groupID, group)
 
 	// get group from chain state
-	got, found := k.GetGroup(ctx, groupID)
+	got, err := k.GetGroup(ctx, groupID)
 
 	// validate group size value
-	s.Require().True(found)
+	s.Require().NoError(err)
 	s.Require().Equal(group.Size_, got.Size_)
 }
 
@@ -136,8 +136,8 @@ func (s *KeeperTestSuite) TestGetSetDKGContext() {
 	dkgContext := []byte("dkg-context sample")
 	k.SetDKGContext(ctx, 1, dkgContext)
 
-	got, found := k.GetDKGContext(ctx, 1)
-	s.Require().True(found)
+	got, err := k.GetDKGContext(ctx, 1)
+	s.Require().NoError(err)
 	s.Require().Equal(dkgContext, got)
 }
 
@@ -150,8 +150,8 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	}
 	k.SetMember(ctx, groupID, memberID, member)
 
-	got, found := k.GetMember(ctx, groupID, memberID)
-	s.Require().True(found)
+	got, err := k.GetMember(ctx, groupID, memberID)
+	s.Require().NoError(err)
 	s.Require().Equal(member, got)
 }
 
@@ -172,8 +172,7 @@ func (s *KeeperTestSuite) TestGetSetMembers() {
 	// set members
 	k.SetMembers(ctx, groupID, members)
 
-	got, found := k.GetMembers(ctx, groupID)
-	s.Require().True(found)
+	got := k.GetMembers(ctx, groupID)
 	s.Require().Equal(members, got)
 }
 
@@ -215,8 +214,8 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 
 	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
 
-	got, found := k.GetRound1Commitments(ctx, groupID, memberID)
-	s.Require().True(found)
+	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	s.Require().NoError(err)
 	s.Require().Equal(round1Commitments, got)
 }
 
@@ -235,14 +234,14 @@ func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
 
 	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
 
-	got, found := k.GetRound1Commitments(ctx, groupID, memberID)
-	s.Require().True(found)
+	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	s.Require().NoError(err)
 	s.Require().Equal(round1Commitments, got)
 
 	k.DeleteRound1Commitments(ctx, groupID, memberID)
 
-	_, found = k.GetRound1Commitments(ctx, groupID, memberID)
-	s.Require().False(found)
+	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
+	s.Require().Error(err)
 }
 
 func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
@@ -285,8 +284,8 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
 	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
 
-	got, found := k.GetAllRound1Commitments(ctx, groupID)
-	s.Require().True(found)
+	got, err := k.GetAllRound1Commitments(ctx, groupID)
+	s.Require().NoError(err)
 
 	s.Require().Equal(round1Commitments, got[1])
 	s.Require().Equal(round1Commitments, got[2])
