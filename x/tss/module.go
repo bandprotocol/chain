@@ -1,6 +1,7 @@
 package tss
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -51,7 +52,9 @@ func (b AppModuleBasic) GetTxCmd() *cobra.Command {
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(_ client.Context, _ *runtime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
 
 // RegisterInterfaces registers the tss module's interface types
 func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
@@ -87,7 +90,7 @@ func (am AppModule) Name() string {
 func (am AppModule) Route() sdk.Route { return sdk.Route{} }
 
 // QuerierRoute returns the route we respond to for abci queries
-func (AppModule) QuerierRoute() string { return "" }
+func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // LegacyQuerierHandler returns the tss module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {

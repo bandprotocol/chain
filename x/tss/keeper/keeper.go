@@ -185,7 +185,7 @@ func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) 
 	return count
 }
 
-func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (map[uint64]types.Round1Commitments, error) {
+func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) map[uint64]types.Round1Commitments {
 	allRound1Commitments := make(map[uint64]types.Round1Commitments)
 	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
 	defer iterator.Close()
@@ -196,10 +196,7 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) (m
 		k.cdc.MustUnmarshal(iterator.Value(), &round1Commitments)
 		allRound1Commitments[memberID] = round1Commitments
 	}
-	if len(allRound1Commitments) == 0 {
-		return nil, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "round 1 commitments have not been submit with groupID: %d", groupID)
-	}
-	return allRound1Commitments, nil
+	return allRound1Commitments
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

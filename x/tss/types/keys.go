@@ -11,6 +11,9 @@ const (
 
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
+
+	// QuerierRoute is the querier route for the tss module
+	QuerierRoute = ModuleName
 )
 
 var (

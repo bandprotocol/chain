@@ -285,9 +285,7 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
 	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
 
-	got, err := k.GetAllRound1Commitments(ctx, groupID)
-	s.Require().NoError(err)
-
+	got := k.GetAllRound1Commitments(ctx, groupID)
 	s.Require().Equal(round1Commitments, got[1])
 	s.Require().Equal(round1Commitments, got[2])
 }
