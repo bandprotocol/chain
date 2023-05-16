@@ -25,6 +25,7 @@ const (
 	flagAddress  = "address"
 )
 
+// keysCmd returns a Cobra command for managing keys.
 func keysCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
@@ -42,6 +43,7 @@ func keysCmd(ctx *Context) *cobra.Command {
 	return cmd
 }
 
+// keysAddCmd returns a Cobra command for adding a new key to the keychain.
 func keysAddCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
@@ -106,6 +108,7 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 	return cmd
 }
 
+// keysDeleteCmd returns a Cobra command for deleting a key from the keychain.
 func keysDeleteCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
@@ -115,12 +118,15 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
+			// Retrieve the key from the keyring
 			_, err := ctx.keyring.Key(name)
 			if err != nil {
 				return err
 			}
 
 			inBuf := bufio.NewReader(cmd.InOrStdin())
+
+			// Ask for confirmation from the user
 			confirmInput, err := input.GetString("Key will be deleted. Continue?[y/N]", inBuf)
 			if err != nil {
 				return err
@@ -131,6 +137,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 				return nil
 			}
 
+			// Delete the key from the keyring
 			if err := ctx.keyring.Delete(name); err != nil {
 				return err
 			}
@@ -143,6 +150,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 	return cmd
 }
 
+// keysListCmd returns a Cobra command for listing all the keys in the keychain.
 func keysListCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
@@ -155,17 +163,20 @@ func keysListCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
+			// Retrieve the list of keys from the keyring
 			keys, err := ctx.keyring.List()
 			if err != nil {
 				return err
 			}
 
+			// Check if the "--address" flag is provided
 			isShowAddr, err := cmd.Flags().GetBool(flagAddress)
 			if err != nil {
 				return err
 			}
 
 			for _, key := range keys {
+				// Retrieve the address associated with the key
 				address, err := key.GetAddress()
 				if err != nil {
 					return err
@@ -174,6 +185,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 				if isShowAddr {
 					fmt.Printf("%s ", address.String())
 				} else {
+					// Query if the key is a grantee and display the result
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsGrantee(
 						context.Background(),
@@ -186,9 +198,8 @@ func keysListCmd(ctx *Context) *cobra.Command {
 						} else {
 							s = ":x:"
 						}
+						emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 					}
-
-					emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 				}
 			}
 
@@ -198,11 +209,13 @@ func keysListCmd(ctx *Context) *cobra.Command {
 
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
 
+	// Add the query flags to the command
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
 
+// keysShowCmd returns a Cobra command for showing the address associated with a key in the keychain.
 func keysShowCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
@@ -212,11 +225,13 @@ func keysShowCmd(ctx *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
+			// Retrieve the key from the keyring
 			key, err := ctx.keyring.Key(name)
 			if err != nil {
 				return err
 			}
 
+			// Retrieve the address associated with the key
 			address, err := key.GetAddress()
 			if err != nil {
 				return err

@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// configCmd returns a Cobra command for setting a configuration key-value pair for a Cylinder application.
 func configCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "config [key] [value]",

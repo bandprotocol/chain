@@ -20,9 +20,6 @@ cylinder config max-try 5
 # setup gas-prices to cylinder config
 cylinder config gas-prices "0.0025uband"
 
-# wait for activation transaction success
-sleep 2
-
 for i in $(eval echo {1..2})
 do
   # add signer key

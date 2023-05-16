@@ -6,11 +6,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Detail represents the necessary details of a message for logging.
 type Detail struct {
 	GroupID tss.GroupID
 	Type    string
 }
 
+// GetDetail extracts the details from a slice of SDK messages.
 func GetDetail(msgs []sdk.Msg) []Detail {
 	var details []Detail
 	for _, msg := range msgs {

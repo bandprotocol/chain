@@ -18,11 +18,12 @@ const (
 	flagMaxTry           = "max-try"
 )
 
+// runCmd returns a Cobra command to run the cylinder process.
 func runCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
-		Short:   "Run the oracle process",
+		Short:   "Run the cylinder process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)

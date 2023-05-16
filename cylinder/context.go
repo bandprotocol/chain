@@ -11,6 +11,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
+// Context holds the context information for the Cylinder process.
 type Context struct {
 	Config  *Config
 	Keyring keyring.Keyring
@@ -24,26 +25,27 @@ type Context struct {
 	Store *store.Store
 }
 
+// NewContext creates a new instance of the Context.
 func NewContext(cfg *Config, kr keyring.Keyring, home string) (*Context, error) {
-	// initial context
+	// Initialize the context
 	ctx := &Context{
 		Config:  cfg,
 		Keyring: kr,
 		Home:    home,
 	}
 
-	// create logger
+	// Create the logger
 	allowLevel, err := log.AllowLevel(ctx.Config.LogLevel)
 	if err != nil {
 		return nil, err
 	}
 	ctx.Logger = logger.NewLogger(allowLevel)
 
-	// create error and msg channel
+	// Create the error and message channels
 	ctx.ErrCh = make(chan error, 1)
 	ctx.MsgCh = make(chan types.Msg, 1000)
 
-	// create store
+	// Create the store
 	dataDir := filepath.Join(ctx.Home, "data")
 	db, err := dbm.NewDB("cylinder", dbm.GoLevelDBBackend, dataDir)
 	if err != nil {

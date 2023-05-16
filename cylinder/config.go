@@ -2,7 +2,7 @@ package cylinder
 
 import "time"
 
-// Config data structure for cylinder daemon.
+// Config data structure for Cylinder process.
 type Config struct {
 	ChainID          string        `mapstructure:"chain-id"`          // ChainID of the target chain
 	NodeURI          string        `mapstructure:"node"`              // Remote RPC URI of BandChain node to connect to

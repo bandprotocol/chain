@@ -15,6 +15,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
+// Round1 is a worker responsible for round1 in the DKG process of TSS module
 type Round1 struct {
 	context *cylinder.Context
 
@@ -26,6 +27,8 @@ type Round1 struct {
 
 var _ cylinder.Worker = &Round1{}
 
+// New creates a new instance of the Round1 worker.
+// It initializes the necessary components and returns the created Round1 instance or an error if initialization fails.
 func New(ctx *cylinder.Context) (*Round1, error) {
 	// create http client
 	cli, err := client.New(ctx.Config, ctx.Keyring)
@@ -40,6 +43,8 @@ func New(ctx *cylinder.Context) (*Round1, error) {
 	}, nil
 }
 
+// subscribe subscribes to the round1 events and initializes the event channel for receiving events.
+// It returns an error if the subscription fails.
 func (r *Round1) subscribe() error {
 	var err error
 	r.eventCh, err = r.client.Subscribe(
@@ -57,6 +62,8 @@ func (r *Round1) subscribe() error {
 	return err
 }
 
+// handleTxResult handles the result of a transaction.
+// It extracts the relevant message logs from the transaction result and processes the events.
 func (r *Round1) handleTxResult(txResult abci.TxResult) {
 	msgLogs, err := event.GetMessageLogs(txResult)
 	if err != nil {
@@ -75,15 +82,15 @@ func (r *Round1) handleTxResult(txResult abci.TxResult) {
 	}
 }
 
+// handleEvent processes an incoming group event.
 func (r *Round1) handleEvent(event *Event) {
 	logger := r.logger.With("gid", event.GroupID)
 	logger.Info(":delivery_truck: Processing incoming group event")
 
-	var mid tss.MemberID
-	for idx, member := range event.Members {
-		if member == r.context.Config.Granter {
-			mid = tss.MemberID(idx + 1)
-		}
+	mid, err := event.getMemberID(r.context.Config.Granter)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to get member id: %s", err.Error())
+		return
 	}
 
 	data, err := tss.GenerateRound1Data(mid, event.Threshold, event.DKGContext)
@@ -92,14 +99,15 @@ func (r *Round1) handleEvent(event *Event) {
 		return
 	}
 
-	// set group data
-	r.context.Store.SetGroup(event.GroupID, store.Group{
+	// Set group data
+	group := store.Group{
 		MemberID:       mid,
 		Coefficients:   data.Coefficients,
 		OneTimePrivKey: data.OneTimePrivKey,
-	})
+	}
+	r.context.Store.SetGroup(event.GroupID, group)
 
-	// generate message
+	// Generate message
 	msg := &types.MsgSubmitDKGRound1{
 		GroupID:            event.GroupID,
 		MemberID:           mid,
@@ -110,9 +118,12 @@ func (r *Round1) handleEvent(event *Event) {
 		Member:             r.context.Config.Granter,
 	}
 
+	// Send the message to the message channel
 	r.context.MsgCh <- msg
 }
 
+// Start starts the Round1 worker.
+// It subscribes to the round1 events, and continuously processes incoming events by calling handleTxResult.
 func (r *Round1) Start() {
 	r.logger.Info("start")
 
@@ -122,12 +133,12 @@ func (r *Round1) Start() {
 		return
 	}
 
-	for {
-		ev := <-r.eventCh
+	for ev := range r.eventCh {
 		go r.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
 	}
 }
 
+// Stop stops the Round1 worker.
 func (r *Round1) Stop() {
 	r.logger.Info("stop")
 	r.client.Stop()
