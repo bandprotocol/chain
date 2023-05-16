@@ -5,6 +5,8 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
+// Sign generates a schnorr signature for the given private key, challenge, and nonce.
+// It returns the signature and an error if the signing process fails.
 func Sign(
 	rawPrivKey PrivateKey,
 	challenge []byte,
@@ -14,6 +16,7 @@ func Sign(
 	privKeyScalar := &privKey.Key
 
 	for iterator := uint32(0); ; iterator++ {
+		// generate nonce if there is no nonce from input parameter
 		var nonce *secp256k1.ModNScalar
 		if rawNonce != nil {
 			nonce = rawNonce.Parse()
@@ -27,7 +30,10 @@ func Sign(
 
 		sig, err := schnorr.Sign(privKeyScalar, nonce, challenge)
 		nonce.Zero()
+
 		if err != nil {
+			// - if there is nonce from input, return error
+			// - if not, retry signing with new random nonce
 			if rawNonce == nil {
 				continue
 			}
@@ -38,6 +44,9 @@ func Sign(
 	}
 }
 
+// Verify verifies the given schnorr signature against the provided challenge, public key, generator point,
+// and optional override signature R value.
+// It returns an error if the verification process fails.
 func Verify(
 	rawSignature Signature,
 	challenge []byte,

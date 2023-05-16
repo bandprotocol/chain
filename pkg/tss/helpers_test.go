@@ -1,18 +1,21 @@
 package tss_test
 
 import (
-	"testing"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestConcatBytes(t *testing.T) {
+func (suite *TSSTestSuite) TestConcatBytes() {
 	res := tss.ConcatBytes([]byte("abc"), []byte("de"), []byte("fghi"))
-	assert.Equal(t, []byte("abcdefghi"), res)
+	suite.Require().Equal([]byte("abcdefghi"), res)
 }
 
-func TestGenerateKeyPair(t *testing.T) {
+func (suite *TSSTestSuite) TestGenerateKeyPairs() {
+	kps, err := tss.GenerateKeyPairs(3)
+	suite.Require().NoError(err)
+	suite.Require().Equal(3, len(kps))
+}
+
+func (suite *TSSTestSuite) TestGenerateKeyPair() {
 	_, err := tss.GenerateKeyPair()
-	assert.Nil(t, err)
+	suite.Require().NoError(err)
 }
