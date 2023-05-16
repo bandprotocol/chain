@@ -172,7 +172,8 @@ func (s *KeeperTestSuite) TestGetSetMembers() {
 	// set members
 	k.SetMembers(ctx, groupID, members)
 
-	got := k.GetMembers(ctx, groupID)
+	got, err := k.GetMembers(ctx, groupID)
+	s.Require().NoError(err)
 	s.Require().Equal(members, got)
 }
 

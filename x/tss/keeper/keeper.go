@@ -130,7 +130,7 @@ func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Ite
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
-func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member {
+func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
 	var members []types.Member
 	iterator := k.GetMembersIterator(ctx, groupID)
 	defer iterator.Close()
@@ -139,7 +139,10 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member 
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 		members = append(members, member)
 	}
-	return members
+	if len(members) == 0 {
+		return nil, sdkerrors.Wrapf(types.ErrGroupNotFound, "failed to get members with groupID: %d", groupID)
+	}
+	return members, nil
 }
 
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {

@@ -23,7 +23,10 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return &types.QueryGroupResponse{}, err
 	}
 
-	members := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	if err != nil {
+		return &types.QueryGroupResponse{}, err
+	}
 
 	dkgContext, err := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
@@ -46,7 +49,10 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	members := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	if err != nil {
+		return &types.QueryMembersResponse{}, err
+	}
 
 	return &types.QueryMembersResponse{
 		Members: members,
