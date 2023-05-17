@@ -97,7 +97,7 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 func (suite *TSSTestSuite) TestGenerateChallengeOwnPublicKey() {
 	challenge := tss.GenerateChallengeOwnPublicKey(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
 	suite.Require().Equal(
-		"726f756e64334f776e5075624b65790000000000000001646b67436f6e7465787403936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa",
+		"726f756e64334f776e5075624b65790000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa",
 		hex.EncodeToString(challenge),
 	)
 }
