@@ -7,4 +7,5 @@ This package is the modified version from https://github.com/decred/dcrd/tree/ma
 - Use Keccak256 instead of blake256 for the hash generation to support the signature on the EVM chain.
 - Change function from `schnorrSign` to `Sign`.
 - Change function from `schnorrVerify` to `Verify` with the custom generator parameter (Default is G).
-- Modify `Verify` function to support override r in case we want to compare the final result with other value (instead of r in signature).
+- Modify `Verify` function to support override r in case we want to compare the final result with other values (instead of r in the signature).
+- Update test cases to support the modified version.
