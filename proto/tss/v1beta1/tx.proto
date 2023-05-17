@@ -37,11 +37,6 @@ message MsgSubmitDKGRound1 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // member_id is ID of the member in the group.
-  uint64 member_id = 2 [
-    (gogoproto.customname) = "MemberID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
-  ];
   // coefficients_commit is commitment of all coefficients.
   repeated bytes coefficients_commit = 3 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"

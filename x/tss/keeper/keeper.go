@@ -145,12 +145,18 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
-func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err == nil && member.Signer == memberAddress {
-		return true
+func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress string) (tss.MemberID, error) {
+	members, err := k.GetMembers(ctx, groupID)
+	if err != nil {
+		return 0, err
 	}
-	return false
+
+	for i, m := range members {
+		if m.Signer == memberAddress {
+			return tss.MemberID(i + 1), nil
+		}
+	}
+	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
 }
 
 func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitments) {

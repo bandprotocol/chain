@@ -194,10 +194,12 @@ func (s *KeeperTestSuite) TesVerifyMember() {
 	// set members
 	k.SetMembers(ctx, groupID, members)
 
-	isMember1 := k.VerifyMember(ctx, groupID, 0, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	s.Require().True(isMember1)
-	isMember2 := k.VerifyMember(ctx, groupID, 1, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().True(isMember2)
+	memberID1, err := k.VerifyMember(ctx, groupID, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(1), memberID1)
+	memberID2, err := k.VerifyMember(ctx, groupID, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(2), memberID2)
 }
 
 func (s *KeeperTestSuite) TestGetSetRound1Commitments() {

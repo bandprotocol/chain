@@ -61,7 +61,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            0,
-					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -77,12 +76,11 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            1,
-					MemberID:           99,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
 					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					Member:             "band1rqjc6czdeu2w2nst9vfvv6yqj6nwqkv48s4jmq",
 				}
 			},
 			false,
@@ -101,7 +99,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            1,
-					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -119,7 +116,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            1,
-					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -135,7 +131,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            1,
-					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              []byte("wrong a0_sig"),
@@ -152,7 +147,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				// Key generated from GenerateRound1Data() ref. github.com/bandprotocol/chain/v2/pkg/tss
 				req = types.MsgSubmitDKGRound1{
 					GroupID:            1,
-					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
