@@ -41,9 +41,9 @@ func TestValidateGenesis(t *testing.T) {
 		"minimum not set": {
 			src: `{"params":{}}`,
 		},
-		"zero amount allowed": {
+		"zero amount not allowed": {
 			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"0"}]}}`,
-			expErr: false,
+			expErr: true,
 		},
 		"duplicate denoms not allowed": {
 			src:    `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"},{"denom":"ALX", "amount":"2"}]}}`,

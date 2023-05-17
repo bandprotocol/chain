@@ -25,12 +25,12 @@ func TestValidateParams(t *testing.T) {
 			sdk.Coins{sdk.NewCoin("photon", sdk.OneInt())},
 			true,
 		},
-		"coins amounts are zero, pass": {
+		"coins amounts are zero, fail": {
 			sdk.DecCoins{
 				sdk.NewDecCoin("atom", sdk.ZeroInt()),
 				sdk.NewDecCoin("photon", sdk.ZeroInt()),
 			},
-			false,
+			true,
 		},
 		"duplicate coins denoms, fail": {
 			sdk.DecCoins{
