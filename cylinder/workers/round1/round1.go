@@ -110,7 +110,6 @@ func (r *Round1) handleEvent(event *Event) {
 	// Generate message
 	msg := &types.MsgSubmitDKGRound1{
 		GroupID:            event.GroupID,
-		MemberID:           mid,
 		CoefficientsCommit: data.CoefficientsCommit,
 		OneTimePubKey:      data.OneTimePubKey,
 		A0Sig:              data.A0Sig,
