@@ -19,7 +19,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 
 	groupSize := uint64(len(req.Members))
 
-	// create new group
+	// Create new group
 	groupID := k.CreateNewGroup(ctx, types.Group{
 		Size_:     groupSize,
 		Threshold: req.Threshold,
@@ -27,7 +27,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		Status:    types.ROUND_1,
 	})
 
-	// set members
+	// Set members
 	for i, m := range req.Members {
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
@@ -36,7 +36,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		})
 	}
 
-	// use LastCommitHash and groupID to hash to dkgContext
+	// Use LastCommitHash and groupID to hash to dkgContext
 	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(uint64(groupID)), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
@@ -64,29 +64,29 @@ func (k Keeper) SubmitDKGRound1(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
 
-	// check group status
+	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
 	if group.Status != types.ROUND_1 {
-		return nil, sdkerrors.Wrap(types.ErrRound1AlreadyExpired, "group status is not round1")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 1")
 	}
 
-	// check members
+	// Check members
 	memberID, err := k.VerifyMember(ctx, groupID, req.Member)
 	if err != nil {
 		return nil, err
 	}
 
-	// check previous commitment
+	// Check previous submit
 	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
 	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already commit round 1 ")
+		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round 1 ")
 	}
 
-	// get dkg-context
+	// Get dkg-context
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
