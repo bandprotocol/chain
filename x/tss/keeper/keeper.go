@@ -118,7 +118,12 @@ func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
-		return types.Member{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get member with groupID: %d and memberID: %d", groupID, memberID)
+		return types.Member{}, sdkerrors.Wrapf(
+			types.ErrMemberNotFound,
+			"failed to get member with groupID: %d and memberID: %d",
+			groupID,
+			memberID,
+		)
 	}
 
 	member := types.Member{}
@@ -156,17 +161,37 @@ func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress
 			return tss.MemberID(i + 1), nil
 		}
 	}
-	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
+	return 0, sdkerrors.Wrapf(
+		types.ErrMemberNotAuthorized,
+		"failed to get member %s on groupID %d",
+		memberAddress,
+		groupID,
+	)
 }
 
-func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitments) {
-	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
+func (k Keeper) SetRound1Commitments(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	round1Commitment types.Round1Commitments,
+) {
+	ctx.KVStore(k.storeKey).
+		Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
-func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitments, error) {
+func (k Keeper) GetRound1Commitments(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.Round1Commitments, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Commitments{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "failed to get round 1 commitments with groupID: %d and memberID %d", groupID, memberID)
+		return types.Round1Commitments{}, sdkerrors.Wrapf(
+			types.ErrRound1CommitmentsNotFound,
+			"failed to get round 1 commitments with groupID: %d and memberID %d",
+			groupID,
+			memberID,
+		)
 	}
 	var r1c types.Round1Commitments
 	k.cdc.MustUnmarshal(bz, &r1c)
@@ -205,14 +230,28 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) ma
 	return allRound1Commitments
 }
 
-func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Share types.Round2Share) {
+func (k Keeper) SetRound2Share(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	round2Share types.Round2Share,
+) {
 	ctx.KVStore(k.storeKey).Set(types.Round2ShareMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Share))
 }
 
-func (k Keeper) GetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Share, error) {
+func (k Keeper) GetRound2Share(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.Round2Share, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round2Share{}, sdkerrors.Wrapf(types.ErrRound2ShareNotFound, "failed to get round 2 share with groupID: %d, memberID: %d", groupID, memberID)
+		return types.Round2Share{}, sdkerrors.Wrapf(
+			types.ErrRound2ShareNotFound,
+			"failed to get round 2 share with groupID: %d, memberID: %d",
+			groupID,
+			memberID,
+		)
 	}
 	var r2s types.Round2Share
 	k.cdc.MustUnmarshal(bz, &r2s)
@@ -249,14 +288,22 @@ func (k Keeper) GetRound2Shares(ctx sdk.Context, groupID tss.GroupID) []types.Ro
 	return round2Shares
 }
 
-func (k Keeper) SetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID, dkgMaliciousIndexes types.DKGMaliciousIndexes) {
+func (k Keeper) SetDKGMaliciousIndexes(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	dkgMaliciousIndexes types.DKGMaliciousIndexes,
+) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), k.cdc.MustMarshal(&dkgMaliciousIndexes))
 }
 
 func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
-		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(types.ErrDKGMaliciousIndexesNotFound, "failed to get dkg malicious indexes with groupID: %d", groupID)
+		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(
+			types.ErrDKGMaliciousIndexesNotFound,
+			"failed to get dkg malicious indexes with groupID: %d",
+			groupID,
+		)
 	}
 	var dkgMaliciousIndexes types.DKGMaliciousIndexes
 	k.cdc.MustUnmarshal(bz, &dkgMaliciousIndexes)
@@ -270,7 +317,11 @@ func (k Keeper) SetConfirmations(ctx sdk.Context, groupID tss.GroupID, confirmat
 func (k Keeper) GetConfirmations(ctx sdk.Context, groupID tss.GroupID) (types.Confirmations, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
 	if bz == nil {
-		return types.Confirmations{}, sdkerrors.Wrapf(types.ErrConfirmationsNotFound, "failed to get confirmations with groupID: %d", groupID)
+		return types.Confirmations{}, sdkerrors.Wrapf(
+			types.ErrConfirmationsNotFound,
+			"failed to get confirmations with groupID: %d",
+			groupID,
+		)
 	}
 	var c types.Confirmations
 	k.cdc.MustUnmarshal(bz, &c)
@@ -284,7 +335,11 @@ func (k Keeper) SetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID, pendin
 func (k Keeper) GetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID) (types.PendingRoundNote, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
 	if bz == nil {
-		return types.PendingRoundNote{}, sdkerrors.Wrapf(types.ErrPendingRoundNoteNotFound, "failed to get confirmations with groupID: %d", groupID)
+		return types.PendingRoundNote{}, sdkerrors.Wrapf(
+			types.ErrPendingRoundNoteNotFound,
+			"failed to get confirmations with groupID: %d",
+			groupID,
+		)
 	}
 	var p types.PendingRoundNote
 	k.cdc.MustUnmarshal(bz, &p)

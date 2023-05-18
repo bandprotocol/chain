@@ -232,7 +232,10 @@ func (k Keeper) Complain(
 		if true {
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, c.J)
 			if contains {
-				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.J))
+				return nil, sdkerrors.Wrap(
+					types.ErrMemberIsAlreadyMalicious,
+					fmt.Sprintf("member %d is already malicious on this group", c.J),
+				)
 			}
 			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, c.J)
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
