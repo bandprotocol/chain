@@ -83,7 +83,7 @@ func (k Keeper) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
 	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round 1 ")
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1 ")
 	}
 
 	// Get dkg-context
