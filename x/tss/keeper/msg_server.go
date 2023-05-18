@@ -136,3 +136,63 @@ func (k Keeper) SubmitDKGRound1(
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
+
+func (k Keeper) SubmitDKGRound2(
+	goCtx context.Context,
+	req *types.MsgSubmitDKGRound2,
+) (*types.MsgSubmitDKGRound2Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.ROUND_2 {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+	}
+
+	// Check members
+	memberID, err := k.VerifyMember(ctx, groupID, req.Member)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check previous submit
+	_, err = k.GetRound2Share(ctx, groupID, memberID)
+	if err == nil {
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
+	}
+
+	// Check round 2 share length
+	if uint64(len(req.Round2Share.EncryptedSecretShares)) != group.Size_-1 {
+		return nil, sdkerrors.Wrap(types.ErrRound2ShareNotCorrectLength, "number of round 2 share is not correct")
+	}
+
+	k.SetRound2Share(ctx, groupID, memberID, *req.Round2Share)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSubmitDKGRound2,
+			sdk.NewAttribute(types.AttributeKeyRound2Share, req.Round2Share.String()),
+		),
+	)
+
+	count := k.GetRound2SharesCount(ctx, groupID)
+	if count == group.Size_ {
+		group.Status = types.PENDING
+		k.UpdateGroup(ctx, groupID, group)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound2Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
+	}
+
+	return &types.MsgSubmitDKGRound2Response{}, nil
+}

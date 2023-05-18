@@ -34,6 +34,9 @@ var (
 
 	// Round1Commitments is the key that keeps the member commitments on round 1.
 	Round1CommitmentsStoreKeyPrefix = []byte{0x04}
+
+	// Round2ShareStoreKeyPrefix is the key that keeps the member encrypted secret share on round 2
+	Round2ShareStoreKeyPrefix = []byte{0x05}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -60,6 +63,16 @@ func Round1CommitmentsStoreKey(groupID tss.GroupID) []byte {
 
 func Round1CommitmentsMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	buf := append(Round1CommitmentsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
+	return buf
+}
+
+func Round2ShareStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2ShareStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func Round2ShareMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	buf := append(Round2ShareStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
 	return buf
 }

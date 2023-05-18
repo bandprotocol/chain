@@ -205,6 +205,50 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) ma
 	return allRound1Commitments
 }
 
+func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Share types.Round2Share) {
+	ctx.KVStore(k.storeKey).Set(types.Round2ShareMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Share))
+}
+
+func (k Keeper) GetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Share, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareMemberStoreKey(groupID, memberID))
+	if bz == nil {
+		return types.Round2Share{}, sdkerrors.Wrapf(types.ErrRound2ShareNotFound, "failed to get round 2 share with groupID: %d, memberID: %d", groupID, memberID)
+	}
+	var r2s types.Round2Share
+	k.cdc.MustUnmarshal(bz, &r2s)
+	return r2s, nil
+}
+
+func (k Keeper) DeleteRound2share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round2ShareMemberStoreKey(groupID, memberID))
+}
+
+func (k Keeper) getRound2SharesIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2ShareStoreKey(groupID))
+}
+
+func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
+	var count uint64
+	iterator := k.getRound2SharesIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		count += 1
+	}
+	return count
+}
+
+func (k Keeper) GetRound2Shares(ctx sdk.Context, groupID tss.GroupID) []types.Round2Share {
+	var round2Shares []types.Round2Share
+	iterator := k.getRound2SharesIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round2Share types.Round2Share
+		k.cdc.MustUnmarshal(iterator.Value(), &round2Share)
+		round2Shares = append(round2Shares, round2Share)
+	}
+	return round2Shares
+}
+
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

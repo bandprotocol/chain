@@ -14,6 +14,8 @@ service Msg {
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
   // SubmmitDKGRound1 submmit dkg for compute round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
+  // SubmmitDKGRound2 submmit dkg for compute round 2.
+  rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
 }
 
 // CreateGroup is the Msg/CreateGroup request type.
@@ -58,3 +60,18 @@ message MsgSubmitDKGRound1 {
 }
 
 message MsgSubmitDKGRound1Response {}
+
+
+message MsgSubmitDKGRound2 {
+  // group_id is ID of the group.
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // round2_shares is a list of Elgamal encryption of f_i(j).
+  Round2Share round2_share = 2;
+  // sender is an account address of message sender.
+  string member = 3;
+}
+
+message MsgSubmitDKGRound2Response {}

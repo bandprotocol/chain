@@ -36,6 +36,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgRemoveGrantees())
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
+	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
 
 	return txCmd
 }
@@ -232,6 +233,56 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				A0Sig:              a0Sig,
 				OneTimeSig:         oneTimeSig,
 				Member:             clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func MsgSubmitDKGRound2Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
+		Args:  cobra.ExactArgs(2),
+		Short: "submit tss round 2 containing group_id, and n encrypted-secret-shares",
+		Example: fmt.Sprintf(
+			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			var encryptedSecretShares tss.Scalars
+			encryptedSecretSharesStr := strings.Split(args[1], ",")
+			for _, essStr := range encryptedSecretSharesStr {
+				ess, err := hex.DecodeString(essStr)
+				if err != nil {
+					return err
+				}
+				encryptedSecretShares = append(encryptedSecretShares, ess)
+			}
+
+			msg := &types.MsgSubmitDKGRound2{
+				GroupID: tss.GroupID(groupID),
+				Round2Share: &types.Round2Share{
+					EncryptedSecretShares: encryptedSecretShares,
+				},
+				Member: clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
