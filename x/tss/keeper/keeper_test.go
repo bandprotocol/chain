@@ -292,6 +292,98 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 	s.Require().Equal(round1Commitments, got[2])
 }
 
+func (s *KeeperTestSuite) TestGetSetRound2Share() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	round2Share := types.Round2Share{
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 secret share
+	k.SetRound2Share(ctx, groupID, memberID, round2Share)
+
+	got, err := k.GetRound2Share(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(round2Share, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteRound2Share() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	round2Share := types.Round2Share{
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 secret share
+	k.SetRound2Share(ctx, groupID, memberID, round2Share)
+
+	// delete round 2 secret share
+	k.DeleteRound2share(ctx, groupID, memberID)
+
+	_, err := k.GetRound2Share(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetRound2SharesCount() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2ShareM1 := types.Round2Share{
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+	round2ShareM2 := types.Round2Share{
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_11"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 secret share
+	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
+	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+
+	got := k.GetRound2SharesCount(ctx, groupID)
+	s.Require().Equal(uint64(2), got)
+}
+
+func (s *KeeperTestSuite) TestGetRound2Shares() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2ShareM1 := types.Round2Share{
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+	round2ShareM2 := types.Round2Share{
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_11"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 secret share
+	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
+	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+
+	got := k.GetRound2Shares(ctx, groupID)
+	s.Require().Equal([]types.Round2Share{round2ShareM1, round2ShareM2}, got)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

@@ -17,29 +17,33 @@ var _ types.QueryServer = Querier{}
 
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupId := tss.GroupID(req.GroupId)
 
-	group, err := k.GetGroup(ctx, tss.GroupID(req.GroupId))
+	group, err := k.GetGroup(ctx, groupId)
 	if err != nil {
 		return &types.QueryGroupResponse{}, err
 	}
 
-	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	members, err := k.GetMembers(ctx, groupId)
 	if err != nil {
 		return &types.QueryGroupResponse{}, err
 	}
 
-	dkgContext, err := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
+	dkgContext, err := k.GetDKGContext(ctx, groupId)
 	if err != nil {
 		return &types.QueryGroupResponse{}, err
 	}
 
-	allRound1Commitments := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId))
+	allRound1Commitments := k.GetAllRound1Commitments(ctx, groupId)
+
+	round2shares := k.GetRound2Shares(ctx, groupId)
 
 	return &types.QueryGroupResponse{
 		Group:                &group,
 		DKGContext:           dkgContext,
 		Members:              members,
 		AllRound1Commitments: allRound1Commitments,
+		Round2Shares:         round2shares,
 	}, nil
 }
 

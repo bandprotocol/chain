@@ -34,6 +34,12 @@ message Round1Commitments {
   ];
 }
 
+message Round2Share {
+  repeated bytes encrypted_secret_shares = 1 [
+    (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"
+  ];
+}
+
 message DE {
   bytes d = 1;
   bytes e = 2;

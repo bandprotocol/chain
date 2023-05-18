@@ -5,6 +5,8 @@ const (
 	EventTypeUpdateGroup     = "update_group"
 	EventTypeSubmitDKGRound1 = "submit_dkg_round1"
 	EventTypeRound1Success   = "round1_success"
+	EventTypeSubmitDKGRound2 = "submit_dkg_round2"
+	EventTypeRound2Success   = "round2_success"
 
 	AttributeKeyGroupID            = "group_id"
 	AttributeKeyMember             = "member"
@@ -17,4 +19,5 @@ const (
 	AttributeKeyOneTimePubKey      = "one_time_pub_key"
 	AttributeKeyA0Sig              = "a0_sig"
 	AttributeKeyOneTimeSig         = "one_time_sig"
+	AttributeKeyRound2Share        = "round_2_share"
 )
