@@ -28,7 +28,11 @@ func Sign(
 			).Parse()
 		}
 
-		sig, err := schnorr.Sign(privKeyScalar, nonce, challenge)
+		var sigR secp256k1.JacobianPoint
+		secp256k1.ScalarBaseMultNonConst(nonce, &sigR)
+		hash := Hash(ParsePoint(&sigR), challenge)
+
+		sigS, err := schnorr.ComputeSigS(privKeyScalar, nonce, hash)
 		nonce.Zero()
 
 		if err != nil {
@@ -40,6 +44,7 @@ func Sign(
 			return nil, err
 		}
 
+		sig := schnorr.NewSignature(&sigR, sigS)
 		return sig.Serialize(), nil
 	}
 }
@@ -64,9 +69,9 @@ func Verify(
 		return err
 	}
 
-	var overrideSigR *secp256k1.JacobianPoint
+	sigR := &sig.R
 	if rawOverrideSigR != nil {
-		overrideSigR, err = rawOverrideSigR.Point()
+		sigR, err = rawOverrideSigR.Point()
 		if err != nil {
 			return err
 		}
@@ -80,6 +85,6 @@ func Verify(
 		}
 	}
 
-	err = schnorr.Verify(sig, challenge, pubKey, generator, overrideSigR)
-	return err
+	hash := Hash(ParsePoint(&sig.R), challenge)
+	return schnorr.Verify(sigR, &sig.S, hash, pubKey, generator)
 }

@@ -18,7 +18,7 @@ func (suite *TSSTestSuite) TestComputeNonceSymOddCase() {
 	nonceSym, err := tss.ComputeNonceSym(tss.Scalar(suite.kpI.PrivateKey), suite.kpJ.PublicKey)
 	suite.Require().NoError(err)
 	suite.Require().
-		Equal("02bc213e4251592d29c070e4c31b980d150e755ec848afa4c06730ec1dcd09c482", hex.EncodeToString(nonceSym))
+		Equal("03bc213e4251592d29c070e4c31b980d150e755ec848afa4c06730ec1dcd09c482", hex.EncodeToString(nonceSym))
 }
 
 func (suite *TSSTestSuite) TestComputeNonceSymEvenCase() {

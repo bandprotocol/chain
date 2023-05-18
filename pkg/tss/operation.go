@@ -23,19 +23,11 @@ func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, err
 // ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
 // It returns the computed nonce symmetry as a PublicKey and an error, if any.
 func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
+	nonce := rawNonce.Parse()
+
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
 		return nil, err
-	}
-
-	nonce := rawNonce.Parse()
-
-	nG := new(secp256k1.JacobianPoint)
-	secp256k1.ScalarBaseMultNonConst(nonce, nG)
-	nG.ToAffine()
-
-	if nG.Y.IsOdd() {
-		nonce.Negate()
 	}
 
 	nonceSym := new(secp256k1.JacobianPoint)

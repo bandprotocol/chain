@@ -28,8 +28,8 @@ const (
 	// curve.
 	ErrPubKeyNotOnCurve = ErrorKind("ErrPubKeyNotOnCurve")
 
-	// ErrSigRYIsOdd indicates that the calculated Y value of R was odd.
-	ErrSigRYIsOdd = ErrorKind("ErrSigRYIsOdd")
+	// ErrSigRYInvalid indicates that R is invalid.
+	ErrSigRYInvalid = ErrorKind("ErrSigRYInvalid")
 
 	// ErrSigRNotOnCurve indicates that the calculated or given point R for some
 	// signature was not on the curve.

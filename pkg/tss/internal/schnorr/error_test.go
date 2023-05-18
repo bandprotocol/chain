@@ -19,7 +19,7 @@ func TestErrorKindStringer(t *testing.T) {
 		{ErrPrivateKeyIsZero, "ErrPrivateKeyIsZero"},
 		{ErrSchnorrHashValue, "ErrSchnorrHashValue"},
 		{ErrPubKeyNotOnCurve, "ErrPubKeyNotOnCurve"},
-		{ErrSigRYIsOdd, "ErrSigRYIsOdd"},
+		{ErrSigRYInvalid, "ErrSigRYInvalid"},
 		{ErrSigRNotOnCurve, "ErrSigRNotOnCurve"},
 		{ErrUnequalRValues, "ErrUnequalRValues"},
 		{ErrSigTooShort, "ErrSigTooShort"},

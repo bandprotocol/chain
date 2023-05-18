@@ -9,15 +9,11 @@ import (
 	"fmt"
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
-	"github.com/ethereum/go-ethereum/crypto"
 )
 
 const (
 	// SignatureSize is the size of an encoded Schnorr signature.
-	SignatureSize = 64
-
-	// scalarSize is the size of an encoded big endian scalar.
-	scalarSize = 32
+	SignatureSize = 65
 )
 
 var (
@@ -37,15 +33,15 @@ var (
 
 // Signature is a type representing a Schnorr signature.
 type Signature struct {
-	r secp256k1.FieldVal
-	s secp256k1.ModNScalar
+	R secp256k1.JacobianPoint
+	S secp256k1.ModNScalar
 }
 
 // NewSignature instantiates a new signature given some r and s values.
-func NewSignature(r *secp256k1.FieldVal, s *secp256k1.ModNScalar) *Signature {
+func NewSignature(r *secp256k1.JacobianPoint, s *secp256k1.ModNScalar) *Signature {
 	var sig Signature
-	sig.r.Set(r).Normalize()
-	sig.s.Set(s)
+	sig.R.Set(r)
+	sig.S.Set(s)
 	return &sig
 }
 
@@ -53,13 +49,18 @@ func NewSignature(r *secp256k1.FieldVal, s *secp256k1.ModNScalar) *Signature {
 //
 // The signatures are encoded as:
 //
-//	sig[0:32]  x coordinate of the point R, encoded as a big-endian uint256
-//	sig[32:64] s, encoded also as big-endian uint256
+//	sig[0:33]  jacobian point R with z as 1, encoded by SerializeCompressed of secp256k1.PublicKey
+//	sig[33:65] s, encoded also as big-endian uint256
 func (sig Signature) Serialize() []byte {
 	// Total length of returned signature is the length of r and s.
 	var b [SignatureSize]byte
-	sig.r.PutBytesUnchecked(b[0:32])
-	sig.s.PutBytesUnchecked(b[32:64])
+	// Make z = 1
+	sig.R.ToAffine()
+	// Copy compressed bytes of R to first 33 bytes
+	pubKey := secp256k1.NewPublicKey(&sig.R.X, &sig.R.Y).SerializeCompressed()
+	copy(b[0:33], pubKey)
+	// Copy bytes of S 32 bytes after
+	sig.S.PutBytesUnchecked(b[33:65])
 	return b[:]
 }
 
@@ -84,16 +85,19 @@ func ParseSignature(sig []byte) (*Signature, error) {
 	}
 
 	// The signature is validly encoded at this point, however, enforce
-	// additional restrictions to ensure r is in the range [0, p-1], and s is in
+	// additional restrictions to ensure r is the valid jacobian point, and s is in
 	// the range [0, n-1] since valid Schnorr signatures are required to be in
 	// that range per spec.
-	var r secp256k1.FieldVal
-	if overflow := r.SetByteSlice(sig[0:32]); overflow {
-		str := "invalid signature: r >= field prime"
+	var r secp256k1.JacobianPoint
+	pubKey, err := secp256k1.ParsePubKey(sig[0:33])
+	if err != nil {
+		str := fmt.Sprintf("invalid signature: r is not valid: %s", err.Error())
 		return nil, signatureError(ErrSigRTooBig, str)
 	}
+	pubKey.AsJacobian(&r)
+
 	var s secp256k1.ModNScalar
-	if overflow := s.SetByteSlice(sig[32:64]); overflow {
+	if overflow := s.SetByteSlice(sig[33:65]); overflow {
 		str := "invalid signature: s >= group order"
 		return nil, signatureError(ErrSigSTooBig, str)
 	}
@@ -105,40 +109,33 @@ func ParseSignature(sig []byte) (*Signature, error) {
 // IsEqual compares this Signature instance to the one passed, returning true
 // if both Signatures are equivalent. A signature is equivalent to another, if
 // they both have the same scalar value for R and S.
+// Note: Both R must be affine coordinate.
 func (sig Signature) IsEqual(otherSig *Signature) bool {
-	return sig.r.Equals(&otherSig.r) && sig.s.Equals(&otherSig.s)
+	return sig.R.X.Equals(&otherSig.R.X) && sig.R.Y.Equals(&otherSig.R.Y) && sig.R.Z.Equals(&otherSig.R.Z) &&
+		sig.S.Equals(&otherSig.S)
 }
 
 // Verify attempt to verify the signature for the provided challenge, generator and
 // secp256k1 public key and either returns nil if successful or a specific error
 // indicating why it failed if not successful.
+// Note: expectR must be affine coordinate.
 func Verify(
-	sig *Signature,
-	challenge []byte,
+	expectR *secp256k1.JacobianPoint,
+	sigS *secp256k1.ModNScalar,
+	hash []byte,
 	pubKey *secp256k1.PublicKey,
 	generator *secp256k1.JacobianPoint,
-	overrideSigR *secp256k1.JacobianPoint,
 ) error {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
 	// README.md and is reproduced here for reference:
 	//
 	// G is default curve generator if generator from input is not specified.
-	// overrideSigR is the override r of signature. Use this to compare with final result instead if it isn't nil.
 	//
 	// 1. Fail if Q is not a point on the curve
-	// 2. Fail if r >= p
-	// 3. Fail if s >= n
-	// 4. e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
-	// 5. Fail if e >= n
-	// 6. R = s*G + e*Q
-	// 7. Fail if R is the point at infinity
-	// 8. Check if there is overrideSigR is sent to this function | no -> a.1, yes -> b.1
-	//
-	// a.1. Fail if R.y is odd
-	// a.2. Verified if R.x == r
-	//
-	// b.1. Verified if R == overrideSigR
-	//
+	// 2. Fail if h >= n
+	// 3. R = s*G + h*Q
+	// 4. Fail if R is the point at infinity
+	// 5. Verified if R == expectR
 
 	// Step 1.
 	//
@@ -150,123 +147,65 @@ func Verify(
 
 	// Step 2.
 	//
-	// Fail if r >= p
-	//
-	// Note this is already handled by the fact r is a field element.
-
-	// Step 3.
-	//
-	// Fail if s >= n
-	//
-	// Note this is already handled by the fact s is a mod n scalar.
-
-	// Step 4.
-	//
-	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
-	var commitmentInput [scalarSize]byte
-	sig.r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(commitmentInput[:], challenge)
-
-	// Step 5.
-	//
-	// Fail if e >= n
-	var e secp256k1.ModNScalar
-	if overflow := e.SetByteSlice(commitment); overflow {
+	// Fail if h >= n
+	var h secp256k1.ModNScalar
+	if overflow := h.SetByteSlice(hash); overflow {
 		str := "hash of (R || m) too big"
 		return signatureError(ErrSchnorrHashValue, str)
 	}
 
-	// Step 6.
+	// Step 3.
 	//
-	// R = s*G + e*Q
+	// R = s*G + h*Q
 	var Q, R, sG, eQ secp256k1.JacobianPoint
 	pubKey.AsJacobian(&Q)
 	if generator == nil {
-		secp256k1.ScalarBaseMultNonConst(&sig.s, &sG)
+		secp256k1.ScalarBaseMultNonConst(sigS, &sG)
 	} else {
-		secp256k1.ScalarMultNonConst(&sig.s, generator, &sG)
+		secp256k1.ScalarMultNonConst(sigS, generator, &sG)
 	}
-	secp256k1.ScalarMultNonConst(&e, &Q, &eQ)
+	secp256k1.ScalarMultNonConst(&h, &Q, &eQ)
 	secp256k1.AddNonConst(&sG, &eQ, &R)
 
-	// Step 7.
+	// Step 4.
 	//
 	// Fail if R is the point at infinity
 	if (R.X.IsZero() && R.Y.IsZero()) || R.Z.IsZero() {
 		str := "calculated R point is the point at infinity"
 		return signatureError(ErrSigRNotOnCurve, str)
 	}
-
 	R.ToAffine()
+	expectR.ToAffine()
 
-	// Step 8.
+	// Step 5.
 	//
-	// Check if there is sigR is sent to this function
+	// Verified if R == expectR
 	//
-	// If no, go to step a.1.
-	// If yes, go to step b.1.
-
-	if overrideSigR == nil {
-		// Step a.1.
-		//
-		// Fail if R.y is odd
-		//
-		// Note that R must be in affine coordinates for this check.
-		if R.Y.IsOdd() {
-			str := "calculated R y-value is odd"
-			return signatureError(ErrSigRYIsOdd, str)
-		}
-
-		// Step a.2.
-		//
-		// Verified if R.x == r
-		//
-		// Note that R must be in affine coordinates for this check.
-
-		if !sig.r.Equals(&R.X) {
-			str := "calculated R point was not given R"
-			return signatureError(ErrUnequalRValues, str)
-		}
-	} else {
-		// Step b.2.
-		//
-		// Verified if R == sigR
-		//
-		// Note that R must be in affine coordinates for this check.
-		if !overrideSigR.X.Equals(&R.X) || !overrideSigR.Y.Equals(&R.Y) || !overrideSigR.Z.Equals(&R.Z) {
-			str := "calculated R point was not given R"
-			return signatureError(ErrUnequalRValues, str)
-		}
+	// Note that R and expectR must be in affine coordinates for this check.
+	if !expectR.X.Equals(&R.X) || !expectR.Y.Equals(&R.Y) || !expectR.Z.Equals(&R.Z) {
+		str := "calculated R point was not given R"
+		return signatureError(ErrUnequalRValues, str)
 	}
 
 	return nil
 }
 
-// Sign generates an EC-Schnorr-DCRv0 signature over the secp256k1 curve
-// for the provided challenge using the given nonce, and private key.  The produced signature is
-// deterministic (same message, nonce, and key yield the same signature) and
-// canonical.
-func Sign(
-	privKey, nonce *secp256k1.ModNScalar,
-	challenge []byte,
-) (*Signature, error) {
+// ComputeSigS generates an EC-Schnorr-DCRv0 signature over the secp256k1 curve
+// for the provided hash using the given nonce, and private key.
+func ComputeSigS(privKey, nonce *secp256k1.ModNScalar, hash []byte) (*secp256k1.ModNScalar, error) {
 	// The algorithm for producing a EC-Schnorr-DCRv0 signature is described in
 	// README.md and is reproduced here for reference:
 	//
 	// G = curve generator
 	// n = curve order
 	// d = private key
-	// m = message
-	// r, s = signature
+	// h = hash of message
+	// R, S = signature
 	//
 	// 1. Fail if d = 0 or d >= n
-	// 2. R = kG if P is nil else kP
-	// 3. Negate nonce k if R.y is odd (R.y is the y coordinate of the point R)
-	// 4. r = R.x (R.x is the x coordinate of the point R)
-	// 5. e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
-	// 6. Repeat from step 3 (with iteration + 1) if e >= n
-	// 7. s = k - e*d mod n
-	// 8. Return (r, s)
+	// 4. Fail if h >= n
+	// 5. S = k - h*d mod n
+	// 6. Return S
 
 	// Step 1.
 	//
@@ -278,51 +217,22 @@ func Sign(
 
 	// Step 2.
 	//
-	// R = kG if P is nil else kP
-	var R secp256k1.JacobianPoint
-	k := *nonce
-	secp256k1.ScalarBaseMultNonConst(&k, &R)
-
-	// Step 3.
-	//
-	// Negate nonce k if R.y is odd (R.y is the y coordinate of the point R)
-	//
-	// Note that R must be in affine coordinates for this check.
-	R.ToAffine()
-	if R.Y.IsOdd() {
-		k.Negate()
-	}
-
-	// Step 4.
-	//
-	// r = R.x (R.x is the x coordinate of the point R)
-	r := &R.X
-
-	// Step 5.
-	//
-	// e = Keccak256(r || m) (Ensure r is padded to 32 bytes)
-	var commitmentInput [scalarSize]byte
-	r.PutBytesUnchecked(commitmentInput[0:scalarSize])
-	commitment := crypto.Keccak256(commitmentInput[:], challenge)
-
-	// Step 6.
-	//
-	// Repeat from step 1 (with iteration + 1) if e >= N
-	var e secp256k1.ModNScalar
-	if overflow := e.SetByteSlice(commitment); overflow {
-		k.Zero()
+	// Fail if h >= N
+	var h secp256k1.ModNScalar
+	if overflow := h.SetByteSlice(hash); overflow {
 		str := "hash of (R || m) too big"
 		return nil, signatureError(ErrSchnorrHashValue, str)
 	}
 
-	// Step 7.
+	// Step 3.
 	//
-	// s = k - e*d mod n
-	s := new(secp256k1.ModNScalar).Mul2(&e, privKey).Negate().Add(&k)
+	// s = k - h*d mod n
+	k := *nonce
+	S := new(secp256k1.ModNScalar).Mul2(&h, privKey).Negate().Add(&k)
 	k.Zero()
 
-	// Step 8.
+	// Step 4.
 	//
-	// Return (r, s)
-	return NewSignature(r, s), nil
+	// Return S
+	return S, nil
 }
