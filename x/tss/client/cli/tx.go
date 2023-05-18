@@ -183,7 +183,7 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
-		Args:  cobra.ExactArgs(5),
+		Args:  cobra.MinimumNArgs(5),
 		Short: "submit tss round 1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
