@@ -263,7 +263,7 @@ type MsgSubmitDKGRound2 struct {
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
 	// round2_shares is a list of Elgamal encryption of f_i(j).
 	Round2Share *Round2Share `protobuf:"bytes,2,opt,name=round2_share,json=round2Share,proto3" json:"round2_share,omitempty"`
-	// sender is an account address of message sender.
+	// member is the signer of this message. Must be the member of this group.
 	Member string `protobuf:"bytes,3,opt,name=member,proto3" json:"member,omitempty"`
 }
 
