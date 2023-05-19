@@ -111,10 +111,14 @@ func (r *Round2) handleEvent(event *Event) {
 		return
 	}
 
-	// Generate message
-	// TODO-CYLINDER: generate round2 message
-	fmt.Printf("%+v", encSecretShares)
-	msg := &types.MsgSubmitDKGRound1{}
+	// Generate message for round 2
+	msg := &types.MsgSubmitDKGRound2{
+		GroupID: event.GroupID,
+		Round2Share: &types.Round2Share{
+			EncryptedSecretShares: encSecretShares,
+		},
+		Member: r.context.Config.Granter,
+	}
 
 	r.context.MsgCh <- msg
 }
