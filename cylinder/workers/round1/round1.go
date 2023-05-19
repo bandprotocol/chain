@@ -87,7 +87,7 @@ func (r *Round1) handleEvent(event *Event) {
 	logger := r.logger.With("gid", event.GroupID)
 	logger.Info(":delivery_truck: Processing incoming group event")
 
-	mid, err := event.getMemberID(r.context.Config.Granter)
+	mid, err := event.GetMemberID(r.context.Config.Granter)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to get member id: %s", err.Error())
 		return
