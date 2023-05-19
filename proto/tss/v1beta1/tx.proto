@@ -70,7 +70,7 @@ message MsgSubmitDKGRound2 {
   ];
   // round2_shares is a list of Elgamal encryption of f_i(j).
   Round2Share round2_share = 2;
-  // sender is an account address of message sender.
+  // member is the signer of this message. Must be the member of this group.
   string member = 3;
 }
 
