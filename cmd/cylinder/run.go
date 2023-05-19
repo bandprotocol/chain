@@ -8,6 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/round1"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/round2"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/round3"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
 )
 
@@ -42,12 +43,17 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
+			round3, err := round3.New(c)
+			if err != nil {
+				return err
+			}
+
 			sender, err := sender.New(c)
 			if err != nil {
 				return err
 			}
 
-			workers := cylinder.Workers{round1, round2, sender}
+			workers := cylinder.Workers{round1, round2, round3, sender}
 
 			return cylinder.Run(c, workers)
 		},
