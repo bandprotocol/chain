@@ -65,7 +65,7 @@ func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
 // getMemberID returns the member ID corresponding to the provided address.
 // It searches through the event's members and returns the member ID if found.
 // If no member with the given address is found, it returns an error.
-func (e *Event) getMemberID(address string) (tss.MemberID, error) {
+func (e *Event) GetMemberID(address string) (tss.MemberID, error) {
 	for idx, member := range e.Members {
 		if member == address {
 			return tss.MemberID(idx + 1), nil

@@ -14,7 +14,7 @@ type Detail struct {
 
 // GetDetail extracts the details from a slice of SDK messages.
 func GetDetail(msgs []sdk.Msg) []Detail {
-	var details []Detail
+	details := make([]Detail, 0)
 	for _, msg := range msgs {
 		var detail Detail
 		switch t := msg.(type) {
