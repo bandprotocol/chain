@@ -171,6 +171,11 @@ func (pk PrivateKey) Scalar() *secp256k1.ModNScalar {
 	return &pk.Parse().Key
 }
 
+// PublicKEy converts a PrivateKey to a PublicKey.
+func (pk PrivateKey) PublicKey() PublicKey {
+	return pk.Parse().PubKey().SerializeCompressed()
+}
+
 // Parse converts a slice of PrivateKeys into a slice of secp256k1.PrivateKey.
 func (pks PrivateKeys) Parse() []*secp256k1.PrivateKey {
 	var privKeys []*secp256k1.PrivateKey

@@ -43,7 +43,10 @@ func (m MsgCreateGroup) ValidateBasic() error {
 
 	// Validate threshold must be less than or equal to members
 	if m.Threshold > uint64(len(m.Members)) {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members")
+		return sdkerrors.Wrap(
+			fmt.Errorf("validate basic error"),
+			"threshold must be less than or equal to the members",
+		)
 	}
 
 	return nil
@@ -150,28 +153,5 @@ func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
-	return nil
-}
-
-var _ sdk.Msg = &MsgSubmitDKGRound2{}
-
-// Route Implements Msg.
-func (m MsgSubmitDKGRound2) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgCreateGroup.
-func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
-}
-
-// ValidateBasic does a sanity check on the provided data
-func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	return nil
 }

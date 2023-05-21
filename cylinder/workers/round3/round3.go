@@ -95,97 +95,43 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		return
 	}
 
-	commitmentI, err := groupRes.GetRound1Commitment(group.MemberID)
+	ownPrivKey, complains, err := getOwnPrivKey(group, groupRes)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to get Round1Commitment: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to get own private key or complains: %s", err.Error())
 		return
 	}
 
-	var secretShares tss.Scalars
-	var complains []map[string]any
-	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
-		// Calculate you own secret value
-		if j == uint64(group.MemberID) {
-			secretShare := tss.ComputeSecretShare(group.Coefficients, uint32(group.MemberID))
-			secretShares = append(secretShares, secretShare)
-			continue
+	if len(complains) > 0 {
+		// Send message complains
+		r.context.MsgCh <- &types.MsgComplain{
+			GroupID:   gid,
+			Complains: complains,
+			Member:    r.context.Config.Granter,
 		}
-
-		// Get Round1Commitment of J
-		commitmentJ, err := groupRes.GetRound1Commitment(tss.MemberID(j))
-		if err != nil {
-			logger.Error(":cold_sweat: Failed to get Round1Commitment of MemberID(%d): %s", j, err.Error())
-			return
-		}
-
-		// Get secret share
-		secretShare, err := getSecretShare(
-			group.MemberID,
-			tss.MemberID(j),
-			group.OneTimePrivKey,
-			commitmentJ.OneTimePubKey,
-			groupRes,
-		)
-		if err != nil {
-			logger.Error(":cold_sweat: Failed to get secret share from MemberID(%d): %s", j, err.Error())
-			return
-		}
-
-		// Verify secert share
-		err = tss.VerifySecretShare(group.MemberID, secretShare, commitmentJ.CoefficientsCommit)
-		if err != nil {
-			// Generate complain if we fail to verify secret share
-			sig, keySym, nonceSym, err := tss.SignComplain(
-				commitmentI.OneTimePubKey,
-				commitmentJ.OneTimePubKey,
-				group.OneTimePrivKey,
-			)
-			if err != nil {
-				logger.Error(":cold_sweat: Failed to generate complain: %s", err.Error())
-				return
-			}
-
-			// Add complain
-			complains = append(complains, map[string]any{
-				"i":        group.MemberID,
-				"j":        j,
-				"sig":      sig,
-				"keySym":   keySym,
-				"nonceSym": nonceSym,
-			})
-
-			continue
-		}
-
-		// Add secret share if verification is successful
-		secretShares = append(secretShares, secretShare)
+		return
 	}
 
-	fmt.Printf("shares: %+v\n", secretShares)
-	fmt.Printf("complains: %+v\n", complains)
+	// Generate own private key and update it in store
+	group.PrivKey = ownPrivKey
+	r.context.Store.SetGroup(gid, group)
 
-	if len(complains) == 0 {
-		// Send message confirm
-		ownPrivKey := tss.ComputeOwnPrivateKey(secretShares)
-		group.PrivKey = ownPrivKey
+	// Sign own public key
+	ownPubKeySig, err := tss.SignOwnPublickey(
+		group.MemberID,
+		groupRes.DKGContext,
+		ownPrivKey.PublicKey(),
+		ownPrivKey,
+	)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to sign own public key: %s", err.Error())
+		return
+	}
 
-		fmt.Printf("ownPrivKey: %+v\n", group.PrivKey)
-		r.context.Store.SetGroup(gid, group)
-
-		// TODO-CYLINDER: USE THE REAL MESSAGE
-		// r.context.MsgCh <- &types.MsgSubmitDKGRound2{
-		// 	GroupID: event.GroupID,
-		// 	// confirm
-		// 	Member: r.context.Config.Granter,
-		// }
-	} else {
-		// Send message complains
-		// TODO-CYLINDER: USE THE REAL MESSAGE
-		// r.context.MsgCh <- &types.MsgSubmitDKGRound2{
-		// 	GroupID: event.GroupID,
-		// 	// complains
-		// 	Member: r.context.Config.Granter,
-		// }
+	// Send message confirm
+	r.context.MsgCh <- &types.MsgConfirm{
+		GroupID:      gid,
+		OwnPubKeySig: ownPubKeySig,
+		Member:       r.context.Config.Granter,
 	}
 }
 
@@ -209,31 +155,4 @@ func (r *Round3) Start() {
 func (r *Round3) Stop() {
 	r.logger.Info("stop")
 	r.client.Stop()
-}
-
-// getSecretShare calculates and retrieves the decrypted secret share between two members.
-// It takes the member IDs, private and public keys, and the group response as input.
-// It returns the decrypted secret share and any error encountered during the process.
-func getSecretShare(
-	i, j tss.MemberID,
-	privKeyI tss.PrivateKey,
-	pubKeyJ tss.PublicKey,
-	groupRes *client.GroupResponse,
-) (tss.Scalar, error) {
-	// Calculate keySym
-	keySym, err := tss.ComputeKeySym(privKeyI, pubKeyJ)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get encrypted secret share between I and J
-	esc, err := groupRes.GetEncryptedSecretShare(j, i)
-	if err != nil {
-		return nil, err
-	}
-
-	// Decrypt secret share
-	secretShare := tss.Decrypt(esc, keySym)
-
-	return secretShare, nil
 }
