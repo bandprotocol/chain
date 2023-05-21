@@ -72,28 +72,23 @@ func (r *Round1) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log)
+		event, err := ParseEvent(log, r.context.Config.Granter)
 		if err != nil {
 			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err.Error())
 			return
 		}
 
-		go r.handleEvent(event)
+		go r.handleGroup(event.GroupID, event.MemberID, event.Threshold, event.DKGContext)
 	}
 }
 
-// handleEvent processes an incoming group event.
-func (r *Round1) handleEvent(event *Event) {
-	logger := r.logger.With("gid", event.GroupID)
-	logger.Info(":delivery_truck: Processing incoming group event")
+// handleGroup processes an incoming group.
+func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64, dkgContext []byte) {
+	logger := r.logger.With("gid", gid)
+	r.logger.Info(":delivery_truck: Processing incoming group")
 
-	mid, err := event.GetMemberID(r.context.Config.Granter)
-	if err != nil {
-		logger.Error(":cold_sweat: Failed to get member id: %s", err.Error())
-		return
-	}
-
-	data, err := tss.GenerateRound1Data(mid, event.Threshold, event.DKGContext)
+	// Generate round1 data
+	data, err := tss.GenerateRound1Data(mid, threshold, dkgContext)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err.Error())
 		return
@@ -105,11 +100,11 @@ func (r *Round1) handleEvent(event *Event) {
 		Coefficients:   data.Coefficients,
 		OneTimePrivKey: data.OneTimePrivKey,
 	}
-	r.context.Store.SetGroup(event.GroupID, group)
+	r.context.Store.SetGroup(gid, group)
 
 	// Generate message
 	msg := &types.MsgSubmitDKGRound1{
-		GroupID:            event.GroupID,
+		GroupID:            gid,
 		CoefficientsCommit: data.CoefficientsCommit,
 		OneTimePubKey:      data.OneTimePubKey,
 		A0Sig:              data.A0Sig,
