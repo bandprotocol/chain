@@ -251,7 +251,7 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
 		Args:  cobra.ExactArgs(2),
-		Short: "submit tss round 2 containing group_id, and n encrypted-secret-shares",
+		Short: "submit tss round 2 containing group_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,
