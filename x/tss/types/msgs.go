@@ -27,7 +27,7 @@ func (m MsgCreateGroup) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateGroup) ValidateBasic() error {
-	// validate members address
+	// Validate members address
 	for _, member := range m.Members {
 		_, err := sdk.AccAddressFromBech32(member)
 		if err != nil {
@@ -35,13 +35,13 @@ func (m MsgCreateGroup) ValidateBasic() error {
 		}
 	}
 
-	// validate signer address
+	// Validate signer address
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(err, "sender")
 	}
 
-	// validate threshold must be less than or equal to members
+	// Validate threshold must be less than or equal to members
 	if m.Threshold > uint64(len(m.Members)) {
 		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members")
 	}
@@ -69,6 +69,12 @@ func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
+	// Validate members address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
 	return nil
 }
 
