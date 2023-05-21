@@ -37,6 +37,15 @@ var (
 
 	// Round2ShareStoreKeyPrefix is the key that keeps the member encrypted secret share on round 2.
 	Round2ShareStoreKeyPrefix = []byte{0x05}
+
+	// DKGMaliciousIndexesStoreKeyPrefix is a list of indexes of malicious members.
+	DKGMaliciousIndexesStoreKeyPrefix = []byte{0x06}
+
+	// ConfirmationsStoreKeyPrefix is a list of hash PubKey, schnorr signature on the PubKey and context.
+	ConfirmationsStoreKeyPrefix = []byte{0x07}
+
+	// PendingRoundNoteStoreKeyPrefix is list for keep track of the progress of the group status PENDING.
+	PendingRoundNoteStoreKeyPrefix = []byte{0x08}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -75,4 +84,16 @@ func Round2ShareMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byt
 	buf := append(Round2ShareStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
 	return buf
+}
+
+func DKGMaliciousIndexesStoreKey(groupID tss.GroupID) []byte {
+	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ConfirmationsStoreKey(groupID tss.GroupID) []byte {
+	return append(ConfirmationsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func PendingRoundNoteStoreKey(groupID tss.GroupID) []byte {
+	return append(PendingRoundNoteStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

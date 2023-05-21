@@ -16,6 +16,10 @@ service Msg {
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
   // SubmmitDKGRound2 submmit dkg for compute round 2.
   rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
+  // Complain submmit proof for complain malicious.
+  rpc Complain(MsgComplain) returns (MsgComplainResponse);
+  // Confirm submit own signature for proof that it's can derive the secret.
+  rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
 }
 
 // CreateGroup is the Msg/CreateGroup request type.
@@ -75,3 +79,34 @@ message MsgSubmitDKGRound2 {
 }
 
 message MsgSubmitDKGRound2Response {}
+
+message MsgComplain {
+  // group_id is ID of the group.
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // complains is a list of Complains. 
+  repeated Complain complains  = 2;
+  // member is the signer of this message. Must be the member of this group.
+  string member = 3;
+}
+
+message MsgComplainResponse {}
+
+message MsgConfirm {
+  // group_id is ID of the group.
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // ownPubKeySig is a signature of the member_i on its own PubKey to confirm
+  // that the member is able to derive the PubKey.
+  bytes ownPubKeySig  = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+  // member is the signer of this message. Must be the member of this group.
+  string member = 3;
+}
+
+message MsgConfirmResponse {}

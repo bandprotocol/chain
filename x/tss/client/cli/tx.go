@@ -296,3 +296,83 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 
 	return cmd
 }
+
+// TODO: implement MsgComplainCmd
+func MsgComplainCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "complain [group_id] ...",
+		Args:  cobra.ExactArgs(2),
+		Short: "submit tss round 3 containing group_id, and n encrypted-secret-shares",
+		Example: fmt.Sprintf(
+			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgComplain{
+				GroupID: tss.GroupID(groupID),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func MsgConfirmCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "confirm [group_id] [own_pub_key_sig]",
+		Args:  cobra.ExactArgs(2),
+		Short: "submit tss confirm containing group_id and own_pub_key_sig",
+		Example: fmt.Sprintf(
+			`%s tx tss confirm [group_id] [own_pub_key_sig]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			ownPubKeySig, err := hex.DecodeString(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgConfirm{
+				GroupID:      tss.GroupID(groupID),
+				OwnPubKeySig: ownPubKeySig,
+				Member:       clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}

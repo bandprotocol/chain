@@ -1,12 +1,15 @@
 package types
 
 const (
-	EventTypeCreateGroup     = "create_group"
-	EventTypeUpdateGroup     = "update_group"
-	EventTypeSubmitDKGRound1 = "submit_dkg_round1"
-	EventTypeRound1Success   = "round1_success"
-	EventTypeSubmitDKGRound2 = "submit_dkg_round2"
-	EventTypeRound2Success   = "round2_success"
+	EventTypeCreateGroup      = "create_group"
+	EventTypeUpdateGroup      = "update_group"
+	EventTypeSubmitDKGRound1  = "submit_dkg_round1"
+	EventTypeRound1Success    = "round1_success"
+	EventTypeSubmitDKGRound2  = "submit_dkg_round2"
+	EventTypeRound2Success    = "round2_success"
+	EventTypeComplainsSuccess = "complains_success"
+	EventTypeComplainsFailed  = "complains_failed"
+	EventTypeRound3Success    = "round3_success"
 
 	AttributeKeyGroupID            = "group_id"
 	AttributeKeyMember             = "member"
@@ -20,4 +23,6 @@ const (
 	AttributeKeyA0Sig              = "a0_sig"
 	AttributeKeyOneTimeSig         = "one_time_sig"
 	AttributeKeyRound2Share        = "round_2_share"
+	AttributeKeyComplains          = "complains"
+	AttributeOwnPubKeySig          = "own_pub_key_sig"
 )

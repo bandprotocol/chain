@@ -60,7 +60,9 @@ message Complaint {
 }
 
 message Confirmation { 
-  bytes sig_on_pub_key_and_context = 1; 
+  bytes sig_on_pub_key_and_context = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }
 
 message Signing {
@@ -88,4 +90,30 @@ enum GroupStatus {
       [ (gogoproto.enumvalue_customname) = "ACTIVE" ];
   FALLEN = 4
       [ (gogoproto.enumvalue_customname) = "FALLEN" ];
+}
+
+message DKGMaliciousIndexes {
+  repeated uint64 maliciousIDs = 1;
+}
+
+message Complain {
+  uint64 i = 1;
+  uint64 j = 2;
+  bytes keySym = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes signature = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+  bytes noncesym = 5 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+}
+
+message Confirmations {
+  repeated Confirmation confirmations = 1;
+}
+
+message PendingRoundNote {
+  uint64 confirmation_count = 1;
 }
