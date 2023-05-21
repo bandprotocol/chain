@@ -92,6 +92,12 @@ func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
 	return nil
 }
 
