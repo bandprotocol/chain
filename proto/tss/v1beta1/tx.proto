@@ -29,7 +29,7 @@ message MsgCreateGroup {
   // threshold is a minimum number of signers required to produce a group
   // signature.
   uint64 threshold = 2;
-  // sender is an account address of message sender.
+  // sender is the signer of this message.
   string sender = 3;
 }
 
@@ -59,7 +59,7 @@ message MsgSubmitDKGRound1 {
   bytes one_time_sig = 6 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  // sender is an account address of message sender.
+  // member is the signer of this message. Must be the member of this group.
   string member = 7;
 }
 

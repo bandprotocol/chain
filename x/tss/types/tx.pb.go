@@ -37,7 +37,7 @@ type MsgCreateGroup struct {
 	// threshold is a minimum number of signers required to produce a group
 	// signature.
 	Threshold uint64 `protobuf:"varint,2,opt,name=threshold,proto3" json:"threshold,omitempty"`
-	// sender is an account address of message sender.
+	// sender is the signer of this message.
 	Sender string `protobuf:"bytes,3,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -143,7 +143,7 @@ type MsgSubmitDKGRound1 struct {
 	A0Sig github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,5,opt,name=a0_sig,json=a0Sig,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"a0_sig,omitempty"`
 	// one_time_sig is a proof of knowledge on the OneTimePublicKey.
 	OneTimeSig github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,6,opt,name=one_time_sig,json=oneTimeSig,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"one_time_sig,omitempty"`
-	// sender is an account address of message sender.
+	// member is the signer of this message. Must be the member of this group.
 	Member string `protobuf:"bytes,7,opt,name=member,proto3" json:"member,omitempty"`
 }
 
