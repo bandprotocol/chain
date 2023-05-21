@@ -17,8 +17,10 @@ import (
 // Round2 is a worker responsible for round2 in the DKG process of TSS module
 type Round2 struct {
 	context *cylinder.Context
-	logger  *logger.Logger
-	client  *client.Client
+
+	logger *logger.Logger
+	client *client.Client
+
 	eventCh <-chan ctypes.ResultEvent
 }
 
@@ -71,31 +73,31 @@ func (r *Round2) handleTxResult(txResult abci.TxResult) {
 			return
 		}
 
-		go r.handleEvent(event)
+		go r.handleGroup(event.GroupID)
 	}
 }
 
-// handleEvent processes an incoming group event.
-func (r *Round2) handleEvent(event *Event) {
-	logger := r.logger.With("gid", event.GroupID)
-	logger.Info(":delivery_truck: Processing incoming group event")
+// handleEvent processes an incoming group.
+func (r *Round2) handleGroup(gid tss.GroupID) {
+	logger := r.logger.With("gid", gid)
+	logger.Info(":delivery_truck: Processing incoming group")
 
 	// Set group data
-	group, err := r.context.Store.GetGroup(event.GroupID)
+	group, err := r.context.Store.GetGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err.Error())
 		return
 	}
 
-	gr, err := r.client.QueryGroup(event.GroupID)
+	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
 		return
 	}
 
 	// Get all one time public keys in the group
-	oneTimePubKeys := make(tss.PublicKeys, gr.Group.Size_)
-	for mid, commitment := range gr.AllRound1Commitments {
+	oneTimePubKeys := make(tss.PublicKeys, groupRes.Group.Size_)
+	for mid, commitment := range groupRes.AllRound1Commitments {
 		oneTimePubKeys[mid-1] = commitment.OneTimePubKey
 	}
 
@@ -113,7 +115,7 @@ func (r *Round2) handleEvent(event *Event) {
 
 	// Generate message for round 2
 	msg := &types.MsgSubmitDKGRound2{
-		GroupID: event.GroupID,
+		GroupID: gid,
 		Round2Share: &types.Round2Share{
 			EncryptedSecretShares: encSecretShares,
 		},
