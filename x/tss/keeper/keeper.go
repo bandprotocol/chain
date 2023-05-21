@@ -249,6 +249,48 @@ func (k Keeper) GetRound2Shares(ctx sdk.Context, groupID tss.GroupID) []types.Ro
 	return round2Shares
 }
 
+func (k Keeper) SetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID, dkgMaliciousIndexes types.DKGMaliciousIndexes) {
+	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), k.cdc.MustMarshal(&dkgMaliciousIndexes))
+}
+
+func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
+	if bz == nil {
+		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(types.ErrDKGMaliciousIndexesNotFound, "failed to get dkg malicious indexes with groupID: %d", groupID)
+	}
+	var dkgMaliciousIndexes types.DKGMaliciousIndexes
+	k.cdc.MustUnmarshal(bz, &dkgMaliciousIndexes)
+	return dkgMaliciousIndexes, nil
+}
+
+func (k Keeper) SetConfirmations(ctx sdk.Context, groupID tss.GroupID, confirmations types.Confirmations) {
+	ctx.KVStore(k.storeKey).Set(types.ConfirmationsStoreKey(groupID), k.cdc.MustMarshal(&confirmations))
+}
+
+func (k Keeper) GetConfirmations(ctx sdk.Context, groupID tss.GroupID) (types.Confirmations, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
+	if bz == nil {
+		return types.Confirmations{}, sdkerrors.Wrapf(types.ErrConfirmationsNotFound, "failed to get confirmations with groupID: %d", groupID)
+	}
+	var c types.Confirmations
+	k.cdc.MustUnmarshal(bz, &c)
+	return c, nil
+}
+
+func (k Keeper) SetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID, pendingRoundNote types.PendingRoundNote) {
+	ctx.KVStore(k.storeKey).Set(types.ConfirmationsStoreKey(groupID), k.cdc.MustMarshal(&pendingRoundNote))
+}
+
+func (k Keeper) GetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID) (types.PendingRoundNote, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
+	if bz == nil {
+		return types.PendingRoundNote{}, sdkerrors.Wrapf(types.ErrPendingRoundNoteNotFound, "failed to get confirmations with groupID: %d", groupID)
+	}
+	var p types.PendingRoundNote
+	k.cdc.MustUnmarshal(bz, &p)
+	return p, nil
+}
+
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

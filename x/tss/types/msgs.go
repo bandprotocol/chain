@@ -94,3 +94,49 @@ func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	return nil
 }
+
+var _ sdk.Msg = &MsgComplain{}
+
+// Route Implements Msg.
+func (m MsgComplain) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgComplain) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgComplain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgComplain) ValidateBasic() error {
+	return nil
+}
+
+var _ sdk.Msg = &MsgConfirm{}
+
+// Route Implements Msg.
+func (m MsgConfirm) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgConfirm) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgConfirm) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgConfirm) ValidateBasic() error {
+	return nil
+}

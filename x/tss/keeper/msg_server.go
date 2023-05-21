@@ -196,3 +196,144 @@ func (k Keeper) SubmitDKGRound2(
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
 }
+
+func (k Keeper) Complain(
+	goCtx context.Context,
+	req *types.MsgComplain,
+) (*types.MsgComplainResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.PENDING {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+	}
+
+	// Check members
+	_, err = k.VerifyMember(ctx, groupID, req.Member)
+	if err != nil {
+		return nil, err
+	}
+
+	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify complain
+	for _, c := range req.Complains {
+		// TODO: Verify complain
+
+		if true {
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, c.J)
+			if contains {
+				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.J))
+			}
+			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, c.J)
+			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeComplainsFailed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyComplains, fmt.Sprintf("%+v", c)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+
+		} else {
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, c.I)
+			if contains {
+				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.I))
+			}
+			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, c.I)
+			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeComplainsFailed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyComplains, fmt.Sprintf("%+v", c)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+			return nil, sdkerrors.Wrap(types.ErrComplainsFailed, fmt.Sprintf("failed to complain %+v", c))
+		}
+	}
+
+	return &types.MsgComplainResponse{}, nil
+}
+
+func (k Keeper) Confirm(
+	goCtx context.Context,
+	req *types.MsgConfirm,
+) (*types.MsgConfirmResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.PENDING {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+	}
+
+	// Check members
+	memberID, err := k.VerifyMember(ctx, groupID, req.Member)
+	if err != nil {
+		return nil, err
+	}
+
+	round1Commitments, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(round1Commitments)
+
+	// TODO: verify OwnPubKeySig
+
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(member)
+
+	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	pendingRoundNote, err := k.GetPendingRoundNote(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	pendingRoundNote.ConfirmationCount += 1
+
+	if pendingRoundNote.ConfirmationCount == group.Size_ && len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
+		group.Status = types.ACTIVE
+
+		k.UpdateGroup(ctx, groupID, group)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound3Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+				sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			),
+		)
+	}
+
+	// TODO: Remove all interim data associated with this group
+
+	return &types.MsgConfirmResponse{}, nil
+}
