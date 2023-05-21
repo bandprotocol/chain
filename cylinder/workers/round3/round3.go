@@ -73,52 +73,71 @@ func (r *Round3) handleTxResult(txResult abci.TxResult) {
 			return
 		}
 
-		go r.handleEvent(event)
+		go r.handleGroup(event.GroupID)
 	}
 }
 
-// handleEvent processes an incoming group event.
-func (r *Round3) handleEvent(event *Event) {
-	logger := r.logger.With("gid", event.GroupID)
-	logger.Info(":delivery_truck: Processing incoming group event")
+// handleEvent processes an incoming group.
+func (r *Round3) handleGroup(gid tss.GroupID) {
+	logger := r.logger.With("gid", gid)
+	logger.Info(":delivery_truck: Processing incoming group")
 
 	// Set group data
-	group, err := r.context.Store.GetGroup(event.GroupID)
+	group, err := r.context.Store.GetGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err.Error())
 		return
 	}
 
-	gr, err := r.client.QueryGroup(event.GroupID)
+	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
 		return
 	}
 
+	commitmentI, err := groupRes.GetRound1Commitment(group.MemberID)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to get Round1Commitment: %s", err.Error())
+		return
+	}
+
 	var secretShares tss.Scalars
 	var complains []map[string]any
-	for j := uint64(0); j < gr.Group.Size_; j++ {
+	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
 		// Calculate you own secret value
-		if j+1 == uint64(group.MemberID) {
+		if j == uint64(group.MemberID) {
 			secretShare := tss.ComputeSecretShare(group.Coefficients, uint32(group.MemberID))
 			secretShares = append(secretShares, secretShare)
 			continue
 		}
 
-		// Get secret share
-		secretShare, err := getSecretShare(group.MemberID, tss.MemberID(j+1), gr, group.OneTimePrivKey)
+		// Get Round1Commitment of J
+		commitmentJ, err := groupRes.GetRound1Commitment(tss.MemberID(j))
 		if err != nil {
-			logger.Error(":cold_sweat: Failed to get secret share with MemberID(%d): %s", j+1, err.Error())
+			logger.Error(":cold_sweat: Failed to get Round1Commitment of MemberID(%d): %s", j, err.Error())
+			return
+		}
+
+		// Get secret share
+		secretShare, err := getSecretShare(
+			group.MemberID,
+			tss.MemberID(j),
+			group.OneTimePrivKey,
+			commitmentJ.OneTimePubKey,
+			groupRes,
+		)
+		if err != nil {
+			logger.Error(":cold_sweat: Failed to get secret share from MemberID(%d): %s", j, err.Error())
 			return
 		}
 
 		// Verify secert share
-		err = tss.VerifySecretShare(group.MemberID, secretShare, gr.AllRound1Commitments[j+1].CoefficientsCommit)
+		err = tss.VerifySecretShare(group.MemberID, secretShare, commitmentJ.CoefficientsCommit)
 		if err != nil {
 			// Generate complain if we fail to verify secret share
 			sig, keySym, nonceSym, err := tss.SignComplain(
-				gr.AllRound1Commitments[uint64(group.MemberID)].OneTimePubKey,
-				gr.AllRound1Commitments[j+1].OneTimePubKey,
+				commitmentI.OneTimePubKey,
+				commitmentJ.OneTimePubKey,
 				group.OneTimePrivKey,
 			)
 			if err != nil {
@@ -129,7 +148,7 @@ func (r *Round3) handleEvent(event *Event) {
 			// Add complain
 			complains = append(complains, map[string]any{
 				"i":        group.MemberID,
-				"j":        j + 1,
+				"j":        j,
 				"sig":      sig,
 				"keySym":   keySym,
 				"nonceSym": nonceSym,
@@ -151,7 +170,7 @@ func (r *Round3) handleEvent(event *Event) {
 		group.PrivKey = ownPrivKey
 
 		fmt.Printf("ownPrivKey: %+v\n", group.PrivKey)
-		r.context.Store.SetGroup(event.GroupID, group)
+		r.context.Store.SetGroup(gid, group)
 
 		// TODO-CYLINDER: USE THE REAL MESSAGE
 		// r.context.MsgCh <- &types.MsgSubmitDKGRound2{
@@ -192,28 +211,29 @@ func (r *Round3) Stop() {
 	r.client.Stop()
 }
 
+// getSecretShare calculates and retrieves the decrypted secret share between two members.
+// It takes the member IDs, private and public keys, and the group response as input.
+// It returns the decrypted secret share and any error encountered during the process.
 func getSecretShare(
 	i, j tss.MemberID,
-	gr *types.QueryGroupResponse,
 	privKeyI tss.PrivateKey,
+	pubKeyJ tss.PublicKey,
+	groupRes *client.GroupResponse,
 ) (tss.Scalar, error) {
 	// Calculate keySym
-	pubKeyJ := gr.AllRound1Commitments[uint64(j)].OneTimePubKey
 	keySym, err := tss.ComputeKeySym(privKeyI, pubKeyJ)
 	if err != nil {
 		return nil, err
 	}
 
-	// Calculate secret share between yourself and J
-	var encSecretShare tss.Scalar
-	if i < j {
-		encSecretShare = gr.Round2Shares[j-1].EncryptedSecretShares[i-1]
-	} else {
-		encSecretShare = gr.Round2Shares[j-1].EncryptedSecretShares[i-2]
+	// Get encrypted secret share between I and J
+	esc, err := groupRes.GetEncryptedSecretShare(j, i)
+	if err != nil {
+		return nil, err
 	}
 
-	// Decrypt
-	secretShare := tss.Decrypt(encSecretShare, keySym)
+	// Decrypt secret share
+	secretShare := tss.Decrypt(esc, keySym)
 
 	return secretShare, nil
 }
