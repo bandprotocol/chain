@@ -12,50 +12,42 @@ import (
 func TestGetMemberID(t *testing.T) {
 	tests := []struct {
 		name        string
-		event       round1.Event
+		members     []string
 		expMemberID tss.MemberID
 		expError    error
 	}{
 		{
 			"not in the member",
-			round1.Event{
-				Members: []string{
-					"b",
-					"c",
-				},
+			[]string{
+				"b",
+				"c",
 			},
 			0,
 			errors.New("failed to find member in the event"),
 		},
 		{
 			"first member",
-			round1.Event{
-				Members: []string{
-					"a",
-					"b",
-					"c",
-				},
+			[]string{
+				"a",
+				"b",
+				"c",
 			},
 			1,
 			nil,
 		},
 		{
 			"last member",
-			round1.Event{
-				Members: []string{
-					"b",
-					"c",
-					"a",
-				},
+			[]string{
+				"b",
+				"c",
+				"a",
 			},
 			3,
 			nil,
 		},
 		{
 			"no member in the group",
-			round1.Event{
-				Members: []string{},
-			},
+			[]string{},
 			0,
 			errors.New("failed to find member in the event"),
 		},
@@ -63,7 +55,7 @@ func TestGetMemberID(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			memberID, err := test.event.GetMemberID("a")
+			memberID, err := round1.GetMemberID(test.members, "a")
 			assert.Equal(t, test.expError, err)
 			assert.Equal(t, test.expMemberID, memberID)
 		})

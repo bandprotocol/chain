@@ -14,6 +14,7 @@ import (
 // Event represents the parsed information from a create_group event.
 type Event struct {
 	GroupID    tss.GroupID
+	MemberID   tss.MemberID
 	Threshold  uint64
 	DKGContext []byte
 	Members    []string
@@ -21,7 +22,7 @@ type Event struct {
 
 // ParseEvent parses the ABCIMessageLog and extracts the relevant information to create a create_group event.
 // It returns the parsed Event or an error if parsing fails.
-func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
+func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 	gidStr, err := event.GetEventValue(log, types.EventTypeCreateGroup, types.AttributeKeyGroupID)
 	if err != nil {
 		return nil, err
@@ -54,19 +55,25 @@ func ParseEvent(log sdk.ABCIMessageLog) (*Event, error) {
 
 	members := event.GetEventValues(log, types.EventTypeCreateGroup, types.AttributeKeyMember)
 
+	mid, err := GetMemberID(members, address)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Event{
 		GroupID:    tss.GroupID(gid),
+		MemberID:   mid,
 		Threshold:  threshold,
 		DKGContext: dkgContext,
 		Members:    members,
 	}, nil
 }
 
-// getMemberID returns the member ID corresponding to the provided address.
-// It searches through the event's members and returns the member ID if found.
+// GetMemberID returns the member ID corresponding to the provided address.
+// It searches through the members list and returns the member ID if found.
 // If no member with the given address is found, it returns an error.
-func (e *Event) GetMemberID(address string) (tss.MemberID, error) {
-	for idx, member := range e.Members {
+func GetMemberID(members []string, address string) (tss.MemberID, error) {
+	for idx, member := range members {
 		if member == address {
 			return tss.MemberID(idx + 1), nil
 		}

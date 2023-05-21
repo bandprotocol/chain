@@ -113,12 +113,18 @@ func (c *Client) GetTxFromTxHash(
 }
 
 // QueryGroup queries the group information with the given group ID.
-// It returns the group information or an error.
-func (c *Client) QueryGroup(groupID tss.GroupID) (*types.QueryGroupResponse, error) {
+// It returns the group response or an error.
+func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 	queryClient := types.NewQueryClient(c.context)
-	return queryClient.Group(context.Background(), &types.QueryGroupRequest{
+
+	gr, err := queryClient.Group(context.Background(), &types.QueryGroupRequest{
 		GroupId: uint64(groupID),
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return NewGroupResponse(gr), nil
 }
 
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
