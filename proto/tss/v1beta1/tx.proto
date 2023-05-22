@@ -12,15 +12,15 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
-  // SubmmitDKGRound1 submmit dkg for compute round 1.
+  // SubmmitDKGRound1 submit dkg for compute round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
 }
 
 // CreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
   // members is a list of members in this group
-  repeated string members = 1 [ (gogoproto.nullable) = false ];
-  // threshold is a minimum number of signers required to produce a group
+  repeated string members = 1;
+  // threshold is a minimum number of members required to produce a
   // signature.
   uint64 threshold = 2;
   // sender is the signer of this message.

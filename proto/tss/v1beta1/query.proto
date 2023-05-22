@@ -24,13 +24,13 @@ service Query {
   }
 }
 
-// QueryParamsRequest is the request type for the Query/Group RPC method
+// QueryGroupRequest is the request type for the Query/Group RPC method
 message QueryGroupRequest {
   // group_id defines the unique id of the group.
   uint64 group_id = 1;
 }
 
-// QueryParamsResponse is the response type for the Query/Group RPC method
+// QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
   Group group = 1;
   bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
@@ -57,7 +57,7 @@ message QueryIsGranteeRequest {
   string grantee_address = 2;
 }
 
-// QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
+// QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
 message QueryIsGranteeResponse {
   // IsGrantee is true if this account has been granted by granter
   bool is_grantee = 1;

@@ -29,7 +29,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryParamsRequest is the request type for the Query/Group RPC method
+// QueryGroupRequest is the request type for the Query/Group RPC method
 type QueryGroupRequest struct {
 	// group_id defines the unique id of the group.
 	GroupId uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
@@ -75,7 +75,7 @@ func (m *QueryGroupRequest) GetGroupId() uint64 {
 	return 0
 }
 
-// QueryParamsResponse is the response type for the Query/Group RPC method
+// QueryGroupResponse is the response type for the Query/Group RPC method
 type QueryGroupResponse struct {
 	Group             *Group              `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
 	DKGContext        []byte              `protobuf:"bytes,2,opt,name=dkg_context,json=dkgContext,proto3" json:"dkg_context,omitempty"`
@@ -290,7 +290,7 @@ func (m *QueryIsGranteeRequest) GetGranteeAddress() string {
 	return ""
 }
 
-// QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
+// QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
 type QueryIsGranteeResponse struct {
 	// IsGrantee is true if this account has been granted by granter
 	IsGrantee bool `protobuf:"varint,1,opt,name=is_grantee,json=isGrantee,proto3" json:"is_grantee,omitempty"`
