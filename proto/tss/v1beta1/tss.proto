@@ -42,15 +42,6 @@ message DEQueue {
   uint64 tail = 2;
 }
 
-message Complaint {
-  uint64 i = 1;
-  uint64 j = 2;
-  bytes key_sym = 3;
-  bytes a1 = 4 ;
-  bytes a2 = 5;
-  uint64 pi = 6;
-}
-
 message Confirmation { 
   bytes sig_on_pub_key_and_context = 1; 
 }

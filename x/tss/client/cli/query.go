@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// QueryCmd returns the cli query commands for the tss module.
+// GetQueryCmd returns the cli query commands for the tss module.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
