@@ -251,6 +251,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	return cmd
 }
 
+// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
 func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
