@@ -106,7 +106,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
-		return sdkerrors.Wrap(err, "member")
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", m.Member, err.Error()))
 	}
 
 	return nil

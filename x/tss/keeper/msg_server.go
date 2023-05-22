@@ -175,9 +175,9 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
 	}
 
-	// Check round 2 share length
+	// Check encrypted secret shares length
 	if uint64(len(req.Round2Share.EncryptedSecretShares)) != group.Size_-1 {
-		return nil, sdkerrors.Wrap(types.ErrRound2ShareNotCorrectLength, "number of round 2 share is not correct")
+		return nil, sdkerrors.Wrap(types.ErrEncryptedSecretSharesNotCorrectLength, "number of encrypted secret shares is not correct")
 	}
 
 	k.SetRound2Share(ctx, groupID, memberID, *req.Round2Share)
