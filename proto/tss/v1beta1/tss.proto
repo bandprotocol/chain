@@ -93,7 +93,7 @@ enum GroupStatus {
 }
 
 message DKGMaliciousIndexes {
-  repeated uint64 maliciousIDs = 1;
+  repeated uint64 malicious_ids = 1 [ (gogoproto.customname) = "MaliciousIDs" ];
 }
 
 message Complain {
