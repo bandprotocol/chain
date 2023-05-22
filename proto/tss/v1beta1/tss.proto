@@ -13,12 +13,6 @@ message Group {
   GroupStatus status = 4;
 }
 
-message Round1Note {
-  uint64 begin_at = 1;
-  uint64 end_at = 2;
-  uint64 commitments_count = 3;
-}
-
 message Round1Commitment {
   repeated bytes coefficients_commit = 3 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
@@ -76,8 +70,8 @@ enum GroupStatus {
       [ (gogoproto.enumvalue_customname) = "ROUND_1" ];
   ROUND_2 = 1
       [ (gogoproto.enumvalue_customname) = "ROUND_2" ];
-  PENDING = 2
-      [ (gogoproto.enumvalue_customname) = "PENDING" ];
+  ROUND_3 = 2
+      [ (gogoproto.enumvalue_customname) = "ROUND_3" ];
   ACTIVE = 3
       [ (gogoproto.enumvalue_customname) = "ACTIVE" ];
   FALLEN = 4

@@ -32,7 +32,7 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(MsgAddGrantee())
+	txCmd.AddCommand(MsgAddGrantees())
 	txCmd.AddCommand(MsgRemoveGrantees())
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
@@ -40,7 +40,7 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-func MsgAddGrantee() *cobra.Command {
+func MsgAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
 		Short: "Add agents authorized to submit tss transactions.",

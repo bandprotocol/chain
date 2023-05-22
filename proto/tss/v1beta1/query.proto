@@ -8,9 +8,11 @@ import "tss/v1beta1/tss.proto";
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
 service Query {
+  // Group queries group details
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
+  // Members queries all members in this group.
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
   }

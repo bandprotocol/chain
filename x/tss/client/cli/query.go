@@ -70,7 +70,7 @@ func QueryGroupCmd() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func QueryMembersCmd() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}

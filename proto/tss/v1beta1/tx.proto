@@ -19,7 +19,7 @@ service Msg {
 // CreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
   // members is a list of members in this group
-  repeated string members = 1;
+  repeated string members = 1 [ (gogoproto.nullable) = false ];
   // threshold is a minimum number of signers required to produce a group
   // signature.
   uint64 threshold = 2;
