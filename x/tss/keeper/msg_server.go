@@ -245,7 +245,6 @@ func (k Keeper) Complain(
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
-
 		} else {
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
 			if contains {
