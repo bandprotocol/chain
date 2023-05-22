@@ -287,10 +287,8 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 
 	got := k.GetAllRound1Commitments(ctx, groupID, groupSize)
 
-	s.Require().Equal(&round1Commitment, got[0])
-	s.Require().Equal(&round1Commitment, got[1])
-	// case member3 didn't commit round 1
-	s.Require().Equal((*types.Round1Commitment)(nil), got[2])
+	// member3 expected nil value because didn't commit round 1
+	s.Require().Equal([]*types.Round1Commitment{&round1Commitment, &round1Commitment, nil}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
