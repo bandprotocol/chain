@@ -29,7 +29,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryParamsRequest is the request type for the Query/Group RPC method
+// QueryGroupRequest is the request type for the Query/Group RPC method
 type QueryGroupRequest struct {
 	// group_id defines the unique id of the group.
 	GroupId uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
@@ -75,7 +75,7 @@ func (m *QueryGroupRequest) GetGroupId() uint64 {
 	return 0
 }
 
-// QueryParamsResponse is the response type for the Query/Group RPC method
+// QueryGroupResponse is the response type for the Query/Group RPC method
 type QueryGroupResponse struct {
 	Group             *Group              `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
 	DKGContext        []byte              `protobuf:"bytes,2,opt,name=dkg_context,json=dkgContext,proto3" json:"dkg_context,omitempty"`
@@ -298,7 +298,7 @@ func (m *QueryIsGranteeRequest) GetGranteeAddress() string {
 	return ""
 }
 
-// QueryIsSignerResponse is response type for the Query/IsSigner RPC method.
+// QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
 type QueryIsGranteeResponse struct {
 	// IsGrantee is true if this account has been granted by granter
 	IsGrantee bool `protobuf:"varint,1,opt,name=is_grantee,json=isGrantee,proto3" json:"is_grantee,omitempty"`
@@ -408,7 +408,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Group queries group details
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
+	// Members queries all members in this group.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
 	// IsGrantee queries grant of account on this granter.
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
@@ -451,7 +453,9 @@ func (c *queryClient) IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// Group queries group details
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
+	// Members queries all members in this group.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
 	// IsGrantee queries grant of account on this granter.
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)

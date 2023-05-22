@@ -31,19 +31,24 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	for _, member := range m.Members {
 		_, err := sdk.AccAddressFromBech32(member)
 		if err != nil {
-			return sdkerrors.Wrap(err, "member")
+			return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", member, err.Error()))
 		}
 	}
 
-	// Validate signer address
-	_, err := sdk.AccAddressFromBech32(m.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(err, "sender")
+	// Check duplicate member
+	if DuplicateInArray(m.Members) {
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "members can not duplicate")
 	}
 
-	// Validate threshold must be less than or equal to members
-	if m.Threshold > uint64(len(m.Members)) {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members")
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("sender address %s is incorrect: %s", m.Sender, err.Error()))
+	}
+
+	// Validate threshold must be less than or equal to members but more than zero
+	if m.Threshold > uint64(len(m.Members)) && m.Threshold > 0 {
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members but more than zero")
 	}
 
 	return nil
@@ -69,7 +74,7 @@ func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
-	// Validate members address
+	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
 		return sdkerrors.Wrap(err, "member")
@@ -101,7 +106,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
-		return sdkerrors.Wrap(err, "member")
+		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", m.Member, err.Error()))
 	}
 
 	return nil

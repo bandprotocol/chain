@@ -32,7 +32,7 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(MsgAddGrantee())
+	txCmd.AddCommand(MsgAddGrantees())
 	txCmd.AddCommand(MsgRemoveGrantees())
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
@@ -41,7 +41,8 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-func MsgAddGrantee() *cobra.Command {
+// MsgAddGrantees creates a CLI command for add new grantees
+func MsgAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
 		Short: "Add agents authorized to submit tss transactions.",
@@ -94,6 +95,7 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 	return cmd
 }
 
+// MsgRemoveGrantees creates a CLI command for remove grantees from granter
 func MsgRemoveGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
@@ -138,6 +140,7 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 	return cmd
 }
 
+// MsgCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
 func MsgCreateGroupCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-group [member1,member2,...] [threshold]",
@@ -158,7 +161,7 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 
 			members := strings.Split(args[0], ",")
 
-			threshold, err := strconv.ParseUint(args[1], 10, 32)
+			threshold, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -181,6 +184,7 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 	return cmd
 }
 
+// MsgSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
 func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
@@ -247,6 +251,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	return cmd
 }
 
+// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
 func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
@@ -279,7 +284,7 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 
 			msg := &types.MsgSubmitDKGRound2{
 				GroupID: tss.GroupID(groupID),
-				Round2Share: &types.Round2Share{
+				Round2Share: types.Round2Share{
 					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),

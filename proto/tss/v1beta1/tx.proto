@@ -12,9 +12,9 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
-  // SubmmitDKGRound1 submmit dkg for compute round 1.
+  // SubmmitDKGRound1 submit dkg for compute round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
-  // SubmmitDKGRound2 submmit dkg for compute round 2.
+  // SubmitDKGRound2 submmit dkg for compute round 2.
   rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
   // Complain submmit proof for complain malicious.
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
@@ -24,9 +24,9 @@ service Msg {
 
 // CreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
-  // members is a list of members in this group
+  // members is a list of members in this group.
   repeated string members = 1;
-  // threshold is a minimum number of signers required to produce a group
+  // threshold is a minimum number of members required to produce a
   // signature.
   uint64 threshold = 2;
   // sender is the signer of this message.
@@ -73,7 +73,7 @@ message MsgSubmitDKGRound2 {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
   // round2_shares is a list of Elgamal encryption of f_i(j).
-  Round2Share round2_share = 2;
+  Round2Share round2_share = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
 }

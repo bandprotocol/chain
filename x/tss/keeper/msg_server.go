@@ -14,6 +14,10 @@ import (
 
 var _ types.MsgServer = Keeper{}
 
+// CreateGroup handles the request to create a new group.
+// It first unwraps the Go context into an SDK context, then creates a new group with the given members.
+// Afterwards, it sets each member into the KVStore, and hashes the groupID with the LastCommitHash from the block header to create the DKG context.
+// Finally, it emits an event for the group creation.
 func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*types.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -57,6 +61,11 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
+// SubmitDKGRound1 handles the submission of round 1 in the DKG process.
+// After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
+// Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
+// If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
+// If all members have submitted their round 1 commitments, it updates the status of the group to round 2 and emits an event for the completion of round 1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
@@ -137,6 +146,7 @@ func (k Keeper) SubmitDKGRound1(
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
 
+// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round 2
 func (k Keeper) SubmitDKGRound2(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound2,
@@ -166,12 +176,12 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
 	}
 
-	// Check round 2 share length
+	// Check encrypted secret shares length
 	if uint64(len(req.Round2Share.EncryptedSecretShares)) != group.Size_-1 {
-		return nil, sdkerrors.Wrap(types.ErrRound2ShareNotCorrectLength, "number of round 2 share is not correct")
+		return nil, sdkerrors.Wrap(types.ErrRound2ShareNotCorrectLength, "number of round 2 shares is not correct")
 	}
 
-	k.SetRound2Share(ctx, groupID, memberID, *req.Round2Share)
+	k.SetRound2Share(ctx, groupID, memberID, req.Round2Share)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -182,7 +192,7 @@ func (k Keeper) SubmitDKGRound2(
 
 	count := k.GetRound2SharesCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.PENDING
+		group.Status = types.ROUND_3
 		k.UpdateGroup(ctx, groupID, group)
 
 		ctx.EventManager().EmitEvent(
@@ -210,7 +220,7 @@ func (k Keeper) Complain(
 		return nil, err
 	}
 
-	if group.Status != types.PENDING {
+	if group.Status != types.ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 
@@ -281,7 +291,7 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	if group.Status != types.PENDING {
+	if group.Status != types.ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 

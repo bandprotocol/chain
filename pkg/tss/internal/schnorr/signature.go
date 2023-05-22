@@ -203,9 +203,9 @@ func ComputeSigS(privKey, nonce *secp256k1.ModNScalar, hash []byte) (*secp256k1.
 	// R, S = signature
 	//
 	// 1. Fail if d = 0 or d >= n
-	// 4. Fail if h >= n
-	// 5. S = k - h*d mod n
-	// 6. Return S
+	// 2. Fail if h >= n
+	// 3. S = k - h*d mod n
+	// 4. Return S
 
 	// Step 1.
 	//

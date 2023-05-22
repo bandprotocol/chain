@@ -213,7 +213,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 0,
-					Round2Share: &types.Round2Share{
+					Round2Share: types.Round2Share{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -232,7 +232,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Share: types.Round2Share{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -259,7 +259,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Share: types.Round2Share{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -280,7 +280,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Share: types.Round2Share{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -298,7 +298,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Share: types.Round2Share{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
