@@ -49,9 +49,7 @@ func MembersStoreKey(groupID tss.GroupID) []byte {
 }
 
 func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	buf := append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
-	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
-	return buf
+	return append(MembersStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func Round1CommitmentStoreKey(groupID tss.GroupID) []byte {
@@ -59,7 +57,5 @@ func Round1CommitmentStoreKey(groupID tss.GroupID) []byte {
 }
 
 func Round1CommitmentMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	buf := append(Round1CommitmentStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
-	buf = append(buf, sdk.Uint64ToBigEndian(uint64(memberID))...)
-	return buf
+	return append(Round1CommitmentStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
