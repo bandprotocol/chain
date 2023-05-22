@@ -23,12 +23,12 @@ func combineGrantMsgs(
 			expiration,
 		)
 		if err != nil {
-			return []sdk.Msg{}, err
+			return nil, err
 		}
 
 		err = msg.ValidateBasic()
 		if err != nil {
-			return []sdk.Msg{}, err
+			return nil, err
 		}
 
 		msgs = append(msgs, msg)
@@ -49,7 +49,7 @@ func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke
 
 		err := msg.ValidateBasic()
 		if err != nil {
-			return []sdk.Msg{}, err
+			return nil, err
 		}
 
 		msgs = append(msgs, &msg)

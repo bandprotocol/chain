@@ -35,22 +35,17 @@ message Round2Share {
 }
 
 message DE {
-  bytes d = 1;
-  bytes e = 2;
+  bytes pub_d = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes pub_e = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
 }
 
 message DEQueue {
   uint64 head = 1;
   uint64 tail = 2;
-}
-
-message Complaint {
-  uint64 i = 1;
-  uint64 j = 2;
-  bytes key_sym = 3;
-  bytes a1 = 4;
-  bytes a2 = 5;
-  uint64 pi = 6;
 }
 
 message Confirmation { 
@@ -59,7 +54,7 @@ message Confirmation {
 
 message Signing {
   uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
-  repeated uint64 assignedParticipants = 2;
+  repeated uint64 assigned_participants = 2;
   bytes message = 3;
   bytes sig = 4;
 }

@@ -32,9 +32,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // CreateGroup is the Msg/CreateGroup request type.
 type MsgCreateGroup struct {
-	// members is a list of members in this group
+	// members is a list of members in this group.
 	Members []string `protobuf:"bytes,1,rep,name=members,proto3" json:"members,omitempty"`
-	// threshold is a minimum number of signers required to produce a group
+	// threshold is a minimum number of members required to produce a
 	// signature.
 	Threshold uint64 `protobuf:"varint,2,opt,name=threshold,proto3" json:"threshold,omitempty"`
 	// sender is the signer of this message.
@@ -423,9 +423,9 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(ctx context.Context, in *MsgCreateGroup, opts ...grpc.CallOption) (*MsgCreateGroupResponse, error)
-	// SubmmitDKGRound1 submmit dkg for compute round 1.
+	// SubmmitDKGRound1 submit dkg for compute round 1.
 	SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1, opts ...grpc.CallOption) (*MsgSubmitDKGRound1Response, error)
-	// SubmmitDKGRound2 submmit dkg for compute round 2.
+	// SubmitDKGRound2 submmit dkg for compute round 2.
 	SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2, opts ...grpc.CallOption) (*MsgSubmitDKGRound2Response, error)
 }
 
@@ -468,9 +468,9 @@ func (c *msgClient) SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2,
 type MsgServer interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(context.Context, *MsgCreateGroup) (*MsgCreateGroupResponse, error)
-	// SubmmitDKGRound1 submmit dkg for compute round 1.
+	// SubmmitDKGRound1 submit dkg for compute round 1.
 	SubmitDKGRound1(context.Context, *MsgSubmitDKGRound1) (*MsgSubmitDKGRound1Response, error)
-	// SubmmitDKGRound2 submmit dkg for compute round 2.
+	// SubmitDKGRound2 submmit dkg for compute round 2.
 	SubmitDKGRound2(context.Context, *MsgSubmitDKGRound2) (*MsgSubmitDKGRound2Response, error)
 }
 
