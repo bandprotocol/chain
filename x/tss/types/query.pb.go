@@ -408,7 +408,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Group queries group details
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
+	// Members queries all members in this group.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
 	// IsGrantee queries grant of account on this granter.
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
@@ -451,7 +453,9 @@ func (c *queryClient) IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// Group queries group details
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
+	// Members queries all members in this group.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
 	// IsGrantee queries grant of account on this granter.
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)

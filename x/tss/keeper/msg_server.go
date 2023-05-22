@@ -182,7 +182,7 @@ func (k Keeper) SubmitDKGRound2(
 
 	count := k.GetRound2SharesCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.PENDING
+		group.Status = types.ROUND_3
 		k.UpdateGroup(ctx, groupID, group)
 
 		ctx.EventManager().EmitEvent(
