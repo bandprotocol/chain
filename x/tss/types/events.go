@@ -6,6 +6,7 @@ const (
 	EventTypeRound1Success   = "round1_success"
 
 	AttributeKeyGroupID            = "group_id"
+	AttributeKeyMemberID           = "member_id"
 	AttributeKeyMember             = "member"
 	AttributeKeySize               = "size"
 	AttributeKeyThreshold          = "threshold"

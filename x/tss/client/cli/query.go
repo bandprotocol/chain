@@ -42,8 +42,8 @@ func QueryIsGrantee() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
-				GranterAddress: args[0],
-				GranteeAddress: args[1],
+				Granter: args[0],
+				Grantee: args[1],
 			})
 			if err != nil {
 				return err

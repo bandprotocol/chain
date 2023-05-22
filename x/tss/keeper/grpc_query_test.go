@@ -81,23 +81,23 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					Members: []types.Member{
 						{
 							Signer: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							PubKey: "",
+							PubKey: tss.PublicKey(nil),
 						},
 						{
 							Signer: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							PubKey: "",
+							PubKey: tss.PublicKey(nil),
 						},
 						{
 							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey: "",
+							PubKey: tss.PublicKey(nil),
 						},
 						{
 							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey: "",
+							PubKey: tss.PublicKey(nil),
 						},
 						{
 							Signer: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							PubKey: "",
+							PubKey: tss.PublicKey(nil),
 						},
 					},
 					Round1Commitments: []*types.Round1Commitment{
@@ -133,11 +133,11 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	members := []types.Member{
 		{
 			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: "",
+			PubKey: tss.PublicKey(nil),
 		},
 		{
 			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: "",
+			PubKey: tss.PublicKey(nil),
 		},
 	}
 
@@ -215,8 +215,8 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 			"address is not bech32",
 			func() {
 				req = types.QueryIsGranteeRequest{
-					GranterAddress: "asdsd1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					GranteeAddress: "padads40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+					Granter: "asdsd1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					Grantee: "padads40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 				}
 			},
 			false,
@@ -226,8 +226,8 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 			"address is empty",
 			func() {
 				req = types.QueryIsGranteeRequest{
-					GranterAddress: "",
-					GranteeAddress: "",
+					Granter: "",
+					Grantee: "",
 				}
 			},
 			false,
@@ -237,8 +237,8 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 			"grantee address is not grant by granter",
 			func() {
 				req = types.QueryIsGranteeRequest{
-					GranterAddress: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					GranteeAddress: "band17eplw6tga7wqgruqdtalw3rky4njkx6vngxjlt",
+					Granter: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					Grantee: "band17eplw6tga7wqgruqdtalw3rky4njkx6vngxjlt",
 				}
 			},
 			true,
@@ -250,8 +250,8 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 			"success",
 			func() {
 				req = types.QueryIsGranteeRequest{
-					GranterAddress: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					GranteeAddress: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+					Granter: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					Grantee: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 				}
 			},
 			true,

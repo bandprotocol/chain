@@ -21,17 +21,17 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 
 	group, err := k.GetGroup(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
 	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
 	dkgContext, err := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
 	allRound1Commitments := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId), group.Size_)
@@ -65,11 +65,11 @@ func (k Querier) IsGrantee(
 ) (*types.QueryIsGranteeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	granter, err := sdk.AccAddressFromBech32(req.GranterAddress)
+	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
 		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
-	grantee, err := sdk.AccAddressFromBech32(req.GranteeAddress)
+	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
 		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}

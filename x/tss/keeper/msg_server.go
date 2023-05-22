@@ -36,7 +36,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
 			Signer: m,
-			PubKey: "",
+			PubKey: tss.PublicKey(nil),
 		})
 	}
 
@@ -83,8 +83,8 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 1")
 	}
 
-	// Check members
-	memberID, err := k.VerifyMember(ctx, groupID, req.Member)
+	// Get memberID
+	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +122,9 @@ func (k Keeper) SubmitDKGRound1(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitDKGRound1,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitment.CoefficientsCommit.ToString()),
 			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitment.OneTimePubKey)),
 			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitment.A0Sig)),

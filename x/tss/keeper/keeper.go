@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"encoding/binary"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -15,16 +14,14 @@ import (
 )
 
 type Keeper struct {
-	cdc      codec.BinaryCodec
-	storeKey storetypes.StoreKey
-
+	cdc         codec.BinaryCodec
+	storeKey    storetypes.StoreKey
 	authzKeeper types.AuthzKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-
 	authzKeeper types.AuthzKeeper,
 ) Keeper {
 	return Keeper{
@@ -36,15 +33,12 @@ func NewKeeper(
 
 // SetGroupCount function sets the number of group count to the given value.
 func (k Keeper) SetGroupCount(ctx sdk.Context, count uint64) {
-	bz := make([]byte, 8)
-	binary.BigEndian.PutUint64(bz, count)
-	ctx.KVStore(k.storeKey).Set(types.GroupCountStoreKey, bz)
+	ctx.KVStore(k.storeKey).Set(types.GroupCountStoreKey, sdk.Uint64ToBigEndian(count))
 }
 
 // GetGroupCount function returns the current number of all groups ever existed.
 func (k Keeper) GetGroupCount(ctx sdk.Context) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.GroupCountStoreKey)
-	return binary.BigEndian.Uint64(bz)
+	return sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.GroupCountStoreKey))
 }
 
 // GetNextGroupID function increments the group count and returns the current number of groups.
@@ -74,9 +68,9 @@ func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.A
 
 // CreateNewGroup function creates a new group in the store and returns the id of the group.
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
-	id := k.GetNextGroupID(ctx)
-	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(tss.GroupID(id)), k.cdc.MustMarshal(&group))
-	return id
+	groupID := k.GetNextGroupID(ctx)
+	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(tss.GroupID(groupID)), k.cdc.MustMarshal(&group))
+	return groupID
 }
 
 // GetGroup function retrieves a group from the store.
@@ -155,8 +149,8 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
-// VerifyMember function verifies if a member is part of a group.
-func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress string) (tss.MemberID, error) {
+// GetMemberID function verifies if a member is part of a group.
+func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress string) (tss.MemberID, error) {
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
 		return 0, err

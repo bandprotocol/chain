@@ -50,12 +50,16 @@ message Signing {
   uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
   repeated uint64 assigned_participants = 2;
   bytes message = 3;
-  bytes sig = 4;
+  bytes sig = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }
 
 message Member {
   string signer = 1;
-  string pub_key = 2;
+  bytes pub_key = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
 }
 
 enum GroupStatus {
