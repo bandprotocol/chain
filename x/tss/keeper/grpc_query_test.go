@@ -15,6 +15,13 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 
 	groupID := tss.GroupID(1)
+	members := []string{
+		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+	}
 	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
@@ -25,19 +32,13 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	members := []string{
-		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-	}
 
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Sender:    members[0],
 	})
+	// set round 1
 	k.SetRound1Commitment(ctx, groupID, 1, round1Commitment)
 	k.SetRound1Commitment(ctx, groupID, 3, round1Commitment)
 
