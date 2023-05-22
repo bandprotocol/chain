@@ -30,7 +30,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// CreateGroup is the Msg/CreateGroup request type.
+// MsgCreateGroup is the Msg/CreateGroup request type.
 type MsgCreateGroup struct {
 	// members is a list of members in this group
 	Members []string `protobuf:"bytes,1,rep,name=members,proto3" json:"members,omitempty"`
@@ -132,6 +132,7 @@ func (m *MsgCreateGroupResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateGroupResponse proto.InternalMessageInfo
 
+// MsgSubmitDKGRound1 is the Msg/SubmitDKGRound1 request type.
 type MsgSubmitDKGRound1 struct {
 	// group_id is ID of the group.
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
@@ -222,6 +223,7 @@ func (m *MsgSubmitDKGRound1) GetMember() string {
 	return ""
 }
 
+// MsgSubmitDKGRound1Response is the Msg/SubmitDKGRound1 response type.
 type MsgSubmitDKGRound1Response struct {
 }
 

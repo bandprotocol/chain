@@ -12,6 +12,7 @@ service Query {
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
+
   // Members queries all members in this group.
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";

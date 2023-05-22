@@ -31,7 +31,7 @@ func GetQueryCmd() *cobra.Command {
 func QueryIsGrantee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "is-grantee [granter_address] [grantee_address]",
-		Short: "Query is grantee",
+		Short: "Query grantee status",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

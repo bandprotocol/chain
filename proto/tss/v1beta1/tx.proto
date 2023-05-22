@@ -7,7 +7,6 @@ import "tss/v1beta1/tss.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
-
 // Msg defines the tss Msg service.
 service Msg {
   // CreateGroup creates a new group with a list of members.
@@ -16,7 +15,7 @@ service Msg {
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
 }
 
-// CreateGroup is the Msg/CreateGroup request type.
+// MsgCreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
   // members is a list of members in this group
   repeated string members = 1;
@@ -30,7 +29,7 @@ message MsgCreateGroup {
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.
 message MsgCreateGroupResponse {}
 
-
+// MsgSubmitDKGRound1 is the Msg/SubmitDKGRound1 request type.
 message MsgSubmitDKGRound1 {
   // group_id is ID of the group.
   uint64 group_id = 1 [
@@ -57,4 +56,5 @@ message MsgSubmitDKGRound1 {
   string member = 7;
 }
 
+// MsgSubmitDKGRound1Response is the Msg/SubmitDKGRound1 response type.
 message MsgSubmitDKGRound1Response {}
