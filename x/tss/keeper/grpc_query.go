@@ -33,13 +33,13 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return &types.QueryGroupResponse{}, err
 	}
 
-	allRound1Commitments := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId))
+	allRound1Commitments := k.GetAllRound1Commitments(ctx, tss.GroupID(req.GroupId), group.Size_)
 
 	return &types.QueryGroupResponse{
-		Group:                &group,
-		DKGContext:           dkgContext,
-		Members:              members,
-		AllRound1Commitments: allRound1Commitments,
+		Group:             &group,
+		DKGContext:        dkgContext,
+		Members:           members,
+		Round1Commitments: allRound1Commitments,
 	}, nil
 }
 

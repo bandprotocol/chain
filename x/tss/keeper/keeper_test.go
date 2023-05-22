@@ -205,7 +205,7 @@ func (s *KeeperTestSuite) TesVerifyMember() {
 func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round1Commitments := types.Round1Commitments{
+	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -215,17 +215,17 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Commitment(ctx, groupID, memberID, round1Commitment)
 
-	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	got, err := k.GetRound1Commitment(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Commitments, got)
+	s.Require().Equal(round1Commitment, got)
 }
 
 func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round1Commitments := types.Round1Commitments{
+	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -235,22 +235,22 @@ func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Commitment(ctx, groupID, memberID, round1Commitment)
 
-	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	got, err := k.GetRound1Commitment(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Commitments, got)
+	s.Require().Equal(round1Commitment, got)
 
-	k.DeleteRound1Commitments(ctx, groupID, memberID)
+	k.DeleteRound1Commitment(ctx, groupID, memberID)
 
-	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
+	_, err = k.GetRound1Commitment(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
 func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, member0, member1 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round1Commitments := types.Round1Commitments{
+	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -261,8 +261,8 @@ func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 	}
 
 	// Set round 1 commitments
-	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
-	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
+	k.SetRound1Commitment(ctx, groupID, member0, round1Commitment)
+	k.SetRound1Commitment(ctx, groupID, member1, round1Commitment)
 
 	got := k.GetRound1CommitmentsCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
@@ -270,8 +270,8 @@ func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 
 func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, member0, member1 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round1Commitments := types.Round1Commitments{
+	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
+	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -281,15 +281,16 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	s.T().Log(types.Round1CommitmentsStoreKey(1))
-
 	// Set round 1 commitments
-	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
-	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
+	k.SetRound1Commitment(ctx, groupID, member1, round1Commitment)
+	k.SetRound1Commitment(ctx, groupID, member2, round1Commitment)
 
-	got := k.GetAllRound1Commitments(ctx, groupID)
-	s.Require().Equal(round1Commitments, got[1])
-	s.Require().Equal(round1Commitments, got[2])
+	got := k.GetAllRound1Commitments(ctx, groupID, groupSize)
+
+	s.Require().Equal(&round1Commitment, got[0])
+	s.Require().Equal(&round1Commitment, got[1])
+	// case member3 didn't commit round 1
+	s.Require().Equal((*types.Round1Commitment)(nil), got[2])
 }
 
 func TestKeeperTestSuite(t *testing.T) {
