@@ -81,7 +81,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
+	_, err = k.GetRound1Commitment(ctx, groupID, memberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1 ")
 	}
@@ -102,21 +102,21 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
-	round1Commitments := types.Round1Commitments{
+	round1Commitment := types.Round1Commitment{
 		CoefficientsCommit: req.CoefficientsCommit,
 		OneTimePubKey:      req.OneTimePubKey,
 		A0Sig:              req.A0Sig,
 		OneTimeSig:         req.OneTimeSig,
 	}
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Commitment(ctx, groupID, memberID, round1Commitment)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitDKGRound1,
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitments.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitments.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitments.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Commitments.OneTimeSig)),
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitment.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitment.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitment.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Commitment.OneTimeSig)),
 		),
 	)
 
@@ -291,11 +291,11 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	round1Commitments, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	round1Commitment, err := k.GetRound1Commitment(ctx, groupID, memberID)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(round1Commitments)
+	fmt.Println(round1Commitment)
 
 	// TODO: verify OwnPubKeySig
 

@@ -159,26 +159,26 @@ func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress
 	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
 }
 
-func (k Keeper) SetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitments) {
-	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
+func (k Keeper) SetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitment) {
+	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
-func (k Keeper) GetRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitments, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
+func (k Keeper) GetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitment, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Commitments{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "failed to get round 1 commitments with groupID: %d and memberID %d", groupID, memberID)
+		return types.Round1Commitment{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "failed to get round 1 commitments with groupID: %d and memberID %d", groupID, memberID)
 	}
-	var r1c types.Round1Commitments
+	var r1c types.Round1Commitment
 	k.cdc.MustUnmarshal(bz, &r1c)
 	return r1c, nil
 }
 
-func (k Keeper) DeleteRound1Commitments(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentsMemberStoreKey(groupID, memberID))
+func (k Keeper) DeleteRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentMemberStoreKey(groupID, memberID))
 }
 
 func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentsStoreKey(groupID))
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentStoreKey(groupID))
 }
 
 func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
@@ -191,17 +191,19 @@ func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) 
 	return count
 }
 
-func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID) map[uint64]types.Round1Commitments {
-	allRound1Commitments := make(map[uint64]types.Round1Commitments)
-	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var round1Commitments types.Round1Commitments
-		// Get member id by remove store_key and group_id
-		memberID := sdk.BigEndianToUint64(iterator.Key()[9:])
-		k.cdc.MustUnmarshal(iterator.Value(), &round1Commitments)
-		allRound1Commitments[memberID] = round1Commitments
+func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Commitment {
+	allRound1Commitments := make([]*types.Round1Commitment, groupSize)
+	for i := uint64(1); i <= groupSize; i++ {
+		round1Commitment, err := k.GetRound1Commitment(ctx, groupID, tss.MemberID(i))
+		if err != nil {
+			// allRound1Commitments array start at 0
+			allRound1Commitments[i-1] = nil
+		} else {
+			// allRound1Commitments array start at 0
+			allRound1Commitments[i-1] = &round1Commitment
+		}
 	}
+
 	return allRound1Commitments
 }
 
@@ -237,16 +239,19 @@ func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint6
 	return count
 }
 
-func (k Keeper) GetRound2Shares(ctx sdk.Context, groupID tss.GroupID) []types.Round2Share {
-	var round2Shares []types.Round2Share
-	iterator := k.getRound2SharesIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var round2Share types.Round2Share
-		k.cdc.MustUnmarshal(iterator.Value(), &round2Share)
-		round2Shares = append(round2Shares, round2Share)
+func (k Keeper) GetAllRound2Shares(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Share {
+	allRound2Shares := make([]*types.Round2Share, groupSize)
+	for i := uint64(1); i <= groupSize; i++ {
+		round2Share, err := k.GetRound2Share(ctx, groupID, tss.MemberID(i))
+		if err != nil {
+			// allRound2Shares array start at 0
+			allRound2Shares[i-1] = nil
+		} else {
+			// allRound2Shares array start at 0
+			allRound2Shares[i-1] = &round2Share
+		}
 	}
-	return round2Shares
+	return allRound2Shares
 }
 
 func (k Keeper) SetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID, dkgMaliciousIndexes types.DKGMaliciousIndexes) {
