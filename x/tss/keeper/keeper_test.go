@@ -359,7 +359,7 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 	s.Require().Equal(uint64(2), got)
 }
 
-func (s *KeeperTestSuite) TestGetRound2Shares() {
+func (s *KeeperTestSuite) TestGetAllRound2Shares() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
 	round2ShareM1 := types.Round2Share{
