@@ -34,27 +34,27 @@ func NewKeeper(
 	}
 }
 
-// SetGroupCount sets the number of group count to the given value.
+// SetGroupCount function sets the number of group count to the given value.
 func (k Keeper) SetGroupCount(ctx sdk.Context, count uint64) {
 	bz := make([]byte, 8)
 	binary.BigEndian.PutUint64(bz, count)
 	ctx.KVStore(k.storeKey).Set(types.GroupCountStoreKey, bz)
 }
 
-// GetGroupCount returns the current number of all groups ever exist.
+// GetGroupCount function returns the current number of all groups ever existed.
 func (k Keeper) GetGroupCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupCountStoreKey)
 	return binary.BigEndian.Uint64(bz)
 }
 
-// GetNextGroupID increments and returns the current number of groups.
+// GetNextGroupID function increments the group count and returns the current number of groups.
 func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
 	groupNumber := k.GetGroupCount(ctx)
 	k.SetGroupCount(ctx, groupNumber+1)
 	return tss.GroupID(groupNumber + 1)
 }
 
-// IsGrantee checks if the granter granted to the grantee
+// IsGrantee function checks if the granter granted permissions to the grantee.
 func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
 	for _, msg := range types.MsgGrants {
 		cap, _ := k.authzKeeper.GetAuthorization(
@@ -72,12 +72,14 @@ func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.A
 	return true
 }
 
+// CreateNewGroup function creates a new group in the store and returns the id of the group.
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	id := k.GetNextGroupID(ctx)
 	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(tss.GroupID(id)), k.cdc.MustMarshal(&group))
 	return id
 }
 
+// GetGroup function retrieves a group from the store.
 func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
@@ -89,14 +91,17 @@ func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, err
 	return group, nil
 }
 
+// UpdateGroup function updates a group in the store.
 func (k Keeper) UpdateGroup(ctx sdk.Context, groupID tss.GroupID, group types.Group) {
 	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(groupID), k.cdc.MustMarshal(&group))
 }
 
+// SetDKGContext function sets DKG context for a group in the store.
 func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext []byte) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)
 }
 
+// GetDKGContext function retrieves DKG context of a group from the store.
 func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
@@ -105,16 +110,19 @@ func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, err
 	return bz, nil
 }
 
+// SetMember function sets a member of a group in the store.
 func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
 }
 
+// SetMembers function sets members of a group in the store.
 func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types.Member) {
 	for i, m := range members {
 		ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, tss.MemberID(i+1)), k.cdc.MustMarshal(&m))
 	}
 }
 
+// GetMember function retrieves a member of a group from the store.
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
@@ -126,10 +134,12 @@ func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 	return member, nil
 }
 
+// GetMembersIterator function gets an iterator over all members of a group.
 func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
+// GetMembers function retrieves all members of a group from the store.
 func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
 	var members []types.Member
 	iterator := k.GetMembersIterator(ctx, groupID)
@@ -145,6 +155,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
+// VerifyMember function verifies if a member is part of a group.
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress string) (tss.MemberID, error) {
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
@@ -159,6 +170,7 @@ func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress
 	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
 }
 
+// SetRound1Commitment function sets round 1 commitment for a member of a group.
 func (k Keeper) SetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitment) {
 	// Add count
 	k.AddRound1CommitmentsCount(ctx, groupID)
@@ -166,6 +178,7 @@ func (k Keeper) SetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, member
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
+// GetRound1Commitment function retrieves round 1 commitment of a member from the store.
 func (k Keeper) GetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitment, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentMemberStoreKey(groupID, memberID))
 	if bz == nil {
@@ -176,24 +189,29 @@ func (k Keeper) GetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, member
 	return r1c, nil
 }
 
+// DeleteRound1Commitment removes the round 1 commitment of a group member from the store.
 func (k Keeper) DeleteRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentMemberStoreKey(groupID, memberID))
 }
 
+// SetRound1CommitmentsCount sets the count of round 1 commitments for a group in the store.
 func (k Keeper) SetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
+// GetRound1CommitmentsCount retrieves the count of round 1 commitments for a group from the store.
 func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
+// AddRound1CommitmentsCount increments the count of round 1 commitments for a group in the store.
 func (k Keeper) AddRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	k.SetRound1CommitmentsCount(ctx, groupID, count+1)
 }
 
+// GetAllRound1Commitments retrieves all round 1 commitments for a group from the store.
 func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Commitment {
 	allRound1Commitments := make([]*types.Round1Commitment, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {

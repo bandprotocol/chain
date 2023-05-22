@@ -15,6 +15,7 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
+// Group function handles the request to fetch group details.
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -43,6 +44,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 	}, nil
 }
 
+// Members function handles the request to fetch members of a group.
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -56,6 +58,7 @@ func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) 
 	}, nil
 }
 
+// IsGrantee function handles the request to check if a specific address is a grantee of another.
 func (k Querier) IsGrantee(
 	goCtx context.Context,
 	req *types.QueryIsGranteeRequest,
