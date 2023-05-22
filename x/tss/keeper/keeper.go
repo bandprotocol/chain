@@ -228,6 +228,7 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, gr
 	return allRound1Commitments
 }
 
+// SetRound2Share method sets the round 2 share of a member in the store and increments the count of round 2 shares.
 func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Share types.Round2Share) {
 	// Add count
 	k.AddRound2SharesCount(ctx, groupID)
@@ -235,6 +236,7 @@ func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID ts
 	ctx.KVStore(k.storeKey).Set(types.Round2ShareMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Share))
 }
 
+// GetRound2Share method retrieves the round 2 share of a member from the store.
 func (k Keeper) GetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Share, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareMemberStoreKey(groupID, memberID))
 	if bz == nil {
@@ -245,24 +247,29 @@ func (k Keeper) GetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID ts
 	return r2s, nil
 }
 
+// DeleteRound2share method deletes the round 2 share of a member from the store.
 func (k Keeper) DeleteRound2share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round2ShareMemberStoreKey(groupID, memberID))
 }
 
+// SetRound2SharesCount method sets the count of round 2 shares in the store.
 func (k Keeper) SetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round2ShareCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
+// GetRound2SharesCount method retrieves the count of round 2 shares from the store.
 func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
+// AddRound2SharesCount method increments the count of round 2 shares in the store.
 func (k Keeper) AddRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound2SharesCount(ctx, groupID)
 	k.SetRound2SharesCount(ctx, groupID, count+1)
 }
 
+// GetAllRound2Shares method retrieves all round 2 shares for a given group from the store.
 func (k Keeper) GetAllRound2Shares(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Share {
 	allRound2Shares := make([]*types.Round2Share, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {

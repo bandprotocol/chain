@@ -146,6 +146,7 @@ func (k Keeper) SubmitDKGRound1(
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
 
+// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round 2
 func (k Keeper) SubmitDKGRound2(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound2,
