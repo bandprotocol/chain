@@ -94,7 +94,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"round 1 already commit",
 			func() {
 				// Set round 1 commitments
-				tssKeeper.SetRound1Commitments(ctx, 1, 1, types.Round1Commitments{
+				tssKeeper.SetRound1Commitment(ctx, 1, 1, types.Round1Commitment{
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -112,7 +112,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			},
 			false,
 			func() {
-				tssKeeper.DeleteRound1Commitments(ctx, 1, 1)
+				tssKeeper.DeleteRound1Commitment(ctx, 1, 1)
 			},
 		},
 		{

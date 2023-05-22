@@ -19,7 +19,7 @@ message Round1Note {
   uint64 commitments_count = 3;
 }
 
-message Round1Commitments {
+message Round1Commitment {
   repeated bytes coefficients_commit = 3 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
