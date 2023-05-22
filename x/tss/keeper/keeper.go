@@ -160,6 +160,9 @@ func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberAddress
 }
 
 func (k Keeper) SetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitment) {
+	// Add count
+	k.AddRound1CommitmentsCount(ctx, groupID)
+
 	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
 }
 
@@ -177,18 +180,18 @@ func (k Keeper) DeleteRound1Commitment(ctx sdk.Context, groupID tss.GroupID, mem
 	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentMemberStoreKey(groupID, memberID))
 }
 
-func (k Keeper) getRound1CommitmentsIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1CommitmentStoreKey(groupID))
+func (k Keeper) SetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
 func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	var count uint64
-	iterator := k.getRound1CommitmentsIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		count += 1
-	}
-	return count
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsCountStoreKey(groupID))
+	return sdk.BigEndianToUint64(bz)
+}
+
+func (k Keeper) AddRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetRound1CommitmentsCount(ctx, groupID)
+	k.SetRound1CommitmentsCount(ctx, groupID, count+1)
 }
 
 func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Commitment {
