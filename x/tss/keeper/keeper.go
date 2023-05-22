@@ -254,7 +254,7 @@ func (k Keeper) SetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID, dkg
 }
 
 func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
+	bz := ctx.KVStore(k.storeKey).Get(types.DKGMaliciousIndexesStoreKey(groupID))
 	if bz == nil {
 		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(types.ErrDKGMaliciousIndexesNotFound, "failed to get dkg malicious indexes with groupID: %d", groupID)
 	}
