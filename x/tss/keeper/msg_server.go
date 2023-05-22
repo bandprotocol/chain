@@ -230,11 +230,11 @@ func (k Keeper) Complain(
 		// TODO: Verify complain
 
 		if true {
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, c.J)
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			if contains {
 				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.J))
 			}
-			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, c.J)
+			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
 			ctx.EventManager().EmitEvent(
@@ -247,11 +247,11 @@ func (k Keeper) Complain(
 			)
 
 		} else {
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, c.I)
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
 			if contains {
 				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.I))
 			}
-			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, c.I)
+			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
 			ctx.EventManager().EmitEvent(
