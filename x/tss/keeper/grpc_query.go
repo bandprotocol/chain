@@ -36,7 +36,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 
 	allRound1Commitments := k.GetAllRound1Commitments(ctx, groupID, group.Size_)
 
-	round2shares := k.GetRound2Shares(ctx, groupID)
+	round2shares := k.GetAllRound2Shares(ctx, groupID, group.Size_)
 
 	return &types.QueryGroupResponse{
 		Group:             &group,

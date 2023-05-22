@@ -335,7 +335,7 @@ func (s *KeeperTestSuite) TestDeleteRound2Share() {
 
 func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	round2ShareM1 := types.Round2Share{
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_12"),
@@ -352,8 +352,8 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 	}
 
 	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
-	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
+	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
 	got := k.GetRound2SharesCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
@@ -361,7 +361,7 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 
 func (s *KeeperTestSuite) TestGetRound2Shares() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
 	round2ShareM1 := types.Round2Share{
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_12"),
@@ -378,11 +378,12 @@ func (s *KeeperTestSuite) TestGetRound2Shares() {
 	}
 
 	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
-	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
+	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
-	got := k.GetRound2Shares(ctx, groupID)
-	s.Require().Equal([]types.Round2Share{round2ShareM1, round2ShareM2}, got)
+	got := k.GetAllRound2Shares(ctx, groupID, groupSize)
+	// member3 expected nil value because didn't submit round 2 share
+	s.Require().Equal([]*types.Round2Share{&round2ShareM1, &round2ShareM2, nil}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

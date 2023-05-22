@@ -239,16 +239,19 @@ func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint6
 	return count
 }
 
-func (k Keeper) GetRound2Shares(ctx sdk.Context, groupID tss.GroupID) []types.Round2Share {
-	var round2Shares []types.Round2Share
-	iterator := k.getRound2SharesIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var round2Share types.Round2Share
-		k.cdc.MustUnmarshal(iterator.Value(), &round2Share)
-		round2Shares = append(round2Shares, round2Share)
+func (k Keeper) GetAllRound2Shares(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Share {
+	allRound2Shares := make([]*types.Round2Share, groupSize)
+	for i := uint64(1); i <= groupSize; i++ {
+		round2Share, err := k.GetRound2Share(ctx, groupID, tss.MemberID(i))
+		if err != nil {
+			// allRound2Shares array start at 0
+			allRound2Shares[i-1] = nil
+		} else {
+			// allRound2Shares array start at 0
+			allRound2Shares[i-1] = &round2Share
+		}
 	}
-	return round2Shares
+	return allRound2Shares
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
