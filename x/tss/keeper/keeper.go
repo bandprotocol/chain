@@ -229,6 +229,9 @@ func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, gr
 }
 
 func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Share types.Round2Share) {
+	// Add count
+	k.AddRound2SharesCount(ctx, groupID)
+
 	ctx.KVStore(k.storeKey).Set(types.Round2ShareMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Share))
 }
 
@@ -246,18 +249,18 @@ func (k Keeper) DeleteRound2share(ctx sdk.Context, groupID tss.GroupID, memberID
 	ctx.KVStore(k.storeKey).Delete(types.Round2ShareMemberStoreKey(groupID, memberID))
 }
 
-func (k Keeper) getRound2SharesIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2ShareStoreKey(groupID))
+func (k Keeper) SetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.Round2ShareCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
 func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	var count uint64
-	iterator := k.getRound2SharesIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		count += 1
-	}
-	return count
+	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareCountStoreKey(groupID))
+	return sdk.BigEndianToUint64(bz)
+}
+
+func (k Keeper) AddRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetRound2SharesCount(ctx, groupID)
+	k.SetRound2SharesCount(ctx, groupID, count+1)
 }
 
 func (k Keeper) GetAllRound2Shares(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Share {

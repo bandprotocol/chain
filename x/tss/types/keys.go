@@ -40,6 +40,9 @@ var (
 
 	// Round1CommitmentsCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1CommitmentsCountStoreKeyPrefix = []byte{0x06}
+
+	// Round2ShareCountStoreKeyPrefix is the key that keeps the round 2 share count.
+	Round2ShareCountStoreKeyPrefix = []byte{0x07}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -76,4 +79,8 @@ func Round2ShareStoreKey(groupID tss.GroupID) []byte {
 
 func Round2ShareMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(Round2ShareStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func Round2ShareCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2ShareCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
