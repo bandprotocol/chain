@@ -97,8 +97,8 @@ message DKGMaliciousIndexes {
 }
 
 message Complain {
-  uint64 i = 1;
-  uint64 j = 2;
+  uint64 i = 1 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
+  uint64 j = 2 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
   bytes keySym = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
