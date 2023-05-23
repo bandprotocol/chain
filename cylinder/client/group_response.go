@@ -17,12 +17,12 @@ func NewGroupResponse(gr *types.QueryGroupResponse) *GroupResponse {
 	return &GroupResponse{gr}
 }
 
-// GetRound1Commitment retrieves the Round1Commitment for the specified member ID.
-func (gr *GroupResponse) GetRound1Commitment(mid tss.MemberID) (*types.Round1Commitments, error) {
-	commitment, ok := gr.AllRound1Commitments[uint64(mid)]
-	if !ok {
+// GetRound1Data retrieves the Round1Commitment for the specified member ID.
+func (gr *GroupResponse) GetRound1Data(mid tss.MemberID) (*types.Round1Data, error) {
+	data := gr.AllRound1Data[uint64(mid)-1]
+	if data == nil {
 		return nil, fmt.Errorf("No Round1Commitment from MemberID(%d)", mid)
 	}
 
-	return &commitment, nil
+	return data, nil
 }

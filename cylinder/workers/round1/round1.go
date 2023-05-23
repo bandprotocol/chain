@@ -104,12 +104,14 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 
 	// Generate message
 	msg := &types.MsgSubmitDKGRound1{
-		GroupID:            gid,
-		CoefficientsCommit: data.CoefficientsCommit,
-		OneTimePubKey:      data.OneTimePubKey,
-		A0Sig:              data.A0Sig,
-		OneTimeSig:         data.OneTimeSig,
-		Member:             r.context.Config.Granter,
+		GroupID: gid,
+		Round1Data: types.Round1Data{
+			CoefficientsCommit: data.CoefficientsCommit,
+			OneTimePubKey:      data.OneTimePubKey,
+			A0Sig:              data.A0Sig,
+			OneTimeSig:         data.OneTimeSig,
+		},
+		Member: r.context.Config.Granter,
 	}
 
 	// Send the message to the message channel
