@@ -189,6 +189,9 @@ func (k Keeper) SubmitDKGRound2(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitDKGRound2,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 			sdk.NewAttribute(types.AttributeKeyRound2Share, req.Round2Share.String()),
 		),
 	)
