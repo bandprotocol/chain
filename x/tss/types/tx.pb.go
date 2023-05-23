@@ -392,7 +392,7 @@ type MsgClient interface {
 	CreateGroup(ctx context.Context, in *MsgCreateGroup, opts ...grpc.CallOption) (*MsgCreateGroupResponse, error)
 	// SubmmitDKGRound1 submit dkg for compute round1.
 	SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1, opts ...grpc.CallOption) (*MsgSubmitDKGRound1Response, error)
-	// SubmitDKGRound2 submmit dkg for compute round 2.
+	// SubmitDKGRound2 submit dkg for compute round 2.
 	SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2, opts ...grpc.CallOption) (*MsgSubmitDKGRound2Response, error)
 }
 
@@ -437,7 +437,7 @@ type MsgServer interface {
 	CreateGroup(context.Context, *MsgCreateGroup) (*MsgCreateGroupResponse, error)
 	// SubmmitDKGRound1 submit dkg for compute round1.
 	SubmitDKGRound1(context.Context, *MsgSubmitDKGRound1) (*MsgSubmitDKGRound1Response, error)
-	// SubmitDKGRound2 submmit dkg for compute round 2.
+	// SubmitDKGRound2 submit dkg for compute round 2.
 	SubmitDKGRound2(context.Context, *MsgSubmitDKGRound2) (*MsgSubmitDKGRound2Response, error)
 }
 

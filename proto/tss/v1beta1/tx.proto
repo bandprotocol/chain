@@ -13,7 +13,7 @@ service Msg {
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
   // SubmmitDKGRound1 submit dkg for compute round1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
-  // SubmitDKGRound2 submmit dkg for compute round 2.
+  // SubmitDKGRound2 submit dkg for compute round 2.
   rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
 }
 

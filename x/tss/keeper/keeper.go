@@ -256,7 +256,7 @@ func (k Keeper) AddRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound2DataCount(ctx, groupID, count+1)
 }
 
-// Get allRound2Data method retrieves all round2Data for a given group from the store.
+// GetAllRound2Data method retrieves all round2Data for a given group from the store.
 func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Data {
 	allRound2Data := make([]*types.Round2Data, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {
