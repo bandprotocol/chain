@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Round1Data contains the data for round 1 of the DKG process of TSS
+// Round1Data contains the data for round1 of the DKG process of TSS
 type Round1Data struct {
 	OneTimePrivKey     PrivateKey
 	OneTimePubKey      PublicKey
@@ -64,7 +64,7 @@ func GenerateRound1Data(
 	}, nil
 }
 
-// SignA0 generates a signature for the A0 in round 1.
+// SignA0 generates a signature for the A0 in round1.
 func SignA0(
 	mid MemberID,
 	dkgContext []byte,
@@ -75,7 +75,7 @@ func SignA0(
 	return Sign(a0Priv, challenge, nil)
 }
 
-// VerifyA0Sig verifies the signature for the A0 in round 1.
+// VerifyA0Sig verifies the signature for the A0 in round1.
 func VerifyA0Sig(
 	mid MemberID,
 	dkgContext []byte,
@@ -86,7 +86,7 @@ func VerifyA0Sig(
 	return Verify(signature, challenge, a0Pub, nil, nil)
 }
 
-// SignOneTime generates a signature for the one-time in round 1.
+// SignOneTime generates a signature for the one-time in round1.
 func SignOneTime(
 	mid MemberID,
 	dkgContext []byte,
@@ -97,7 +97,7 @@ func SignOneTime(
 	return Sign(onetimePriv, challenge, nil)
 }
 
-// VerifyOneTimeSig verifies the signature for the one-time in round 1.
+// VerifyOneTimeSig verifies the signature for the one-time in round1.
 func VerifyOneTimeSig(
 	mid MemberID,
 	dkgContext []byte,

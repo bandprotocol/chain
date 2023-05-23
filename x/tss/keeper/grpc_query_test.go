@@ -22,7 +22,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
-	round1Commitment := types.Round1Commitment{
+	Round1Data := types.Round1Data{
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -38,9 +38,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Threshold: 3,
 		Sender:    members[0],
 	})
-	// set round 1
-	k.SetRound1Commitment(ctx, groupID, 1, round1Commitment)
-	k.SetRound1Commitment(ctx, groupID, 3, round1Commitment)
+	// set round1
+	k.SetRound1Data(ctx, groupID, 1, Round1Data)
+	k.SetRound1Data(ctx, groupID, 3, Round1Data)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -100,10 +100,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							PubKey: tss.PublicKey(nil),
 						},
 					},
-					Round1Commitments: []*types.Round1Commitment{
-						&round1Commitment,
+					Round1Data: []*types.Round1Data{
+						&Round1Data,
 						nil,
-						&round1Commitment,
+						&Round1Data,
 						nil,
 						nil,
 					},
