@@ -109,7 +109,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							PubKey: tss.PublicKey(nil),
 						},
 					},
-					Round1Data: []*types.Round1Data{
+					AllRound1Data: []*types.Round1Data{
 						&Round1Data,
 						nil,
 						&Round1Data,

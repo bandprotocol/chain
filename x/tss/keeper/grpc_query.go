@@ -40,12 +40,12 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 	round2shares := k.GetAllRound2Shares(ctx, groupID, group.Size_)
 
 	return &types.QueryGroupResponse{
-		Group:        group,
-		DKGContext:   dkgContext,
-		Members:      members,
-		Round1Data:   allRound1Data,
-		Round2Shares: round2shares,
-	}
+		Group:         group,
+		DKGContext:    dkgContext,
+		Members:       members,
+		AllRound1Data: allRound1Data,
+		Round2Shares:  round2shares,
+	}, nil
 }
 
 // Members function handles the request to fetch members of a group.
