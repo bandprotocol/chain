@@ -32,7 +32,7 @@ var (
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x03}
 
-	// Round1Commitment is the key that keeps the member commitment on round 1.
+	// Round1CommitmentStoreKeyPrefix is the key that keeps the member commitment on round 1.
 	Round1CommitmentStoreKeyPrefix = []byte{0x04}
 
 	// Round2ShareStoreKeyPrefix is the key that keeps the Round2Share of the member.

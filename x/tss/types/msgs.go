@@ -80,6 +80,31 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "member")
 	}
 
+	// Validate coefficients commit
+	for _, c := range m.CoefficientsCommit {
+		_, err := c.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "coefficients commit")
+		}
+	}
+
+	// Validate one time pub key
+	if len(m.OneTimePubKey) != 32 {
+		return sdkerrors.Wrap(fmt.Errorf("one time pub key length is not 32"), "one time pub key")
+	}
+
+	// Validate a0 signature
+	_, err = m.A0Sig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "a0 sig")
+	}
+
+	// Validate one time signature
+	_, err = m.OneTimeSig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "one time sig")
+	}
+
 	return nil
 }
 
@@ -106,7 +131,14 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", m.Member, err.Error()))
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate encrypted secret shares
+	for _, e := range m.Round2Share.EncryptedSecretShares {
+		if len(e) != 32 {
+			return sdkerrors.Wrap(fmt.Errorf("encrypted secret shares length is not 32"), "encrypted secret shares")
+		}
 	}
 
 	return nil

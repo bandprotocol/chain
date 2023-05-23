@@ -26,8 +26,7 @@ func combineGrantMsgs(
 			return nil, err
 		}
 
-		err = msg.ValidateBasic()
-		if err != nil {
+		if err = msg.ValidateBasic(); err != nil {
 			return nil, err
 		}
 
@@ -37,18 +36,17 @@ func combineGrantMsgs(
 	return msgs, nil
 }
 
-func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke []string) ([]sdk.Msg, error) {
+func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevokes []string) ([]sdk.Msg, error) {
 	msgs := []sdk.Msg{}
 
-	for _, msg := range msgRevoke {
+	for _, msgRevoke := range msgRevokes {
 		msg := authz.NewMsgRevoke(
 			granter,
 			grantee,
-			msg,
+			msgRevoke,
 		)
 
-		err := msg.ValidateBasic()
-		if err != nil {
+		if err := msg.ValidateBasic(); err != nil {
 			return nil, err
 		}
 

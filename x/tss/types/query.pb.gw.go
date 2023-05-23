@@ -150,26 +150,26 @@ func request_Query_IsGrantee_0(ctx context.Context, marshaler runtime.Marshaler,
 		_   = err
 	)
 
-	val, ok = pathParams["granter_address"]
+	val, ok = pathParams["granter"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "granter_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "granter")
 	}
 
-	protoReq.GranterAddress, err = runtime.String(val)
+	protoReq.Granter, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "granter_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "granter", err)
 	}
 
-	val, ok = pathParams["grantee_address"]
+	val, ok = pathParams["grantee"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grantee_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grantee")
 	}
 
-	protoReq.GranteeAddress, err = runtime.String(val)
+	protoReq.Grantee, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "grantee_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "grantee", err)
 	}
 
 	msg, err := client.IsGrantee(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -188,26 +188,26 @@ func local_request_Query_IsGrantee_0(ctx context.Context, marshaler runtime.Mars
 		_   = err
 	)
 
-	val, ok = pathParams["granter_address"]
+	val, ok = pathParams["granter"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "granter_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "granter")
 	}
 
-	protoReq.GranterAddress, err = runtime.String(val)
+	protoReq.Granter, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "granter_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "granter", err)
 	}
 
-	val, ok = pathParams["grantee_address"]
+	val, ok = pathParams["grantee"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grantee_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "grantee")
 	}
 
-	protoReq.GranteeAddress, err = runtime.String(val)
+	protoReq.Grantee, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "grantee_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "grantee", err)
 	}
 
 	msg, err := server.IsGrantee(ctx, &protoReq)
@@ -390,7 +390,7 @@ var (
 
 	pattern_Query_Members_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"tss", "v1beta1", "groups", "group_id", "members"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_IsGrantee_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"tss", "v1beta1", "grantee", "granter_address", "grantee_address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_IsGrantee_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 2}, []string{"tss", "v1beta1", "grantee", "granter"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

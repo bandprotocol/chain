@@ -11,6 +11,7 @@ const (
 	EventTypeRound3Success    = "round3_success"
 
 	AttributeKeyGroupID            = "group_id"
+	AttributeKeyMemberID           = "member_id"
 	AttributeKeyMember             = "member"
 	AttributeKeySize               = "size"
 	AttributeKeyThreshold          = "threshold"

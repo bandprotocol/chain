@@ -12,6 +12,7 @@ service Query {
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
+
   // Members queries all members in this group.
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
@@ -20,7 +21,7 @@ service Query {
   // IsGrantee queries grant of account on this granter.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get =
-        "/tss/v1beta1/grantee/{granter_address}/{grantee_address}";
+        "/tss/v1beta1/grantee/{granter}/{grantee}";
   }
 }
 
@@ -32,7 +33,7 @@ message QueryGroupRequest {
 
 // QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-  Group group = 1;
+  Group group = 1 [ (gogoproto.nullable) = false ];
   bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
   repeated Member members = 3 [ (gogoproto.nullable) = false ];
   repeated Round1Commitment round1_commitments = 4;
@@ -53,9 +54,9 @@ message QueryMembersResponse {
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
 message QueryIsGranteeRequest {
   // Granter is a granter address
-  string granter_address = 1;
+  string granter = 1;
   // Grantee is a candidate account
-  string grantee_address = 2;
+  string grantee = 2;
 }
 
 // QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
