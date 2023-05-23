@@ -16,6 +16,6 @@ var (
 	ErrAlreadySubmit                         = sdkerrors.Register(ModuleName, 9, "member is already submit message")
 	ErrVerifyOneTimeSigFailed                = sdkerrors.Register(ModuleName, 10, "fail to verify one time sign")
 	ErrVerifyA0SigFailed                     = sdkerrors.Register(ModuleName, 11, "fail to verify a0 sign")
-	ErrRound2ShareNotFound                   = sdkerrors.Register(ModuleName, 12, "round 2 share not found")
+	ErrRound2ShareNotFound                   = sdkerrors.Register(ModuleName, 12, "round2share not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(ModuleName, 13, "encrypted secret shares not correct length")
 )

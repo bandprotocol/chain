@@ -41,7 +41,7 @@ var (
 	// Round1CommitmentsCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1CommitmentsCountStoreKeyPrefix = []byte{0x06}
 
-	// Round2ShareCountStoreKeyPrefix is the key that keeps the round 2 share count.
+	// Round2ShareCountStoreKeyPrefix is the key that keeps the round2share count.
 	Round2ShareCountStoreKeyPrefix = []byte{0x07}
 )
 

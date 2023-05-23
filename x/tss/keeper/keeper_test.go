@@ -306,7 +306,7 @@ func (s *KeeperTestSuite) TestGetSetRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2 secret share
 	k.SetRound2Share(ctx, groupID, memberID, round2Share)
 
 	got, err := k.GetRound2Share(ctx, groupID, memberID)
@@ -325,10 +325,10 @@ func (s *KeeperTestSuite) TestDeleteRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, memberID, round2Share)
 
-	// delete round 2 secret share
+	// delete round2secret share
 	k.DeleteRound2share(ctx, groupID, memberID)
 
 	_, err := k.GetRound2Share(ctx, groupID, memberID)
@@ -353,7 +353,7 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
 	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
@@ -379,12 +379,12 @@ func (s *KeeperTestSuite) TestGetAllRound2Shares() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
 	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
 	got := k.GetAllRound2Shares(ctx, groupID, groupSize)
-	// member3 expected nil value because didn't submit round 2 share
+	// member3 expected nil value because didn't submit round2share
 	s.Require().Equal([]*types.Round2Share{&round2ShareM1, &round2ShareM2, nil}, got)
 }
 

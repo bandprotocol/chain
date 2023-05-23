@@ -65,7 +65,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
 // If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
-// If all members have submitted their round 1 commitments, it updates the status of the group to round 2 and emits an event for the completion of round 1.
+// If all members have submitted their round 1 commitments, it updates the status of the group to round2and emits an event for the completion of round 1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
