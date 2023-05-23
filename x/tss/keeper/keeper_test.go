@@ -145,7 +145,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey: tss.PublicKey(nil),
 	}
 	k.SetMember(ctx, groupID, memberID, member)
@@ -155,22 +155,24 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	s.Require().Equal(member, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetMembers() {
+func (s *KeeperTestSuite) TestGetMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey: tss.PublicKey(nil),
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey: tss.PublicKey(nil),
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
 	got, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
@@ -182,17 +184,19 @@ func (s *KeeperTestSuite) TesGetMemberID() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey: tss.PublicKey(nil),
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey: tss.PublicKey(nil),
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
 	memberID1, err := k.GetMemberID(ctx, groupID, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	s.Require().NoError(err)

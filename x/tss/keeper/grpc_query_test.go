@@ -89,23 +89,23 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
-							Signer: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+							Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey: tss.PublicKey(nil),
 						},
 						{
-							Signer: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+							Member: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey: tss.PublicKey(nil),
 						},
 						{
-							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Member: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey: tss.PublicKey(nil),
 						},
 						{
-							Signer: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Member: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey: tss.PublicKey(nil),
 						},
 						{
-							Signer: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+							Member: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey: tss.PublicKey(nil),
 						},
 					},
@@ -148,17 +148,20 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey: tss.PublicKey(nil),
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey: tss.PublicKey(nil),
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, tss.GroupID(1), members)
+	// set members
+	for i, m := range members {
+		k.SetMember(ctx, tss.GroupID(1), tss.MemberID(i+1), m)
+	}
 
 	var req types.QueryMembersRequest
 	testCases := []struct {

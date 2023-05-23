@@ -9,7 +9,9 @@ option (gogoproto.equal_all) = true;
 message Group {
   uint64 size = 1;
   uint64 threshold = 2;
-  bytes pub_key = 3;
+  bytes pub_key = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
   GroupStatus status = 4;
 }
 
@@ -62,7 +64,7 @@ message Signing {
 }
 
 message Member {
-  string signer = 1;
+  string member = 1;
   bytes pub_key = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
