@@ -131,13 +131,13 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", m.Member, err.Error()))
+		return sdkerrors.Wrap(err, "member")
 	}
 
 	// Validate encrypted secret shares
 	for _, e := range m.Round2Share.EncryptedSecretShares {
 		if len(e) != 32 {
-			return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("encrypted secret shares length is not 32"))
+			return sdkerrors.Wrap(fmt.Errorf("encrypted secret shares length is not 32"), "encrypted secret shares")
 		}
 	}
 
