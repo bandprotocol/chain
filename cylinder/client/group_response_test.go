@@ -10,44 +10,54 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetRound1Commitment(t *testing.T) {
+func TestGetRound1Data(t *testing.T) {
 	tests := []struct {
 		name               string
 		queryGroupResponse *types.QueryGroupResponse
 		memberID           tss.MemberID
-		expectedCommitment *types.Round1Commitments
+		expectedData       types.Round1Data
 		expectedError      error
 	}{
 		{
 			name: "Existing Member ID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound1Commitments: map[uint64]types.Round1Commitments{
-					1: {},
+				AllRound1Data: []*types.Round1Data{
+					{},
 				},
 			},
-			memberID:           1,
-			expectedCommitment: &types.Round1Commitments{},
-			expectedError:      nil,
+			memberID:      1,
+			expectedData:  types.Round1Data{},
+			expectedError: nil,
 		},
 		{
 			name: "Non-Existing Member ID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound1Commitments: map[uint64]types.Round1Commitments{},
+				AllRound1Data: []*types.Round1Data{},
 			},
-			memberID:           2,
-			expectedCommitment: nil,
-			expectedError:      fmt.Errorf("No Round1Commitment from MemberID(2)"),
+			memberID:      2,
+			expectedData:  types.Round1Data{},
+			expectedError: fmt.Errorf("No MemberID(2) in the group"),
+		},
+		{
+			name: "No data for Member yet",
+			queryGroupResponse: &types.QueryGroupResponse{
+				AllRound1Data: []*types.Round1Data{
+					{},
+					nil,
+				},
+			},
+			memberID:      2,
+			expectedData:  types.Round1Data{},
+			expectedError: fmt.Errorf("No Round1Data from MemberID(2)"),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			groupResponse := client.NewGroupResponse(test.queryGroupResponse)
-
-			commitment, err := groupResponse.GetRound1Commitment(test.memberID)
-
+			data, err := groupResponse.GetRound1Data(test.memberID)
 			assert.Equal(t, test.expectedError, err)
-			assert.Equal(t, test.expectedCommitment, commitment)
+			assert.Equal(t, test.expectedData, data)
 		})
 	}
 }
