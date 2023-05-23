@@ -134,20 +134,6 @@ func (k Keeper) SubmitDKGRound1(
 
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
-		k.handleUpdateGroupStatus(ctx, groupID, group)
-	}
-
-	return &types.MsgSubmitDKGRound1Response{}, nil
-}
-
-// handleUpdateGroupStatus updates the status of a group and performs specific actions based on the status.
-func (k Keeper) handleUpdateGroupStatus(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	group types.Group,
-) {
-	switch group.Status {
-	case types.ROUND_1:
 		group.Status = types.ROUND_2
 		k.UpdateGroup(ctx, groupID, group)
 		ctx.EventManager().EmitEvent(
@@ -157,13 +143,7 @@ func (k Keeper) handleUpdateGroupStatus(
 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 			),
 		)
-	case types.ROUND_2:
-		// TODO: handle ROUND_2 status
-	case types.ROUND_3:
-		// TODO: handle ROUND_3 status
-	case types.ACTIVE:
-		// TODO: handle ACTIVE status
-	case types.FALLEN:
-		// TODO: handle FALLEN status
 	}
+
+	return &types.MsgSubmitDKGRound1Response{}, nil
 }
