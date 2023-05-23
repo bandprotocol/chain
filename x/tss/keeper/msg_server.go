@@ -193,7 +193,6 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
-
 }
 
 // UpdateGroupStatus updates the status of a group and emits an event.
