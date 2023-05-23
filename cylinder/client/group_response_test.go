@@ -42,7 +42,7 @@ func TestGetRound1Data(t *testing.T) {
 			},
 			memberID:      2,
 			expectedData:  types.Round1Data{},
-			expectedError: fmt.Errorf("No Round2Data from MemberID(2)"),
+			expectedError: fmt.Errorf("No Round1Data from MemberID(2)"),
 		},
 	}
 
@@ -94,7 +94,7 @@ func TestGetAllRound2Data(t *testing.T) {
 			},
 			memberID:      2,
 			expectedData:  types.Round2Data{},
-			expectedError: fmt.Errorf("No Round1Data from MemberID(2)"),
+			expectedError: fmt.Errorf("No Round2Data from MemberID(2)"),
 		},
 	}
 
