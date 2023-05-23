@@ -299,7 +299,7 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	round1Commitment, err := k.GetRound1Commitment(ctx, groupID, memberID)
+	round1Commitment, err := k.GetRound1Data(ctx, groupID, memberID)
 	if err != nil {
 		return nil, err
 	}

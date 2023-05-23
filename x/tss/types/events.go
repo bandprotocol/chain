@@ -22,7 +22,7 @@ const (
 	AttributeKeyOneTimePubKey      = "one_time_pub_key"
 	AttributeKeyA0Sig              = "a0_sig"
 	AttributeKeyOneTimeSig         = "one_time_sig"
-	AttributeKeyRound2Share        = "round_2_share"
+	AttributeKeyRound2Data         = "round2_data"
 	AttributeKeyComplains          = "complains"
 	AttributeOwnPubKeySig          = "own_pub_key_sig"
 )
