@@ -32,11 +32,11 @@ var (
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x03}
 
-	// Round1CommitmentStoreKeyPrefix is the key that keeps the member commitment on round 1.
-	Round1CommitmentStoreKeyPrefix = []byte{0x04}
+	// Round1DataStoreKeyPrefix is the key that keeps the member commitment on round1.
+	Round1DataStoreKeyPrefix = []byte{0x04}
 
-	// Round2ShareStoreKeyPrefix is the key that keeps the Round2Share of the member.
-	Round2ShareStoreKeyPrefix = []byte{0x05}
+	// Round1DataCountStoreKeyPrefix is the key that keeps the member commitments count on round1.
+	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
 	// DKGMaliciousIndexesStoreKeyPrefix is a list of indexes of malicious members.
 	DKGMaliciousIndexesStoreKeyPrefix = []byte{0x06}
@@ -52,6 +52,12 @@ var (
 
 	// PendingRoundNoteStoreKeyPrefix is list for keep track of the progress of the group status PENDING.
 	PendingRoundNoteStoreKeyPrefix = []byte{0x10}
+
+	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
+	Round2DataStoreKeyPrefix = []byte{0x11}
+
+	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
+	Round2DataCountStoreKeyPrefix = []byte{0x12}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -70,28 +76,28 @@ func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(MembersStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round1CommitmentStoreKey(groupID tss.GroupID) []byte {
-	return append(Round1CommitmentStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round1DataStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1CommitmentsCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round1CommitmentsCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round1DataCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1CommitmentMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(Round1CommitmentStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func Round1DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round1DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round2ShareStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2ShareStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2DataStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round2ShareMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(Round2ShareStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round2DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round2ShareCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2ShareCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
 func DKGMaliciousIndexesStoreKey(groupID tss.GroupID) []byte {

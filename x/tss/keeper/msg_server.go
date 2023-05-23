@@ -61,7 +61,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// SubmitDKGRound1 handles the submission of round 1 in the DKG process.
+// SubmitDKGRound1 handles the submission of round1 in the DKG process.
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
 // If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
@@ -80,7 +80,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	if group.Status != types.ROUND_1 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 1")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round1")
 	}
 
 	// Get memberID
@@ -90,9 +90,9 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound1Commitment(ctx, groupID, memberID)
+	_, err = k.GetRound1Data(ctx, groupID, memberID)
 	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1 ")
+		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round1 ")
 	}
 
 	// Get dkg-context
@@ -101,23 +101,23 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
 	}
 
-	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.OneTimeSig, req.OneTimePubKey)
+	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Data.OneTimeSig, req.Round1Data.OneTimePubKey)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
-	err = tss.VerifyA0Sig(memberID, dkgContext, req.A0Sig, tss.PublicKey(req.CoefficientsCommit[0]))
+	err = tss.VerifyA0Sig(memberID, dkgContext, req.Round1Data.A0Sig, tss.PublicKey(req.Round1Data.CoefficientsCommit[0]))
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
-	round1Commitment := types.Round1Commitment{
-		CoefficientsCommit: req.CoefficientsCommit,
-		OneTimePubKey:      req.OneTimePubKey,
-		A0Sig:              req.A0Sig,
-		OneTimeSig:         req.OneTimeSig,
+	Round1Data := types.Round1Data{
+		CoefficientsCommit: req.Round1Data.CoefficientsCommit,
+		OneTimePubKey:      req.Round1Data.OneTimePubKey,
+		A0Sig:              req.Round1Data.A0Sig,
+		OneTimeSig:         req.Round1Data.OneTimeSig,
 	}
-	k.SetRound1Commitment(ctx, groupID, memberID, round1Commitment)
+	k.SetRound1Data(ctx, groupID, memberID, Round1Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -125,14 +125,14 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Commitment.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Commitment.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Commitment.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Commitment.OneTimeSig)),
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, Round1Data.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(Round1Data.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(Round1Data.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(Round1Data.OneTimeSig)),
 		),
 	)
 
-	count := k.GetRound1CommitmentsCount(ctx, groupID)
+	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
 		if count == group.Size_ {
 			group.Status = types.ROUND_2
@@ -175,17 +175,17 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound2Share(ctx, groupID, memberID)
+	_, err = k.GetRound2Data(ctx, groupID, memberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
-	if uint64(len(req.Round2Share.EncryptedSecretShares)) != group.Size_-1 {
-		return nil, sdkerrors.Wrap(types.ErrRound2ShareNotCorrectLength, "number of round 2 shares is not correct")
+	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
+		return nil, sdkerrors.Wrap(types.ErrEncryptedSecretSharesNotCorrectLength, "number of encrypted secret shares is not correct")
 	}
 
-	k.SetRound2Share(ctx, groupID, memberID, req.Round2Share)
+	k.SetRound2Data(ctx, groupID, memberID, req.Round2Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -193,11 +193,11 @@ func (k Keeper) SubmitDKGRound2(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyRound2Share, req.Round2Share.String()),
+			sdk.NewAttribute(types.AttributeKeyRound2Data, req.Round2Data.String()),
 		),
 	)
 
-	count := k.GetRound2SharesCount(ctx, groupID)
+	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
 		k.handleUpdateGroupStatus(ctx, groupID, group)
 	}

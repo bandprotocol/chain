@@ -24,4 +24,7 @@ var (
 	ErrConfirmationsNotFound                 = sdkerrors.Register(ModuleName, 17, "confirmations not found")
 	ErrPendingRoundNoteNotFound              = sdkerrors.Register(ModuleName, 18, "pending round note not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(ModuleName, 19, "encrypted secret shares not correct length")
+	ErrRound1DataNotFound                    = sdkerrors.Register(ModuleName, 20, "round1 data not found")
+	ErrAlreadyCommitRound1                   = sdkerrors.Register(ModuleName, 21, "already commit round1 message")
+	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 22, "round2 data not found")
 )

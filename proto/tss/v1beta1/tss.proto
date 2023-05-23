@@ -15,7 +15,7 @@ message Group {
   GroupStatus status = 4;
 }
 
-message Round1Commitment {
+message Round1Data {
   repeated bytes coefficients_commit = 1 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
@@ -30,7 +30,7 @@ message Round1Commitment {
   ];
 }
 
-message Round2Share {
+message Round2Data {
   repeated bytes encrypted_secret_shares = 1 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"
   ];

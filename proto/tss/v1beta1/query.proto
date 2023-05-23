@@ -36,8 +36,8 @@ message QueryGroupResponse {
   Group group = 1 [ (gogoproto.nullable) = false ];
   bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
   repeated Member members = 3 [ (gogoproto.nullable) = false ];
-  repeated Round1Commitment round1_commitments = 4;
-  repeated Round2Share round2_shares = 5;
+  repeated Round1Data all_round1_data = 4;
+  repeated Round2Data all_round2_data = 5;
 }
   
 // QueryMembersRequest is the request type for the Query/Members RPC method
