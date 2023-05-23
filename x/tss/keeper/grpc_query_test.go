@@ -71,7 +71,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 				dkgContextB, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 
 				s.Require().Equal(&types.QueryGroupResponse{
-					Group: &types.Group{
+					Group: types.Group{
 						Size_:     5,
 						Threshold: 3,
 						PubKey:    nil,
