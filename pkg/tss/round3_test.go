@@ -22,14 +22,17 @@ func (suite *TSSTestSuite) TestComputeGroupPublicKey() {
 }
 
 func (suite *TSSTestSuite) TestComputeOwnPrivateKey() {
-	privKey := tss.ComputeOwnPrivateKey(suite.scalars)
+	privKey, err := tss.ComputeOwnPrivateKey(suite.scalars)
+	suite.Require().NoError(err)
 	suite.Require().
 		Equal("a537d3a6166c8efdf89d76bda2392e228f567ef12fe0632c0445e66cfdf53f02", hex.EncodeToString(privKey))
 }
 
 func (suite *TSSTestSuite) TestVerifySecretShare() {
-	secret := tss.ComputeSecretShare(suite.scalars, uint32(suite.mid))
-	err := tss.VerifySecretShare(suite.mid, secret, suite.points)
+	secret, err := tss.ComputeSecretShare(suite.scalars, uint32(suite.mid))
+	suite.Require().NoError(err)
+
+	err = tss.VerifySecretShare(suite.mid, secret, suite.points)
 	suite.Require().NoError(err)
 }
 

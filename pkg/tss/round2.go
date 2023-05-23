@@ -36,7 +36,11 @@ func ComputeEncryptedSecretShares(
 			continue
 		}
 
-		secretShare := ComputeSecretShare(rawCoeffcients, i)
+		secretShare, err := ComputeSecretShare(rawCoeffcients, i)
+		if err != nil {
+			return nil, err
+		}
+
 		secretShares = append(secretShares, secretShare)
 	}
 
@@ -55,7 +59,11 @@ func EncryptSecretShares(
 
 	var encSecretShares Scalars
 	for i := 0; i < len(secretShares); i++ {
-		encSecretShare := Encrypt(secretShares[i], keySyms[i])
+		encSecretShare, err := Encrypt(secretShares[i], keySyms[i])
+		if err != nil {
+			return nil, err
+		}
+
 		encSecretShares = append(encSecretShares, encSecretShare)
 	}
 
@@ -63,8 +71,14 @@ func EncryptSecretShares(
 }
 
 // ComputeSecretShare computes the secret share for a given set of coefficients and x.
-func ComputeSecretShare(rawCoeffcients Scalars, rawX uint32) Scalar {
+func ComputeSecretShare(rawCoeffcients Scalars, rawX uint32) (Scalar, error) {
 	x := new(secp256k1.ModNScalar).SetInt(rawX)
-	result := solveScalarPolynomial(rawCoeffcients.Parse(), x)
-	return ParseScalar(result)
+
+	coeffcients, err := rawCoeffcients.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	result := solveScalarPolynomial(coeffcients, x)
+	return ParseScalar(result), nil
 }

@@ -33,7 +33,8 @@ func (suite *TSSTestSuite) TestEncryptSecretShares() {
 }
 
 func (suite *TSSTestSuite) TestComputeSecretShare() {
-	secret := tss.ComputeSecretShare(suite.scalars, 2)
+	secret, err := tss.ComputeSecretShare(suite.scalars, 2)
+	suite.Require().NoError(err)
 	suite.Require().
 		Equal("765613e9f908c8379b2b9e29ac0fda7b8bcc5e3fe34e010dc7a1491bfc0f96a1", hex.EncodeToString(secret))
 }
