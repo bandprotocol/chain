@@ -350,21 +350,5 @@ func (k Keeper) handleUpdateGroupStatus(
 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 			),
 		)
-	case types.ROUND_2:
-		group.Status = types.ROUND_3
-		k.UpdateGroup(ctx, groupID, group)
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound2Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
-	case types.ROUND_3:
-		// TODO: handle ROUND_3 status
-	case types.ACTIVE:
-		// TODO: handle ACTIVE status
-	case types.FALLEN:
-		// TODO: handle FALLEN status
 	}
 }
