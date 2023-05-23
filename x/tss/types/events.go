@@ -8,6 +8,7 @@ const (
 	EventTypeRound2Success   = "round2_success"
 
 	AttributeKeyGroupID            = "group_id"
+	AttributeKeyMemberID           = "member_id"
 	AttributeKeyMember             = "member"
 	AttributeKeySize               = "size"
 	AttributeKeyThreshold          = "threshold"

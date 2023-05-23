@@ -12,6 +12,7 @@ service Query {
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
+
   // Members queries all members in this group.
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
@@ -20,7 +21,7 @@ service Query {
   // IsGrantee queries grant of account on this granter.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get =
-        "/tss/v1beta1/grantee/{granter_address}/{grantee_address}";
+        "/tss/v1beta1/grantee/{granter}/{grantee}";
   }
 }
 
@@ -53,9 +54,9 @@ message QueryMembersResponse {
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
 message QueryIsGranteeRequest {
   // Granter is a granter address
-  string granter_address = 1;
+  string granter = 1;
   // Grantee is a candidate account
-  string grantee_address = 2;
+  string grantee = 2;
 }
 
 // QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
