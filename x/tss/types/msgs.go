@@ -32,31 +32,31 @@ func (m MsgCreateGroup) ValidateBasic() error {
 		_, err := sdk.AccAddressFromBech32(member)
 		if err != nil {
 			return sdkerrors.Wrap(
-				fmt.Errorf("validate basic error"),
-				fmt.Sprintf("member address %s is incorrect: %s", member, err.Error()),
+				err,
+				fmt.Sprintf("member: %s ", member),
 			)
 		}
 	}
 
 	// Check duplicate member
 	if DuplicateInArray(m.Members) {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "members can not duplicate")
+		return sdkerrors.Wrap(fmt.Errorf("members can not duplicate"), "members")
 	}
 
 	// Validate sender address
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(
-			fmt.Errorf("validate basic error"),
-			fmt.Sprintf("sender address %s is incorrect: %s", m.Sender, err.Error()),
+			err,
+			fmt.Sprintf("sender: %s", m.Sender),
 		)
 	}
 
 	// Validate threshold must be less than or equal to members but more than zero
 	if m.Threshold > uint64(len(m.Members)) || m.Threshold > 0 {
 		return sdkerrors.Wrap(
-			fmt.Errorf("validate basic error"),
-			"threshold must be less than or equal to the members but more than zero",
+			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
+			"threshold",
 		)
 	}
 
