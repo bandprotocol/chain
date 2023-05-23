@@ -37,9 +37,15 @@ func ComputeGroupPublicKey(rawA0Commits Points) (PublicKey, error) {
 
 // ComputeOwnPrivateKey computes the own private key from a set of secret shares.
 // The formula used is: si = Σ(j=1 to n) (f_j(i))
-func ComputeOwnPrivateKey(rawSecretShares Scalars) PrivateKey {
-	privKey := sumScalars(rawSecretShares.Parse()...)
-	return ParsePrivateKey(privKey)
+func ComputeOwnPrivateKey(rawSecretShares Scalars) (PrivateKey, error) {
+	secretShares, err := rawSecretShares.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	privKey := sumScalars(secretShares...)
+
+	return ParsePrivateKey(privKey), nil
 }
 
 // VerifySecretShare verifies the validity of a secret share for a given member.
@@ -47,7 +53,11 @@ func ComputeOwnPrivateKey(rawSecretShares Scalars) PrivateKey {
 func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) error {
 	// Compute yG from the secret share.
 	yG := new(secp256k1.JacobianPoint)
-	secp256k1.ScalarBaseMultNonConst(rawSecretShare.Parse(), yG)
+	secretShare, err := rawSecretShare.Parse()
+	if err != nil {
+		return err
+	}
+	secp256k1.ScalarBaseMultNonConst(secretShare, yG)
 
 	// Compute yG from the commits.
 	ssc, err := ComputeSecretShareCommit(rawCommits, uint32(mid))
@@ -90,7 +100,11 @@ func DecryptSecretShares(
 
 	var secretShares Scalars
 	for i := 0; i < len(encSecretShares); i++ {
-		secretShare := Decrypt(encSecretShares[i], keySyms[i])
+		secretShare, err := Decrypt(encSecretShares[i], keySyms[i])
+		if err != nil {
+			return nil, err
+		}
+
 		secretShares = append(secretShares, secretShare)
 	}
 
