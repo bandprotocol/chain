@@ -7,7 +7,10 @@ import (
 // ComputeKeySym computes the key symmetry between a private key and a public key.
 // It returns the computed key symmetry as a PublicKey and an error, if any.
 func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
-	privKeyI := rawPrivKeyI.Scalar()
+	privKeyI, err := rawPrivKeyI.Scalar()
+	if err != nil {
+		return nil, err
+	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
@@ -23,7 +26,10 @@ func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, err
 // ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
 // It returns the computed nonce symmetry as a PublicKey and an error, if any.
 func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
-	nonce := rawNonce.Parse()
+	nonce, err := rawNonce.Parse()
+	if err != nil {
+		return nil, err
+	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
@@ -49,9 +55,13 @@ func SumPoints(rawPoints ...Point) (Point, error) {
 
 // SumScalars computes the sum of multiple scalars.
 // It returns the computed sum as a Scalar.
-func SumScalars(rawScalars ...Scalar) Scalar {
-	scalars := Scalars(rawScalars).Parse()
-	return ParseScalar(sumScalars(scalars...))
+func SumScalars(rawScalars ...Scalar) (Scalar, error) {
+	scalars, err := Scalars(rawScalars).Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseScalar(sumScalars(scalars...)), nil
 }
 
 // solveScalarPolynomial solves a scalar polynomial equation.

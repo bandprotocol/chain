@@ -31,7 +31,10 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	for _, member := range m.Members {
 		_, err := sdk.AccAddressFromBech32(member)
 		if err != nil {
-			return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("member address %s is incorrect: %s", member, err.Error()))
+			return sdkerrors.Wrap(
+				fmt.Errorf("validate basic error"),
+				fmt.Sprintf("member address %s is incorrect: %s", member, err.Error()),
+			)
 		}
 	}
 
@@ -43,12 +46,18 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	// Validate sender address
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), fmt.Sprintf("sender address %s is incorrect: %s", m.Sender, err.Error()))
+		return sdkerrors.Wrap(
+			fmt.Errorf("validate basic error"),
+			fmt.Sprintf("sender address %s is incorrect: %s", m.Sender, err.Error()),
+		)
 	}
 
 	// Validate threshold must be less than or equal to members but more than zero
 	if m.Threshold > uint64(len(m.Members)) && m.Threshold > 0 {
-		return sdkerrors.Wrap(fmt.Errorf("validate basic error"), "threshold must be less than or equal to the members but more than zero")
+		return sdkerrors.Wrap(
+			fmt.Errorf("validate basic error"),
+			"threshold must be less than or equal to the members but more than zero",
+		)
 	}
 
 	return nil
@@ -89,8 +98,9 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate one time pub key
-	if len(m.OneTimePubKey) != 32 {
-		return sdkerrors.Wrap(fmt.Errorf("one time pub key length is not 32"), "one time pub key")
+	_, err = m.OneTimePubKey.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "one time pub key")
 	}
 
 	// Validate a0 signature
