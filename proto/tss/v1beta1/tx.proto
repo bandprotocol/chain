@@ -61,7 +61,7 @@ message MsgSubmitDKGRound1 {
 // MsgSubmitDKGRound1Response is the Msg/SubmitDKGRound1 response type.
 message MsgSubmitDKGRound1Response {}
 
-
+// MsgSubmitDKGRound2 is the Msg/SubmitDKGRound2 request type.
 message MsgSubmitDKGRound2 {
   // group_id is ID of the group.
   uint64 group_id = 1 [

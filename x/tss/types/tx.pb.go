@@ -260,6 +260,7 @@ func (m *MsgSubmitDKGRound1Response) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitDKGRound1Response proto.InternalMessageInfo
 
+// MsgSubmitDKGRound2 is the Msg/SubmitDKGRound2 request type.
 type MsgSubmitDKGRound2 struct {
 	// group_id is ID of the group.
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
