@@ -12,20 +12,24 @@ func Sign(
 	challenge []byte,
 	rawNonce Scalar,
 ) (Signature, error) {
-	privKey := rawPrivKey.Parse()
+	privKey, err := rawPrivKey.Parse()
+	if err != nil {
+		return nil, err
+	}
+
 	privKeyScalar := &privKey.Key
 
 	for iterator := uint32(0); ; iterator++ {
 		// generate nonce if there is no nonce from input parameter
 		var nonce *secp256k1.ModNScalar
 		if rawNonce != nil {
-			nonce = rawNonce.Parse()
+			nonce, err = rawNonce.Parse()
 		} else {
-			nonce = GenerateNonce(
-				rawPrivKey,
-				Hash(challenge),
-				iterator,
-			).Parse()
+			nonce, err = GenerateNonce(rawPrivKey, Hash(challenge), iterator).Parse()
+		}
+
+		if err != nil {
+			return nil, err
 		}
 
 		var sigR secp256k1.JacobianPoint
