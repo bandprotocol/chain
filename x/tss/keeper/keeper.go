@@ -215,61 +215,61 @@ func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize
 	return allRound1Data
 }
 
-// SetRound2Share method sets the round2share of a member in the store and increments the count of round2shares.
-func (k Keeper) SetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Share types.Round2Share) {
+// SetRound2Data method sets the round2Data of a member in the store and increments the count of round2Data.
+func (k Keeper) SetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Data types.Round2Data) {
 	// Add count
-	k.AddRound2SharesCount(ctx, groupID)
+	k.AddRound2DataCount(ctx, groupID)
 
-	ctx.KVStore(k.storeKey).Set(types.Round2ShareMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Share))
+	ctx.KVStore(k.storeKey).Set(types.Round2DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Data))
 }
 
-// GetRound2Share method retrieves the round2share of a member from the store.
-func (k Keeper) GetRound2Share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Share, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareMemberStoreKey(groupID, memberID))
+// GetRound2Data method retrieves the round2Data of a member from the store.
+func (k Keeper) GetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Data, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round2DataMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round2Share{}, sdkerrors.Wrapf(types.ErrRound2ShareNotFound, "failed to get round2share with groupID: %d, memberID: %d", groupID, memberID)
+		return types.Round2Data{}, sdkerrors.Wrapf(types.ErrRoundExpired, "failed to get round2Data with groupID: %d, memberID: %d", groupID, memberID)
 	}
-	var r2s types.Round2Share
+	var r2s types.Round2Data
 	k.cdc.MustUnmarshal(bz, &r2s)
 	return r2s, nil
 }
 
-// DeleteRound2share method deletes the round2share of a member from the store.
-func (k Keeper) DeleteRound2share(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round2ShareMemberStoreKey(groupID, memberID))
+// DeleteRound2Data method deletes the round2Data of a member from the store.
+func (k Keeper) DeleteRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round2DataMemberStoreKey(groupID, memberID))
 }
 
-// SetRound2SharesCount method sets the count of round2shares in the store.
-func (k Keeper) SetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.Round2ShareCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
+// SetRound2DataCount method sets the count of round2Datas in the store.
+func (k Keeper) SetRound2DataCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.Round2DataCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound2SharesCount method retrieves the count of round2shares from the store.
-func (k Keeper) GetRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round2ShareCountStoreKey(groupID))
+// GetRound2DataCount method retrieves the count of round2Datas from the store.
+func (k Keeper) GetRound2DataCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round2DataCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound2SharesCount method increments the count of round2shares in the store.
-func (k Keeper) AddRound2SharesCount(ctx sdk.Context, groupID tss.GroupID) {
-	count := k.GetRound2SharesCount(ctx, groupID)
-	k.SetRound2SharesCount(ctx, groupID, count+1)
+// AddRound2DataCount method increments the count of round2Datas in the store.
+func (k Keeper) AddRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetRound2DataCount(ctx, groupID)
+	k.SetRound2DataCount(ctx, groupID, count+1)
 }
 
-// GetAllRound2Shares method retrieves all round2shares for a given group from the store.
-func (k Keeper) GetAllRound2Shares(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Share {
-	allRound2Shares := make([]*types.Round2Share, groupSize)
+// Get allRound2Data method retrieves all round2Data for a given group from the store.
+func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Data {
+	allRound2Data := make([]*types.Round2Data, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {
-		round2Share, err := k.GetRound2Share(ctx, groupID, tss.MemberID(i))
+		round2Data, err := k.GetRound2Data(ctx, groupID, tss.MemberID(i))
 		if err != nil {
-			// allRound2Shares array start at 0
-			allRound2Shares[i-1] = nil
+			// allRound2Data array start at 0
+			allRound2Data[i-1] = nil
 		} else {
-			// allRound2Shares array start at 0
-			allRound2Shares[i-1] = &round2Share
+			// allRound2Data array start at 0
+			allRound2Data[i-1] = &round2Data
 		}
 	}
-	return allRound2Shares
+	return allRound2Data
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

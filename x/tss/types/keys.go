@@ -41,11 +41,11 @@ var (
 	// Round1CommitmentsCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1CommitmentsCountStoreKeyPrefix = []byte{0x06}
 
-	// Round2ShareStoreKeyPrefix is the key that keeps the Round2Share of the member.
-	Round2ShareStoreKeyPrefix = []byte{0x07}
+	// round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
+	round2DataStoreKeyPrefix = []byte{0x07}
 
-	// Round2ShareCountStoreKeyPrefix is the key that keeps the round2share count.
-	Round2ShareCountStoreKeyPrefix = []byte{0x08}
+	// round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
+	round2DataCountStoreKeyPrefix = []byte{0x08}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -76,14 +76,14 @@ func Round1DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte
 	return append(Round1DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round2ShareStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2ShareStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2DataStoreKey(groupID tss.GroupID) []byte {
+	return append(round2DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round2ShareMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(Round2ShareStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round2DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round2ShareCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2ShareCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
+	return append(round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

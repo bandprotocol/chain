@@ -175,17 +175,17 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound2Share(ctx, groupID, memberID)
+	_, err = k.GetRound2Data(ctx, groupID, memberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
-	if uint64(len(req.Round2Share.EncryptedSecretShares)) != group.Size_-1 {
+	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
 		return nil, sdkerrors.Wrap(types.ErrEncryptedSecretSharesNotCorrectLength, "number of encrypted secret shares is not correct")
 	}
 
-	k.SetRound2Share(ctx, groupID, memberID, req.Round2Share)
+	k.SetRound2Data(ctx, groupID, memberID, req.Round2Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -193,11 +193,11 @@ func (k Keeper) SubmitDKGRound2(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyRound2Share, req.Round2Share.String()),
+			sdk.NewAttribute(types.AttributeKeyRound2Data, req.Round2Data.String()),
 		),
 	)
 
-	count := k.GetRound2SharesCount(ctx, groupID)
+	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		k.UpdateGroup(ctx, groupID, group)

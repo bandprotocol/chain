@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round2Share := types.Round2Share{
+	round2Data := types.Round2Data{
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
@@ -48,8 +48,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.SetRound1Data(ctx, groupID, 1, Round1Data)
 	k.SetRound1Data(ctx, groupID, 3, Round1Data)
 	// set round 2
-	k.SetRound2Share(ctx, groupID, tss.MemberID(1), round2Share)
-	k.SetRound2Share(ctx, groupID, tss.MemberID(3), round2Share)
+	k.SetRound2Data(ctx, groupID, tss.MemberID(1), round2Data)
+	k.SetRound2Data(ctx, groupID, tss.MemberID(3), round2Data)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -116,10 +116,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						nil,
 						nil,
 					},
-					Round2Shares: []*types.Round2Share{
-						&round2Share,
+					AllRound2Data: []*types.Round2Data{
+						&round2Data,
 						nil,
-						&round2Share,
+						&round2Data,
 						nil,
 						nil,
 					},

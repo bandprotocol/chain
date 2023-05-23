@@ -54,8 +54,8 @@ message MsgSubmitDKGRound2 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round2_shares is a list of Elgamal encryption of f_i(j).
-  Round2Share round2_share = 2 [ (gogoproto.nullable) = false ];
+  // round2_data is is all data that require to handle round2.
+  Round2Data round2_data = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
 }

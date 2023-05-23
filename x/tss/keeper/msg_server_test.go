@@ -225,7 +225,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 0,
-					Round2Share: types.Round2Share{
+					Round2Data: types.Round2Data{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -244,7 +244,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: types.Round2Share{
+					Round2Data: types.Round2Data{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -262,7 +262,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			"round2already submit",
 			func() {
 				// Set round 2
-				k.SetRound2Share(ctx, 1, 1, types.Round2Share{EncryptedSecretShares: tss.Scalars{
+				k.SetRound2Data(ctx, 1, 1, types.Round2Data{EncryptedSecretShares: tss.Scalars{
 					[]byte("e_12"),
 					[]byte("e_13"),
 					[]byte("e_14"),
@@ -271,7 +271,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: types.Round2Share{
+					Round2Data: types.Round2Data{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -284,15 +284,15 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 			false,
 			func() {
-				k.DeleteRound2share(ctx, 1, 1)
+				k.DeleteRound2Data(ctx, 1, 1)
 			},
 		},
 		{
-			"round2share is not correct length n-1",
+			"round2Data is not correct length n-1",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: types.Round2Share{
+					Round2Data: types.Round2Data{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -310,7 +310,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: types.Round2Share{
+					Round2Data: types.Round2Data{
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),

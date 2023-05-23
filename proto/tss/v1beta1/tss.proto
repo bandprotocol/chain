@@ -30,7 +30,7 @@ message Round1Data {
   ];
 }
 
-message Round2Share {
+message Round2Data {
   repeated bytes encrypted_secret_shares = 1 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"
   ];

@@ -145,7 +145,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	}
 
 	// Validate encrypted secret shares
-	for _, e := range m.Round2Share.EncryptedSecretShares {
+	for _, e := range m.Round2Data.EncryptedSecretShares {
 		if len(e) != 32 {
 			return sdkerrors.Wrap(fmt.Errorf("encrypted secret shares length is not 32"), "encrypted secret shares")
 		}

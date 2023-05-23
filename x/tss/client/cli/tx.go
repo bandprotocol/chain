@@ -286,7 +286,7 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 
 			msg := &types.MsgSubmitDKGRound2{
 				GroupID: tss.GroupID(groupID),
-				Round2Share: types.Round2Share{
+				Round2Data: types.Round2Data{
 					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),
