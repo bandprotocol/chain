@@ -11,7 +11,7 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
-  // SubmmitDKGRound1 submit dkg for compute round1.
+  // SubmitDKGRound1 submit dkg for compute round1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
 }
 

@@ -202,13 +202,13 @@ func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
 	allRound1Data := make([]*types.Round1Data, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {
-		Round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
+		round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
 		if err != nil {
 			// allRound1Data array start at 0
 			allRound1Data[i-1] = nil
 		} else {
 			// allRound1Data array start at 0
-			allRound1Data[i-1] = &Round1Data
+			allRound1Data[i-1] = &round1Data
 		}
 	}
 

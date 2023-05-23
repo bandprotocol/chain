@@ -286,7 +286,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(ctx context.Context, in *MsgCreateGroup, opts ...grpc.CallOption) (*MsgCreateGroupResponse, error)
-	// SubmmitDKGRound1 submit dkg for compute round1.
+	// SubmitDKGRound1 submit dkg for compute round1.
 	SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1, opts ...grpc.CallOption) (*MsgSubmitDKGRound1Response, error)
 }
 
@@ -320,7 +320,7 @@ func (c *msgClient) SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1,
 type MsgServer interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(context.Context, *MsgCreateGroup) (*MsgCreateGroupResponse, error)
-	// SubmmitDKGRound1 submit dkg for compute round1.
+	// SubmitDKGRound1 submit dkg for compute round1.
 	SubmitDKGRound1(context.Context, *MsgSubmitDKGRound1) (*MsgSubmitDKGRound1Response, error)
 }
 
