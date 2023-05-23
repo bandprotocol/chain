@@ -231,7 +231,7 @@ func (k Keeper) Complain(
 	}
 
 	// Check members
-	_, err = k.VerifyMember(ctx, groupID, req.Member)
+	_, err = k.GetMemberID(ctx, groupID, req.Member)
 	if err != nil {
 		return nil, err
 	}
@@ -301,8 +301,8 @@ func (k Keeper) Confirm(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 
-	// Check members
-	memberID, err := k.VerifyMember(ctx, groupID, req.Member)
+	// get member id
+	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
 	if err != nil {
 		return nil, err
 	}
