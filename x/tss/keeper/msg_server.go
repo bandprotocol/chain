@@ -35,7 +35,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	for i, m := range req.Members {
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
-			Signer: m,
+			Member: m,
 			PubKey: tss.PublicKey(nil),
 		})
 	}
@@ -65,7 +65,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
 // If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
-// If all members have submitted their round 1 commitments, it updates the status of the group to round 2 and emits an event for the completion of round 1.
+// If all members have submitted their round 1 commitments, it updates the status of the group to round2and emits an event for the completion of round 1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
@@ -134,16 +134,7 @@ func (k Keeper) SubmitDKGRound1(
 
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.ROUND_2
-		k.UpdateGroup(ctx, groupID, group)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound1Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
+		k.updateGroupStatus(ctx, groupID, group)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
@@ -198,16 +189,7 @@ func (k Keeper) SubmitDKGRound2(
 
 	count := k.GetRound2SharesCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.ROUND_3
-		k.UpdateGroup(ctx, groupID, group)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound2Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
+		k.updateGroupStatus(ctx, groupID, group)
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
@@ -332,10 +314,8 @@ func (k Keeper) Confirm(
 	}
 
 	pendingRoundNote.ConfirmationCount += 1
-
 	if pendingRoundNote.ConfirmationCount == group.Size_ && len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
 		group.Status = types.ACTIVE
-
 		k.UpdateGroup(ctx, groupID, group)
 
 		ctx.EventManager().EmitEvent(
@@ -351,4 +331,21 @@ func (k Keeper) Confirm(
 	// TODO: Remove all interim data associated with this group
 
 	return &types.MsgConfirmResponse{}, nil
+}
+
+// UpdateGroupStatus updates the status of a group and emits an event.
+func (k Keeper) updateGroupStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	group types.Group,
+) {
+	k.UpdateGroup(ctx, groupID, group)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRound1Success,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+		),
+	)
 }

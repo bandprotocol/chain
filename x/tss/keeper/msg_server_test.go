@@ -247,7 +247,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 		{
-			"round 2 already submit",
+			"round2already submit",
 			func() {
 				// Set round 2
 				k.SetRound2Share(ctx, 1, 1, types.Round2Share{EncryptedSecretShares: tss.Scalars{
@@ -276,7 +276,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 		},
 		{
-			"round 2 share is not correct length n-1",
+			"round2share is not correct length n-1",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,

@@ -145,7 +145,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey: tss.PublicKey(nil),
 	}
 	k.SetMember(ctx, groupID, memberID, member)
@@ -155,22 +155,24 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	s.Require().Equal(member, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetMembers() {
+func (s *KeeperTestSuite) TestGetMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey: tss.PublicKey(nil),
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey: tss.PublicKey(nil),
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
 	got, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
@@ -182,17 +184,19 @@ func (s *KeeperTestSuite) TesGetMemberID() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey: tss.PublicKey(nil),
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey: tss.PublicKey(nil),
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
 	memberID1, err := k.GetMemberID(ctx, groupID, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	s.Require().NoError(err)
@@ -302,7 +306,7 @@ func (s *KeeperTestSuite) TestGetSetRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2 secret share
 	k.SetRound2Share(ctx, groupID, memberID, round2Share)
 
 	got, err := k.GetRound2Share(ctx, groupID, memberID)
@@ -321,10 +325,10 @@ func (s *KeeperTestSuite) TestDeleteRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, memberID, round2Share)
 
-	// delete round 2 secret share
+	// delete round2secret share
 	k.DeleteRound2share(ctx, groupID, memberID)
 
 	_, err := k.GetRound2Share(ctx, groupID, memberID)
@@ -349,7 +353,7 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
 	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
@@ -375,12 +379,12 @@ func (s *KeeperTestSuite) TestGetAllRound2Shares() {
 		},
 	}
 
-	// set round 2 secret share
+	// set round2secret share
 	k.SetRound2Share(ctx, groupID, member1, round2ShareM1)
 	k.SetRound2Share(ctx, groupID, member2, round2ShareM2)
 
 	got := k.GetAllRound2Shares(ctx, groupID, groupSize)
-	// member3 expected nil value because didn't submit round 2 share
+	// member3 expected nil value because didn't submit round2share
 	s.Require().Equal([]*types.Round2Share{&round2ShareM1, &round2ShareM2, nil}, got)
 }
 
