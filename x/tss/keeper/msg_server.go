@@ -35,7 +35,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	for i, m := range req.Members {
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
-			Signer: m,
+			Member: m,
 			PubKey: tss.PublicKey(nil),
 		})
 	}
@@ -134,17 +134,25 @@ func (k Keeper) SubmitDKGRound1(
 
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.ROUND_2
-		k.UpdateGroup(ctx, groupID, group)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound1Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
+		k.updateGroupStatus(ctx, groupID, group)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
+}
+
+// UpdateGroupStatus updates the status of a group and emits an event.
+func (k Keeper) updateGroupStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	group types.Group,
+) {
+	k.UpdateGroup(ctx, groupID, group)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRound1Success,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+		),
+	)
 }

@@ -109,13 +109,6 @@ func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
 }
 
-// SetMembers function sets members of a group in the store.
-func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types.Member) {
-	for i, m := range members {
-		ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, tss.MemberID(i+1)), k.cdc.MustMarshal(&m))
-	}
-}
-
 // GetMember function retrieves a member of a group from the store.
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
@@ -157,7 +150,7 @@ func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress 
 	}
 
 	for i, m := range members {
-		if m.Signer == memberAddress {
+		if m.Member == memberAddress {
 			return tss.MemberID(i + 1), nil
 		}
 	}
