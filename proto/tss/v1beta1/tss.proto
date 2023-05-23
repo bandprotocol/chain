@@ -14,16 +14,16 @@ message Group {
 }
 
 message Round1Commitment {
-  repeated bytes coefficients_commit = 3 [
+  repeated bytes coefficients_commit = 1 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
-  bytes one_time_pub_key = 4 [
+  bytes one_time_pub_key = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes a0_sig = 5 [
+  bytes a0_sig = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes one_time_sig = 6 [
+  bytes one_time_sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }

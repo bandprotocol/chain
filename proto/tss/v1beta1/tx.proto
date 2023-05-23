@@ -39,23 +39,23 @@ message MsgSubmitDKGRound1 {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
   // coefficients_commit is commitment of all coefficients.
-  repeated bytes coefficients_commit = 3 [
+  repeated bytes coefficients_commit = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
   // one_time_pub_key is a one-time used public key for sending secret shares.
-  bytes one_time_pub_key = 4 [
+  bytes one_time_pub_key = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   // a0_sig is a proof of knowledge on a0.
-  bytes a0_sig = 5 [
+  bytes a0_sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // one_time_sig is a proof of knowledge on the OneTimePublicKey.
-  bytes one_time_sig = 6 [
+  bytes one_time_sig = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // member is the signer of this message. Must be the member of this group.
-  string member = 7;
+  string member = 6;
 }
 
 // MsgSubmitDKGRound1Response is the Msg/SubmitDKGRound1 response type.

@@ -33,7 +33,7 @@ message QueryGroupRequest {
 
 // QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-  Group group = 1;
+  Group group = 1 [ (gogoproto.nullable) = false ];
   bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
   repeated Member members = 3 [ (gogoproto.nullable) = false ];
   repeated Round1Commitment round1_commitments = 4;

@@ -40,7 +40,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 	round2shares := k.GetAllRound2Shares(ctx, groupID, group.Size_)
 
 	return &types.QueryGroupResponse{
-		Group:             &group,
+		Group:             group,
 		DKGContext:        dkgContext,
 		Members:           members,
 		Round1Commitments: allRound1Commitments,
@@ -54,7 +54,7 @@ func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) 
 
 	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
-		return &types.QueryMembersResponse{}, err
+		return nil, err
 	}
 
 	return &types.QueryMembersResponse{
@@ -71,11 +71,11 @@ func (k Querier) IsGrantee(
 
 	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
 	return &types.QueryIsGranteeResponse{

@@ -80,6 +80,31 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "member")
 	}
 
+	// Validate coefficients commit
+	for _, c := range m.CoefficientsCommit {
+		_, err := c.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "coefficients commit")
+		}
+	}
+
+	// Validate one time pub key
+	if len(m.OneTimePubKey) != 32 {
+		return sdkerrors.Wrap(fmt.Errorf("one time pub key length is not 32"), "one time pub key")
+	}
+
+	// Validate a0 signature
+	_, err = m.A0Sig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "a0 sig")
+	}
+
+	// Validate one time signature
+	_, err = m.OneTimeSig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "one time sig")
+	}
+
 	return nil
 }
 
