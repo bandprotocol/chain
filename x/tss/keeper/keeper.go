@@ -160,7 +160,7 @@ func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress 
 // SetRound1Data function sets round1 data for a member of a group.
 func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, Round1Data types.Round1Data) {
 	// Add count
-	k.AddRound1DatasCount(ctx, groupID)
+	k.AddRound1DataCount(ctx, groupID)
 
 	ctx.KVStore(k.storeKey).Set(types.Round1DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&Round1Data))
 }
@@ -181,38 +181,38 @@ func (k Keeper) DeleteRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID 
 	ctx.KVStore(k.storeKey).Delete(types.Round1DataMemberStoreKey(groupID, memberID))
 }
 
-// SetRound1DatasCount sets the count of round1 data for a group in the store.
+// SetRound1DataCount sets the count of round1 data for a group in the store.
 func (k Keeper) SetRound1DataCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.Round1DatasCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
+	ctx.KVStore(k.storeKey).Set(types.Round1DataCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound1DatasCount retrieves the count of round1 data for a group from the store.
+// GetRound1DataCount retrieves the count of round1 data for a group from the store.
 func (k Keeper) GetRound1DataCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1DatasCountStoreKey(groupID))
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1DataCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound1DatasCount increments the count of round1 data for a group in the store.
-func (k Keeper) AddRound1DatasCount(ctx sdk.Context, groupID tss.GroupID) {
+// AddRound1DataCount increments the count of round1 data for a group in the store.
+func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound1DataCount(ctx, groupID)
 	k.SetRound1DataCount(ctx, groupID, count+1)
 }
 
-// GetAllRound1Datas retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Datas(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
-	allRound1Datas := make([]*types.Round1Data, groupSize)
+// GetAllRound1Data retrieves all round1 data for a group from the store.
+func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
+	allRound1Data := make([]*types.Round1Data, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {
 		Round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
 		if err != nil {
-			// allRound1Datas array start at 0
-			allRound1Datas[i-1] = nil
+			// allRound1Data array start at 0
+			allRound1Data[i-1] = nil
 		} else {
-			// allRound1Datas array start at 0
-			allRound1Datas[i-1] = &Round1Data
+			// allRound1Data array start at 0
+			allRound1Data[i-1] = &Round1Data
 		}
 	}
 
-	return allRound1Datas
+	return allRound1Data
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

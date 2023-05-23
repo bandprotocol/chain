@@ -206,7 +206,7 @@ func (s *KeeperTestSuite) TesGetMemberID() {
 	s.Require().Equal(uint64(2), memberID2)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound1Datas() {
+func (s *KeeperTestSuite) TestGetSetRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	Round1Data := types.Round1Data{
@@ -226,7 +226,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Datas() {
 	s.Require().Equal(Round1Data, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound1Datas() {
+func (s *KeeperTestSuite) TestDeleteRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	Round1Data := types.Round1Data{
@@ -289,7 +289,7 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	k.SetRound1Data(ctx, groupID, member1, Round1Data)
 	k.SetRound1Data(ctx, groupID, member2, Round1Data)
 
-	got := k.GetAllRound1Datas(ctx, groupID, groupSize)
+	got := k.GetAllRound1Data(ctx, groupID, groupSize)
 
 	// member3 expected nil value because didn't commit round1
 	s.Require().Equal([]*types.Round1Data{&Round1Data, &Round1Data, nil}, got)

@@ -35,8 +35,8 @@ var (
 	// Round1DataStoreKeyPrefix is the key that keeps the member commitment on round1.
 	Round1DataStoreKeyPrefix = []byte{0x04}
 
-	// Round1DatasCountStoreKeyPrefix is the key that keeps the member commitments count on round1.
-	Round1DatasCountStoreKeyPrefix = []byte{0x05}
+	// Round1DataCountStoreKeyPrefix is the key that keeps the member commitments count on round1.
+	Round1DataCountStoreKeyPrefix = []byte{0x05}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -59,8 +59,8 @@ func Round1DataStoreKey(groupID tss.GroupID) []byte {
 	return append(Round1DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1DatasCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round1DatasCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round1DataCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
 func Round1DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
