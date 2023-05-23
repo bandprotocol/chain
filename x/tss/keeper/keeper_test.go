@@ -29,7 +29,7 @@ type KeeperTestSuite struct {
 func (s *KeeperTestSuite) SetupTest() {
 	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
 
-	// commit genesis for test get LastCommitHash in msg create group
+	// Commit genesis for test get LastCommitHash in msg create group
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:  app.LastBlockHeight() + 1,
@@ -60,7 +60,7 @@ func (s *KeeperTestSuite) TestGetSetGroupCount() {
 func (s *KeeperTestSuite) TestGetNextGroupID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
-	// initial group count
+	// Initial group count
 	k.SetGroupCount(ctx, 0)
 
 	groupID1 := k.GetNextGroupID(ctx)
@@ -118,14 +118,14 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 	// Create new group
 	groupID := k.CreateNewGroup(ctx, group)
 
-	// update group size value
+	// Update group size value
 	group.Size_ = 6
 	k.UpdateGroup(ctx, groupID, group)
 
-	// get group from chain state
+	// Get group from chain state
 	got, err := k.GetGroup(ctx, groupID)
 
-	// validate group size value
+	// Validate group size value
 	s.Require().NoError(err)
 	s.Require().Equal(group.Size_, got.Size_)
 }
