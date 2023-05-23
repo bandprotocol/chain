@@ -19,5 +19,5 @@ const (
 	AttributeKeyOneTimePubKey      = "one_time_pub_key"
 	AttributeKeyA0Sig              = "a0_sig"
 	AttributeKeyOneTimeSig         = "one_time_sig"
-	AttributeKeyRound2Data         = "round2_share"
+	AttributeKeyRound2Data         = "round2_data"
 )
