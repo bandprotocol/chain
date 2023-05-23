@@ -36,7 +36,7 @@ func (gr *GroupResponse) GetRound2Data(mid tss.MemberID) (types.Round2Data, erro
 
 	data := gr.AllRound2Data[uint64(mid)-1]
 	if data == nil {
-		return types.Round2Data{}, fmt.Errorf("No Round1Data from MemberID(%d)", mid)
+		return types.Round2Data{}, fmt.Errorf("No Round2Data from MemberID(%d)", mid)
 	}
 
 	return *data, nil
