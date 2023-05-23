@@ -48,7 +48,7 @@ func (suite *TSSTestSuite) SetupTest() {
 	}
 
 	suite.challenge = []byte("challenge")
-	suite.nonce = []byte("nonce")
+	suite.nonce, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000006e6f6e6365")
 	suite.dkgContext, _ = hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 	suite.gid = 1
 	suite.mid = 1

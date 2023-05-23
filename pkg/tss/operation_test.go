@@ -22,10 +22,10 @@ func (suite *TSSTestSuite) TestComputeNonceSymOddCase() {
 }
 
 func (suite *TSSTestSuite) TestComputeNonceSymEvenCase() {
-	nonceSym, err := tss.ComputeNonceSym(tss.Scalar("0"), suite.kpJ.PublicKey)
+	nonceSym, err := tss.ComputeNonceSym(tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(1)), suite.kpJ.PublicKey)
 	suite.Require().NoError(err)
 	suite.Require().
-		Equal("02daeb8dafd373c016b5a024dcb352d0308d42074d45f0951654e38fa4ff843763", hex.EncodeToString(nonceSym))
+		Equal("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f", hex.EncodeToString(nonceSym))
 }
 
 func (suite *TSSTestSuite) TestSumPoints() {
@@ -42,17 +42,16 @@ func (suite *TSSTestSuite) TestSumPoints() {
 
 	// Try sum with function
 	total, err := tss.SumPoints(tss.ParsePoint(&p1), tss.ParsePoint(&p2))
-
 	suite.Require().NoError(err)
 	suite.Require().Equal(tss.ParsePoint(&expectedPoint), total)
 }
 
 func (suite *TSSTestSuite) TestSumScalars() {
-	total := tss.SumScalars(
+	total, err := tss.SumScalars(
 		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(1)),
 		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(2)),
 		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(3)),
 	)
-	suite.Require().
-		Equal(tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(6)), total)
+	suite.Require().NoError(err)
+	suite.Require().Equal(tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(6)), total)
 }

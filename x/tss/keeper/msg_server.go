@@ -134,7 +134,17 @@ func (k Keeper) SubmitDKGRound1(
 
 	count := k.GetRound1CommitmentsCount(ctx, groupID)
 	if count == group.Size_ {
-		k.handleUpdateGroupStatus(ctx, groupID, group)
+		if count == group.Size_ {
+			group.Status = types.ROUND_2
+			k.UpdateGroup(ctx, groupID, group)
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound1Success,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+				),
+			)
+		}
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil

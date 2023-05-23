@@ -16,8 +16,10 @@ func (suite *TSSTestSuite) TestEncryptAndDecrypt() {
 	suite.Require().NoError(err)
 
 	// Encrypt and decrypt the value using the key.
-	ec := tss.Encrypt(ev, key)
-	value := tss.Decrypt(ec, key)
+	ec, err := tss.Encrypt(ev, key)
+	suite.Require().NoError(err)
+	value, err := tss.Decrypt(ec, key)
+	suite.Require().NoError(err)
 
 	// Ensure the decrypted value matches the original value.
 	suite.Require().Equal(encryptedValue, hex.EncodeToString(value))

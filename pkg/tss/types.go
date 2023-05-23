@@ -2,6 +2,7 @@ package tss
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
@@ -25,22 +26,31 @@ func ParseScalar(scalar *secp256k1.ModNScalar) Scalar {
 }
 
 // Parse converts a Scalar back to a secp256k1.ModNScalar.
-func (s Scalar) Parse() *secp256k1.ModNScalar {
+func (s Scalar) Parse() (*secp256k1.ModNScalar, error) {
+	if len(s) != 32 {
+		return nil, errors.New("length is not 32")
+	}
+
 	var scalar secp256k1.ModNScalar
 	scalar.SetByteSlice(s)
-	return &scalar
+	return &scalar, nil
 }
 
 // Scalars represents a slice of Scalar values.
 type Scalars []Scalar
 
 // Parse converts a slice of Scalars into a slice of secp256k1.ModNScalar.
-func (ss Scalars) Parse() []*secp256k1.ModNScalar {
+func (ss Scalars) Parse() ([]*secp256k1.ModNScalar, error) {
 	var scalars []*secp256k1.ModNScalar
 	for _, s := range ss {
-		scalars = append(scalars, s.Parse())
+		scalar, err := s.Parse()
+		if err != nil {
+			return nil, err
+		}
+
+		scalars = append(scalars, scalar)
 	}
-	return scalars
+	return scalars, nil
 }
 
 // Point represents a point (x, y, z) stored as bytes.
@@ -92,6 +102,63 @@ func (ps Points) ToString() string {
 		}
 	}
 	return points
+}
+
+// PrivateKey represents a private key stored as bytes.
+// It uses secp256k1.ModNScalar as a base implementation for serialization and parsing.
+type PrivateKey []byte
+
+// PrivateKeys represents a slice of PrivateKey values.
+type PrivateKeys []PrivateKey
+
+// ParsePrivateKey parses a secp256k1.ModNScalar into a PrivateKey.
+func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
+	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
+	return PrivateKey(bytes)
+}
+
+// Parse converts a PrivateKey back to a secp256k1.PrivateKey.
+func (pk PrivateKey) Parse() (*secp256k1.PrivateKey, error) {
+	if len(pk) != 32 {
+		return nil, errors.New("length is not 32")
+	}
+
+	return secp256k1.PrivKeyFromBytes(pk), nil
+}
+
+// Scalar converts a PrivateKey to a secp256k1.ModNScalar.
+func (pk PrivateKey) Scalar() (*secp256k1.ModNScalar, error) {
+	privKey, err := pk.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return &privKey.Key, nil
+}
+
+// PublicKey converts a PrivateKey to a PublicKey.
+func (pk PrivateKey) PublicKey() (PublicKey, error) {
+	privKey, err := pk.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return privKey.PubKey().SerializeCompressed(), nil
+}
+
+// Parse converts a slice of PrivateKeys into a slice of secp256k1.PrivateKey.
+func (pks PrivateKeys) Parse() ([]*secp256k1.PrivateKey, error) {
+	var privKeys []*secp256k1.PrivateKey
+	for _, pk := range pks {
+		privKey, err := pk.Parse()
+		if err != nil {
+			return nil, err
+		}
+
+		privKeys = append(privKeys, privKey)
+	}
+
+	return privKeys, nil
 }
 
 // PublicKey represents a public key stored as bytes.
@@ -146,44 +213,6 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 	}
 
 	return pubKeys, nil
-}
-
-// PrivateKey represents a private key stored as bytes.
-// It uses secp256k1.ModNScalar as a base implementation for serialization and parsing.
-type PrivateKey []byte
-
-// PrivateKeys represents a slice of PrivateKey values.
-type PrivateKeys []PrivateKey
-
-// ParsePrivateKey parses a secp256k1.ModNScalar into a PrivateKey.
-func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
-	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
-	return PrivateKey(bytes)
-}
-
-// Parse converts a PrivateKey back to a secp256k1.PrivateKey.
-func (pk PrivateKey) Parse() *secp256k1.PrivateKey {
-	return secp256k1.PrivKeyFromBytes(pk)
-}
-
-// Scalar converts a PrivateKey to a secp256k1.ModNScalar.
-func (pk PrivateKey) Scalar() *secp256k1.ModNScalar {
-	return &pk.Parse().Key
-}
-
-// PublicKey converts a PrivateKey to a PublicKey.
-func (pk PrivateKey) PublicKey() PublicKey {
-	return pk.Parse().PubKey().SerializeCompressed()
-}
-
-// Parse converts a slice of PrivateKeys into a slice of secp256k1.PrivateKey.
-func (pks PrivateKeys) Parse() []*secp256k1.PrivateKey {
-	var privKeys []*secp256k1.PrivateKey
-	for _, pk := range pks {
-		privKeys = append(privKeys, pk.Parse())
-	}
-
-	return privKeys
 }
 
 // Signature represents a signature (r, s) stored as bytes.
