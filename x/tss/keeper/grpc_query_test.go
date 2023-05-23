@@ -142,7 +142,6 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	}
 
 	// set members
-	// set members
 	for i, m := range members {
 		k.SetMember(ctx, tss.GroupID(1), tss.MemberID(i+1), m)
 	}
