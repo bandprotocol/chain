@@ -181,7 +181,7 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrEncryptedSecretSharesNotCorrectLength, "number of encrypted secret shares is not correct")
 	}
 
-	k.SetRound2Share(ctx, groupID, memberID, *req.Round2Share)
+	k.SetRound2Share(ctx, groupID, memberID, req.Round2Share)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
