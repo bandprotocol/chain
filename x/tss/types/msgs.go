@@ -53,7 +53,7 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	}
 
 	// Validate threshold must be less than or equal to members but more than zero
-	if m.Threshold > uint64(len(m.Members)) && m.Threshold > 0 {
+	if m.Threshold > uint64(len(m.Members)) || m.Threshold > 0 {
 		return sdkerrors.Wrap(
 			fmt.Errorf("validate basic error"),
 			"threshold must be less than or equal to the members but more than zero",
@@ -90,7 +90,7 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate coefficients commit
-	for _, c := range m.CoefficientsCommit {
+	for _, c := range m.Round1Data.CoefficientsCommit {
 		_, err := c.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "coefficients commit")
@@ -98,19 +98,19 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate one time pub key
-	_, err = m.OneTimePubKey.Parse()
+	_, err = m.Round1Data.OneTimePubKey.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "one time pub key")
 	}
 
 	// Validate a0 signature
-	_, err = m.A0Sig.Parse()
+	_, err = m.Round1Data.A0Sig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	_, err = m.OneTimeSig.Parse()
+	_, err = m.Round1Data.OneTimeSig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "one time sig")
 	}

@@ -64,12 +64,14 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"group not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            0,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 0,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -79,22 +81,24 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band1rqjc6czdeu2w2nst9vfvv6yqj6nwqkv48s4jmq",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band1rqjc6czdeu2w2nst9vfvv6yqj6nwqkv48s4jmq",
 				}
 			},
 			false,
 			func() {},
 		},
 		{
-			"round 1 already commit",
+			"round1 already commit",
 			func() {
-				// Set round 1 commitments
-				tssKeeper.SetRound1Commitment(ctx, 1, 1, types.Round1Commitment{
+				// Set round1 data
+				tssKeeper.SetRound1Data(ctx, 1, 1, types.Round1Data{
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -102,44 +106,50 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				})
 
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
 			func() {
-				tssKeeper.DeleteRound1Commitment(ctx, 1, 1)
+				tssKeeper.DeleteRound1Data(ctx, 1, 1)
 			},
 		},
 		{
-			"wrong one_time_sign",
+			"wrong one time sign",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         []byte("wrong one_time_sign"),
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         []byte("wrong one_time_sign"),
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
 			func() {},
 		},
 		{
-			"wrong a0_sig",
+			"wrong a0 sig",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              []byte("wrong a0_sig"),
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              []byte("wrong a0_sig"),
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -150,12 +160,14 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				// Key generated from GenerateRound1Data() ref. github.com/bandprotocol/chain/v2/pkg/tss
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			true,

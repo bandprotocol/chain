@@ -157,62 +157,62 @@ func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress 
 	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
 }
 
-// SetRound1Commitment function sets round 1 commitment for a member of a group.
-func (k Keeper) SetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round1Commitment types.Round1Commitment) {
+// SetRound1Data function sets round1 data for a member of a group.
+func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, Round1Data types.Round1Data) {
 	// Add count
-	k.AddRound1CommitmentsCount(ctx, groupID)
+	k.AddRound1DatasCount(ctx, groupID)
 
-	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round1Commitment))
+	ctx.KVStore(k.storeKey).Set(types.Round1DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&Round1Data))
 }
 
-// GetRound1Commitment function retrieves round 1 commitment of a member from the store.
-func (k Keeper) GetRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Commitment, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentMemberStoreKey(groupID, memberID))
+// GetRound1Data function retrieves round1 data of a member from the store.
+func (k Keeper) GetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Data, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1DataMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Commitment{}, sdkerrors.Wrapf(types.ErrRound1CommitmentsNotFound, "failed to get round 1 commitments with groupID: %d and memberID %d", groupID, memberID)
+		return types.Round1Data{}, sdkerrors.Wrapf(types.ErrRound1DataNotFound, "failed to get round1 data with groupID: %d and memberID %d", groupID, memberID)
 	}
-	var r1c types.Round1Commitment
+	var r1c types.Round1Data
 	k.cdc.MustUnmarshal(bz, &r1c)
 	return r1c, nil
 }
 
-// DeleteRound1Commitment removes the round 1 commitment of a group member from the store.
-func (k Keeper) DeleteRound1Commitment(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round1CommitmentMemberStoreKey(groupID, memberID))
+// DeleteRound1Data removes the round1 data of a group member from the store.
+func (k Keeper) DeleteRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1DataMemberStoreKey(groupID, memberID))
 }
 
-// SetRound1CommitmentsCount sets the count of round 1 commitments for a group in the store.
-func (k Keeper) SetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.Round1CommitmentsCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
+// SetRound1DatasCount sets the count of round1 data for a group in the store.
+func (k Keeper) SetRound1DataCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.Round1DatasCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound1CommitmentsCount retrieves the count of round 1 commitments for a group from the store.
-func (k Keeper) GetRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1CommitmentsCountStoreKey(groupID))
+// GetRound1DatasCount retrieves the count of round1 data for a group from the store.
+func (k Keeper) GetRound1DataCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1DatasCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound1CommitmentsCount increments the count of round 1 commitments for a group in the store.
-func (k Keeper) AddRound1CommitmentsCount(ctx sdk.Context, groupID tss.GroupID) {
-	count := k.GetRound1CommitmentsCount(ctx, groupID)
-	k.SetRound1CommitmentsCount(ctx, groupID, count+1)
+// AddRound1DatasCount increments the count of round1 data for a group in the store.
+func (k Keeper) AddRound1DatasCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetRound1DataCount(ctx, groupID)
+	k.SetRound1DataCount(ctx, groupID, count+1)
 }
 
-// GetAllRound1Commitments retrieves all round 1 commitments for a group from the store.
-func (k Keeper) GetAllRound1Commitments(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Commitment {
-	allRound1Commitments := make([]*types.Round1Commitment, groupSize)
+// GetAllRound1Datas retrieves all round1 data for a group from the store.
+func (k Keeper) GetAllRound1Datas(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
+	allRound1Datas := make([]*types.Round1Data, groupSize)
 	for i := uint64(1); i <= groupSize; i++ {
-		round1Commitment, err := k.GetRound1Commitment(ctx, groupID, tss.MemberID(i))
+		Round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
 		if err != nil {
-			// allRound1Commitments array start at 0
-			allRound1Commitments[i-1] = nil
+			// allRound1Datas array start at 0
+			allRound1Datas[i-1] = nil
 		} else {
-			// allRound1Commitments array start at 0
-			allRound1Commitments[i-1] = &round1Commitment
+			// allRound1Datas array start at 0
+			allRound1Datas[i-1] = &Round1Data
 		}
 	}
 
-	return allRound1Commitments
+	return allRound1Datas
 }
 
 // SetRound2Share method sets the round2share of a member in the store and increments the count of round2shares.

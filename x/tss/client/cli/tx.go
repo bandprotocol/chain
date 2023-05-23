@@ -189,7 +189,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(5),
-		Short: "submit tss round 1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
+		Short: "submit tss round1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
@@ -231,12 +231,14 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 			}
 
 			msg := &types.MsgSubmitDKGRound1{
-				GroupID:            tss.GroupID(groupID),
-				CoefficientsCommit: coefficientsCommit,
-				OneTimePubKey:      oneTimePubKey,
-				A0Sig:              a0Sig,
-				OneTimeSig:         oneTimeSig,
-				Member:             clientCtx.GetFromAddress().String(),
+				GroupID: tss.GroupID(groupID),
+				Round1Data: types.Round1Data{
+					CoefficientsCommit: coefficientsCommit,
+					OneTimePubKey:      oneTimePubKey,
+					A0Sig:              a0Sig,
+					OneTimeSig:         oneTimeSig,
+				},
+				Member: clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
