@@ -26,12 +26,12 @@ var (
 	ErrMemberIsAlreadyMalicious              = sdkerrors.Register(ModuleName, 14, "member is already malicious")
 	ErrComplainsFailed                       = sdkerrors.Register(ModuleName, 15, "complains failed")
 	ErrConfirmationsNotFound                 = sdkerrors.Register(ModuleName, 16, "confirmations not found")
-	ErrPendingRoundNoteNotFound              = sdkerrors.Register(ModuleName, 17, "pending round note not found")
+	ErrRound3NoteNotFound                    = sdkerrors.Register(ModuleName, 17, "round 3 note not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
 		ModuleName,
 		18,
 		"encrypted secret shares not correct length",
 	)
-	ErrRound1DataNotFound = sdkerrors.Register(ModuleName, 19, "round1 data not found")
-	ErrRound2DataNotFound = sdkerrors.Register(ModuleName, 20, "round2 data not found")
+	ErrRound1DataNotFound = sdkerrors.Register(ModuleName, 19, "round 1 data not found")
+	ErrRound2DataNotFound = sdkerrors.Register(ModuleName, 20, "round 2 data not found")
 )

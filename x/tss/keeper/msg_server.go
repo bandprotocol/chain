@@ -281,13 +281,13 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	pendingRoundNote, err := k.GetPendingRoundNote(ctx, groupID)
+	round3Note, err := k.GetRound3Note(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	pendingRoundNote.ConfirmationCount += 1
-	if pendingRoundNote.ConfirmationCount == group.Size_ && len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
+	round3Note.ConfirmationCount += 1
+	if round3Note.ConfirmationCount == group.Size_ && len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
 		group.Status = types.ACTIVE
 		k.UpdateGroup(ctx, groupID, group)
 

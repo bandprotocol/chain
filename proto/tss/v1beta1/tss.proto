@@ -117,6 +117,6 @@ message Confirmations {
   repeated Confirmation confirmations = 1;
 }
 
-message PendingRoundNote {
-  uint64 confirmation_count = 1;
+message Round3Note {
+  uint64 confirm_complain_count = 1;
 }

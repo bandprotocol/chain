@@ -50,14 +50,14 @@ var (
 	// ConfirmationsStoreKeyPrefix is a list of hash PubKey, schnorr signature on the PubKey and context.
 	ConfirmationsStoreKeyPrefix = []byte{0x09}
 
-	// PendingRoundNoteStoreKeyPrefix is list for keep track of the progress of the group status PENDING.
-	PendingRoundNoteStoreKeyPrefix = []byte{0x10}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x11}
+	Round2DataStoreKeyPrefix = []byte{0x10}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x12}
+	Round2DataCountStoreKeyPrefix = []byte{0x11}
+
+	// Round3NoteStoreKeyPrefix is list for keep track of the progress of round3.
+	Round3NoteStoreKeyPrefix = []byte{0x12}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -108,6 +108,6 @@ func ConfirmationsStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmationsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func PendingRoundNoteStoreKey(groupID tss.GroupID) []byte {
-	return append(PendingRoundNoteStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round3NoteStoreKey(groupID tss.GroupID) []byte {
+	return append(Round3NoteStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

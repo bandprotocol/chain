@@ -289,14 +289,22 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID, groupSize
 	return allRound2Data
 }
 
-func (k Keeper) SetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID, dkgMaliciousIndexes types.DKGMaliciousIndexes) {
+func (k Keeper) SetDKGMaliciousIndexes(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	dkgMaliciousIndexes types.DKGMaliciousIndexes,
+) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), k.cdc.MustMarshal(&dkgMaliciousIndexes))
 }
 
 func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGMaliciousIndexesStoreKey(groupID))
 	if bz == nil {
-		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(types.ErrDKGMaliciousIndexesNotFound, "failed to get dkg malicious indexes with groupID: %d", groupID)
+		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(
+			types.ErrDKGMaliciousIndexesNotFound,
+			"failed to get dkg malicious indexes with groupID: %d",
+			groupID,
+		)
 	}
 	var dkgMaliciousIndexes types.DKGMaliciousIndexes
 	k.cdc.MustUnmarshal(bz, &dkgMaliciousIndexes)
@@ -310,25 +318,33 @@ func (k Keeper) SetConfirmations(ctx sdk.Context, groupID tss.GroupID, confirmat
 func (k Keeper) GetConfirmations(ctx sdk.Context, groupID tss.GroupID) (types.Confirmations, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
 	if bz == nil {
-		return types.Confirmations{}, sdkerrors.Wrapf(types.ErrConfirmationsNotFound, "failed to get confirmations with groupID: %d", groupID)
+		return types.Confirmations{}, sdkerrors.Wrapf(
+			types.ErrConfirmationsNotFound,
+			"failed to get confirmations with groupID: %d",
+			groupID,
+		)
 	}
 	var c types.Confirmations
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
 }
 
-func (k Keeper) SetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID, pendingRoundNote types.PendingRoundNote) {
-	ctx.KVStore(k.storeKey).Set(types.ConfirmationsStoreKey(groupID), k.cdc.MustMarshal(&pendingRoundNote))
+func (k Keeper) SetRound3Note(ctx sdk.Context, groupID tss.GroupID, round3Note types.Round3Note) {
+	ctx.KVStore(k.storeKey).Set(types.Round3NoteStoreKey(groupID), k.cdc.MustMarshal(&round3Note))
 }
 
-func (k Keeper) GetPendingRoundNote(ctx sdk.Context, groupID tss.GroupID) (types.PendingRoundNote, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
+func (k Keeper) GetRound3Note(ctx sdk.Context, groupID tss.GroupID) (types.Round3Note, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round3NoteStoreKey(groupID))
 	if bz == nil {
-		return types.PendingRoundNote{}, sdkerrors.Wrapf(types.ErrPendingRoundNoteNotFound, "failed to get confirmations with groupID: %d", groupID)
+		return types.Round3Note{}, sdkerrors.Wrapf(
+			types.ErrRound3NoteNotFound,
+			"failed to get round 3 note with groupID: %d",
+			groupID,
+		)
 	}
-	var p types.PendingRoundNote
-	k.cdc.MustUnmarshal(bz, &p)
-	return p, nil
+	var r3 types.Round3Note
+	k.cdc.MustUnmarshal(bz, &r3)
+	return r3, nil
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
