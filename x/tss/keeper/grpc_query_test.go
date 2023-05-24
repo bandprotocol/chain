@@ -22,7 +22,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
-	Round1Data := types.Round1Data{
+	round1DataMember1 := types.Round1Data{
+		MemberID: 1,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -32,7 +33,26 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round2Data := types.Round2Data{
+	round1DataMember2 := types.Round1Data{
+		MemberID: 2,
+		CoefficientsCommit: []tss.Point{
+			[]byte("point1"),
+			[]byte("point2"),
+			[]byte("point3"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySample"),
+		A0Sig:         []byte("A0SigSample"),
+		OneTimeSig:    []byte("OneTimeSigSample"),
+	}
+	round2DataMember1 := types.Round2Data{
+		MemberID: 1,
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("scalar1"),
+			[]byte("scalar2"),
+		},
+	}
+	round2DataMember2 := types.Round2Data{
+		MemberID: 2,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
@@ -44,12 +64,14 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Threshold: 3,
 		Sender:    members[0],
 	})
-	// set round1
-	k.SetRound1Data(ctx, groupID, 1, Round1Data)
-	k.SetRound1Data(ctx, groupID, 3, Round1Data)
-	// set round 2
-	k.SetRound2Data(ctx, groupID, tss.MemberID(1), round2Data)
-	k.SetRound2Data(ctx, groupID, tss.MemberID(3), round2Data)
+
+	// set round1 data
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
+
+	// set round 2 data
+	k.SetRound2Data(ctx, groupID, round2DataMember1)
+	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -109,19 +131,13 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							PubKey: tss.PublicKey(nil),
 						},
 					},
-					AllRound1Data: []*types.Round1Data{
-						&Round1Data,
-						nil,
-						&Round1Data,
-						nil,
-						nil,
+					AllRound1Data: []types.Round1Data{
+						round1DataMember1,
+						round1DataMember2,
 					},
-					AllRound2Data: []*types.Round2Data{
-						&round2Data,
-						nil,
-						&round2Data,
-						nil,
-						nil,
+					AllRound2Data: []types.Round2Data{
+						round2DataMember1,
+						round2DataMember2,
 					},
 				}, res)
 			},

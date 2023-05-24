@@ -66,6 +66,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 0,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -83,6 +84,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           2,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -98,7 +100,8 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"round1 already commit",
 			func() {
 				// Set round1 data
-				tssKeeper.SetRound1Data(ctx, 1, 1, types.Round1Data{
+				tssKeeper.SetRound1Data(ctx, 1, types.Round1Data{
+					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -108,6 +111,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -127,6 +131,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -144,6 +149,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              []byte("wrong a0_sig"),
@@ -162,6 +168,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -226,6 +233,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 0,
 					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -240,11 +248,12 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 		{
-			"member not found",
+			"member not authorized",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
 					Round2Data: types.Round2Data{
+						MemberID: 10,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -259,19 +268,22 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 		{
-			"round2already submit",
+			"round2 already submit",
 			func() {
-				// Set round 2
-				k.SetRound2Data(ctx, 1, 1, types.Round2Data{EncryptedSecretShares: tss.Scalars{
-					[]byte("e_12"),
-					[]byte("e_13"),
-					[]byte("e_14"),
-					[]byte("e_15"),
-				}})
+				// Set round 2 data
+				k.SetRound2Data(ctx, 1, types.Round2Data{
+					MemberID: 1,
+					EncryptedSecretShares: tss.Scalars{
+						[]byte("e_12"),
+						[]byte("e_13"),
+						[]byte("e_14"),
+						[]byte("e_15"),
+					}})
 
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
 					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -288,11 +300,12 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 		},
 		{
-			"round2Data is not correct length n-1",
+			"round2 data is not correct length n-1",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
 					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -311,6 +324,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
 					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),

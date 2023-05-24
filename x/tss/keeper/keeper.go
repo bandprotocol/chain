@@ -113,7 +113,12 @@ func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
-		return types.Member{}, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get member with groupID: %d and memberID: %d", groupID, memberID)
+		return types.Member{}, sdkerrors.Wrapf(
+			types.ErrMemberNotFound,
+			"failed to get member with groupID: %d and memberID: %d",
+			groupID,
+			memberID,
+		)
 	}
 
 	member := types.Member{}
@@ -142,34 +147,33 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
-// GetMemberID function verifies if a member is part of a group.
-func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress string) (tss.MemberID, error) {
-	members, err := k.GetMembers(ctx, groupID)
-	if err != nil {
-		return 0, err
+// VerifyMember function verifies if a member is part of a group.
+func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil || member.Member != memberAddress {
+		return false
 	}
-
-	for i, m := range members {
-		if m.Member == memberAddress {
-			return tss.MemberID(i + 1), nil
-		}
-	}
-	return 0, sdkerrors.Wrapf(types.ErrMemberNotAuthorized, "failed to get member %s on groupID %d", memberAddress, groupID)
+	return true
 }
 
 // SetRound1Data function sets round1 data for a member of a group.
-func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, Round1Data types.Round1Data) {
+func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, round1Data types.Round1Data) {
 	// Add count
 	k.AddRound1DataCount(ctx, groupID)
-
-	ctx.KVStore(k.storeKey).Set(types.Round1DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&Round1Data))
+	ctx.KVStore(k.storeKey).
+		Set(types.Round1DataMemberStoreKey(groupID, round1Data.MemberID), k.cdc.MustMarshal(&round1Data))
 }
 
 // GetRound1Data function retrieves round1 data of a member from the store.
 func (k Keeper) GetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Data, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1DataMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Data{}, sdkerrors.Wrapf(types.ErrRound1DataNotFound, "failed to get round1 data with groupID: %d and memberID %d", groupID, memberID)
+		return types.Round1Data{}, sdkerrors.Wrapf(
+			types.ErrRound1DataNotFound,
+			"failed to get round1 data with groupID: %d and memberID %d",
+			groupID,
+			memberID,
+		)
 	}
 	var r1c types.Round1Data
 	k.cdc.MustUnmarshal(bz, &r1c)
@@ -198,36 +202,47 @@ func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound1DataCount(ctx, groupID, count+1)
 }
 
-// GetAllRound1Data retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
-	allRound1Data := make([]*types.Round1Data, groupSize)
-	for i := uint64(1); i <= groupSize; i++ {
-		Round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
-		if err != nil {
-			// allRound1Data array start at 0
-			allRound1Data[i-1] = nil
-		} else {
-			// allRound1Data array start at 0
-			allRound1Data[i-1] = &Round1Data
-		}
-	}
+// GetRound1DataIterator function gets an iterator over all round1 data of a group.
+func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
+}
 
+// GetAllRound1Data retrieves all round1 data for a group from the store.
+func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []types.Round1Data {
+	var allRound1Data []types.Round1Data
+	iterator := k.GetRound1DataIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round1Data types.Round1Data
+		k.cdc.MustUnmarshal(iterator.Value(), &round1Data)
+		allRound1Data = append(allRound1Data, round1Data)
+	}
 	return allRound1Data
 }
 
 // SetRound2Data method sets the round2Data of a member in the store and increments the count of round2Data.
-func (k Keeper) SetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, round2Data types.Round2Data) {
+func (k Keeper) SetRound2Data(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	round2Data types.Round2Data,
+) {
 	// Add count
 	k.AddRound2DataCount(ctx, groupID)
 
-	ctx.KVStore(k.storeKey).Set(types.Round2DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&round2Data))
+	ctx.KVStore(k.storeKey).
+		Set(types.Round2DataMemberStoreKey(groupID, round2Data.MemberID), k.cdc.MustMarshal(&round2Data))
 }
 
 // GetRound2Data method retrieves the round2Data of a member from the store.
 func (k Keeper) GetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Data, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2DataMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round2Data{}, sdkerrors.Wrapf(types.ErrRoundExpired, "failed to get round2Data with groupID: %d, memberID: %d", groupID, memberID)
+		return types.Round2Data{}, sdkerrors.Wrapf(
+			types.ErrRoundExpired,
+			"failed to get round2Data with groupID: %d, memberID: %d",
+			groupID,
+			memberID,
+		)
 	}
 	var r2s types.Round2Data
 	k.cdc.MustUnmarshal(bz, &r2s)
@@ -256,18 +271,20 @@ func (k Keeper) AddRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound2DataCount(ctx, groupID, count+1)
 }
 
+// GetRound2DataIterator function gets an iterator over all round1 data of a group.
+func (k Keeper) GetRound2DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2DataStoreKey(groupID))
+}
+
 // GetAllRound2Data method retrieves all round2Data for a given group from the store.
-func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round2Data {
-	allRound2Data := make([]*types.Round2Data, groupSize)
-	for i := uint64(1); i <= groupSize; i++ {
-		round2Data, err := k.GetRound2Data(ctx, groupID, tss.MemberID(i))
-		if err != nil {
-			// allRound2Data array start at 0
-			allRound2Data[i-1] = nil
-		} else {
-			// allRound2Data array start at 0
-			allRound2Data[i-1] = &round2Data
-		}
+func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []types.Round2Data {
+	var allRound2Data []types.Round2Data
+	iterator := k.GetRound2DataIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round2Data types.Round2Data
+		k.cdc.MustUnmarshal(iterator.Value(), &round2Data)
+		allRound2Data = append(allRound2Data, round2Data)
 	}
 	return allRound2Data
 }

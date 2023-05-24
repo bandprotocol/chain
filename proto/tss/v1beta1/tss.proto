@@ -16,22 +16,30 @@ message Group {
 }
 
 message Round1Data {
-  repeated bytes coefficients_commit = 1 [
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated bytes coefficients_commit = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
-  bytes one_time_pub_key = 2 [
+  bytes one_time_pub_key = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes a0_sig = 3 [
+  bytes a0_sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes one_time_sig = 4 [
+  bytes one_time_sig = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
 
 message Round2Data {
-  repeated bytes encrypted_secret_shares = 1 [
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated bytes encrypted_secret_shares = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"
   ];
 }
@@ -51,7 +59,9 @@ message DEQueue {
 }
 
 message Confirmation { 
-  bytes sig_on_pub_key_and_context = 1; 
+  bytes own_pub_key_sig = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }
 
 message Signing {
