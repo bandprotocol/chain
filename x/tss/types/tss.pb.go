@@ -128,7 +128,6 @@ func (m *Group) GetStatus() GroupStatus {
 }
 
 type Round1Data struct {
-	// member_id is ID of the group.
 	MemberID           github_com_bandprotocol_chain_v2_pkg_tss.MemberID  `protobuf:"varint,1,opt,name=member_id,json=memberId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.MemberID" json:"member_id,omitempty"`
 	CoefficientsCommit github_com_bandprotocol_chain_v2_pkg_tss.Points    `protobuf:"bytes,2,rep,name=coefficients_commit,json=coefficientsCommit,proto3,castrepeated=github.com/bandprotocol/chain/v2/pkg/tss.Points" json:"coefficients_commit,omitempty"`
 	OneTimePubKey      github_com_bandprotocol_chain_v2_pkg_tss.PublicKey `protobuf:"bytes,3,opt,name=one_time_pub_key,json=oneTimePubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.PublicKey" json:"one_time_pub_key,omitempty"`

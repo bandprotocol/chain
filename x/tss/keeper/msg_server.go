@@ -89,9 +89,9 @@ func (k Keeper) SubmitDKGRound1(
 	if !isMember {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
-			"member %s is not in group %d",
+			"memberID %d address %s is not in this group",
+			memberID,
 			req.Member,
-			groupID,
 		)
 	}
 

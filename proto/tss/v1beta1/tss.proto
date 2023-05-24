@@ -16,7 +16,6 @@ message Group {
 }
 
 message Round1Data {
-  // member_id is ID of the group.
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
