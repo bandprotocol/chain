@@ -50,7 +50,9 @@ message DEQueue {
 }
 
 message Confirmation { 
-  bytes sig_on_pub_key_and_context = 1; 
+  bytes own_pub_key_sig = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }
 
 message Signing {

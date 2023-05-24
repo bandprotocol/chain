@@ -72,6 +72,7 @@ func (k Keeper) SubmitDKGRound1(
 ) (*types.MsgSubmitDKGRound1Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
+	memberID := req.Round1Data.MemberID
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -83,14 +84,19 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round1")
 	}
 
-	// Get memberID
-	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
-	if err != nil {
-		return nil, err
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotFound,
+			"failed to get member with groupID: %d and memberID: %d",
+			groupID,
+			memberID,
+		)
 	}
 
 	// Check previous submit
-	_, err = k.GetRound1Data(ctx, groupID, memberID)
+	_, err = k.GetRound1Data(ctx, groupID, req.Round1Data.MemberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round1 ")
 	}
@@ -106,19 +112,24 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
-	err = tss.VerifyA0Sig(memberID, dkgContext, req.Round1Data.A0Sig, tss.PublicKey(req.Round1Data.CoefficientsCommit[0]))
+	err = tss.VerifyA0Sig(
+		memberID,
+		dkgContext,
+		req.Round1Data.A0Sig,
+		tss.PublicKey(req.Round1Data.CoefficientsCommit[0]),
+	)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
-	Round1Data := types.Round1Data{
+	round1Data := types.Round1Data{
 		MemberID:           memberID,
 		CoefficientsCommit: req.Round1Data.CoefficientsCommit,
 		OneTimePubKey:      req.Round1Data.OneTimePubKey,
 		A0Sig:              req.Round1Data.A0Sig,
 		OneTimeSig:         req.Round1Data.OneTimeSig,
 	}
-	k.SetRound1Data(ctx, groupID, Round1Data)
+	k.SetRound1Data(ctx, groupID, round1Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -126,10 +137,10 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, Round1Data.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(Round1Data.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(Round1Data.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(Round1Data.OneTimeSig)),
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Data.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Data.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Data.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Data.OneTimeSig)),
 		),
 	)
 

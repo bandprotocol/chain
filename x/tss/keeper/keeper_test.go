@@ -179,7 +179,7 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
-func (s *KeeperTestSuite) TesGetMemberID() {
+func (s *KeeperTestSuite) TestVerifyMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
@@ -198,18 +198,16 @@ func (s *KeeperTestSuite) TesGetMemberID() {
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
 	}
 
-	memberID1, err := k.GetMemberID(ctx, groupID, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	s.Require().NoError(err)
-	s.Require().Equal(uint64(1), memberID1)
-	memberID2, err := k.GetMemberID(ctx, groupID, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().NoError(err)
-	s.Require().Equal(uint64(2), memberID2)
+	isMember1 := k.VerifyMember(ctx, groupID, tss.MemberID(1), "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	s.Require().True(isMember1)
+	isMember2 := k.VerifyMember(ctx, groupID, tss.MemberID(2), "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	s.Require().True(isMember2)
 }
 
 func (s *KeeperTestSuite) TestGetSetRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	Round1Data := types.Round1Data{
+	round1Data := types.Round1Data{
 		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -220,17 +218,17 @@ func (s *KeeperTestSuite) TestGetSetRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, Round1Data)
+	k.SetRound1Data(ctx, groupID, round1Data)
 
 	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(Round1Data, got)
+	s.Require().Equal(round1Data, got)
 }
 
 func (s *KeeperTestSuite) TestDeleteRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	Round1Data := types.Round1Data{
+	round1Data := types.Round1Data{
 		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -241,11 +239,11 @@ func (s *KeeperTestSuite) TestDeleteRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, Round1Data)
+	k.SetRound1Data(ctx, groupID, round1Data)
 
 	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(Round1Data, got)
+	s.Require().Equal(round1Data, got)
 
 	k.DeleteRound1Data(ctx, groupID, memberID)
 
