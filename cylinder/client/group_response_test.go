@@ -19,31 +19,25 @@ func TestGetRound1Data(t *testing.T) {
 		expectedError      error
 	}{
 		{
-			name: "Existing Member ID",
+			name: "Existing MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound1Data: []*types.Round1Data{
-					{},
+				AllRound1Data: []types.Round1Data{
+					{
+						MemberID: 1,
+					},
 				},
 			},
 			memberID:      1,
-			expectedData:  types.Round1Data{},
+			expectedData:  types.Round1Data{MemberID: 1},
 			expectedError: nil,
 		},
 		{
-			name: "Non-Existing Member ID",
+			name: "No data from MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound1Data: []*types.Round1Data{},
-			},
-			memberID:      2,
-			expectedData:  types.Round1Data{},
-			expectedError: fmt.Errorf("No MemberID(2) in the group"),
-		},
-		{
-			name: "No data for Member yet",
-			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound1Data: []*types.Round1Data{
-					{},
-					nil,
+				AllRound1Data: []types.Round1Data{
+					{
+						MemberID: 1,
+					},
 				},
 			},
 			memberID:      2,
