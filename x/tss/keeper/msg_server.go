@@ -64,14 +64,15 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 // SubmitDKGRound1 handles the submission of round1 in the DKG process.
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
-// If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
-// If all members have submitted their round 1 commitments, it updates the status of the group to round2and emits an event for the completion of round 1.
+// If all checks pass, it saves the round1 data into the KVStore and emits an event for the submission.
+// If all members have submitted their round1 data, it updates the status of the group to round 2 and emits an event for the completion of round1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
 ) (*types.MsgSubmitDKGRound1Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
+	memberID := req.Round1Data.MemberID
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -83,14 +84,19 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round1")
 	}
 
-	// Get memberID
-	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
-	if err != nil {
-		return nil, err
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
 	}
 
 	// Check previous submit
-	_, err = k.GetRound1Data(ctx, groupID, memberID)
+	_, err = k.GetRound1Data(ctx, groupID, req.Round1Data.MemberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round1 ")
 	}
@@ -106,18 +112,17 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
-	err = tss.VerifyA0Sig(memberID, dkgContext, req.Round1Data.A0Sig, tss.PublicKey(req.Round1Data.CoefficientsCommit[0]))
+	err = tss.VerifyA0Sig(
+		memberID,
+		dkgContext,
+		req.Round1Data.A0Sig,
+		tss.PublicKey(req.Round1Data.CoefficientsCommit[0]),
+	)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
-	Round1Data := types.Round1Data{
-		CoefficientsCommit: req.Round1Data.CoefficientsCommit,
-		OneTimePubKey:      req.Round1Data.OneTimePubKey,
-		A0Sig:              req.Round1Data.A0Sig,
-		OneTimeSig:         req.Round1Data.OneTimeSig,
-	}
-	k.SetRound1Data(ctx, groupID, memberID, Round1Data)
+	k.SetRound1Data(ctx, groupID, req.Round1Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -125,84 +130,27 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, Round1Data.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(Round1Data.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(Round1Data.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(Round1Data.OneTimeSig)),
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, req.Round1Data.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(req.Round1Data.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(req.Round1Data.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(req.Round1Data.OneTimeSig)),
 		),
 	)
 
 	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
-		if count == group.Size_ {
-			group.Status = types.ROUND_2
-			k.UpdateGroup(ctx, groupID, group)
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeRound1Success,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-				),
-			)
-		}
+		group.Status = types.ROUND_2
+		k.UpdateGroup(ctx, groupID, group)
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound1Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
-}
-
-// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round 2
-func (k Keeper) SubmitDKGRound2(
-	goCtx context.Context,
-	req *types.MsgSubmitDKGRound2,
-) (*types.MsgSubmitDKGRound2Response, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	groupID := req.GroupID
-
-	// Check group status
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
-	if group.Status != types.ROUND_2 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
-	}
-
-	// Check members
-	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check previous submit
-	_, err = k.GetRound2Data(ctx, groupID, memberID)
-	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
-	}
-
-	// Check encrypted secret shares length
-	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
-		return nil, sdkerrors.Wrap(types.ErrEncryptedSecretSharesNotCorrectLength, "number of encrypted secret shares is not correct")
-	}
-
-	k.SetRound2Data(ctx, groupID, memberID, req.Round2Data)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSubmitDKGRound2,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyRound2Data, req.Round2Data.String()),
-		),
-	)
-
-	count := k.GetRound1DataCount(ctx, groupID)
-	if count == group.Size_ {
-		k.handleUpdateGroupStatus(ctx, groupID, group)
-	}
-
-	return &types.MsgSubmitDKGRound2Response{}, nil
 }
 
 func (k Keeper) Complain(
@@ -211,6 +159,7 @@ func (k Keeper) Complain(
 ) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
+	memberID := req.MemberID
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -222,10 +171,15 @@ func (k Keeper) Complain(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 
-	// Check members
-	_, err = k.GetMemberID(ctx, groupID, req.Member)
-	if err != nil {
-		return nil, err
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
 	}
 
 	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
@@ -240,7 +194,10 @@ func (k Keeper) Complain(
 		if true {
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			if contains {
-				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.J))
+				return nil, sdkerrors.Wrap(
+					types.ErrMemberIsAlreadyMalicious,
+					fmt.Sprintf("member %d is already malicious on this group", c.J),
+				)
 			}
 			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
@@ -282,6 +239,7 @@ func (k Keeper) Confirm(
 ) (*types.MsgConfirmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
+	memberID := req.MemberID
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -293,10 +251,15 @@ func (k Keeper) Confirm(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 
-	// get member id
-	memberID, err := k.GetMemberID(ctx, groupID, req.Member)
-	if err != nil {
-		return nil, err
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
 	}
 
 	round1Commitment, err := k.GetRound1Data(ctx, groupID, memberID)
@@ -343,14 +306,88 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
-// handleUpdateGroupStatus updates the status of a group and performs specific actions based on the status.
-func (k Keeper) handleUpdateGroupStatus(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	group types.Group,
-) {
-	switch group.Status {
-	case types.ROUND_1:
+// // handleUpdateGroupStatus updates the status of a group and performs specific actions based on the status.
+// func (k Keeper) handleUpdateGroupStatus(
+// 	ctx sdk.Context,
+// 	groupID tss.GroupID,
+// 	group types.Group,
+// ) {
+// 	switch group.Status {
+// 	case types.ROUND_1:
+// 		group.Status = types.ROUND_2
+// 		k.UpdateGroup(ctx, groupID, group)
+// 		ctx.EventManager().EmitEvent(
+// 			sdk.NewEvent(
+// 				types.EventTypeRound1Success,
+// 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+// 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+// 			),
+// 		)
+// 	}
+
+// 	return &types.MsgSubmitDKGRound1Response{}, nil
+// }
+
+// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round2.
+// It verifies the group status, member authorization, previous submission, and the correctness of encrypted secret shares length.
+// It sets the round2 data, emits events, and updates the group status.
+func (k Keeper) SubmitDKGRound2(
+	goCtx context.Context,
+	req *types.MsgSubmitDKGRound2,
+) (*types.MsgSubmitDKGRound2Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+	memberID := req.Round2Data.MemberID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.ROUND_2 {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+	}
+
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
+	}
+
+	// Check previous submit
+	_, err = k.GetRound2Data(ctx, groupID, memberID)
+	if err == nil {
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
+	}
+
+	// Check encrypted secret shares length
+	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
+		return nil, sdkerrors.Wrap(
+			types.ErrEncryptedSecretSharesNotCorrectLength,
+			"number of encrypted secret shares is not correct",
+		)
+	}
+
+	k.SetRound2Data(ctx, groupID, req.Round2Data)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSubmitDKGRound2,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			sdk.NewAttribute(types.AttributeKeyRound2Data, req.Round2Data.String()),
+		),
+	)
+
+	count := k.GetRound2DataCount(ctx, groupID)
+	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		k.UpdateGroup(ctx, groupID, group)
 		ctx.EventManager().EmitEvent(
@@ -361,4 +398,6 @@ func (k Keeper) handleUpdateGroupStatus(
 			),
 		)
 	}
+
+	return &types.MsgSubmitDKGRound2Response{}, nil
 }

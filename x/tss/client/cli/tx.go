@@ -187,11 +187,11 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 // MsgSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
 func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
-		Args:  cobra.MinimumNArgs(5),
-		Short: "submit tss round1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
+		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
+		Args:  cobra.MinimumNArgs(6),
+		Short: "submit tss round1 containing group_id, member_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
+			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -205,23 +205,28 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			oneTimePubKey, err := hex.DecodeString(args[1])
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			a0Sig, err := hex.DecodeString(args[2])
+			oneTimePubKey, err := hex.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
 
-			oneTimeSig, err := hex.DecodeString(args[3])
+			a0Sig, err := hex.DecodeString(args[3])
+			if err != nil {
+				return err
+			}
+
+			oneTimeSig, err := hex.DecodeString(args[4])
 			if err != nil {
 				return err
 			}
 
 			var coefficientsCommit tss.Points
-			for i := 4; i < len(args); i++ {
+			for i := 5; i < len(args); i++ {
 				coefficientCommit, err := hex.DecodeString(args[i])
 				if err != nil {
 					return err
@@ -233,6 +238,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 			msg := &types.MsgSubmitDKGRound1{
 				GroupID: tss.GroupID(groupID),
 				Round1Data: types.Round1Data{
+					MemberID:           tss.MemberID(memberID),
 					CoefficientsCommit: coefficientsCommit,
 					OneTimePubKey:      oneTimePubKey,
 					A0Sig:              a0Sig,
@@ -256,11 +262,11 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 // MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
 func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
-		Args:  cobra.ExactArgs(2),
-		Short: "submit tss round2containing group_id, and n-1 encrypted-secret-shares",
+		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
+		Args:  cobra.MinimumNArgs(2),
+		Short: "submit tss round2containing group_id, member_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -274,19 +280,27 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 				return err
 			}
 
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			var encryptedSecretShares tss.Scalars
-			encryptedSecretSharesStr := strings.Split(args[1], ",")
-			for _, essStr := range encryptedSecretSharesStr {
-				ess, err := hex.DecodeString(essStr)
-				if err != nil {
-					return err
+			if len(args) > 2 {
+				encryptedSecretSharesStr := strings.Split(args[2], ",")
+				for _, essStr := range encryptedSecretSharesStr {
+					ess, err := hex.DecodeString(essStr)
+					if err != nil {
+						return err
+					}
+					encryptedSecretShares = append(encryptedSecretShares, ess)
 				}
-				encryptedSecretShares = append(encryptedSecretShares, ess)
 			}
 
 			msg := &types.MsgSubmitDKGRound2{
 				GroupID: tss.GroupID(groupID),
 				Round2Data: types.Round2Data{
+					MemberID:              tss.MemberID(memberID),
 					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),

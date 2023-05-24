@@ -11,9 +11,9 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
-  // SubmmitDKGRound1 submit dkg for compute round1.
+  // SubmitDKGRound1 submit dkg for compute round1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
-  // SubmitDKGRound2 submmit dkg for compute round 2.
+  // SubmitDKGRound2 submit dkg for compute round 2.
   rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
   // Complain submmit proof for complain malicious.
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
@@ -72,10 +72,15 @@ message MsgComplain {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // member_id is ID of the member.
+  uint64 member_id = 2 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
   // complains is a list of Complains. 
-  repeated Complain complains  = 2;
+  repeated Complain complains  = 3;
   // member is the signer of this message. Must be the member of this group.
-  string member = 3;
+  string member = 4;
 }
 
 message MsgComplainResponse {}
@@ -86,13 +91,18 @@ message MsgConfirm {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // member_id is ID of the member.
+  uint64 member_id = 2 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
   // ownPubKeySig is a signature of the member_i on its own PubKey to confirm
   // that the member is able to derive the PubKey.
-  bytes ownPubKeySig  = 2 [
+  bytes ownPubKeySig  = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // member is the signer of this message. Must be the member of this group.
-  string member = 3;
+  string member = 4;
 }
 
 message MsgConfirmResponse {}
