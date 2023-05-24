@@ -9,7 +9,7 @@ var (
 	ErrInvalidAccAddressFormat = sdkerrors.Register(ModuleName, 2, "account address format is invalid")
 	ErrGroupNotFound           = sdkerrors.Register(ModuleName, 3, "group not found")
 	ErrMemberNotFound          = sdkerrors.Register(ModuleName, 4, "member not found")
-	ErrRound1DataNotFound      = sdkerrors.Register(ModuleName, 5, "round1 data not found")
+	ErrRound1DataNotFound      = sdkerrors.Register(ModuleName, 5, "round 1 data not found")
 	ErrAlreadySubmitRound1     = sdkerrors.Register(ModuleName, 6, "already submit round1 message")
 	ErrDKGContextNotFound      = sdkerrors.Register(ModuleName, 7, "dkg context not found")
 	ErrMemberNotAuthorized     = sdkerrors.Register(

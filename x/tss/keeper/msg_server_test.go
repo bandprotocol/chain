@@ -97,9 +97,9 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 		{
-			"round1 already commit",
+			"round 1 already commit",
 			func() {
-				// Set round1 data
+				// Set round 1 data
 				tssKeeper.SetRound1Data(ctx, 1, types.Round1Data{
 					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},

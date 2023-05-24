@@ -32,10 +32,10 @@ var (
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x03}
 
-	// Round1DataStoreKeyPrefix is the key that keeps the member commitment on round1.
+	// Round1DataStoreKeyPrefix is the key that keeps the member commitment on round 1.
 	Round1DataStoreKeyPrefix = []byte{0x04}
 
-	// Round1DataCountStoreKeyPrefix is the key that keeps the member commitments count on round1.
+	// Round1DataCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
