@@ -263,7 +263,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.MinimumNArgs(2),
 		Short: "submit tss round2containing group_id, member_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
@@ -286,13 +286,15 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 			}
 
 			var encryptedSecretShares tss.Scalars
-			encryptedSecretSharesStr := strings.Split(args[2], ",")
-			for _, essStr := range encryptedSecretSharesStr {
-				ess, err := hex.DecodeString(essStr)
-				if err != nil {
-					return err
+			if len(args) > 2 {
+				encryptedSecretSharesStr := strings.Split(args[2], ",")
+				for _, essStr := range encryptedSecretSharesStr {
+					ess, err := hex.DecodeString(essStr)
+					if err != nil {
+						return err
+					}
+					encryptedSecretShares = append(encryptedSecretShares, ess)
 				}
-				encryptedSecretShares = append(encryptedSecretShares, ess)
 			}
 
 			msg := &types.MsgSubmitDKGRound2{
