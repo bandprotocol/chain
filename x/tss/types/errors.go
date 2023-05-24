@@ -13,7 +13,7 @@ var (
 	ErrDKGContextNotFound      = sdkerrors.Register(ModuleName, 6, "dkg context not found")
 	ErrMemberNotAuthorized     = sdkerrors.Register(ModuleName, 7, "member is not authorized for this group")
 	ErrRoundExpired            = sdkerrors.Register(ModuleName, 8, "round expired")
-	ErrAlreadyCommitRound1     = sdkerrors.Register(ModuleName, 9, "already commit round1 message")
+	ErrAlreadySubmitRound1     = sdkerrors.Register(ModuleName, 9, "already submit round1 message")
 	ErrVerifyOneTimeSigFailed  = sdkerrors.Register(ModuleName, 10, "fail to verify one time sign")
 	ErrVerifyA0SigFailed       = sdkerrors.Register(ModuleName, 11, "fail to verify a0 sign")
 )
