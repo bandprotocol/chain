@@ -4,7 +4,6 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -84,48 +83,48 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *
 	return oracleKeeper.CheckValidReport(ctx, r.RequestID, report)
 }
 
-func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg sdk.Msg) (bool, error) {
+func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg sdk.Msg) bool {
 	// Check is the MsgExec from reporter
 	me, ok := msg.(*authz.MsgExec)
 	if !ok {
-		return false, nil
+		return false
 	}
 
 	// If cannot get message, then pretend as non-free transaction
 	msgs, err := me.GetMessages()
 	if err != nil {
-		return false, nil
+		return false
 	}
 
 	grantee, err := sdk.AccAddressFromBech32(me.Grantee)
 	if err != nil {
-		return false, nil
+		return false
 	}
 
 	for _, m := range msgs {
 		r, ok := m.(*types.MsgReportData)
 		// If this is not report msg, skip other msgs on this exec msg
 		if !ok {
-			return false, nil
+			return false
 		}
 
 		// Fail to parse validator, then discard this transaction
 		validator, err := sdk.ValAddressFromBech32(r.Validator)
 		if err != nil {
-			return false, err
+			return false
 		}
 
 		// If this grantee is not a reporter of validator, then discard this transaction
 		if !oracleKeeper.IsReporter(ctx, validator, grantee) {
-			return false, sdkerrors.ErrUnauthorized.Wrap("authorization not found")
+			return false
 		}
 
 		// Check if it's not valid report msg, discard this transaction
 		if err := checkValidReportMsg(ctx, oracleKeeper, r); err != nil {
-			return false, err
+			return false
 		}
 	}
 
 	// Return false if this exec msg has other non-report msg
-	return true, nil
+	return true
 }

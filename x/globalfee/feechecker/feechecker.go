@@ -56,11 +56,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	if ctx.IsCheckTx() {
-		isValidReportTx, err := fc.CheckReportTx(ctx, tx)
-		if err != nil {
-			return nil, 0, err
-		}
-
+		isValidReportTx := fc.CheckReportTx(ctx, tx)
 		if isValidReportTx {
 			return sdk.Coins{}, int64(math.MaxInt64), nil
 		}
@@ -87,7 +83,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	return feeCoins, priority, nil
 }
 
-func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
+func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) bool {
 	isValidReportTx := true
 
 	for _, msg := range tx.GetMsgs() {
@@ -95,19 +91,15 @@ func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
 		if dr, ok := msg.(*oracletypes.MsgReportData); ok {
 			// Check if it's not valid report msg, discard this transaction
 			if err := checkValidReportMsg(ctx, fc.OracleKeeper, dr); err != nil {
-				return false, err
+				return false
 			}
 		} else {
-			isValid, err := checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg)
-			if err != nil {
-				return false, err
-			}
-
+			isValid := checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg)
 			isValidReportTx = isValidReportTx && isValid
 		}
 	}
 
-	return isValidReportTx, nil
+	return isValidReportTx
 }
 
 func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {
