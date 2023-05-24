@@ -67,41 +67,31 @@ func SumScalars(rawScalars ...Scalar) (Scalar, error) {
 // solveScalarPolynomial solves a scalar polynomial equation.
 // It takes scalars as coefficients and a value x, and returns the result as a *secp256k1.ModNScalar.
 func solveScalarPolynomial(scalars []*secp256k1.ModNScalar, x *secp256k1.ModNScalar) *secp256k1.ModNScalar {
-	currentX := new(secp256k1.ModNScalar).SetInt(1)
+	var result secp256k1.ModNScalar
 
-	// calculate each term ( a_i * x^i )
-	var terms []*secp256k1.ModNScalar
-	for _, scalar := range scalars {
-		// term = ax^i
-		term := *scalar
-		term.Mul(currentX)
-		terms = append(terms, &term)
-
-		// currentX *= x
-		currentX.Mul(x)
+	for i := len(scalars) - 1; i >= 0; i-- {
+		// Compute newResult = oldResult * x + scalar
+		result.Mul(x).Add(scalars[i])
 	}
 
-	// sum up all terms
-	return sumScalars(terms...)
+	return &result
 }
 
 // solvePointPolynomial solves a point polynomial equation.
 // It takes points as coefficients and a value x, and returns the result as a *secp256k1.JacobianPoint.
 func solvePointPolynomial(points []*secp256k1.JacobianPoint, x *secp256k1.ModNScalar) *secp256k1.JacobianPoint {
-	currentX := new(secp256k1.ModNScalar).SetInt(1)
+	var result secp256k1.JacobianPoint
 
-	var terms []*secp256k1.JacobianPoint
-	for _, point := range points {
-		// Compute each term (x^i * c_i).
-		var term secp256k1.JacobianPoint
-		secp256k1.ScalarMultNonConst(currentX, point, &term)
-		terms = append(terms, &term)
+	for i := len(points) - 1; i >= 0; i-- {
+		// Compute newValue = point + x * oldValue.
+		var xR, newValue secp256k1.JacobianPoint
+		secp256k1.ScalarMultNonConst(x, &result, &xR)
+		secp256k1.AddNonConst(points[i], &xR, &newValue)
 
-		// new_x *= x.
-		currentX.Mul(x)
+		result = newValue
 	}
 
-	return sumPoints(terms...)
+	return &result
 }
 
 // sumPoints sums up multiple *secp256k1.JacobianPoint values.
