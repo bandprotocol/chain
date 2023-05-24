@@ -65,36 +65,30 @@ func TestGetAllRound2Data(t *testing.T) {
 		expectedError      error
 	}{
 		{
-			name: "Existing Member ID",
+			name: "Existing MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{
-					{},
+				AllRound2Data: []types.Round2Data{
+					{
+						MemberID: 1,
+					},
 				},
 			},
 			memberID:      1,
-			expectedData:  types.Round2Data{},
+			expectedData:  types.Round2Data{MemberID: 1},
 			expectedError: nil,
 		},
 		{
-			name: "Non-Existing Member ID",
+			name: "No data from MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{},
-			},
-			memberID:      2,
-			expectedData:  types.Round2Data{},
-			expectedError: fmt.Errorf("No MemberID(2) in the group"),
-		},
-		{
-			name: "No data for Member yet",
-			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{
-					{},
-					nil,
+				AllRound2Data: []types.Round2Data{
+					{
+						MemberID: 1,
+					},
 				},
 			},
 			memberID:      2,
 			expectedData:  types.Round2Data{},
-			expectedError: fmt.Errorf("No Round2Data from MemberID(2)"),
+			expectedError: fmt.Errorf("No Round1Data from MemberID(2)"),
 		},
 	}
 
@@ -120,8 +114,9 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		{
 			name: "Existing Member IDs",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{
+				AllRound2Data: []types.Round2Data{
 					{
+						MemberID:              1,
 						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
 					},
 				},
@@ -134,8 +129,9 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		{
 			name: "Invalid Member J ID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{
+				AllRound2Data: []types.Round2Data{
 					{
+						MemberID:              1,
 						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
 					},
 				},
@@ -143,13 +139,14 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 			memberIDJ:     2,
 			memberIDI:     1,
 			expectedShare: nil,
-			expectedError: fmt.Errorf("No MemberID(2) in the group"),
+			expectedError: fmt.Errorf("No Round2Data from MemberID(2)"),
 		},
 		{
 			name: "Invalid Member I ID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				AllRound2Data: []*types.Round2Data{
+				AllRound2Data: []types.Round2Data{
 					{
+						MemberID:              1,
 						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
 					},
 				},
