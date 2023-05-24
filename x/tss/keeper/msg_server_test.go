@@ -66,6 +66,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 0,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -83,6 +84,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           2,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -109,6 +111,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -128,6 +131,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,
@@ -145,6 +149,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              []byte("wrong a0_sig"),
@@ -163,6 +168,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 1,
 					Round1Data: types.Round1Data{
+						MemberID:           1,
 						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 						OneTimePubKey:      oneTimePubKeyB,
 						A0Sig:              a0SigB,

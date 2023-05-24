@@ -88,10 +88,10 @@ func (k Keeper) SubmitDKGRound1(
 	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
 	if !isMember {
 		return nil, sdkerrors.Wrapf(
-			types.ErrMemberNotFound,
-			"failed to get member with groupID: %d and memberID: %d",
+			types.ErrMemberNotAuthorized,
+			"member %s is not in group %d",
+			req.Member,
 			groupID,
-			memberID,
 		)
 	}
 
@@ -122,14 +122,7 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
-	round1Data := types.Round1Data{
-		MemberID:           memberID,
-		CoefficientsCommit: req.Round1Data.CoefficientsCommit,
-		OneTimePubKey:      req.Round1Data.OneTimePubKey,
-		A0Sig:              req.Round1Data.A0Sig,
-		OneTimeSig:         req.Round1Data.OneTimeSig,
-	}
-	k.SetRound1Data(ctx, groupID, round1Data)
+	k.SetRound1Data(ctx, groupID, req.Round1Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -137,10 +130,10 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, round1Data.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(round1Data.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(round1Data.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(round1Data.OneTimeSig)),
+			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, req.Round1Data.CoefficientsCommit.ToString()),
+			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(req.Round1Data.OneTimePubKey)),
+			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(req.Round1Data.A0Sig)),
+			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(req.Round1Data.OneTimeSig)),
 		),
 	)
 
