@@ -275,7 +275,7 @@ func (s *KeeperTestSuite) TestGetRound1DataCount() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round1 data
+	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, round1DataMember1)
 	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
@@ -307,13 +307,13 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round1 data
+	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, round1DataMember1)
 	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
 	got := k.GetAllRound1Data(ctx, groupID, groupSize)
 
-	// member3 expected nil value because didn't commit round1
+	// member3 expected nil value because didn't commit round 1
 	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
 }
 
@@ -349,10 +349,10 @@ func (s *KeeperTestSuite) TestDeleteRound2Data() {
 		},
 	}
 
-	// set round2 secret data
+	// set round 2 secret data
 	k.SetRound2Data(ctx, groupID, round2Data)
 
-	// delete round2 secret data
+	// delete round 2 secret data
 	k.DeleteRound2Data(ctx, groupID, memberID)
 
 	_, err := k.GetRound2Data(ctx, groupID, memberID)
@@ -379,7 +379,7 @@ func (s *KeeperTestSuite) TestGetRound2DataCount() {
 		},
 	}
 
-	// set round2secret share
+	// set round 2 data
 	k.SetRound2Data(ctx, groupID, round2DataMember1)
 	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
@@ -407,7 +407,7 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 		},
 	}
 
-	// Set round2 data
+	// Set round 2 data
 	k.SetRound2Data(ctx, groupID, round2DataMember1)
 	k.SetRound2Data(ctx, groupID, round2DataMember2)
 

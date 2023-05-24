@@ -6,12 +6,12 @@ import (
 
 // x/tss module sentinel errors
 var (
-	ErrInvalidAccAddressFormat   = sdkerrors.Register(ModuleName, 2, "account address format is invalid")
-	ErrGroupNotFound             = sdkerrors.Register(ModuleName, 3, "group not found")
-	ErrMemberNotFound            = sdkerrors.Register(ModuleName, 4, "member not found")
-	ErrRound1CommitmentsNotFound = sdkerrors.Register(ModuleName, 5, "round 1 commitments not found")
-	ErrDKGContextNotFound        = sdkerrors.Register(ModuleName, 6, "dkg context not found")
-	ErrMemberNotAuthorized       = sdkerrors.Register(
+	ErrInvalidAccAddressFormat = sdkerrors.Register(ModuleName, 2, "account address format is invalid")
+	ErrGroupNotFound           = sdkerrors.Register(ModuleName, 3, "group not found")
+	ErrMemberNotFound          = sdkerrors.Register(ModuleName, 4, "member not found")
+	ErrRound1DataNotFound      = sdkerrors.Register(ModuleName, 5, "round 1 data not found")
+	ErrDKGContextNotFound      = sdkerrors.Register(ModuleName, 6, "dkg context not found")
+	ErrMemberNotAuthorized     = sdkerrors.Register(
 		ModuleName,
 		7,
 		"member is not authorized for this group",
@@ -25,13 +25,11 @@ var (
 	ErrDKGMaliciousIndexesNotFound           = sdkerrors.Register(ModuleName, 13, "dkg malicious indexes not found")
 	ErrMemberIsAlreadyMalicious              = sdkerrors.Register(ModuleName, 14, "member is already malicious")
 	ErrComplainsFailed                       = sdkerrors.Register(ModuleName, 15, "complains failed")
-	ErrConfirmationsNotFound                 = sdkerrors.Register(ModuleName, 16, "confirmations not found")
+	ErrConfirmationNotFound                  = sdkerrors.Register(ModuleName, 16, "confirmation not found")
 	ErrRound3NoteNotFound                    = sdkerrors.Register(ModuleName, 17, "round 3 note not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
 		ModuleName,
 		18,
 		"encrypted secret shares not correct length",
 	)
-	ErrRound1DataNotFound = sdkerrors.Register(ModuleName, 19, "round 1 data not found")
-	ErrRound2DataNotFound = sdkerrors.Register(ModuleName, 20, "round 2 data not found")
 )

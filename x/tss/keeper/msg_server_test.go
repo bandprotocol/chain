@@ -97,9 +97,9 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 		{
-			"round1 already commit",
+			"round 1 already commit",
 			func() {
-				// Set round1 data
+				// Set round 1 data
 				tssKeeper.SetRound1Data(ctx, 1, types.Round1Data{
 					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
@@ -268,7 +268,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 		{
-			"round2 already submit",
+			"round 2 already submit",
 			func() {
 				// Set round 2 data
 				k.SetRound2Data(ctx, 1, types.Round2Data{
@@ -300,7 +300,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 		},
 		{
-			"round2 data is not correct length n-1",
+			"round 2 data is not correct length n-1",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
