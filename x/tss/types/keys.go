@@ -47,8 +47,8 @@ var (
 	// Round2ShareCountStoreKeyPrefix is the key that keeps the round 2 share count.
 	Round2ShareCountStoreKeyPrefix = []byte{0x08}
 
-	// ConfirmationsStoreKeyPrefix is a list of hash PubKey, schnorr signature on the PubKey and context.
-	ConfirmationsStoreKeyPrefix = []byte{0x09}
+	// ConfirmationStoreKeyPrefix is a hash PubKey, schnorr signature on the PubKey and context.
+	ConfirmationStoreKeyPrefix = []byte{0x09}
 
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
 	Round2DataStoreKeyPrefix = []byte{0x10}
@@ -104,8 +104,12 @@ func DKGMaliciousIndexesStoreKey(groupID tss.GroupID) []byte {
 	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func ConfirmationsStoreKey(groupID tss.GroupID) []byte {
-	return append(ConfirmationsStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func ConfirmationStoreKey(groupID tss.GroupID) []byte {
+	return append(ConfirmationStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ConfirmationMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(ConfirmationStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func Round3NoteStoreKey(groupID tss.GroupID) []byte {

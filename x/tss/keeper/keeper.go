@@ -311,20 +311,30 @@ func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (ty
 	return dkgMaliciousIndexes, nil
 }
 
-func (k Keeper) SetConfirmations(ctx sdk.Context, groupID tss.GroupID, confirmations types.Confirmations) {
-	ctx.KVStore(k.storeKey).Set(types.ConfirmationsStoreKey(groupID), k.cdc.MustMarshal(&confirmations))
+func (k Keeper) SetConfirmation(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	confirmation types.Confirmation,
+) {
+	ctx.KVStore(k.storeKey).Set(types.ConfirmationMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirmation))
 }
 
-func (k Keeper) GetConfirmations(ctx sdk.Context, groupID tss.GroupID) (types.Confirmations, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationsStoreKey(groupID))
+func (k Keeper) GetConfirmation(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.Confirmation, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationStoreKey(groupID))
 	if bz == nil {
-		return types.Confirmations{}, sdkerrors.Wrapf(
-			types.ErrConfirmationsNotFound,
-			"failed to get confirmations with groupID: %d",
+		return types.Confirmation{}, sdkerrors.Wrapf(
+			types.ErrConfirmationNotFound,
+			"failed to get confirmation with groupID %d memberID %d",
 			groupID,
+			memberID,
 		)
 	}
-	var c types.Confirmations
+	var c types.Confirmation
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
 }
