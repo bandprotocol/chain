@@ -175,9 +175,9 @@ func (k Keeper) GetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss
 			memberID,
 		)
 	}
-	var r1c types.Round1Data
-	k.cdc.MustUnmarshal(bz, &r1c)
-	return r1c, nil
+	var r1 types.Round1Data
+	k.cdc.MustUnmarshal(bz, &r1)
+	return r1, nil
 }
 
 // DeleteRound1Data removes the round1 data of a group member from the store.
