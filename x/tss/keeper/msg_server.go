@@ -98,7 +98,7 @@ func (k Keeper) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Data(ctx, groupID, req.Round1Data.MemberID)
 	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadyCommitRound1, "this member already submit round1 ")
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmitRound1, "this member already submit round1 ")
 	}
 
 	// Get dkg-context
@@ -130,10 +130,10 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyCoefficientsCommit, req.Round1Data.CoefficientsCommit.ToString()),
-			sdk.NewAttribute(types.AttributeKeyOneTimePubKey, hex.EncodeToString(req.Round1Data.OneTimePubKey)),
-			sdk.NewAttribute(types.AttributeKeyA0Sig, hex.EncodeToString(req.Round1Data.A0Sig)),
-			sdk.NewAttribute(types.AttributeKeyOneTimeSig, hex.EncodeToString(req.Round1Data.OneTimeSig)),
+			sdk.NewAttribute(
+				types.AttributeKeyRound1Data,
+				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Data)),
+			),
 		),
 	)
 
@@ -382,7 +382,7 @@ func (k Keeper) SubmitDKGRound2(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyRound2Data, req.Round2Data.String()),
+			sdk.NewAttribute(types.AttributeKeyRound2Data, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Data))),
 		),
 	)
 

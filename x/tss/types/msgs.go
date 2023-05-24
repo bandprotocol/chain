@@ -148,7 +148,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	for _, ess := range m.Round2Data.EncryptedSecretShares {
 		_, err = ess.Parse()
 		if err != nil {
-			return sdkerrors.Wrap(err, "a0 sig")
+			return sdkerrors.Wrap(err, "encrypted secret shares")
 		}
 	}
 
