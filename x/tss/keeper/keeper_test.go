@@ -275,7 +275,7 @@ func (s *KeeperTestSuite) TestGetRound1DataCount() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round1 data
+	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, round1DataMember1)
 	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
@@ -307,13 +307,13 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round1 data
+	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, round1DataMember1)
 	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
 	got := k.GetAllRound1Data(ctx, groupID, groupSize)
 
-	// member3 expected nil value because didn't commit round1
+	// member3 expected nil value because didn't commit round 1
 	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
 }
 

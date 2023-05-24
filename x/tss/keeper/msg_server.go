@@ -61,11 +61,11 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// SubmitDKGRound1 handles the submission of round1 in the DKG process.
+// SubmitDKGRound1 handles the submission of round 1 in the DKG process.
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
-// If all checks pass, it saves the round1 data into the KVStore and emits an event for the submission.
-// If all members have submitted their round1 data, it updates the status of the group to round 2 and emits an event for the completion of round1.
+// If all checks pass, it saves the round 1 data into the KVStore and emits an event for the submission.
+// If all members have submitted their round 1 data, it updates the status of the group to round 2 and emits an event for the completion of round 1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
@@ -81,7 +81,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	if group.Status != types.ROUND_1 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round1")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 1")
 	}
 
 	// Verify member
@@ -98,7 +98,7 @@ func (k Keeper) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Data(ctx, groupID, req.Round1Data.MemberID)
 	if err == nil {
-		return nil, sdkerrors.Wrap(types.ErrAlreadySubmitRound1, "this member already submit round1 ")
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmitRound1, "this member already submit round 1 ")
 	}
 
 	// Get dkg-context

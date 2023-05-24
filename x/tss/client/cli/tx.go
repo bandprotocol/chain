@@ -188,7 +188,7 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
-		Short: "submit tss round1 containing group_id, member_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
+		Short: "submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
