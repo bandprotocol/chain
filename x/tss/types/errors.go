@@ -17,13 +17,13 @@ var (
 		8,
 		"member is not authorized for this group",
 	)
-	ErrRoundExpired                          = sdkerrors.Register(ModuleName, 8, "round expired")
-	ErrVerifyOneTimeSigFailed                = sdkerrors.Register(ModuleName, 9, "fail to verify one time sign")
-	ErrVerifyA0SigFailed                     = sdkerrors.Register(ModuleName, 10, "fail to verify a0 sign")
-	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 11, "round 2 data not found")
+	ErrRoundExpired                          = sdkerrors.Register(ModuleName, 9, "round expired")
+	ErrVerifyOneTimeSigFailed                = sdkerrors.Register(ModuleName, 10, "fail to verify one time sign")
+	ErrVerifyA0SigFailed                     = sdkerrors.Register(ModuleName, 11, "fail to verify a0 sign")
+	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 12, "round 2 data not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
 		ModuleName,
-		12,
+		13,
 		"encrypted secret shares not correct length",
 	)
 )
