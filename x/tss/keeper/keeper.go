@@ -244,9 +244,9 @@ func (k Keeper) GetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss
 			memberID,
 		)
 	}
-	var r2s types.Round2Data
-	k.cdc.MustUnmarshal(bz, &r2s)
-	return r2s, nil
+	var r2 types.Round2Data
+	k.cdc.MustUnmarshal(bz, &r2)
+	return r2, nil
 }
 
 // DeleteRound2Data method deletes the round2Data of a member from the store.
