@@ -30,16 +30,13 @@ func (gr *GroupResponse) GetRound1Data(mid tss.MemberID) (types.Round1Data, erro
 
 // GetRound1Data retrieves the Round1Commitment for the specified member ID.
 func (gr *GroupResponse) GetRound2Data(mid tss.MemberID) (types.Round2Data, error) {
-	if int(mid) > len(gr.AllRound2Data) {
-		return types.Round2Data{}, fmt.Errorf("No MemberID(%d) in the group", mid)
+	for _, data := range gr.AllRound2Data {
+		if data.MemberID == mid {
+			return data, nil
+		}
 	}
 
-	data := gr.AllRound2Data[uint64(mid)-1]
-	if data == nil {
-		return types.Round2Data{}, fmt.Errorf("No Round2Data from MemberID(%d)", mid)
-	}
-
-	return *data, nil
+	return types.Round2Data{}, fmt.Errorf("No Round2Data from MemberID(%d)", mid)
 }
 
 // GetEncryptedSecretShare retrieves the encrypted secret share between specific member I and member J.
