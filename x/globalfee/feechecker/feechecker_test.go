@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -94,8 +93,7 @@ func (suite *FeeCheckerTestSuite) TestValidRawReport() {
 	stubTx := &StubTx{Msgs: msgs}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().NoError(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().True(isReportTx)
 
 	// test - check tx fee with min gas prices
@@ -110,12 +108,11 @@ func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
 	stubTx := &StubTx{Msgs: msgs}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().Error(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
-	_, _, err = suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
 	suite.Require().Error(err)
 }
 
@@ -127,8 +124,7 @@ func (suite *FeeCheckerTestSuite) TestValidReport() {
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().NoError(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().True(isReportTx)
 
 	// test - check tx fee with min gas prices
@@ -143,16 +139,15 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
-	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
+	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().EqualError(err, sdkerrors.ErrUnauthorized.Wrap("authorization not found").Error())
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
-	_, _, err = suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
-	suite.Require().EqualError(err, sdkerrors.ErrUnauthorized.Wrap("authorization not found").Error())
+	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	suite.Require().NoError(err)
 }
 
 func (suite *FeeCheckerTestSuite) TestNotValidReport() {
@@ -163,12 +158,11 @@ func (suite *FeeCheckerTestSuite) TestNotValidReport() {
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().Error(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
-	_, _, err = suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
 	suite.Require().Error(err)
 }
 
@@ -198,8 +192,7 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 	}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().NoError(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
@@ -227,8 +220,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().NoError(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
@@ -257,8 +249,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	}
 
 	// test - check report tx
-	isReportTx, err := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
-	suite.Require().NoError(err)
+	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
 	suite.Require().False(isReportTx)
 
 	// test - check tx fee with min gas prices
