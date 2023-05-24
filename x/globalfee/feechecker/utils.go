@@ -51,11 +51,11 @@ func getMinGasPrice(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
 // CombinedFeeRequirement will combine the global fee and min_gas_price. Both globalFees and minGasPrices must be valid, but CombinedFeeRequirement does not validate them, so it may return 0denom.
 func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
 	// empty min_gas_price
-	if len(minGasPrices) == 0 {
+	if minGasPrices.Empty() {
 		return globalFees
 	}
 	// empty global fee is not possible if we set default global fee
-	if len(globalFees) == 0 && len(minGasPrices) != 0 {
+	if globalFees.Empty() && !minGasPrices.Empty() {
 		return minGasPrices
 	}
 
