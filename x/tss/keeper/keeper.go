@@ -149,11 +149,11 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 
 // VerifyMember function verifies if a member is part of a group.
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
-	member, _ := k.GetMember(ctx, groupID, memberID)
-	if member.Member == memberAddress {
-		return true
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil || member.Member != memberAddress {
+		return false
 	}
-	return false
+	return true
 }
 
 // SetRound1Data function sets round1 data for a member of a group.
