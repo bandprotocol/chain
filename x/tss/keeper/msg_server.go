@@ -64,8 +64,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 // SubmitDKGRound1 handles the submission of round1 in the DKG process.
 // After unwrapping the context, it first checks the status of the group, and whether the member is valid and has not submitted before.
 // Then, it retrieves the DKG context for the group and verifies the one-time signature and A0 signature.
-// If all checks pass, it saves the round 1 commitment into the KVStore and emits an event for the submission.
-// If all members have submitted their round 1 commitments, it updates the status of the group to round2and emits an event for the completion of round 1.
+// If all checks pass, it saves the round1 data into the KVStore and emits an event for the submission.
+// If all members have submitted their round1 data, it updates the status of the group to round2and emits an event for the completion of round 1.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
@@ -155,7 +155,9 @@ func (k Keeper) SubmitDKGRound1(
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
 
-// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round 2
+// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round2.
+// It verifies the group status, member authorization, previous submission, and the correctness of encrypted secret shares length.
+// It sets the round2 data, emits events, and updates the group status.
 func (k Keeper) SubmitDKGRound2(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound2,
