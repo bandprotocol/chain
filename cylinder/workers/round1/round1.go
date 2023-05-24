@@ -106,6 +106,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 	msg := &types.MsgSubmitDKGRound1{
 		GroupID: gid,
 		Round1Data: types.Round1Data{
+			MemberID:           mid,
 			CoefficientsCommit: data.CoefficientsCommit,
 			OneTimePubKey:      data.OneTimePubKey,
 			A0Sig:              data.A0Sig,
