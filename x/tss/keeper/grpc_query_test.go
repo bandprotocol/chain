@@ -22,7 +22,19 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
-	Round1Data := types.Round1Data{
+	round1DataMember1 := types.Round1Data{
+		MemberID: 1,
+		CoefficientsCommit: []tss.Point{
+			[]byte("point1"),
+			[]byte("point2"),
+			[]byte("point3"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySample"),
+		A0Sig:         []byte("A0SigSample"),
+		OneTimeSig:    []byte("OneTimeSigSample"),
+	}
+	round1DataMember2 := types.Round1Data{
+		MemberID: 2,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -38,9 +50,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Threshold: 3,
 		Sender:    members[0],
 	})
-	// set round1
-	k.SetRound1Data(ctx, groupID, 1, Round1Data)
-	k.SetRound1Data(ctx, groupID, 3, Round1Data)
+
+	// set round1 data
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -100,12 +113,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							PubKey: tss.PublicKey(nil),
 						},
 					},
-					AllRound1Data: []*types.Round1Data{
-						&Round1Data,
-						nil,
-						&Round1Data,
-						nil,
-						nil,
+					AllRound1Data: []types.Round1Data{
+						round1DataMember1,
+						round1DataMember2,
 					},
 				}, res)
 			},

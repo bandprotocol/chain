@@ -16,16 +16,21 @@ message Group {
 }
 
 message Round1Data {
-  repeated bytes coefficients_commit = 1 [
+  // member_id is ID of the group.
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated bytes coefficients_commit = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
-  bytes one_time_pub_key = 2 [
+  bytes one_time_pub_key = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes a0_sig = 3 [
+  bytes a0_sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes one_time_sig = 4 [
+  bytes one_time_sig = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }

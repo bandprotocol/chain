@@ -210,6 +210,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	Round1Data := types.Round1Data{
+		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -219,7 +220,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, memberID, Round1Data)
+	k.SetRound1Data(ctx, groupID, Round1Data)
 
 	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
@@ -230,6 +231,7 @@ func (s *KeeperTestSuite) TestDeleteRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	Round1Data := types.Round1Data{
+		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -239,7 +241,7 @@ func (s *KeeperTestSuite) TestDeleteRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, memberID, Round1Data)
+	k.SetRound1Data(ctx, groupID, Round1Data)
 
 	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
@@ -253,8 +255,19 @@ func (s *KeeperTestSuite) TestDeleteRound1Data() {
 
 func (s *KeeperTestSuite) TestGetRound1DataCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, member0, member1 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	Round1Data := types.Round1Data{
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round1DataMember1 := types.Round1Data{
+		MemberID: member1,
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+	round1DataMember2 := types.Round1Data{
+		MemberID: member2,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -265,8 +278,8 @@ func (s *KeeperTestSuite) TestGetRound1DataCount() {
 	}
 
 	// Set round1 data
-	k.SetRound1Data(ctx, groupID, member0, Round1Data)
-	k.SetRound1Data(ctx, groupID, member1, Round1Data)
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
 	got := k.GetRound1DataCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
@@ -275,7 +288,18 @@ func (s *KeeperTestSuite) TestGetRound1DataCount() {
 func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
-	Round1Data := types.Round1Data{
+	round1DataMember1 := types.Round1Data{
+		MemberID: member1,
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+	round1DataMember2 := types.Round1Data{
+		MemberID: member2,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -286,13 +310,13 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	}
 
 	// Set round1 data
-	k.SetRound1Data(ctx, groupID, member1, Round1Data)
-	k.SetRound1Data(ctx, groupID, member2, Round1Data)
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
 	got := k.GetAllRound1Data(ctx, groupID, groupSize)
 
 	// member3 expected nil value because didn't commit round1
-	s.Require().Equal([]*types.Round1Data{&Round1Data, &Round1Data, nil}, got)
+	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

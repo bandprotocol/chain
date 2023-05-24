@@ -158,11 +158,10 @@ func (k Keeper) GetMemberID(ctx sdk.Context, groupID tss.GroupID, memberAddress 
 }
 
 // SetRound1Data function sets round1 data for a member of a group.
-func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, Round1Data types.Round1Data) {
+func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, round1Data types.Round1Data) {
 	// Add count
 	k.AddRound1DataCount(ctx, groupID)
-
-	ctx.KVStore(k.storeKey).Set(types.Round1DataMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&Round1Data))
+	ctx.KVStore(k.storeKey).Set(types.Round1DataMemberStoreKey(groupID, round1Data.MemberID), k.cdc.MustMarshal(&round1Data))
 }
 
 // GetRound1Data function retrieves round1 data of a member from the store.
@@ -198,20 +197,21 @@ func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound1DataCount(ctx, groupID, count+1)
 }
 
-// GetAllRound1Data retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []*types.Round1Data {
-	allRound1Data := make([]*types.Round1Data, groupSize)
-	for i := uint64(1); i <= groupSize; i++ {
-		round1Data, err := k.GetRound1Data(ctx, groupID, tss.MemberID(i))
-		if err != nil {
-			// allRound1Data array start at 0
-			allRound1Data[i-1] = nil
-		} else {
-			// allRound1Data array start at 0
-			allRound1Data[i-1] = &round1Data
-		}
-	}
+// GetRound1DataIterator function gets an iterator over all round1 data of a group.
+func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
+}
 
+// GetAllRound1Data retrieves all round1 data for a group from the store.
+func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []types.Round1Data {
+	var allRound1Data []types.Round1Data
+	iterator := k.GetRound1DataIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round1Data types.Round1Data
+		k.cdc.MustUnmarshal(iterator.Value(), &round1Data)
+		allRound1Data = append(allRound1Data, round1Data)
+	}
 	return allRound1Data
 }
 

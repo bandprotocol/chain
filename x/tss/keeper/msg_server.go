@@ -112,12 +112,13 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	Round1Data := types.Round1Data{
+		MemberID:           memberID,
 		CoefficientsCommit: req.Round1Data.CoefficientsCommit,
 		OneTimePubKey:      req.Round1Data.OneTimePubKey,
 		A0Sig:              req.Round1Data.A0Sig,
 		OneTimeSig:         req.Round1Data.OneTimeSig,
 	}
-	k.SetRound1Data(ctx, groupID, memberID, Round1Data)
+	k.SetRound1Data(ctx, groupID, Round1Data)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
