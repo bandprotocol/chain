@@ -213,7 +213,7 @@ func (k Keeper) SubmitDKGRound2(
 		),
 	)
 
-	count := k.GetRound1DataCount(ctx, groupID)
+	count := k.GetRound2DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		k.UpdateGroup(ctx, groupID, group)
