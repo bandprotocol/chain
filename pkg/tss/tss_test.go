@@ -11,15 +11,16 @@ import (
 type TSSTestSuite struct {
 	suite.Suite
 
-	gid        tss.GroupID
-	mid        tss.MemberID
-	kpI        tss.KeyPair
-	kpJ        tss.KeyPair
-	fakeKp     tss.KeyPair
-	dkgContext []byte
-	challenge  []byte
-	nonce      []byte
-	threshold  uint64
+	gid         tss.GroupID
+	mid         tss.MemberID
+	kpI         tss.KeyPair
+	kpJ         tss.KeyPair
+	fakeKp      tss.KeyPair
+	dkgContext  []byte
+	message     []byte
+	fakeMessage []byte
+	nonce       []byte
+	threshold   uint64
 
 	scalars tss.Scalars
 	points  tss.Points
@@ -47,7 +48,8 @@ func (suite *TSSTestSuite) SetupTest() {
 		PublicKey:  pubKey,
 	}
 
-	suite.challenge = []byte("challenge")
+	suite.message = []byte("message")
+	suite.fakeMessage = []byte("fakeMessage")
 	suite.nonce, _ = hex.DecodeString("0000000000000000000000000000000000000000000000000000006e6f6e6365")
 	suite.dkgContext, _ = hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 	suite.gid = 1

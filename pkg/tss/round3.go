@@ -118,8 +118,25 @@ func SignOwnPublickey(
 	ownPub PublicKey,
 	ownPriv PrivateKey,
 ) (Signature, error) {
-	challenge := GenerateChallengeOwnPublicKey(mid, dkgContext, ownPub)
-	return Sign(ownPriv, challenge, nil)
+	msg := GenerateMessageOwnPublicKey(mid, dkgContext, ownPub)
+	nonce, pubNonce := GenerateNonce(ownPriv, Hash(msg))
+	return Sign(ownPriv, ConcatBytes(pubNonce, msg), nonce, nil)
+}
+
+// VerifyOwnPubKeySig verifies the signature of an own public key using the given DKG context, own public key, and signature.
+func VerifyOwnPubKeySig(
+	mid MemberID,
+	dkgContext []byte,
+	sig Signature,
+	ownPub PublicKey,
+) error {
+	msg := ConcatBytes(sig.R(), GenerateMessageOwnPublicKey(mid, dkgContext, ownPub))
+	return Verify(sig.R(), sig.S(), msg, ownPub, nil, nil)
+}
+
+// GenerateMessageOwnPublicKey generates the message for verifying an own public key signature.
+func GenerateMessageOwnPublicKey(mid MemberID, dkgContext []byte, ownPub PublicKey) []byte {
+	return ConcatBytes([]byte("round3OwnPubKey"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, ownPub)
 }
 
 // SignComplain generates a signature and related parameters for complaining against a misbehaving member.
@@ -133,38 +150,20 @@ func SignComplain(
 		return nil, nil, nil, err
 	}
 
-	for iterator := uint32(0); ; iterator++ {
-		nonce := GenerateNonce(
-			oneTimePrivI,
-			Hash(oneTimePubI, oneTimePubJ, keySym),
-			iterator,
-		)
+	msg := GenerateMessageComplain(oneTimePubI, oneTimePubJ, keySym)
+	nonce, pubNonce := GenerateNonce(oneTimePrivI, Hash(msg))
 
-		nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-
-		challenge := GenerateChallengeComplain(oneTimePubI, oneTimePubJ, keySym, nonceSym)
-
-		sig, err := Sign(oneTimePrivI, challenge, nonce)
-		if err != nil {
-			continue
-		}
-
-		return sig, keySym, nonceSym, nil
+	nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
+	if err != nil {
+		return nil, nil, nil, err
 	}
-}
 
-// VerifyOwnPubKeySig verifies the signature of an own public key using the given DKG context, own public key, and signature.
-func VerifyOwnPubKeySig(
-	mid MemberID,
-	dkgContext []byte,
-	signature Signature,
-	ownPub PublicKey,
-) error {
-	challenge := GenerateChallengeOwnPublicKey(mid, dkgContext, ownPub)
-	return Verify(signature, challenge, ownPub, nil, nil)
+	sig, err := Sign(oneTimePrivI, ConcatBytes(pubNonce, nonceSym, msg), nonce, nil)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return sig, keySym, nonceSym, nil
 }
 
 // VerifyComplainSig verifies the signature of a complaint using the given parameters.
@@ -173,33 +172,19 @@ func VerifyComplainSig(
 	oneTimePubJ PublicKey,
 	keySym PublicKey,
 	nonceSym PublicKey,
-	signature Signature,
+	sig Signature,
 ) error {
-	challenge := GenerateChallengeComplain(oneTimePubI, oneTimePubJ, keySym, nonceSym)
-	err := Verify(signature, challenge, oneTimePubI, nil, nil)
+	msg := ConcatBytes(sig.R(), nonceSym, GenerateMessageComplain(oneTimePubI, oneTimePubJ, keySym))
+
+	err := Verify(sig.R(), sig.S(), msg, oneTimePubI, nil, nil)
 	if err != nil {
 		return err
 	}
 
-	err = Verify(signature, challenge, keySym, Point(oneTimePubJ), nonceSym)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return Verify(Point(nonceSym), sig.S(), msg, keySym, Point(oneTimePubJ), nil)
 }
 
-// GenerateChallengeOwnPublicKey generates the challenge for verifying an own public key signature.
-func GenerateChallengeOwnPublicKey(mid MemberID, dkgContext []byte, ownPub PublicKey) []byte {
-	return ConcatBytes([]byte("round3OwnPubKey"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, ownPub)
-}
-
-// GenerateChallengeComplain generates the challenge for verifying a complaint signature.
-func GenerateChallengeComplain(
-	oneTimePubI PublicKey,
-	oneTimePubJ PublicKey,
-	keySym PublicKey,
-	nonceSym PublicKey,
-) []byte {
-	return ConcatBytes([]byte("round3Complain"), oneTimePubJ, oneTimePubJ, keySym, nonceSym)
+// GenerateMessageComplain generates the message for verifying a complaint signature.
+func GenerateMessageComplain(oneTimePubI PublicKey, oneTimePubJ PublicKey, keySym PublicKey) []byte {
+	return ConcatBytes([]byte("round3Complain"), oneTimePubJ, oneTimePubJ, keySym)
 }
