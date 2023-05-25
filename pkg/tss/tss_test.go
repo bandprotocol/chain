@@ -20,6 +20,9 @@ type TSSTestSuite struct {
 	challenge  []byte
 	nonce      []byte
 	threshold  uint64
+
+	scalars tss.Scalars
+	points  tss.Points
 }
 
 func (suite *TSSTestSuite) SetupTest() {
@@ -50,6 +53,15 @@ func (suite *TSSTestSuite) SetupTest() {
 	suite.gid = 1
 	suite.mid = 1
 	suite.threshold = 2
+
+	scalar1, _ := hex.DecodeString("d419936233d055c4560f4f51986281c992e09fa27c72c54a40ea83bdffdae763")
+	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
+
+	scalar2, _ := hex.DecodeString("d11e4043e29c3939a28e276c09d6ac57b724bc3562b63e1d832dc13bce5098e0")
+	point2, _ := hex.DecodeString("03bd0e1b7c880ce80d4340540240972522b44bba2afcf50bfbe30e0352f225eba9")
+
+	suite.scalars = tss.Scalars{scalar1, scalar2}
+	suite.points = tss.Points{point1, point2}
 }
 
 func TestTSSTestSuite(t *testing.T) {
