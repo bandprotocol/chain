@@ -237,7 +237,7 @@ var xxx_messageInfo_MsgSubmitDKGRound1Response proto.InternalMessageInfo
 type MsgSubmitDKGRound2 struct {
 	// group_id is ID of the group.
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
-	// round2_data is is all data that require to handle round2.
+	// round2_data is is all data that require to handle round 2.
 	Round2Data Round2Data `protobuf:"bytes,2,opt,name=round2_data,json=round2Data,proto3" json:"round2_data"`
 	// member is the signer of this message. Must be the member of this group.
 	Member string `protobuf:"bytes,3,opt,name=member,proto3" json:"member,omitempty"`
