@@ -213,11 +213,11 @@ func (k Keeper) SubmitDKGRound2(
 
 	count := k.GetRound2DataCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.ROUND_2
+		group.Status = types.ROUND_3
 		k.UpdateGroup(ctx, groupID, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeRound1Success,
+				types.EventTypeRound2Success,
 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 			),
