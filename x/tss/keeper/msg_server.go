@@ -423,7 +423,6 @@ func (k Keeper) Confirm(
 				k.handleFallenGroup(ctx, groupID, group)
 			}
 		}
-
 	}
 
 	// TODO: Remove all interim data associated with round 3
