@@ -10,16 +10,16 @@ import (
 
 // ComputeOwnPublicKey computes the own public key for a given set of sum commits and x.
 // The formula used is: Yi = Σ(k=0 to t-1) (i^k * Σ(j=1 to n) (Commit_jk))
-func ComputeOwnPublicKey(rawSumCommits Points, rawX uint32) (Point, error) {
+func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) {
 	sumCommits, err := rawSumCommits.Parse()
 	if err != nil {
 		return nil, err
 	}
 
-	x := new(secp256k1.ModNScalar).SetInt(rawX)
+	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 	result := solvePointPolynomial(sumCommits, x)
 
-	return ParsePoint(result), nil
+	return ParsePublicKey(result), nil
 }
 
 // ComputeGroupPublicKey computes the group public key from a set of A0 commits.
@@ -60,7 +60,7 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 	secp256k1.ScalarBaseMultNonConst(secretShare, yG)
 
 	// Compute yG from the commits.
-	ssc, err := ComputeSecretShareCommit(rawCommits, uint32(mid))
+	ssc, err := ComputeSecretShareCommit(rawCommits, mid)
 	if err != nil {
 		return err
 	}
@@ -77,13 +77,13 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 // The formula used is: y * G = f_ij(x) * G = c_0 + c_1 * x^1 + ... + c_n-1 * x^(n-1) + c_n * x^n
 // rawCommits represents the commits c_0, c_1, ..., c_n-1, c_n = a_0 * G, a_1 * G, ..., a_n-1 * G, a_n * G
 // rawX represents x, the index of the shared secret commit.
-func ComputeSecretShareCommit(rawCommits Points, rawX uint32) (Point, error) {
+func ComputeSecretShareCommit(rawCommits Points, mid MemberID) (Point, error) {
 	commits, err := rawCommits.Parse()
 	if err != nil {
 		return nil, err
 	}
 
-	x := new(secp256k1.ModNScalar).SetInt(rawX)
+	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 	result := solvePointPolynomial(commits, x)
 
 	return ParsePoint(result), nil
