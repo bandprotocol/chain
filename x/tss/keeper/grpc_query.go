@@ -34,7 +34,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	allRound1Data := k.GetAllRound1Data(ctx, tss.GroupID(req.GroupId), group.Size_)
+	allRound1Data := k.GetAllRound1Data(ctx, tss.GroupID(req.GroupId))
 
 	return &types.QueryGroupResponse{
 		Group:         group,
