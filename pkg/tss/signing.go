@@ -18,9 +18,9 @@ func ComputeLagrangeCoefficient(mid MemberID, n uint64) Scalar {
 
 // ComputeOwnLo calculates the own Lo value for a given member ID, message, and bytes.
 // Lo = Hash(i, msg , B)
-// B = Hash(<i,Di,Ei>,...)
+// B = <<i,Di,Ei>,...>
 func ComputeOwnLo(mid MemberID, msg []byte, bytes []byte) Scalar {
-	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), msg, bytes)
+	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), Hash(msg), Hash(bytes))
 
 	var lo secp256k1.ModNScalar
 	lo.SetByteSlice(bz)
