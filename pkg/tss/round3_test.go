@@ -29,7 +29,7 @@ func (suite *TSSTestSuite) TestComputeOwnPrivateKey() {
 }
 
 func (suite *TSSTestSuite) TestVerifySecretShare() {
-	secret, err := tss.ComputeSecretShare(suite.scalars, uint32(suite.mid))
+	secret, err := tss.ComputeSecretShare(suite.scalars, suite.mid)
 	suite.Require().NoError(err)
 
 	err = tss.VerifySecretShare(suite.mid, secret, suite.points)
