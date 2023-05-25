@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *TSSTestSuite) TestComputeOwnPublicKey() {
-	pubKey, err := tss.ComputeOwnPublicKey(suite.points, uint32(suite.mid))
+	pubKey, err := tss.ComputeOwnPublicKey(suite.points, suite.mid)
 	suite.Require().NoError(err)
 	suite.Require().
 		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(pubKey))
@@ -37,7 +37,7 @@ func (suite *TSSTestSuite) TestVerifySecretShare() {
 }
 
 func (suite *TSSTestSuite) TestComputeSecretShareCommit() {
-	secretCommit, err := tss.ComputeSecretShareCommit(suite.points, uint32(suite.mid))
+	secretCommit, err := tss.ComputeSecretShareCommit(suite.points, suite.mid)
 	suite.Require().NoError(err)
 	suite.Require().
 		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(secretCommit))
