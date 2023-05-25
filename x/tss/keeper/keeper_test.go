@@ -285,7 +285,7 @@ func (s *KeeperTestSuite) TestGetRound1DataCount() {
 
 func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	round1DataMember1 := types.Round1Data{
 		MemberID: member1,
 		CoefficientsCommit: tss.Points{
@@ -311,7 +311,7 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	k.SetRound1Data(ctx, groupID, round1DataMember1)
 	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
-	got := k.GetAllRound1Data(ctx, groupID, groupSize)
+	got := k.GetAllRound1Data(ctx, groupID)
 
 	// member3 expected nil value because didn't commit round 1
 	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
@@ -389,7 +389,7 @@ func (s *KeeperTestSuite) TestGetRound2DataCount() {
 
 func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, groupSize, member1, member2 := tss.GroupID(1), uint64(3), tss.MemberID(1), tss.MemberID(2)
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	round2DataMember1 := types.Round2Data{
 		MemberID: member1,
 		EncryptedSecretShares: []tss.Scalar{
@@ -411,7 +411,7 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	k.SetRound2Data(ctx, groupID, round2DataMember1)
 	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
-	got := k.GetAllRound2Data(ctx, groupID, groupSize)
+	got := k.GetAllRound2Data(ctx, groupID)
 	// member3 expected nil value because didn't submit round2Data
 	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
 }

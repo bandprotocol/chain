@@ -208,7 +208,7 @@ func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.
 }
 
 // GetAllRound1Data retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) []types.Round1Data {
+func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.Round1Data {
 	var allRound1Data []types.Round1Data
 	iterator := k.GetRound1DataIterator(ctx, groupID)
 	defer iterator.Close()
