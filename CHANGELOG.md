@@ -1,5 +1,9 @@
 # Changelog
 
+## [v2.5.2](https://github.com/bandprotocol/chain/releases/tag/v2.5.2)
+
+- (bump) Use cosmos-sdk v0.45.16 / ibc-go v4.3.1 / cometbft v0.34.28
+
 ## [v2.5.1](https://github.com/bandprotocol/chain/releases/tag/v2.5.1)
 
 - (bump) Use cosmos-sdk package v0.45.15 / tendermint v0.34.27
