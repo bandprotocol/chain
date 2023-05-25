@@ -6,7 +6,8 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// Note: Currently, support maximum N at 20
+// ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
+// Note: Currently, supports a maximum N of 20.
 func ComputeLagrangeCoefficient(mid MemberID, n uint64) Scalar {
 	coeff := lagrange.ComputeCoefficient(int64(mid), int64(n)).Bytes()
 	scalarValue := new(secp256k1.ModNScalar)
@@ -15,6 +16,9 @@ func ComputeLagrangeCoefficient(mid MemberID, n uint64) Scalar {
 	return ParseScalar(scalarValue)
 }
 
+// ComputeOwnLo calculates the own Lo value for a given member ID, message, and bytes.
+// Lo = Hash(i, msg , B)
+// B = Hash(<i,Di,Ei>,...)
 func ComputeOwnLo(mid MemberID, msg []byte, bytes []byte) Scalar {
 	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), msg, bytes)
 
@@ -24,6 +28,8 @@ func ComputeOwnLo(mid MemberID, msg []byte, bytes []byte) Scalar {
 	return ParseScalar(&lo)
 }
 
+// ComputeOwnPublicNonce calculates the own public nonce for a given public D, public E, and Lo.
+// Formula: D + Lo * E
 func ComputeOwnPublicNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (PublicKey, error) {
 	lo, err := rawLo.Parse()
 	if err != nil {
@@ -49,6 +55,8 @@ func ComputeOwnPublicNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (
 	return ParsePublicKey(&ownPubNonce), nil
 }
 
+// ComputeOwnPrivateNonce calculates the own private nonce for a given private d, private e, and Lo.
+// Formula: d + Lo * e
 func ComputeOwnPrivateNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scalar) (PrivateKey, error) {
 	lo, err := rawLo.Parse()
 	if err != nil {
@@ -71,58 +79,56 @@ func ComputeOwnPrivateNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scal
 	return ParsePrivateKey(privD), nil
 }
 
+// ComputeGroupPublicNonce calculates the group public nonce for a given slice of own public nonces.
+// Formula: Sum(PubNonce1, PubNonce2, ..., PubNonceN)
 func ComputeGroupPublicNonce(rawOwnPubNonces PublicKeys) (PublicKey, error) {
-	points, err := rawOwnPubNonces.Points()
+	pubNonces, err := rawOwnPubNonces.Points()
 	if err != nil {
 		return nil, err
 	}
 
-	return ParsePublicKey(sumPoints(points...)), nil
+	return ParsePublicKey(sumPoints(pubNonces...)), nil
 }
 
+// SignSigning performs signing using the group public nonce, group public key, data, Lagrange coefficient,
+// own private nonce, and own private key.
 func SignSigning(
-	rawGroupPubNonce PublicKey,
-	rawGroupPubKey PublicKey,
-	msg []byte,
+	groupPubNonce PublicKey,
+	groupPubKey PublicKey,
+	data []byte,
 	rawLagrange Scalar,
 	ownPrivNonce PrivateKey,
 	ownPrivKey PrivateKey,
 ) (Signature, error) {
-	challenge := GenerateChallengeSigning(rawGroupPubNonce, rawGroupPubKey, msg)
-
-	// TODO-TSS: use lagrange
-	// TODO-TSS: remove inserting public nonce in to challenge
-	return Sign(ownPrivKey, challenge, Scalar(ownPrivNonce))
+	msg := ConcatBytes(groupPubNonce, GenerateMessageGroupSigning(groupPubKey, data))
+	return Sign(ownPrivKey, msg, Scalar(ownPrivNonce), rawLagrange)
 }
 
+// VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,
+// signature, and own public key.
 func VerifySigning(
-	rawGroupPubNonce PublicKey,
-	rawGroupPubKey PublicKey,
-	msg []byte,
+	groupPubNonce PublicKey,
+	groupPubKey PublicKey,
+	data []byte,
 	rawLagrange Scalar,
-	rawSig Signature,
+	sig Signature,
 	ownPubKey PublicKey,
 ) error {
-	challenge := GenerateChallengeSigning(rawGroupPubNonce, rawGroupPubKey, msg)
-
-	// TODO-TSS: use lagrange
-	// TODO-TSS: remove inserting public nonce in to challenge
-	return Verify(rawSig, challenge, ownPubKey, nil, nil)
+	msg := ConcatBytes(groupPubNonce, GenerateMessageGroupSigning(groupPubKey, data))
+	return Verify(sig.R(), sig.S(), msg, ownPubKey, nil, rawLagrange)
 }
 
+// VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
 func VerifyGroupSigning(
-	rawGroupPubKey PublicKey,
-	msg []byte,
-	rawSig Signature,
+	groupPubKey PublicKey,
+	data []byte,
+	sig Signature,
 ) error {
-	challenge := GenerateChallengeGroupSigning(rawGroupPubKey, msg)
-	return Verify(rawSig, challenge, rawGroupPubKey, nil, nil)
+	msg := ConcatBytes(sig.R(), GenerateMessageGroupSigning(groupPubKey, data))
+	return Verify(sig.R(), sig.S(), msg, groupPubKey, nil, nil)
 }
 
-func GenerateChallengeSigning(rawGroupPubNonce PublicKey, rawGroupPubKey PublicKey, msg []byte) []byte {
-	return ConcatBytes(rawGroupPubNonce, []byte("signing"), rawGroupPubKey, msg)
-}
-
-func GenerateChallengeGroupSigning(rawGroupPubKey PublicKey, msg []byte) []byte {
-	return ConcatBytes([]byte("signing"), rawGroupPubKey, msg)
+// GenerateMessageGroupSigning generates the message for group signing using the group public key and data.
+func GenerateMessageGroupSigning(rawGroupPubKey PublicKey, data []byte) []byte {
+	return ConcatBytes([]byte("signing"), rawGroupPubKey, data)
 }

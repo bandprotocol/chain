@@ -97,24 +97,21 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 	suite.Require().Error(err)
 }
 
-func (suite *TSSTestSuite) TestGenerateChallengeOwnPublicKey() {
-	challenge := tss.GenerateChallengeOwnPublicKey(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
+func (suite *TSSTestSuite) TestGenerateMessageOwnPublicKey() {
+	challenge := tss.GenerateMessageOwnPublicKey(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
 	suite.Require().Equal(
 		"726f756e64334f776e5075624b65790000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa",
 		hex.EncodeToString(challenge),
 	)
 }
 
-func (suite *TSSTestSuite) TestGenerateChallengeComplain() {
+func (suite *TSSTestSuite) TestGenerateMessageComplain() {
 	keySym, err := tss.ComputeKeySym(suite.kpI.PrivateKey, suite.kpJ.PublicKey)
 	suite.Require().NoError(err)
 
-	nonceSym, err := tss.ComputeNonceSym(tss.Scalar(suite.kpI.PrivateKey), suite.kpJ.PublicKey)
-	suite.Require().NoError(err)
-
-	challenge := tss.GenerateChallengeComplain(suite.kpI.PublicKey, suite.kpJ.PublicKey, keySym, nonceSym)
+	challenge := tss.GenerateMessageComplain(suite.kpI.PublicKey, suite.kpJ.PublicKey, keySym)
 	suite.Require().Equal(
-		"726f756e6433436f6d706c61696e03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f03bc213e4251592d29c070e4c31b980d150e755ec848afa4c06730ec1dcd09c48203bc213e4251592d29c070e4c31b980d150e755ec848afa4c06730ec1dcd09c482",
+		"726f756e6433436f6d706c61696e03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f03bc213e4251592d29c070e4c31b980d150e755ec848afa4c06730ec1dcd09c482",
 		hex.EncodeToString(challenge),
 	)
 }

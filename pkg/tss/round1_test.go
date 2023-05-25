@@ -28,8 +28,8 @@ func (suite *TSSTestSuite) TestVerifyOneTimeSig() {
 	suite.Require().NoError(err)
 }
 
-func (suite *TSSTestSuite) TestGenerateChallengeOneTime() {
-	challenge := tss.GenerateChallengeOneTime(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
+func (suite *TSSTestSuite) TestGenerateMessageOneTime() {
+	challenge := tss.GenerateMessageOneTime(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
 	assert.Equal(
 		suite.T(),
 		"726f756e64314f6e6554696d650000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa",
@@ -47,11 +47,11 @@ func (suite *TSSTestSuite) TestVerifyA0Sig() {
 	suite.Require().NoError(err)
 }
 
-func (suite *TSSTestSuite) TestGenerateChallengeA0() {
-	challenge := tss.GenerateChallengeA0(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
+func (suite *TSSTestSuite) TestGenerateMessageA0() {
+	msg := tss.GenerateMessageA0(suite.mid, suite.dkgContext, suite.kpI.PublicKey)
 	assert.Equal(
 		suite.T(),
 		"726f756e643141300000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa",
-		hex.EncodeToString(challenge),
+		hex.EncodeToString(msg),
 	)
 }

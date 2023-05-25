@@ -265,6 +265,22 @@ func (s Signature) Parse() (*schnorr.Signature, error) {
 	return sig, nil
 }
 
+// GetR returns R part of the signature
+func (s Signature) R() Point {
+	if len(s) < 33 {
+		return []byte{}
+	}
+	return Point(s[0:33])
+}
+
+// GetS returns S part of the signature
+func (s Signature) S() Scalar {
+	if len(s) < 65 {
+		return []byte{}
+	}
+	return Scalar(s[33:65])
+}
+
 // KeyPair represents a key pair consisting of a private key and a public key.
 type KeyPair struct {
 	PrivateKey PrivateKey
