@@ -311,7 +311,7 @@ func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (ty
 	return dkgMaliciousIndexes, nil
 }
 
-func (k Keeper) VerifyComplainSig(
+func (k Keeper) HandleVerifyComplainSig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	complain types.Complain,
@@ -335,7 +335,7 @@ func (k Keeper) VerifyComplainSig(
 	)
 }
 
-func (k Keeper) VerifyOwnPubKeySig(
+func (k Keeper) HandleVerifyOwnPubKeySig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
@@ -365,6 +365,24 @@ func (k Keeper) VerifyOwnPubKeySig(
 	}
 
 	return nil
+}
+
+func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID) (tss.PublicKey, error) {
+	var rawA0Commits tss.Points
+	allRound2Data := k.GetAllRound2Data(ctx, groupID)
+	for _, r2 := range allRound2Data {
+		rawA0Commits = append(rawA0Commits, tss.Point(r2.EncryptedSecretShares[0]))
+	}
+
+	groupPubKey, err := tss.ComputeGroupPublicKey(rawA0Commits)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrConfirmFailed,
+			"failed to compute group public key; %s",
+			err,
+		)
+	}
+	return groupPubKey, nil
 }
 
 func (k Keeper) SetConfirmation(
@@ -399,7 +417,7 @@ func (k Keeper) SetComplain(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
-	confirmation types.Confirmation,
+	confirmation types.Complain,
 ) {
 	ctx.KVStore(k.storeKey).Set(types.ComplainMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirmation))
 }
@@ -423,22 +441,30 @@ func (k Keeper) GetComplain(
 	return c, nil
 }
 
-func (k Keeper) SetRound3Note(ctx sdk.Context, groupID tss.GroupID, round3Note types.Round3Note) {
-	ctx.KVStore(k.storeKey).Set(types.Round3NoteStoreKey(groupID), k.cdc.MustMarshal(&round3Note))
+func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ConfirmComplainCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-func (k Keeper) GetRound3Note(ctx sdk.Context, groupID tss.GroupID) (types.Round3Note, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round3NoteStoreKey(groupID))
-	if bz == nil {
-		return types.Round3Note{}, sdkerrors.Wrapf(
-			types.ErrRound3NoteNotFound,
-			"failed to get round 3 note with groupID: %d",
-			groupID,
-		)
-	}
-	var r3 types.Round3Note
-	k.cdc.MustUnmarshal(bz, &r3)
-	return r3, nil
+func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmComplainCountStoreKey(groupID))
+	return sdk.BigEndianToUint64(bz)
+}
+
+func (k Keeper) RemoveDKGInterimData(ctx sdk.Context, groupID tss.GroupID) {
+	// Remove dkg context
+
+	// Remove malicious indexes
+
+	// Remove round 1 data
+
+	// Remove round 2 data
+
+	// Remove round 3 note
+
+	// Remove complain
+
+	// Remove confirm
+
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

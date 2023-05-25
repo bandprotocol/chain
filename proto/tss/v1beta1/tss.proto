@@ -112,7 +112,3 @@ message Complain {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
 }
-
-message Round3Note {
-  uint64 confirm_complain_count = 1;
-}

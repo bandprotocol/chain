@@ -53,8 +53,8 @@ var (
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
 	Round2DataCountStoreKeyPrefix = []byte{0x10}
 
-	// Round3NoteStoreKeyPrefix is list for keep track of the progress of round3.
-	Round3NoteStoreKeyPrefix = []byte{0x11}
+	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x11}
 
 	// ConfirmationStoreKeyPrefix is a hash PubKey, schnorr signature on the PubKey and context.
 	ConfirmationStoreKeyPrefix = []byte{0x12}
@@ -123,6 +123,6 @@ func ComplainMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(ComplainStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round3NoteStoreKey(groupID tss.GroupID) []byte {
-	return append(Round3NoteStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
+	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

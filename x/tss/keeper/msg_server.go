@@ -269,7 +269,7 @@ func (k Keeper) Complain(
 
 	// Verify complain
 	for _, c := range req.Complains {
-		err := k.VerifyComplainSig(ctx, groupID, *c)
+		err := k.HandleVerifyComplainSig(ctx, groupID, *c)
 		if err != nil {
 			// handle verify failed
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
@@ -323,14 +323,14 @@ func (k Keeper) Complain(
 		}
 
 		// Get round 3 note.
-		round3Note, err := k.GetRound3Note(ctx, groupID)
-		if err != nil {
-			return nil, err
-		}
+		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-		round3Note.ConfirmComplainCount += 1
+		// Set round 3 note
+		confirmComplainCount += 1
+		k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
+
 		// Handle fallen group if everyone sends confirm or complains already.
-		if round3Note.ConfirmComplainCount == group.Size_ {
+		if confirmComplainCount == group.Size_ {
 			k.handleFallenGroup(ctx, groupID, group)
 		}
 	}
@@ -374,7 +374,7 @@ func (k Keeper) Confirm(
 	}
 
 	// Verify OwnPubKeySig
-	err = k.VerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
 	if err != nil {
 		return nil, err
 	}
@@ -385,29 +385,25 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	round3Note, err := k.GetRound3Note(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
+	// Get round 3 note.
+	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	round3Note.ConfirmComplainCount += 1
-	if round3Note.ConfirmComplainCount == group.Size_ {
-		// Handle active group
+	// Set round 3 note
+	confirmComplainCount += 1
+	k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
+
+	// Handle fallen group if everyone sends confirm or complains already.
+	if confirmComplainCount == group.Size_ {
 		if len(dkgMaliciousIndexes.MemberIDs) == 0 {
-			// TODO: Compute final group public key
-
-			groupPubKey, err := tss.ComputeGroupPublicKey(tss.Points{})
+			// Handle compute group public key
+			groupPubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
 			if err != nil {
-				return nil, sdkerrors.Wrapf(
-					types.ErrConfirmFailed,
-					"failed to compute group public key; %s",
-					err,
-				)
+				return nil, err
 			}
 
+			// Update group status
 			group.Status = types.ACTIVE
 			group.PubKey = groupPubKey
-
 			k.UpdateGroup(ctx, groupID, group)
 
 			ctx.EventManager().EmitEvent(
@@ -420,9 +416,7 @@ func (k Keeper) Confirm(
 			)
 		} else {
 			// Handle fallen group if someone in this group is malicious.
-			if round3Note.ConfirmComplainCount == group.Size_ {
-				k.handleFallenGroup(ctx, groupID, group)
-			}
+			k.handleFallenGroup(ctx, groupID, group)
 		}
 	}
 
