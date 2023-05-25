@@ -272,14 +272,14 @@ func (k Keeper) Complain(
 		err := k.VerifyComplainSig(ctx, groupID, *c)
 		if err != nil {
 			// handle verify failed
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
 			if contains {
 				return nil, sdkerrors.Wrap(
 					types.ErrMemberIsAlreadyMalicious,
 					fmt.Sprintf("member %d is already malicious on this group", c.I),
 				)
 			}
-			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
+			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
 			// emit complain failed event
@@ -297,14 +297,14 @@ func (k Keeper) Complain(
 			)
 		} else {
 			// handle complains success
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
 			if contains {
 				return nil, sdkerrors.Wrap(
 					types.ErrMemberIsAlreadyMalicious,
 					fmt.Sprintf("member %d is already malicious on this group", c.J),
 				)
 			}
-			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
+			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
 			// emit complain success event
@@ -393,7 +393,7 @@ func (k Keeper) Confirm(
 	round3Note.ConfirmComplainCount += 1
 	if round3Note.ConfirmComplainCount == group.Size_ {
 		// Handle active group
-		if len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
+		if len(dkgMaliciousIndexes.MemberIDs) == 0 {
 			// TODO: Compute final group public key
 
 			groupPubKey, err := tss.ComputeGroupPublicKey(tss.Points{})
