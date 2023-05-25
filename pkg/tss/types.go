@@ -265,7 +265,7 @@ func (s Signature) Parse() (*schnorr.Signature, error) {
 	return sig, nil
 }
 
-// GetR returns R part of the signature
+// R returns R part of the signature
 func (s Signature) R() Point {
 	if len(s) < 33 {
 		return []byte{}
@@ -273,7 +273,7 @@ func (s Signature) R() Point {
 	return Point(s[0:33])
 }
 
-// GetS returns S part of the signature
+// S returns S part of the signature
 func (s Signature) S() Scalar {
 	if len(s) < 65 {
 		return []byte{}
