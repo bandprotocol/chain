@@ -407,6 +407,45 @@ func (k Keeper) Confirm(
 	confirmComplainCount += 1
 	k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
 
+	// Get member
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Compute member public key
+	var points tss.Points
+	allRound1Data := k.GetAllRound1Data(ctx, groupID)
+
+	for i := uint64(0); i < group.Threshold; i++ {
+		var sumCommitI tss.Points
+		for _, r1 := range allRound1Data {
+			sumCommitI = append(sumCommitI, r1.CoefficientsCommit[i])
+		}
+		point, err := tss.SumPoints(sumCommitI...)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrConfirmFailed,
+				"can not sum points",
+			)
+		}
+		points = append(points, point)
+	}
+
+	// Compute own public key
+	ownPubKey, err := tss.ComputeOwnPublicKey(points, memberID)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrConfirmFailed,
+			"compute own public key failed; %s",
+			err,
+		)
+	}
+
+	// Update member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount == group.Size_ {
 		if len(dkgMaliciousIndexes.MemberIDs) == 0 {
