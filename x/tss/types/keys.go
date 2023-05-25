@@ -44,23 +44,20 @@ var (
 	// Round1CommitmentsCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1CommitmentsCountStoreKeyPrefix = []byte{0x07}
 
-	// Round2ShareCountStoreKeyPrefix is the key that keeps the round 2 share count.
-	Round2ShareCountStoreKeyPrefix = []byte{0x08}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x9}
+	Round2DataStoreKeyPrefix = []byte{0x8}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x10}
+	Round2DataCountStoreKeyPrefix = []byte{0x9}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x11}
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{0x12}
+	ConfirmStoreKeyPrefix = []byte{0x11}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
-	ComplainWithStatusStoreKeyPrefix = []byte{0x13}
+	ComplainWithStatusStoreKeyPrefix = []byte{0x12}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {

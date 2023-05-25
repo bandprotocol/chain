@@ -240,6 +240,7 @@ func (k Keeper) Complain(
 	if err != nil {
 		return nil, err
 	}
+
 	if group.Status != types.ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
@@ -293,7 +294,7 @@ func (k Keeper) Complain(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
