@@ -7,22 +7,20 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// Sign generates a schnorr signature for the given private key, challenge, and nonce.
+// Sign generates a schnorr signature for the given private key, message, and nonce.
 // It returns the signature and an error if the signing process fails.
 func Sign(
 	rawPrivKey PrivateKey,
-	rawCommitment []byte,
+	msg []byte,
 	rawNonce Scalar,
+	rawLagrange Scalar,
 ) (Signature, error) {
 	privKey, err := rawPrivKey.Parse()
 	if err != nil {
 		return nil, err
 	}
 
-	privKeyScalar := &privKey.Key
-
-	var nonce *secp256k1.ModNScalar
-	nonce, err = rawNonce.Parse()
+	nonce, err := rawNonce.Parse()
 	if err != nil {
 		return nil, err
 	}
@@ -30,11 +28,18 @@ func Sign(
 	var sigR secp256k1.JacobianPoint
 	secp256k1.ScalarBaseMultNonConst(nonce, &sigR)
 
-	var commitment secp256k1.ModNScalar
-	commitment.SetByteSlice(rawCommitment)
-	sigS, err := computeSigS(privKeyScalar, nonce, &commitment)
-	nonce.Zero()
+	var challenge secp256k1.ModNScalar
+	challenge.SetByteSlice(Hash(msg))
 
+	if rawLagrange != nil {
+		lagrange, err := rawLagrange.Parse()
+		if err != nil {
+			return nil, err
+		}
+		challenge.Mul(lagrange)
+	}
+
+	sigS, err := computeSigS(&privKey.Key, nonce, &challenge)
 	if err != nil {
 		return nil, err
 	}
@@ -43,17 +48,23 @@ func Sign(
 	return sig.Serialize(), nil
 }
 
-// Verify verifies the given schnorr signature against the provided challenge, public key, generator point,
+// Verify verifies the given schnorr signature against the provided msessage, public key, generator point,
 // and optional override signature R value.
 // It returns an error if the verification process fails.
 func Verify(
-	rawSignature Signature,
-	rawCommitment []byte,
+	rawSigR Point,
+	rawSigS Scalar,
+	msg []byte,
 	rawPubKey PublicKey,
 	rawGenerator Point,
-	rawOverrideSigR PublicKey,
+	rawLagrange Scalar,
 ) error {
-	sig, err := rawSignature.Parse()
+	sigR, err := rawSigR.Parse()
+	if err != nil {
+		return err
+	}
+
+	sigS, err := rawSigS.Parse()
 	if err != nil {
 		return err
 	}
@@ -61,14 +72,6 @@ func Verify(
 	pubKey, err := rawPubKey.Parse()
 	if err != nil {
 		return err
-	}
-
-	sigR := &sig.R
-	if rawOverrideSigR != nil {
-		sigR, err = rawOverrideSigR.Point()
-		if err != nil {
-			return err
-		}
 	}
 
 	var generator *secp256k1.JacobianPoint
@@ -79,19 +82,64 @@ func Verify(
 		}
 	}
 
-	var commitment secp256k1.ModNScalar
-	commitment.SetByteSlice(rawCommitment)
-	return verify(sigR, &sig.S, &commitment, pubKey, generator)
+	var challenge secp256k1.ModNScalar
+	challenge.SetByteSlice(Hash(msg))
+
+	if rawLagrange != nil {
+		lagrange, err := rawLagrange.Parse()
+		if err != nil {
+			return err
+		}
+		challenge.Mul(lagrange)
+	}
+
+	return verify(sigR, sigS, &challenge, pubKey, generator)
 }
 
-// verify attempt to verify the signature for the provided commitment, generator and
+// computeSigS generates a S part of schnorr signature over the secp256k1 curve
+// for the provided challenge using the given nonce, and private key.
+func computeSigS(
+	privKey, nonce *secp256k1.ModNScalar,
+	challenge *secp256k1.ModNScalar,
+) (*secp256k1.ModNScalar, error) {
+	// G = curve generator
+	// n = curve order
+	// d = private key
+	// c = challenge (hash of message)
+	// R, S = signature
+	//
+	// 1. Fail if d = 0 or d >= n
+	// 2. S = k - h*d mod n
+	// 3. Return S
+
+	// Step 1.
+	//
+	// Fail if d = 0 or d >= n
+	if privKey.IsZero() {
+		return nil, errors.New("private key is zero")
+	}
+
+	// Step 2.
+	//
+	// s = k - c*d mod n
+	c := *challenge
+	k := *nonce
+	S := new(secp256k1.ModNScalar).Mul2(&c, privKey).Negate().Add(&k)
+	k.Zero()
+
+	// Step 3.
+	//
+	// Return S
+	return S, nil
+}
+
+// verify attempt to verify the signature for the provided challenge, generator and
 // secp256k1 public key and either returns nil if successful or a specific error
 // indicating why it failed if not successful.
-// Note: expectR must be affine coordinate.
 func verify(
 	expectR *secp256k1.JacobianPoint,
 	sigS *secp256k1.ModNScalar,
-	commitment *secp256k1.ModNScalar,
+	challenge *secp256k1.ModNScalar,
 	pubKey *secp256k1.PublicKey,
 	generator *secp256k1.JacobianPoint,
 ) error {
@@ -112,7 +160,7 @@ func verify(
 	// Step 2.
 	//
 	// R = s*G + h*Q
-	c := *commitment
+	c := *challenge
 	var Q, R, sG, eQ secp256k1.JacobianPoint
 	pubKey.AsJacobian(&Q)
 	if generator == nil {
@@ -142,41 +190,4 @@ func verify(
 	}
 
 	return nil
-}
-
-// computeSigS generates a S part of schnorr signature over the secp256k1 curve
-// for the provided commitment using the given nonce, and private key.
-func computeSigS(
-	privKey, nonce *secp256k1.ModNScalar,
-	commitment *secp256k1.ModNScalar,
-) (*secp256k1.ModNScalar, error) {
-	// G = curve generator
-	// n = curve order
-	// d = private key
-	// c = commitment (hash of message)
-	// R, S = signature
-	//
-	// 1. Fail if d = 0 or d >= n
-	// 2. S = k - h*d mod n
-	// 3. Return S
-
-	// Step 1.
-	//
-	// Fail if d = 0 or d >= n
-	if privKey.IsZero() {
-		return nil, errors.New("private key is zero")
-	}
-
-	// Step 2.
-	//
-	// s = k - c*d mod n
-	c := *commitment
-	k := *nonce
-	S := new(secp256k1.ModNScalar).Mul2(&c, privKey).Negate().Add(&k)
-	k.Zero()
-
-	// Step 3.
-	//
-	// Return S
-	return S, nil
 }
