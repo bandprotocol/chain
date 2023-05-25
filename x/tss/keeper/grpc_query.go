@@ -18,23 +18,24 @@ var _ types.QueryServer = Querier{}
 // Group function handles the request to fetch group details.
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := tss.GroupID(req.GroupId)
 
-	group, err := k.GetGroup(ctx, tss.GroupID(req.GroupId))
+	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	dkgContext, err := k.GetDKGContext(ctx, tss.GroupID(req.GroupId))
+	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	allRound1Data := k.GetAllRound1Data(ctx, tss.GroupID(req.GroupId))
+	allRound1Data := k.GetAllRound1Data(ctx, groupID)
 
 	return &types.QueryGroupResponse{
 		Group:         group,
