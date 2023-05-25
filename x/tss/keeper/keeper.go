@@ -311,6 +311,62 @@ func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (ty
 	return dkgMaliciousIndexes, nil
 }
 
+func (k Keeper) VerifyComplainSig(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	complain types.Complain,
+) error {
+	memberI, err := k.GetMember(ctx, groupID, complain.I)
+	if err != nil {
+		return err
+	}
+	memberJ, err := k.GetMember(ctx, groupID, complain.J)
+	if err != nil {
+		return err
+	}
+
+	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.Noncesym, complain.Signature)
+	return sdkerrors.Wrapf(
+		types.ErrComplainFailed,
+		"failed to complain member: %d with groupID: %d; %s",
+		memberJ,
+		groupID,
+		err,
+	)
+}
+
+func (k Keeper) VerifyOwnPubKeySig(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	ownPubKeySig tss.Signature,
+) error {
+	// Get member public key
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return err
+	}
+
+	// Get dkg context
+	dkgContext, err := k.GetDKGContext(ctx, groupID)
+	if err != nil {
+		return err
+	}
+
+	// Verify own public key sig
+	err = tss.VerifyOwnPubKeySig(memberID, dkgContext, ownPubKeySig, member.PubKey)
+	if err != nil {
+		return sdkerrors.Wrapf(
+			types.ErrConfirmFailed,
+			"failed to verify own public key with memberID: %d; %s",
+			memberID,
+			err,
+		)
+	}
+
+	return nil
+}
+
 func (k Keeper) SetConfirmation(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -335,6 +391,34 @@ func (k Keeper) GetConfirmation(
 		)
 	}
 	var c types.Confirmation
+	k.cdc.MustUnmarshal(bz, &c)
+	return c, nil
+}
+
+func (k Keeper) SetComplain(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	confirmation types.Confirmation,
+) {
+	ctx.KVStore(k.storeKey).Set(types.ComplainMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirmation))
+}
+
+func (k Keeper) GetComplain(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.Complain, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ComplainMemberStoreKey(groupID, memberID))
+	if bz == nil {
+		return types.Complain{}, sdkerrors.Wrapf(
+			types.ErrConfirmationNotFound,
+			"failed to get confirmation with groupID %d memberID %d",
+			groupID,
+			memberID,
+		)
+	}
+	var c types.Complain
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
 }

@@ -240,7 +240,6 @@ func (k Keeper) Complain(
 	if err != nil {
 		return nil, err
 	}
-
 	if group.Status != types.ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
@@ -256,6 +255,13 @@ func (k Keeper) Complain(
 		)
 	}
 
+	// Check already confirm or complain
+	err = k.checkConfirmOrComplain(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get dkg malicious indexes
 	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
 	if err != nil {
 		return nil, err
@@ -263,9 +269,34 @@ func (k Keeper) Complain(
 
 	// Verify complain
 	for _, c := range req.Complains {
-		// TODO: Verify complain
+		err := k.VerifyComplainSig(ctx, groupID, *c)
+		if err != nil {
+			// handle verify failed
+			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
+			if contains {
+				return nil, sdkerrors.Wrap(
+					types.ErrMemberIsAlreadyMalicious,
+					fmt.Sprintf("member %d is already malicious on this group", c.I),
+				)
+			}
+			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
+			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
-		if true {
+			// emit complain failed event
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeComplainFailed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+		} else {
+			// handle complains success
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			if contains {
 				return nil, sdkerrors.Wrap(
@@ -276,42 +307,32 @@ func (k Keeper) Complain(
 			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.J))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
-			ctx.EventManager().EmitEvent(
-				// TODO: extract AttributeKeyComplains
-				sdk.NewEvent(
-					types.EventTypeComplainsSuccess,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplains, fmt.Sprintf("%+v", c)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-				),
-			)
-		} else {
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
-			if contains {
-				return nil, sdkerrors.Wrap(types.ErrMemberIsAlreadyMalicious, fmt.Sprintf("member %d is already malicious on this group", c.I))
-			}
-			dkgMaliciousIndexes.MaliciousIDs = append(dkgMaliciousIndexes.MaliciousIDs, uint64(c.I))
-			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
-
+			// emit complain success event
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
-					types.EventTypeComplainsFailed,
+					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplains, fmt.Sprintf("%+v", c)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
 		}
 
+		// Get round 3 note.
 		round3Note, err := k.GetRound3Note(ctx, groupID)
 		if err != nil {
 			return nil, err
 		}
-		round3Note.ConfirmComplainCount += 1
-		if round3Note.ConfirmComplainCount == group.Size_ {
-			// TODO: set group failed
-		}
 
+		round3Note.ConfirmComplainCount += 1
+		// Handle fallen group if everyone sends confirm or complains already.
+		if round3Note.ConfirmComplainCount == group.Size_ {
+			k.handleFallenGroup(ctx, groupID, group)
+		}
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -346,23 +367,19 @@ func (k Keeper) Confirm(
 		)
 	}
 
-	// Check already confirm
-
-	// Check already complain
-	round1Commitment, err := k.GetRound1Data(ctx, groupID, memberID)
+	// Check already confirm or complain
+	err = k.checkConfirmOrComplain(ctx, groupID, memberID)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(round1Commitment)
 
-	// TODO: verify OwnPubKeySig
-
-	member, err := k.GetMember(ctx, groupID, memberID)
+	// Verify OwnPubKeySig
+	err = k.VerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(member)
 
+	// Get dkg malicious indexes
 	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
 	if err != nil {
 		return nil, err
@@ -374,43 +391,81 @@ func (k Keeper) Confirm(
 	}
 
 	round3Note.ConfirmComplainCount += 1
-	if round3Note.ConfirmComplainCount == group.Size_ && len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
-		group.Status = types.ACTIVE
-		k.UpdateGroup(ctx, groupID, group)
+	if round3Note.ConfirmComplainCount == group.Size_ {
+		// Handle active group
+		if len(dkgMaliciousIndexes.MaliciousIDs) == 0 {
+			// TODO: Compute final group public key
+			groupPubKey, err := tss.ComputeGroupPublicKey(tss.Points{})
+			if err != nil {
+				return nil, sdkerrors.Wrapf(
+					types.ErrConfirmFailed,
+					"failed to compute group public key; %s",
+					err,
+				)
+			}
 
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound3Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-				sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			),
-		)
+			group.Status = types.ACTIVE
+			group.PubKey = groupPubKey
+
+			k.UpdateGroup(ctx, groupID, group)
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound3Success,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+		} else {
+			// Handle fallen group if someone in this group is malicious.
+			if round3Note.ConfirmComplainCount == group.Size_ {
+				k.handleFallenGroup(ctx, groupID, group)
+			}
+		}
+
 	}
 
-	// TODO: Remove all interim data associated with this group
+	// TODO: Remove all interim data associated with round 3
 
 	return &types.MsgConfirmResponse{}, nil
 }
 
-// // handleUpdateGroupStatus updates the status of a group and performs specific actions based on the status.
-// func (k Keeper) handleUpdateGroupStatus(
-// 	ctx sdk.Context,
-// 	groupID tss.GroupID,
-// 	group types.Group,
-// ) {
-// 	switch group.Status {
-// 	case types.ROUND_1:
-// 		group.Status = types.ROUND_2
-// 		k.UpdateGroup(ctx, groupID, group)
-// 		ctx.EventManager().EmitEvent(
-// 			sdk.NewEvent(
-// 				types.EventTypeRound1Success,
-// 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-// 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-// 			),
-// 		)
-// 	}
+// Check already confirm or complain
+func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+	_, err := k.GetConfirmation(ctx, groupID, memberID)
+	if err == nil {
+		return sdkerrors.Wrapf(
+			types.ErrMemberIsAlreadyComplainOrConfirm,
+			"memberID %d already send confirm message",
+			memberID,
+		)
+	}
+	_, err = k.GetComplain(ctx, groupID, memberID)
+	if err == nil {
+		return sdkerrors.Wrapf(
+			types.ErrMemberIsAlreadyComplainOrConfirm,
+			"memberID %d already send complain message",
+			memberID,
+		)
+	}
+	return nil
+}
 
-// 	return &types.MsgSubmitDKGRound1Response{}, nil
-// }
+// HandleFallenGroup updates the status of a group and emit event.
+func (k Keeper) handleFallenGroup(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	group types.Group,
+) {
+	group.Status = types.FALLEN
+
+	k.UpdateGroup(ctx, groupID, group)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRound3Failed,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+		),
+	)
+}

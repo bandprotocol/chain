@@ -47,17 +47,20 @@ var (
 	// Round2ShareCountStoreKeyPrefix is the key that keeps the round 2 share count.
 	Round2ShareCountStoreKeyPrefix = []byte{0x08}
 
-	// ConfirmationStoreKeyPrefix is a hash PubKey, schnorr signature on the PubKey and context.
-	ConfirmationStoreKeyPrefix = []byte{0x09}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x10}
+	Round2DataStoreKeyPrefix = []byte{0x9}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x11}
+	Round2DataCountStoreKeyPrefix = []byte{0x10}
 
 	// Round3NoteStoreKeyPrefix is list for keep track of the progress of round3.
-	Round3NoteStoreKeyPrefix = []byte{0x12}
+	Round3NoteStoreKeyPrefix = []byte{0x11}
+
+	// ConfirmationStoreKeyPrefix is a hash PubKey, schnorr signature on the PubKey and context.
+	ConfirmationStoreKeyPrefix = []byte{0x12}
+
+	// ComplainStoreKeyPrefix is the key that keeps complain.
+	ComplainStoreKeyPrefix = []byte{0x13}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -110,6 +113,14 @@ func ConfirmationStoreKey(groupID tss.GroupID) []byte {
 
 func ConfirmationMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(ConfirmationStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func ComplainStoreKey(groupID tss.GroupID) []byte {
+	return append(ComplainStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ComplainMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(ComplainStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func Round3NoteStoreKey(groupID tss.GroupID) []byte {
