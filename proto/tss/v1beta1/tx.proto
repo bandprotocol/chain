@@ -42,7 +42,7 @@ message MsgSubmitDKGRound1 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round1_data is all data that require to handle round1.
+  // round1_data is all data that require to handle round 1.
   Round1Data round1_data = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
@@ -58,7 +58,7 @@ message MsgSubmitDKGRound2 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round2_data is is all data that require to handle round2.
+  // round2_data is is all data that require to handle round 2.
   Round2Data round2_data = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
