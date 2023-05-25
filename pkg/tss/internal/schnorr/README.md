@@ -4,4 +4,4 @@ This package is the modified version from https://github.com/decred/dcrd/blob/ma
 
 ## Modification
 - Adjust r and s in Signature to be public fields
-- Adjust r to be Jacobian points to keep both x,y and we won't enforce even y in our TSS.
+- Adjust r to be Jacobian points to keep both x and y since we won't enforce even y in our TSS.
