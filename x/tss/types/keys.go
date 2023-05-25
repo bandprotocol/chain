@@ -38,10 +38,10 @@ var (
 	// Round1DataCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
 	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
-	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
+	// Round2DataStoreKeyPrefix is the key that keeps the round 2 data of the member.
 	Round2DataStoreKeyPrefix = []byte{0x06}
 
-	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
+	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
 	Round2DataCountStoreKeyPrefix = []byte{0x07}
 )
 
