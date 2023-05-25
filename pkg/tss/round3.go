@@ -189,12 +189,12 @@ func VerifyComplainSig(
 	return nil
 }
 
-// generateChallengeOwnPublicKey generates the challenge for verifying an own public key signature.
+// GenerateChallengeOwnPublicKey generates the challenge for verifying an own public key signature.
 func GenerateChallengeOwnPublicKey(mid MemberID, dkgContext []byte, ownPub PublicKey) []byte {
 	return ConcatBytes([]byte("round3OwnPubKey"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, ownPub)
 }
 
-// generateChallengeComplain generates the challenge for verifying a complaint signature.
+// GenerateChallengeComplain generates the challenge for verifying a complaint signature.
 func GenerateChallengeComplain(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
