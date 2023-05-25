@@ -268,19 +268,24 @@ func (k Keeper) Complain(
 	}
 
 	// Verify complain
+	var complainsWithStatus []types.ComplainWithStatus
 	for _, c := range req.Complains {
-		err := k.HandleVerifyComplainSig(ctx, groupID, *c)
+		err := k.HandleVerifyComplainSig(ctx, groupID, c)
 		if err != nil {
 			// handle verify failed
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
 			if contains {
-				return nil, sdkerrors.Wrap(
-					types.ErrMemberIsAlreadyMalicious,
-					fmt.Sprintf("member %d is already malicious on this group", c.I),
-				)
+				fmt.Printf("member %d is already malicious on this group\n", c.I)
+				continue
 			}
 			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+			// Add complain status
+			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
+				Complain:       &c,
+				ComplainStatus: types.FAILED,
+			})
 
 			// emit complain failed event
 			ctx.EventManager().EmitEvent(
@@ -299,21 +304,25 @@ func (k Keeper) Complain(
 			// handle complains success
 			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
 			if contains {
-				return nil, sdkerrors.Wrap(
-					types.ErrMemberIsAlreadyMalicious,
-					fmt.Sprintf("member %d is already malicious on this group", c.J),
-				)
+				fmt.Printf("member %d is already malicious on this group\n", c.J)
+				continue
 			}
 			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
 			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
 
-			// emit complain success event
+			// Add complain status
+			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
+				Complain:       &c,
+				ComplainStatus: types.SUCCESS,
+			})
+
+			// Emit complain success event
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
@@ -322,10 +331,10 @@ func (k Keeper) Complain(
 			)
 		}
 
-		// Get round 3 note.
+		// Get confirm complain count
 		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-		// Set round 3 note
+		// Set confirm complain count
 		confirmComplainCount += 1
 		k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
 
@@ -333,6 +342,11 @@ func (k Keeper) Complain(
 		if confirmComplainCount == group.Size_ {
 			k.handleFallenGroup(ctx, groupID, group)
 		}
+
+		// Set complain with status
+		k.SetComplainsWithStatus(ctx, groupID, memberID, types.ComplainsWithStatus{
+			ComplainsWithStatus: complainsWithStatus,
+		})
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -417,17 +431,40 @@ func (k Keeper) Confirm(
 		} else {
 			// Handle fallen group if someone in this group is malicious.
 			k.handleFallenGroup(ctx, groupID, group)
+
+			return nil, sdkerrors.Wrapf(
+				types.ErrConfirmFailed,
+				"memberIDs: %v is malicious",
+				dkgMaliciousIndexes.MemberIDs,
+			)
 		}
+
+		// Delete all dkg interim data
+		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_)
 	}
 
-	// TODO: Remove all interim data associated with round 3
+	// Set Confirm with status
+	k.SetConfirm(ctx, groupID, memberID, types.Confirm{
+		OwnPubKeySig: req.OwnPubKeySig,
+	})
+
+	// emit event confirm success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeConfirmSuccess,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+		),
+	)
 
 	return &types.MsgConfirmResponse{}, nil
 }
 
 // Check already confirm or complain
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
-	_, err := k.GetConfirmation(ctx, groupID, memberID)
+	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {
 		return sdkerrors.Wrapf(
 			types.ErrMemberIsAlreadyComplainOrConfirm,
@@ -435,7 +472,7 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 			memberID,
 		)
 	}
-	_, err = k.GetComplain(ctx, groupID, memberID)
+	_, err = k.GetComplainsWithStatus(ctx, groupID, memberID)
 	if err == nil {
 		return sdkerrors.Wrapf(
 			types.ErrMemberIsAlreadyComplainOrConfirm,

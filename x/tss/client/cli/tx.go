@@ -323,7 +323,7 @@ func MsgComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] ...",
 		Args:  cobra.ExactArgs(2),
-		Short: "submit tss round 3 containing group_id, and n encrypted-secret-shares",
+		Short: "complain containing group_id, and n encrypted-secret-shares",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,
@@ -357,11 +357,11 @@ func MsgComplainCmd() *cobra.Command {
 
 func MsgConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "confirm [group_id] [own_pub_key_sig]",
-		Args:  cobra.ExactArgs(2),
-		Short: "submit tss confirm containing group_id and own_pub_key_sig",
+		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
+		Args:  cobra.ExactArgs(3),
+		Short: "submit tss confirm containing group_id, member_id, and own_pub_key_sig",
 		Example: fmt.Sprintf(
-			`%s tx tss confirm [group_id] [own_pub_key_sig]`,
+			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -375,13 +375,19 @@ func MsgConfirmCmd() *cobra.Command {
 				return err
 			}
 
-			ownPubKeySig, err := hex.DecodeString(args[1])
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			ownPubKeySig, err := hex.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgConfirm{
 				GroupID:      tss.GroupID(groupID),
+				MemberID:     tss.MemberID(memberID),
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
 			}

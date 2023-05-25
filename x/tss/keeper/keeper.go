@@ -104,6 +104,11 @@ func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, err
 	return bz, nil
 }
 
+// DeleteDKGContext removes the DKG context data of a group from the store.
+func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.DKGContextStoreKey(groupID))
+}
+
 // SetMember function sets a member of a group in the store.
 func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
@@ -311,30 +316,45 @@ func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (ty
 	return dkgMaliciousIndexes, nil
 }
 
+// DeleteDKGMaliciousIndexes remove the DKG malicious indexes data of a group from the store.
+func (k Keeper) DeleteDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.DKGMaliciousIndexesStoreKey(groupID))
+}
+
+// HandleVerifyComplainSig verifies the complain signature for a given groupID and complain
 func (k Keeper) HandleVerifyComplainSig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	complain types.Complain,
 ) error {
+	// Get the member I from the store
 	memberI, err := k.GetMember(ctx, groupID, complain.I)
 	if err != nil {
 		return err
 	}
+
+	// Get the member J from the store
 	memberJ, err := k.GetMember(ctx, groupID, complain.J)
 	if err != nil {
 		return err
 	}
 
+	// Verify the complain signature
 	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.Noncesym, complain.Signature)
-	return sdkerrors.Wrapf(
-		types.ErrComplainFailed,
-		"failed to complain member: %d with groupID: %d; %s",
-		memberJ,
-		groupID,
-		err,
-	)
+	if err != nil {
+		return sdkerrors.Wrapf(
+			types.ErrComplainFailed,
+			"failed to complain member: %d with groupID: %d; %s",
+			memberJ,
+			groupID,
+			err,
+		)
+	}
+
+	return nil
 }
 
+// HandleVerifyOwnPubKeySig verifies the own public key signature for a given groupID, memberID, and ownPubKeySig
 func (k Keeper) HandleVerifyOwnPubKeySig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -367,11 +387,12 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	return nil
 }
 
+// HandleComputeGroupPublicKey computes the group public key for a given groupID
 func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID) (tss.PublicKey, error) {
 	var rawA0Commits tss.Points
-	allRound2Data := k.GetAllRound2Data(ctx, groupID)
-	for _, r2 := range allRound2Data {
-		rawA0Commits = append(rawA0Commits, tss.Point(r2.EncryptedSecretShares[0]))
+	allRound1Data := k.GetAllRound1Data(ctx, groupID)
+	for _, r1 := range allRound1Data {
+		rawA0Commits = append(rawA0Commits, (r1.CoefficientsCommit[0]))
 	}
 
 	groupPubKey, err := tss.ComputeGroupPublicKey(rawA0Commits)
@@ -385,86 +406,116 @@ func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID
 	return groupPubKey, nil
 }
 
-func (k Keeper) SetConfirmation(
+// SetConfirm sets the confirm for a specific groupID and memberID in the store
+func (k Keeper) SetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
-	confirmation types.Confirmation,
+	confirm types.Confirm,
 ) {
-	ctx.KVStore(k.storeKey).Set(types.ConfirmationMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirmation))
+	ctx.KVStore(k.storeKey).
+		Set(types.ConfirmMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirm))
 }
 
-func (k Keeper) GetConfirmation(
+// GetConfirm retrieves the confirm for a specific groupID and memberID from the store
+func (k Keeper) GetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
-) (types.Confirmation, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmationStoreKey(groupID))
+) (types.Confirm, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Confirmation{}, sdkerrors.Wrapf(
-			types.ErrConfirmationNotFound,
-			"failed to get confirmation with groupID %d memberID %d",
+		return types.Confirm{}, sdkerrors.Wrapf(
+			types.ErrConfirmationWithStatusNotFound,
+			"failed to get confirm with status with groupID %d memberID %d",
 			groupID,
 			memberID,
 		)
 	}
-	var c types.Confirmation
+	var c types.Confirm
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
 }
 
-func (k Keeper) SetComplain(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	memberID tss.MemberID,
-	confirmation types.Complain,
-) {
-	ctx.KVStore(k.storeKey).Set(types.ComplainMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirmation))
+// DeleteConfirm method deletes the confirm of a member from the store.
+func (k Keeper) DeleteConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.ConfirmMemberStoreKey(groupID, memberID))
 }
 
-func (k Keeper) GetComplain(
+// SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store
+func (k Keeper) SetComplainsWithStatus(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
-) (types.Complain, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ComplainMemberStoreKey(groupID, memberID))
+	complainsWithStatus types.ComplainsWithStatus,
+) {
+	ctx.KVStore(k.storeKey).
+		Set(types.ComplainWithStatusMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&complainsWithStatus))
+}
+
+// GetComplainsWithStatus retrieves the complains with status for a specific groupID and memberID from the store
+func (k Keeper) GetComplainsWithStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.ComplainsWithStatus, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ComplainWithStatusMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Complain{}, sdkerrors.Wrapf(
-			types.ErrConfirmationNotFound,
-			"failed to get confirmation with groupID %d memberID %d",
+		return types.ComplainsWithStatus{}, sdkerrors.Wrapf(
+			types.ErrComplainsWithStatusNotFound,
+			"failed to get complains with status with groupID %d memberID %d",
 			groupID,
 			memberID,
 		)
 	}
-	var c types.Complain
+	var c types.ComplainsWithStatus
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
 }
 
+// DeleteComplainsWithStatus method deletes the complain with status of a member from the store.
+func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.ComplainWithStatusMemberStoreKey(groupID, memberID))
+}
+
+// SetConfirmComplainCount sets the confirm complain count for a specific groupID in the store
 func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ConfirmComplainCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
+// GetConfirmComplainCount retrieves the confirm complain count for a specific groupID from the store
 func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmComplainCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-func (k Keeper) RemoveDKGInterimData(ctx sdk.Context, groupID tss.GroupID) {
-	// Remove dkg context
+// DeleteConfirmComplainCount remove the confirm complain count data of a group from the store.
+func (k Keeper) DeleteConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.ConfirmComplainCountStoreKey(groupID))
+}
 
-	// Remove malicious indexes
+// DeleteAllDKGInterimData deletes all DKG interim data for a given groupID and groupSize
+func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) {
+	// Delete DKG context
+	k.DeleteDKGContext(ctx, groupID)
 
-	// Remove round 1 data
+	// Delete DKG malicious indexes
+	k.DeleteDKGMaliciousIndexes(ctx, groupID)
 
-	// Remove round 2 data
+	for i := uint64(1); i <= groupSize; i++ {
+		memberID := tss.MemberID(i)
+		// Delete round 1 data
+		k.DeleteRound1Data(ctx, groupID, memberID)
+		// Delete round 2 data
+		k.DeleteRound2Data(ctx, groupID, memberID)
+		// Delete complain with status
+		k.DeleteComplainsWithStatus(ctx, groupID, memberID)
+		// Delete confirm
+		k.DeleteConfirm(ctx, groupID, memberID)
+	}
 
-	// Remove round 3 note
-
-	// Remove complain
-
-	// Remove confirm
-
+	// Delete confirm complain count
+	k.DeleteConfirmComplainCount(ctx, groupID)
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

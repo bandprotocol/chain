@@ -59,6 +59,31 @@ func (GroupStatus) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_321be6f53cb0491e, []int{0}
 }
 
+type ComplainStatus int32
+
+const (
+	SUCCESS ComplainStatus = 0
+	FAILED  ComplainStatus = 1
+)
+
+var ComplainStatus_name = map[int32]string{
+	0: "SUCCESS",
+	1: "FAILED",
+}
+
+var ComplainStatus_value = map[string]int32{
+	"SUCCESS": 0,
+	"FAILED":  1,
+}
+
+func (x ComplainStatus) String() string {
+	return proto.EnumName(ComplainStatus_name, int32(x))
+}
+
+func (ComplainStatus) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{1}
+}
+
 type Group struct {
 	Size_     uint64                                             `protobuf:"varint,1,opt,name=size,proto3" json:"size,omitempty"`
 	Threshold uint64                                             `protobuf:"varint,2,opt,name=threshold,proto3" json:"threshold,omitempty"`
@@ -359,50 +384,6 @@ func (m *DEQueue) GetTail() uint64 {
 	return 0
 }
 
-type Confirmation struct {
-	OwnPubKeySig github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,1,opt,name=own_pub_key_sig,json=ownPubKeySig,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"own_pub_key_sig,omitempty"`
-}
-
-func (m *Confirmation) Reset()         { *m = Confirmation{} }
-func (m *Confirmation) String() string { return proto.CompactTextString(m) }
-func (*Confirmation) ProtoMessage()    {}
-func (*Confirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{5}
-}
-func (m *Confirmation) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Confirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Confirmation.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Confirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Confirmation.Merge(m, src)
-}
-func (m *Confirmation) XXX_Size() int {
-	return m.Size()
-}
-func (m *Confirmation) XXX_DiscardUnknown() {
-	xxx_messageInfo_Confirmation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Confirmation proto.InternalMessageInfo
-
-func (m *Confirmation) GetOwnPubKeySig() github_com_bandprotocol_chain_v2_pkg_tss.Signature {
-	if m != nil {
-		return m.OwnPubKeySig
-	}
-	return nil
-}
-
 type Signing struct {
 	GroupID              uint64                                             `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	AssignedParticipants []uint64                                           `protobuf:"varint,2,rep,packed,name=assigned_participants,json=assignedParticipants,proto3" json:"assigned_participants,omitempty"`
@@ -414,7 +395,7 @@ func (m *Signing) Reset()         { *m = Signing{} }
 func (m *Signing) String() string { return proto.CompactTextString(m) }
 func (*Signing) ProtoMessage()    {}
 func (*Signing) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{6}
+	return fileDescriptor_321be6f53cb0491e, []int{5}
 }
 func (m *Signing) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -480,7 +461,7 @@ func (m *Member) Reset()         { *m = Member{} }
 func (m *Member) String() string { return proto.CompactTextString(m) }
 func (*Member) ProtoMessage()    {}
 func (*Member) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{7}
+	return fileDescriptor_321be6f53cb0491e, []int{6}
 }
 func (m *Member) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -531,7 +512,7 @@ func (m *DKGMaliciousIndexes) Reset()         { *m = DKGMaliciousIndexes{} }
 func (m *DKGMaliciousIndexes) String() string { return proto.CompactTextString(m) }
 func (*DKGMaliciousIndexes) ProtoMessage()    {}
 func (*DKGMaliciousIndexes) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{8}
+	return fileDescriptor_321be6f53cb0491e, []int{7}
 }
 func (m *DKGMaliciousIndexes) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -563,6 +544,50 @@ var xxx_messageInfo_DKGMaliciousIndexes proto.InternalMessageInfo
 func (m *DKGMaliciousIndexes) GetMemberIDs() []uint64 {
 	if m != nil {
 		return m.MemberIDs
+	}
+	return nil
+}
+
+type Confirm struct {
+	OwnPubKeySig github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,1,opt,name=own_pub_key_sig,json=ownPubKeySig,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"own_pub_key_sig,omitempty"`
+}
+
+func (m *Confirm) Reset()         { *m = Confirm{} }
+func (m *Confirm) String() string { return proto.CompactTextString(m) }
+func (*Confirm) ProtoMessage()    {}
+func (*Confirm) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{8}
+}
+func (m *Confirm) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Confirm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Confirm.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Confirm) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Confirm.Merge(m, src)
+}
+func (m *Confirm) XXX_Size() int {
+	return m.Size()
+}
+func (m *Confirm) XXX_DiscardUnknown() {
+	xxx_messageInfo_Confirm.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Confirm proto.InternalMessageInfo
+
+func (m *Confirm) GetOwnPubKeySig() github_com_bandprotocol_chain_v2_pkg_tss.Signature {
+	if m != nil {
+		return m.OwnPubKeySig
 	}
 	return nil
 }
@@ -643,79 +668,185 @@ func (m *Complain) GetNoncesym() github_com_bandprotocol_chain_v2_pkg_tss.Public
 	return nil
 }
 
+type ComplainWithStatus struct {
+	Complain       *Complain      `protobuf:"bytes,1,opt,name=complain,proto3" json:"complain,omitempty"`
+	ComplainStatus ComplainStatus `protobuf:"varint,2,opt,name=complain_status,json=complainStatus,proto3,enum=tss.v1beta1.ComplainStatus" json:"complain_status,omitempty"`
+}
+
+func (m *ComplainWithStatus) Reset()         { *m = ComplainWithStatus{} }
+func (m *ComplainWithStatus) String() string { return proto.CompactTextString(m) }
+func (*ComplainWithStatus) ProtoMessage()    {}
+func (*ComplainWithStatus) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{10}
+}
+func (m *ComplainWithStatus) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ComplainWithStatus) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ComplainWithStatus.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ComplainWithStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComplainWithStatus.Merge(m, src)
+}
+func (m *ComplainWithStatus) XXX_Size() int {
+	return m.Size()
+}
+func (m *ComplainWithStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComplainWithStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComplainWithStatus proto.InternalMessageInfo
+
+func (m *ComplainWithStatus) GetComplain() *Complain {
+	if m != nil {
+		return m.Complain
+	}
+	return nil
+}
+
+func (m *ComplainWithStatus) GetComplainStatus() ComplainStatus {
+	if m != nil {
+		return m.ComplainStatus
+	}
+	return SUCCESS
+}
+
+type ComplainsWithStatus struct {
+	ComplainsWithStatus []ComplainWithStatus `protobuf:"bytes,1,rep,name=complainsWithStatus,proto3" json:"complainsWithStatus"`
+}
+
+func (m *ComplainsWithStatus) Reset()         { *m = ComplainsWithStatus{} }
+func (m *ComplainsWithStatus) String() string { return proto.CompactTextString(m) }
+func (*ComplainsWithStatus) ProtoMessage()    {}
+func (*ComplainsWithStatus) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{11}
+}
+func (m *ComplainsWithStatus) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ComplainsWithStatus) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ComplainsWithStatus.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ComplainsWithStatus) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComplainsWithStatus.Merge(m, src)
+}
+func (m *ComplainsWithStatus) XXX_Size() int {
+	return m.Size()
+}
+func (m *ComplainsWithStatus) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComplainsWithStatus.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComplainsWithStatus proto.InternalMessageInfo
+
+func (m *ComplainsWithStatus) GetComplainsWithStatus() []ComplainWithStatus {
+	if m != nil {
+		return m.ComplainsWithStatus
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterEnum("tss.v1beta1.GroupStatus", GroupStatus_name, GroupStatus_value)
+	proto.RegisterEnum("tss.v1beta1.ComplainStatus", ComplainStatus_name, ComplainStatus_value)
 	proto.RegisterType((*Group)(nil), "tss.v1beta1.Group")
 	proto.RegisterType((*Round1Data)(nil), "tss.v1beta1.Round1Data")
 	proto.RegisterType((*Round2Data)(nil), "tss.v1beta1.Round2Data")
 	proto.RegisterType((*DE)(nil), "tss.v1beta1.DE")
 	proto.RegisterType((*DEQueue)(nil), "tss.v1beta1.DEQueue")
-	proto.RegisterType((*Confirmation)(nil), "tss.v1beta1.Confirmation")
 	proto.RegisterType((*Signing)(nil), "tss.v1beta1.Signing")
 	proto.RegisterType((*Member)(nil), "tss.v1beta1.Member")
 	proto.RegisterType((*DKGMaliciousIndexes)(nil), "tss.v1beta1.DKGMaliciousIndexes")
+	proto.RegisterType((*Confirm)(nil), "tss.v1beta1.Confirm")
 	proto.RegisterType((*Complain)(nil), "tss.v1beta1.Complain")
+	proto.RegisterType((*ComplainWithStatus)(nil), "tss.v1beta1.ComplainWithStatus")
+	proto.RegisterType((*ComplainsWithStatus)(nil), "tss.v1beta1.ComplainsWithStatus")
 }
 
 func init() { proto.RegisterFile("tss/v1beta1/tss.proto", fileDescriptor_321be6f53cb0491e) }
 
 var fileDescriptor_321be6f53cb0491e = []byte{
-	// 873 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x55, 0xdd, 0x6e, 0x1b, 0x45,
-	0x14, 0xf6, 0xd8, 0x8e, 0x7f, 0x4e, 0x5c, 0xb0, 0xa6, 0x0d, 0x58, 0x11, 0xb2, 0x2d, 0x5f, 0xa0,
-	0x08, 0x55, 0x71, 0x6c, 0x03, 0xf7, 0xf1, 0x0f, 0xc5, 0xa4, 0x49, 0xc3, 0x3a, 0x20, 0x84, 0x04,
-	0xab, 0xd9, 0xdd, 0xc9, 0x7a, 0x1a, 0xef, 0xcc, 0xb2, 0x33, 0xdb, 0xd6, 0x3c, 0x01, 0xea, 0x05,
-	0x82, 0x07, 0x28, 0x37, 0xdc, 0xa0, 0x3e, 0x03, 0x0f, 0x80, 0xb8, 0xea, 0x25, 0x42, 0xc8, 0x45,
-	0xce, 0x5b, 0xf4, 0x0a, 0xed, 0xec, 0x6e, 0xec, 0x3b, 0x42, 0x5c, 0x71, 0x77, 0xce, 0xf9, 0xd6,
-	0x9f, 0xcf, 0xcf, 0x77, 0xce, 0xc0, 0x8e, 0x92, 0xb2, 0xfd, 0xa8, 0x63, 0x51, 0x45, 0x3a, 0x6d,
-	0x25, 0xe5, 0xbe, 0x1f, 0x08, 0x25, 0xf0, 0x76, 0x64, 0x26, 0xe1, 0xdd, 0x3b, 0xae, 0x70, 0x85,
-	0x8e, 0xb7, 0x23, 0x2b, 0xfe, 0xa4, 0xf5, 0x2b, 0x82, 0xad, 0x7b, 0x81, 0x08, 0x7d, 0x8c, 0x21,
-	0x2f, 0xd9, 0xb7, 0xb4, 0x86, 0x9a, 0x68, 0x2f, 0x6f, 0x68, 0x1b, 0xbf, 0x03, 0x65, 0x35, 0x0d,
-	0xa8, 0x9c, 0x8a, 0x99, 0x53, 0xcb, 0x6a, 0x60, 0x15, 0xc0, 0x0f, 0xa0, 0xe8, 0x87, 0x96, 0x79,
-	0x41, 0xe7, 0xb5, 0x5c, 0x13, 0xed, 0x55, 0xfa, 0x1f, 0xbe, 0x5a, 0x34, 0xba, 0x2e, 0x53, 0xd3,
-	0xd0, 0xda, 0xb7, 0x85, 0xd7, 0xb6, 0x08, 0x77, 0xf4, 0xdf, 0xd8, 0x62, 0xd6, 0xb6, 0xa7, 0x84,
-	0xf1, 0xf6, 0xa3, 0x6e, 0xdb, 0xbf, 0x70, 0x75, 0x8e, 0xa7, 0xa1, 0x35, 0x63, 0xf6, 0x11, 0x9d,
-	0x1b, 0x05, 0x3f, 0xb4, 0x8e, 0xe8, 0x1c, 0x1f, 0x40, 0x41, 0x2a, 0xa2, 0x42, 0x59, 0xcb, 0x37,
-	0xd1, 0xde, 0x1b, 0xdd, 0xda, 0xfe, 0x5a, 0x01, 0xfb, 0x3a, 0xcd, 0x89, 0xc6, 0x8d, 0xe4, 0xbb,
-	0xd6, 0x5f, 0x39, 0x00, 0x43, 0x84, 0xdc, 0xe9, 0x0c, 0x89, 0x22, 0xf8, 0x6b, 0x28, 0x7b, 0xd4,
-	0xb3, 0x68, 0x60, 0x32, 0x27, 0x2e, 0xa4, 0x7f, 0xb8, 0x5c, 0x34, 0x4a, 0xc7, 0x3a, 0x38, 0x1e,
-	0xbe, 0x5a, 0x34, 0x3a, 0xd7, 0xce, 0x2f, 0xfd, 0x91, 0x51, 0x8a, 0x39, 0xc7, 0x0e, 0x76, 0xe0,
-	0xb6, 0x2d, 0xe8, 0xf9, 0x39, 0xb3, 0x19, 0xe5, 0x4a, 0x9a, 0xb6, 0xf0, 0x3c, 0xa6, 0x6a, 0xd9,
-	0x66, 0x6e, 0xaf, 0xd2, 0xef, 0x3d, 0x7f, 0xd9, 0x68, 0x5f, 0xbf, 0x7a, 0xc1, 0xb8, 0x92, 0x06,
-	0x5e, 0xe7, 0x1b, 0x68, 0x3a, 0x6c, 0x42, 0x55, 0x70, 0x6a, 0x2a, 0xe6, 0x51, 0xf3, 0xf5, 0x34,
-	0xf8, 0x96, 0xe0, 0xf4, 0x8c, 0x79, 0xf4, 0x34, 0xee, 0xf3, 0x31, 0x14, 0xc8, 0x81, 0x29, 0x99,
-	0xab, 0xfb, 0xfc, 0x5f, 0x69, 0x27, 0xcc, 0xe5, 0x44, 0x85, 0x01, 0x35, 0xb6, 0xc8, 0xc1, 0x84,
-	0xb9, 0xf8, 0x0b, 0xa8, 0x5c, 0xe5, 0x1b, 0x91, 0x6e, 0x6d, 0x44, 0x0a, 0x49, 0xae, 0x13, 0xe6,
-	0xb6, 0xfe, 0x44, 0xc9, 0x78, 0xbb, 0xff, 0xcb, 0x78, 0x67, 0xf0, 0x36, 0xe5, 0x76, 0x30, 0xf7,
-	0x15, 0x75, 0x4c, 0x49, 0xed, 0x80, 0x2a, 0x53, 0x4e, 0x49, 0x40, 0x65, 0x32, 0xe2, 0xf7, 0x9f,
-	0xbf, 0x6c, 0x1c, 0x5c, 0xbf, 0x26, 0x9b, 0xcc, 0x48, 0x20, 0x8d, 0x9d, 0x2b, 0xd2, 0x89, 0xe6,
-	0x9c, 0x68, 0xca, 0xd6, 0x4f, 0x08, 0xb2, 0xc3, 0x11, 0x3e, 0x82, 0xad, 0x68, 0xc8, 0x71, 0x41,
-	0x37, 0x1f, 0x71, 0xde, 0x0f, 0xad, 0x61, 0x4a, 0x46, 0xf5, 0xb2, 0x6e, 0x46, 0x36, 0x6a, 0x75,
-	0xa0, 0x38, 0x1c, 0x7d, 0x1a, 0xd2, 0x90, 0x46, 0xc7, 0x61, 0x4a, 0x89, 0x93, 0x1e, 0x87, 0xc8,
-	0x8e, 0x62, 0x8a, 0xb0, 0x59, 0x72, 0x17, 0xb4, 0xdd, 0xf2, 0xa0, 0x32, 0x10, 0xfc, 0x9c, 0x05,
-	0x1e, 0x51, 0x4c, 0x70, 0xfc, 0x15, 0xbc, 0x29, 0x1e, 0xf3, 0x54, 0xc5, 0x5a, 0x1d, 0x68, 0x23,
-	0x75, 0x54, 0xc4, 0x63, 0x1e, 0xab, 0x38, 0xd2, 0xc7, 0xef, 0x08, 0x8a, 0x11, 0xc6, 0xb8, 0x8b,
-	0xdf, 0x85, 0x92, 0x1b, 0x5d, 0x88, 0x95, 0x36, 0xb6, 0x97, 0x8b, 0x46, 0x51, 0x5f, 0x8d, 0xf1,
-	0xd0, 0x28, 0x6a, 0x70, 0xec, 0xe0, 0x1e, 0xec, 0x10, 0x29, 0x99, 0xcb, 0xa9, 0x63, 0xfa, 0x24,
-	0x50, 0xcc, 0x66, 0x3e, 0xe1, 0x2a, 0x1e, 0x71, 0xde, 0xb8, 0x93, 0x82, 0xa7, 0x6b, 0x18, 0xae,
-	0x41, 0xd1, 0xa3, 0x52, 0x12, 0x97, 0xc6, 0x9b, 0x68, 0xa4, 0x2e, 0xfe, 0x18, 0x72, 0x9b, 0x2f,
-	0x52, 0x44, 0xd1, 0xfa, 0x06, 0x0a, 0xb1, 0x26, 0xf1, 0x5b, 0x50, 0x88, 0x35, 0xa9, 0x0b, 0x29,
-	0x1b, 0x89, 0xb7, 0x7e, 0x70, 0xb3, 0xaf, 0xe3, 0xe0, 0xb6, 0x06, 0x70, 0x7b, 0x78, 0x74, 0xef,
-	0x98, 0xcc, 0x98, 0xcd, 0x44, 0x28, 0xc7, 0xdc, 0xa1, 0x4f, 0xa8, 0xc4, 0x77, 0x01, 0xae, 0xf6,
-	0x4c, 0xd6, 0x50, 0xd4, 0x97, 0xfe, 0xad, 0xe5, 0xa2, 0x51, 0x4e, 0x77, 0x46, 0x1a, 0xe5, 0x74,
-	0x69, 0x64, 0xeb, 0xfb, 0x1c, 0x94, 0x06, 0xc2, 0xf3, 0x67, 0x84, 0x71, 0x3c, 0x00, 0xc4, 0x92,
-	0xf6, 0x7f, 0x70, 0xb3, 0x75, 0x44, 0x2c, 0x22, 0x79, 0x18, 0xcb, 0xea, 0xc6, 0x24, 0x0f, 0xf1,
-	0x09, 0x14, 0x2e, 0xe8, 0x7c, 0x32, 0xf7, 0x36, 0x7d, 0x9c, 0x62, 0x16, 0x7c, 0x06, 0x65, 0x99,
-	0x0e, 0x6c, 0xc3, 0x71, 0xaf, 0x88, 0xb0, 0x01, 0x25, 0x2e, 0xb8, 0x4d, 0xe5, 0xdc, 0xbb, 0xd1,
-	0xdd, 0x5c, 0xe5, 0x79, 0xc5, 0xf3, 0xde, 0x8f, 0x08, 0xb6, 0xd7, 0x1e, 0xcb, 0x48, 0xbc, 0xc6,
-	0x83, 0xcf, 0x4e, 0x86, 0x66, 0xa7, 0x9a, 0xd9, 0xdd, 0x7e, 0xfa, 0xac, 0x99, 0xba, 0x2b, 0xa4,
-	0x5b, 0x45, 0xeb, 0x48, 0x77, 0x85, 0xf4, 0xaa, 0xd9, 0x75, 0xa4, 0x17, 0x89, 0xf3, 0x70, 0x70,
-	0x36, 0xfe, 0x7c, 0x54, 0xcd, 0xed, 0xc2, 0xd3, 0x67, 0xcd, 0xc4, 0x8b, 0xe2, 0x1f, 0x1d, 0xde,
-	0xbf, 0x3f, 0x3a, 0xa9, 0xe6, 0xe3, 0x78, 0xec, 0xed, 0xe6, 0xbf, 0xfb, 0xb9, 0x9e, 0xe9, 0x7f,
-	0xf2, 0xcb, 0xb2, 0x8e, 0x7e, 0x5b, 0xd6, 0xd1, 0x8b, 0x65, 0x1d, 0xfd, 0xbd, 0xac, 0xa3, 0x1f,
-	0x2e, 0xeb, 0x99, 0x17, 0x97, 0xf5, 0xcc, 0x1f, 0x97, 0xf5, 0xcc, 0x97, 0x77, 0xff, 0xb5, 0xde,
-	0x27, 0x51, 0xb5, 0x6d, 0x35, 0xf7, 0xa9, 0xb4, 0x0a, 0x1a, 0xee, 0xfd, 0x13, 0x00, 0x00, 0xff,
-	0xff, 0xb9, 0x78, 0xea, 0x42, 0xf6, 0x08, 0x00, 0x00,
+	// 990 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0xdd, 0x6e, 0x1b, 0xc5,
+	0x17, 0xf7, 0xda, 0x8e, 0x3f, 0x8e, 0xd3, 0xd4, 0x9a, 0x34, 0xff, 0xbf, 0x15, 0x90, 0x6d, 0xed,
+	0x05, 0x8a, 0xaa, 0x2a, 0x8e, 0x1d, 0xe0, 0x3e, 0xfe, 0xa0, 0x35, 0xf9, 0x68, 0xd8, 0x4d, 0x29,
+	0x42, 0x82, 0xd5, 0x7a, 0x77, 0xb2, 0x9e, 0xc6, 0xbb, 0xb3, 0xec, 0xcc, 0xb6, 0x35, 0x4f, 0x80,
+	0x2a, 0x81, 0xe0, 0x01, 0xca, 0x0d, 0x37, 0xa8, 0xcf, 0xc0, 0x03, 0x54, 0x5c, 0xf5, 0x12, 0x21,
+	0xe4, 0x22, 0xe7, 0x2d, 0x7a, 0x85, 0x66, 0x76, 0xd7, 0x76, 0x44, 0x24, 0x42, 0x5c, 0x71, 0x37,
+	0xe7, 0x9c, 0xd9, 0xdf, 0x9c, 0x8f, 0xdf, 0x39, 0x67, 0x61, 0x83, 0x33, 0xd6, 0x78, 0xdc, 0x1c,
+	0x60, 0x6e, 0x36, 0x1b, 0x9c, 0xb1, 0x6d, 0x3f, 0xa0, 0x9c, 0xa2, 0x92, 0x38, 0xc6, 0xea, 0xcd,
+	0x5b, 0x0e, 0x75, 0xa8, 0xd4, 0x37, 0xc4, 0x29, 0xba, 0xa2, 0xfe, 0xa2, 0xc0, 0xca, 0xdd, 0x80,
+	0x86, 0x3e, 0x42, 0x90, 0x65, 0xe4, 0x6b, 0x5c, 0x51, 0xea, 0xca, 0x56, 0x56, 0x93, 0x67, 0xf4,
+	0x2e, 0x14, 0xf9, 0x30, 0xc0, 0x6c, 0x48, 0x47, 0x76, 0x25, 0x2d, 0x0d, 0x73, 0x05, 0xba, 0x0f,
+	0x79, 0x3f, 0x1c, 0x18, 0x67, 0x78, 0x5c, 0xc9, 0xd4, 0x95, 0xad, 0xd5, 0xf6, 0x87, 0x6f, 0x26,
+	0xb5, 0x96, 0x43, 0xf8, 0x30, 0x1c, 0x6c, 0x5b, 0xd4, 0x6d, 0x0c, 0x4c, 0xcf, 0x96, 0xcf, 0x58,
+	0x74, 0xd4, 0xb0, 0x86, 0x26, 0xf1, 0x1a, 0x8f, 0x5b, 0x0d, 0xff, 0xcc, 0x91, 0x3e, 0x1e, 0x87,
+	0x83, 0x11, 0xb1, 0xf6, 0xf1, 0x58, 0xcb, 0xf9, 0xe1, 0x60, 0x1f, 0x8f, 0xd1, 0x0e, 0xe4, 0x18,
+	0x37, 0x79, 0xc8, 0x2a, 0xd9, 0xba, 0xb2, 0xb5, 0xd6, 0xaa, 0x6c, 0x2f, 0x04, 0xb0, 0x2d, 0xdd,
+	0xd4, 0xa5, 0x5d, 0x8b, 0xef, 0xa9, 0x7f, 0x64, 0x00, 0x34, 0x1a, 0x7a, 0x76, 0xb3, 0x6b, 0x72,
+	0x13, 0x7d, 0x09, 0x45, 0x17, 0xbb, 0x03, 0x1c, 0x18, 0xc4, 0x8e, 0x02, 0x69, 0xef, 0x4d, 0x27,
+	0xb5, 0xc2, 0xa1, 0x54, 0xf6, 0xbb, 0x6f, 0x26, 0xb5, 0xe6, 0x95, 0xfd, 0x4b, 0x3e, 0xd2, 0x0a,
+	0x11, 0x66, 0xdf, 0x46, 0x36, 0xac, 0x5b, 0x14, 0x9f, 0x9e, 0x12, 0x8b, 0x60, 0x8f, 0x33, 0xc3,
+	0xa2, 0xae, 0x4b, 0x78, 0x25, 0x5d, 0xcf, 0x6c, 0xad, 0xb6, 0x77, 0x5f, 0xbc, 0xae, 0x35, 0xae,
+	0x1e, 0x3d, 0x25, 0x1e, 0x67, 0x1a, 0x5a, 0xc4, 0xeb, 0x48, 0x38, 0x64, 0x40, 0x99, 0x7a, 0xd8,
+	0xe0, 0xc4, 0xc5, 0xc6, 0xdb, 0x49, 0xf0, 0x0d, 0xea, 0xe1, 0x13, 0xe2, 0xe2, 0xe3, 0x28, 0xcf,
+	0x87, 0x90, 0x33, 0x77, 0x0c, 0x46, 0x1c, 0x99, 0xe7, 0x7f, 0x0b, 0xab, 0x13, 0xc7, 0x33, 0x79,
+	0x18, 0x60, 0x6d, 0xc5, 0xdc, 0xd1, 0x89, 0x83, 0x3e, 0x83, 0xd5, 0x99, 0xbf, 0x02, 0x74, 0x65,
+	0x29, 0x50, 0x88, 0x7d, 0xd5, 0x89, 0xa3, 0xfe, 0xae, 0xc4, 0xe5, 0x6d, 0xfd, 0x27, 0xe5, 0x1d,
+	0xc1, 0xff, 0xb1, 0x67, 0x05, 0x63, 0x9f, 0x63, 0xdb, 0x60, 0xd8, 0x0a, 0x30, 0x37, 0xd8, 0xd0,
+	0x0c, 0x30, 0x8b, 0x4b, 0xfc, 0xfe, 0x8b, 0xd7, 0xb5, 0x9d, 0xab, 0xc7, 0x64, 0x99, 0x23, 0x33,
+	0x60, 0xda, 0xc6, 0x0c, 0x54, 0x97, 0x98, 0xba, 0x84, 0x54, 0x7f, 0x54, 0x20, 0xdd, 0xed, 0xa1,
+	0x7d, 0x58, 0x11, 0x45, 0x8e, 0x02, 0xba, 0x7e, 0x89, 0xb3, 0x7e, 0x38, 0xe8, 0x26, 0x60, 0x58,
+	0x36, 0xeb, 0x72, 0x60, 0x3d, 0xb5, 0x09, 0xf9, 0x6e, 0xef, 0x93, 0x10, 0x87, 0x58, 0x0c, 0x87,
+	0x21, 0x36, 0xed, 0x64, 0x38, 0x88, 0xb3, 0xd0, 0x71, 0x93, 0x8c, 0xe2, 0xb9, 0x20, 0xcf, 0xea,
+	0xaf, 0x0a, 0xe4, 0x45, 0x29, 0x89, 0xe7, 0xa0, 0xf7, 0xa0, 0xe0, 0x88, 0x96, 0x9d, 0x17, 0xab,
+	0x34, 0x9d, 0xd4, 0xf2, 0xb2, 0x8d, 0xfb, 0x5d, 0x2d, 0x2f, 0x8d, 0x7d, 0x1b, 0xed, 0xc2, 0x86,
+	0xc9, 0x18, 0x71, 0x3c, 0x6c, 0x1b, 0xbe, 0x19, 0x70, 0x62, 0x11, 0xdf, 0xf4, 0x78, 0x94, 0xf3,
+	0xac, 0x76, 0x2b, 0x31, 0x1e, 0x2f, 0xd8, 0x50, 0x05, 0xf2, 0x2e, 0x66, 0xcc, 0x74, 0x70, 0xd4,
+	0x1a, 0x5a, 0x22, 0xa2, 0x7b, 0x90, 0x59, 0x9e, 0xd9, 0x02, 0x42, 0xfd, 0x0a, 0x72, 0x11, 0x49,
+	0xd0, 0xff, 0x20, 0x17, 0x91, 0x44, 0x06, 0x52, 0xd4, 0x62, 0x69, 0x71, 0x02, 0xa6, 0xdf, 0xc6,
+	0x04, 0x54, 0x3b, 0xb0, 0xde, 0xdd, 0xbf, 0x7b, 0x68, 0x8e, 0x88, 0x45, 0x68, 0xc8, 0xfa, 0x9e,
+	0x8d, 0x9f, 0x62, 0x86, 0xee, 0x00, 0xcc, 0x88, 0xcf, 0x2a, 0x8a, 0xc8, 0x4b, 0xfb, 0xc6, 0x74,
+	0x52, 0x2b, 0x26, 0x24, 0x66, 0x5a, 0x31, 0x61, 0x31, 0x53, 0x87, 0x90, 0xef, 0x50, 0xef, 0x94,
+	0x04, 0x2e, 0xfa, 0x02, 0x6e, 0xd2, 0x27, 0x5e, 0x32, 0x45, 0x64, 0x77, 0x2a, 0x4b, 0x25, 0x66,
+	0x95, 0x3e, 0xf1, 0xa2, 0x29, 0x22, 0xfa, 0xf3, 0xbb, 0x0c, 0x14, 0x3a, 0xd4, 0xf5, 0x47, 0x26,
+	0xf1, 0x50, 0x07, 0x14, 0x12, 0x17, 0xfa, 0x83, 0xeb, 0x75, 0xa2, 0x42, 0x04, 0xc8, 0xa3, 0x88,
+	0x51, 0xd7, 0x06, 0x79, 0x84, 0x8e, 0x20, 0x77, 0x86, 0xc7, 0xfa, 0xd8, 0x5d, 0x76, 0x2f, 0x45,
+	0x28, 0xe8, 0x04, 0x8a, 0x2c, 0xc9, 0xc0, 0x92, 0xc4, 0x9a, 0x03, 0x21, 0x0d, 0x0a, 0x1e, 0xf5,
+	0x2c, 0xcc, 0xc6, 0xee, 0xb5, 0x46, 0xe6, 0xdc, 0xcf, 0x19, 0x8e, 0xfa, 0xad, 0x02, 0x28, 0x29,
+	0xc8, 0x43, 0xc2, 0x87, 0xd1, 0xba, 0x44, 0x4d, 0x28, 0x58, 0xb1, 0x56, 0x56, 0xa8, 0xd4, 0xda,
+	0xb8, 0xb0, 0x5a, 0x93, 0x4f, 0xb4, 0xd9, 0x35, 0xd4, 0x85, 0x9b, 0xc9, 0xd9, 0x88, 0x97, 0x72,
+	0x5a, 0x2e, 0xe5, 0x77, 0x2e, 0xfd, 0x32, 0xde, 0xcb, 0x6b, 0xd6, 0x05, 0x59, 0xf5, 0x60, 0x3d,
+	0xb9, 0xc1, 0x16, 0xfc, 0x79, 0x28, 0xf6, 0xe8, 0xdf, 0xd4, 0x92, 0xd8, 0xa5, 0x56, 0xed, 0xd2,
+	0x07, 0xe6, 0xd7, 0xda, 0xd9, 0x97, 0x93, 0x5a, 0x4a, 0xbb, 0x0c, 0xe1, 0xf6, 0x0f, 0x0a, 0x94,
+	0x16, 0xfe, 0x13, 0xc4, 0x98, 0xd0, 0xee, 0x3f, 0x38, 0xea, 0x1a, 0xcd, 0x72, 0x6a, 0xb3, 0xf4,
+	0xec, 0x79, 0x3d, 0x11, 0xe7, 0x96, 0x56, 0x59, 0x59, 0xb4, 0xb4, 0xe6, 0x96, 0xdd, 0x72, 0x7a,
+	0xd1, 0xb2, 0x2b, 0xc6, 0xc0, 0x5e, 0xe7, 0xa4, 0xff, 0x69, 0xaf, 0x9c, 0xd9, 0x84, 0x67, 0xcf,
+	0xeb, 0xb1, 0x24, 0xf4, 0x1f, 0xed, 0x1d, 0x1c, 0xf4, 0x8e, 0xca, 0xd9, 0x48, 0x1f, 0x49, 0x9b,
+	0xd9, 0x6f, 0x7e, 0xaa, 0xa6, 0x6e, 0xdf, 0x83, 0xb5, 0x8b, 0x59, 0x12, 0x2f, 0xe8, 0x0f, 0x3a,
+	0x9d, 0x9e, 0xae, 0x27, 0x5e, 0xc5, 0x62, 0x84, 0xd4, 0x3f, 0xe8, 0x75, 0xcb, 0x4a, 0x82, 0x24,
+	0xa4, 0x08, 0xa9, 0xfd, 0xf1, 0xcf, 0xd3, 0xaa, 0xf2, 0x72, 0x5a, 0x55, 0x5e, 0x4d, 0xab, 0xca,
+	0x9f, 0xd3, 0xaa, 0xf2, 0xfd, 0x79, 0x35, 0xf5, 0xea, 0xbc, 0x9a, 0xfa, 0xed, 0xbc, 0x9a, 0xfa,
+	0xfc, 0xce, 0x3f, 0x32, 0xe7, 0xa9, 0xe0, 0x4d, 0x83, 0x8f, 0x7d, 0xcc, 0x06, 0x39, 0x69, 0xde,
+	0xfd, 0x2b, 0x00, 0x00, 0xff, 0xff, 0xd0, 0xcb, 0x01, 0x8e, 0x3b, 0x0a, 0x00, 0x00,
 }
 
 func (this *Group) Equal(that interface{}) bool {
@@ -878,30 +1009,6 @@ func (this *DEQueue) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *Confirmation) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Confirmation)
-	if !ok {
-		that2, ok := that.(Confirmation)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !bytes.Equal(this.OwnPubKeySig, that1.OwnPubKeySig) {
-		return false
-	}
-	return true
-}
 func (this *Signing) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -996,6 +1103,30 @@ func (this *DKGMaliciousIndexes) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *Confirm) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Confirm)
+	if !ok {
+		that2, ok := that.(Confirm)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !bytes.Equal(this.OwnPubKeySig, that1.OwnPubKeySig) {
+		return false
+	}
+	return true
+}
 func (this *Complain) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -1029,6 +1160,62 @@ func (this *Complain) Equal(that interface{}) bool {
 	}
 	if !bytes.Equal(this.Noncesym, that1.Noncesym) {
 		return false
+	}
+	return true
+}
+func (this *ComplainWithStatus) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*ComplainWithStatus)
+	if !ok {
+		that2, ok := that.(ComplainWithStatus)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Complain.Equal(that1.Complain) {
+		return false
+	}
+	if this.ComplainStatus != that1.ComplainStatus {
+		return false
+	}
+	return true
+}
+func (this *ComplainsWithStatus) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*ComplainsWithStatus)
+	if !ok {
+		that2, ok := that.(ComplainsWithStatus)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.ComplainsWithStatus) != len(that1.ComplainsWithStatus) {
+		return false
+	}
+	for i := range this.ComplainsWithStatus {
+		if !this.ComplainsWithStatus[i].Equal(&that1.ComplainsWithStatus[i]) {
+			return false
+		}
 	}
 	return true
 }
@@ -1242,36 +1429,6 @@ func (m *DEQueue) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Confirmation) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Confirmation) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Confirmation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.OwnPubKeySig) > 0 {
-		i -= len(m.OwnPubKeySig)
-		copy(dAtA[i:], m.OwnPubKeySig)
-		i = encodeVarintTss(dAtA, i, uint64(len(m.OwnPubKeySig)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *Signing) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1410,6 +1567,36 @@ func (m *DKGMaliciousIndexes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *Confirm) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Confirm) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Confirm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.OwnPubKeySig) > 0 {
+		i -= len(m.OwnPubKeySig)
+		copy(dAtA[i:], m.OwnPubKeySig)
+		i = encodeVarintTss(dAtA, i, uint64(len(m.OwnPubKeySig)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Complain) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1460,6 +1647,83 @@ func (m *Complain) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTss(dAtA, i, uint64(m.I))
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ComplainWithStatus) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ComplainWithStatus) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ComplainWithStatus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.ComplainStatus != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.ComplainStatus))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.Complain != nil {
+		{
+			size, err := m.Complain.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTss(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ComplainsWithStatus) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ComplainsWithStatus) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ComplainsWithStatus) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ComplainsWithStatus) > 0 {
+		for iNdEx := len(m.ComplainsWithStatus) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ComplainsWithStatus[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTss(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
 	}
 	return len(dAtA) - i, nil
 }
@@ -1577,19 +1841,6 @@ func (m *DEQueue) Size() (n int) {
 	return n
 }
 
-func (m *Confirmation) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.OwnPubKeySig)
-	if l > 0 {
-		n += 1 + l + sovTss(uint64(l))
-	}
-	return n
-}
-
 func (m *Signing) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1650,6 +1901,19 @@ func (m *DKGMaliciousIndexes) Size() (n int) {
 	return n
 }
 
+func (m *Confirm) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.OwnPubKeySig)
+	if l > 0 {
+		n += 1 + l + sovTss(uint64(l))
+	}
+	return n
+}
+
 func (m *Complain) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1673,6 +1937,37 @@ func (m *Complain) Size() (n int) {
 	l = len(m.Noncesym)
 	if l > 0 {
 		n += 1 + l + sovTss(uint64(l))
+	}
+	return n
+}
+
+func (m *ComplainWithStatus) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Complain != nil {
+		l = m.Complain.Size()
+		n += 1 + l + sovTss(uint64(l))
+	}
+	if m.ComplainStatus != 0 {
+		n += 1 + sovTss(uint64(m.ComplainStatus))
+	}
+	return n
+}
+
+func (m *ComplainsWithStatus) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.ComplainsWithStatus) > 0 {
+		for _, e := range m.ComplainsWithStatus {
+			l = e.Size()
+			n += 1 + l + sovTss(uint64(l))
+		}
 	}
 	return n
 }
@@ -2334,90 +2629,6 @@ func (m *DEQueue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Confirmation) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTss
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Confirmation: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Confirmation: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OwnPubKeySig", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthTss
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTss
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OwnPubKeySig = append(m.OwnPubKeySig[:0], dAtA[iNdEx:postIndex]...)
-			if m.OwnPubKeySig == nil {
-				m.OwnPubKeySig = []byte{}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTss(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTss
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *Signing) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2873,6 +3084,90 @@ func (m *DKGMaliciousIndexes) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *Confirm) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Confirm: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Confirm: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnPubKeySig", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OwnPubKeySig = append(m.OwnPubKeySig[:0], dAtA[iNdEx:postIndex]...)
+			if m.OwnPubKeySig == nil {
+				m.OwnPubKeySig = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Complain) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3040,6 +3335,195 @@ func (m *Complain) Unmarshal(dAtA []byte) error {
 			m.Noncesym = append(m.Noncesym[:0], dAtA[iNdEx:postIndex]...)
 			if m.Noncesym == nil {
 				m.Noncesym = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ComplainWithStatus) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ComplainWithStatus: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ComplainWithStatus: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Complain", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Complain == nil {
+				m.Complain = &Complain{}
+			}
+			if err := m.Complain.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ComplainStatus", wireType)
+			}
+			m.ComplainStatus = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ComplainStatus |= ComplainStatus(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ComplainsWithStatus) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ComplainsWithStatus: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ComplainsWithStatus: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ComplainsWithStatus", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ComplainsWithStatus = append(m.ComplainsWithStatus, ComplainWithStatus{})
+			if err := m.ComplainsWithStatus[len(m.ComplainsWithStatus)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
 			iNdEx = postIndex
 		default:

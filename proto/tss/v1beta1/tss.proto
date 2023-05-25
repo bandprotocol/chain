@@ -58,12 +58,6 @@ message DEQueue {
   uint64 tail = 2;
 }
 
-message Confirmation { 
-  bytes own_pub_key_sig = 1 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
-  ];
-}
-
 message Signing {
   uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
   repeated uint64 assigned_participants = 2;
@@ -99,6 +93,12 @@ message DKGMaliciousIndexes {
   repeated uint64 member_ids = 1 [ (gogoproto.customname) = "MemberIDs" ];
 }
 
+message Confirm { 
+  bytes own_pub_key_sig = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+}
+
 message Complain {
   uint64 i = 1 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
   uint64 j = 2 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
@@ -111,4 +111,22 @@ message Complain {
   bytes noncesym = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
+}
+
+enum ComplainStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  SUCCESS = 0
+      [ (gogoproto.enumvalue_customname) = "SUCCESS" ];
+  FAILED= 1
+      [ (gogoproto.enumvalue_customname) = "FAILED" ];
+}
+
+message ComplainWithStatus {
+  Complain complain = 1;
+  ComplainStatus complain_status = 2;
+}
+
+message ComplainsWithStatus {
+  repeated ComplainWithStatus complainsWithStatus = 1 [ (gogoproto.nullable) = false ];
 }

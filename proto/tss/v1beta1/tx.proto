@@ -78,7 +78,7 @@ message MsgComplain {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
   // complains is a list of Complains. 
-  repeated Complain complains  = 3;
+  repeated Complain complains  = 3 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 4;
 }
