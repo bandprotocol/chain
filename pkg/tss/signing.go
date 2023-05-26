@@ -2,14 +2,21 @@ package tss
 
 import (
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
+	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 // ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
-// Note: Currently, supports a maximum N of 20.
-func ComputeLagrangeCoefficient(mid MemberID, n uint64) Scalar {
-	coeff := lagrange.ComputeCoefficient(int64(mid), int64(n)).Bytes()
+// Note: Currently, supports a maximum mid at 20.
+func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
+	var mids []int64
+	for _, member := range memberList {
+		mids = append(mids, int64(member))
+	}
+
+	coeff := lagrange.ComputeCoefficient2(int64(mid), mids).Bytes()
+
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
 
@@ -90,6 +97,23 @@ func ComputeGroupPublicNonce(rawOwnPubNonces PublicKeys) (PublicKey, error) {
 	return ParsePublicKey(sumPoints(pubNonces...)), nil
 }
 
+// CombineSignatures performs combining all signatures by sum up R and sum up S.
+func CombineSignatures(rawSigs ...Signature) (Signature, error) {
+	var allR []*secp256k1.JacobianPoint
+	var allS []*secp256k1.ModNScalar
+	for _, rawSig := range rawSigs {
+		sig, err := rawSig.Parse()
+		if err != nil {
+			return nil, err
+		}
+
+		allR = append(allR, &sig.R)
+		allS = append(allS, &sig.S)
+	}
+
+	return ParseSignature(schnorr.NewSignature(sumPoints(allR...), sumScalars(allS...))), nil
+}
+
 // SignSigning performs signing using the group public nonce, group public key, data, Lagrange coefficient,
 // own private nonce, and own private key.
 func SignSigning(
@@ -106,7 +130,7 @@ func SignSigning(
 
 // VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,
 // signature, and own public key.
-func VerifySigning(
+func VerifySigningSig(
 	groupPubNonce PublicKey,
 	groupPubKey PublicKey,
 	data []byte,
@@ -119,7 +143,7 @@ func VerifySigning(
 }
 
 // VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
-func VerifyGroupSigning(
+func VerifyGroupSigningSig(
 	groupPubKey PublicKey,
 	data []byte,
 	sig Signature,

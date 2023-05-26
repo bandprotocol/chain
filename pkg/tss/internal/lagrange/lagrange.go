@@ -38,9 +38,26 @@ var TTT = [...][]int64{
 	19: {1, 19},
 }
 
-func ComputeCoefficient(i int64, n int64) *big.Int {
+func ComputeCoefficient(i int64, s []int64) *big.Int {
+	numerator := big.NewInt(1)
+	denominator := big.NewInt(1)
+	for _, j := range s {
+		if j != i {
+			numerator.Mul(big.NewInt(int64(j)), numerator)
+
+			j_i := j - i
+			denominator.Mul(big.NewInt(int64(j_i)), denominator)
+		}
+	}
+
+	result := new(big.Int).Mul(numerator, denominator.ModInverse(denominator, N))
+	return result.Mod(result, N)
+}
+
+// TODO-TSS: Need to fix on absoulate case (i = 1, s = [1,2]) --> the result should not be 1
+func ComputeCoefficient2(i int64, s []int64) *big.Int {
 	counts := make([]int64, 20)
-	for j := int64(1); j <= n; j++ {
+	for _, j := range s {
 		if j != i {
 			for _, v := range PRIME_FACTORS[j] {
 				counts[v[0]] += v[1]

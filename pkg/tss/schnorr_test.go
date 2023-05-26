@@ -10,55 +10,55 @@ import (
 
 func (suite *TSSTestSuite) TestSignAndVerify() {
 	// Sign
-	sig, err := tss.Sign(suite.kpI.PrivateKey, suite.message, suite.nonce, nil)
+	sig, err := tss.Sign(suite.member1.OneTimePrivKey, suite.data, suite.nonce, nil)
 	suite.Require().NoError(err)
 
 	// Success case
-	err = tss.Verify(sig.R(), sig.S(), suite.message, suite.kpI.PublicKey, nil, nil)
+	err = tss.Verify(sig.R(), sig.S(), suite.data, suite.member1.OneTimePubKey, nil, nil)
 	suite.Require().NoError(err)
 
 	// Wrong challenge case
-	err = tss.Verify(sig.R(), sig.S(), suite.fakeMessage, suite.kpI.PublicKey, nil, nil)
+	err = tss.Verify(sig.R(), sig.S(), suite.fakeData, suite.member1.OneTimePubKey, nil, nil)
 	suite.Require().Error(err)
 
 	// Wrong public key case
-	err = tss.Verify(sig.R(), sig.S(), suite.message, suite.fakeKp.PublicKey, nil, nil)
+	err = tss.Verify(sig.R(), sig.S(), suite.data, suite.fakeKey.PublicKey, nil, nil)
 	suite.Require().Error(err)
 }
 
 func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 	// Prepare
-	generator := []byte(suite.kpJ.PublicKey)
-	fakeGenerator := []byte(suite.fakeKp.PublicKey)
+	generator := []byte(suite.member2.OneTimePubKey)
+	fakeGenerator := []byte(suite.fakeKey.PublicKey)
 
 	// Sign
-	sig, err := tss.Sign(suite.kpI.PrivateKey, suite.message, suite.nonce, nil)
+	sig, err := tss.Sign(suite.member1.OneTimePrivKey, suite.data, suite.nonce, nil)
 	suite.Require().NoError(err)
 
-	keySym, err := tss.ComputeKeySym(suite.kpI.PrivateKey, generator)
+	keySym, err := tss.ComputeKeySym(suite.member1.OneTimePrivKey, generator)
 	suite.Require().NoError(err)
 
 	nonceSym, err := tss.ComputeNonceSym(suite.nonce, generator)
 	suite.Require().NoError(err)
 
 	// Success case
-	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.message, keySym, generator, nil)
+	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, keySym, generator, nil)
 	suite.Require().NoError(err)
 
 	// Wrong challenge case
-	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.fakeMessage, keySym, generator, nil)
+	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.fakeData, keySym, generator, nil)
 	suite.Require().Error(err)
 
 	// Wrong key sym case
-	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.message, suite.fakeKp.PublicKey, generator, nil)
+	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, suite.fakeKey.PublicKey, generator, nil)
 	suite.Require().Error(err)
 
 	// Wrong generator case
-	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.message, keySym, fakeGenerator, nil)
+	err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, keySym, fakeGenerator, nil)
 	suite.Require().Error(err)
 
 	// Wrong nonce sym case
-	err = tss.Verify(tss.Point(suite.fakeKp.PublicKey), sig.S(), suite.message, keySym, fakeGenerator, nil)
+	err = tss.Verify(tss.Point(suite.fakeKey.PublicKey), sig.S(), suite.data, keySym, fakeGenerator, nil)
 	suite.Require().Error(err)
 }
 
@@ -105,8 +105,8 @@ func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 				Fatalf("failed to verify signature\nsig: %x\nhash: %x\n"+"private key: %x\npublic key: %x", sig, msg, privKey, pubKey)
 		}
 
-		// Change a random bit in the message and ensure
-		// the original good signature fails to verify the new bad message.
+		// Change a random bit in the data and ensure
+		// the original good signature fails to verify the new bad data.
 		badMsg := make([]byte, len(msg))
 		copy(badMsg, msg[:])
 		randByte := rng.Intn(len(badMsg))
