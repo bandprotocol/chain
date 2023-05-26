@@ -47,8 +47,13 @@ func GenerateKeyPair() (KeyPair, error) {
 
 // GenerateNonce generates a nonce value using the provided private key, hash, and iterator.
 // It returns the nonce value as a Scalar.
-func GenerateNonce(privKey PrivateKey, hash []byte, iterator uint32) Scalar {
-	return ParseScalar(generateNonce(privKey, hash, iterator))
+func GenerateNonce(privKey PrivateKey, hash []byte) (Scalar, Point) {
+	nonce := generateNonce(privKey, hash, 0)
+
+	var pubNonce secp256k1.JacobianPoint
+	secp256k1.ScalarBaseMultNonConst(nonce, &pubNonce)
+
+	return ParseScalar(nonce), ParsePoint(&pubNonce)
 }
 
 // generateNonce generates a nonce value using the provided private key, hash, and iterator.
