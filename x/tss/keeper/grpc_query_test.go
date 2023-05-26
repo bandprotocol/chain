@@ -111,24 +111,29 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
-							Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							PubKey: tss.PublicKey(nil),
+							Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+							PubKey:      tss.PublicKey(nil),
+							IsMalicious: false,
 						},
 						{
-							Member: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							PubKey: tss.PublicKey(nil),
+							Member:      "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+							PubKey:      tss.PublicKey(nil),
+							IsMalicious: false,
 						},
 						{
-							Member: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey: tss.PublicKey(nil),
+							Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							PubKey:      tss.PublicKey(nil),
+							IsMalicious: false,
 						},
 						{
-							Member: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey: tss.PublicKey(nil),
+							Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							PubKey:      tss.PublicKey(nil),
+							IsMalicious: false,
 						},
 						{
-							Member: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							PubKey: tss.PublicKey(nil),
+							Member:      "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+							PubKey:      tss.PublicKey(nil),
+							IsMalicious: false,
 						},
 					},
 					AllRound1Data: []types.Round1Data{
@@ -164,12 +169,14 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	members := []types.Member{
 		{
-			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 		{
-			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 	}
 

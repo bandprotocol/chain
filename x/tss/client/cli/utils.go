@@ -1,8 +1,12 @@
 package cli
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
@@ -54,4 +58,25 @@ func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke
 	}
 
 	return msgs, nil
+}
+
+func parseComplains(complainsFile string) ([]types.Complain, error) {
+	var complains []types.Complain
+
+	if complainsFile == "" {
+		return complains, nil
+	}
+
+	contents, err := os.ReadFile(complainsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(contents, &complains)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return complains, nil
 }
