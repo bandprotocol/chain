@@ -10,11 +10,11 @@ import (
 func (suite *TSSTestSuite) TestComputeLagrangeCoefficient() {
 	expValue := tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(1140))
 	value := tss.ComputeLagrangeCoefficient(
-		tss.MemberID(2),
-		[]tss.MemberID{1, 2},
+		tss.MemberID(3),
+		[]tss.MemberID{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20},
 	)
 
-	suite.Require().Equal(expValue, hex.EncodeToString(value))
+	suite.Require().Equal(expValue, value)
 }
 
 func (suite *TSSTestSuite) TestSignAndVerifySigning() {
