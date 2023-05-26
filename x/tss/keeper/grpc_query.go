@@ -15,44 +15,45 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
+// Group function handles the request to fetch group details.
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	groupId := tss.GroupID(req.GroupId)
+	groupID := tss.GroupID(req.GroupId)
 
-	group, err := k.GetGroup(ctx, groupId)
+	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
-	members, err := k.GetMembers(ctx, groupId)
+	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
-	dkgContext, err := k.GetDKGContext(ctx, groupId)
+	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
-		return &types.QueryGroupResponse{}, err
+		return nil, err
 	}
 
-	allRound1Commitments := k.GetAllRound1Commitments(ctx, groupId)
-
-	round2shares := k.GetRound2Shares(ctx, groupId)
+	allRound1Data := k.GetAllRound1Data(ctx, groupID)
+	allRound2Data := k.GetAllRound2Data(ctx, groupID)
 
 	return &types.QueryGroupResponse{
-		Group:                &group,
-		DKGContext:           dkgContext,
-		Members:              members,
-		AllRound1Commitments: allRound1Commitments,
-		Round2Shares:         round2shares,
+		Group:         group,
+		DKGContext:    dkgContext,
+		Members:       members,
+		AllRound1Data: allRound1Data,
+		AllRound2Data: allRound2Data,
 	}, nil
 }
 
+// Members function handles the request to fetch members of a group.
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
-		return &types.QueryMembersResponse{}, err
+		return nil, err
 	}
 
 	return &types.QueryMembersResponse{
@@ -60,19 +61,20 @@ func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) 
 	}, nil
 }
 
+// IsGrantee function handles the request to check if a specific address is a grantee of another.
 func (k Querier) IsGrantee(
 	goCtx context.Context,
 	req *types.QueryIsGranteeRequest,
 ) (*types.QueryIsGranteeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	granter, err := sdk.AccAddressFromBech32(req.GranterAddress)
+	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
-	grantee, err := sdk.AccAddressFromBech32(req.GranteeAddress)
+	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
-		return &types.QueryIsGranteeResponse{}, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
 	return &types.QueryIsGranteeResponse{

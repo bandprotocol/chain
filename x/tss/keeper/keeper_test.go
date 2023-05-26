@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 	"time"
 
@@ -29,7 +30,7 @@ type KeeperTestSuite struct {
 func (s *KeeperTestSuite) SetupTest() {
 	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
 
-	// commit genesis for test get LastCommitHash in msg create group
+	// Commit genesis for test get LastCommitHash in msg create group
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:  app.LastBlockHeight() + 1,
@@ -60,7 +61,7 @@ func (s *KeeperTestSuite) TestGetSetGroupCount() {
 func (s *KeeperTestSuite) TestGetNextGroupID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
-	// initial group count
+	// Initial group count
 	k.SetGroupCount(ctx, 0)
 
 	groupID1 := k.GetNextGroupID(ctx)
@@ -118,14 +119,14 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 	// Create new group
 	groupID := k.CreateNewGroup(ctx, group)
 
-	// update group size value
+	// Update group size value
 	group.Size_ = 6
 	k.UpdateGroup(ctx, groupID, group)
 
-	// get group from chain state
+	// Get group from chain state
 	got, err := k.GetGroup(ctx, groupID)
 
-	// validate group size value
+	// Validate group size value
 	s.Require().NoError(err)
 	s.Require().Equal(group.Size_, got.Size_)
 }
@@ -145,8 +146,9 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		PubKey: "",
+		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		PubKey:      tss.PublicKey(nil),
+		IsMalicious: false,
 	}
 	k.SetMember(ctx, groupID, memberID, member)
 
@@ -155,57 +157,64 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	s.Require().Equal(member, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetMembers() {
+func (s *KeeperTestSuite) TestGetMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: "",
+			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: "",
+			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
 	got, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
 	s.Require().Equal(members, got)
 }
 
-func (s *KeeperTestSuite) TesVerifyMember() {
+func (s *KeeperTestSuite) TestVerifyMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Signer: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: "",
+			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 		{
-			Signer: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: "",
+			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 	}
 
 	// set members
-	k.SetMembers(ctx, groupID, members)
+	for i, m := range members {
+		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	}
 
-	memberID1, err := k.VerifyMember(ctx, groupID, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	s.Require().NoError(err)
-	s.Require().Equal(uint64(1), memberID1)
-	memberID2, err := k.VerifyMember(ctx, groupID, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().NoError(err)
-	s.Require().Equal(uint64(2), memberID2)
+	isMember1 := k.VerifyMember(ctx, groupID, tss.MemberID(1), "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	s.Require().True(isMember1)
+	isMember2 := k.VerifyMember(ctx, groupID, tss.MemberID(2), "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	s.Require().True(isMember2)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
+func (s *KeeperTestSuite) TestGetSetRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round1Commitments := types.Round1Commitments{
+	round1Data := types.Round1Data{
+		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -215,17 +224,18 @@ func (s *KeeperTestSuite) TestGetSetRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Data(ctx, groupID, round1Data)
 
-	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Commitments, got)
+	s.Require().Equal(round1Data, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
+func (s *KeeperTestSuite) TestDeleteRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round1Commitments := types.Round1Commitments{
+	round1Data := types.Round1Data{
+		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -235,22 +245,33 @@ func (s *KeeperTestSuite) TestDeleteRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Commitments(ctx, groupID, memberID, round1Commitments)
+	k.SetRound1Data(ctx, groupID, round1Data)
 
-	got, err := k.GetRound1Commitments(ctx, groupID, memberID)
+	got, err := k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Commitments, got)
+	s.Require().Equal(round1Data, got)
 
-	k.DeleteRound1Commitments(ctx, groupID, memberID)
+	k.DeleteRound1Data(ctx, groupID, memberID)
 
-	_, err = k.GetRound1Commitments(ctx, groupID, memberID)
+	_, err = k.GetRound1Data(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
+func (s *KeeperTestSuite) TestGetRound1DataCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, member0, member1 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round1Commitments := types.Round1Commitments{
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round1DataMember1 := types.Round1Data{
+		MemberID: member1,
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+	round1DataMember2 := types.Round1Data{
+		MemberID: member2,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -260,18 +281,29 @@ func (s *KeeperTestSuite) TestGetRound1CommitmentsCount() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round 1 commitments
-	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
-	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
+	// Set round 1 data
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
-	got := k.GetRound1CommitmentsCount(ctx, groupID)
+	got := k.GetRound1DataCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
 }
 
-func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
+func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, member0, member1 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round1Commitments := types.Round1Commitments{
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round1DataMember1 := types.Round1Data{
+		MemberID: member1,
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+	round1DataMember2 := types.Round1Data{
+		MemberID: member2,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -281,21 +313,21 @@ func (s *KeeperTestSuite) TestGetAllRound1Commitments() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	s.T().Log(types.Round1CommitmentsStoreKey(1))
+	// Set round 1 data
+	k.SetRound1Data(ctx, groupID, round1DataMember1)
+	k.SetRound1Data(ctx, groupID, round1DataMember2)
 
-	// Set round 1 commitments
-	k.SetRound1Commitments(ctx, groupID, member0, round1Commitments)
-	k.SetRound1Commitments(ctx, groupID, member1, round1Commitments)
+	got := k.GetAllRound1Data(ctx, groupID)
 
-	got := k.GetAllRound1Commitments(ctx, groupID)
-	s.Require().Equal(round1Commitments, got[1])
-	s.Require().Equal(round1Commitments, got[2])
+	// member3 expected nil value because didn't commit round 1
+	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound2Share() {
+func (s *KeeperTestSuite) TestGetSetRound2Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round2Share := types.Round2Share{
+	round2Data := types.Round2Data{
+		MemberID: memberID,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("e_12"),
 			[]byte("e_13"),
@@ -303,18 +335,19 @@ func (s *KeeperTestSuite) TestGetSetRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID, round2Share)
+	// set round2 secret share
+	k.SetRound2Data(ctx, groupID, round2Data)
 
-	got, err := k.GetRound2Share(ctx, groupID, memberID)
+	got, err := k.GetRound2Data(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round2Share, got)
+	s.Require().Equal(round2Data, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound2Share() {
+func (s *KeeperTestSuite) TestDeleteRound2Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	round2Share := types.Round2Share{
+	round2Data := types.Round2Data{
+		MemberID: memberID,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("e_12"),
 			[]byte("e_13"),
@@ -322,27 +355,29 @@ func (s *KeeperTestSuite) TestDeleteRound2Share() {
 		},
 	}
 
-	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID, round2Share)
+	// set round 2 secret data
+	k.SetRound2Data(ctx, groupID, round2Data)
 
-	// delete round 2 secret share
-	k.DeleteRound2share(ctx, groupID, memberID)
+	// delete round 2 secret data
+	k.DeleteRound2Data(ctx, groupID, memberID)
 
-	_, err := k.GetRound2Share(ctx, groupID, memberID)
+	_, err := k.GetRound2Data(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetRound2SharesCount() {
+func (s *KeeperTestSuite) TestGetRound2DataCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round2ShareM1 := types.Round2Share{
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2DataMember1 := types.Round2Data{
+		MemberID: member1,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
 		},
 	}
-	round2ShareM2 := types.Round2Share{
+	round2DataMember2 := types.Round2Data{
+		MemberID: member2,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_11"),
 			[]byte("e_13"),
@@ -350,25 +385,27 @@ func (s *KeeperTestSuite) TestGetRound2SharesCount() {
 		},
 	}
 
-	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
-	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+	// set round 2 data
+	k.SetRound2Data(ctx, groupID, round2DataMember1)
+	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
-	got := k.GetRound2SharesCount(ctx, groupID)
+	got := k.GetRound2DataCount(ctx, groupID)
 	s.Require().Equal(uint64(2), got)
 }
 
-func (s *KeeperTestSuite) TestGetRound2Shares() {
+func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	round2ShareM1 := types.Round2Share{
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2DataMember1 := types.Round2Data{
+		MemberID: member1,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
 		},
 	}
-	round2ShareM2 := types.Round2Share{
+	round2DataMember2 := types.Round2Data{
+		MemberID: member2,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_11"),
 			[]byte("e_13"),
@@ -376,12 +413,198 @@ func (s *KeeperTestSuite) TestGetRound2Shares() {
 		},
 	}
 
-	// set round 2 secret share
-	k.SetRound2Share(ctx, groupID, memberID1, round2ShareM1)
-	k.SetRound2Share(ctx, groupID, memberID2, round2ShareM2)
+	// Set round 2 data
+	k.SetRound2Data(ctx, groupID, round2DataMember1)
+	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
-	got := k.GetRound2Shares(ctx, groupID)
-	s.Require().Equal([]types.Round2Share{round2ShareM1, round2ShareM2}, got)
+	got := k.GetAllRound2Data(ctx, groupID)
+	// member3 expected nil value because didn't submit round2Data
+	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
+}
+
+func (s *KeeperTestSuite) TestGetSetMemberMalicious() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	member1 := types.Member{
+		Member:      "member_address_1",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
+	}
+	member2 := types.Member{
+		Member:      "member_address_2",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
+	}
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID1, member1)
+	k.SetMember(ctx, groupID, memberID2, member2)
+
+	// Set member malicious
+	k.SetMemberMalicious(ctx, groupID, memberID1)
+	k.SetMemberMalicious(ctx, groupID, memberID2)
+
+	// Get malicious indexes
+	got, err := k.GetMaliciousIndexes(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Equal([]uint64{1, 2}, got)
+}
+
+func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	privKeyI, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
+	member1 := types.Member{
+		Member:      "member_address_1",
+		PubKey:      pubKeyI,
+		IsMalicious: false,
+	}
+	member2 := types.Member{
+		Member:      "member_address_2",
+		PubKey:      pubKeyJ,
+		IsMalicious: false,
+	}
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID1, member1)
+	k.SetMember(ctx, groupID, memberID2, member2)
+
+	// Sign
+	sig, keySym, nonceSym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
+	s.Require().NoError(err)
+
+	err = k.HandleVerifyComplainSig(ctx, groupID, types.Complain{
+		I:         memberID1,
+		J:         memberID2,
+		KeySym:    keySym,
+		Signature: sig,
+		NonceSym:  nonceSym,
+	})
+	s.Require().NoError(err)
+}
+
+func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
+	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	member := types.Member{
+		Member:      "member_address",
+		PubKey:      pubKey,
+		IsMalicious: false,
+	}
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set dkg context
+	k.SetDKGContext(ctx, groupID, dkgContext)
+
+	// Sign
+	sig, err := tss.SignOwnPublickey(memberID, dkgContext, pubKey, privKey)
+	s.Require().NoError(err)
+
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, sig)
+	s.Require().NoError(err)
+}
+
+func (s *KeeperTestSuite) TestHandleComputeGroupPublicKey() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
+	point2, _ := hex.DecodeString("03bd0e1b7c880ce80d4340540240972522b44bba2afcf50bfbe30e0352f225eba9")
+
+	// Set round 1 data
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID1,
+		CoefficientsCommit: tss.Points{point1},
+	})
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID2,
+		CoefficientsCommit: tss.Points{point2},
+	})
+
+	pubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().
+		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(pubKey))
+}
+
+func (s *KeeperTestSuite) TestGetSetConfirm() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	confirm := types.Confirm{
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, memberID, confirm)
+
+	got, err := k.GetConfirm(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(confirm, got)
+
+	// Get confirm or complain count
+	count := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Equal(uint64(1), count)
+}
+
+func (s *KeeperTestSuite) TestDeleteConfirm() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	confirm := types.Confirm{
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, memberID, confirm)
+
+	// Delete confirm
+	k.DeleteConfirm(ctx, groupID, memberID)
+
+	_, err := k.GetConfirm(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	complainWithStatus := types.ComplainsWithStatus{
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, memberID, complainWithStatus)
+
+	got, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(complainWithStatus, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
+	// TODO:
+}
+
+func (s *KeeperTestSuite) TestGetSetConfirmComplainCount() {
+	// TODO:
+}
+
+func (s *KeeperTestSuite) TestDeleteConfirmComplainCount() {
+	// TODO:
 }
 
 func TestKeeperTestSuite(t *testing.T) {

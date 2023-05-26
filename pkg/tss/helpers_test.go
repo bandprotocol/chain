@@ -13,9 +13,19 @@ func (suite *TSSTestSuite) TestGenerateKeyPairs() {
 	kps, err := tss.GenerateKeyPairs(3)
 	suite.Require().NoError(err)
 	suite.Require().Equal(3, len(kps))
+
+	for _, kp := range kps {
+		pubKey, err := kp.PrivateKey.PublicKey()
+		suite.Require().NoError(err)
+		suite.Require().Equal(kp.PublicKey, pubKey)
+	}
 }
 
 func (suite *TSSTestSuite) TestGenerateKeyPair() {
-	_, err := tss.GenerateKeyPair()
+	kp, err := tss.GenerateKeyPair()
 	suite.Require().NoError(err)
+
+	pubKey, err := kp.PrivateKey.PublicKey()
+	suite.Require().NoError(err)
+	suite.Require().Equal(kp.PublicKey, pubKey)
 }

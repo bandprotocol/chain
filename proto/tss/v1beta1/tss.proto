@@ -9,40 +9,48 @@ option (gogoproto.equal_all) = true;
 message Group {
   uint64 size = 1;
   uint64 threshold = 2;
-  bytes pub_key = 3;
+  bytes pub_key = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
   GroupStatus status = 4;
 }
 
-message Round1Note {
-  uint64 begin_at = 1;
-  uint64 end_at = 2;
-  uint64 commitments_count = 3;
-}
-
-message Round1Commitments {
-  repeated bytes coefficients_commit = 3 [
+message Round1Data {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated bytes coefficients_commit = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"
   ];
-  bytes one_time_pub_key = 4 [
+  bytes one_time_pub_key = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes a0_sig = 5 [
+  bytes a0_sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes one_time_sig = 6 [
+  bytes one_time_sig = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
 
-message Round2Share {
-  repeated bytes encrypted_secret_shares = 1 [
+message Round2Data {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated bytes encrypted_secret_shares = 2 [
     (gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"
   ];
 }
 
 message DE {
-  bytes d = 1;
-  bytes e = 2;
+  bytes pub_d = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes pub_e = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
 }
 
 message DEQueue {
@@ -50,31 +58,21 @@ message DEQueue {
   uint64 tail = 2;
 }
 
-message Complaint {
-  uint64 i = 1;
-  uint64 j = 2;
-  bytes key_sym = 3;
-  bytes a1 = 4;
-  bytes a2 = 5;
-  uint64 pi = 6;
-}
-
-message Confirmation { 
-  bytes sig_on_pub_key_and_context = 1 [
+message Signing {
+  uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
+  repeated uint64 assigned_participants = 2;
+  bytes message = 3;
+  bytes sig = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
 
-message Signing {
-  uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
-  repeated uint64 assignedParticipants = 2;
-  bytes message = 3;
-  bytes sig = 4;
-}
-
 message Member {
-  string signer = 1;
-  string pub_key = 2;
+  string member = 1;
+  bytes pub_key = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bool isMalicious = 3;
 }
 
 enum GroupStatus {
@@ -84,8 +82,8 @@ enum GroupStatus {
       [ (gogoproto.enumvalue_customname) = "ROUND_1" ];
   ROUND_2 = 1
       [ (gogoproto.enumvalue_customname) = "ROUND_2" ];
-  PENDING = 2
-      [ (gogoproto.enumvalue_customname) = "PENDING" ];
+  ROUND_3 = 2
+      [ (gogoproto.enumvalue_customname) = "ROUND_3" ];
   ACTIVE = 3
       [ (gogoproto.enumvalue_customname) = "ACTIVE" ];
   FALLEN = 4
@@ -93,27 +91,43 @@ enum GroupStatus {
 }
 
 message DKGMaliciousIndexes {
-  repeated uint64 maliciousIDs = 1;
+  repeated uint64 member_ids = 1 [ (gogoproto.customname) = "MemberIDs" ];
+}
+
+message Confirm { 
+  bytes own_pub_key_sig = 1 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }
 
 message Complain {
-  uint64 i = 1;
-  uint64 j = 2;
-  bytes keySym = 3 [
+  uint64 i = 1 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
+  uint64 j = 2 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
+  bytes key_sym = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes signature = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes noncesym = 5 [
+  bytes nonce_sym = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
 }
 
-message Confirmations {
-  repeated Confirmation confirmations = 1;
+enum ComplainStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  SUCCESS = 0
+      [ (gogoproto.enumvalue_customname) = "SUCCESS" ];
+  FAILED= 1
+      [ (gogoproto.enumvalue_customname) = "FAILED" ];
 }
 
-message PendingRoundNote {
-  uint64 confirmation_count = 1;
+message ComplainWithStatus {
+  Complain complain = 1;
+  ComplainStatus complain_status = 2;
+}
+
+message ComplainsWithStatus {
+  repeated ComplainWithStatus complains_with_status = 1 [ (gogoproto.nullable) = false ];
 }

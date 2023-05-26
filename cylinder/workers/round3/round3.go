@@ -105,6 +105,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		// Send message complains
 		r.context.MsgCh <- &types.MsgComplain{
 			GroupID:   gid,
+			MemberID:  group.MemberID,
 			Complains: complains,
 			Member:    r.context.Config.Granter,
 		}
@@ -114,12 +115,17 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Generate own private key and update it in store
 	group.PrivKey = ownPrivKey
 	r.context.Store.SetGroup(gid, group)
+	ownPubKey, err := ownPrivKey.PublicKey()
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to generate own public key: %s", err.Error())
+		return
+	}
 
 	// Sign own public key
 	ownPubKeySig, err := tss.SignOwnPublickey(
 		group.MemberID,
 		groupRes.DKGContext,
-		ownPrivKey.PublicKey(),
+		ownPubKey,
 		ownPrivKey,
 	)
 	if err != nil {
@@ -130,6 +136,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Send message confirm
 	r.context.MsgCh <- &types.MsgConfirm{
 		GroupID:      gid,
+		MemberID:     group.MemberID,
 		OwnPubKeySig: ownPubKeySig,
 		Member:       r.context.Config.Granter,
 	}

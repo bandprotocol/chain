@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// QueryCmd returns the cli query commands for the tss module.
+// GetQueryCmd returns the cli query commands for the tss module.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -31,7 +31,7 @@ func GetQueryCmd() *cobra.Command {
 func QueryIsGrantee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "is-grantee [granter_address] [grantee_address]",
-		Short: "Query is grantee",
+		Short: "Query grantee status",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -42,8 +42,8 @@ func QueryIsGrantee() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
-				GranterAddress: args[0],
-				GranteeAddress: args[1],
+				Granter: args[0],
+				Grantee: args[1],
 			})
 			if err != nil {
 				return err
@@ -70,7 +70,7 @@ func QueryGroupCmd() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func QueryMembersCmd() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 32)
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}

@@ -189,7 +189,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsGrantee(
 						context.Background(),
-						&types.QueryIsGranteeRequest{GranterAddress: ctx.config.Granter, GranteeAddress: address.String()},
+						&types.QueryIsGranteeRequest{Granter: ctx.config.Granter, Grantee: address.String()},
 					)
 					s := ":question:"
 					if err == nil {

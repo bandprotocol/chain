@@ -64,12 +64,15 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"group not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            0,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 0,
+					Round1Data: types.Round1Data{
+						MemberID:           1,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -79,12 +82,15 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band1rqjc6czdeu2w2nst9vfvv6yqj6nwqkv48s4jmq",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						MemberID:           2,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band1rqjc6czdeu2w2nst9vfvv6yqj6nwqkv48s4jmq",
 				}
 			},
 			false,
@@ -93,8 +99,9 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 		{
 			"round 1 already commit",
 			func() {
-				// Set round 1 commitments
-				tssKeeper.SetRound1Commitments(ctx, 1, 1, types.Round1Commitments{
+				// Set round 1 data
+				tssKeeper.SetRound1Data(ctx, 1, types.Round1Data{
+					MemberID:           1,
 					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
 					OneTimePubKey:      oneTimePubKeyB,
 					A0Sig:              a0SigB,
@@ -102,44 +109,53 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				})
 
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						MemberID:           1,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
 			func() {
-				tssKeeper.DeleteRound1Commitments(ctx, 1, 1)
+				tssKeeper.DeleteRound1Data(ctx, 1, 1)
 			},
 		},
 		{
-			"wrong one_time_sign",
+			"wrong one time sign",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         []byte("wrong one_time_sign"),
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						MemberID:           1,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         []byte("wrong one_time_sign"),
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
 			func() {},
 		},
 		{
-			"wrong a0_sig",
+			"wrong a0 sig",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              []byte("wrong a0_sig"),
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						MemberID:           1,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              []byte("wrong a0_sig"),
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			false,
@@ -150,12 +166,15 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				// Key generated from GenerateRound1Data() ref. github.com/bandprotocol/chain/v2/pkg/tss
 				req = types.MsgSubmitDKGRound1{
-					GroupID:            1,
-					CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
-					OneTimePubKey:      oneTimePubKeyB,
-					A0Sig:              a0SigB,
-					OneTimeSig:         oneTimeSigB,
-					Member:             "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+					GroupID: 1,
+					Round1Data: types.Round1Data{
+						MemberID:           1,
+						CoefficientsCommit: []tss.Point{cof1B, cof2B, cof3B},
+						OneTimePubKey:      oneTimePubKeyB,
+						A0Sig:              a0SigB,
+						OneTimeSig:         oneTimeSigB,
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
 			},
 			true,
@@ -213,7 +232,8 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 0,
-					Round2Share: &types.Round2Share{
+					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -228,11 +248,12 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 		{
-			"member not found",
+			"member not authorized",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Data: types.Round2Data{
+						MemberID: 10,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -249,17 +270,20 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 		{
 			"round 2 already submit",
 			func() {
-				// Set round 2
-				k.SetRound2Share(ctx, 1, 1, types.Round2Share{EncryptedSecretShares: tss.Scalars{
-					[]byte("e_12"),
-					[]byte("e_13"),
-					[]byte("e_14"),
-					[]byte("e_15"),
-				}})
+				// Set round 2 data
+				k.SetRound2Data(ctx, 1, types.Round2Data{
+					MemberID: 1,
+					EncryptedSecretShares: tss.Scalars{
+						[]byte("e_12"),
+						[]byte("e_13"),
+						[]byte("e_14"),
+						[]byte("e_15"),
+					}})
 
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -272,15 +296,16 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 			false,
 			func() {
-				k.DeleteRound2share(ctx, 1, 1)
+				k.DeleteRound2Data(ctx, 1, 1)
 			},
 		},
 		{
-			"round 2 share is not correct length n-1",
+			"round 2 data is not correct length n-1",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -298,7 +323,8 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 1,
-					Round2Share: &types.Round2Share{
+					Round2Data: types.Round2Data{
+						MemberID: 1,
 						EncryptedSecretShares: tss.Scalars{
 							[]byte("e_12"),
 							[]byte("e_13"),
@@ -319,6 +345,129 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			tc.malleate()
 
 			_, err := msgSrvr.SubmitDKGRound2(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestComplain() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// create group for submit dkg context
+	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		Members: []string{
+			"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+			"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+			"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+			"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+			"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+		},
+		Threshold: 3,
+		Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+	})
+	k.UpdateGroup(ctx, 1, types.Group{
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.ROUND_3,
+	})
+
+	var req types.MsgComplain
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func()
+	}{
+		// TODO: add test case
+		// {
+		// 	"success",
+		// 	func() {
+		// 		req = types.MsgComplain{
+		// 			GroupID: 1,
+		// 			MemberID: 1,
+		// 			Complains: []types.Complain{
+		// 			},
+		// 			Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		// 		}
+		// 	},
+		// 	true,
+		// 	func() {},
+		// },
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			_, err := msgSrvr.Complain(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestConfirm() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// create group for submit dkg context
+	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		Members: []string{
+			"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+			"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+			"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+			"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+			"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+		},
+		Threshold: 3,
+		Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+	})
+	k.UpdateGroup(ctx, 1, types.Group{
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.ROUND_3,
+	})
+
+	var req types.MsgConfirm
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func()
+	}{
+		// TODO: add test case
+		// {
+		// 	"success",
+		// 	func() {
+		// 		req = types.MsgConfirm{
+		// 			GroupID:      1,
+		// 			MemberID:     1,
+		// 			OwnPubKeySig: tss.Signature{},
+		// 			Member:       "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		// 		}
+		// 	},
+		// 	true,
+		// 	func() {},
+		// },
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			_, err := msgSrvr.Confirm(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {

@@ -7,7 +7,10 @@ import (
 // ComputeKeySym computes the key symmetry between a private key and a public key.
 // It returns the computed key symmetry as a PublicKey and an error, if any.
 func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
-	privKeyI := rawPrivKeyI.Scalar()
+	privKeyI, err := rawPrivKeyI.Scalar()
+	if err != nil {
+		return nil, err
+	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
@@ -23,7 +26,10 @@ func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, err
 // ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
 // It returns the computed nonce symmetry as a PublicKey and an error, if any.
 func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
-	nonce := rawNonce.Parse()
+	nonce, err := rawNonce.Parse()
+	if err != nil {
+		return nil, err
+	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
@@ -49,49 +55,43 @@ func SumPoints(rawPoints ...Point) (Point, error) {
 
 // SumScalars computes the sum of multiple scalars.
 // It returns the computed sum as a Scalar.
-func SumScalars(rawScalars ...Scalar) Scalar {
-	scalars := Scalars(rawScalars).Parse()
-	return ParseScalar(sumScalars(scalars...))
+func SumScalars(rawScalars ...Scalar) (Scalar, error) {
+	scalars, err := Scalars(rawScalars).Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseScalar(sumScalars(scalars...)), nil
 }
 
 // solveScalarPolynomial solves a scalar polynomial equation.
 // It takes scalars as coefficients and a value x, and returns the result as a *secp256k1.ModNScalar.
 func solveScalarPolynomial(scalars []*secp256k1.ModNScalar, x *secp256k1.ModNScalar) *secp256k1.ModNScalar {
-	currentX := new(secp256k1.ModNScalar).SetInt(1)
+	var result secp256k1.ModNScalar
 
-	// calculate each term ( a_i * x^i )
-	var terms []*secp256k1.ModNScalar
-	for _, scalar := range scalars {
-		// term = ax^i
-		term := *scalar
-		term.Mul(currentX)
-		terms = append(terms, &term)
-
-		// currentX *= x
-		currentX.Mul(x)
+	for i := len(scalars) - 1; i >= 0; i-- {
+		// Compute newResult = oldResult * x + scalar
+		result.Mul(x).Add(scalars[i])
 	}
 
-	// sum up all terms
-	return sumScalars(terms...)
+	return &result
 }
 
 // solvePointPolynomial solves a point polynomial equation.
 // It takes points as coefficients and a value x, and returns the result as a *secp256k1.JacobianPoint.
 func solvePointPolynomial(points []*secp256k1.JacobianPoint, x *secp256k1.ModNScalar) *secp256k1.JacobianPoint {
-	currentX := new(secp256k1.ModNScalar).SetInt(1)
+	var result secp256k1.JacobianPoint
 
-	var terms []*secp256k1.JacobianPoint
-	for _, point := range points {
-		// Compute each term (x^i * c_i).
-		var term secp256k1.JacobianPoint
-		secp256k1.ScalarMultNonConst(currentX, point, &term)
-		terms = append(terms, &term)
+	for i := len(points) - 1; i >= 0; i-- {
+		// Compute newValue = point + x * oldValue.
+		var xR, newValue secp256k1.JacobianPoint
+		secp256k1.ScalarMultNonConst(x, &result, &xR)
+		secp256k1.AddNonConst(points[i], &xR, &newValue)
 
-		// new_x *= x.
-		currentX.Mul(x)
+		result = newValue
 	}
 
-	return sumPoints(terms...)
+	return &result
 }
 
 // sumPoints sums up multiple *secp256k1.JacobianPoint values.

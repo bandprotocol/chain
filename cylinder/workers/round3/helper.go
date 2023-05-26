@@ -9,24 +9,27 @@ import (
 
 // getOwnPrivKey calculates the own private key for the group member and verifies the secret shares.
 // It returns the own private key, a slice of complaints (if any), and an error, if any.
-func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.PrivateKey, []*types.Complain, error) {
-	commitmentI, err := groupRes.GetRound1Commitment(group.MemberID)
+func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.PrivateKey, []types.Complain, error) {
+	round1DataI, err := groupRes.GetRound1Data(group.MemberID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	var secretShares tss.Scalars
-	var complains []*types.Complain
+	var complains []types.Complain
 	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
 		// Calculate your own secret value
 		if j == uint64(group.MemberID) {
-			secretShare := tss.ComputeSecretShare(group.Coefficients, uint32(group.MemberID))
+			secretShare, err := tss.ComputeSecretShare(group.Coefficients, group.MemberID)
+			if err != nil {
+				return nil, nil, err
+			}
 			secretShares = append(secretShares, secretShare)
 			continue
 		}
 
 		// Get Round1Commitment of J
-		commitmentJ, err := groupRes.GetRound1Commitment(tss.MemberID(j))
+		commitmentJ, err := groupRes.GetRound1Data(tss.MemberID(j))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -48,7 +51,7 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 		if err != nil {
 			// Generate complaint if we fail to verify secret share
 			sig, keySym, nonceSym, err := tss.SignComplain(
-				commitmentI.OneTimePubKey,
+				round1DataI.OneTimePubKey,
 				commitmentJ.OneTimePubKey,
 				group.OneTimePrivKey,
 			)
@@ -57,12 +60,12 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 			}
 
 			// Add complaint
-			complains = append(complains, &types.Complain{
-				I:         uint64(group.MemberID),
-				J:         j,
+			complains = append(complains, types.Complain{
+				I:         group.MemberID,
+				J:         tss.MemberID(j),
 				KeySym:    keySym,
 				Signature: sig,
-				Noncesym:  nonceSym,
+				NonceSym:  nonceSym,
 			})
 
 			continue
@@ -76,7 +79,10 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 		return nil, complains, nil
 	}
 
-	ownPrivKey := tss.ComputeOwnPrivateKey(secretShares)
+	ownPrivKey, err := tss.ComputeOwnPrivateKey(secretShares...)
+	if err != nil {
+		return nil, nil, err
+	}
 	return ownPrivKey, nil, nil
 }
 
@@ -102,7 +108,10 @@ func getSecretShare(
 	}
 
 	// Decrypt secret share
-	secretShare := tss.Decrypt(esc, keySym)
+	secretShare, err := tss.Decrypt(esc, keySym)
+	if err != nil {
+		return nil, err
+	}
 
 	return secretShare, nil
 }

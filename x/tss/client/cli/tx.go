@@ -32,7 +32,7 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(MsgAddGrantee())
+	txCmd.AddCommand(MsgAddGrantees())
 	txCmd.AddCommand(MsgRemoveGrantees())
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
@@ -41,7 +41,8 @@ func NewTxCmd() *cobra.Command {
 	return txCmd
 }
 
-func MsgAddGrantee() *cobra.Command {
+// MsgAddGrantees creates a CLI command for add new grantees
+func MsgAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
 		Short: "Add agents authorized to submit tss transactions.",
@@ -94,6 +95,7 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 	return cmd
 }
 
+// MsgRemoveGrantees creates a CLI command for remove grantees from granter
 func MsgRemoveGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
@@ -138,6 +140,7 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 	return cmd
 }
 
+// MsgCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
 func MsgCreateGroupCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-group [member1,member2,...] [threshold]",
@@ -158,7 +161,7 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 
 			members := strings.Split(args[0], ",")
 
-			threshold, err := strconv.ParseUint(args[1], 10, 32)
+			threshold, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -181,13 +184,14 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 	return cmd
 }
 
+// MsgSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
 func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
-		Args:  cobra.MinimumNArgs(5),
-		Short: "submit tss round 1 containing group_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
+		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
+		Args:  cobra.MinimumNArgs(6),
+		Short: "submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round1 [group_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
+			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -201,23 +205,28 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			oneTimePubKey, err := hex.DecodeString(args[1])
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			a0Sig, err := hex.DecodeString(args[2])
+			oneTimePubKey, err := hex.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
 
-			oneTimeSig, err := hex.DecodeString(args[3])
+			a0Sig, err := hex.DecodeString(args[3])
+			if err != nil {
+				return err
+			}
+
+			oneTimeSig, err := hex.DecodeString(args[4])
 			if err != nil {
 				return err
 			}
 
 			var coefficientsCommit tss.Points
-			for i := 4; i < len(args); i++ {
+			for i := 5; i < len(args); i++ {
 				coefficientCommit, err := hex.DecodeString(args[i])
 				if err != nil {
 					return err
@@ -227,12 +236,15 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 			}
 
 			msg := &types.MsgSubmitDKGRound1{
-				GroupID:            tss.GroupID(groupID),
-				CoefficientsCommit: coefficientsCommit,
-				OneTimePubKey:      oneTimePubKey,
-				A0Sig:              a0Sig,
-				OneTimeSig:         oneTimeSig,
-				Member:             clientCtx.GetFromAddress().String(),
+				GroupID: tss.GroupID(groupID),
+				Round1Data: types.Round1Data{
+					MemberID:           tss.MemberID(memberID),
+					CoefficientsCommit: coefficientsCommit,
+					OneTimePubKey:      oneTimePubKey,
+					A0Sig:              a0Sig,
+					OneTimeSig:         oneTimeSig,
+				},
+				Member: clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
@@ -247,13 +259,14 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	return cmd
 }
 
+// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
 func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
-		Args:  cobra.ExactArgs(2),
-		Short: "submit tss round 2 containing group_id, and n-1 encrypted-secret-shares",
+		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
+		Args:  cobra.MinimumNArgs(2),
+		Short: "submit tss round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -267,19 +280,27 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 				return err
 			}
 
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			var encryptedSecretShares tss.Scalars
-			encryptedSecretSharesStr := strings.Split(args[1], ",")
-			for _, essStr := range encryptedSecretSharesStr {
-				ess, err := hex.DecodeString(essStr)
-				if err != nil {
-					return err
+			if len(args) > 2 {
+				encryptedSecretSharesStr := strings.Split(args[2], ",")
+				for _, essStr := range encryptedSecretSharesStr {
+					ess, err := hex.DecodeString(essStr)
+					if err != nil {
+						return err
+					}
+					encryptedSecretShares = append(encryptedSecretShares, ess)
 				}
-				encryptedSecretShares = append(encryptedSecretShares, ess)
 			}
 
 			msg := &types.MsgSubmitDKGRound2{
 				GroupID: tss.GroupID(groupID),
-				Round2Share: &types.Round2Share{
+				Round2Data: types.Round2Data{
+					MemberID:              tss.MemberID(memberID),
 					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),
@@ -300,11 +321,26 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 // TODO: implement MsgComplainCmd
 func MsgComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "complain [group_id] ...",
-		Args:  cobra.ExactArgs(2),
-		Short: "submit tss round 3 containing group_id, and n encrypted-secret-shares",
-		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+		Use:   "complain [group_id] [member_id] [complains-json-file]",
+		Args:  cobra.ExactArgs(3),
+		Short: "complain containing group_id, member_id, and complains data",
+		Example: fmt.Sprintf(`
+%s tx tss complain [group_id] [member_id] [complains-json-file]
+
+Where complains.json contains:
+{
+	complains: [
+		{
+			"i": 1,
+			"j": 2,
+			"key_sym": "symmetric key between i and j",
+			"signature": "signature that complain by i",
+			"nonce_sym": "symmetric nonce"
+		},
+		...
+	]
+}`,
+
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -318,8 +354,18 @@ func MsgComplainCmd() *cobra.Command {
 				return err
 			}
 
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			complains, err := parseComplains(args[2])
+
 			msg := &types.MsgComplain{
-				GroupID: tss.GroupID(groupID),
+				GroupID:   tss.GroupID(groupID),
+				MemberID:  tss.MemberID(memberID),
+				Complains: complains,
+				Member:    clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
@@ -336,11 +382,11 @@ func MsgComplainCmd() *cobra.Command {
 
 func MsgConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "confirm [group_id] [own_pub_key_sig]",
-		Args:  cobra.ExactArgs(2),
-		Short: "submit tss confirm containing group_id and own_pub_key_sig",
+		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
+		Args:  cobra.ExactArgs(3),
+		Short: "submit tss confirm containing group_id, member_id, and own_pub_key_sig",
 		Example: fmt.Sprintf(
-			`%s tx tss confirm [group_id] [own_pub_key_sig]`,
+			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -354,13 +400,19 @@ func MsgConfirmCmd() *cobra.Command {
 				return err
 			}
 
-			ownPubKeySig, err := hex.DecodeString(args[1])
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			ownPubKeySig, err := hex.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgConfirm{
 				GroupID:      tss.GroupID(groupID),
+				MemberID:     tss.MemberID(memberID),
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
 			}

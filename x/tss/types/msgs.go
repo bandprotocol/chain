@@ -31,21 +31,32 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	for _, member := range m.Members {
 		_, err := sdk.AccAddressFromBech32(member)
 		if err != nil {
-			return sdkerrors.Wrap(err, "member")
+			return sdkerrors.Wrap(
+				err,
+				fmt.Sprintf("member: %s ", member),
+			)
 		}
 	}
 
-	// Validate signer address
-	_, err := sdk.AccAddressFromBech32(m.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(err, "sender")
+	// Check duplicate member
+	if DuplicateInArray(m.Members) {
+		return sdkerrors.Wrap(fmt.Errorf("members can not duplicate"), "members")
 	}
 
-	// Validate threshold must be less than or equal to members
-	if m.Threshold > uint64(len(m.Members)) {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(
-			fmt.Errorf("validate basic error"),
-			"threshold must be less than or equal to the members",
+			err,
+			fmt.Sprintf("sender: %s", m.Sender),
+		)
+	}
+
+	// Validate threshold must be less than or equal to members but more than zero
+	if m.Threshold > uint64(len(m.Members)) || m.Threshold <= 0 {
+		return sdkerrors.Wrap(
+			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
+			"threshold",
 		)
 	}
 
@@ -72,10 +83,36 @@ func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
-	// Validate members address
+	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
 		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate coefficients commit
+	for _, c := range m.Round1Data.CoefficientsCommit {
+		_, err := c.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "coefficients commit")
+		}
+	}
+
+	// Validate one time pub key
+	_, err = m.Round1Data.OneTimePubKey.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "one time pub key")
+	}
+
+	// Validate a0 signature
+	_, err = m.Round1Data.A0Sig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "a0 sig")
+	}
+
+	// Validate one time signature
+	_, err = m.Round1Data.OneTimeSig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "one time sig")
 	}
 
 	return nil
@@ -105,6 +142,14 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
 		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate encrypted secret shares
+	for _, ess := range m.Round2Data.EncryptedSecretShares {
+		_, err = ess.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "encrypted secret shares")
+		}
 	}
 
 	return nil
