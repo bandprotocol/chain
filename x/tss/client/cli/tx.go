@@ -333,9 +333,9 @@ Where complains.json contains:
 		{
 			"i": 1,
 			"j": 2,
-			"key_sym": "key sym i j",
-			"signature": "signature",
-			"nonce_sym": "nonce i"
+			"key_sym": "symmetric key between i and j",
+			"signature": "signature that complain by i",
+			"nonce_sym": "symmetric nonce"
 		},
 		...
 	]

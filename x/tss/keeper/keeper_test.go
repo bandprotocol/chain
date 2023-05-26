@@ -416,6 +416,37 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetDKGMaliciousIndexes() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	dkgMaliciousIndexes := types.DKGMaliciousIndexes{
+		MemberIDs: []uint64{1, 2},
+	}
+
+	// set DKG malicious indexes
+	k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+	got, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Equal(dkgMaliciousIndexes, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteDKGMaliciousIndexes() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	dkgMaliciousIndexes := types.DKGMaliciousIndexes{
+		MemberIDs: []uint64{1, 2},
+	}
+
+	// set DKG malicious indexes
+	k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+	k.DeleteDKGMaliciousIndexes(ctx, groupID)
+
+	_, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	s.Require().Error(err)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
