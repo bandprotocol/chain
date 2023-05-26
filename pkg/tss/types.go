@@ -215,9 +215,45 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 	return pubKeys, nil
 }
 
+// Parse converts a slice of PublicKeys into a slice of secp256k1.JacobianPoint.
+func (pks PublicKeys) Points() ([]*secp256k1.JacobianPoint, error) {
+	var points []*secp256k1.JacobianPoint
+	for _, pk := range pks {
+		point, err := pk.Point()
+		if err != nil {
+			return nil, err
+		}
+
+		points = append(points, point)
+	}
+
+	return points, nil
+}
+
 // Signature represents a signature (r, s) stored as bytes.
 // It uses schnorr.Signature as a base implementation for serialization and parsing.
 type Signature []byte
+
+// NewSignature generates a signature from Point and Scalar.
+// It returns a signature and an error, if any.
+func NewSignature(rawPoint Point, rawScalar Scalar) (Signature, error) {
+	point, err := rawPoint.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	scalar, err := rawScalar.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseSignature(schnorr.NewSignature(point, scalar)), nil
+}
+
+// ParseSignature parses a schnorr.Signature into a Signature.
+func ParseSignature(sig *schnorr.Signature) Signature {
+	return sig.Serialize()
+}
 
 // Parse converts a Signature to a schnorr.Signature.
 func (s Signature) Parse() (*schnorr.Signature, error) {
@@ -227,6 +263,22 @@ func (s Signature) Parse() (*schnorr.Signature, error) {
 	}
 
 	return sig, nil
+}
+
+// R returns R part of the signature
+func (s Signature) R() Point {
+	if len(s) < 33 {
+		return []byte{}
+	}
+	return Point(s[0:33])
+}
+
+// S returns S part of the signature
+func (s Signature) S() Scalar {
+	if len(s) < 65 {
+		return []byte{}
+	}
+	return Scalar(s[33:65])
 }
 
 // KeyPair represents a key pair consisting of a private key and a public key.
