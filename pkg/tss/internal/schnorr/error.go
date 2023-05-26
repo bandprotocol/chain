@@ -12,33 +12,6 @@ type ErrorKind string
 
 // These constants are used to identify a specific RuleError.
 const (
-	// ErrInvalidHashLen indicates that the input hash to sign or verify is not
-	// the required length.
-	ErrInvalidHashLen = ErrorKind("ErrInvalidHashLen")
-
-	// ErrPrivateKeyIsZero indicates an attempt was made to sign a message with
-	// a private key that is equal to zero.
-	ErrPrivateKeyIsZero = ErrorKind("ErrPrivateKeyIsZero")
-
-	// ErrSchnorrHashValue indicates that the hash of (R || m) was too large and
-	// so a new nonce should be used.
-	ErrSchnorrHashValue = ErrorKind("ErrSchnorrHashValue")
-
-	// ErrPubKeyNotOnCurve indicates that a point was not on the given elliptic
-	// curve.
-	ErrPubKeyNotOnCurve = ErrorKind("ErrPubKeyNotOnCurve")
-
-	// ErrSigRYInvalid indicates that R is invalid.
-	ErrSigRYInvalid = ErrorKind("ErrSigRYInvalid")
-
-	// ErrSigRNotOnCurve indicates that the calculated or given point R for some
-	// signature was not on the curve.
-	ErrSigRNotOnCurve = ErrorKind("ErrSigRNotOnCurve")
-
-	// ErrUnequalRValues indicates that the calculated point R for some
-	// signature was not the same as the given R value for the signature.
-	ErrUnequalRValues = ErrorKind("ErrUnequalRValues")
-
 	// ErrSigTooShort is returned when a signature that should be a Schnorr
 	// signature is too short.
 	ErrSigTooShort = ErrorKind("ErrSigTooShort")
