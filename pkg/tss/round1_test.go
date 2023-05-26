@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/stretchr/testify/assert"
 )
 
 func (suite *TSSTestSuite) TestGenerateRound1Data() {
@@ -36,8 +35,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyOneTime() {
 
 func (suite *TSSTestSuite) TestGenerateMessageOneTime() {
 	challenge := tss.GenerateMessageOneTime(suite.member1.mid, suite.groupDKGContext, suite.member1.OneTimePubKey)
-	assert.Equal(
-		suite.T(),
+	suite.Require().Equal(
 		"726f756e64314f6e6554696d650000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c0383764b806848430ed195ef8017fb4e768893ea07782e679c31e5ff1b8b453973",
 		hex.EncodeToString(challenge),
 	)
@@ -61,8 +59,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyA0() {
 
 func (suite *TSSTestSuite) TestGenerateMessageA0() {
 	msg := tss.GenerateMessageA0(suite.member1.mid, suite.groupDKGContext, suite.member1.OneTimePubKey)
-	assert.Equal(
-		suite.T(),
+	suite.Require().Equal(
 		"726f756e643141300000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c0383764b806848430ed195ef8017fb4e768893ea07782e679c31e5ff1b8b453973",
 		hex.EncodeToString(msg),
 	)

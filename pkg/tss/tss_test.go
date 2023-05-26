@@ -27,6 +27,7 @@ type TSSTestSuite struct {
 
 	lo       tss.Scalar
 	data     []byte
+	bytes    []byte
 	fakeData []byte
 	nonce    []byte
 
@@ -42,8 +43,9 @@ type TSSTestSuite struct {
 }
 
 func (suite *TSSTestSuite) SetupTest() {
-	suite.lo = hexDecode("0db10b2760c2de165394dae4a5747a5ed1a4f48b81367a7db473d31b1437a38a")
+	suite.lo = hexDecode("1c2a36f7f92bf15a859621d3be209a977ed3b8da5c95abf8b804c913f3d9a720")
 	suite.data = []byte("data")
+	suite.bytes = []byte("bytes")
 	suite.fakeData = []byte("fakeData")
 	suite.nonce = hexDecode("0000000000000000000000000000000000000000000000000000006e6f6e6365")
 
@@ -51,7 +53,7 @@ func (suite *TSSTestSuite) SetupTest() {
 	suite.groupDKGContext = hexDecode("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 	suite.groupThreshold = uint64(2)
 	suite.groupPubKey = hexDecode("03534dfb533fedd09a97cbedeab70ae895399ed48be0ad7f789a705ec023dcf044")
-	suite.groupPubNonce = hexDecode("03adbd937b6c75db1950368510529d98cc75b250bc3abf0b1e1259d8261663eb1e")
+	suite.groupPubNonce = hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a")
 
 	suite.member1 = member{
 		mid: tss.MemberID(1),
@@ -82,20 +84,20 @@ func (suite *TSSTestSuite) SetupTest() {
 		secretShares:    tss.Scalars{hexDecode("fc93f14f4e3e4e15378e2c65ba1986494a3f54b7c135dd21d67a44435332eb71")},
 		encSecretShares: tss.Scalars{hexDecode("d47a459f272be3d22e54af5a0a45ea8318e88f2c3c767962b2b5f9ba53d9922d")},
 		d: tss.KeyPair{
-			PrivateKey: hexDecode("16345ba335ee62fb72857c1624ccfa034b42739faa1a3da7e670aa95e978c65d"),
-			PublicKey:  hexDecode("02e769132e689823ed8b791ee96a18ff1e7b381f49310eea083c1ac2f9a7edf676"),
+			PrivateKey: hexDecode("c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f"),
+			PublicKey:  hexDecode("03cd12d8f9abd0537d125fc6c998567bfd223cbdeb5ba66443f59731ff1a008aa2"),
 		},
 		e: tss.KeyPair{
-			PrivateKey: hexDecode("8d4efee63ee784d480b58d801c68a6400be2c8717c09ebde3c948537b35952f9"),
-			PublicKey:  hexDecode("021e4c38834733962a416cd5cf9378f4d20761b873b94b2368aea2284224043c64"),
+			PrivateKey: hexDecode("dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627"),
+			PublicKey:  hexDecode("03741dc9ba6f4876636424e02ab325dea615e262cc9b0e14404a1857b762cceba2"),
 		},
 		ownKey: tss.KeyPair{
 			PrivateKey: hexDecode("b248a8a2f6f1644b196402de4026d3b63db36529b2b365995f5b21eebf20acea"),
 			PublicKey:  hexDecode("0268c34a74f75ea26f3eba73a44afdaaa5e4704baa6f58d6e1ab831a5608e4dae4"),
 		},
 		ownNonce: tss.KeyPair{
-			PrivateKey: hexDecode("a6eaa61cb0e2d31363127904987872f42dd3dce0344ef5cebc3b99a0f0a6eb59"),
-			PublicKey:  hexDecode("031d8cf9c2386ff16c8555d108264d0c5a30ca7600c8aa9b2c837610560c1ee0a1"),
+			PrivateKey: hexDecode("9addd6376764dca38714808557daa8753f0317c6896d5c19d5ee647680c8e0fd"),
+			PublicKey:  hexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
 		},
 		lagrange: hexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
 	}
@@ -129,20 +131,20 @@ func (suite *TSSTestSuite) SetupTest() {
 		secretShares:    tss.Scalars{hexDecode("dbc69d7d8fb753f3143e050a4d3fe01c35de8c5fe8937490dd9c5ccbf29567be")},
 		encSecretShares: tss.Scalars{hexDecode("b3acf1cd68a4e9b00b0487fe9d6c44560487c6d463d410d1b9d81242f33c0e7a")},
 		d: tss.KeyPair{
-			PrivateKey: hexDecode("6bbb750dd8ccc743fe806c938e39101d0c6354e79db8169e07b2740ee7649123"),
-			PublicKey:  hexDecode("03486905485e94b763153279a1ccfa958cc381b2b20320c6ccb33dbe3cf3c4c1f6"),
+			PrivateKey: hexDecode("56b6a3783a58558ccc349fb3d8b33efd1184d38e80781b5e5ad6ece6067ae0cc"),
+			PublicKey:  hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 		},
 		e: tss.KeyPair{
-			PrivateKey: hexDecode("7fc182acddac8be21145b7e1cdc39002aa83c365a146c81efe32bca8e0c8e98c"),
-			PublicKey:  hexDecode("0363e98cc4b8a587ad618990520d4e5eaa6c497cb8be9207551815083b25184778"),
+			PrivateKey: hexDecode("a83e277fb7568bfa97226c08f4fbb74c6a4a2adf6fda88b70ee84f69dbba610c"),
+			PublicKey:  hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 		},
 		ownKey: tss.KeyPair{
 			PrivateKey: hexDecode("1b4379a07902f9b18f9b8eefc1f340e8b42ed34fe4f6d125416e3e6cffc77eb6"),
 			PublicKey:  hexDecode("034c0386dff08b142f356c0c7ae610c9cba27239a5447cde69c7c953b7b65f89c7"),
 		},
 		ownNonce: tss.KeyPair{
-			PrivateKey: hexDecode("3efbc92a479fe6f2d4da9df61571727548805c51687ff5acd70614f69d908dcd"),
-			PublicKey:  hexDecode("03047362ee6171f24f6ba63c73ab660803557c928cde5b96cb21b1fa4a11072674"),
+			PrivateKey: hexDecode("aececfaa8b2bd446b39fc2b13f3073806b57d4a7f6abed87486111be87f48be7"),
+			PublicKey:  hexDecode("02aacc8be43d6af147efc41f41754acc7764f31b9d0be33a5acbf9bd46bd3bb4bc"),
 		},
 		lagrange: hexDecode("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140"),
 	}

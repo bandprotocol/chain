@@ -23,7 +23,7 @@ func (suite *TSSTestSuite) TestComputeOwnPublicKey() {
 
 func (suite *TSSTestSuite) TestComputeGroupPublicKey() {
 	pubKey, err := tss.ComputeGroupPublicKey(
-		tss.Points{suite.member1.CoefficientsCommit[0], suite.member2.CoefficientsCommit[0]},
+		suite.member1.CoefficientsCommit[0], suite.member2.CoefficientsCommit[0],
 	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(suite.groupPubKey, pubKey)
@@ -31,7 +31,7 @@ func (suite *TSSTestSuite) TestComputeGroupPublicKey() {
 
 func (suite *TSSTestSuite) TestComputeOwnPrivateKey() {
 	ownSecret, err := tss.ComputeSecretShare(suite.member1.Coefficients, 1)
-	privKey, err := tss.ComputeOwnPrivateKey(tss.Scalars{ownSecret, suite.member2.secretShares[0]})
+	privKey, err := tss.ComputeOwnPrivateKey(ownSecret, suite.member2.secretShares[0])
 	suite.Require().NoError(err)
 	suite.Require().Equal(suite.member1.ownKey.PrivateKey, privKey)
 }
