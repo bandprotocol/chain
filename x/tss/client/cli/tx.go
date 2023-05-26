@@ -321,11 +321,26 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 // TODO: implement MsgComplainCmd
 func MsgComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "complain [group_id] ...",
-		Args:  cobra.ExactArgs(2),
-		Short: "complain containing group_id, and n encrypted-secret-shares",
-		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round2 [group_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+		Use:   "complain [group_id] [member_id] [complains-json-file]",
+		Args:  cobra.ExactArgs(3),
+		Short: "complain containing group_id, member_id, and complains data",
+		Example: fmt.Sprintf(`
+%s tx tss complain [group_id] [member_id] [complains-json-file]
+
+Where complains.json contains:
+{
+	complains: [
+		{
+			"i": 1,
+			"j": 2,
+			"key_sym": "key sym i j",
+			"signature": "signature",
+			"nonce_sym": "nonce i"
+		},
+		...
+	]
+}`,
+
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -339,8 +354,18 @@ func MsgComplainCmd() *cobra.Command {
 				return err
 			}
 
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			complains, err := parseComplains(args[2])
+
 			msg := &types.MsgComplain{
-				GroupID: tss.GroupID(groupID),
+				GroupID:   tss.GroupID(groupID),
+				MemberID:  tss.MemberID(memberID),
+				Complains: complains,
+				Member:    clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
