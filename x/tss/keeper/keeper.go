@@ -294,31 +294,34 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound2Data
 }
 
-func (k Keeper) SetDKGMaliciousIndexes(
+func (k Keeper) SetMemberMalicious(
 	ctx sdk.Context,
 	groupID tss.GroupID,
-	dkgMaliciousIndexes types.DKGMaliciousIndexes,
-) {
-	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), k.cdc.MustMarshal(&dkgMaliciousIndexes))
-}
-
-func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.DKGMaliciousIndexesStoreKey(groupID))
-	if bz == nil {
-		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(
-			types.ErrDKGMaliciousIndexesNotFound,
-			"failed to get dkg malicious indexes with groupID: %d",
-			groupID,
-		)
+	memberID tss.MemberID,
+) error {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return err
 	}
-	var dkgMaliciousIndexes types.DKGMaliciousIndexes
-	k.cdc.MustUnmarshal(bz, &dkgMaliciousIndexes)
-	return dkgMaliciousIndexes, nil
+	member.IsMalicious = true
+	k.SetMember(ctx, groupID, memberID, member)
+	return nil
 }
 
-// DeleteDKGMaliciousIndexes remove the DKG malicious indexes data of a group from the store.
-func (k Keeper) DeleteDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Delete(types.DKGMaliciousIndexesStoreKey(groupID))
+func (k Keeper) GetMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) ([]uint64, error) {
+	var maliciousIndexes []uint64
+	members, err := k.GetMembers(ctx, groupID)
+	if err != nil {
+		return []uint64{}, err
+	}
+
+	for i, m := range members {
+		if m.IsMalicious {
+			maliciousIndexes = append(maliciousIndexes, uint64(i+1))
+		}
+	}
+
+	return maliciousIndexes, nil
 }
 
 // HandleVerifyComplainSig verifies the complain signature for a given groupID and complain
@@ -508,9 +511,6 @@ func (k Keeper) DeleteConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID)
 func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) {
 	// Delete DKG context
 	k.DeleteDKGContext(ctx, groupID)
-
-	// Delete DKG malicious indexes
-	k.DeleteDKGMaliciousIndexes(ctx, groupID)
 
 	for i := uint64(1); i <= groupSize; i++ {
 		memberID := tss.MemberID(i)

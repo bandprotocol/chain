@@ -35,8 +35,9 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	for i, m := range req.Members {
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
-			Member: m,
-			PubKey: tss.PublicKey(nil),
+			Member:      m,
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		})
 	}
 
@@ -262,25 +263,24 @@ func (k Keeper) Complain(
 		return nil, err
 	}
 
-	// Get dkg malicious indexes
-	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
 	// Verify complain
 	var complainsWithStatus []types.ComplainWithStatus
 	for _, c := range req.Complains {
 		err := k.HandleVerifyComplainSig(ctx, groupID, c)
 		if err != nil {
 			// handle verify failed
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
-			if contains {
+			memberI, err := k.GetMember(ctx, groupID, c.I)
+			if err != nil {
+				return nil, err
+			}
+			if memberI.IsMalicious {
 				fmt.Printf("member %d is already malicious on this group\n", c.I)
 				continue
 			}
-			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.I))
-			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+			// update member status
+			memberI.IsMalicious = true
+			k.SetMember(ctx, groupID, memberID, memberI)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -303,13 +303,18 @@ func (k Keeper) Complain(
 			)
 		} else {
 			// handle complains success
-			contains := types.Uint64ArrayContains(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
-			if contains {
+			memberJ, err := k.GetMember(ctx, groupID, c.J)
+			if err != nil {
+				return nil, err
+			}
+			if memberJ.IsMalicious {
 				fmt.Printf("member %d is already malicious on this group\n", c.J)
 				continue
 			}
-			dkgMaliciousIndexes.MemberIDs = append(dkgMaliciousIndexes.MemberIDs, uint64(c.J))
-			k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+
+			// update member status
+			memberJ.IsMalicious = true
+			k.SetMember(ctx, groupID, memberID, memberJ)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -390,12 +395,6 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// Get dkg malicious indexes
-	dkgMaliciousIndexes, err := k.GetDKGMaliciousIndexes(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -439,9 +438,15 @@ func (k Keeper) Confirm(
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
+	// Get malicious indexes
+	maliciousIndexes, err := k.GetMaliciousIndexes(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount+1 == group.Size_ {
-		if len(dkgMaliciousIndexes.MemberIDs) == 0 {
+		if len(maliciousIndexes) == 0 {
 			// Handle compute group public key
 			groupPubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
 			if err != nil {
@@ -453,6 +458,7 @@ func (k Keeper) Confirm(
 			group.PubKey = groupPubKey
 			k.UpdateGroup(ctx, groupID, group)
 
+			// emit event round 3 success
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
@@ -468,7 +474,7 @@ func (k Keeper) Confirm(
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
 				"memberIDs: %v is malicious",
-				dkgMaliciousIndexes.MemberIDs,
+				maliciousIndexes,
 			)
 		}
 

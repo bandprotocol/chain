@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 	"time"
 
@@ -145,8 +146,9 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		PubKey: tss.PublicKey(nil),
+		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		PubKey:      tss.PublicKey(nil),
+		IsMalicious: false,
 	}
 	k.SetMember(ctx, groupID, memberID, member)
 
@@ -160,12 +162,14 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 		{
-			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 	}
 
@@ -184,12 +188,14 @@ func (s *KeeperTestSuite) TestVerifyMember() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 		{
-			Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey: tss.PublicKey(nil),
+			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		},
 	}
 
@@ -416,35 +422,189 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetDKGMaliciousIndexes() {
+func (s *KeeperTestSuite) TestGetSetMemberMalicious() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	dkgMaliciousIndexes := types.DKGMaliciousIndexes{
-		MemberIDs: []uint64{1, 2},
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	member1 := types.Member{
+		Member:      "member_address_1",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
+	}
+	member2 := types.Member{
+		Member:      "member_address_2",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
 	}
 
-	// set DKG malicious indexes
-	k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+	// Set member
+	k.SetMember(ctx, groupID, memberID1, member1)
+	k.SetMember(ctx, groupID, memberID2, member2)
 
-	got, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	// Set member malicious
+	k.SetMemberMalicious(ctx, groupID, memberID1)
+	k.SetMemberMalicious(ctx, groupID, memberID2)
+
+	// Get malicious indexes
+	got, err := k.GetMaliciousIndexes(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal(dkgMaliciousIndexes, got)
+	s.Require().Equal([]uint64{1, 2}, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteDKGMaliciousIndexes() {
+func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	dkgMaliciousIndexes := types.DKGMaliciousIndexes{
-		MemberIDs: []uint64{1, 2},
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	privKeyI, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
+	member1 := types.Member{
+		Member:      "member_address_1",
+		PubKey:      pubKeyI,
+		IsMalicious: false,
+	}
+	member2 := types.Member{
+		Member:      "member_address_2",
+		PubKey:      pubKeyJ,
+		IsMalicious: false,
 	}
 
-	// set DKG malicious indexes
-	k.SetDKGMaliciousIndexes(ctx, groupID, dkgMaliciousIndexes)
+	// Set member
+	k.SetMember(ctx, groupID, memberID1, member1)
+	k.SetMember(ctx, groupID, memberID2, member2)
 
-	k.DeleteDKGMaliciousIndexes(ctx, groupID)
+	// Sign
+	sig, keySym, nonceSym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
+	s.Require().NoError(err)
 
-	_, err := k.GetDKGMaliciousIndexes(ctx, groupID)
+	err = k.HandleVerifyComplainSig(ctx, groupID, types.Complain{
+		I:         memberID1,
+		J:         memberID2,
+		KeySym:    keySym,
+		Signature: sig,
+		NonceSym:  nonceSym,
+	})
+	s.Require().NoError(err)
+}
+
+func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
+	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	member := types.Member{
+		Member:      "member_address",
+		PubKey:      pubKey,
+		IsMalicious: false,
+	}
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set dkg context
+	k.SetDKGContext(ctx, groupID, dkgContext)
+
+	// Sign
+	sig, err := tss.SignOwnPublickey(memberID, dkgContext, pubKey, privKey)
+	s.Require().NoError(err)
+
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, sig)
+	s.Require().NoError(err)
+}
+
+func (s *KeeperTestSuite) TestHandleComputeGroupPublicKey() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
+	point2, _ := hex.DecodeString("03bd0e1b7c880ce80d4340540240972522b44bba2afcf50bfbe30e0352f225eba9")
+
+	// Set round 1 data
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID1,
+		CoefficientsCommit: tss.Points{point1},
+	})
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID2,
+		CoefficientsCommit: tss.Points{point2},
+	})
+
+	pubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().
+		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(pubKey))
+}
+
+func (s *KeeperTestSuite) TestGetSetConfirm() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	confirm := types.Confirm{
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, memberID, confirm)
+
+	got, err := k.GetConfirm(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(confirm, got)
+
+	// Get confirm or complain count
+	count := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Equal(uint64(1), count)
+}
+
+func (s *KeeperTestSuite) TestDeleteConfirm() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	confirm := types.Confirm{
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, memberID, confirm)
+
+	// Delete confirm
+	k.DeleteConfirm(ctx, groupID, memberID)
+
+	_, err := k.GetConfirm(ctx, groupID, memberID)
 	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	complainWithStatus := types.ComplainsWithStatus{
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, memberID, complainWithStatus)
+
+	got, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(complainWithStatus, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
+	// TODO:
+}
+
+func (s *KeeperTestSuite) TestGetSetConfirmComplainCount() {
+	// TODO:
+}
+
+func (s *KeeperTestSuite) TestDeleteConfirmComplainCount() {
+	// TODO:
 }
 
 func TestKeeperTestSuite(t *testing.T) {

@@ -72,6 +72,7 @@ message Member {
   bytes pub_key = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
+  bool isMalicious = 3;
 }
 
 enum GroupStatus {
