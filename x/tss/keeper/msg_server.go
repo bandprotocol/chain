@@ -332,22 +332,18 @@ func (k Keeper) Complain(
 			)
 		}
 
+		// Set complain with status
+		k.SetComplainsWithStatus(ctx, groupID, memberID, types.ComplainsWithStatus{
+			ComplainsWithStatus: complainsWithStatus,
+		})
+
 		// Get confirm complain count
 		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
-
-		// Set confirm complain count
-		confirmComplainCount += 1
-		k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
 
 		// Handle fallen group if everyone sends confirm or complains already.
 		if confirmComplainCount == group.Size_ {
 			k.handleFallenGroup(ctx, groupID, group)
 		}
-
-		// Set complain with status
-		k.SetComplainsWithStatus(ctx, groupID, memberID, types.ComplainsWithStatus{
-			ComplainsWithStatus: complainsWithStatus,
-		})
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -400,13 +396,6 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// Get round 3 note.
-	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
-
-	// Set round 3 note
-	confirmComplainCount += 1
-	k.SetConfirmComplainCount(ctx, groupID, confirmComplainCount)
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -447,8 +436,11 @@ func (k Keeper) Confirm(
 	member.PubKey = ownPubKey
 	k.SetMember(ctx, groupID, memberID, member)
 
+	// Get confirm complain count
+	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+
 	// Handle fallen group if everyone sends confirm or complains already.
-	if confirmComplainCount == group.Size_ {
+	if confirmComplainCount+1 == group.Size_ {
 		if len(dkgMaliciousIndexes.MemberIDs) == 0 {
 			// Handle compute group public key
 			groupPubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)

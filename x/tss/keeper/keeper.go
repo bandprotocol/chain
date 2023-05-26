@@ -413,6 +413,8 @@ func (k Keeper) SetConfirm(
 	memberID tss.MemberID,
 	confirm types.Confirm,
 ) {
+	// add confirm complain count
+	k.AddConfirmComplainCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.ConfirmMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirm))
 }
@@ -449,6 +451,8 @@ func (k Keeper) SetComplainsWithStatus(
 	memberID tss.MemberID,
 	complainsWithStatus types.ComplainsWithStatus,
 ) {
+	// add confirm complain count
+	k.AddConfirmComplainCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.ComplainWithStatusMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&complainsWithStatus))
 }
@@ -487,6 +491,12 @@ func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, co
 func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmComplainCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
+}
+
+// AddConfirmComplainCount method increments the count of confirm and complain in the store.
+func (k Keeper) AddConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetConfirmComplainCount(ctx, groupID)
+	k.SetConfirmComplainCount(ctx, groupID, count+1)
 }
 
 // DeleteConfirmComplainCount remove the confirm complain count data of a group from the store.
