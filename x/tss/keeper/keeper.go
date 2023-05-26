@@ -259,18 +259,18 @@ func (k Keeper) DeleteRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID 
 	ctx.KVStore(k.storeKey).Delete(types.Round2DataMemberStoreKey(groupID, memberID))
 }
 
-// SetRound2DataCount method sets the count of round2Datas in the store.
+// SetRound2DataCount method sets the count of round2Data in the store.
 func (k Keeper) SetRound2DataCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round2DataCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound2DataCount method retrieves the count of round2Datas from the store.
+// GetRound2DataCount method retrieves the count of round2Data from the store.
 func (k Keeper) GetRound2DataCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2DataCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound2DataCount method increments the count of round2Datas in the store.
+// AddRound2DataCount method increments the count of round2Data in the store.
 func (k Keeper) AddRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound2DataCount(ctx, groupID)
 	k.SetRound2DataCount(ctx, groupID, count+1)
