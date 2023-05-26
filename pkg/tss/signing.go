@@ -15,7 +15,7 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 		mids = append(mids, int64(member))
 	}
 
-	coeff := lagrange.ComputeCoefficient2(int64(mid), mids).Bytes()
+	coeff := lagrange.ComputeCoefficient(int64(mid), mids).Bytes()
 
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
@@ -88,8 +88,8 @@ func ComputeOwnPrivateNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scal
 
 // ComputeGroupPublicNonce calculates the group public nonce for a given slice of own public nonces.
 // Formula: Sum(PubNonce1, PubNonce2, ..., PubNonceN)
-func ComputeGroupPublicNonce(rawOwnPubNonces PublicKeys) (PublicKey, error) {
-	pubNonces, err := rawOwnPubNonces.Points()
+func ComputeGroupPublicNonce(rawOwnPubNonces ...PublicKey) (PublicKey, error) {
+	pubNonces, err := PublicKeys(rawOwnPubNonces).Points()
 	if err != nil {
 		return nil, err
 	}

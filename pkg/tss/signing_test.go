@@ -17,6 +17,39 @@ func (suite *TSSTestSuite) TestComputeLagrangeCoefficient() {
 	suite.Require().Equal(expValue, value)
 }
 
+func (suite *TSSTestSuite) TestComputeOwnLo() {
+	lo := tss.ComputeOwnLo(suite.member1.mid, suite.data, suite.bytes)
+	suite.Require().Equal(suite.lo, lo)
+}
+
+func (suite *TSSTestSuite) TestComputeOwnPublicNonce() {
+	pubNonce, err := tss.ComputeOwnPublicNonce(suite.member1.d.PublicKey, suite.member1.e.PublicKey, suite.lo)
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.member1.ownNonce.PublicKey, pubNonce)
+
+	pubNonce, err = tss.ComputeOwnPublicNonce(suite.member2.d.PublicKey, suite.member2.e.PublicKey, suite.lo)
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.member2.ownNonce.PublicKey, pubNonce)
+}
+
+func (suite *TSSTestSuite) TestComputeOwnPrivateNonce() {
+	privNonce, err := tss.ComputeOwnPrivateNonce(suite.member1.d.PrivateKey, suite.member1.e.PrivateKey, suite.lo)
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.member1.ownNonce.PrivateKey, privNonce)
+
+	privNonce, err = tss.ComputeOwnPrivateNonce(suite.member2.d.PrivateKey, suite.member2.e.PrivateKey, suite.lo)
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.member2.ownNonce.PrivateKey, privNonce)
+}
+
+func (suite *TSSTestSuite) TestComputeGroupPublicNonce() {
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(
+		suite.member1.ownNonce.PublicKey, suite.member2.ownNonce.PublicKey,
+	)
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.groupPubNonce, groupPubNonce)
+}
+
 func (suite *TSSTestSuite) TestSignAndVerifySigning() {
 	// Sign
 	sig, err := tss.SignSigning(
