@@ -102,13 +102,13 @@ message Confirm {
 message Complain {
   uint64 i = 1 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
   uint64 j = 2 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
-  bytes keySym = 3 [
+  bytes key_sym = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes signature = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
-  bytes noncesym = 5 [
+  bytes nonce_sym = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
 }
@@ -128,5 +128,5 @@ message ComplainWithStatus {
 }
 
 message ComplainsWithStatus {
-  repeated ComplainWithStatus complainsWithStatus = 1 [ (gogoproto.nullable) = false ];
+  repeated ComplainWithStatus complains_with_status = 1 [ (gogoproto.nullable) = false ];
 }

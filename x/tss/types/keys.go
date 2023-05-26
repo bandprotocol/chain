@@ -41,23 +41,20 @@ var (
 	// DKGMaliciousIndexesStoreKeyPrefix is a list of indexes of malicious members.
 	DKGMaliciousIndexesStoreKeyPrefix = []byte{0x06}
 
-	// Round1CommitmentsCountStoreKeyPrefix is the key that keeps the member commitments count on round 1.
-	Round1CommitmentsCountStoreKeyPrefix = []byte{0x07}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x8}
+	Round2DataStoreKeyPrefix = []byte{0x7}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x9}
+	Round2DataCountStoreKeyPrefix = []byte{0x8}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x9}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{0x11}
+	ConfirmStoreKeyPrefix = []byte{0x10}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
-	ComplainWithStatusStoreKeyPrefix = []byte{0x12}
+	ComplainWithStatusStoreKeyPrefix = []byte{0x11}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {

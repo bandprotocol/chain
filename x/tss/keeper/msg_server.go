@@ -296,7 +296,7 @@ func (k Keeper) Complain(
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
@@ -325,7 +325,7 @@ func (k Keeper) Complain(
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.Noncesym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
@@ -413,8 +413,9 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// TODO: Compute member public key
-	var points tss.Points
+	// TODO: move compute member public key to round 1
+	// Compute raw sum commits
+	var sumCommits tss.Points
 	allRound1Data := k.GetAllRound1Data(ctx, groupID)
 
 	for i := uint64(0); i < group.Threshold; i++ {
@@ -422,18 +423,18 @@ func (k Keeper) Confirm(
 		for _, r1 := range allRound1Data {
 			sumCommitI = append(sumCommitI, r1.CoefficientsCommit[i])
 		}
-		point, err := tss.SumPoints(sumCommitI...)
+		sumCommit, err := tss.SumPoints(sumCommitI...)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
 				"can not sum points",
 			)
 		}
-		points = append(points, point)
+		sumCommits = append(sumCommits, sumCommit)
 	}
 
 	// Compute own public key
-	ownPubKey, err := tss.ComputeOwnPublicKey(points, memberID)
+	ownPubKey, err := tss.ComputeOwnPublicKey(sumCommits, memberID)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrConfirmFailed,

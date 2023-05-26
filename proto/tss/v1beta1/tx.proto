@@ -96,9 +96,9 @@ message MsgConfirm {
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
-  // ownPubKeySig is a signature of the member_i on its own PubKey to confirm
+  // own_pub_key_sig is a signature of the member_i on its own PubKey to confirm
   // that the member is able to derive the PubKey.
-  bytes ownPubKeySig  = 3 [
+  bytes own_pub_key_sig  = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   // member is the signer of this message. Must be the member of this group.
