@@ -268,19 +268,8 @@ func (k Keeper) Complain(
 	for _, c := range req.Complains {
 		err := k.HandleVerifyComplainSig(ctx, groupID, c)
 		if err != nil {
-			// handle verify failed
-			memberI, err := k.GetMember(ctx, groupID, c.I)
-			if err != nil {
-				return nil, err
-			}
-			if memberI.IsMalicious {
-				fmt.Printf("member %d is already malicious on this group\n", c.I)
-				continue
-			}
-
-			// update member status
-			memberI.IsMalicious = true
-			k.SetMember(ctx, groupID, memberID, memberI)
+			// Mark i as malicious
+			k.MarkMalicious(ctx, groupID, c.I)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -302,19 +291,8 @@ func (k Keeper) Complain(
 				),
 			)
 		} else {
-			// handle complains success
-			memberJ, err := k.GetMember(ctx, groupID, c.J)
-			if err != nil {
-				return nil, err
-			}
-			if memberJ.IsMalicious {
-				fmt.Printf("member %d is already malicious on this group\n", c.J)
-				continue
-			}
-
-			// update member status
-			memberJ.IsMalicious = true
-			k.SetMember(ctx, groupID, memberID, memberJ)
+			// Mark j as malicious
+			k.MarkMalicious(ctx, groupID, c.J)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -389,12 +367,6 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// Verify OwnPubKeySig
-	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
-	if err != nil {
-		return nil, err
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -431,6 +403,12 @@ func (k Keeper) Confirm(
 		)
 	}
 
+	// Verify OwnPubKeySig
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
+	if err != nil {
+		return nil, err
+	}
+
 	// Update member
 	member.PubKey = ownPubKey
 	k.SetMember(ctx, groupID, memberID, member)
@@ -463,7 +441,7 @@ func (k Keeper) Confirm(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+					sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
@@ -493,7 +471,7 @@ func (k Keeper) Confirm(
 			types.EventTypeConfirmSuccess,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 		),
 	)

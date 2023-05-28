@@ -596,15 +596,81 @@ func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
 }
 
 func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
-	// TODO:
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	complainWithStatus := types.ComplainsWithStatus{
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, memberID, complainWithStatus)
+	// Delete complains with status
+	k.DeleteComplainsWithStatus(ctx, groupID, memberID)
+
+	_, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	s.Require().Error(err)
 }
 
 func (s *KeeperTestSuite) TestGetSetConfirmComplainCount() {
-	// TODO:
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, count := tss.GroupID(1), uint64(1)
+
+	// Get confirm complain count before assign
+	got1 := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Equal(uint64(0), got1)
+
+	// Set confirm complain count
+	k.SetConfirmComplainCount(ctx, groupID, count)
+
+	// Get confirm complain count
+	got2 := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Equal(count, got2)
 }
 
 func (s *KeeperTestSuite) TestDeleteConfirmComplainCount() {
-	// TODO:
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, count := tss.GroupID(1), uint64(5)
+
+	// Set confirm complain count
+	k.SetConfirmComplainCount(ctx, groupID, count)
+
+	// Delete confirm complain count
+	k.DeleteConfirmComplainCount(ctx, groupID)
+
+	got := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Empty(got)
+}
+
+func (s *KeeperTestSuite) TestMarkMalicious() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	member := types.Member{
+		Member:      "member_address",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
+	}
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Mark malicious
+	err := k.MarkMalicious(ctx, groupID, memberID)
+	s.Require().NoError(err)
+
+	got, err := k.GetMaliciousIndexes(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Equal([]uint64{1}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

@@ -358,8 +358,22 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 
 func (s *KeeperTestSuite) TestComplain() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	privKeyI, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
+	member1 := types.Member{
+		Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		PubKey:      pubKeyI,
+		IsMalicious: false,
+	}
+	member2 := types.Member{
+		Member:      "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+		PubKey:      pubKeyJ,
+		IsMalicious: false,
+	}
 
-	// create group for submit dkg context
+	// Create group for submit dkg context
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 		Members: []string{
 			"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -369,14 +383,24 @@ func (s *KeeperTestSuite) TestComplain() {
 			"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 		},
 		Threshold: 3,
-		Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+		Sender:    "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 	})
+
+	// Update member public key
+	k.SetMember(ctx, groupID, memberID1, member1)
+	k.SetMember(ctx, groupID, memberID2, member2)
+
+	// Update group to round 3
 	k.UpdateGroup(ctx, 1, types.Group{
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
 		Status:    types.ROUND_3,
 	})
+
+	// Sign
+	sig, keySym, nonceSym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
+	s.Require().NoError(err)
 
 	var req types.MsgComplain
 	testCases := []struct {
@@ -385,21 +409,28 @@ func (s *KeeperTestSuite) TestComplain() {
 		expPass  bool
 		postTest func()
 	}{
-		// TODO: add test case
-		// {
-		// 	"success",
-		// 	func() {
-		// 		req = types.MsgComplain{
-		// 			GroupID: 1,
-		// 			MemberID: 1,
-		// 			Complains: []types.Complain{
-		// 			},
-		// 			Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		// 		}
-		// 	},
-		// 	true,
-		// 	func() {},
-		// },
+		// TODO: add more test case
+		{
+			"success",
+			func() {
+				req = types.MsgComplain{
+					GroupID:  1,
+					MemberID: 1,
+					Complains: []types.Complain{
+						{
+							I:         memberID1,
+							J:         memberID2,
+							KeySym:    keySym,
+							Signature: sig,
+							NonceSym:  nonceSym,
+						},
+					},
+					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+				}
+			},
+			true,
+			func() {},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -420,8 +451,18 @@ func (s *KeeperTestSuite) TestComplain() {
 
 func (s *KeeperTestSuite) TestConfirm() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	groupID, memberID1 := tss.GroupID(1), tss.MemberID(1)
+	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
+	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
+	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
+	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
+	member := types.Member{
+		Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		PubKey:      pubKey,
+		IsMalicious: false,
+	}
 
-	// create group for submit dkg context
+	// Create group for submit dkg context
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 		Members: []string{
 			"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -431,14 +472,32 @@ func (s *KeeperTestSuite) TestConfirm() {
 			"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 		},
 		Threshold: 3,
-		Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+		Sender:    "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 	})
+
+	// Update member public key
+	k.SetMember(ctx, groupID, memberID1, member)
+
+	// Set dkg context
+	k.SetDKGContext(ctx, groupID, dkgContext)
+
+	// Update group to round 3
 	k.UpdateGroup(ctx, 1, types.Group{
 		Size_:     5,
-		Threshold: 3,
+		Threshold: 1,
 		PubKey:    nil,
 		Status:    types.ROUND_3,
 	})
+
+	// Set round 1 data
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID1,
+		CoefficientsCommit: tss.Points{point1},
+	})
+
+	// Sign
+	sig, err := tss.SignOwnPublickey(memberID1, dkgContext, pubKey, privKey)
+	s.Require().NoError(err)
 
 	var req types.MsgConfirm
 	testCases := []struct {
@@ -447,20 +506,20 @@ func (s *KeeperTestSuite) TestConfirm() {
 		expPass  bool
 		postTest func()
 	}{
-		// TODO: add test case
-		// {
-		// 	"success",
-		// 	func() {
-		// 		req = types.MsgConfirm{
-		// 			GroupID:      1,
-		// 			MemberID:     1,
-		// 			OwnPubKeySig: tss.Signature{},
-		// 			Member:       "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		// 		}
-		// 	},
-		// 	true,
-		// 	func() {},
-		// },
+		// TODO: add more test case
+		{
+			"success",
+			func() {
+				req = types.MsgConfirm{
+					GroupID:      1,
+					MemberID:     1,
+					OwnPubKeySig: sig,
+					Member:       "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+				}
+			},
+			true,
+			func() {},
+		},
 	}
 
 	for _, tc := range testCases {

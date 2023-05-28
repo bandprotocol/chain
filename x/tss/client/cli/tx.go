@@ -318,7 +318,6 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	return cmd
 }
 
-// TODO: implement MsgComplainCmd
 func MsgComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [member_id] [complains-json-file]",

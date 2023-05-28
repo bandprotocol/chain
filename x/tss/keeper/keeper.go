@@ -324,7 +324,7 @@ func (k Keeper) GetMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) ([]uin
 	return maliciousIndexes, nil
 }
 
-// HandleVerifyComplainSig verifies the complain signature for a given groupID and complain
+// HandleVerifyComplainSig verifies the complain signature for a given groupID and complain.
 func (k Keeper) HandleVerifyComplainSig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -357,7 +357,7 @@ func (k Keeper) HandleVerifyComplainSig(
 	return nil
 }
 
-// HandleVerifyOwnPubKeySig verifies the own public key signature for a given groupID, memberID, and ownPubKeySig
+// HandleVerifyOwnPubKeySig verifies the own public key signature for a given groupID, memberID, and ownPubKeySig.
 func (k Keeper) HandleVerifyOwnPubKeySig(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -390,7 +390,7 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	return nil
 }
 
-// HandleComputeGroupPublicKey computes the group public key for a given groupID
+// HandleComputeGroupPublicKey computes the group public key for a given groupID.
 func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID) (tss.PublicKey, error) {
 	var rawA0Commits tss.Points
 	allRound1Data := k.GetAllRound1Data(ctx, groupID)
@@ -409,7 +409,7 @@ func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID
 	return groupPubKey, nil
 }
 
-// SetConfirm sets the confirm for a specific groupID and memberID in the store
+// SetConfirm sets the confirm for a specific groupID and memberID in the store.
 func (k Keeper) SetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -422,7 +422,7 @@ func (k Keeper) SetConfirm(
 		Set(types.ConfirmMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirm))
 }
 
-// GetConfirm retrieves the confirm for a specific groupID and memberID from the store
+// GetConfirm retrieves the confirm for a specific groupID and memberID from the store.
 func (k Keeper) GetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -447,7 +447,7 @@ func (k Keeper) DeleteConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	ctx.KVStore(k.storeKey).Delete(types.ConfirmMemberStoreKey(groupID, memberID))
 }
 
-// SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store
+// SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store.
 func (k Keeper) SetComplainsWithStatus(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -460,7 +460,7 @@ func (k Keeper) SetComplainsWithStatus(
 		Set(types.ComplainWithStatusMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&complainsWithStatus))
 }
 
-// GetComplainsWithStatus retrieves the complains with status for a specific groupID and memberID from the store
+// GetComplainsWithStatus retrieves the complains with status for a specific groupID and memberID from the store.
 func (k Keeper) GetComplainsWithStatus(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -485,7 +485,7 @@ func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, 
 	ctx.KVStore(k.storeKey).Delete(types.ComplainWithStatusMemberStoreKey(groupID, memberID))
 }
 
-// SetConfirmComplainCount sets the confirm complain count for a specific groupID in the store
+// SetConfirmComplainCount sets the confirm complain count for a specific groupID in the store.
 func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ConfirmComplainCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
@@ -505,6 +505,23 @@ func (k Keeper) AddConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) {
 // DeleteConfirmComplainCount remove the confirm complain count data of a group from the store.
 func (k Keeper) DeleteConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.ConfirmComplainCountStoreKey(groupID))
+}
+
+// MarkMalicious change member status to malicious.
+func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return err
+	}
+	if member.IsMalicious {
+		ctx.Logger().Info(fmt.Sprintf("member %d is already malicious on this group", memberID))
+		return nil
+	}
+
+	// update member status
+	member.IsMalicious = true
+	k.SetMember(ctx, groupID, memberID, member)
+	return nil
 }
 
 // DeleteAllDKGInterimData deletes all DKG interim data for a given groupID and groupSize
