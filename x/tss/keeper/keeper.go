@@ -398,7 +398,7 @@ func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID
 		rawA0Commits = append(rawA0Commits, (r1.CoefficientsCommit[0]))
 	}
 
-	groupPubKey, err := tss.ComputeGroupPublicKey(rawA0Commits)
+	groupPubKey, err := tss.ComputeGroupPublicKey(rawA0Commits...)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrConfirmFailed,
