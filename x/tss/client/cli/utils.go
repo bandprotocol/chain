@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
+// combineGrantMsgs combines multiple grant messages into a single slice of messages.
 func combineGrantMsgs(
 	granter sdk.AccAddress,
 	grantee sdk.AccAddress,
@@ -40,6 +41,7 @@ func combineGrantMsgs(
 	return msgs, nil
 }
 
+// combineRevokeMsgs combines multiple revoke messages into a single slice of messages.
 func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevokes []string) ([]sdk.Msg, error) {
 	msgs := []sdk.Msg{}
 
@@ -60,6 +62,7 @@ func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke
 	return msgs, nil
 }
 
+// parseComplains reads and parses a JSON file containing complaints into a slice of Complain objects.
 func parseComplains(complainsFile string) ([]types.Complain, error) {
 	var complains []types.Complain
 
