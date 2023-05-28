@@ -228,6 +228,11 @@ func (k Keeper) SubmitDKGRound2(
 	return &types.MsgSubmitDKGRound2Response{}, nil
 }
 
+// Complain handles complaints from a member of a certain group.
+// It validates the group status, verifies the member making the complaint, and checks previous submissions from the member.
+// Each complaint in the request is verified, marking the member either as malicious or the subject of complaint as malicious depending on the verification result.
+// After each verification, complaint statuses are appended, relevant events are emitted, and the group data is updated.
+// If all members have sent confirmation or complaints, it will handle the fallen group.
 func (k Keeper) Complain(
 	goCtx context.Context,
 	req *types.MsgComplain,
@@ -332,6 +337,12 @@ func (k Keeper) Complain(
 	return &types.MsgComplainResponse{}, nil
 }
 
+// Confirm method handles a member's confirmation for a certain group.
+// It validates the group status, verifies the member making the confirmation, and checks if the member has already submitted a confirmation or complaint.
+// Additionally, it retrieves the member's details and performs computations for the raw sum of commitments, and the member's own public key.
+// If the member's own public key signature is verified, the member's public key is updated in the data.
+// If all members have sent confirmations or complaints, it will either compute the group public key and update the group status to active or handle the fallen group if there are any malicious members.
+// Finally, the function sets the confirmation with status, emits an event for confirmation success, and returns a response to the confirmation request.
 func (k Keeper) Confirm(
 	goCtx context.Context,
 	req *types.MsgConfirm,
@@ -479,7 +490,7 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
-// Check already confirm or complain
+// Check already confirm or complain.
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {

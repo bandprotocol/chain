@@ -318,6 +318,7 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	return cmd
 }
 
+// MsgComplainCmd creates a CLI command for CLI command for Msg/Complain.
 func MsgComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [member_id] [complains-json-file]",
@@ -379,6 +380,7 @@ Where complains.json contains:
 	return cmd
 }
 
+// MsgConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
 func MsgConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",

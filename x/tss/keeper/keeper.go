@@ -294,6 +294,7 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound2Data
 }
 
+// SetMemberMalicious sets the 'IsMalicious' flag of a member identified by 'groupID' and 'memberID' to true.
 func (k Keeper) SetMemberMalicious(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -308,6 +309,7 @@ func (k Keeper) SetMemberMalicious(
 	return nil
 }
 
+// GetMaliciousIndexes retrieves the indexes of malicious members within a group identified by groupID.
 func (k Keeper) GetMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) ([]uint64, error) {
 	var maliciousIndexes []uint64
 	members, err := k.GetMembers(ctx, groupID)
