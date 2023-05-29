@@ -77,7 +77,7 @@ func (r *Round3) handleTxResult(txResult abci.TxResult) {
 	}
 }
 
-// handleEvent processes an incoming group.
+// handleGroup processes an incoming group.
 func (r *Round3) handleGroup(gid tss.GroupID) {
 	logger := r.logger.With("gid", gid)
 
