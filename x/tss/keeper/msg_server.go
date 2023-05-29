@@ -440,6 +440,12 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
+	// Set confirm
+	k.SetConfirm(ctx, groupID, types.Confirm{
+		MemberID:     memberID,
+		OwnPubKeySig: req.OwnPubKeySig,
+	})
+
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount+1 == group.Size_ {
 		if len(maliciousMembers) == 0 {
@@ -454,7 +460,7 @@ func (k Keeper) Confirm(
 			group.PubKey = groupPubKey
 			k.UpdateGroup(ctx, groupID, group)
 
-			// emit event round 3 success
+			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
@@ -478,13 +484,7 @@ func (k Keeper) Confirm(
 		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_)
 	}
 
-	// Set Confirm with status
-	k.SetConfirm(ctx, groupID, types.Confirm{
-		MemberID:     memberID,
-		OwnPubKeySig: req.OwnPubKeySig,
-	})
-
-	// emit event confirm success
+	// Emit event confirm success
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeConfirmSuccess,

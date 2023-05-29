@@ -433,7 +433,7 @@ func (s *KeeperTestSuite) TestGetMaliciousMembers() {
 	// Get malicious members
 	got, err := k.GetMaliciousMembers(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]tss.MemberID{1, 2}, got)
+	s.Require().Equal([]types.Member{member1, member2}, got)
 }
 
 func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
@@ -707,14 +707,13 @@ func (s *KeeperTestSuite) TestDeleteConfirmComplainCount() {
 func (s *KeeperTestSuite) TestMarkMalicious() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	member := types.Member{
+
+	// Set member
+	k.SetMember(ctx, groupID, memberID, types.Member{
 		Member:      "member_address",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: false,
-	}
-
-	// Set member
-	k.SetMember(ctx, groupID, memberID, member)
+	})
 
 	// Mark malicious
 	err := k.MarkMalicious(ctx, groupID, memberID)
@@ -722,7 +721,13 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 
 	got, err := k.GetMaliciousMembers(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]tss.MemberID{1}, got)
+	s.Require().Equal([]types.Member{
+		{
+			Member:      "member_address",
+			PubKey:      []byte("pub_key"),
+			IsMalicious: true,
+		},
+	}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
