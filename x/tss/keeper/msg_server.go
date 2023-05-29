@@ -248,7 +248,7 @@ func (k Keeper) Complain(
 	}
 
 	if group.Status != types.ROUND_3 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
 	// Verify member
@@ -275,6 +275,9 @@ func (k Keeper) Complain(
 		if err != nil {
 			// Mark i as malicious
 			k.MarkMalicious(ctx, groupID, c.I)
+			if err != nil {
+				return nil, err
+			}
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -297,7 +300,10 @@ func (k Keeper) Complain(
 			)
 		} else {
 			// Mark j as malicious
-			k.MarkMalicious(ctx, groupID, c.J)
+			err := k.MarkMalicious(ctx, groupID, c.J)
+			if err != nil {
+				return nil, err
+			}
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
@@ -359,7 +365,7 @@ func (k Keeper) Confirm(
 	}
 
 	if group.Status != types.ROUND_3 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
 	// Verify member
