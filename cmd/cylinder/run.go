@@ -17,6 +17,7 @@ const (
 	flagBroadcastTimeout = "broadcast-timeout"
 	flagRPCPollInterval  = "rpc-poll-interval"
 	flagMaxTry           = "max-try"
+	flagMinDE            = "min-de"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -75,6 +76,9 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
+	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+
+	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 
 	return cmd

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -43,18 +44,18 @@ func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 }
 
 // SetDE stores the private (d, E) by the given public (D, E).
-func (s *Store) SetDE(pubD, pubE tss.PublicKey, privDE DE) error {
+func (s *Store) SetDE(pubDE types.DE, privDE DE) error {
 	bytes, err := json.Marshal(privDE)
 	if err != nil {
 		return err
 	}
 
-	return s.DB.Set(DEStoreKey(pubD, pubE), bytes)
+	return s.DB.Set(DEStoreKey(pubDE), bytes)
 }
 
 // GetDE retrieves the private (d, E) by the given public (D, E)
-func (s *Store) GetDE(pubD, pubE tss.PublicKey) (DE, error) {
-	bytes, err := s.DB.Get(DEStoreKey(pubD, pubE))
+func (s *Store) GetDE(pubDE types.DE) (DE, error) {
+	bytes, err := s.DB.Get(DEStoreKey(pubDE))
 
 	var de DE
 	err = json.Unmarshal(bytes, &de)
@@ -66,6 +67,6 @@ func (s *Store) GetDE(pubD, pubE tss.PublicKey) (DE, error) {
 }
 
 // RemoveDE deletes the private (d, E) by the given public (D, E)
-func (s *Store) RemoveDE(pubD, pubE tss.PublicKey) error {
-	return s.DB.DeleteSync(DEStoreKey(pubD, pubE))
+func (s *Store) RemoveDE(pubDE types.DE) error {
+	return s.DB.DeleteSync(DEStoreKey(pubDE))
 }
