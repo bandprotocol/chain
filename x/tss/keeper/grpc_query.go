@@ -30,6 +30,13 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
+	if group.Status == types.ACTIVE {
+		return &types.QueryGroupResponse{
+			Group:   group,
+			Members: members,
+		}, nil
+	}
+
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, err
