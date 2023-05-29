@@ -90,10 +90,6 @@ enum GroupStatus {
       [ (gogoproto.enumvalue_customname) = "FALLEN" ];
 }
 
-message DKGMaliciousIndexes {
-  repeated uint64 member_ids = 1 [ (gogoproto.customname) = "MemberIDs" ];
-}
-
 message Confirm {
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",

@@ -304,21 +304,21 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound2Data
 }
 
-// GetMaliciousIndexes retrieves the indexes of malicious members within a group identified by groupID.
-func (k Keeper) GetMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) ([]uint64, error) {
-	var maliciousIndexes []uint64
+// GetMaliciousMembers retrieves the indexes of malicious members within a group identified by groupID.
+func (k Keeper) GetMaliciousMembers(ctx sdk.Context, groupID tss.GroupID) ([]tss.MemberID, error) {
+	var maliciousMembers []tss.MemberID
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
-		return []uint64{}, err
+		return []tss.MemberID{}, err
 	}
 
 	for i, m := range members {
 		if m.IsMalicious {
-			maliciousIndexes = append(maliciousIndexes, uint64(i+1))
+			maliciousMembers = append(maliciousMembers, tss.MemberID(i+1))
 		}
 	}
 
-	return maliciousIndexes, nil
+	return maliciousMembers, nil
 }
 
 // HandleVerifyComplainSig verifies the complain signature for a given groupID and complain.
@@ -545,7 +545,6 @@ func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss
 		return err
 	}
 	if member.IsMalicious {
-		ctx.Logger().Info(fmt.Sprintf("member %d is already malicious on this group", memberID))
 		return nil
 	}
 

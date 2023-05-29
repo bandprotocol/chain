@@ -26,11 +26,9 @@ var (
 		13,
 		"encrypted secret shares not correct length",
 	)
-	ErrDKGMaliciousIndexesNotFound      = sdkerrors.Register(ModuleName, 14, "dkg malicious indexes not found")
-	ErrMemberIsAlreadyMalicious         = sdkerrors.Register(ModuleName, 15, "member is already malicious")
-	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 16, "member is already complain or confirm")
-	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 17, "complain failed")
-	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 18, "confirm failed")
-	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 19, "confirm not found")
-	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 20, "complains with status not found")
+	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 14, "member is already complain or confirm")
+	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 15, "complain failed")
+	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 16, "confirm failed")
+	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 17, "confirm not found")
+	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 18, "complains with status not found")
 )
