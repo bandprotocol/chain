@@ -41,7 +41,7 @@ func New(ctx *cylinder.Context) (*Round3, error) {
 	}, nil
 }
 
-// subscribe subscribes to the round3 events and initializes the event channel for receiving events.
+// subscribe subscribes to the round2 events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
 func (r *Round3) subscribe() error {
 	var err error
@@ -142,7 +142,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 }
 
 // Start starts the Round3 worker.
-// It subscribes to round3 events and starts processing incoming events.
+// It subscribes to round2 events and starts processing incoming events.
 func (r *Round3) Start() {
 	r.logger.Info("start")
 
