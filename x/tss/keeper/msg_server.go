@@ -278,7 +278,7 @@ func (k Keeper) Complain(
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       &c,
+				Complain:       c,
 				ComplainStatus: types.FAILED,
 			})
 
@@ -301,7 +301,7 @@ func (k Keeper) Complain(
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       &c,
+				Complain:       c,
 				ComplainStatus: types.SUCCESS,
 			})
 

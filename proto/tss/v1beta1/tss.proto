@@ -128,7 +128,7 @@ enum ComplainStatus {
 }
 
 message ComplainWithStatus {
-  Complain complain = 1;
+  Complain complain = 1 [ (gogoproto.nullable) = false ];
   ComplainStatus complain_status = 2;
 }
 

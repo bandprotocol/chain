@@ -540,7 +540,7 @@ func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
 		MemberID: memberID,
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
-				Complain: &types.Complain{
+				Complain: types.Complain{
 					I:         1,
 					J:         2,
 					KeySym:    []byte("key_sym"),
@@ -567,7 +567,7 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		MemberID: memberID,
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
-				Complain: &types.Complain{
+				Complain: types.Complain{
 					I:         1,
 					J:         2,
 					KeySym:    []byte("key_sym"),
@@ -595,7 +595,7 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		MemberID: memberID1,
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
-				Complain: &types.Complain{
+				Complain: types.Complain{
 					I:         1,
 					J:         2,
 					KeySym:    []byte("key_sym"),
@@ -610,7 +610,7 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		MemberID: memberID2,
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
-				Complain: &types.Complain{
+				Complain: types.Complain{
 					I:         1,
 					J:         2,
 					KeySym:    []byte("key_sym"),
