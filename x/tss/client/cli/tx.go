@@ -37,6 +37,8 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
 	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
+	txCmd.AddCommand(MsgComplainCmd())
+	txCmd.AddCommand(MsgConfirmCmd())
 
 	return txCmd
 }
