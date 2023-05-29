@@ -28,5 +28,6 @@ const (
 	AttributeKeyNonceSym     = "nonce_sym"
 	AttributeKeySignature    = "signature"
 	AttributeKeyComplain     = "complain"
+	AttributeKeyGroupPubKey  = "group_pub_key"
 	AttributeKeyOwnPubKeySig = "own_pub_key_sig"
 )

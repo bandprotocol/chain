@@ -412,7 +412,7 @@ func (s *KeeperTestSuite) TestDeleteRound2DataCount() {
 	s.Require().Empty(got)
 }
 
-func (s *KeeperTestSuite) TestGetMemberMalicious() {
+func (s *KeeperTestSuite) TestGetMaliciousMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	member1 := types.Member{
@@ -430,10 +430,10 @@ func (s *KeeperTestSuite) TestGetMemberMalicious() {
 	k.SetMember(ctx, groupID, memberID1, member1)
 	k.SetMember(ctx, groupID, memberID2, member2)
 
-	// Get malicious indexes
-	got, err := k.GetMaliciousIndexes(ctx, groupID)
+	// Get malicious members
+	got, err := k.GetMaliciousMembers(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]uint64{1, 2}, got)
+	s.Require().Equal([]tss.MemberID{1, 2}, got)
 }
 
 func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
@@ -720,9 +720,9 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	err := k.MarkMalicious(ctx, groupID, memberID)
 	s.Require().NoError(err)
 
-	got, err := k.GetMaliciousIndexes(ctx, groupID)
+	got, err := k.GetMaliciousMembers(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]uint64{1}, got)
+	s.Require().Equal([]tss.MemberID{1}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
