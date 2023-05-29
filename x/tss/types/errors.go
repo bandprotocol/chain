@@ -31,6 +31,6 @@ var (
 	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 16, "member is already complain or confirm")
 	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 17, "complain failed")
 	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 18, "confirm failed")
-	ErrConfirmationWithStatusNotFound   = sdkerrors.Register(ModuleName, 19, "confirm with status not found")
+	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 19, "confirm not found")
 	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 20, "complains with status not found")
 )
