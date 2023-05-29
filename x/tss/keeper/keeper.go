@@ -304,17 +304,17 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound2Data
 }
 
-// GetMaliciousMembers retrieves the indexes of malicious members within a group identified by groupID.
-func (k Keeper) GetMaliciousMembers(ctx sdk.Context, groupID tss.GroupID) ([]tss.MemberID, error) {
-	var maliciousMembers []tss.MemberID
+// GetMaliciousMembers retrieves the malicious members within a group identified by groupID.
+func (k Keeper) GetMaliciousMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+	var maliciousMembers []types.Member
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
-		return []tss.MemberID{}, err
+		return []types.Member{}, err
 	}
 
-	for i, m := range members {
+	for _, m := range members {
 		if m.IsMalicious {
-			maliciousMembers = append(maliciousMembers, tss.MemberID(i+1))
+			maliciousMembers = append(maliciousMembers, m)
 		}
 	}
 
