@@ -14,7 +14,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// Round2 is a worker responsible for round2 in the DKG process of TSS module
+// Round3 is a worker responsible for round3 in the DKG process of TSS module
 type Round3 struct {
 	context *cylinder.Context
 
@@ -26,8 +26,8 @@ type Round3 struct {
 
 var _ cylinder.Worker = &Round3{}
 
-// New creates a new instance of the Round2 worker.
-// It initializes the necessary components and returns the created Round2 instance or an error if initialization fails.
+// New creates a new instance of the Round3 worker.
+// It initializes the necessary components and returns the created Round3 instance or an error if initialization fails.
 func New(ctx *cylinder.Context) (*Round3, error) {
 	cli, err := client.New(ctx.Config, ctx.Keyring)
 	if err != nil {
@@ -36,17 +36,17 @@ func New(ctx *cylinder.Context) (*Round3, error) {
 
 	return &Round3{
 		context: ctx,
-		logger:  ctx.Logger.With("worker", "round2"),
+		logger:  ctx.Logger.With("worker", "round3"),
 		client:  cli,
 	}, nil
 }
 
-// subscribe subscribes to the round2 events and initializes the event channel for receiving events.
+// subscribe subscribes to the round3 events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
 func (r *Round3) subscribe() error {
 	var err error
 	r.eventCh, err = r.client.Subscribe(
-		"round2",
+		"round3",
 		fmt.Sprintf(
 			"tm.event = 'Tx' AND %s.%s EXISTS",
 			types.EventTypeRound2Success,
@@ -141,8 +141,8 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 }
 
-// Start starts the Round2 worker.
-// It subscribes to round2 events and starts processing incoming events.
+// Start starts the Round3 worker.
+// It subscribes to round3 events and starts processing incoming events.
 func (r *Round3) Start() {
 	r.logger.Info("start")
 
@@ -157,7 +157,7 @@ func (r *Round3) Start() {
 	}
 }
 
-// Stop stops the Round2 worker.
+// Stop stops the Round3 worker.
 func (r *Round3) Stop() {
 	r.logger.Info("stop")
 	r.client.Stop()
