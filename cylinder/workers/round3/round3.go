@@ -105,7 +105,6 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		// Send message complains
 		r.context.MsgCh <- &types.MsgComplain{
 			GroupID:   gid,
-			MemberID:  group.MemberID,
 			Complains: complains,
 			Member:    r.context.Config.Granter,
 		}

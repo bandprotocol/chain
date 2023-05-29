@@ -579,28 +579,6 @@ func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, gr
 	k.DeleteConfirmComplainCount(ctx, groupID)
 }
 
-func (k Keeper) SetDKGMaliciousIndexes(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	dkgMaliciousIndexes types.DKGMaliciousIndexes,
-) {
-	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), k.cdc.MustMarshal(&dkgMaliciousIndexes))
-}
-
-func (k Keeper) GetDKGMaliciousIndexes(ctx sdk.Context, groupID tss.GroupID) (types.DKGMaliciousIndexes, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
-	if bz == nil {
-		return types.DKGMaliciousIndexes{}, sdkerrors.Wrapf(
-			types.ErrDKGMaliciousIndexesNotFound,
-			"failed to get dkg malicious indexes with groupID: %d",
-			groupID,
-		)
-	}
-	var dkgMaliciousIndexes types.DKGMaliciousIndexes
-	k.cdc.MustUnmarshal(bz, &dkgMaliciousIndexes)
-	return dkgMaliciousIndexes, nil
-}
-
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
