@@ -207,6 +207,11 @@ func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound1DataCount(ctx, groupID, count+1)
 }
 
+// DeleteRound1DataCount remove the round 1 data count data of a group from the store.
+func (k Keeper) DeleteRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1DataCountStoreKey(groupID))
+}
+
 // GetRound1DataIterator function gets an iterator over all round1 data of a group.
 func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
@@ -276,6 +281,11 @@ func (k Keeper) AddRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	k.SetRound2DataCount(ctx, groupID, count+1)
 }
 
+// DeleteRound2DataCount remove the round 2 data count data of a group from the store.
+func (k Keeper) DeleteRound2DataCount(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round2DataCountStoreKey(groupID))
+}
+
 // GetRound2DataIterator function gets an iterator over all round1 data of a group.
 func (k Keeper) GetRound2DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2DataStoreKey(groupID))
@@ -292,21 +302,6 @@ func (k Keeper) GetAllRound2Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 		allRound2Data = append(allRound2Data, round2Data)
 	}
 	return allRound2Data
-}
-
-// SetMemberMalicious sets the 'IsMalicious' flag of a member identified by 'groupID' and 'memberID' to true.
-func (k Keeper) SetMemberMalicious(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	memberID tss.MemberID,
-) error {
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
-		return err
-	}
-	member.IsMalicious = true
-	k.SetMember(ctx, groupID, memberID, member)
-	return nil
 }
 
 // GetMaliciousIndexes retrieves the indexes of malicious members within a group identified by groupID.
@@ -577,6 +572,10 @@ func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, gr
 		k.DeleteConfirm(ctx, groupID, memberID)
 	}
 
+	// Delete round 1 data count
+	k.DeleteRound1DataCount(ctx, groupID)
+	// Delete round 2 data count
+	k.DeleteRound2DataCount(ctx, groupID)
 	// Delete confirm complain count
 	k.DeleteConfirmComplainCount(ctx, groupID)
 }
