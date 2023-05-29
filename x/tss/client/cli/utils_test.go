@@ -16,8 +16,7 @@ func TestParseComplains(t *testing.T) {
 
 	// 2. Test with a valid file
 	// Write a valid JSON to a temp file
-	kbHome := t.TempDir()
-	tempFile, err := ioutil.TempFile(kbHome, "complains")
+	tempFile, err := ioutil.TempFile("", "complains")
 
 	require.NoError(t, err)
 	defer os.Remove(tempFile.Name())

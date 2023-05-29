@@ -239,7 +239,7 @@ func (k Keeper) Complain(
 ) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.MemberID
+	memberID := req.Complains[0].I
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -421,15 +421,15 @@ func (k Keeper) Confirm(
 		)
 	}
 
+	// Update member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
 	// Verify OwnPubKeySig
 	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
 	if err != nil {
 		return nil, err
 	}
-
-	// Update member
-	member.PubKey = ownPubKey
-	k.SetMember(ctx, groupID, memberID, member)
 
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
@@ -459,8 +459,8 @@ func (k Keeper) Confirm(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+					sdk.NewAttribute(types.AttributeKeyGroupPubKey, hex.EncodeToString(groupPubKey)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 				),
 			)
 		} else {

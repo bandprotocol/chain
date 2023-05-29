@@ -414,8 +414,7 @@ func (s *KeeperTestSuite) TestComplain() {
 			"success",
 			func() {
 				req = types.MsgComplain{
-					GroupID:  groupID,
-					MemberID: memberID1,
+					GroupID: groupID,
 					Complains: []types.Complain{
 						{
 							I:         memberID1,

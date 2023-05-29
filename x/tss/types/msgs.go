@@ -182,7 +182,13 @@ func (m MsgComplain) ValidateBasic() error {
 	}
 
 	// Validate complains
-	for _, c := range m.Complains {
+	memberI := m.Complains[0].I
+	for i, c := range m.Complains {
+		// Validate member I
+		if i > 0 && memberI != c.I {
+			return sdkerrors.Wrap(fmt.Errorf("member I in the list of complains must be the same value"), "I")
+		}
+
 		// Validate key sym
 		_, err := c.KeySym.Parse()
 		if err != nil {

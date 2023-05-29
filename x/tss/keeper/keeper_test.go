@@ -433,7 +433,7 @@ func (s *KeeperTestSuite) TestGetMemberMalicious() {
 	// Get malicious indexes
 	got, err := k.GetMaliciousIndexes(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]uint64{1, 2}, got)
+	s.Require().Equal([]tss.MemberID{1, 2}, got)
 }
 
 func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
@@ -722,7 +722,7 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 
 	got, err := k.GetMaliciousIndexes(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]uint64{1}, got)
+	s.Require().Equal([]tss.MemberID{1}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
