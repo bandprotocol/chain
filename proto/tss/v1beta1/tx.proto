@@ -72,11 +72,6 @@ message MsgComplain {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // member_id is ID of the member.
-  uint64 member_id = 2 [
-    (gogoproto.customname) = "MemberID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
-  ];
   // complains is a list of Complains. 
   repeated Complain complains  = 3 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.

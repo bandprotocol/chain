@@ -414,8 +414,7 @@ func (s *KeeperTestSuite) TestComplain() {
 			"success",
 			func() {
 				req = types.MsgComplain{
-					GroupID:  groupID,
-					MemberID: memberID1,
+					GroupID: groupID,
 					Complains: []types.Complain{
 						{
 							I:         memberID1,
@@ -451,16 +450,15 @@ func (s *KeeperTestSuite) TestComplain() {
 
 func (s *KeeperTestSuite) TestConfirm() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
-	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
-	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
-	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
-	member := types.Member{
-		Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		PubKey:      pubKey,
-		IsMalicious: false,
-	}
+	member1p1, _ := hex.DecodeString("039cff182d3b5653c215207c5b141983d6e784e51cc8088b7edfef6cba504573e3")
+	member1p2, _ := hex.DecodeString("035b8a99ebc56c07b88404407046e6f0d5e5318a87b888ea25d6d12d8175b2d70c")
+	member2p1, _ := hex.DecodeString("02786741d28ca0a66b628d6401d975da448fc08c15a1228eb7b65203c6bac5cedb")
+	member2p2, _ := hex.DecodeString("023d61b24c8785efe8c7459dc706d95b197c0acb31697feb49fec2d3446dc36de4")
+	sig, _ := hex.DecodeString(
+		"02bf7d39a54f6d468ce71317e2d5cc87c34c4ef11ee2b6638f57b435dadd7a976520e65c8e296ff1570ad0bb4a5f18557126642e76cbda0f6ffd4a546ea4651ef8",
+	)
 
 	// Create group for submit dkg context
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
@@ -475,29 +473,26 @@ func (s *KeeperTestSuite) TestConfirm() {
 		Sender:    "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 	})
 
-	// Update member public key
-	k.SetMember(ctx, groupID, memberID, member)
-
 	// Set dkg context
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	// Update group to round 3
 	k.UpdateGroup(ctx, 1, types.Group{
 		Size_:     5,
-		Threshold: 1,
+		Threshold: 2,
 		PubKey:    nil,
 		Status:    types.ROUND_3,
 	})
 
 	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, types.Round1Data{
-		MemberID:           memberID,
-		CoefficientsCommit: tss.Points{point1},
+		MemberID:           memberID1,
+		CoefficientsCommit: tss.Points{member1p1, member1p2},
 	})
-
-	// Sign
-	sig, err := tss.SignOwnPublickey(memberID, dkgContext, pubKey, privKey)
-	s.Require().NoError(err)
+	k.SetRound1Data(ctx, groupID, types.Round1Data{
+		MemberID:           memberID2,
+		CoefficientsCommit: tss.Points{member2p1, member2p2},
+	})
 
 	var req types.MsgConfirm
 	testCases := []struct {
@@ -512,7 +507,7 @@ func (s *KeeperTestSuite) TestConfirm() {
 			func() {
 				req = types.MsgConfirm{
 					GroupID:      groupID,
-					MemberID:     memberID,
+					MemberID:     memberID1,
 					OwnPubKeySig: sig,
 					Member:       "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
