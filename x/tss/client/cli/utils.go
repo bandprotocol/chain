@@ -62,12 +62,16 @@ func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke
 	return msgs, nil
 }
 
+type ComplainsData struct {
+	Complains []types.Complain `json:"complains"`
+}
+
 // parseComplains reads and parses a JSON file containing complaints into a slice of Complain objects.
 func parseComplains(complainsFile string) ([]types.Complain, error) {
-	var complains []types.Complain
+	var complainsData ComplainsData
 
 	if complainsFile == "" {
-		return complains, nil
+		return complainsData.Complains, nil
 	}
 
 	contents, err := os.ReadFile(complainsFile)
@@ -75,11 +79,11 @@ func parseComplains(complainsFile string) ([]types.Complain, error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(contents, &complains)
+	err = json.Unmarshal(contents, &complainsData)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	return complains, nil
+	return complainsData.Complains, nil
 }

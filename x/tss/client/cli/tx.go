@@ -362,6 +362,9 @@ Where complains.json contains:
 			}
 
 			complains, err := parseComplains(args[2])
+			if err != nil {
+				return err
+			}
 
 			msg := &types.MsgComplain{
 				GroupID:   tss.GroupID(groupID),
@@ -369,6 +372,7 @@ Where complains.json contains:
 				Complains: complains,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
+
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
 			}
