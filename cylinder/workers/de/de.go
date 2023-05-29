@@ -111,7 +111,7 @@ func (de *DE) Start() {
 	// Update one time when starting worker first time.
 	go de.updateDE()
 
-	for _ = range de.eventCh {
+	for range de.eventCh {
 		go de.updateDE()
 	}
 }
