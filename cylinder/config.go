@@ -12,4 +12,5 @@ type Config struct {
 	BroadcastTimeout time.Duration `mapstructure:"broadcast-timeout"` // The time that cylinder will wait for tx commit
 	RPCPollInterval  time.Duration `mapstructure:"rpc-poll-interval"` // The duration of rpc poll interval
 	MaxTry           uint64        `mapstructure:"max-try"`           // The maximum number of tries to submit a report transaction
+	MinDE            uint64        `mapstructure:"min-DE"`            // The minimum number of DE
 }

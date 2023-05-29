@@ -2,6 +2,7 @@ package store
 
 import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -23,7 +24,7 @@ func GroupStoreKey(groupID tss.GroupID) []byte {
 }
 
 // DEStoreKey returns the key to retrieve private (d, e) by public (D, E).
-func DEStoreKey(pubD tss.PublicKey, pubE tss.PublicKey) []byte {
-	bz := append(DEStoreKeyPrefix, pubD...)
-	return append(bz, pubE...)
+func DEStoreKey(pubDE types.DE) []byte {
+	bz := append(DEStoreKeyPrefix, pubDE.PubD...)
+	return append(bz, pubDE.PubE...)
 }

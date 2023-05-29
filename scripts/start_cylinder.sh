@@ -30,6 +30,9 @@ cylinder config max-try 5 --home $HOME_PATH
 # setup gas-prices to cylinder config
 cylinder config gas-prices "0.0025uband" --home $HOME_PATH
 
+# setup min-de to cylinder config
+cylinder config min-de 20 --home $HOME_PATH
+
 for i in $(eval echo {1..2})
 do
   # add signer key
