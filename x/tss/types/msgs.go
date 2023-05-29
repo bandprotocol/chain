@@ -181,6 +181,11 @@ func (m MsgComplain) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "member")
 	}
 
+	// Validate complains size
+	if len(m.Complains) < 1 {
+		return sdkerrors.Wrap(fmt.Errorf("must contain at least one complain"), "complains")
+	}
+
 	// Validate complains
 	memberI := m.Complains[0].I
 	for i, c := range m.Complains {

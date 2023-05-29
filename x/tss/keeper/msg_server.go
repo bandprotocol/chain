@@ -274,7 +274,7 @@ func (k Keeper) Complain(
 		err := k.HandleVerifyComplainSig(ctx, groupID, c)
 		if err != nil {
 			// Mark i as malicious
-			k.MarkMalicious(ctx, groupID, c.I)
+			err := k.MarkMalicious(ctx, groupID, c.I)
 			if err != nil {
 				return nil, err
 			}
@@ -434,15 +434,15 @@ func (k Keeper) Confirm(
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	// Get malicious indexes
-	maliciousIndexes, err := k.GetMaliciousIndexes(ctx, groupID)
+	// Get malicious members
+	maliciousMembers, err := k.GetMaliciousMembers(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount+1 == group.Size_ {
-		if len(maliciousIndexes) == 0 {
+		if len(maliciousMembers) == 0 {
 			// Handle compute group public key
 			groupPubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
 			if err != nil {
@@ -470,7 +470,7 @@ func (k Keeper) Confirm(
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
 				"memberIDs: %v is malicious",
-				maliciousIndexes,
+				maliciousMembers,
 			)
 		}
 
