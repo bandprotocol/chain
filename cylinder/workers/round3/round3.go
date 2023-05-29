@@ -80,6 +80,21 @@ func (r *Round3) handleTxResult(txResult abci.TxResult) {
 // handleEvent processes an incoming group.
 func (r *Round3) handleGroup(gid tss.GroupID) {
 	logger := r.logger.With("gid", gid)
+
+	// Query group detail
+	groupRes, err := r.client.QueryGroup(gid)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
+		return
+	}
+
+	// Check if the user is member in the group
+	isMember := groupRes.IsMember(r.context.Config.Granter)
+	if !isMember {
+		return
+	}
+
+	// Log
 	logger.Info(":delivery_truck: Processing incoming group")
 
 	// Set group data
@@ -89,18 +104,14 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		return
 	}
 
-	groupRes, err := r.client.QueryGroup(gid)
-	if err != nil {
-		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
-		return
-	}
-
+	// Get own private key
 	ownPrivKey, complains, err := getOwnPrivKey(group, groupRes)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to get own private key or complains: %s", err.Error())
 		return
 	}
 
+	// If there is any complain, send MsgComplain
 	if len(complains) > 0 {
 		// Send message complains
 		r.context.MsgCh <- &types.MsgComplain{
@@ -132,7 +143,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		return
 	}
 
-	// Send message confirm
+	// Send MsgConfirm
 	r.context.MsgCh <- &types.MsgConfirm{
 		GroupID:      gid,
 		MemberID:     group.MemberID,
