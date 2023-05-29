@@ -482,8 +482,8 @@ func (k Keeper) GetConfirm(
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmMemberStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Confirm{}, sdkerrors.Wrapf(
-			types.ErrConfirmationWithStatusNotFound,
-			"failed to get confirm with status with groupID %d memberID %d",
+			types.ErrConfirmNotFound,
+			"failed to get confirm with groupID %d memberID %d",
 			groupID,
 			memberID,
 		)

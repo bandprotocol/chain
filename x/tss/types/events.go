@@ -9,7 +9,6 @@ const (
 	EventTypeComplainSuccess = "complain_success"
 	EventTypeComplainFailed  = "complain_failed"
 	EventTypeConfirmSuccess  = "confirm_success"
-	EventTypeConfirmFailed   = "confirm_failed"
 	EventTypeRound3Success   = "round3_success"
 	EventTypeRound3Failed    = "round3_failed"
 

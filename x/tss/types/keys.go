@@ -38,23 +38,20 @@ var (
 	// Round1DataCountStoreKeyPrefix is the key that keeps the round 1 data count.
 	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
-	// DKGMaliciousIndexesStoreKeyPrefix is a list of indexes of malicious members.
-	DKGMaliciousIndexesStoreKeyPrefix = []byte{0x06}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x07}
+	Round2DataStoreKeyPrefix = []byte{0x06}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x08}
+	Round2DataCountStoreKeyPrefix = []byte{0x07}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
-	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
+	ComplainsWithStatusStoreKeyPrefix = []byte{0x08}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x09}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{11}
+	ConfirmStoreKeyPrefix = []byte{10}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -95,10 +92,6 @@ func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte
 
 func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
 	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
-}
-
-func DKGMaliciousIndexesStoreKey(groupID tss.GroupID) []byte {
-	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
 func ConfirmStoreKey(groupID tss.GroupID) []byte {

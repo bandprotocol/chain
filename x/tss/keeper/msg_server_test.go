@@ -414,8 +414,8 @@ func (s *KeeperTestSuite) TestComplain() {
 			"success",
 			func() {
 				req = types.MsgComplain{
-					GroupID:  1,
-					MemberID: 1,
+					GroupID:  groupID,
+					MemberID: memberID1,
 					Complains: []types.Complain{
 						{
 							I:         memberID1,
@@ -451,7 +451,7 @@ func (s *KeeperTestSuite) TestComplain() {
 
 func (s *KeeperTestSuite) TestConfirm() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	groupID, memberID1 := tss.GroupID(1), tss.MemberID(1)
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
 	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
@@ -476,7 +476,7 @@ func (s *KeeperTestSuite) TestConfirm() {
 	})
 
 	// Update member public key
-	k.SetMember(ctx, groupID, memberID1, member)
+	k.SetMember(ctx, groupID, memberID, member)
 
 	// Set dkg context
 	k.SetDKGContext(ctx, groupID, dkgContext)
@@ -491,12 +491,12 @@ func (s *KeeperTestSuite) TestConfirm() {
 
 	// Set round 1 data
 	k.SetRound1Data(ctx, groupID, types.Round1Data{
-		MemberID:           memberID1,
+		MemberID:           memberID,
 		CoefficientsCommit: tss.Points{point1},
 	})
 
 	// Sign
-	sig, err := tss.SignOwnPublickey(memberID1, dkgContext, pubKey, privKey)
+	sig, err := tss.SignOwnPublickey(memberID, dkgContext, pubKey, privKey)
 	s.Require().NoError(err)
 
 	var req types.MsgConfirm
@@ -511,8 +511,8 @@ func (s *KeeperTestSuite) TestConfirm() {
 			"success",
 			func() {
 				req = types.MsgConfirm{
-					GroupID:      1,
-					MemberID:     1,
+					GroupID:      groupID,
+					MemberID:     memberID,
 					OwnPubKeySig: sig,
 					Member:       "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 				}
