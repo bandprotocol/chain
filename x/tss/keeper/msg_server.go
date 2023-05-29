@@ -228,6 +228,11 @@ func (k Keeper) SubmitDKGRound2(
 	return &types.MsgSubmitDKGRound2Response{}, nil
 }
 
+// Complain handles complaints from a member of a certain group.
+// It validates the group status, verifies the member making the complaint, and checks previous submissions from the member.
+// Each complaint in the request is verified, marking the member either as malicious or the subject of complaint as malicious depending on the verification result.
+// After each verification, complaint statuses are appended, relevant events are emitted, and the group data is updated.
+// If all members have sent confirmation or complaints, it will handle the fallen group.
 func (k Keeper) Complain(
 	goCtx context.Context,
 	req *types.MsgComplain,
@@ -243,7 +248,7 @@ func (k Keeper) Complain(
 	}
 
 	if group.Status != types.ROUND_3 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
 	// Verify member
@@ -268,23 +273,15 @@ func (k Keeper) Complain(
 	for _, c := range req.Complains {
 		err := k.HandleVerifyComplainSig(ctx, groupID, c)
 		if err != nil {
-			// handle verify failed
-			memberI, err := k.GetMember(ctx, groupID, c.I)
+			// Mark i as malicious
+			k.MarkMalicious(ctx, groupID, c.I)
 			if err != nil {
 				return nil, err
 			}
-			if memberI.IsMalicious {
-				fmt.Printf("member %d is already malicious on this group\n", c.I)
-				continue
-			}
-
-			// update member status
-			memberI.IsMalicious = true
-			k.SetMember(ctx, groupID, memberID, memberI)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       &c,
+				Complain:       c,
 				ComplainStatus: types.FAILED,
 			})
 
@@ -302,23 +299,15 @@ func (k Keeper) Complain(
 				),
 			)
 		} else {
-			// handle complains success
-			memberJ, err := k.GetMember(ctx, groupID, c.J)
+			// Mark j as malicious
+			err := k.MarkMalicious(ctx, groupID, c.J)
 			if err != nil {
 				return nil, err
 			}
-			if memberJ.IsMalicious {
-				fmt.Printf("member %d is already malicious on this group\n", c.J)
-				continue
-			}
-
-			// update member status
-			memberJ.IsMalicious = true
-			k.SetMember(ctx, groupID, memberID, memberJ)
 
 			// Add complain status
 			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       &c,
+				Complain:       c,
 				ComplainStatus: types.SUCCESS,
 			})
 
@@ -338,7 +327,8 @@ func (k Keeper) Complain(
 		}
 
 		// Set complain with status
-		k.SetComplainsWithStatus(ctx, groupID, memberID, types.ComplainsWithStatus{
+		k.SetComplainsWithStatus(ctx, groupID, types.ComplainsWithStatus{
+			MemberID:            memberID,
 			ComplainsWithStatus: complainsWithStatus,
 		})
 
@@ -354,6 +344,12 @@ func (k Keeper) Complain(
 	return &types.MsgComplainResponse{}, nil
 }
 
+// Confirm method handles a member's confirmation for a certain group.
+// It validates the group status, verifies the member making the confirmation, and checks if the member has already submitted a confirmation or complaint.
+// Additionally, it retrieves the member's details and performs computations for the raw sum of commitments, and the member's own public key.
+// If the member's own public key signature is verified, the member's public key is updated in the data.
+// If all members have sent confirmations or complaints, it will either compute the group public key and update the group status to active or handle the fallen group if there are any malicious members.
+// Finally, the function sets the confirmation with status, emits an event for confirmation success, and returns a response to the confirmation request.
 func (k Keeper) Confirm(
 	goCtx context.Context,
 	req *types.MsgConfirm,
@@ -369,7 +365,7 @@ func (k Keeper) Confirm(
 	}
 
 	if group.Status != types.ROUND_3 {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
 	// Verify member
@@ -385,12 +381,6 @@ func (k Keeper) Confirm(
 
 	// Check already confirm or complain
 	err = k.checkConfirmOrComplain(ctx, groupID, memberID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify OwnPubKeySig
-	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
 	if err != nil {
 		return nil, err
 	}
@@ -431,6 +421,12 @@ func (k Keeper) Confirm(
 		)
 	}
 
+	// Verify OwnPubKeySig
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
+	if err != nil {
+		return nil, err
+	}
+
 	// Update member
 	member.PubKey = ownPubKey
 	k.SetMember(ctx, groupID, memberID, member)
@@ -463,7 +459,7 @@ func (k Keeper) Confirm(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+					sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
@@ -483,7 +479,8 @@ func (k Keeper) Confirm(
 	}
 
 	// Set Confirm with status
-	k.SetConfirm(ctx, groupID, memberID, types.Confirm{
+	k.SetConfirm(ctx, groupID, types.Confirm{
+		MemberID:     memberID,
 		OwnPubKeySig: req.OwnPubKeySig,
 	})
 
@@ -493,7 +490,7 @@ func (k Keeper) Confirm(
 			types.EventTypeConfirmSuccess,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 		),
 	)
@@ -501,7 +498,7 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
-// Check already confirm or complain
+// Check already confirm or complain.
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {

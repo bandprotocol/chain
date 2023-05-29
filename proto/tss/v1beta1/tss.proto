@@ -94,8 +94,12 @@ message DKGMaliciousIndexes {
   repeated uint64 member_ids = 1 [ (gogoproto.customname) = "MemberIDs" ];
 }
 
-message Confirm { 
-  bytes own_pub_key_sig = 1 [
+message Confirm {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  bytes own_pub_key_sig = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
@@ -124,10 +128,14 @@ enum ComplainStatus {
 }
 
 message ComplainWithStatus {
-  Complain complain = 1;
+  Complain complain = 1 [ (gogoproto.nullable) = false ];
   ComplainStatus complain_status = 2;
 }
 
 message ComplainsWithStatus {
-  repeated ComplainWithStatus complains_with_status = 1 [ (gogoproto.nullable) = false ];
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  repeated ComplainWithStatus complains_with_status = 2 [ (gogoproto.nullable) = false ];
 }

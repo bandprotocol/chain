@@ -16,11 +16,23 @@ func TestParseComplains(t *testing.T) {
 
 	// 2. Test with a valid file
 	// Write a valid JSON to a temp file
-	tempFile, err := ioutil.TempFile("", "complains")
+	kbHome := t.TempDir()
+	tempFile, err := ioutil.TempFile(kbHome, "complains")
+
 	require.NoError(t, err)
 	defer os.Remove(tempFile.Name())
 
-	validJSON := `[{"i":1,"j":2,"key_sym": "a2V5X3N5bQ==","signature":"c2lnbmF0dXJl","nonce_sym":"bm9uY2Vfc3lt"}]`
+	validJSON := `{
+		"complains": [
+			{
+				"i": 1,
+				"j": 2,
+				"key_sym": "a2V5X3N5bQ==",
+				"signature": "c2lnbmF0dXJl",
+				"nonce_sym": "bm9uY2Vfc3lt"
+			}
+		]
+	}`
 	_, err = tempFile.WriteString(validJSON)
 	require.NoError(t, err)
 

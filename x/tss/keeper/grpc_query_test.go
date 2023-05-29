@@ -13,8 +13,7 @@ import (
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
-
-	groupID := tss.GroupID(1)
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
@@ -22,8 +21,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
-	round1DataMember1 := types.Round1Data{
-		MemberID: 1,
+	round1Data1 := types.Round1Data{
+		MemberID: memberID1,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -33,8 +32,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round1DataMember2 := types.Round1Data{
-		MemberID: 2,
+	round1Data2 := types.Round1Data{
+		MemberID: memberID2,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
@@ -44,19 +43,57 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round2DataMember1 := types.Round2Data{
-		MemberID: 1,
+	round2Data1 := types.Round2Data{
+		MemberID: memberID1,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
 		},
 	}
-	round2DataMember2 := types.Round2Data{
-		MemberID: 2,
+	round2Data2 := types.Round2Data{
+		MemberID: memberID2,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
 		},
+	}
+	complainWithStatus1 := types.ComplainsWithStatus{
+		MemberID: memberID1,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+	complainWithStatus2 := types.ComplainsWithStatus{
+		MemberID: memberID2,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+	confirm1 := types.Confirm{
+		MemberID:     memberID1,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+	confirm2 := types.Confirm{
+		MemberID:     memberID2,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
@@ -65,13 +102,21 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Sender:    members[0],
 	})
 
-	// set round1 data
-	k.SetRound1Data(ctx, groupID, round1DataMember1)
-	k.SetRound1Data(ctx, groupID, round1DataMember2)
+	// Set round1 data
+	k.SetRound1Data(ctx, groupID, round1Data1)
+	k.SetRound1Data(ctx, groupID, round1Data2)
 
-	// set round 2 data
-	k.SetRound2Data(ctx, groupID, round2DataMember1)
-	k.SetRound2Data(ctx, groupID, round2DataMember2)
+	// Set round 2 data
+	k.SetRound2Data(ctx, groupID, round2Data1)
+	k.SetRound2Data(ctx, groupID, round2Data2)
+
+	// Set complain
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus1)
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus2)
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, confirm1)
+	k.SetConfirm(ctx, groupID, confirm2)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -137,12 +182,20 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						},
 					},
 					AllRound1Data: []types.Round1Data{
-						round1DataMember1,
-						round1DataMember2,
+						round1Data1,
+						round1Data2,
 					},
 					AllRound2Data: []types.Round2Data{
-						round2DataMember1,
-						round2DataMember2,
+						round2Data1,
+						round2Data2,
+					},
+					AllComplainsWithStatus: []types.ComplainsWithStatus{
+						complainWithStatus1,
+						complainWithStatus2,
+					},
+					AllConfirm: []types.Confirm{
+						confirm1,
+						confirm2,
 					},
 				}, res)
 			},

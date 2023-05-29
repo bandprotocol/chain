@@ -38,23 +38,20 @@ var (
 	// Round1DataCountStoreKeyPrefix is the key that keeps the round 1 data count.
 	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
-	// DKGMaliciousIndexesStoreKeyPrefix is a list of indexes of malicious members.
-	DKGMaliciousIndexesStoreKeyPrefix = []byte{0x06}
-
 	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x7}
+	Round2DataStoreKeyPrefix = []byte{0x06}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x8}
-
-	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x9}
-
-	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{0x10}
+	Round2DataCountStoreKeyPrefix = []byte{0x07}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
-	ComplainWithStatusStoreKeyPrefix = []byte{0x11}
+	ComplainsWithStatusStoreKeyPrefix = []byte{0x08}
+
+	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x09}
+
+	// ConfirmStoreKeyPrefix is the key that keeps confirm.
+	ConfirmStoreKeyPrefix = []byte{10}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -97,10 +94,6 @@ func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
 	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func DKGMaliciousIndexesStoreKey(groupID tss.GroupID) []byte {
-	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
-}
-
 func ConfirmStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
@@ -109,12 +102,12 @@ func ConfirmMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(ConfirmStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func ComplainWithStatusStoreKey(groupID tss.GroupID) []byte {
-	return append(ComplainWithStatusStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func ComplainsWithStatusStoreKey(groupID tss.GroupID) []byte {
+	return append(ComplainsWithStatusStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func ComplainWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(ComplainWithStatusStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func ComplainsWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(ComplainsWithStatusStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
