@@ -79,7 +79,7 @@ func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
 		pollInterval: cfg.RPCPollInterval,
 		maxTry:       cfg.MaxTry,
 		// TODO-CYLINDER: TUNE THESE NUMBERS / MOVE TO CONFIG
-		gasAdjustStart: 1.4,
+		gasAdjustStart: 1.6,
 		gasAdjustStep:  0.2,
 	}, nil
 }
