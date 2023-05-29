@@ -175,6 +175,31 @@ func (m MsgComplain) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgComplain) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate complains
+	for _, c := range m.Complains {
+		// Validate key sym
+		_, err := c.KeySym.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "key sym")
+		}
+		// Validate nonce sym
+		_, err = c.NonceSym.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "nonce sym")
+		}
+		// Validate signature
+		_, err = c.Signature.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "signature")
+		}
+	}
+
 	return nil
 }
 
@@ -198,5 +223,17 @@ func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate own pub key sig
+	_, err = m.OwnPubKeySig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "own pub key sig")
+	}
+
 	return nil
 }
