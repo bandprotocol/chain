@@ -411,17 +411,71 @@ func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID
 	return groupPubKey, nil
 }
 
+// SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store.
+func (k Keeper) SetComplainsWithStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	complainsWithStatus types.ComplainsWithStatus,
+) {
+	// add confirm complain count
+	k.AddConfirmComplainCount(ctx, groupID)
+	ctx.KVStore(k.storeKey).
+		Set(types.ComplainsWithStatusMemberStoreKey(groupID, complainsWithStatus.MemberID), k.cdc.MustMarshal(&complainsWithStatus))
+}
+
+// GetComplainsWithStatus retrieves the complains with status for a specific groupID and memberID from the store.
+func (k Keeper) GetComplainsWithStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+) (types.ComplainsWithStatus, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
+	if bz == nil {
+		return types.ComplainsWithStatus{}, sdkerrors.Wrapf(
+			types.ErrComplainsWithStatusNotFound,
+			"failed to get complains with status with groupID %d memberID %d",
+			groupID,
+			memberID,
+		)
+	}
+	var c types.ComplainsWithStatus
+	k.cdc.MustUnmarshal(bz, &c)
+	return c, nil
+}
+
+// GetComplainsWithStatusIterator function gets an iterator over all complains with status data of a group.
+func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ComplainsWithStatusStoreKey(groupID))
+}
+
+// GetAllComplainsWithStatus method retrieves all complains with status for a given group from the store.
+func (k Keeper) GetAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) []types.ComplainsWithStatus {
+	var cs []types.ComplainsWithStatus
+	iterator := k.GetComplainsWithStatusIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var c types.ComplainsWithStatus
+		k.cdc.MustUnmarshal(iterator.Value(), &c)
+		cs = append(cs, c)
+	}
+	return cs
+}
+
+// DeleteComplainsWithStatus method deletes the complain with status of a member from the store.
+func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
+}
+
 // SetConfirm sets the confirm for a specific groupID and memberID in the store.
 func (k Keeper) SetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
-	memberID tss.MemberID,
 	confirm types.Confirm,
 ) {
 	// add confirm complain count
 	k.AddConfirmComplainCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
-		Set(types.ConfirmMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&confirm))
+		Set(types.ConfirmMemberStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
 }
 
 // GetConfirm retrieves the confirm for a specific groupID and memberID from the store.
@@ -444,47 +498,27 @@ func (k Keeper) GetConfirm(
 	return c, nil
 }
 
+// GetConfirmIterator function gets an iterator over all confirm data of a group.
+func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmStoreKey(groupID))
+}
+
+// GetConfirms method retrieves all confirm for a given group from the store.
+func (k Keeper) GetConfirms(ctx sdk.Context, groupID tss.GroupID) []types.Confirm {
+	var cs []types.Confirm
+	iterator := k.GetConfirmIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var c types.Confirm
+		k.cdc.MustUnmarshal(iterator.Value(), &c)
+		cs = append(cs, c)
+	}
+	return cs
+}
+
 // DeleteConfirm method deletes the confirm of a member from the store.
 func (k Keeper) DeleteConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.ConfirmMemberStoreKey(groupID, memberID))
-}
-
-// SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store.
-func (k Keeper) SetComplainsWithStatus(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	memberID tss.MemberID,
-	complainsWithStatus types.ComplainsWithStatus,
-) {
-	// add confirm complain count
-	k.AddConfirmComplainCount(ctx, groupID)
-	ctx.KVStore(k.storeKey).
-		Set(types.ComplainWithStatusMemberStoreKey(groupID, memberID), k.cdc.MustMarshal(&complainsWithStatus))
-}
-
-// GetComplainsWithStatus retrieves the complains with status for a specific groupID and memberID from the store.
-func (k Keeper) GetComplainsWithStatus(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	memberID tss.MemberID,
-) (types.ComplainsWithStatus, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ComplainWithStatusMemberStoreKey(groupID, memberID))
-	if bz == nil {
-		return types.ComplainsWithStatus{}, sdkerrors.Wrapf(
-			types.ErrComplainsWithStatusNotFound,
-			"failed to get complains with status with groupID %d memberID %d",
-			groupID,
-			memberID,
-		)
-	}
-	var c types.ComplainsWithStatus
-	k.cdc.MustUnmarshal(bz, &c)
-	return c, nil
-}
-
-// DeleteComplainsWithStatus method deletes the complain with status of a member from the store.
-func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.ComplainWithStatusMemberStoreKey(groupID, memberID))
 }
 
 // SetConfirmComplainCount sets the confirm complain count for a specific groupID in the store.

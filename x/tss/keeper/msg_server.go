@@ -321,7 +321,8 @@ func (k Keeper) Complain(
 		}
 
 		// Set complain with status
-		k.SetComplainsWithStatus(ctx, groupID, memberID, types.ComplainsWithStatus{
+		k.SetComplainsWithStatus(ctx, groupID, types.ComplainsWithStatus{
+			MemberID:            memberID,
 			ComplainsWithStatus: complainsWithStatus,
 		})
 
@@ -472,7 +473,8 @@ func (k Keeper) Confirm(
 	}
 
 	// Set Confirm with status
-	k.SetConfirm(ctx, groupID, memberID, types.Confirm{
+	k.SetConfirm(ctx, groupID, types.Confirm{
+		MemberID:     memberID,
 		OwnPubKeySig: req.OwnPubKeySig,
 	})
 

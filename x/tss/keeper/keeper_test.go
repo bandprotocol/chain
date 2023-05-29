@@ -533,15 +533,113 @@ func (s *KeeperTestSuite) TestHandleComputeGroupPublicKey() {
 		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(pubKey))
 }
 
+func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	complainWithStatus := types.ComplainsWithStatus{
+		MemberID: memberID,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
+
+	got, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(complainWithStatus, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	complainWithStatus := types.ComplainsWithStatus{
+		MemberID: memberID,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
+	// Delete complains with status
+	k.DeleteComplainsWithStatus(ctx, groupID, memberID)
+
+	_, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	complainWithStatus1 := types.ComplainsWithStatus{
+		MemberID: memberID1,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+	complainWithStatus2 := types.ComplainsWithStatus{
+		MemberID: memberID2,
+		ComplainsWithStatus: []types.ComplainWithStatus{
+			{
+				Complain: &types.Complain{
+					I:         1,
+					J:         2,
+					KeySym:    []byte("key_sym"),
+					Signature: []byte("signature"),
+					NonceSym:  []byte("nonce_sym"),
+				},
+				ComplainStatus: types.SUCCESS,
+			},
+		},
+	}
+
+	// Set complains with status
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus1)
+	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus2)
+
+	got := k.GetAllComplainsWithStatus(ctx, groupID)
+	s.Require().Equal([]types.ComplainsWithStatus{complainWithStatus1, complainWithStatus2}, got)
+}
+
 func (s *KeeperTestSuite) TestGetSetConfirm() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	confirm := types.Confirm{
+		MemberID:     memberID,
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
 	// Set confirm
-	k.SetConfirm(ctx, groupID, memberID, confirm)
+	k.SetConfirm(ctx, groupID, confirm)
 
 	got, err := k.GetConfirm(ctx, groupID, memberID)
 	s.Require().NoError(err)
@@ -556,11 +654,12 @@ func (s *KeeperTestSuite) TestDeleteConfirm() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	confirm := types.Confirm{
+		MemberID:     memberID,
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
 	// Set confirm
-	k.SetConfirm(ctx, groupID, memberID, confirm)
+	k.SetConfirm(ctx, groupID, confirm)
 
 	// Delete confirm
 	k.DeleteConfirm(ctx, groupID, memberID)
@@ -569,57 +668,24 @@ func (s *KeeperTestSuite) TestDeleteConfirm() {
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
+func (s *KeeperTestSuite) TestGetConfirms() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	complainWithStatus := types.ComplainsWithStatus{
-		ComplainsWithStatus: []types.ComplainWithStatus{
-			{
-				Complain: &types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
-				},
-				ComplainStatus: types.SUCCESS,
-			},
-		},
+	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	confirm1 := types.Confirm{
+		MemberID:     memberID1,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+	confirm2 := types.Confirm{
+		MemberID:     memberID2,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	// Set complains with status
-	k.SetComplainsWithStatus(ctx, groupID, memberID, complainWithStatus)
+	// Set confirm
+	k.SetConfirm(ctx, groupID, confirm1)
+	k.SetConfirm(ctx, groupID, confirm2)
 
-	got, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
-	s.Require().NoError(err)
-	s.Require().Equal(complainWithStatus, got)
-}
-
-func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	complainWithStatus := types.ComplainsWithStatus{
-		ComplainsWithStatus: []types.ComplainWithStatus{
-			{
-				Complain: &types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
-				},
-				ComplainStatus: types.SUCCESS,
-			},
-		},
-	}
-
-	// Set complains with status
-	k.SetComplainsWithStatus(ctx, groupID, memberID, complainWithStatus)
-	// Delete complains with status
-	k.DeleteComplainsWithStatus(ctx, groupID, memberID)
-
-	_, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
-	s.Require().Error(err)
+	got := k.GetConfirms(ctx, groupID)
+	s.Require().Equal([]types.Confirm{confirm1, confirm2}, got)
 }
 
 func (s *KeeperTestSuite) TestGetSetConfirmComplainCount() {
