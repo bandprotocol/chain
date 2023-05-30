@@ -127,6 +127,22 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 	return NewGroupResponse(gr), nil
 }
 
+// TODO-CYLINDER: Use the real query
+// QueryDE queries the DE information with the given address.
+// It returns the de response or an error.
+// func (c *Client) QueryDE(address string) (*DEResponse, error) {
+// 	queryClient := types.NewQueryClient(c.context)
+
+// 	gr, err := queryClient.Group(context.Background(), &types.QueryDERequest{
+// 		Address: uint64(address),
+// 	})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return NewDEResponse(gr), nil
+// }
+
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
 func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *sdk.TxResponse, err error) {
