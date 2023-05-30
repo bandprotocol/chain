@@ -20,6 +20,8 @@ const (
 	flagRPCPollInterval  = "rpc-poll-interval"
 	flagMaxTry           = "max-try"
 	flagMinDE            = "min-de"
+	flagGasAdjustStart   = "gas-adjust-start"
+	flagGasAdjustStep    = "gas-adjust-step"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -67,31 +69,28 @@ func runCmd(ctx *Context) *cobra.Command {
 	}
 
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-
 	cmd.Flags().String(flagGranter, "", "granter address")
-	viper.BindPFlag(flagGranter, cmd.Flags().Lookup(flagGranter))
-
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
-	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that cylinder will wait for tx commit")
-	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
-
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
-	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
-
 	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
+	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
+	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
+
+	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
+	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
+	viper.BindPFlag(flagGranter, cmd.Flags().Lookup(flagGranter))
+	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
+	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
+	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	viper.BindPFlag(flagMinDE, cmd.Flags().Lookup(flagMinDE))
+	viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
+	viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
 
 	return cmd
 }

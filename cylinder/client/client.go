@@ -7,6 +7,7 @@ import (
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -72,15 +73,14 @@ func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
 
 	// Create and return the Client instance with the initialized fields
 	return &Client{
-		client:       c,
-		context:      ctx,
-		txFactory:    txf,
-		timeout:      cfg.BroadcastTimeout,
-		pollInterval: cfg.RPCPollInterval,
-		maxTry:       cfg.MaxTry,
-		// TODO-CYLINDER: TUNE THESE NUMBERS / MOVE TO CONFIG
-		gasAdjustStart: 1.6,
-		gasAdjustStep:  0.2,
+		client:         c,
+		context:        ctx,
+		txFactory:      txf,
+		timeout:        cfg.BroadcastTimeout,
+		pollInterval:   cfg.RPCPollInterval,
+		maxTry:         cfg.MaxTry,
+		gasAdjustStart: cfg.GasAdjustStart,
+		gasAdjustStep:  cfg.GasAdjustStep,
 	}, nil
 }
 
@@ -145,19 +145,23 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
-func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *sdk.TxResponse, err error) {
+func (c *Client) BroadcastAndConfirm(
+	logger *logger.Logger,
+	key *keyring.Record,
+	msgs []sdk.Msg,
+) (res *sdk.TxResponse, err error) {
 	gasAdjust := c.gasAdjustStart
 
 	for try := uint64(1); try <= c.maxTry; try++ {
-		time.Sleep(c.pollInterval)
-
 		// sign and broadcast the messages
 		res, err = c.Broadcast(
 			key,
 			msgs,
 			gasAdjust,
 		)
+		time.Sleep(c.pollInterval)
 		if err != nil {
+			logger.Debug(":anxious_face_with_sweat: Try %d: Failed to broadcast msgs with error: %s", err.Error(), try)
 			continue
 		}
 
@@ -165,6 +169,11 @@ func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *
 			// query transaction to get status
 			res, err = c.GetTxFromTxHash(res.TxHash)
 			if err != nil {
+				logger.Debug(
+					":anxious_face_with_sweat: Try %d: Failed to get tx from hash with error: %s",
+					err.Error(),
+					try,
+				)
 				continue
 			}
 
@@ -175,7 +184,18 @@ func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *
 
 		if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 			gasAdjust += c.gasAdjustStep
+			logger.Debug(
+				":anxious_face_with_sweat: Try %d: Bumping gas since tx is out of gas: new gad adjustment %d",
+				try,
+				gasAdjust,
+			)
 		}
+
+		logger.Debug(
+			":anxious_face_with_sweat: Try %d: Transaction is not successful with error code: codespace: %s, code: %d",
+			res.Codespace,
+			res.Code,
+		)
 	}
 
 	return
