@@ -132,14 +132,13 @@ func (c *Client) BroadcastAndConfirm(key *keyring.Record, msgs []sdk.Msg) (res *
 	gasAdjust := c.gasAdjustStart
 
 	for try := uint64(1); try <= c.maxTry; try++ {
-		time.Sleep(c.pollInterval)
-
 		// sign and broadcast the messages
 		res, err = c.Broadcast(
 			key,
 			msgs,
 			gasAdjust,
 		)
+		time.Sleep(c.pollInterval)
 		if err != nil {
 			continue
 		}
