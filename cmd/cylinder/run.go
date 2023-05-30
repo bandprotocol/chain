@@ -73,7 +73,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 
 	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	viper.BindPFlag(flagMinDE, cmd.Flags().Lookup(flagMinDE))
 
 	return cmd
 }
