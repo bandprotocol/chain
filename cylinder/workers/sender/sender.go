@@ -90,7 +90,7 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 
 	logger.Info(":e-mail: Sending transaction attempt")
 
-	res, err := s.client.BroadcastAndConfirm(key, msgs)
+	res, err := s.client.BroadcastAndConfirm(logger, key, msgs)
 	if err != nil {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err.Error())
 		return
