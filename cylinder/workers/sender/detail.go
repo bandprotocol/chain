@@ -43,6 +43,13 @@ func GetDetail(msgs []sdk.Msg) []Detail {
 		// 	detail = Detail{
 		// 		Type: t.Type(),
 		// 	}
+		// TODO-CYLINDER: Use the real msg
+		// case *types.MsgSigning:
+		// 	detail = Detail{
+		// 		GroupID:   t.GroupID,
+		// 		SigningID: t.SigningID,
+		// 		Type:      t.Type(),
+		// 	}
 		default:
 			detail = Detail{
 				Type: "Unknown",
