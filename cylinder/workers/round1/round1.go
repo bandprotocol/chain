@@ -50,9 +50,7 @@ func (r *Round1) subscribe() error {
 	r.eventCh, err = r.client.Subscribe(
 		"round1",
 		fmt.Sprintf(
-			"tm.event = 'Tx' AND %s.%s EXISTS AND %s.%s = '%s'",
-			types.EventTypeCreateGroup,
-			types.AttributeKeyGroupID,
+			"tm.event = 'Tx' AND %s.%s = '%s'",
 			types.EventTypeCreateGroup,
 			types.AttributeKeyMember,
 			r.context.Config.Granter,

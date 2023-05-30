@@ -7,6 +7,7 @@ type Group struct {
 	// Persistent
 	MemberID tss.MemberID   // Member ID associated with the group
 	PrivKey  tss.PrivateKey // Private key associated with the group
+	PubKey   tss.PublicKey  // Public key of the group
 
 	// Temporary
 	Coefficients   tss.Scalars    // Coefficients used in the DKG process of the group
