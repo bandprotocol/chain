@@ -161,7 +161,7 @@ func (c *Client) BroadcastAndConfirm(
 		)
 		time.Sleep(c.pollInterval)
 		if err != nil {
-			logger.Debug(":anxious_face_with_sweat: Try %d: Failed to broadcast msgs with error: %s", err.Error(), try)
+			logger.Debug(":anxious_face_with_sweat: Try %d: Failed to broadcast msgs with error: %s", try, err.Error())
 			continue
 		}
 
@@ -171,8 +171,8 @@ func (c *Client) BroadcastAndConfirm(
 			if err != nil {
 				logger.Debug(
 					":anxious_face_with_sweat: Try %d: Failed to get tx from hash with error: %s",
-					err.Error(),
 					try,
+					err.Error(),
 				)
 				continue
 			}
@@ -185,7 +185,7 @@ func (c *Client) BroadcastAndConfirm(
 		if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 			gasAdjust += c.gasAdjustStep
 			logger.Debug(
-				":anxious_face_with_sweat: Try %d: Bumping gas since tx is out of gas: new gad adjustment %d",
+				":anxious_face_with_sweat: Try %d: Bumping gas since tx is out of gas: new gad adjustment %f",
 				try,
 				gasAdjust,
 			)
@@ -193,6 +193,7 @@ func (c *Client) BroadcastAndConfirm(
 
 		logger.Debug(
 			":anxious_face_with_sweat: Try %d: Transaction is not successful with error code: codespace: %s, code: %d",
+			try,
 			res.Codespace,
 			res.Code,
 		)
