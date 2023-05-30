@@ -176,7 +176,7 @@ func (c *Client) BroadcastAndConfirm(
 		}
 
 		logger.Debug(
-			":anxious_face_with_sweat: Try %d: Transaction is not successful with error code: codespace: %d, code: %d",
+			":anxious_face_with_sweat: Try %d: Transaction is not successful with error code: codespace: %s, code: %d",
 			try,
 			res.Codespace,
 			res.Code,
