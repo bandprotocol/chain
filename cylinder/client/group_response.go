@@ -46,6 +46,8 @@ func (gr *GroupResponse) GetEncryptedSecretShare(j, i tss.MemberID) (tss.Scalar,
 		return nil, err
 	}
 
+	// Determine which index of encrypted secret shares is for Member I
+	// If Member I > Member J, the index should be reduced by 1 (As J doesn't submit its own encrypt secret share)
 	idx := i
 	if i > j {
 		idx--
