@@ -72,15 +72,14 @@ func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
 
 	// Create and return the Client instance with the initialized fields
 	return &Client{
-		client:       c,
-		context:      ctx,
-		txFactory:    txf,
-		timeout:      cfg.BroadcastTimeout,
-		pollInterval: cfg.RPCPollInterval,
-		maxTry:       cfg.MaxTry,
-		// TODO-CYLINDER: TUNE THESE NUMBERS / MOVE TO CONFIG
-		gasAdjustStart: 1.6,
-		gasAdjustStep:  0.2,
+		client:         c,
+		context:        ctx,
+		txFactory:      txf,
+		timeout:        cfg.BroadcastTimeout,
+		pollInterval:   cfg.RPCPollInterval,
+		maxTry:         cfg.MaxTry,
+		gasAdjustStart: cfg.GasAdjustStart,
+		gasAdjustStep:  cfg.GasAdjustStep,
 	}, nil
 }
 

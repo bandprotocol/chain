@@ -13,4 +13,6 @@ type Config struct {
 	RPCPollInterval  time.Duration `mapstructure:"rpc-poll-interval"` // The duration of rpc poll interval
 	MaxTry           uint64        `mapstructure:"max-try"`           // The maximum number of tries to submit a report transaction
 	MinDE            uint64        `mapstructure:"min-DE"`            // The minimum number of DE
+	GasAdjustStart   float64       `mapstructure:"gas-adjust-start"`  // The start value of gas adjustment
+	GasAdjustStep    float64       `mapstructure:"gas-adjust-step"`   // The increment step of gad adjustment
 }
