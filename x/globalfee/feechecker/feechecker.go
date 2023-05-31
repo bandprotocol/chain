@@ -63,13 +63,24 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 			return sdk.Coins{}, int64(math.MaxInt64), nil
 		}
 
-		requiredFees := getMinGasPrice(ctx, feeTx)
-		requiredGlobalFees, err := fc.GetGlobalFee(ctx, feeTx)
+		minGasPrices := getMinGasPrices(ctx)
+		globalMinGasPrices, err := fc.GetGlobalMinGasPrices(ctx)
 		if err != nil {
 			return nil, 0, err
 		}
 
-		allFees := CombinedFeeRequirement(requiredGlobalFees, requiredFees)
+		allGasPrices := CombinedGasPricesRequirement(minGasPrices, globalMinGasPrices)
+
+		// Calculate all fees from all gas prices
+		gas := feeTx.GetGas()
+		allFees := make(sdk.Coins, len(allGasPrices))
+		if !minGasPrices.IsZero() {
+			glDec := sdk.NewDec(int64(gas))
+			for i, gp := range minGasPrices {
+				fee := gp.Amount.Mul(glDec)
+				allFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			}
+		}
 
 		if !allFees.IsZero() && !feeCoins.IsAnyGTE(allFees) {
 			return nil, 0, sdkerrors.Wrapf(
@@ -103,7 +114,7 @@ func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) bool {
 	return true
 }
 
-func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {
+func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error) {
 	var (
 		globalMinGasPrices sdk.DecCoins
 		err                error
@@ -116,16 +127,8 @@ func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, 
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices, err = fc.DefaultZeroGlobalFee(ctx)
 	}
-	requiredGlobalFees := make(sdk.Coins, len(globalMinGasPrices))
-	// Determine the required fees by multiplying each required minimum gas
-	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-	glDec := sdk.NewDec(int64(feeTx.GetGas()))
-	for i, gp := range globalMinGasPrices {
-		fee := gp.Amount.Mul(glDec)
-		requiredGlobalFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-	}
 
-	return requiredGlobalFees.Sort(), err
+	return globalMinGasPrices.Sort(), err
 }
 
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {

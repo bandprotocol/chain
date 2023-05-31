@@ -16,98 +16,98 @@ func TestUtilsTestSuite(t *testing.T) {
 	suite.Run(t, new(utilsTestSuite))
 }
 
-func (s *utilsTestSuite) TestCombinedFeeRequirement() {
-	zeroCoin1 := sdk.NewCoin("photon", sdk.ZeroInt())
-	zeroCoin2 := sdk.NewCoin("stake", sdk.ZeroInt())
-	zeroCoin3 := sdk.NewCoin("quark", sdk.ZeroInt())
-	coin1 := sdk.NewCoin("photon", sdk.NewInt(1))
-	coin2 := sdk.NewCoin("stake", sdk.NewInt(2))
-	coin1High := sdk.NewCoin("photon", sdk.NewInt(10))
-	coin2High := sdk.NewCoin("stake", sdk.NewInt(20))
-	coinNewDenom1 := sdk.NewCoin("Newphoton", sdk.NewInt(1))
-	coinNewDenom2 := sdk.NewCoin("Newstake", sdk.NewInt(1))
+func (s *utilsTestSuite) TestCombinedGasPricesRequirement() {
+	zeroCoin1 := sdk.NewDecCoin("photon", sdk.ZeroInt())
+	zeroCoin2 := sdk.NewDecCoin("stake", sdk.ZeroInt())
+	zeroCoin3 := sdk.NewDecCoin("quark", sdk.ZeroInt())
+	coin1 := sdk.NewDecCoin("photon", sdk.NewInt(1))
+	coin2 := sdk.NewDecCoin("stake", sdk.NewInt(2))
+	coin1High := sdk.NewDecCoin("photon", sdk.NewInt(10))
+	coin2High := sdk.NewDecCoin("stake", sdk.NewInt(20))
+	coinNewDenom1 := sdk.NewDecCoin("Newphoton", sdk.NewInt(1))
+	coinNewDenom2 := sdk.NewDecCoin("Newstake", sdk.NewInt(1))
 	// coins must be valid !!! and sorted!!!
-	coinsEmpty := sdk.Coins{}
-	coinsNonEmpty := sdk.Coins{coin1, coin2}.Sort()
-	coinsNonEmptyHigh := sdk.Coins{coin1High, coin2High}.Sort()
-	coinsNonEmptyOneHigh := sdk.Coins{coin1High, coin2}.Sort()
-	coinsNewDenom := sdk.Coins{coinNewDenom1, coinNewDenom2}.Sort()
-	coinsNewOldDenom := sdk.Coins{coin1, coinNewDenom1}.Sort()
-	coinsNewOldDenomHigh := sdk.Coins{coin1High, coinNewDenom1}.Sort()
-	coinsCointainZero := sdk.Coins{coin1, zeroCoin2}.Sort()
-	coinsCointainZeroNewDenom := sdk.Coins{coin1, zeroCoin3}.Sort()
-	coinsAllZero := sdk.Coins{zeroCoin1, zeroCoin2}.Sort()
+	coinsEmpty := sdk.DecCoins{}
+	coinsNonEmpty := sdk.DecCoins{coin1, coin2}.Sort()
+	coinsNonEmptyHigh := sdk.DecCoins{coin1High, coin2High}.Sort()
+	coinsNonEmptyOneHigh := sdk.DecCoins{coin1High, coin2}.Sort()
+	coinsNewDenom := sdk.DecCoins{coinNewDenom1, coinNewDenom2}.Sort()
+	coinsNewOldDenom := sdk.DecCoins{coin1, coinNewDenom1}.Sort()
+	coinsNewOldDenomHigh := sdk.DecCoins{coin1High, coinNewDenom1}.Sort()
+	coinsCointainZero := sdk.DecCoins{coin1, zeroCoin2}.Sort()
+	coinsCointainZeroNewDenom := sdk.DecCoins{coin1, zeroCoin3}.Sort()
+	coinsAllZero := sdk.DecCoins{zeroCoin1, zeroCoin2}.Sort()
 	tests := map[string]struct {
-		cGlobal  sdk.Coins
-		c        sdk.Coins
-		combined sdk.Coins
+		cGlobal  sdk.DecCoins
+		c        sdk.DecCoins
+		combined sdk.DecCoins
 	}{
-		"global fee empty, min fee empty, combined fee empty": {
+		"global price empty, min price empty, combined price empty": {
 			cGlobal:  coinsEmpty,
 			c:        coinsEmpty,
 			combined: coinsEmpty,
 		},
-		"global fee empty, min fee nonempty, combined fee nonempty": {
+		"global price empty, min price nonempty, combined price nonempty": {
 			cGlobal:  coinsEmpty,
 			c:        coinsNonEmpty,
 			combined: coinsNonEmpty,
 		},
-		"global fee nonempty, min fee empty, combined fee = global fee": {
+		"global price nonempty, min price nonempty, combined price nonempty": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNonEmpty,
 			combined: coinsNonEmpty,
 		},
-		"global fee and min fee have overlapping denom, min fees amounts are all higher": {
+		"global price and min price have overlapping denom, min prices amounts are all higher": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNonEmptyHigh,
 			combined: coinsNonEmptyHigh,
 		},
-		"global fee and min fee have overlapping denom, one of min fees amounts is higher": {
+		"global price and min price have overlapping denom, one of min prices amounts is higher": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNonEmptyOneHigh,
 			combined: coinsNonEmptyOneHigh,
 		},
-		"global fee and min fee have no overlapping denom, combined fee = global fee": {
+		"global price and min price have no overlapping denom, combined price = global price": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNewDenom,
 			combined: coinsNonEmpty,
 		},
-		"global fees and min fees have partial overlapping denom, min fee amount <= global fee amount, combined fees = global fees": {
+		"global prices and min prices have partial overlapping denom, min price amount <= global price amount, combined prices = global prices": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNewOldDenom,
 			combined: coinsNonEmpty,
 		},
-		"global fees and min fees have partial overlapping denom, one min fee amount > global fee amount, combined fee = overlapping highest": {
+		"global prices and min prices have partial overlapping denom, one min price amount > global price amount, combined price = overlapping highest": {
 			cGlobal:  coinsNonEmpty,
 			c:        coinsNewOldDenomHigh,
-			combined: sdk.Coins{coin1High, coin2},
+			combined: sdk.DecCoins{coin1High, coin2},
 		},
-		"global fees have zero fees, min fees have overlapping non-zero fees, combined fees = overlapping highest": {
+		"global prices have zero prices, min prices have overlapping non-zero prices, combined prices = overlapping highest": {
 			cGlobal:  coinsCointainZero,
 			c:        coinsNonEmpty,
-			combined: sdk.Coins{coin1, coin2},
+			combined: sdk.DecCoins{coin1, coin2},
 		},
-		"global fees have zero fees, min fees have overlapping zero fees": {
+		"global prices have zero prices, min prices have overlapping zero prices": {
 			cGlobal:  coinsCointainZero,
 			c:        coinsCointainZero,
 			combined: coinsCointainZero,
 		},
-		"global fees have zero fees, min fees have non-overlapping zero fees": {
+		"global prices have zero prices, min prices have non-overlapping zero prices": {
 			cGlobal:  coinsCointainZero,
 			c:        coinsCointainZeroNewDenom,
 			combined: coinsCointainZero,
 		},
-		"global fees are all zero fees, min fees have overlapping zero fees": {
+		"global prices are all zero prices, min prices have overlapping zero prices": {
 			cGlobal:  coinsAllZero,
 			c:        coinsAllZero,
 			combined: coinsAllZero,
 		},
-		"global fees are all zero fees, min fees have overlapping non-zero fees, combined fee = overlapping highest": {
+		"global prices are all zero prices, min prices have overlapping non-zero prices, combined price = overlapping highest": {
 			cGlobal:  coinsAllZero,
 			c:        coinsCointainZeroNewDenom,
-			combined: sdk.Coins{coin1, zeroCoin2},
+			combined: sdk.DecCoins{coin1, zeroCoin2},
 		},
-		"global fees are all zero fees, fees have one overlapping non-zero fee": {
+		"global prices are all zero prices, prices have one overlapping non-zero price": {
 			cGlobal:  coinsAllZero,
 			c:        coinsCointainZero,
 			combined: coinsCointainZero,
@@ -116,8 +116,8 @@ func (s *utilsTestSuite) TestCombinedFeeRequirement() {
 
 	for name, test := range tests {
 		s.Run(name, func() {
-			allFees := feechecker.CombinedFeeRequirement(test.cGlobal, test.c)
-			s.Require().Equal(test.combined, allFees)
+			allPrices := feechecker.CombinedGasPricesRequirement(test.cGlobal, test.c)
+			s.Require().Equal(test.combined, allPrices)
 		})
 	}
 }

@@ -28,50 +28,35 @@ func getTxPriority(fee sdk.Coins, gas int64, denom string) int64 {
 	return priority
 }
 
-// getMinGasPrice will also return sorted coins
-func getMinGasPrice(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
-	minGasPrices := ctx.MinGasPrices()
-	gas := feeTx.GetGas()
-	// special case: if minGasPrices=[], requiredFees=[]
-	requiredFees := make(sdk.Coins, len(minGasPrices))
-	// if not all coins are zero, check fee with min_gas_price
-	if !minGasPrices.IsZero() {
-		// Determine the required fees by multiplying each required minimum gas
-		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(gas))
-		for i, gp := range minGasPrices {
-			fee := gp.Amount.Mul(glDec)
-			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-		}
-	}
-
-	return requiredFees.Sort()
+// getMinGasPrices will also return sorted dec coins
+func getMinGasPrices(ctx sdk.Context) sdk.DecCoins {
+	return ctx.MinGasPrices().Sort()
 }
 
-// CombinedFeeRequirement will combine the global fee and min_gas_price. Both globalFees and minGasPrices must be valid, but CombinedFeeRequirement does not validate them, so it may return 0denom.
-func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
-	// return globalFee if minGasPrices has not been set
+// CombinedGasPricesRequirement will combine the global min_gas_prices and min_gas_prices. Both globalMinGasPrices and minGasPrices must be valid
+func CombinedGasPricesRequirement(globalMinGasPrices, minGasPrices sdk.DecCoins) sdk.DecCoins {
+	// return globalMinGasPrices if minGasPrices has not been set
 	if minGasPrices.Empty() {
-		return globalFees
+		return globalMinGasPrices
 	}
-	// return minGasPrices if globalFee is empty
-	if globalFees.Empty() {
+	// return minGasPrices if globalMinGasPrices is empty
+	if globalMinGasPrices.Empty() {
 		return minGasPrices
 	}
 
-	// if min_gas_price denom is in globalfee, and the amount is higher than globalfee, add min_gas_price to allFees
-	var allFees sdk.Coins
-	for _, fee := range globalFees {
+	// if min_gas_price denom is in globalfee, and the amount is higher than globalfee, add min_gas_price to allGasPrices
+	var allGasPrices sdk.DecCoins
+	for _, gmgp := range globalMinGasPrices {
 		// min_gas_price denom in global fee
-		ok, c := minGasPrices.Find(fee.Denom)
-		if ok && c.Amount.GT(fee.Amount) {
-			allFees = append(allFees, c)
+		mgp := minGasPrices.AmountOf(gmgp.Denom)
+		if mgp.GT(gmgp.Amount) {
+			allGasPrices = append(allGasPrices, sdk.NewDecCoinFromDec(gmgp.Denom, mgp))
 		} else {
-			allFees = append(allFees, fee)
+			allGasPrices = append(allGasPrices, sdk.NewDecCoinFromDec(gmgp.Denom, gmgp.Amount))
 		}
 	}
 
-	return allFees.Sort()
+	return allGasPrices.Sort()
 }
 
 func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *types.MsgReportData) error {
