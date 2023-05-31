@@ -5,8 +5,10 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
 type Querier struct {
@@ -90,5 +92,31 @@ func (k Querier) IsGrantee(
 
 	return &types.QueryIsGranteeResponse{
 		IsGrantee: k.Keeper.IsGrantee(ctx, granter, grantee),
+	}, nil
+}
+
+func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
+	var deList []types.DE
+	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(address))
+	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
+		var de types.DE
+		k.cdc.MustUnmarshal(value, &de)
+		deList = append(deList, de)
+		return nil
+	})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidArgument, "paginate: %v", err)
+	}
+
+	return &types.QueryDEResponse{
+		DEList:     deList,
+		Pagination: pageRes,
 	}, nil
 }

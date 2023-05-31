@@ -31,4 +31,6 @@ var (
 	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 16, "confirm failed")
 	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 17, "confirm not found")
 	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 18, "complains with status not found")
+	ErrDENotFound                       = sdkerrors.Register(ModuleName, 19, "de not found")
+	ErrInvalidArgument                  = sdkerrors.Register(ModuleName, 20, "invalid argument")
 )

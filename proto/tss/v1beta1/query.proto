@@ -2,6 +2,7 @@ syntax = "proto3";
 package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "tss/v1beta1/tss.proto";
 
@@ -22,6 +23,12 @@ service Query {
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get =
         "/tss/v1beta1/grantee/{granter}/{grantee}";
+  }
+  
+  // DE queries all de for this address.
+  rpc DE(QueryDERequest) returns (QueryDEResponse) {
+    option (google.api.http).get =
+        "/tss/v1beta1/de/{address}";
   }
 }
 
@@ -65,4 +72,19 @@ message QueryIsGranteeRequest {
 message QueryIsGranteeResponse {
   // IsGrantee is true if this account has been granted by granter
   bool is_grantee = 1;
+}
+
+message QueryDERequest {
+  string address = 1;
+  // pagination defines an pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryDEResponse {
+  repeated DE de_pairs = 1 [
+    (gogoproto.customname) = "DEList",
+    (gogoproto.nullable) = false
+  ];
+  // pagination defines an pagination for the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
