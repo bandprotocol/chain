@@ -579,6 +579,54 @@ func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, gr
 	k.DeleteConfirmComplainCount(ctx, groupID)
 }
 
+func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de types.DE) {
+	ctx.KVStore(k.storeKey).Set(types.DEIndexStoreKey(address, index), k.cdc.MustMarshal(&de))
+}
+
+func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
+	if bz == nil {
+		return types.DE{}, sdkerrors.Wrapf(
+			types.ErrDENotFound,
+			"failed to get DE with address %s index %d",
+			address.String(),
+			index,
+		)
+	}
+	var de types.DE
+	k.cdc.MustUnmarshal(bz, &de)
+	return de, nil
+}
+
+func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue types.DEQueue) {
+	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
+}
+
+func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
+	var deQueue types.DEQueue
+	k.cdc.MustUnmarshal(ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address)), &deQueue)
+	return deQueue
+}
+
+func (k Keeper) DeleteDEQueue(ctx sdk.Context, address sdk.AccAddress, index uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
+}
+
+func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
+	deQueue := k.GetDEQueue(ctx, address)
+	de, err := k.GetDE(ctx, address, deQueue.Head)
+	if err != nil {
+		return types.DE{}, err
+	}
+
+	k.DeleteDEQueue(ctx, address, deQueue.Head)
+
+	deQueue.Head += 1
+	k.SetDEQueue(ctx, address, deQueue)
+
+	return de, nil
+}
+
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
