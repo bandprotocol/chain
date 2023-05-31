@@ -508,14 +508,7 @@ func (k Keeper) SubmitDEPairs(
 		return nil, err
 	}
 
-	deQueue := k.GetDEQueue(ctx, accMember)
-
-	for _, de := range req.DEPairs {
-		deQueue.Tail += 1
-		k.SetDE(ctx, accMember, deQueue.Tail, de)
-	}
-
-	k.SetDEQueue(ctx, accMember, deQueue)
+	k.HandleSetDEPairs(ctx, accMember, req.DEPairs)
 
 	return &types.MsgSubmitDEPairsResponse{}, nil
 }
