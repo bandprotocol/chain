@@ -19,6 +19,8 @@ service Msg {
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
   // Confirm submit own signature for proof that it's can derive the secret.
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
+  // SubmitDEPairs submit list of pre-commits DE for signing process.
+  rpc SubmitDEPairs(MsgSubmitDEPairs) returns (MsgSubmitDEPairsResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -101,3 +103,13 @@ message MsgConfirm {
 }
 
 message MsgConfirmResponse {}
+
+message MsgSubmitDEPairs{
+  repeated DE de_pairs = 1 [
+    (gogoproto.customname) = "DEPairs",
+    (gogoproto.nullable) = false
+  ];
+  string member = 2;
+}
+
+message MsgSubmitDEPairsResponse{}

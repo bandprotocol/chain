@@ -39,6 +39,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
 	txCmd.AddCommand(MsgComplainCmd())
 	txCmd.AddCommand(MsgConfirmCmd())
+	txCmd.AddCommand(MsgSubmitDEPairsCmd())
 
 	return txCmd
 }
@@ -416,6 +417,57 @@ func MsgConfirmCmd() *cobra.Command {
 				MemberID:     tss.MemberID(memberID),
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgSubmitDEPairsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
+func MsgSubmitDEPairsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "submit-de-pairs [d,e] [d,e] ...",
+		Args:  cobra.MinimumNArgs(1),
+		Short: "submit tss submit-de-pairs containing address and de pairs",
+		Example: fmt.Sprintf(
+			`%s tx tss submit-de-pairs [d,e] [d,e] ...`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			var dePairs []types.DE
+			for i := 0; i < len(args); i++ {
+				de := strings.Split(args[i], ",")
+				if len(de) != 2 {
+					return fmt.Errorf("DE pairs must be 2 value not %v", de)
+				}
+
+				d, err := hex.DecodeString(de[0])
+				if err != nil {
+					return err
+				}
+				e, err := hex.DecodeString(de[1])
+				if err != nil {
+					return err
+				}
+				dePairs = append(dePairs, types.DE{PubD: d, PubE: e})
+			}
+
+			msg := &types.MsgSubmitDEPairs{
+				DEPairs: dePairs,
+				Member:  clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)

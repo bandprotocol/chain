@@ -248,3 +248,46 @@ func (m MsgConfirm) ValidateBasic() error {
 
 	return nil
 }
+
+var _ sdk.Msg = &MsgSubmitDEPairs{}
+
+// Route Implements Msg.
+func (m MsgSubmitDEPairs) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgSubmitDEPairs) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgSubmitDEPairs) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgSubmitDEPairs) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgSubmitDEPairs) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate DE pairs
+	for _, de := range m.DEPairs {
+		// Validate public key D
+		_, err = de.PubD.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "pub D")
+		}
+		// Validate public key E
+		_, err = de.PubE.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "pub E")
+		}
+	}
+
+	return nil
+}
