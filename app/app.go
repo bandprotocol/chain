@@ -109,6 +109,8 @@ import (
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	"github.com/bandprotocol/chain/v2/x/globalfee"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -159,6 +161,7 @@ var (
 		vesting.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		globalfee.AppModule{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -509,6 +512,7 @@ func NewBandApp(
 		transferModule,
 		icaModule,
 		oracleModule,
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -537,6 +541,7 @@ func NewBandApp(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		globalfee.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -560,6 +565,7 @@ func NewBandApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		globalfee.ModuleName,
 	)
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -588,6 +594,7 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		oracletypes.ModuleName,
+		globalfee.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -613,8 +620,10 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			OracleKeeper: &app.OracleKeeper,
-			IBCKeeper:    app.IBCKeeper,
+			OracleKeeper:      &app.OracleKeeper,
+			IBCKeeper:         app.IBCKeeper,
+			GlobalFeeSubspace: app.GetSubspace(globalfee.ModuleName),
+			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 		},
 	)
 	if err != nil {
@@ -833,6 +842,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }
@@ -912,6 +922,92 @@ func (app *BandApp) setupUpgradeHandlers() {
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_5",
+		func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			ctx.Logger().Info("Starting module migrations...")
+
+			vm, err := app.mm.RunMigrations(ctx, app.configurator, vm)
+			if err != nil {
+				return vm, err
+			}
+
+			ctx.Logger().Info("Upgrade complete")
+			return vm, err
+		},
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_6",
+		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			hostParams := icahosttypes.Params{
+				HostEnabled: true,
+				// Specifying the whole list instead of adding and removing. Less fragile.
+				AllowMessages: []string{
+					sdk.MsgTypeURL(&authz.MsgExec{}),
+					sdk.MsgTypeURL(&authz.MsgGrant{}),
+					sdk.MsgTypeURL(&authz.MsgRevoke{}),
+					sdk.MsgTypeURL(&banktypes.MsgSend{}),
+					sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
+					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
+					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+					sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
+					sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
+					sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
+					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
+					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
+					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+					// Change: add messages from Group module
+					sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
+					sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
+					sdk.MsgTypeURL(&group.MsgCreateGroup{}),
+					sdk.MsgTypeURL(&group.MsgExec{}),
+					sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
+					sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
+					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
+					sdk.MsgTypeURL(&group.MsgVote{}),
+					sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+					// Change: add messages from Oracle module
+					sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
+					sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
+					sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
+					sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
+					sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
+					sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
+					sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
+
+					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
+					sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
+					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+				},
+			}
+			app.ICAHostKeeper.SetParams(ctx, hostParams)
+
+			minGasPriceGenesisState := &globalfeetypes.GenesisState{
+				Params: globalfeetypes.Params{
+					MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdk.NewDecWithPrec(25, 4))},
+				},
+			}
+			app.GetSubspace(globalfee.ModuleName).SetParamSet(ctx, &minGasPriceGenesisState.Params)
+
+			// set version of globalfee so that it won't run initgenesis again
+			fromVM["globalfee"] = 1
+
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
@@ -928,6 +1024,19 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 	if upgradeInfo.Name == "v2_4" {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.StoreKey},
+		}
+
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
+	if upgradeInfo.Name == "v2_5" {
+		storeUpgrades := storetypes.StoreUpgrades{}
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
+	if upgradeInfo.Name == "v2_6" {
+		storeUpgrades := storetypes.StoreUpgrades{
+			Added: []string{group.StoreKey, globalfee.ModuleName},
 		}
 
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))

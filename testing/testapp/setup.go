@@ -3,15 +3,14 @@ package testapp
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"path/filepath"
 	"sort"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -214,7 +213,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 // NewTestApp creates instance of our app using in test.
 func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// Set HomeFlag to a temp folder for simulation run.
-	dir, err := ioutil.TempDir("", "bandd")
+	dir, err := os.MkdirTemp("", "bandd")
 	if err != nil {
 		panic(err)
 	}
@@ -393,7 +392,7 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 }
 
 func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
-	dir, err := ioutil.TempDir("", "bandibc")
+	dir, err := os.MkdirTemp("", "bandibc")
 	if err != nil {
 		panic(err)
 	}
@@ -620,7 +619,7 @@ func GenTx(
 // SignAndDeliver signs and delivers a transaction. No simulation occurs as the
 // ibc testing package causes checkState and deliverState to diverge in block time.
 func SignAndDeliver(
-	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
+	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
 	tx, err := GenTx(

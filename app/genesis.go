@@ -38,6 +38,8 @@ import (
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v2/x/globalfee"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -59,6 +61,7 @@ func NewDefaultGenesisState() GenesisState {
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
 	icaGenesis := icatypes.DefaultGenesis()
+	globalfeeGenesis := globalfeetypes.DefaultGenesisState()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
@@ -107,6 +110,15 @@ func NewDefaultGenesisState() GenesisState {
 			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
 			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
 			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
+			sdk.MsgTypeURL(&group.MsgVote{}),
+			sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+			sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
+			sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
+			sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
+			sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
+			sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
+			sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
+			sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
@@ -116,6 +128,10 @@ func NewDefaultGenesisState() GenesisState {
 			sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
 		},
 	}
+
+	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
+		sdk.NewDecCoinFromDec(denom, sdk.NewDecWithPrec(25, 4)),
+	)
 
 	return GenesisState{
 		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
@@ -137,5 +153,6 @@ func NewDefaultGenesisState() GenesisState {
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		globalfee.ModuleName:         cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

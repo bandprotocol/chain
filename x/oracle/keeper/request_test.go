@@ -154,13 +154,13 @@ func TestProcessExpiredRequests(t *testing.T) {
 
 	// Validator 1 reports all requests. Validator 2 misses request#3.
 	rawReports := []types.RawReport{types.NewRawReport(42, 0, BasicReport), types.NewRawReport(43, 0, BasicReport)}
-	k.AddReport(ctx, 1, types.NewReport(testapp.Validators[0].ValAddress, false, rawReports))
-	k.AddReport(ctx, 2, types.NewReport(testapp.Validators[0].ValAddress, true, rawReports))
-	k.AddReport(ctx, 3, types.NewReport(testapp.Validators[0].ValAddress, false, rawReports))
-	k.AddReport(ctx, 4, types.NewReport(testapp.Validators[0].ValAddress, true, rawReports))
-	k.AddReport(ctx, 1, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
-	k.AddReport(ctx, 2, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
-	k.AddReport(ctx, 4, types.NewReport(testapp.Validators[1].ValAddress, true, rawReports))
+	k.AddReport(ctx, 1, testapp.Validators[0].ValAddress, false, rawReports)
+	k.AddReport(ctx, 2, testapp.Validators[0].ValAddress, true, rawReports)
+	k.AddReport(ctx, 3, testapp.Validators[0].ValAddress, false, rawReports)
+	k.AddReport(ctx, 4, testapp.Validators[0].ValAddress, true, rawReports)
+	k.AddReport(ctx, 1, testapp.Validators[1].ValAddress, true, rawReports)
+	k.AddReport(ctx, 2, testapp.Validators[1].ValAddress, true, rawReports)
+	k.AddReport(ctx, 4, testapp.Validators[1].ValAddress, true, rawReports)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
 	k.ResolveSuccess(ctx, 1, BasicResult, 1234)
