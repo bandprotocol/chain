@@ -52,6 +52,12 @@ var (
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
 	ConfirmStoreKeyPrefix = []byte{10}
+
+	// DE is the key for keeps pre-commit DE.
+	DEStoreKeyPrefix = []byte{11}
+
+	// DEQueue is the key for keeps first and last index of the DEQueue.
+	DEQueueStoreKeyPrefix = []byte{12}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -112,4 +118,16 @@ func ComplainsWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberI
 
 func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func DEStoreKey(address sdk.AccAddress) []byte {
+	return append(DEStoreKeyPrefix, address...)
+}
+
+func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
+	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
+}
+
+func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
+	return append(DEQueueStoreKeyPrefix, address...)
 }

@@ -39,7 +39,7 @@ func New(ctx *cylinder.Context) (*DE, error) {
 	}, nil
 }
 
-// subscribe subscribes to the using DE events and initializes the event channel for receiving events.
+// subscribe subscribes to the DE usage events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
 func (de *DE) subscribe() error {
 	var err error
@@ -59,18 +59,18 @@ func (de *DE) subscribe() error {
 
 // updateDE updates DE if the remaining of DE is too low.
 func (de *DE) updateDE() {
-	// // Query DE information
-	// deRes, err := de.client.QueryDE()
-	// if err != nil {
-	// 	de.logger.Error(":cold_sweat: Failed to query DE information: %s", err.Error())
-	// 	return
-	// }
+	// Query DE information
+	deRes, err := de.client.QueryDE(de.context.Config.Granter)
+	if err != nil {
+		de.logger.Error(":cold_sweat: Failed to query DE information: %s", err.Error())
+		return
+	}
 
-	// // Check remaining of DE, ignore if it's more than min-DE
-	// remaining := deRes.GetRemaining()
-	// if remaining > de.context.Config.MinDE {
-	// 	return
-	// }
+	// Check remaining of DE, ignore if it's more than min-DE
+	remaining := deRes.GetRemaining()
+	if remaining > de.context.Config.MinDE {
+		return
+	}
 
 	// Log
 	de.logger.Info(":delivery_truck: Updating DE")
@@ -92,13 +92,14 @@ func (de *DE) updateDE() {
 	}
 
 	// Send MsgDE
-	de.context.MsgCh <- &types.MsgComplain{
-		// DE: pubDEs,
+	de.context.MsgCh <- &types.MsgSubmitDEPairs{
+		DEPairs: pubDEs,
+		Member:  de.context.Config.Granter,
 	}
 }
 
-// Start starts the DE workede.
-// It subscribes to round3 events and starts processing incoming events.
+// Start starts the DE worker.
+// It subscribes to DE usage events and starts processing incoming events.
 func (de *DE) Start() {
 	de.logger.Info("start")
 
@@ -116,7 +117,7 @@ func (de *DE) Start() {
 	}
 }
 
-// Stop stops the Round2 workede.
+// Stop stops the DE worker.
 func (de *DE) Stop() {
 	de.logger.Info("stop")
 	de.client.Stop()
@@ -127,7 +128,7 @@ func generateDEPairs(n uint64) ([]store.DE, []types.DE, error) {
 	var privDEs []store.DE
 	var pubDEs []types.DE
 
-	for i := uint64(n); i <= n; i++ {
+	for i := uint64(1); i <= n; i++ {
 		d, err := tss.GenerateKeyPair()
 		if err != nil {
 			return nil, nil, err
