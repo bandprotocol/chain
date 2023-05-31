@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -56,6 +57,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	if ctx.IsCheckTx() {
+		// Check if this is a valid report transaction, we allow gas price to be zero and set priority to the highest
 		isValidReportTx := fc.CheckReportTx(ctx, tx)
 		if isValidReportTx {
 			return sdk.Coins{}, int64(math.MaxInt64), nil
@@ -84,22 +86,21 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 }
 
 func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) bool {
-	isValidReportTx := true
-
 	for _, msg := range tx.GetMsgs() {
-		// Check direct report msg
-		if dr, ok := msg.(*oracletypes.MsgReportData); ok {
-			// Check if it's not valid report msg, discard this transaction
-			if err := checkValidReportMsg(ctx, fc.OracleKeeper, dr); err != nil {
+		switch msg := msg.(type) {
+		case *oracletypes.MsgReportData:
+			if err := checkValidReportMsg(ctx, fc.OracleKeeper, msg); err != nil {
 				return false
 			}
-		} else {
-			isValid := checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg)
-			isValidReportTx = isValidReportTx && isValid
+		case *authz.MsgExec:
+			if !checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg) {
+				return false
+			}
+		default:
+			return false
 		}
 	}
-
-	return isValidReportTx
+	return true
 }
 
 func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {

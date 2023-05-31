@@ -50,12 +50,12 @@ func getMinGasPrice(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
 
 // CombinedFeeRequirement will combine the global fee and min_gas_price. Both globalFees and minGasPrices must be valid, but CombinedFeeRequirement does not validate them, so it may return 0denom.
 func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
-	// empty min_gas_price
+	// return globalFee if minGasPrices has not been set
 	if minGasPrices.Empty() {
 		return globalFees
 	}
-	// empty global fee is not possible if we set default global fee
-	if globalFees.Empty() && !minGasPrices.Empty() {
+	// return minGasPrices if globalFee is empty
+	if globalFees.Empty() {
 		return minGasPrices
 	}
 
@@ -79,24 +79,17 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *
 	if err != nil {
 		return err
 	}
-	report := types.NewReport(validator, false, r.RawReports)
-	return oracleKeeper.CheckValidReport(ctx, r.RequestID, report)
+	return oracleKeeper.CheckValidReport(ctx, r.RequestID, validator, r.RawReports)
 }
 
-func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg sdk.Msg) bool {
-	// Check is the MsgExec from reporter
-	me, ok := msg.(*authz.MsgExec)
-	if !ok {
-		return false
-	}
-
+func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msgExec *authz.MsgExec) bool {
 	// If cannot get message, then pretend as non-free transaction
-	msgs, err := me.GetMessages()
+	msgs, err := msgExec.GetMessages()
 	if err != nil {
 		return false
 	}
 
-	grantee, err := sdk.AccAddressFromBech32(me.Grantee)
+	grantee, err := sdk.AccAddressFromBech32(msgExec.Grantee)
 	if err != nil {
 		return false
 	}
@@ -108,23 +101,23 @@ func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.
 			return false
 		}
 
-		// Fail to parse validator, then discard this transaction
+		// Fail to parse validator, then reject this message
 		validator, err := sdk.ValAddressFromBech32(r.Validator)
 		if err != nil {
 			return false
 		}
 
-		// If this grantee is not a reporter of validator, then discard this transaction
+		// If this grantee is not a reporter of validator, then reject this message
 		if !oracleKeeper.IsReporter(ctx, validator, grantee) {
 			return false
 		}
 
-		// Check if it's not valid report msg, discard this transaction
+		// Check if it's not valid report msg, discard this message
 		if err := checkValidReportMsg(ctx, oracleKeeper, r); err != nil {
 			return false
 		}
 	}
 
-	// Return false if this exec msg has other non-report msg
+	// Return true if all sub exec msgs have not been rejected
 	return true
 }
