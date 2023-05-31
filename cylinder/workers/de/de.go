@@ -68,7 +68,7 @@ func (de *DE) updateDE() {
 
 	// Check remaining of DE, ignore if it's more than min-DE
 	remaining := deRes.GetRemaining()
-	if remaining > de.context.Config.MinDE {
+	if remaining >= de.context.Config.MinDE {
 		return
 	}
 
