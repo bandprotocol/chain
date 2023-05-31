@@ -12,6 +12,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2", nil)
 	cdc.RegisterConcrete(&MsgComplain{}, "tss/Complain", nil)
 	cdc.RegisterConcrete(&MsgConfirm{}, "tss/Confirm", nil)
+	cdc.RegisterConcrete(&MsgSubmitDEPairs{}, "tss/SubmitDEPairs", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -21,6 +22,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgSubmitDKGRound2{},
 		&MsgComplain{},
 		&MsgConfirm{},
+		&MsgSubmitDEPairs{},
 	)
 }
 

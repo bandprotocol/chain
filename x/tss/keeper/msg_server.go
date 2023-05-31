@@ -498,6 +498,21 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
+func (k Keeper) SubmitDEPairs(
+	goCtx context.Context,
+	req *types.MsgSubmitDEPairs,
+) (*types.MsgSubmitDEPairsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	accMember, err := sdk.AccAddressFromBech32(req.Member)
+	if err != nil {
+		return nil, err
+	}
+
+	k.HandleSetDEPairs(ctx, accMember, req.DEPairs)
+
+	return &types.MsgSubmitDEPairsResponse{}, nil
+}
+
 // Check already confirm or complain.
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
