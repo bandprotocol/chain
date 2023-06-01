@@ -107,7 +107,6 @@ bandd collect-gentxs
 
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
-sed -i -e 's/\"allow_messages\":.*/\"allow_messages\": [\"\/cosmos.authz.v1beta1.MsgExec\", \"\/cosmos.authz.v1beta1.MsgGrant\", \"\/cosmos.authz.v1beta1.MsgRevoke\", \"\/cosmos.bank.v1beta1.MsgSend\", \"\/cosmos.bank.v1beta1.MsgMultiSend\", \"\/cosmos.distribution.v1beta1.MsgSetWithdrawAddress\", \"\/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission\", \"\/cosmos.distribution.v1beta1.MsgFundCommunityPool\", \"\/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward\", \"\/cosmos.feegrant.v1beta1.MsgGrantAllowance\", \"\/cosmos.feegrant.v1beta1.MsgRevokeAllowance\", \"\/cosmos.gov.v1beta1.MsgVoteWeighted\", \"\/cosmos.gov.v1beta1.MsgSubmitProposal\", \"\/cosmos.gov.v1beta1.MsgDeposit\", \"\/cosmos.gov.v1beta1.MsgVote\", \"\/cosmos.staking.v1beta1.MsgEditValidator\", \"\/cosmos.staking.v1beta1.MsgDelegate\", \"\/cosmos.staking.v1beta1.MsgUndelegate\", \"\/cosmos.staking.v1beta1.MsgBeginRedelegate\", \"\/cosmos.staking.v1beta1.MsgCreateValidator\", \"\/cosmos.vesting.v1beta1.MsgCreateVestingAccount\", \"\/ibc.applications.transfer.v1.MsgTransfer\"]/g' $DIR/genesis.json
 
 # Build
 docker-compose up -d --build
@@ -123,7 +122,7 @@ do
     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
     # activate validator
-    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain -b block
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
 
     # wait for activation transaction success
     sleep 2
@@ -135,13 +134,13 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain -b block
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
 
     # wait for sending band tokens transaction success
     sleep 2
 
     # add reporter to bandchain
-    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain -b block
+    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
 
     # wait for addding reporter transaction success
     sleep 2
@@ -162,7 +161,7 @@ do
     faucet keys add worker$i
 
     # send band tokens to worker
-    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain -b block
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
 
     # wait for addding reporter transaction success
     sleep 2
