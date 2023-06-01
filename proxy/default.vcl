@@ -1,22 +1,22 @@
 vcl 4.0;
 
 backend rest {
-  .host = "172.18.0.15";
+  .host = "query-node";
   .port = "1317";
 }
 
 backend bandsv {
-  .host = "172.18.0.15";
+  .host = "query-node";
   .port = "8080";
 }
 
 backend hasura {
-  .host = "172.18.0.89";
+  .host = "graphql-engine";
   .port = "5433";
 }
 
 backend faucet {
-  .host = "172.18.0.17";
+  .host = "bandchain_faucet";
   .port = "5005";
 }
 
