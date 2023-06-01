@@ -3,8 +3,8 @@ package testapp
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"path/filepath"
 	"sort"
 	"testing"
@@ -213,7 +213,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 // NewTestApp creates instance of our app using in test.
 func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// Set HomeFlag to a temp folder for simulation run.
-	dir, err := ioutil.TempDir("", "bandd")
+	dir, err := os.MkdirTemp("", "bandd")
 	if err != nil {
 		panic(err)
 	}
@@ -393,7 +393,7 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 }
 
 func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
-	dir, err := ioutil.TempDir("", "bandibc")
+	dir, err := os.MkdirTemp("", "bandibc")
 	if err != nil {
 		panic(err)
 	}

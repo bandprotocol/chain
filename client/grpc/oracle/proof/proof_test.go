@@ -113,7 +113,7 @@ func TestEncodeRelay(t *testing.T) {
 func TestEncodeVerify(t *testing.T) {
 	data := OracleDataProof{
 		Version: 217,
-		Result: &oracletypes.Result{
+		Result: oracletypes.Result{
 			ClientID:       "",
 			OracleScriptID: 1,
 			Calldata:       hexToBytes("000000010000000342544300000000000186a0"),

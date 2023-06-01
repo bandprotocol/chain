@@ -1,7 +1,7 @@
 package node
 
 import (
-	context "context"
+	"context"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -21,21 +21,25 @@ func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server) {
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
 // on the given mux object.
 func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.ServeMux) {
-	_ = RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
+	RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
 }
 
+// to check queryServer implements ServiceServer
 var _ ServiceServer = queryServer{}
 
+// queryServer implements ServiceServer
 type queryServer struct {
 	clientCtx client.Context
 }
 
+// NewQueryServer returns new queryServer from provided client.Context
 func NewQueryServer(clientCtx client.Context) ServiceServer {
 	return queryServer{
 		clientCtx: clientCtx,
 	}
 }
 
+// ChainID returns QueryChainIDResponse that has chain id from ctx
 func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*QueryChainIDResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
@@ -44,6 +48,7 @@ func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*Quer
 	}, nil
 }
 
+// EVMValidators returns top 100 validators' address and voting power order by voting power
 func (s queryServer) EVMValidators(
 	ctx context.Context,
 	_ *QueryEVMValidatorsRequest,
@@ -63,8 +68,9 @@ func (s queryServer) EVMValidators(
 
 	evmValidatorsResponse := QueryEVMValidatorsResponse{}
 	evmValidatorsResponse.BlockHeight = validators.BlockHeight
-	evmValidatorsResponse.Validators = []*ValidatorMinimal{}
+	evmValidatorsResponse.Validators = []ValidatorMinimal{}
 
+	// put each validator's address and voting power to the response
 	for _, validator := range validators.Validators {
 		pubKeyBytes, ok := validator.PubKey.(secp256k1.PubKey)
 		if !ok {
@@ -76,7 +82,7 @@ func (s queryServer) EVMValidators(
 		} else {
 			evmValidatorsResponse.Validators = append(
 				evmValidatorsResponse.Validators,
-				&ValidatorMinimal{
+				ValidatorMinimal{
 					Address:     crypto.PubkeyToAddress(*pubkey).String(),
 					VotingPower: validator.VotingPower,
 				},

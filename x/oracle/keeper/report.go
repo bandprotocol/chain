@@ -31,43 +31,53 @@ func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 
 // AddReports performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
-func (k Keeper) AddReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
-	if err := k.CheckValidReport(ctx, rid, rep); err != nil {
+func (k Keeper) AddReport(
+	ctx sdk.Context,
+	rid types.RequestID,
+	val sdk.ValAddress,
+	reportInTime bool,
+	rawReports []types.RawReport,
+) error {
+	if err := k.CheckValidReport(ctx, rid, val, rawReports); err != nil {
 		return err
 	}
-	k.SetReport(ctx, rid, rep)
+	k.SetReport(ctx, rid, types.NewReport(val, reportInTime, rawReports))
 	return nil
 }
 
-func (k Keeper) CheckValidReport(ctx sdk.Context, rid types.RequestID, rep types.Report) error {
+func (k Keeper) CheckValidReport(
+	ctx sdk.Context,
+	rid types.RequestID,
+	val sdk.ValAddress,
+	rawReports []types.RawReport,
+) error {
 	req, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		return err
 	}
-	val, err := sdk.ValAddressFromBech32(rep.Validator)
-	if err != nil {
-		return err
-	}
-	reqVals := make([]sdk.ValAddress, len(req.RequestedValidators))
-	for idx, reqVal := range req.RequestedValidators {
+	found := false
+	for _, reqVal := range req.RequestedValidators {
 		v, err := sdk.ValAddressFromBech32(reqVal)
 		if err != nil {
 			return err
 		}
-		reqVals[idx] = v
+		if v.Equals(val) {
+			found = true
+			break
+		}
 	}
-	if !ContainsVal(reqVals, val) {
+	if !found {
 		return sdkerrors.Wrapf(
-			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, rep.Validator)
+			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, val.String())
 	}
 	if k.HasReport(ctx, rid, val) {
 		return sdkerrors.Wrapf(
-			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, rep.Validator)
+			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, val.String())
 	}
-	if len(rep.RawReports) != len(req.RawRequests) {
+	if len(rawReports) != len(req.RawRequests) {
 		return types.ErrInvalidReportSize
 	}
-	for _, rep := range rep.RawReports {
+	for _, rep := range rawReports {
 		// Here we can safely assume that external IDs are unique, as this has already been
 		// checked by ValidateBasic performed in baseapp's runTx function.
 		if !ContainsEID(req.RawRequests, rep.ExternalID) {

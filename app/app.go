@@ -570,7 +570,7 @@ func NewBandApp(
 			app.interfaceRegistry,
 		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
-		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, minttypes.DefaultInflationCalculationFn),
+		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper, nil),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -865,6 +865,7 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 	// Register grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
+	// Register grpc-gateway routes for additional services
 	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	proofservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	cosmosnodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -885,6 +886,7 @@ func (app *BandApp) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
+// RegisterNodeService registers all additional services.
 func (app *BandApp) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 	proofservice.RegisterProofService(clientCtx, app.GRPCQueryRouter())
@@ -1013,10 +1015,26 @@ func (app *BandApp) setupUpgradeHandlers() {
 	)
 
 	app.UpgradeKeeper.SetUpgradeHandler(
+		"v2_5",
+		func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+			ctx.Logger().Info("Starting module migrations...")
+
+			vm, err := app.mm.RunMigrations(ctx, app.configurator, vm)
+			if err != nil {
+				return vm, err
+			}
+
+			ctx.Logger().Info("Upgrade complete")
+			return vm, err
+		},
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
 		"v2_6",
 		func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			hostParams := icahosttypes.Params{
 				HostEnabled: true,
+				// Specifying the whole list instead of adding and removing. Less fragile.
 				AllowMessages: []string{
 					sdk.MsgTypeURL(&authz.MsgExec{}),
 					sdk.MsgTypeURL(&authz.MsgGrant{}),
@@ -1033,6 +1051,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
+					// Change: add messages from Group module
 					sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
 					sdk.MsgTypeURL(&group.MsgCreateGroup{}),
@@ -1047,6 +1066,7 @@ func (app *BandApp) setupUpgradeHandlers() {
 					sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
 					sdk.MsgTypeURL(&group.MsgVote{}),
 					sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
+					// Change: add messages from Oracle module
 					sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
 					sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
@@ -1096,6 +1116,11 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 			Added: []string{icahosttypes.StoreKey},
 		}
 
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+	}
+
+	if upgradeInfo.Name == "v2_5" {
+		storeUpgrades := storetypes.StoreUpgrades{}
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 

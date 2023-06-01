@@ -428,11 +428,11 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 	err := suite.querier.Keeper.AddReport(
 		suite.ctx,
 		types.RequestID(1),
-		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
-		}),
+		},
 	)
 	suite.assert.NoError(err)
 

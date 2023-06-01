@@ -24,7 +24,7 @@ bandd gentx validator 100000000uband \
 bandd collect-gentxs
 
 sed -i -e \
-    "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0uband\"/" \
+    "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025uband\"/" \
     ~/.band/config/app.toml
 
 sed -i -e \

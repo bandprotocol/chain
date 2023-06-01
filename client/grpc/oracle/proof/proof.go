@@ -38,7 +38,7 @@ func init() {
 	}
 }
 
-func (blockRelay *BlockRelayProof) EncodeToEthData() ([]byte, error) {
+func (blockRelay *BlockRelayProof) encodeToEthData() ([]byte, error) {
 	parseSignatures := make([]TMSignatureEthereum, len(blockRelay.Signatures))
 	for i, sig := range blockRelay.Signatures {
 		parseSignatures[i] = sig.encodeToEthFormat()
@@ -51,7 +51,7 @@ func (blockRelay *BlockRelayProof) EncodeToEthData() ([]byte, error) {
 	)
 }
 
-func (o *OracleDataProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
+func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()
@@ -64,7 +64,7 @@ func (o *OracleDataProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
 	)
 }
 
-func (o *RequestsCountProof) EncodeToEthData(blockHeight uint64) ([]byte, error) {
+func (o *RequestsCountProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	parsePaths := make([]IAVLMerklePathEthereum, len(o.MerklePaths))
 	for i, path := range o.MerklePaths {
 		parsePaths[i] = path.encodeToEthFormat()

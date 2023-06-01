@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	ibcante "github.com/cosmos/ibc-go/v5/modules/core/ante"
-	"github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -17,7 +17,7 @@ import (
 type HandlerOptions struct {
 	ante.HandlerOptions
 	OracleKeeper      *oraclekeeper.Keeper
-	IBCKeeper         *keeper.Keeper
+	IBCKeeper         *ibckeeper.Keeper
 	GlobalFeeSubspace paramtypes.Subspace
 	StakingSubspace   paramtypes.Subspace
 }
@@ -61,7 +61,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
-		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called firs(),
+		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first(),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),

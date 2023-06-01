@@ -8,8 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// MerklePath represents a Merkle step to a leaf data node in an iAVL tree.
-
 // IAVLMerklePathEthereum is an Ethereum version of IAVLMerklePath for solidity ABI-encoding.
 type IAVLMerklePathEthereum struct {
 	IsDataOnRight  bool
