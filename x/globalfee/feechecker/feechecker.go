@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -56,22 +57,30 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	if ctx.IsCheckTx() {
-		isValidReportTx, err := fc.CheckReportTx(ctx, tx)
-		if err != nil {
-			return nil, 0, err
-		}
-
+		// Check if this is a valid report transaction, we allow gas price to be zero and set priority to the highest
+		isValidReportTx := fc.CheckReportTx(ctx, tx)
 		if isValidReportTx {
 			return sdk.Coins{}, int64(math.MaxInt64), nil
 		}
 
-		requiredFees := getMinGasPrice(ctx, feeTx)
-		requiredGlobalFees, err := fc.GetGlobalFee(ctx, feeTx)
+		minGasPrices := getMinGasPrices(ctx)
+		globalMinGasPrices, err := fc.GetGlobalMinGasPrices(ctx)
 		if err != nil {
 			return nil, 0, err
 		}
 
-		allFees := CombinedFeeRequirement(requiredGlobalFees, requiredFees)
+		allGasPrices := CombinedGasPricesRequirement(minGasPrices, globalMinGasPrices)
+
+		// Calculate all fees from all gas prices
+		gas := feeTx.GetGas()
+		allFees := make(sdk.Coins, len(allGasPrices))
+		if !minGasPrices.IsZero() {
+			glDec := sdk.NewDec(int64(gas))
+			for i, gp := range minGasPrices {
+				fee := gp.Amount.Mul(glDec)
+				allFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			}
+		}
 
 		if !allFees.IsZero() && !feeCoins.IsAnyGTE(allFees) {
 			return nil, 0, sdkerrors.Wrapf(
@@ -83,34 +92,29 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		}
 	}
 
-	priority := getTxPriority(feeCoins, int64(gas))
+	priority := getTxPriority(feeCoins, int64(gas), fc.GetBondDenom(ctx))
 	return feeCoins, priority, nil
 }
 
-func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) (bool, error) {
-	isValidReportTx := true
-
+func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) bool {
 	for _, msg := range tx.GetMsgs() {
-		// Check direct report msg
-		if dr, ok := msg.(*oracletypes.MsgReportData); ok {
-			// Check if it's not valid report msg, discard this transaction
-			if err := checkValidReportMsg(ctx, fc.OracleKeeper, dr); err != nil {
-				return false, err
+		switch msg := msg.(type) {
+		case *oracletypes.MsgReportData:
+			if err := checkValidReportMsg(ctx, fc.OracleKeeper, msg); err != nil {
+				return false
 			}
-		} else {
-			isValid, err := checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg)
-			if err != nil {
-				return false, err
+		case *authz.MsgExec:
+			if !checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg) {
+				return false
 			}
-
-			isValidReportTx = isValidReportTx && isValid
+		default:
+			return false
 		}
 	}
-
-	return isValidReportTx, nil
+	return true
 }
 
-func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, error) {
+func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error) {
 	var (
 		globalMinGasPrices sdk.DecCoins
 		err                error
@@ -119,20 +123,12 @@ func (fc FeeChecker) GetGlobalFee(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, 
 	if fc.GlobalMinFee.Has(ctx, types.ParamStoreKeyMinGasPrices) {
 		fc.GlobalMinFee.Get(ctx, types.ParamStoreKeyMinGasPrices, &globalMinGasPrices)
 	}
-	// global fee is empty set, set global fee to 0uatom
+	// global fee is empty set, set global fee to 0uband (bondDenom)
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices, err = fc.DefaultZeroGlobalFee(ctx)
 	}
-	requiredGlobalFees := make(sdk.Coins, len(globalMinGasPrices))
-	// Determine the required fees by multiplying each required minimum gas
-	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-	glDec := sdk.NewDec(int64(feeTx.GetGas()))
-	for i, gp := range globalMinGasPrices {
-		fee := gp.Amount.Mul(glDec)
-		requiredGlobalFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-	}
 
-	return requiredGlobalFees.Sort(), err
+	return globalMinGasPrices.Sort(), err
 }
 
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {

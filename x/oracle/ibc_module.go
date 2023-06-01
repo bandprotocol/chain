@@ -1,7 +1,7 @@
 package oracle
 
 import (
-	"fmt"
+	"errors"
 	"math"
 	"strings"
 
@@ -198,8 +198,7 @@ func (im IBCModule) OnRecvPacket(
 	if !im.keeper.IBCRequestEnabled(ctx) {
 		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled)
 	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		// TODO: Ack with non-deterministic error break consensus?
-		return channeltypes.NewErrorAcknowledgement(fmt.Errorf("cannot unmarshal oracle request packet data"))
+		return channeltypes.NewErrorAcknowledgement(errors.New("cannot unmarshal oracle request packet data"))
 	}
 
 	id, err := im.keeper.OnRecvPacket(ctx, packet, data, relayer)

@@ -4,79 +4,59 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
-// provided in a transaction.
-// NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
-// where txs with multiple coins could not be prioritize as expected.
-func getTxPriority(fee sdk.Coins, gas int64) int64 {
-	var priority int64
-	for _, c := range fee {
-		p := int64(math.MaxInt64)
-		// multiplied by 1000 first because priority is int64.
-		// otherwise, if gas_price < 1, the priority will be 0.
-		gasPrice := c.Amount.MulRaw(1000).QuoRaw(gas)
-		if gasPrice.IsInt64() {
-			p = gasPrice.Int64()
-		}
-		if priority == 0 || p < priority {
-			priority = p
-		}
+// getTxPriority returns priority of the provided fee based on gas prices of uband
+func getTxPriority(fee sdk.Coins, gas int64, denom string) int64 {
+	ok, c := fee.Find(denom)
+	if !ok {
+		return 0
+	}
+
+	// multiplied by 10000 first to support our current standard (0.0025) because priority is int64.
+	// otherwise, if gas_price < 1, the priority will be 0.
+	priority := int64(math.MaxInt64)
+	gasPrice := c.Amount.MulRaw(10000).QuoRaw(gas)
+	if gasPrice.IsInt64() {
+		priority = gasPrice.Int64()
 	}
 
 	return priority
 }
 
-// getMinGasPrice will also return sorted coins
-func getMinGasPrice(ctx sdk.Context, feeTx sdk.FeeTx) sdk.Coins {
-	minGasPrices := ctx.MinGasPrices()
-	gas := feeTx.GetGas()
-	// special case: if minGasPrices=[], requiredFees=[]
-	requiredFees := make(sdk.Coins, len(minGasPrices))
-	// if not all coins are zero, check fee with min_gas_price
-	if !minGasPrices.IsZero() {
-		// Determine the required fees by multiplying each required minimum gas
-		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(int64(gas))
-		for i, gp := range minGasPrices {
-			fee := gp.Amount.Mul(glDec)
-			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-		}
-	}
-
-	return requiredFees.Sort()
+// getMinGasPrices will also return sorted dec coins
+func getMinGasPrices(ctx sdk.Context) sdk.DecCoins {
+	return ctx.MinGasPrices().Sort()
 }
 
-// CombinedFeeRequirement will combine the global fee and min_gas_price. Both globalFees and minGasPrices must be valid, but CombinedFeeRequirement does not validate them, so it may return 0denom.
-func CombinedFeeRequirement(globalFees, minGasPrices sdk.Coins) sdk.Coins {
-	// empty min_gas_price
-	if len(minGasPrices) == 0 {
-		return globalFees
+// CombinedGasPricesRequirement will combine the global min_gas_prices and min_gas_prices. Both globalMinGasPrices and minGasPrices must be valid
+func CombinedGasPricesRequirement(globalMinGasPrices, minGasPrices sdk.DecCoins) sdk.DecCoins {
+	// return globalMinGasPrices if minGasPrices has not been set
+	if minGasPrices.Empty() {
+		return globalMinGasPrices
 	}
-	// empty global fee is not possible if we set default global fee
-	if len(globalFees) == 0 && len(minGasPrices) != 0 {
-		return globalFees
+	// return minGasPrices if globalMinGasPrices is empty
+	if globalMinGasPrices.Empty() {
+		return minGasPrices
 	}
 
-	// if min_gas_price denom is in globalfee, and the amount is higher than globalfee, add min_gas_price to allFees
-	var allFees sdk.Coins
-	for _, fee := range globalFees {
+	// if min_gas_price denom is in globalfee, and the amount is higher than globalfee, add min_gas_price to allGasPrices
+	var allGasPrices sdk.DecCoins
+	for _, gmgp := range globalMinGasPrices {
 		// min_gas_price denom in global fee
-		ok, c := minGasPrices.Find(fee.Denom)
-		if ok && c.Amount.GT(fee.Amount) {
-			allFees = append(allFees, c)
+		mgp := minGasPrices.AmountOf(gmgp.Denom)
+		if mgp.GT(gmgp.Amount) {
+			allGasPrices = append(allGasPrices, sdk.NewDecCoinFromDec(gmgp.Denom, mgp))
 		} else {
-			allFees = append(allFees, fee)
+			allGasPrices = append(allGasPrices, sdk.NewDecCoinFromDec(gmgp.Denom, gmgp.Amount))
 		}
 	}
 
-	return allFees.Sort()
+	return allGasPrices.Sort()
 }
 
 func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *types.MsgReportData) error {
@@ -84,53 +64,45 @@ func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *
 	if err != nil {
 		return err
 	}
-	report := types.NewReport(validator, false, r.RawReports)
-	return oracleKeeper.CheckValidReport(ctx, r.RequestID, report)
+	return oracleKeeper.CheckValidReport(ctx, r.RequestID, validator, r.RawReports)
 }
 
-func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg sdk.Msg) (bool, error) {
-	// Check is the MsgExec from reporter
-	me, ok := msg.(*authz.MsgExec)
-	if !ok {
-		return false, nil
-	}
-
+func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msgExec *authz.MsgExec) bool {
 	// If cannot get message, then pretend as non-free transaction
-	msgs, err := me.GetMessages()
+	msgs, err := msgExec.GetMessages()
 	if err != nil {
-		return false, nil
+		return false
 	}
 
-	grantee, err := sdk.AccAddressFromBech32(me.Grantee)
+	grantee, err := sdk.AccAddressFromBech32(msgExec.Grantee)
 	if err != nil {
-		return false, nil
+		return false
 	}
 
-	allValidReportMsg := true
 	for _, m := range msgs {
 		r, ok := m.(*types.MsgReportData)
 		// If this is not report msg, skip other msgs on this exec msg
 		if !ok {
-			allValidReportMsg = false
-			break
+			return false
 		}
 
-		// Fail to parse validator, then discard this transaction
+		// Fail to parse validator, then reject this message
 		validator, err := sdk.ValAddressFromBech32(r.Validator)
 		if err != nil {
-			return false, err
+			return false
 		}
 
-		// If this grantee is not a reporter of validator, then discard this transaction
+		// If this grantee is not a reporter of validator, then reject this message
 		if !oracleKeeper.IsReporter(ctx, validator, grantee) {
-			return false, sdkerrors.ErrUnauthorized.Wrap("authorization not found")
+			return false
 		}
 
-		// Check if it's not valid report msg, discard this transaction
+		// Check if it's not valid report msg, discard this message
 		if err := checkValidReportMsg(ctx, oracleKeeper, r); err != nil {
-			return false, err
+			return false
 		}
 	}
-	// Return false if this exec msg has other non-report msg
-	return allValidReportMsg, nil
+
+	// Return true if all sub exec msgs have not been rejected
+	return true
 }
