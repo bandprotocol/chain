@@ -58,7 +58,7 @@ func (o *OracleDataProof) encodeToEthData(blockHeight uint64) ([]byte, error) {
 	}
 	return verifyArguments.Pack(
 		big.NewInt(int64(blockHeight)),
-		transformResult(*o.Result),
+		transformResult(o.Result),
 		big.NewInt(int64(o.Version)),
 		parsePaths,
 	)
@@ -89,7 +89,7 @@ func (commonVote *CommonEncodedVotePart) encodeToEthFormat() CommonEncodedVotePa
 	}
 }
 
-func GetProofsByKey(
+func getProofsByKey(
 	ctx client.Context,
 	key []byte,
 	queryOptions rpcclient.ABCIQueryOptions,

@@ -40,7 +40,14 @@ func TestGetReportSuccess(t *testing.T) {
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	)
-	err := k.AddReport(ctx, 1, expectedReport)
+	err := k.AddReport(
+		ctx,
+		1,
+		testapp.Validators[0].ValAddress, true, []types.RawReport{
+			types.NewRawReport(42, 0, []byte("data1/1")),
+			types.NewRawReport(43, 1, []byte("data2/1")),
+		},
+	)
 	require.NoError(t, err)
 
 	report, err := k.GetReport(ctx, 1, testapp.Validators[0].ValAddress)
