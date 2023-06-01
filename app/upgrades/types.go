@@ -15,10 +15,10 @@ import (
 // An upgrade must implement this struct, and then set it in the app.go.
 // The app.go will then define the handler.
 type Upgrade struct {
-	// Upgrade version name, for the upgrade handler, e.g. `v7`
+	// Upgrade version name, for the upgrade handler, e.g. `v7`.
 	UpgradeName string
 
-	// CreateUpgradeHandler defines the function that creates an upgrade handler
+	// CreateUpgradeHandler defines the function that creates an upgrade handler.
 	CreateUpgradeHandler func(*module.Manager, module.Configurator, AppManager, *keepers.AppKeepers) upgradetypes.UpgradeHandler
 
 	// Store upgrades, should be used for any new modules introduced, new modules deleted, or store names renamed.

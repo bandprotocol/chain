@@ -96,7 +96,7 @@ func CreateUpgradeHandler(
 		icaModule, _ := mm.Modules[icatypes.ModuleName].(ica.AppModule)
 		icaModule.InitModule(ctx, controllerParams, hostParams)
 
-		// run migration
+		// run migrations
 		return mm.RunMigrations(ctx, configurator, fromVM)
 	}
 }

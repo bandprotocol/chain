@@ -21,7 +21,7 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 		hostParams := icahosttypes.Params{
 			HostEnabled: true,
-			// Specifying the whole list instead of adding and removing. Less fragile.
+			// specifying the whole list instead of adding and removing. Less fragile.
 			AllowMessages: ICAAllowMessages,
 		}
 		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
