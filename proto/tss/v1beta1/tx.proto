@@ -21,6 +21,10 @@ service Msg {
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
   // SubmitDEPairs submit list of pre-commits DE for signing process.
   rpc SubmitDEPairs(MsgSubmitDEPairs) returns (MsgSubmitDEPairsResponse);
+  // RequestSign submit a general message to be signed by a specific group
+  rpc RequestSign(MsgRequestSign) returns (MsgRequestSignResponse);
+  // Sign submit signature on task participant need to do
+  rpc Sign(MsgSign) returns (MsgSignResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -104,7 +108,7 @@ message MsgConfirm {
 
 message MsgConfirmResponse {}
 
-message MsgSubmitDEPairs{
+message MsgSubmitDEPairs {
   repeated DE de_pairs = 1 [
     (gogoproto.customname) = "DEPairs",
     (gogoproto.nullable) = false
@@ -112,4 +116,29 @@ message MsgSubmitDEPairs{
   string member = 2;
 }
 
-message MsgSubmitDEPairsResponse{}
+message MsgSubmitDEPairsResponse {}
+
+message MsgRequestSign {
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  bytes message = 2;
+  string sender = 3;
+}
+
+message MsgRequestSignResponse {}
+  
+message MsgSign {
+  uint64 signing_id = 1 [(gogoproto.customname) = "SigningID"];
+  uint64 member_id = 2 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  bytes zi = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+  string member = 4;
+}
+
+message MsgSignResponse {}
