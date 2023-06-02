@@ -217,6 +217,28 @@ func (k Keeper) SubmitDKGRound2(
 		)
 	}
 
+	// Compute and store its own public key
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compute own public key
+	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
+	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrComputeOwnPubKeyFailed,
+			"compute own public key failed; %s",
+			err,
+		)
+	}
+
+	// Update public key of the member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set Round2Data
 	k.SetRound2Data(ctx, groupID, req.Round2Data)
 
 	ctx.EventManager().EmitEvent(
