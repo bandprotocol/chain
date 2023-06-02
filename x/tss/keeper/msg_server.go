@@ -228,7 +228,7 @@ func (k Keeper) SubmitDKGRound2(
 	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(
-			types.ErrComuteOwnPubKey,
+			types.ErrComputeOwnPubKey,
 			"compute own public key failed; %s",
 			err,
 		)
