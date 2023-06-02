@@ -42,10 +42,10 @@ var (
 	AccumulatedCommitStoreKeyPrefix = []byte{0x06}
 
 	// Round2DataStoreKeyPrefix is the key that keeps the round 2 data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x06}
+	Round2DataStoreKeyPrefix = []byte{0x07}
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x07}
+	Round2DataCountStoreKeyPrefix = []byte{0x08}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
