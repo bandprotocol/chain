@@ -120,3 +120,44 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 		Pagination: pageRes,
 	}, nil
 }
+
+func (k Querier) PendingSigns(
+	goCtx context.Context,
+	req *types.QueryPendingSignsRequest,
+) (*types.QueryPendingSignsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
+	var pendingSigns []types.Signing
+	pendingSignIDs := k.GetPendingSignIDs(ctx, address)
+	for _, id := range pendingSignIDs {
+		signing, err := k.GetSigning(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		pendingSigns = append(pendingSigns, signing)
+	}
+
+	return &types.QueryPendingSignsResponse{
+		PendingSigns: pendingSigns,
+	}, nil
+}
+
+func (k Querier) Signing(
+	goCtx context.Context,
+	req *types.QuerySigningRequest,
+) (*types.QuerySigningResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	signing, err := k.GetSigning(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QuerySigningResponse{
+		Signing: &signing,
+	}, nil
+}

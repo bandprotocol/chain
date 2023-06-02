@@ -7,8 +7,10 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -636,6 +638,181 @@ func (k Keeper) PollDEPairs(ctx sdk.Context, address sdk.AccAddress) (types.DE, 
 	k.SetDEQueue(ctx, address, deQueue)
 
 	return de, nil
+}
+
+// SetSigningCount function sets the number of signing count to the given value.
+func (k Keeper) SetSigningCount(ctx sdk.Context, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.SigningCountStoreKey, sdk.Uint64ToBigEndian(count))
+}
+
+// GetSigningCount function returns the current number of all signing ever existed.
+func (k Keeper) GetSigningCount(ctx sdk.Context) uint64 {
+	return sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.SigningCountStoreKey))
+}
+
+// GetNextSigningID function increments the signing count and returns the current number of signing.
+func (k Keeper) GetNextSigningID(ctx sdk.Context) uint64 {
+	signingNumber := k.GetSigningCount(ctx)
+	k.SetSigningCount(ctx, signingNumber+1)
+	return (signingNumber + 1)
+}
+
+func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) uint64 {
+	signingID := k.GetNextSigningID(ctx)
+	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
+	return signingID
+}
+
+func (k Keeper) GetSigning(ctx sdk.Context, signingID uint64) (types.Signing, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(signingID))
+	if bz == nil {
+		return types.Signing{}, sdkerrors.Wrapf(
+			types.ErrSigningNotFound,
+			"failed to get Signing with ID: %d",
+			signingID,
+		)
+	}
+	var signing types.Signing
+	k.cdc.MustUnmarshal(bz, &signing)
+	return signing, nil
+}
+
+func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) {
+	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: true})
+	ctx.KVStore(k.storeKey).Set(types.PendingSignStorKey(address, signingID), bz)
+}
+
+func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) bool {
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStorKey(address, signingID))
+	var have gogotypes.BoolValue
+	if bz == nil {
+		return false
+	}
+	k.cdc.MustUnmarshal(bz, &have)
+
+	return have.Value
+}
+
+func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.PendingSignStorKey(address, signingID))
+}
+
+// GetPendingSignIterator function gets an iterator over all pending sign data.
+func (k Keeper) GetPendingSignIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PendingSignsStorKey(address))
+}
+
+// GetPendingSignIDs method retrieves all pending sign ids for a given address from the store.
+func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uint64 {
+	var pendingSigns []uint64
+	iterator := k.GetPendingSignIterator(ctx, address)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var have gogotypes.BoolValue
+		k.cdc.MustUnmarshal(iterator.Value(), &have)
+		if have.Value {
+			pendingSigns = append(pendingSigns, types.SigningIDFromPendingSignKey(iterator.Key()))
+		}
+	}
+	return pendingSigns
+}
+
+// SetZCount sets the count of sign data for a group in the store.
+func (k Keeper) SetZCount(ctx sdk.Context, signingID uint64, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ZCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
+}
+
+// GetZCount retrieves the count of sign data for a group from the store.
+func (k Keeper) GetZCount(ctx sdk.Context, signingID uint64) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.ZCountStoreKey(signingID))
+	return sdk.BigEndianToUint64(bz)
+}
+
+// AddZCount increments the count of z count data for a signing data in the store.
+func (k Keeper) AddZCount(ctx sdk.Context, signingID uint64) {
+	count := k.GetZCount(ctx, signingID)
+	k.SetZCount(ctx, signingID, count+1)
+}
+
+// DeleteZCount remove the round z count data of a signing from the store.
+func (k Keeper) DeleteZCount(ctx sdk.Context, signingID uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.ZCountStoreKey(signingID))
+}
+
+func (k Keeper) SetPartialZ(ctx sdk.Context, signingID uint64, memberID tss.MemberID, zi tss.Signature) {
+	k.AddZCount(ctx, signingID)
+	ctx.KVStore(k.storeKey).Set(types.PartialZIndexStoreKey(signingID, memberID), zi)
+}
+
+func (k Keeper) GetPartialZ(ctx sdk.Context, signingID uint64, memberID tss.MemberID) (tss.Signature, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PartialZIndexStoreKey(signingID, memberID))
+	if bz == nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrPartialZNotFound,
+			"failed to get partial z with signingID: %d memberID: %d",
+			signingID,
+			memberID,
+		)
+	}
+	return bz, nil
+}
+
+// GetPartialZIterator function gets an iterator over all partial z of the signing.
+func (k Keeper) GetPartialZIterator(ctx sdk.Context, signingID uint64) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialZStoreKey(signingID))
+}
+
+func (k Keeper) GetPartialZs(ctx sdk.Context, signingID uint64) tss.Signatures {
+	var pzs tss.Signatures
+	iterator := k.GetPartialZIterator(ctx, signingID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		pzs = append(pzs, iterator.Value())
+	}
+	return pzs
+}
+
+// SetRollingSeed sets the rolling seed value to be provided value.
+func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
+	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
+}
+
+// GetRollingSeed returns the current rolling seed value.
+func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
+	return ctx.KVStore(k.storeKey).Get(types.RollingSeedStoreKey)
+}
+
+func (k Keeper) GetRandomAssigningParticipants(
+	ctx sdk.Context,
+	signingID uint64,
+	size uint64,
+	t uint64,
+) ([]tss.MemberID, error) {
+	if t > size {
+		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, "t must more than size")
+	}
+
+	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(signingID), []byte(ctx.ChainID()))
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
+	}
+
+	var aps []tss.MemberID
+	members := types.MakeRange(1, size)
+	members_size := uint64(len(members))
+	for i := uint64(0); i < t; i++ {
+		luckyNumber := rng.NextUint64() % members_size
+
+		// get member
+		aps = append(aps, tss.MemberID(members[luckyNumber]))
+
+		// remove member
+		members = append(members[:luckyNumber], members[luckyNumber+1:]...)
+
+		members_size -= 1
+	}
+	return aps, nil
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

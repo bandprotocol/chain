@@ -730,6 +730,28 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	}, got)
 }
 
+func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	got, err := k.GetRandomAssigningParticipants(ctx, 1, 5, 3)
+	s.Require().NoError(err)
+	s.Require().Equal([]tss.MemberID{4, 3, 5}, got)
+}
+
+func (s *KeeperTestSuite) TestGetPendingSignIDs() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	member, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	k.SetPendingSign(ctx, member, 1)
+	k.SetPendingSign(ctx, member, 2)
+	k.SetPendingSign(ctx, member, 5)
+
+	k.DeletePendingSign(ctx, member, 5)
+
+	got := k.GetPendingSignIDs(ctx, member)
+	s.Require().Equal([]uint64{1, 2}, got)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
