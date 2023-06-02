@@ -102,17 +102,27 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1 ")
 	}
 
+	// Check coefficients commit length
+	if uint64(len(req.Round1Data.CoefficientsCommit)) != group.Threshold {
+		return nil, sdkerrors.Wrap(
+			types.ErrCommitsNotCorrectLength,
+			"number of coefficients commit is not correct",
+		)
+	}
+
 	// Get dkg-context
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
 	}
 
+	// Verify one time signature
 	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Data.OneTimeSig, req.Round1Data.OneTimePubKey)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
+	// Verify A0 signature
 	err = tss.VerifyA0Sig(
 		memberID,
 		dkgContext,
@@ -123,6 +133,13 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
+	// Add commits to calculate accumulated commits for each index
+	err = k.AddCommits(ctx, groupID, req.Round1Data.CoefficientsCommit)
+	if err != nil {
+		return nil, sdkerrors.Wrap(types.ErrAddCommit, err.Error())
+	}
+
+	// Add Round1Data
 	k.SetRound1Data(ctx, groupID, req.Round1Data)
 
 	ctx.EventManager().EmitEvent(
@@ -141,6 +158,7 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
+		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
 		k.UpdateGroup(ctx, groupID, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -200,6 +218,28 @@ func (k Keeper) SubmitDKGRound2(
 		)
 	}
 
+	// Compute and store its own public key
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compute own public key
+	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
+	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrComputeOwnPubKeyFailed,
+			"compute own public key failed; %s",
+			err,
+		)
+	}
+
+	// Update public key of the member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set Round2Data
 	k.SetRound2Data(ctx, groupID, req.Round2Data)
 
 	ctx.EventManager().EmitEvent(
@@ -346,9 +386,8 @@ func (k Keeper) Complain(
 
 // Confirm method handles a member's confirmation for a certain group.
 // It validates the group status, verifies the member making the confirmation, and checks if the member has already submitted a confirmation or complaint.
-// Additionally, it retrieves the member's details and performs computations for the raw sum of commitments, and the member's own public key.
 // If the member's own public key signature is verified, the member's public key is updated in the data.
-// If all members have sent confirmations or complaints, it will either compute the group public key and update the group status to active or handle the fallen group if there are any malicious members.
+// If all members have sent confirmations or complaints, it will update the group status to active or handle the fallen group if there are any malicious members.
 // Finally, the function sets the confirmation with status, emits an event for confirmation success, and returns a response to the confirmation request.
 func (k Keeper) Confirm(
 	goCtx context.Context,
@@ -385,46 +424,6 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// Get member
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: move compute member public key to round 1
-	// Compute raw sum commits
-	var sumCommits tss.Points
-	allRound1Data := k.GetAllRound1Data(ctx, groupID)
-
-	for i := uint64(0); i < group.Threshold; i++ {
-		var sumCommitI tss.Points
-		for _, r1 := range allRound1Data {
-			sumCommitI = append(sumCommitI, r1.CoefficientsCommit[i])
-		}
-		sumCommit, err := tss.SumPoints(sumCommitI...)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				types.ErrConfirmFailed,
-				"can not sum points",
-			)
-		}
-		sumCommits = append(sumCommits, sumCommit)
-	}
-
-	// Compute own public key
-	ownPubKey, err := tss.ComputeOwnPublicKey(sumCommits, memberID)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrConfirmFailed,
-			"compute own public key failed; %s",
-			err,
-		)
-	}
-
-	// Update member
-	member.PubKey = ownPubKey
-	k.SetMember(ctx, groupID, memberID, member)
-
 	// Verify OwnPubKeySig
 	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
 	if err != nil {
@@ -449,15 +448,8 @@ func (k Keeper) Confirm(
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount+1 == group.Size_ {
 		if len(maliciousMembers) == 0 {
-			// Handle compute group public key
-			groupPubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
-			if err != nil {
-				return nil, err
-			}
-
 			// Update group status
 			group.Status = types.ACTIVE
-			group.PubKey = groupPubKey
 			k.UpdateGroup(ctx, groupID, group)
 
 			// Emit event round 3 success
@@ -465,7 +457,6 @@ func (k Keeper) Confirm(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyGroupPubKey, hex.EncodeToString(groupPubKey)),
 					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 				),
 			)

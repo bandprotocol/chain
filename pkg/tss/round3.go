@@ -24,7 +24,6 @@ func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) 
 
 // ComputeGroupPublicKey computes the group public key from a set of A0 commits.
 // The formula used is: Y = Σ(i=1 to n) (Commit_j0)
-// TODO: Remove this function after the chain itself move to use accumulated commits instead
 func ComputeGroupPublicKey(rawA0Commits ...Point) (PublicKey, error) {
 	a0Commits, err := Points(rawA0Commits).Parse()
 	if err != nil {
