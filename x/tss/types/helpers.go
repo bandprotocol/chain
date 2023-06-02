@@ -20,3 +20,11 @@ func DuplicateInArray(arr []string) bool {
 	}
 	return false
 }
+
+func MakeRange(min, max uint64) []uint64 {
+	a := make([]uint64, max-min+1)
+	for i := range a {
+		a[i] = min + uint64(i)
+	}
+	return a
+}

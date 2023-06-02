@@ -497,28 +497,6 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 	s.Require().NoError(err)
 }
 
-func (s *KeeperTestSuite) TestHandleComputeGroupPublicKey() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	point1, _ := hex.DecodeString("023487463ba3c7dbf9de9dc5bc73393f99ba0d86270ce2e4218d60e4a01d8cd11c")
-	point2, _ := hex.DecodeString("03bd0e1b7c880ce80d4340540240972522b44bba2afcf50bfbe30e0352f225eba9")
-
-	// Set round 1 data
-	k.SetRound1Data(ctx, groupID, types.Round1Data{
-		MemberID:           memberID1,
-		CoefficientsCommit: tss.Points{point1},
-	})
-	k.SetRound1Data(ctx, groupID, types.Round1Data{
-		MemberID:           memberID2,
-		CoefficientsCommit: tss.Points{point2},
-	})
-
-	pubKey, err := k.HandleComputeGroupPublicKey(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().
-		Equal("023704dcdb774ed4fd0841ded5757211fe5a6f7637c4f9a1346b5b20e2524d12e5", hex.EncodeToString(pubKey))
-}
-
 func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
@@ -728,6 +706,28 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 			IsMalicious: true,
 		},
 	}, got)
+}
+
+func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	got, err := k.GetRandomAssigningParticipants(ctx, 1, 5, 3)
+	s.Require().NoError(err)
+	s.Require().Equal([]tss.MemberID{4, 3, 5}, got)
+}
+
+func (s *KeeperTestSuite) TestGetPendingSignIDs() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	member, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	k.SetPendingSign(ctx, member, 1)
+	k.SetPendingSign(ctx, member, 2)
+	k.SetPendingSign(ctx, member, 5)
+
+	k.DeletePendingSign(ctx, member, 5)
+
+	got := k.GetPendingSignIDs(ctx, member)
+	s.Require().Equal([]uint64{1, 2}, got)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

@@ -59,12 +59,31 @@ message DEQueue {
 }
 
 message Signing {
-  uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
-  repeated uint64 assigned_participants = 2;
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  repeated uint64 assigned_participants = 2[
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
   bytes message = 3;
-  bytes sig = 4 [
+  bytes groupPubNonce = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes bytes = 5;
+  repeated bytes los = 6 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalar"
+  ];
+  repeated bytes ownPubNonces = 7 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes sig = 8 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
+}
+
+message PendingSings {
+  repeated uint64 signing_ids = 1;
 }
 
 message Member {

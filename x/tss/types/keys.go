@@ -1,8 +1,10 @@
 package types
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/kv"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 const (
@@ -17,11 +19,20 @@ const (
 )
 
 var (
+	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
+	RollingSeedSizeInBytes = 32
+
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	// GroupCountStoreKey is the key that keeps the total request count.
+	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
+
+	// SigningCountStoreKey is the key that keeps the total signing count.
+	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
+
+	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
+	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
 
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
@@ -38,26 +49,41 @@ var (
 	// Round1DataCountStoreKeyPrefix is the key that keeps the round 1 data count.
 	Round1DataCountStoreKeyPrefix = []byte{0x05}
 
-	// Round2DataStoreKeyPrefix is the key that keeps the round2Data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x06}
+	// AccumulatedCommitStoreKeyPrefix is the key that keeps total of each commit
+	AccumulatedCommitStoreKeyPrefix = []byte{0x06}
 
-	// Round2DataCountStoreKeyPrefix is the key that keeps the round2Data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x07}
+	// Round2DataStoreKeyPrefix is the key that keeps the round 2 data of the member.
+	Round2DataStoreKeyPrefix = []byte{0x07}
+
+	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
+	Round2DataCountStoreKeyPrefix = []byte{0x08}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
-	ComplainsWithStatusStoreKeyPrefix = []byte{0x08}
+	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x09}
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{10}
+	ConfirmStoreKeyPrefix = []byte{0x11}
 
-	// DE is the key for keeps pre-commit DE.
-	DEStoreKeyPrefix = []byte{11}
+	// DEStoreKeyPrefix is the key for keeps pre-commit DE.
+	DEStoreKeyPrefix = []byte{0x12}
 
-	// DEQueue is the key for keeps first and last index of the DEQueue.
-	DEQueueStoreKeyPrefix = []byte{12}
+	// DEQueueStoreKeyPrefix is the key for keeps first and last index of the DEQueue.
+	DEQueueStoreKeyPrefix = []byte{0x13}
+
+	// SigningStoreKeyPrefix is the key for keeps signing data.
+	SigningStoreKeyPrefix = []byte{0x14}
+
+	// PendingSignStorKeyPrefix is the key for keeps pending signs data.
+	PendingSignsStorKeyPrefix = []byte{0x15}
+
+	// ZCountStoreKeyKeyPrefix is the key for keeps signing count data.
+	ZCountStoreKeyKeyPrefix = []byte{0x16}
+
+	// PartialZStoreKeyPrefix is the key for keeps partial z.
+	PartialZStoreKeyPrefix = []byte{0x17}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -86,6 +112,14 @@ func Round1DataCountStoreKey(groupID tss.GroupID) []byte {
 
 func Round1DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(Round1DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func AccumulatedCommitStoreKey(groupID tss.GroupID) []byte {
+	return append(AccumulatedCommitStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func AccumulatedCommitIndexStoreKey(groupID tss.GroupID, index uint64) []byte {
+	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(index)...)
 }
 
 func Round2DataStoreKey(groupID tss.GroupID) []byte {
@@ -130,4 +164,33 @@ func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
 
 func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
 	return append(DEQueueStoreKeyPrefix, address...)
+}
+
+func SigningStoreKey(signingID uint64) []byte {
+	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+}
+
+func PendingSignsStorKey(address sdk.AccAddress) []byte {
+	return append(PendingSignsStorKeyPrefix, address...)
+}
+
+func PendingSignStorKey(address sdk.AccAddress, id uint64) []byte {
+	return append(PendingSignsStorKey(address), sdk.Uint64ToBigEndian(id)...)
+}
+
+func ZCountStoreKey(signingID uint64) []byte {
+	return append(ZCountStoreKeyKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+}
+
+func PartialZStoreKey(signingID uint64) []byte {
+	return append(PartialZStoreKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+}
+
+func PartialZIndexStoreKey(signingID uint64, memberID tss.MemberID) []byte {
+	return append(PartialZStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func SigningIDFromPendingSignKey(key []byte) uint64 {
+	kv.AssertKeyLength(key, 29)
+	return sdk.BigEndianToUint64(key[21:])
 }
