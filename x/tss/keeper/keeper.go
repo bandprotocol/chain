@@ -240,7 +240,7 @@ func (k Keeper) DeleteAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, in
 	ctx.KVStore(k.storeKey).Delete(types.AccumulatedCommitIndexStoreKey(groupID, index))
 }
 
-// SetRound1Data function sets round1 data for a member of a group.
+// AddCommits function adds each coefficient commit into the accumulated commit of its index.
 func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Points) error {
 	// Add count
 	for i, commit := range commits {
