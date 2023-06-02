@@ -590,7 +590,12 @@ func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss
 }
 
 // DeleteAllDKGInterimData deletes all DKG interim data for a given groupID and groupSize
-func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, groupSize uint64) {
+func (k Keeper) DeleteAllDKGInterimData(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	groupSize uint64,
+	groupThreshold uint64,
+) {
 	// Delete DKG context
 	k.DeleteDKGContext(ctx, groupID)
 
@@ -604,6 +609,11 @@ func (k Keeper) DeleteAllDKGInterimData(ctx sdk.Context, groupID tss.GroupID, gr
 		k.DeleteComplainsWithStatus(ctx, groupID, memberID)
 		// Delete confirm
 		k.DeleteConfirm(ctx, groupID, memberID)
+	}
+
+	for i := uint64(0); i < groupThreshold; i++ {
+		// Delete accumulated commit
+		k.DeleteAccumulatedCommit(ctx, groupID, i)
 	}
 
 	// Delete round 1 data count

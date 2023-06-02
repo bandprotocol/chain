@@ -472,7 +472,7 @@ func (k Keeper) Confirm(
 		}
 
 		// Delete all dkg interim data
-		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_)
+		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
 	}
 
 	// Emit event confirm success
