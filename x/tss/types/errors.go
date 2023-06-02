@@ -32,5 +32,5 @@ var (
 		15,
 		"encrypted secret shares not correct length",
 	)
-	ErrComputeOwnPubKey = sdkerrors.Register(ModuleName, 16, "fail to compute own public key")
+	ErrComputeOwnPubKeyFailed = sdkerrors.Register(ModuleName, 16, "fail to compute own public key")
 )
