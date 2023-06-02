@@ -17,18 +17,25 @@ var (
 		8,
 		"member is not authorized for this group",
 	)
-	ErrRoundExpired                          = sdkerrors.Register(ModuleName, 9, "round expired")
-	ErrVerifyOneTimeSigFailed                = sdkerrors.Register(ModuleName, 10, "fail to verify one time sign")
-	ErrVerifyA0SigFailed                     = sdkerrors.Register(ModuleName, 11, "fail to verify a0 sign")
-	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 12, "round 2 data not found")
-	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
+	ErrRoundExpired            = sdkerrors.Register(ModuleName, 9, "round expired")
+	ErrVerifyOneTimeSigFailed  = sdkerrors.Register(ModuleName, 10, "fail to verify one time sign")
+	ErrVerifyA0SigFailed       = sdkerrors.Register(ModuleName, 11, "fail to verify a0 sign")
+	ErrAddCommit               = sdkerrors.Register(ModuleName, 12, "fail to add coefficient commit")
+	ErrCommitsNotCorrectLength = sdkerrors.Register(
 		ModuleName,
 		13,
+		"coefficients commit not correct length",
+	)
+	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 14, "round 2 data not found")
+	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
+		ModuleName,
+		15,
 		"encrypted secret shares not correct length",
 	)
-	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 14, "member is already complain or confirm")
-	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 15, "complain failed")
-	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 16, "confirm failed")
-	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 17, "confirm not found")
-	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 18, "complains with status not found")
+	ErrComputeOwnPubKey                 = sdkerrors.Register(ModuleName, 16, "fail to compute own public key")
+	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 17, "member is already complain or confirm")
+	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 18, "complain failed")
+	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 19, "confirm failed")
+	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 20, "confirm not found")
+	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 21, "complains with status not found")
 )

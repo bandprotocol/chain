@@ -230,6 +230,58 @@ func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound1Data
 }
 
+// GetAccumulatedCommitIterator function gets an iterator over all accumulated commits of a group.
+func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitStoreKey(groupID))
+}
+
+// SetAccumulatedCommit function sets accumulated commit for a index of a group.
+func (k Keeper) SetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64, commit tss.Point) {
+	ctx.KVStore(k.storeKey).Set(types.AccumulatedCommitIndexStoreKey(groupID, index), commit)
+}
+
+// GetAccumulatedCommit function retrieves accummulated commit of a index of the group from the store.
+func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) tss.Point {
+	return ctx.KVStore(k.storeKey).Get(types.AccumulatedCommitIndexStoreKey(groupID, index))
+}
+
+// GetAllAccumulatedCommits function retrieves all accummulated commits of a group from the store.
+func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) tss.Points {
+	var commits tss.Points
+	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		commits = append(commits, iterator.Value())
+	}
+	return commits
+}
+
+// DeleteAccumulatedCommit removes a accumulated commit of a index of the group from the store.
+func (k Keeper) DeleteAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.AccumulatedCommitIndexStoreKey(groupID, index))
+}
+
+// AddCommits function adds each coefficient commit into the accumulated commit of its index.
+func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Points) error {
+	// Add count
+	for i, commit := range commits {
+		points := []tss.Point{commit}
+
+		accCommit := k.GetAccumulatedCommit(ctx, groupID, uint64(i))
+		if accCommit != nil {
+			points = append(points, accCommit)
+		}
+
+		total, err := tss.SumPoints(points...)
+		if err != nil {
+			return err
+		}
+		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
+	}
+
+	return nil
+}
+
 // SetRound2Data method sets the round2Data of a member in the store and increments the count of round2Data.
 func (k Keeper) SetRound2Data(
 	ctx sdk.Context,

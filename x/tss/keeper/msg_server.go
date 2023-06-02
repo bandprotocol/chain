@@ -102,17 +102,27 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1 ")
 	}
 
+	// Check coefficients commit length
+	if uint64(len(req.Round1Data.CoefficientsCommit)) != group.Threshold {
+		return nil, sdkerrors.Wrap(
+			types.ErrCommitsNotCorrectLength,
+			"number of coefficients commit is not correct",
+		)
+	}
+
 	// Get dkg-context
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
 	}
 
+	// Verify one time signature
 	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Data.OneTimeSig, req.Round1Data.OneTimePubKey)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
 
+	// Verify A0 signature
 	err = tss.VerifyA0Sig(
 		memberID,
 		dkgContext,
@@ -123,6 +133,13 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
+	// Add commits to calculate accumulated commits for each index
+	err = k.AddCommits(ctx, groupID, req.Round1Data.CoefficientsCommit)
+	if err != nil {
+		return nil, sdkerrors.Wrap(types.ErrAddCommit, err.Error())
+	}
+
+	// Add Round1Data
 	k.SetRound1Data(ctx, groupID, req.Round1Data)
 
 	ctx.EventManager().EmitEvent(
@@ -141,6 +158,7 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
+		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
 		k.UpdateGroup(ctx, groupID, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -200,6 +218,28 @@ func (k Keeper) SubmitDKGRound2(
 		)
 	}
 
+	// Compute and store its own public key
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compute own public key
+	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
+	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrComputeOwnPubKey,
+			"compute own public key failed; %s",
+			err,
+		)
+	}
+
+	// Update public key of the member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set Round2Data
 	k.SetRound2Data(ctx, groupID, req.Round2Data)
 
 	ctx.EventManager().EmitEvent(
