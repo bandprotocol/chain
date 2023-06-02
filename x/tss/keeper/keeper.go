@@ -439,25 +439,6 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	return nil
 }
 
-// HandleComputeGroupPublicKey computes the group public key for a given groupID.
-func (k Keeper) HandleComputeGroupPublicKey(ctx sdk.Context, groupID tss.GroupID) (tss.PublicKey, error) {
-	var rawA0Commits tss.Points
-	allRound1Data := k.GetAllRound1Data(ctx, groupID)
-	for _, r1 := range allRound1Data {
-		rawA0Commits = append(rawA0Commits, (r1.CoefficientsCommit[0]))
-	}
-
-	groupPubKey, err := tss.ComputeGroupPublicKey(rawA0Commits...)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrConfirmFailed,
-			"failed to compute group public key; %s",
-			err,
-		)
-	}
-	return groupPubKey, nil
-}
-
 // SetComplainsWithStatus sets the complains with status for a specific groupID and memberID in the store.
 func (k Keeper) SetComplainsWithStatus(
 	ctx sdk.Context,
