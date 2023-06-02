@@ -235,6 +235,17 @@ func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index
 	return ctx.KVStore(k.storeKey).Get(types.AccumulatedCommitIndexStoreKey(groupID, index))
 }
 
+// GetAllAccumulatedCommits function retrieves accummulated commit of a index of the group from the store.
+func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) tss.Points {
+	var commits tss.Points
+	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		commits = append(commits, iterator.Value())
+	}
+	return commits
+}
+
 // DeleteAccumulatedCommit removes a accumulated commit of a index of the group from the store.
 func (k Keeper) DeleteAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.AccumulatedCommitIndexStoreKey(groupID, index))
