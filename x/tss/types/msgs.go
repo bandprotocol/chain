@@ -276,16 +276,16 @@ func (m MsgSubmitDEPairs) ValidateBasic() error {
 	}
 
 	// Validate DE pairs
-	for _, de := range m.DEPairs {
+	for i, de := range m.DEPairs {
 		// Validate public key D
 		_, err = de.PubD.Parse()
 		if err != nil {
-			return sdkerrors.Wrap(err, "pub D")
+			return sdkerrors.Wrap(err, fmt.Sprintf("pub D in DE index: %d", i))
 		}
 		// Validate public key E
 		_, err = de.PubE.Parse()
 		if err != nil {
-			return sdkerrors.Wrap(err, "pub E")
+			return sdkerrors.Wrap(err, fmt.Sprintf("pub E in DE index: %d", i))
 		}
 	}
 

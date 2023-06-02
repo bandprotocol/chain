@@ -643,7 +643,7 @@ func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueu
 	return deQueue
 }
 
-func (k Keeper) DeleteDEQueue(ctx sdk.Context, address sdk.AccAddress, index uint64) {
+func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
 }
 
@@ -651,8 +651,8 @@ func (k Keeper) HandleSetDEPairs(ctx sdk.Context, address sdk.AccAddress, dePair
 	deQueue := k.GetDEQueue(ctx, address)
 
 	for _, de := range dePairs {
-		deQueue.Tail += 1
 		k.SetDE(ctx, address, deQueue.Tail, de)
+		deQueue.Tail += 1
 	}
 
 	k.SetDEQueue(ctx, address, deQueue)
@@ -665,7 +665,7 @@ func (k Keeper) PollDEPairs(ctx sdk.Context, address sdk.AccAddress) (types.DE, 
 		return types.DE{}, err
 	}
 
-	k.DeleteDEQueue(ctx, address, deQueue.Head)
+	k.DeleteDE(ctx, address, deQueue.Head)
 
 	deQueue.Head += 1
 	k.SetDEQueue(ctx, address, deQueue)

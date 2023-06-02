@@ -65,25 +65,25 @@ var (
 	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{10}
+	ConfirmStoreKeyPrefix = []byte{0x10}
 
 	// DEStoreKeyPrefix is the key for keeps pre-commit DE.
-	DEStoreKeyPrefix = []byte{11}
+	DEStoreKeyPrefix = []byte{0x11}
 
 	// DEQueueStoreKeyPrefix is the key for keeps first and last index of the DEQueue.
-	DEQueueStoreKeyPrefix = []byte{12}
+	DEQueueStoreKeyPrefix = []byte{0x12}
 
 	// SigningStoreKeyPrefix is the key for keeps signing data.
-	SigningStoreKeyPrefix = []byte{13}
+	SigningStoreKeyPrefix = []byte{0x13}
 
 	// PendingSignStorKeyPrefix is the key for keeps pending signs data.
-	PendingSignsStorKeyPrefix = []byte{14}
+	PendingSignsStorKeyPrefix = []byte{0x14}
 
 	// ZCountStoreKeyKeyPrefix is the key for keeps signing count data.
-	ZCountStoreKeyKeyPrefix = []byte{15}
+	ZCountStoreKeyKeyPrefix = []byte{0x15}
 
 	// PartialZStoreKeyPrefix is the key for keeps partial z.
-	PartialZStoreKeyPrefix = []byte{16}
+	PartialZStoreKeyPrefix = []byte{0x16}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
