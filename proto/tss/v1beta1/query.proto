@@ -21,14 +21,22 @@ service Query {
 
   // IsGrantee queries grant of account on this granter.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
-    option (google.api.http).get =
-        "/tss/v1beta1/grantee/{granter}/{grantee}";
+    option (google.api.http).get = "/tss/v1beta1/grantee/{granter}/{grantee}";
   }
   
   // DE queries all de for this address.
   rpc DE(QueryDERequest) returns (QueryDEResponse) {
-    option (google.api.http).get =
-        "/tss/v1beta1/de/{address}";
+    option (google.api.http).get = "/tss/v1beta1/de/{address}";
+  }
+
+  // PendingSigns queries all pending signs for this address.
+  rpc PendingSigns(QueryPendingSignsRequest) returns (QueryPendingSignsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/pending_signs/{address}";
+  }
+
+  // Signing queries signing details.
+  rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
+    option (google.api.http).get = "/tss/v1beta1/signing/{id}";
   }
 }
 
@@ -82,9 +90,24 @@ message QueryDERequest {
 
 message QueryDEResponse {
   repeated DE de_pairs = 1 [
-    (gogoproto.customname) = "DEList",
     (gogoproto.nullable) = false
   ];
   // pagination defines an pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryPendingSignsRequest {
+  string address = 1;
+}
+
+message QueryPendingSignsResponse {
+  repeated Signing pending_signs = 1 [ (gogoproto.nullable) = false ];
+}
+
+message QuerySigningRequest {
+  uint64 id = 1;
+}
+
+message QuerySigningResponse {
+  Signing signing = 1;
 }

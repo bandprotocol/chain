@@ -415,7 +415,7 @@ func (m *QueryDERequest) GetPagination() *query.PageRequest {
 }
 
 type QueryDEResponse struct {
-	DEList []DE `protobuf:"bytes,1,rep,name=de_pairs,json=dePairs,proto3" json:"de_pairs"`
+	DePairs []DE `protobuf:"bytes,1,rep,name=de_pairs,json=dePairs,proto3" json:"de_pairs"`
 	// pagination defines an pagination for the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -453,9 +453,9 @@ func (m *QueryDEResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryDEResponse proto.InternalMessageInfo
 
-func (m *QueryDEResponse) GetDEList() []DE {
+func (m *QueryDEResponse) GetDePairs() []DE {
 	if m != nil {
-		return m.DEList
+		return m.DePairs
 	}
 	return nil
 }
@@ -463,6 +463,182 @@ func (m *QueryDEResponse) GetDEList() []DE {
 func (m *QueryDEResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
+	}
+	return nil
+}
+
+type QueryPendingSignsRequest struct {
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryPendingSignsRequest) Reset()         { *m = QueryPendingSignsRequest{} }
+func (m *QueryPendingSignsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryPendingSignsRequest) ProtoMessage()    {}
+func (*QueryPendingSignsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b9e98857940a4a89, []int{8}
+}
+func (m *QueryPendingSignsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPendingSignsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPendingSignsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPendingSignsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPendingSignsRequest.Merge(m, src)
+}
+func (m *QueryPendingSignsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPendingSignsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPendingSignsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPendingSignsRequest proto.InternalMessageInfo
+
+func (m *QueryPendingSignsRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+type QueryPendingSignsResponse struct {
+	PendingSigns []Signing `protobuf:"bytes,1,rep,name=pending_signs,json=pendingSigns,proto3" json:"pending_signs"`
+}
+
+func (m *QueryPendingSignsResponse) Reset()         { *m = QueryPendingSignsResponse{} }
+func (m *QueryPendingSignsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryPendingSignsResponse) ProtoMessage()    {}
+func (*QueryPendingSignsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b9e98857940a4a89, []int{9}
+}
+func (m *QueryPendingSignsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPendingSignsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPendingSignsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPendingSignsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPendingSignsResponse.Merge(m, src)
+}
+func (m *QueryPendingSignsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPendingSignsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPendingSignsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPendingSignsResponse proto.InternalMessageInfo
+
+func (m *QueryPendingSignsResponse) GetPendingSigns() []Signing {
+	if m != nil {
+		return m.PendingSigns
+	}
+	return nil
+}
+
+type QuerySigningRequest struct {
+	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (m *QuerySigningRequest) Reset()         { *m = QuerySigningRequest{} }
+func (m *QuerySigningRequest) String() string { return proto.CompactTextString(m) }
+func (*QuerySigningRequest) ProtoMessage()    {}
+func (*QuerySigningRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b9e98857940a4a89, []int{10}
+}
+func (m *QuerySigningRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QuerySigningRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QuerySigningRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QuerySigningRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySigningRequest.Merge(m, src)
+}
+func (m *QuerySigningRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QuerySigningRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySigningRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QuerySigningRequest proto.InternalMessageInfo
+
+func (m *QuerySigningRequest) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+type QuerySigningResponse struct {
+	Signing *Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing,omitempty"`
+}
+
+func (m *QuerySigningResponse) Reset()         { *m = QuerySigningResponse{} }
+func (m *QuerySigningResponse) String() string { return proto.CompactTextString(m) }
+func (*QuerySigningResponse) ProtoMessage()    {}
+func (*QuerySigningResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b9e98857940a4a89, []int{11}
+}
+func (m *QuerySigningResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QuerySigningResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QuerySigningResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QuerySigningResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySigningResponse.Merge(m, src)
+}
+func (m *QuerySigningResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QuerySigningResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySigningResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QuerySigningResponse proto.InternalMessageInfo
+
+func (m *QuerySigningResponse) GetSigning() *Signing {
+	if m != nil {
+		return m.Signing
 	}
 	return nil
 }
@@ -476,61 +652,73 @@ func init() {
 	proto.RegisterType((*QueryIsGranteeResponse)(nil), "tss.v1beta1.QueryIsGranteeResponse")
 	proto.RegisterType((*QueryDERequest)(nil), "tss.v1beta1.QueryDERequest")
 	proto.RegisterType((*QueryDEResponse)(nil), "tss.v1beta1.QueryDEResponse")
+	proto.RegisterType((*QueryPendingSignsRequest)(nil), "tss.v1beta1.QueryPendingSignsRequest")
+	proto.RegisterType((*QueryPendingSignsResponse)(nil), "tss.v1beta1.QueryPendingSignsResponse")
+	proto.RegisterType((*QuerySigningRequest)(nil), "tss.v1beta1.QuerySigningRequest")
+	proto.RegisterType((*QuerySigningResponse)(nil), "tss.v1beta1.QuerySigningResponse")
 }
 
 func init() { proto.RegisterFile("tss/v1beta1/query.proto", fileDescriptor_b9e98857940a4a89) }
 
 var fileDescriptor_b9e98857940a4a89 = []byte{
-	// 780 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0x4f, 0x4f, 0xfb, 0x46,
-	0x14, 0x8c, 0x09, 0x21, 0xb0, 0x69, 0x41, 0xdd, 0x1f, 0x7f, 0x42, 0xa0, 0x4e, 0x70, 0x25, 0x1a,
-	0xa1, 0xca, 0x86, 0x70, 0xa8, 0xd4, 0xde, 0x42, 0x42, 0x84, 0x68, 0x25, 0xea, 0x1e, 0x2a, 0xf5,
-	0x62, 0x6d, 0xe2, 0xad, 0x63, 0xe1, 0x78, 0x8d, 0x77, 0x43, 0x41, 0x28, 0x3d, 0xf4, 0xd0, 0x73,
-	0xa5, 0x4a, 0xfd, 0x4c, 0x1c, 0x91, 0x7a, 0xe1, 0x84, 0xaa, 0x50, 0xf5, 0x73, 0x54, 0x7e, 0x5e,
-	0x07, 0x3b, 0x09, 0x94, 0x9b, 0xf7, 0xbd, 0x79, 0x33, 0xe3, 0xf5, 0xec, 0x1a, 0x6d, 0x09, 0xce,
-	0x8d, 0xeb, 0xa3, 0x2e, 0x15, 0xe4, 0xc8, 0xb8, 0x1a, 0xd2, 0xf0, 0x56, 0x0f, 0x42, 0x26, 0x18,
-	0x2e, 0x09, 0xce, 0x75, 0xd9, 0xa8, 0xac, 0x3b, 0xcc, 0x61, 0x50, 0x37, 0xa2, 0xa7, 0x18, 0x52,
-	0x39, 0xe8, 0x31, 0x3e, 0x60, 0xdc, 0xe8, 0x12, 0x4e, 0xe3, 0xd9, 0x09, 0x53, 0x40, 0x1c, 0xd7,
-	0x27, 0xc2, 0x65, 0xbe, 0xc4, 0xee, 0x3a, 0x8c, 0x39, 0x1e, 0x35, 0x48, 0xe0, 0x1a, 0xc4, 0xf7,
-	0x99, 0x80, 0x26, 0x97, 0xdd, 0x8d, 0xb4, 0x8b, 0x48, 0x18, 0xca, 0x9a, 0x8e, 0x3e, 0xf9, 0x2e,
-	0xa2, 0xed, 0x84, 0x6c, 0x18, 0x98, 0xf4, 0x6a, 0x48, 0xb9, 0xc0, 0xdb, 0x68, 0xd9, 0x89, 0xd6,
-	0x96, 0x6b, 0x97, 0x95, 0x9a, 0x52, 0x5f, 0x34, 0x8b, 0xb0, 0x3e, 0xb3, 0xb5, 0xc7, 0x3c, 0xc2,
-	0xe9, 0x01, 0x1e, 0x30, 0x9f, 0x53, 0xac, 0xa3, 0x02, 0x20, 0x00, 0x5e, 0x6a, 0x60, 0x3d, 0xf5,
-	0x6a, 0x3a, 0x40, 0x9b, 0x8b, 0xf7, 0x4f, 0xd5, 0x9c, 0x19, 0xc3, 0xb0, 0x81, 0x4a, 0xf6, 0xa5,
-	0x63, 0xf5, 0x98, 0x2f, 0xe8, 0x8d, 0x28, 0x2f, 0xd4, 0x94, 0xfa, 0x47, 0xcd, 0xd5, 0xf1, 0x53,
-	0x15, 0xb5, 0xce, 0x3b, 0x27, 0x71, 0xd5, 0x44, 0xf6, 0xa5, 0x23, 0x9f, 0xf1, 0x31, 0x2a, 0x0e,
-	0xe8, 0xa0, 0x4b, 0x43, 0x5e, 0xce, 0xd7, 0xf2, 0xf5, 0x52, 0xe3, 0x43, 0x46, 0xe2, 0x5b, 0xe8,
-	0x49, 0x8d, 0x04, 0x89, 0xdb, 0x68, 0x8d, 0x78, 0x9e, 0x15, 0xb2, 0xa1, 0x6f, 0x1f, 0x59, 0x36,
-	0x11, 0xa4, 0xbc, 0x08, 0xc3, 0x5b, 0x99, 0x61, 0x13, 0xfa, 0x2d, 0x22, 0x88, 0x24, 0xf8, 0x98,
-	0x78, 0xde, 0x4b, 0x31, 0x43, 0xd3, 0x88, 0x69, 0x0a, 0xaf, 0xd1, 0x34, 0xe6, 0xd1, 0x40, 0x11,
-	0x13, 0xb4, 0x1d, 0xd1, 0xf4, 0xd8, 0x20, 0xf0, 0x88, 0xeb, 0x73, 0xeb, 0x67, 0x57, 0xf4, 0x2d,
-	0x2e, 0x88, 0x18, 0xf2, 0xf2, 0x12, 0x10, 0xd6, 0x32, 0x84, 0x27, 0x09, 0xf2, 0x07, 0x57, 0xf4,
-	0xbf, 0x07, 0x9c, 0x64, 0xde, 0x24, 0x9e, 0x37, 0xa7, 0x8b, 0xbf, 0x46, 0xa5, 0x58, 0xc2, 0xff,
-	0xc9, 0x0d, 0x07, 0xe5, 0x22, 0x90, 0xae, 0x4f, 0x91, 0x42, 0x4f, 0x12, 0x21, 0x20, 0x82, 0x8a,
-	0x76, 0x88, 0x3e, 0xc0, 0x97, 0x8d, 0xf7, 0x92, 0xbf, 0x23, 0x0c, 0xe7, 0x68, 0x3d, 0x3b, 0x21,
-	0xd3, 0x90, 0xfa, 0x58, 0xca, 0x7b, 0x3f, 0x96, 0x76, 0x8e, 0x36, 0x80, 0xec, 0x8c, 0x77, 0x42,
-	0xe2, 0x0b, 0x4a, 0x13, 0x03, 0x65, 0x54, 0x74, 0xa0, 0x12, 0x82, 0xfe, 0x8a, 0x99, 0x2c, 0x5f,
-	0x3a, 0x14, 0x12, 0x34, 0xe9, 0x50, 0xed, 0x4b, 0xb4, 0x39, 0x4d, 0x26, 0xbd, 0x7d, 0x8a, 0x90,
-	0xcb, 0xad, 0x64, 0x2c, 0x22, 0x5c, 0x36, 0x57, 0xdc, 0x04, 0xa6, 0x85, 0x68, 0x15, 0x06, 0x5b,
-	0xed, 0x94, 0x3c, 0xb1, 0xed, 0x90, 0x72, 0x9e, 0xc8, 0xcb, 0x25, 0x3e, 0x45, 0xe8, 0xe5, 0x10,
-	0x82, 0x83, 0x52, 0x63, 0x5f, 0x8f, 0x4f, 0xac, 0x1e, 0x9d, 0x58, 0x3d, 0x3e, 0xed, 0xc9, 0x7b,
-	0x5f, 0x10, 0x27, 0x79, 0x29, 0x33, 0x35, 0xa9, 0xfd, 0xa9, 0xa0, 0xb5, 0x89, 0xa8, 0xb4, 0xf9,
-	0x15, 0x5a, 0xb6, 0xa9, 0x15, 0x10, 0x77, 0xb2, 0x87, 0x6b, 0x99, 0x3d, 0x6c, 0xb5, 0x9b, 0xab,
-	0xd1, 0xfe, 0x8d, 0x9f, 0xaa, 0x4b, 0xad, 0xf6, 0x37, 0x2e, 0x17, 0x66, 0xd1, 0xa6, 0x17, 0x11,
-	0x1e, 0x77, 0xe6, 0xf8, 0xfa, 0xfc, 0x7f, 0x7d, 0xc5, 0xc2, 0x69, 0x63, 0x8d, 0x7f, 0xf3, 0xa8,
-	0x00, 0xc6, 0x70, 0x80, 0x0a, 0x70, 0x8a, 0xb1, 0x9a, 0x71, 0x31, 0x73, 0x75, 0x54, 0xaa, 0xaf,
-	0xf6, 0x63, 0x7e, 0x6d, 0xff, 0xd7, 0xbf, 0xfe, 0xf9, 0x63, 0xa1, 0x86, 0x55, 0x23, 0x7d, 0x21,
-	0x41, 0xa2, 0xb8, 0x71, 0x97, 0x24, 0x6d, 0x84, 0x7f, 0x41, 0x45, 0x19, 0x2b, 0x5c, 0x9b, 0xe5,
-	0xcc, 0x66, 0xb4, 0xb2, 0xf7, 0x06, 0x42, 0xea, 0xea, 0xa0, 0x5b, 0xc7, 0xfb, 0x6f, 0xeb, 0x1a,
-	0xc9, 0xdd, 0xf1, 0x9b, 0x82, 0x56, 0x26, 0xe9, 0xc1, 0xda, 0xac, 0xc0, 0x74, 0x4e, 0x2b, 0x9f,
-	0xbd, 0x89, 0x91, 0x36, 0x0e, 0xc1, 0xc6, 0x01, 0xae, 0x4f, 0xd9, 0x00, 0x54, 0xe4, 0x03, 0x92,
-	0x3d, 0x4a, 0x9e, 0xe8, 0x08, 0x77, 0xd1, 0x42, 0xab, 0x8d, 0x77, 0x66, 0xc9, 0x27, 0x11, 0xad,
-	0xec, 0xce, 0x6f, 0x4a, 0xc9, 0x3d, 0x90, 0xdc, 0xc1, 0xdb, 0x19, 0x49, 0x9b, 0x1a, 0x77, 0x32,
-	0xc8, 0xa3, 0xe6, 0xe9, 0xfd, 0x58, 0x55, 0x1e, 0xc6, 0xaa, 0xf2, 0xf7, 0x58, 0x55, 0x7e, 0x7f,
-	0x56, 0x73, 0x0f, 0xcf, 0x6a, 0xee, 0xf1, 0x59, 0xcd, 0xfd, 0xf8, 0x85, 0xe3, 0x8a, 0xfe, 0xb0,
-	0xab, 0xf7, 0xd8, 0xc0, 0xe8, 0x12, 0xdf, 0x86, 0xbf, 0x46, 0x8f, 0x79, 0x46, 0xaf, 0x4f, 0x5c,
-	0xdf, 0xb8, 0x6e, 0x18, 0x37, 0x40, 0x2b, 0x6e, 0x03, 0xca, 0xbb, 0x4b, 0xd0, 0x3e, 0xfe, 0x2f,
-	0x00, 0x00, 0xff, 0xff, 0xdd, 0xf6, 0x53, 0x3e, 0xf3, 0x06, 0x00, 0x00,
+	// 909 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x56, 0x4d, 0x6f, 0xdb, 0x46,
+	0x10, 0x35, 0x65, 0x2b, 0xb2, 0x47, 0x8e, 0x8d, 0x6e, 0x9c, 0x44, 0x56, 0x52, 0x59, 0x61, 0x1b,
+	0x55, 0x08, 0x02, 0xd2, 0x56, 0x0a, 0xf4, 0xd0, 0x43, 0x01, 0x47, 0xb6, 0x11, 0x18, 0x05, 0x5c,
+	0xe5, 0x50, 0xa0, 0x28, 0x40, 0xac, 0xc4, 0x2d, 0xbd, 0x08, 0xc5, 0xa5, 0xb9, 0xab, 0x34, 0x81,
+	0xa1, 0x1e, 0x7a, 0xe8, 0xa5, 0x3d, 0x14, 0xe8, 0x9f, 0xca, 0x31, 0x40, 0x2f, 0x39, 0x05, 0x85,
+	0x5d, 0xa0, 0x7f, 0xa3, 0xe0, 0x70, 0x49, 0x93, 0x12, 0xfd, 0x71, 0xe3, 0xce, 0xbc, 0x79, 0xef,
+	0xed, 0xee, 0xcc, 0x82, 0x70, 0x5f, 0x49, 0x69, 0xbf, 0xde, 0x19, 0x32, 0x45, 0x77, 0xec, 0x93,
+	0x09, 0x8b, 0xde, 0x5a, 0x61, 0x24, 0x94, 0x20, 0x75, 0x25, 0xa5, 0xa5, 0x13, 0xcd, 0x0d, 0x4f,
+	0x78, 0x02, 0xe3, 0x76, 0xfc, 0x95, 0x40, 0x9a, 0x4f, 0x46, 0x42, 0x8e, 0x85, 0xb4, 0x87, 0x54,
+	0xb2, 0xa4, 0x36, 0x63, 0x0a, 0xa9, 0xc7, 0x03, 0xaa, 0xb8, 0x08, 0x34, 0xf6, 0xa1, 0x27, 0x84,
+	0xe7, 0x33, 0x9b, 0x86, 0xdc, 0xa6, 0x41, 0x20, 0x14, 0x26, 0xa5, 0xce, 0xde, 0xcd, 0xbb, 0x88,
+	0x85, 0x31, 0x6c, 0x5a, 0xf0, 0xc9, 0x77, 0x31, 0xed, 0x41, 0x24, 0x26, 0xe1, 0x80, 0x9d, 0x4c,
+	0x98, 0x54, 0x64, 0x13, 0x96, 0xbd, 0x78, 0xed, 0x70, 0xb7, 0x61, 0xb4, 0x8d, 0xee, 0xd2, 0xa0,
+	0x86, 0xeb, 0x17, 0xae, 0xf9, 0x61, 0x11, 0x48, 0xbe, 0x40, 0x86, 0x22, 0x90, 0x8c, 0x58, 0x50,
+	0x45, 0x04, 0xc2, 0xeb, 0x3d, 0x62, 0xe5, 0xb6, 0x66, 0x21, 0x74, 0x77, 0xe9, 0xdd, 0xc7, 0xad,
+	0x85, 0x41, 0x02, 0x23, 0x36, 0xd4, 0xdd, 0x57, 0x9e, 0x33, 0x12, 0x81, 0x62, 0x6f, 0x54, 0xa3,
+	0xd2, 0x36, 0xba, 0xab, 0xbb, 0x6b, 0x67, 0x1f, 0xb7, 0xa0, 0x7f, 0x78, 0xf0, 0x3c, 0x89, 0x0e,
+	0xc0, 0x7d, 0xe5, 0xe9, 0x6f, 0xf2, 0x0c, 0x6a, 0x63, 0x36, 0x1e, 0xb2, 0x48, 0x36, 0x16, 0xdb,
+	0x8b, 0xdd, 0x7a, 0xef, 0x4e, 0x41, 0xe2, 0x5b, 0xcc, 0x69, 0x8d, 0x14, 0x49, 0xf6, 0x60, 0x9d,
+	0xfa, 0xbe, 0x13, 0x89, 0x49, 0xe0, 0xee, 0x38, 0x2e, 0x55, 0xb4, 0xb1, 0x84, 0xc5, 0xf7, 0x0b,
+	0xc5, 0x03, 0xcc, 0xf7, 0xa9, 0xa2, 0x9a, 0xe0, 0x36, 0xf5, 0xfd, 0x8b, 0x60, 0x81, 0xa6, 0x97,
+	0xd0, 0x54, 0x2f, 0xa3, 0xe9, 0x95, 0xd1, 0x60, 0x90, 0x50, 0xd8, 0x8c, 0x69, 0x46, 0x62, 0x1c,
+	0xfa, 0x94, 0x07, 0xd2, 0xf9, 0x99, 0xab, 0x63, 0x47, 0x2a, 0xaa, 0x26, 0xb2, 0x71, 0x0b, 0x09,
+	0xdb, 0x05, 0xc2, 0xe7, 0x29, 0xf2, 0x7b, 0xae, 0x8e, 0x5f, 0x22, 0x4e, 0x33, 0xdf, 0xa3, 0xbe,
+	0x5f, 0x92, 0x25, 0x5f, 0x43, 0x3d, 0x91, 0x08, 0x7e, 0xe2, 0xd1, 0xb8, 0x51, 0x43, 0xd2, 0x8d,
+	0x19, 0x52, 0xcc, 0x69, 0x22, 0x40, 0x22, 0x8c, 0x98, 0xdb, 0x70, 0x07, 0x6f, 0x36, 0x39, 0x4b,
+	0x79, 0x83, 0x66, 0x38, 0x84, 0x8d, 0x62, 0x85, 0xee, 0x86, 0xdc, 0x65, 0x19, 0x37, 0xbd, 0x2c,
+	0xf3, 0x10, 0xee, 0x22, 0xd9, 0x0b, 0x79, 0x10, 0xd1, 0x40, 0x31, 0x96, 0x1a, 0x68, 0x40, 0xcd,
+	0xc3, 0x48, 0x84, 0xfa, 0x2b, 0x83, 0x74, 0x79, 0x91, 0x61, 0xd8, 0x41, 0x59, 0x86, 0x99, 0x5f,
+	0xc1, 0xbd, 0x59, 0x32, 0xed, 0xed, 0x53, 0x00, 0x2e, 0x9d, 0xb4, 0x2c, 0x26, 0x5c, 0x1e, 0xac,
+	0xf0, 0x14, 0x66, 0x46, 0xb0, 0x86, 0x85, 0xfd, 0xbd, 0x9c, 0x3c, 0x75, 0xdd, 0x88, 0x49, 0x99,
+	0xca, 0xeb, 0x25, 0xd9, 0x07, 0xb8, 0x18, 0x42, 0x74, 0x50, 0xef, 0x75, 0xac, 0x64, 0x62, 0xad,
+	0x78, 0x62, 0xad, 0x64, 0xda, 0xd3, 0x7d, 0x1f, 0x51, 0x2f, 0xdd, 0xd4, 0x20, 0x57, 0x69, 0xfe,
+	0x61, 0xc0, 0x7a, 0x26, 0xaa, 0x6d, 0x6e, 0xc3, 0xb2, 0xcb, 0x9c, 0x90, 0xf2, 0xec, 0x0c, 0xd7,
+	0x0b, 0x67, 0xd8, 0xdf, 0x4b, 0xcf, 0xcf, 0x65, 0x47, 0x31, 0x8a, 0x1c, 0x94, 0xb8, 0xf9, 0xe2,
+	0x5a, 0x37, 0x89, 0x5c, 0xc1, 0xce, 0x97, 0xd0, 0x40, 0x37, 0x47, 0x2c, 0x70, 0x79, 0xe0, 0xbd,
+	0xe4, 0x5e, 0x20, 0xaf, 0x3d, 0x0c, 0xf3, 0x47, 0xd8, 0x2c, 0xa9, 0xd2, 0xbb, 0xf9, 0x06, 0x6e,
+	0x87, 0x49, 0xdc, 0x91, 0x71, 0x42, 0x6f, 0xa9, 0xd8, 0x99, 0x71, 0x09, 0x0f, 0x3c, 0xbd, 0xaf,
+	0xd5, 0x30, 0x47, 0x64, 0x3e, 0xd6, 0xbd, 0xa9, 0x31, 0xa9, 0x9d, 0x35, 0xa8, 0x64, 0x5d, 0x59,
+	0xe1, 0xae, 0xb9, 0xaf, 0x1b, 0x32, 0x83, 0x65, 0xcf, 0x53, 0x4d, 0x26, 0x21, 0xfd, 0x40, 0x95,
+	0x2a, 0x0f, 0x52, 0x50, 0xef, 0xbf, 0x2a, 0x54, 0x91, 0x88, 0x84, 0x50, 0xc5, 0xe7, 0x8b, 0xb4,
+	0x0a, 0x15, 0x73, 0x6f, 0x66, 0x73, 0xeb, 0xd2, 0x7c, 0xe2, 0xc1, 0xec, 0xfc, 0xfa, 0xf7, 0xbf,
+	0x7f, 0x55, 0xda, 0xa4, 0x65, 0xe7, 0x5f, 0x62, 0x1c, 0x25, 0x69, 0x9f, 0xa6, 0x23, 0x36, 0x25,
+	0xbf, 0x40, 0x4d, 0xcf, 0x13, 0x69, 0xcf, 0x73, 0x16, 0x87, 0xb3, 0xf9, 0xe8, 0x0a, 0x84, 0xd6,
+	0xb5, 0x50, 0xb7, 0x4b, 0x3a, 0x57, 0xeb, 0xda, 0xe9, 0xa3, 0xf9, 0x9b, 0x01, 0x2b, 0xd9, 0xd8,
+	0x10, 0x73, 0x5e, 0x60, 0x76, 0x40, 0x9b, 0x9f, 0x5d, 0x89, 0xd1, 0x36, 0xb6, 0xd1, 0xc6, 0x13,
+	0xd2, 0x9d, 0xb1, 0x81, 0xa8, 0xd8, 0x07, 0x8e, 0xf4, 0x34, 0xfd, 0x62, 0x53, 0x32, 0x84, 0x4a,
+	0x7f, 0x8f, 0x3c, 0x98, 0x27, 0xcf, 0x66, 0xb3, 0xf9, 0xb0, 0x3c, 0xa9, 0x25, 0x1f, 0xa1, 0xe4,
+	0x03, 0xb2, 0x59, 0x90, 0x74, 0x99, 0x7d, 0xaa, 0x9b, 0x76, 0x4a, 0x7e, 0x37, 0x60, 0x35, 0xdf,
+	0xb1, 0xe4, 0xf1, 0x3c, 0x63, 0xc9, 0x1c, 0x34, 0x3b, 0xd7, 0xc1, 0xb4, 0x85, 0xa7, 0x68, 0xa1,
+	0x43, 0x3e, 0x2f, 0x58, 0x28, 0xcc, 0x42, 0xce, 0xcd, 0x09, 0xd4, 0x74, 0x2b, 0x96, 0x5d, 0x7d,
+	0xb1, 0xf7, 0xcb, 0xae, 0x7e, 0xa6, 0xed, 0x2f, 0x39, 0x00, 0xdd, 0xe4, 0xf6, 0x29, 0x77, 0xa7,
+	0xbb, 0xfb, 0xef, 0xce, 0x5a, 0xc6, 0xfb, 0xb3, 0x96, 0xf1, 0xcf, 0x59, 0xcb, 0xf8, 0xf3, 0xbc,
+	0xb5, 0xf0, 0xfe, 0xbc, 0xb5, 0xf0, 0xe1, 0xbc, 0xb5, 0xf0, 0xc3, 0x53, 0x8f, 0xab, 0xe3, 0xc9,
+	0xd0, 0x1a, 0x89, 0xb1, 0x3d, 0xa4, 0x81, 0x8b, 0xff, 0x0b, 0x23, 0xe1, 0xdb, 0xa3, 0x63, 0xca,
+	0x03, 0xfb, 0x75, 0xcf, 0x7e, 0x83, 0xb4, 0xea, 0x6d, 0xc8, 0xe4, 0xf0, 0x16, 0xa6, 0x9f, 0xfd,
+	0x1f, 0x00, 0x00, 0xff, 0xff, 0x69, 0x44, 0x86, 0xa8, 0xed, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -553,6 +741,10 @@ type QueryClient interface {
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 	// DE queries all de for this address.
 	DE(ctx context.Context, in *QueryDERequest, opts ...grpc.CallOption) (*QueryDEResponse, error)
+	// PendingSigns queries all pending signs for this address.
+	PendingSigns(ctx context.Context, in *QueryPendingSignsRequest, opts ...grpc.CallOption) (*QueryPendingSignsResponse, error)
+	// Signing queries signing details.
+	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
 }
 
 type queryClient struct {
@@ -599,6 +791,24 @@ func (c *queryClient) DE(ctx context.Context, in *QueryDERequest, opts ...grpc.C
 	return out, nil
 }
 
+func (c *queryClient) PendingSigns(ctx context.Context, in *QueryPendingSignsRequest, opts ...grpc.CallOption) (*QueryPendingSignsResponse, error) {
+	out := new(QueryPendingSignsResponse)
+	err := c.cc.Invoke(ctx, "/tss.v1beta1.Query/PendingSigns", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error) {
+	out := new(QuerySigningResponse)
+	err := c.cc.Invoke(ctx, "/tss.v1beta1.Query/Signing", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Group queries group details
@@ -609,6 +819,10 @@ type QueryServer interface {
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 	// DE queries all de for this address.
 	DE(context.Context, *QueryDERequest) (*QueryDEResponse, error)
+	// PendingSigns queries all pending signs for this address.
+	PendingSigns(context.Context, *QueryPendingSignsRequest) (*QueryPendingSignsResponse, error)
+	// Signing queries signing details.
+	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -626,6 +840,12 @@ func (*UnimplementedQueryServer) IsGrantee(ctx context.Context, req *QueryIsGran
 }
 func (*UnimplementedQueryServer) DE(ctx context.Context, req *QueryDERequest) (*QueryDEResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DE not implemented")
+}
+func (*UnimplementedQueryServer) PendingSigns(ctx context.Context, req *QueryPendingSignsRequest) (*QueryPendingSignsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PendingSigns not implemented")
+}
+func (*UnimplementedQueryServer) Signing(ctx context.Context, req *QuerySigningRequest) (*QuerySigningResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Signing not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -704,6 +924,42 @@ func _Query_DE_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_PendingSigns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPendingSignsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).PendingSigns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tss.v1beta1.Query/PendingSigns",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).PendingSigns(ctx, req.(*QueryPendingSignsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuerySigningRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Signing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tss.v1beta1.Query/Signing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Signing(ctx, req.(*QuerySigningRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "tss.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -723,6 +979,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DE",
 			Handler:    _Query_DE_Handler,
+		},
+		{
+			MethodName: "PendingSigns",
+			Handler:    _Query_PendingSigns_Handler,
+		},
+		{
+			MethodName: "Signing",
+			Handler:    _Query_Signing_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1076,10 +1340,10 @@ func (m *QueryDEResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.DEList) > 0 {
-		for iNdEx := len(m.DEList) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.DePairs) > 0 {
+		for iNdEx := len(m.DePairs) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.DEList[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.DePairs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1089,6 +1353,136 @@ func (m *QueryDEResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i--
 			dAtA[i] = 0xa
 		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPendingSignsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPendingSignsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPendingSignsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPendingSignsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPendingSignsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPendingSignsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.PendingSigns) > 0 {
+		for iNdEx := len(m.PendingSigns) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PendingSigns[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QuerySigningRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QuerySigningRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QuerySigningRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Id != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QuerySigningResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QuerySigningResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QuerySigningResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Signing != nil {
+		{
+			size, err := m.Signing.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -1240,14 +1634,67 @@ func (m *QueryDEResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.DEList) > 0 {
-		for _, e := range m.DEList {
+	if len(m.DePairs) > 0 {
+		for _, e := range m.DePairs {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
 	}
 	if m.Pagination != nil {
 		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryPendingSignsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryPendingSignsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.PendingSigns) > 0 {
+		for _, e := range m.PendingSigns {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QuerySigningRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Id != 0 {
+		n += 1 + sovQuery(uint64(m.Id))
+	}
+	return n
+}
+
+func (m *QuerySigningResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Signing != nil {
+		l = m.Signing.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
@@ -2101,7 +2548,7 @@ func (m *QueryDEResponse) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DEList", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field DePairs", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2128,8 +2575,8 @@ func (m *QueryDEResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.DEList = append(m.DEList, DE{})
-			if err := m.DEList[len(m.DEList)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.DePairs = append(m.DePairs, DE{})
+			if err := m.DePairs[len(m.DePairs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2166,6 +2613,327 @@ func (m *QueryDEResponse) Unmarshal(dAtA []byte) error {
 				m.Pagination = &query.PageResponse{}
 			}
 			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPendingSignsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPendingSignsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPendingSignsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPendingSignsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPendingSignsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPendingSignsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PendingSigns", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PendingSigns = append(m.PendingSigns, Signing{})
+			if err := m.PendingSigns[len(m.PendingSigns)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QuerySigningRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QuerySigningRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QuerySigningRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QuerySigningResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QuerySigningResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signing", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Signing == nil {
+				m.Signing = &Signing{}
+			}
+			if err := m.Signing.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
