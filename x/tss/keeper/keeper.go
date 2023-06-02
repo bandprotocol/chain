@@ -220,6 +220,46 @@ func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.R
 	return allRound1Data
 }
 
+// GetAccumulatedCommitIterator function gets an iterator over all accumulated commits of a group.
+func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitStoreKey(groupID))
+}
+
+// SetAccumulatedCommit function sets accumulated commit for a index of a group.
+func (k Keeper) SetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64, commit tss.Point) {
+	ctx.KVStore(k.storeKey).Set(types.AccumulatedCommitIndexStoreKey(groupID, index), commit)
+}
+
+// GetAccumulatedCommit function retrieves accummulated commit of a index of the group from the store.
+func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) tss.Point {
+	return ctx.KVStore(k.storeKey).Get(types.AccumulatedCommitIndexStoreKey(groupID, index))
+}
+
+// DeleteAccumulatedCommit removes a accumulated commit of a index of the group from the store.
+func (k Keeper) DeleteAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.AccumulatedCommitIndexStoreKey(groupID, index))
+}
+
+// SetRound1Data function sets round1 data for a member of a group.
+func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Points) error {
+	// Add count
+	for i, commit := range commits {
+		points := []tss.Point{commit}
+
+		accCommit := k.GetAccumulatedCommit(ctx, groupID, uint64(i))
+		if accCommit != nil {
+			points = append(points, accCommit)
+		}
+
+		total, err := tss.SumPoints(points...)
+		if err != nil {
+			return err
+		}
+		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
+	}
+
+	return nil
+}
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
