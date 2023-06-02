@@ -81,7 +81,7 @@ func AccumulatedCommitStoreKey(groupID tss.GroupID) []byte {
 }
 
 func AccumulatedCommitIndexStoreKey(groupID tss.GroupID, index uint64) []byte {
-	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(index))...)
+	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(index)...)
 }
 
 func Round2DataStoreKey(groupID tss.GroupID) []byte {
