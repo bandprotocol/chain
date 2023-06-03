@@ -166,27 +166,27 @@ func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
 	return append(DEQueueStoreKeyPrefix, address...)
 }
 
-func SigningStoreKey(signingID uint64) []byte {
-	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+func SigningStoreKey(signingID tss.SigningID) []byte {
+	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
 func PendingSignsStorKey(address sdk.AccAddress) []byte {
 	return append(PendingSignsStorKeyPrefix, address...)
 }
 
-func PendingSignStorKey(address sdk.AccAddress, id uint64) []byte {
-	return append(PendingSignsStorKey(address), sdk.Uint64ToBigEndian(id)...)
+func PendingSignStorKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
+	return append(PendingSignsStorKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func ZCountStoreKey(signingID uint64) []byte {
-	return append(ZCountStoreKeyKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+func ZCountStoreKey(signingID tss.SigningID) []byte {
+	return append(ZCountStoreKeyKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialZStoreKey(signingID uint64) []byte {
-	return append(PartialZStoreKeyPrefix, sdk.Uint64ToBigEndian(signingID)...)
+func PartialZStoreKey(signingID tss.SigningID) []byte {
+	return append(PartialZStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialZIndexStoreKey(signingID uint64, memberID tss.MemberID) []byte {
+func PartialZIndexStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
 	return append(PartialZStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 

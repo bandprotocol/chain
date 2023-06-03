@@ -17,6 +17,17 @@ func (suite *TSSTestSuite) TestComputeLagrangeCoefficient() {
 	suite.Require().Equal(expValue, value)
 }
 
+func (suite *TSSTestSuite) TestComputeBytes() {
+	bytes, err := tss.ComputeBytes(
+		[]tss.MemberID{suite.member1.mid, suite.member2.mid},
+		tss.PublicKeys{suite.member1.d.PublicKey, suite.member2.d.PublicKey},
+		tss.PublicKeys{suite.member1.e.PublicKey, suite.member2.e.PublicKey},
+	)
+	suite.Require().NoError(err)
+	suite.Require().
+		Equal("000000000000000103cd12d8f9abd0537d125fc6c998567bfd223cbdeb5ba66443f59731ff1a008aa203741dc9ba6f4876636424e02ab325dea615e262cc9b0e14404a1857b762cceba2000000000000000202234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797", hex.EncodeToString(bytes))
+}
+
 func (suite *TSSTestSuite) TestComputeOwnLo() {
 	lo := tss.ComputeOwnLo(suite.member1.mid, suite.data, suite.bytes)
 	suite.Require().Equal(suite.lo, lo)
