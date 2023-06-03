@@ -562,55 +562,8 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
-	// compute bytes
-	var bytes []byte
-	for i, m := range members {
-		accMember, err := sdk.AccAddressFromBech32(m.Member)
-		if err != nil {
-			return nil, err
-		}
-		deQueue := k.GetDEQueue(ctx, accMember)
-		de, err := k.GetDE(ctx, accMember, deQueue.Head)
-		if err != nil {
-			return nil, err
-		}
-
-		bytes = append(bytes, sdk.Uint64ToBigEndian(uint64(i+1))...)
-		bytes = append(bytes, de.PubD...)
-		bytes = append(bytes, de.PubE...)
-	}
-
-	var los tss.Scalars
-	var ownPubNonces tss.PublicKeys
-	for i, m := range members {
-		accMember, err := sdk.AccAddressFromBech32(m.Member)
-		if err != nil {
-			return nil, err
-		}
-		de, err := k.PollDEPairs(ctx, accMember)
-		if err != nil {
-			return nil, err
-		}
-
-		// compute own lo
-		lo := tss.ComputeOwnLo(tss.MemberID(i+1), req.Message, bytes)
-		los = append(los, lo)
-
-		// compute own public nonce
-		opn, err := tss.ComputeOwnPublicNonce(de.PubD, de.PubE, lo)
-		if err != nil {
-			return nil, err
-		}
-		ownPubNonces = append(ownPubNonces, opn)
-	}
-
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
-	if err != nil {
-		return nil, err
-	}
-
 	// random assigning participants
-	assignedParticipants, err := k.GetRandomAssigningParticipants(
+	mids, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
 		group.Size_,
@@ -620,22 +573,77 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
+	// get public D and E for each asssigned members
+	var assignedMembers []types.AssignedMember
+	var pubDs, pubEs tss.PublicKeys
+	for _, mid := range mids {
+		member := members[mid-1]
+		accMember, err := sdk.AccAddressFromBech32(member.Member)
+		if err != nil {
+			return nil, err
+		}
+
+		de, err := k.PollDEPairs(ctx, accMember)
+		if err != nil {
+			return nil, err
+		}
+
+		pubDs = append(pubDs, de.PubD)
+		pubEs = append(pubEs, de.PubE)
+
+		assignedMembers = append(assignedMembers, types.AssignedMember{
+			MemberID:    mid,
+			Member:      member.Member,
+			PublicD:     de.PubD,
+			PublicE:     de.PubE,
+			PublicNonce: nil,
+		})
+	}
+
+	// compute bytes from mids, public D and public E
+	var bytes []byte
+	bytes, err = tss.ComputeBytes(mids, pubDs, pubEs)
+	if err != nil {
+		return nil, err
+	}
+
+	// compute lo and public nonce of each assigned member
+	var los tss.Scalars
+	var ownPubNonces tss.PublicKeys
+	for i, member := range assignedMembers {
+		// compute own lo
+		lo := tss.ComputeOwnLo(member.MemberID, req.Message, bytes)
+		los = append(los, lo)
+
+		// compute own public nonce
+		opn, err := tss.ComputeOwnPublicNonce(member.PublicD, member.PublicE, lo)
+		if err != nil {
+			return nil, err
+		}
+		ownPubNonces = append(ownPubNonces, opn)
+		assignedMembers[i].PublicNonce = opn
+	}
+
+	// comptue group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
+	if err != nil {
+		return nil, err
+	}
+
 	signing := types.Signing{
-		GroupID:              req.GroupID,
-		AssignedParticipants: assignedParticipants,
-		Message:              req.Message,
-		GroupPubNonce:        groupPubNonce,
-		Bytes:                bytes,
-		Los:                  los,
-		OwnPubNonces:         ownPubNonces,
-		Sig:                  nil,
+		GroupID:         req.GroupID,
+		Message:         req.Message,
+		GroupPubNonce:   groupPubNonce,
+		Bytes:           bytes,
+		AssignedMembers: assignedMembers,
+		Sig:             nil,
 	}
 
 	// set signing
 	signingID := k.SetSigning(ctx, signing)
 
-	for _, p := range assignedParticipants {
-		accMember, err := sdk.AccAddressFromBech32(members[p-1].Member)
+	for _, mid := range mids {
+		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Member)
 		if err != nil {
 			return nil, err
 		}
@@ -647,12 +655,18 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		types.EventTypeRequestSign,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-		sdk.NewAttribute(types.AttributeKeyAssignedParticipants, fmt.Sprintf("%v", assignedParticipants)),
+		sdk.NewAttribute(types.AttributeMessage, hex.EncodeToString(req.Message)),
 		sdk.NewAttribute(types.AttributeBytes, hex.EncodeToString(bytes)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
 	)
-	for _, opn := range ownPubNonces {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(opn)))
+	for _, member := range assignedMembers {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PublicNonce)),
+			sdk.NewAttribute(types.AttributeKeyPublicD, hex.EncodeToString(member.PublicD)),
+			sdk.NewAttribute(types.AttributeKeyPublicE, hex.EncodeToString(member.PublicE)),
+		)
 	}
 	ctx.EventManager().EmitEvent(event)
 
@@ -684,8 +698,10 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 	// check sender not in assigned participants
 	var found bool
-	for _, ap := range signing.AssignedParticipants {
-		if ap == req.MemberID {
+	var mids []tss.MemberID
+	for _, am := range signing.AssignedMembers {
+		mids = append(mids, am.MemberID)
+		if am.MemberID == req.MemberID {
 			found = true
 		}
 	}
@@ -693,7 +709,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, fmt.Errorf("member ID: %d is not in assigned participants", req.MemberID)
 	}
 
-	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedParticipants)
+	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
 
 	// proof z_i
 	err = tss.VerifySigningSig(
@@ -723,6 +739,9 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		if err != nil {
 			return nil, err
 		}
+
+		signing.Sig = sig
+		k.UpdateSigning(ctx, req.SigningID, signing)
 
 		// emit sign success event
 		ctx.EventManager().EmitEvent(
