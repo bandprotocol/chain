@@ -15,6 +15,9 @@ type GroupID uint64
 // MemberID represents the ID of a member.
 type MemberID uint64
 
+// SigningID represents the ID of a signing.
+type SigningID uint64
+
 // Scalar represents a scalar value stored as bytes.
 // It uses secp256k1.ModNScalar as a base implementation for serialization and parsing.
 type Scalar []byte

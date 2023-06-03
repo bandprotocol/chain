@@ -694,19 +694,24 @@ func (k Keeper) GetSigningCount(ctx sdk.Context) uint64 {
 }
 
 // GetNextSigningID function increments the signing count and returns the current number of signing.
-func (k Keeper) GetNextSigningID(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
 	signingNumber := k.GetSigningCount(ctx)
 	k.SetSigningCount(ctx, signingNumber+1)
-	return (signingNumber + 1)
+	return tss.SigningID(signingNumber + 1)
 }
 
-func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) uint64 {
+func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
 	signingID := k.GetNextSigningID(ctx)
+	signing.SigningID = signingID
 	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
 	return signingID
 }
 
-func (k Keeper) GetSigning(ctx sdk.Context, signingID uint64) (types.Signing, error) {
+func (k Keeper) UpdateSigning(ctx sdk.Context, signingID tss.SigningID, signing types.Signing) {
+	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
+}
+
+func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(signingID))
 	if bz == nil {
 		return types.Signing{}, sdkerrors.Wrapf(
@@ -720,12 +725,12 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID uint64) (types.Signing, er
 	return signing, nil
 }
 
-func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) {
+func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
 	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: true})
 	ctx.KVStore(k.storeKey).Set(types.PendingSignStorKey(address, signingID), bz)
 }
 
-func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) bool {
+func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) bool {
 	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStorKey(address, signingID))
 	var have gogotypes.BoolValue
 	if bz == nil {
@@ -736,7 +741,7 @@ func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingI
 	return have.Value
 }
 
-func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID uint64) {
+func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.PendingSignStorKey(address, signingID))
 }
 
@@ -762,33 +767,33 @@ func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uin
 }
 
 // SetZCount sets the count of sign data for a group in the store.
-func (k Keeper) SetZCount(ctx sdk.Context, signingID uint64, count uint64) {
+func (k Keeper) SetZCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ZCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
 }
 
 // GetZCount retrieves the count of sign data for a group from the store.
-func (k Keeper) GetZCount(ctx sdk.Context, signingID uint64) uint64 {
+func (k Keeper) GetZCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.ZCountStoreKey(signingID))
 	return sdk.BigEndianToUint64(bz)
 }
 
 // AddZCount increments the count of z count data for a signing data in the store.
-func (k Keeper) AddZCount(ctx sdk.Context, signingID uint64) {
+func (k Keeper) AddZCount(ctx sdk.Context, signingID tss.SigningID) {
 	count := k.GetZCount(ctx, signingID)
 	k.SetZCount(ctx, signingID, count+1)
 }
 
 // DeleteZCount remove the round z count data of a signing from the store.
-func (k Keeper) DeleteZCount(ctx sdk.Context, signingID uint64) {
+func (k Keeper) DeleteZCount(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.ZCountStoreKey(signingID))
 }
 
-func (k Keeper) SetPartialZ(ctx sdk.Context, signingID uint64, memberID tss.MemberID, zi tss.Signature) {
+func (k Keeper) SetPartialZ(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, zi tss.Signature) {
 	k.AddZCount(ctx, signingID)
 	ctx.KVStore(k.storeKey).Set(types.PartialZIndexStoreKey(signingID, memberID), zi)
 }
 
-func (k Keeper) GetPartialZ(ctx sdk.Context, signingID uint64, memberID tss.MemberID) (tss.Signature, error) {
+func (k Keeper) GetPartialZ(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialZIndexStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, sdkerrors.Wrapf(
@@ -802,11 +807,11 @@ func (k Keeper) GetPartialZ(ctx sdk.Context, signingID uint64, memberID tss.Memb
 }
 
 // GetPartialZIterator function gets an iterator over all partial z of the signing.
-func (k Keeper) GetPartialZIterator(ctx sdk.Context, signingID uint64) sdk.Iterator {
+func (k Keeper) GetPartialZIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialZStoreKey(signingID))
 }
 
-func (k Keeper) GetPartialZs(ctx sdk.Context, signingID uint64) tss.Signatures {
+func (k Keeper) GetPartialZs(ctx sdk.Context, signingID tss.SigningID) tss.Signatures {
 	var pzs tss.Signatures
 	iterator := k.GetPartialZIterator(ctx, signingID)
 	defer iterator.Close()

@@ -130,7 +130,10 @@ message MsgRequestSign {
 message MsgRequestSignResponse {}
   
 message MsgSign {
-  uint64 signing_id = 1 [(gogoproto.customname) = "SigningID"];
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
   uint64 member_id = 2 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"

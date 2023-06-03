@@ -59,30 +59,43 @@ message DEQueue {
 }
 
 message Signing {
-  uint64 group_id = 1 [
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  uint64 group_id = 2 [
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  repeated uint64 assigned_participants = 2[
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
-  ];
-  bytes message = 3;
-  bytes groupPubNonce = 4 [
+  repeated AssignedMember assigned_members = 3 [ (gogoproto.nullable) = false ];
+  bytes message = 4;
+  bytes groupPubNonce = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes bytes = 5;
-  repeated bytes los = 6 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalar"
-  ];
-  repeated bytes ownPubNonces = 7 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
-  ];
-  bytes sig = 8 [
+  bytes bytes = 6;
+  bytes sig = 7 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }
 
-message PendingSings {
+message AssignedMember {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ]; 
+  string member = 2;
+  bytes public_d = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes public_e = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes public_nonce = 5 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+}
+
+message PendingSigns {
   repeated uint64 signing_ids = 1;
 }
 
