@@ -146,6 +146,21 @@ func (c *Client) QueryDE(address string) (*DEResponse, error) {
 	return NewDEResponse(der), nil
 }
 
+// QueryPendingSignings queries the all pending signings with the given address.
+// It returns the QueryPendingSignsResponse or an error.
+func (c *Client) QueryPendingSignings(address string) (*types.QueryPendingSignsResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	res, err := queryClient.PendingSigns(context.Background(), &types.QueryPendingSignsRequest{
+		Address: address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
 func (c *Client) BroadcastAndConfirm(

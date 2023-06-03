@@ -50,7 +50,7 @@ func (s *Signing) subscribe() error {
 		"signing",
 		fmt.Sprintf(
 			"tm.event = 'Tx' AND %s.%s = '%s'",
-			types.EventTypeCreateGroup,
+			types.EventTypeRequestSign,
 			types.AttributeKeyMember,
 			s.context.Config.Granter,
 		),
@@ -69,7 +69,7 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log)
+		event, err := ParseEvent(log, s.context.Config.Granter)
 		if err != nil {
 			s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err.Error())
 			return
@@ -88,10 +88,43 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 }
 
 // handleGroup processes an incoming group.
-// TODO-CYLINDER: use the real value
+func (s *Signing) handlePendingSignings() {
+	res, err := s.client.QueryPendingSignings(s.context.Config.Granter)
+	if err != nil {
+		s.logger.Error(":cold_sweat: Failed to get pending signigns: %s", err.Error())
+		return
+	}
+
+	for _, signing := range res.PendingSigns {
+
+		var mids []tss.MemberID
+		var pubDE types.DE
+		for _, member := range signing.AssignedMembers {
+			mids = append(mids, member.MemberID)
+			if member.Member == s.context.Config.Granter {
+				pubDE = types.DE{
+					PubD: member.PublicD,
+					PubE: member.PublicE,
+				}
+			}
+		}
+
+		go s.handleSigning(
+			signing.GroupID,
+			signing.SigningID,
+			mids,
+			signing.Message,
+			signing.Bytes,
+			signing.GroupPubNonce,
+			pubDE,
+		)
+	}
+}
+
+// handleGroup processes an incoming group.
 func (s *Signing) handleSigning(
 	gid tss.GroupID,
-	sid tss.GroupID,
+	sid tss.SigningID,
 	mids []tss.MemberID,
 	data []byte,
 	bytes []byte,
@@ -138,11 +171,11 @@ func (s *Signing) handleSigning(
 	}
 
 	// Send MsgSigning
-	// TODO-CYLINDER: use the correct message
-	s.context.MsgCh <- &types.MsgConfirm{
-		MemberID:     group.MemberID,
-		OwnPubKeySig: sig,
-		Member:       s.context.Config.Granter,
+	s.context.MsgCh <- &types.MsgSign{
+		SigningID: sid,
+		MemberID:  group.MemberID,
+		Zi:        sig,
+		Member:    s.context.Config.Granter,
 	}
 }
 
@@ -156,6 +189,8 @@ func (s *Signing) Start() {
 		s.context.ErrCh <- err
 		return
 	}
+
+	s.handlePendingSignings()
 
 	for ev := range s.eventCh {
 		go s.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
