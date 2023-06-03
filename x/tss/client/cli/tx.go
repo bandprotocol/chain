@@ -40,6 +40,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgComplainCmd())
 	txCmd.AddCommand(MsgConfirmCmd())
 	txCmd.AddCommand(MsgSubmitDEPairsCmd())
+	txCmd.AddCommand(MsgRequestSignCmd())
 
 	return txCmd
 }
@@ -469,6 +470,51 @@ func MsgSubmitDEPairsCmd() *cobra.Command {
 				DEPairs: dePairs,
 				Member:  clientCtx.GetFromAddress().String(),
 			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
+func MsgRequestSignCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "request-sign [group_id] [message]",
+		Args:  cobra.ExactArgs(2),
+		Short: "request tss sign of the message from a group",
+		Example: fmt.Sprintf(
+			`%s tx tss request-sign [group_id] [message]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			data, err := hex.DecodeString(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRequestSign{
+				GroupID: tss.GroupID(groupID),
+				Message: data,
+				Sender:  clientCtx.GetFromAddress().String(),
+			}
+
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
 			}

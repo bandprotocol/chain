@@ -35,8 +35,11 @@ const (
 	AttributeKeyOwnPubKeySig         = "own_pub_key_sig"
 	AttributeKeySigningID            = "signing_id"
 	AttributeBytes                   = "bytes"
+	AttributeMessage                 = "message"
 	AttributeKeyGroupPubNonce        = "group_pub_nonce"
 	AttributeKeyOwnPubNonces         = "own_pub_nonces"
+	AttributeKeyPublicD              = "public_d"
+	AttributeKeyPublicE              = "public_e"
 	AttributeKeyZi                   = "zi"
 	AttributeKeyAssignedParticipants = "assigned_participants"
 )

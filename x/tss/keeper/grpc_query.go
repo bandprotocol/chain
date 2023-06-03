@@ -135,7 +135,7 @@ func (k Querier) PendingSigns(
 	var pendingSigns []types.Signing
 	pendingSignIDs := k.GetPendingSignIDs(ctx, address)
 	for _, id := range pendingSignIDs {
-		signing, err := k.GetSigning(ctx, id)
+		signing, err := k.GetSigning(ctx, tss.SigningID(id))
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +153,7 @@ func (k Querier) Signing(
 ) (*types.QuerySigningResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	signing, err := k.GetSigning(ctx, req.Id)
+	signing, err := k.GetSigning(ctx, tss.SigningID(req.Id))
 	if err != nil {
 		return nil, err
 	}
