@@ -41,9 +41,8 @@ func New(ctx *cylinder.Context) (*Signing, error) {
 	}, nil
 }
 
-// subscribe subscribes to the round2 events and initializes the event channel for receiving events.
+// subscribe subscribes to the request-sign events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
-// TODO-CYLINDER: subscribe the real event
 func (s *Signing) subscribe() error {
 	var err error
 	s.eventCh, err = s.client.Subscribe(
@@ -96,7 +95,6 @@ func (s *Signing) handlePendingSignings() {
 	}
 
 	for _, signing := range res.PendingSigns {
-
 		var mids []tss.MemberID
 		var pubDE types.DE
 		for _, member := range signing.AssignedMembers {

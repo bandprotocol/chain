@@ -8,8 +8,9 @@ import (
 
 // Detail represents the necessary details of a message for logging.
 type Detail struct {
-	GroupID tss.GroupID
-	Type    string
+	GroupID   tss.GroupID
+	SigningID tss.SigningID
+	Type      string
 }
 
 // GetDetail extracts the details from a slice of SDK messages.
@@ -42,13 +43,11 @@ func GetDetail(msgs []sdk.Msg) []Detail {
 			detail = Detail{
 				Type: t.Type(),
 			}
-			// TODO-CYLINDER: Use the real msg
-			// case *types.MsgSigning:
-			// 	detail = Detail{
-			// 		GroupID:   t.GroupID,
-			// 		SigningID: t.SigningID,
-			// 		Type:      t.Type(),
-			// 	}
+		case *types.MsgSign:
+			detail = Detail{
+				SigningID: t.SigningID,
+				Type:      t.Type(),
+			}
 		default:
 			detail = Detail{
 				Type: "Unknown",

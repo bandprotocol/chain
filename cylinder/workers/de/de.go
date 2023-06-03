@@ -47,10 +47,10 @@ func (de *DE) subscribe() error {
 	de.eventCh, err = de.client.Subscribe(
 		"DE",
 		fmt.Sprintf(
-			"tm.event = 'Tx' AND %s.%s EXISTS",
-			types.EventTypeRound3Success,
-			types.AttributeKeyGroupID,
-			// de.context.Config.Granter,
+			"tm.event = 'Tx' AND %s.%s = '%s'",
+			types.EventTypeRequestSign,
+			types.AttributeKeyMember,
+			de.context.Config.Granter,
 		),
 		1000,
 	)

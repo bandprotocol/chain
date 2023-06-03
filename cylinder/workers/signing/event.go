@@ -7,8 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Event represents the data structure for round3 events.
-// TODO-CYLINDER: use real type
+// Event represents the data structure for request-sign events.
 type Event struct {
 	GroupID       tss.GroupID
 	SigningID     tss.SigningID
@@ -19,9 +18,8 @@ type Event struct {
 	PubDE         types.DE
 }
 
-// ParseEvent parses the round3 event from the given message log.
-// It extracts the group ID from the log and returns the parsed Event or an error if parsing fails.
-// TODO-CYLINDER: use real type, parse more
+// ParseEvent parses the request-sign event from the given message log.
+// It extracts the signing information from the log and returns the parsed Event or an error if parsing fails.
 func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 	gid, err := event.GetEventValueUint64(log, types.EventTypeRequestSign, types.AttributeKeyGroupID)
 	if err != nil {
