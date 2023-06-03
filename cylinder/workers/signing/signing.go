@@ -90,7 +90,7 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 func (s *Signing) handlePendingSignings() {
 	res, err := s.client.QueryPendingSignings(s.context.Config.Granter)
 	if err != nil {
-		s.logger.Error(":cold_sweat: Failed to get pending signigns: %s", err.Error())
+		s.logger.Error(":cold_sweat: Failed to get pending signings: %s", err.Error())
 		return
 	}
 
