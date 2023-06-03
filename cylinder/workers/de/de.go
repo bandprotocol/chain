@@ -43,7 +43,6 @@ func New(ctx *cylinder.Context) (*DE, error) {
 // It returns an error if the subscription fails.
 func (de *DE) subscribe() error {
 	var err error
-	// TODO-CYLINDER: use the real event
 	de.eventCh, err = de.client.Subscribe(
 		"DE",
 		fmt.Sprintf(
