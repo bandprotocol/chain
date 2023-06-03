@@ -51,7 +51,7 @@ bandd tx multi-send 1000000uband $(cylinder keys list -a --home $HOME_PATH) --ga
 # wait for sending band tokens transaction success
 sleep 2
 
-bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 300000 --from $KEY -b block -y 
+bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b block -y 
 
 # wait for adding gratees transaction success
 sleep 2
