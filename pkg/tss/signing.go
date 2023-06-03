@@ -1,6 +1,8 @@
 package tss
 
 import (
+	"errors"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,6 +23,26 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 	scalarValue.SetByteSlice(coeff)
 
 	return ParseScalar(scalarValue)
+}
+
+// ComputeBytes calculates the bytes that consists of memberID, public D, and public E.
+func ComputeBytes(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, error) {
+	if len(mids) != len(pubDs) {
+		return nil, errors.New("length is not equal")
+	}
+
+	if len(mids) != len(pubEs) {
+		return nil, errors.New("length is not equal")
+	}
+
+	var bytes []byte
+	for i, mid := range mids {
+		bytes = append(bytes, sdk.Uint64ToBigEndian(uint64(mid))...)
+		bytes = append(bytes, pubDs[i]...)
+		bytes = append(bytes, pubEs[i]...)
+	}
+
+	return bytes, nil
 }
 
 // ComputeOwnLo calculates the own Lo value for a given member ID, data, and bytes.
