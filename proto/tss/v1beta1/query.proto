@@ -26,7 +26,7 @@ service Query {
   
   // DE queries all de for this address.
   rpc DE(QueryDERequest) returns (QueryDEResponse) {
-    option (google.api.http).get = "/tss/v1beta1/de/{address}";
+    option (google.api.http).get = "/tss/v1beta1/de-list/{address}";
   }
 
   // PendingSigns queries all pending signs for this address.
@@ -34,9 +34,9 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/pending_signs/{address}";
   }
 
-  // Signing queries signing details.
-  rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
-    option (google.api.http).get = "/tss/v1beta1/signing/{id}";
+  // Signings queries signing details.
+  rpc Signings(QuerySigningsRequest) returns (QuerySigningsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/signings/{id}";
   }
 }
 
@@ -89,7 +89,8 @@ message QueryDERequest {
 }
 
 message QueryDEResponse {
-  repeated DE de_pairs = 1 [
+  repeated DE des = 1 [
+    (gogoproto.customname) = "DEs",
     (gogoproto.nullable) = false
   ];
   // pagination defines an pagination for the response.
@@ -104,10 +105,10 @@ message QueryPendingSignsResponse {
   repeated Signing pending_signs = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QuerySigningRequest {
+message QuerySigningsRequest {
   uint64 id = 1;
 }
 
-message QuerySigningResponse {
+message QuerySigningsResponse {
   Signing signing = 1;
 }

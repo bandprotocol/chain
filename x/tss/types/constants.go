@@ -9,3 +9,8 @@ var MsgGrants = []string{
 	"/tss.v1beta1.MsgSubmitDEPairs",
 	"/tss.v1beta1.MsgSign",
 }
+
+const (
+	AddrLen   = 20
+	uint64Len = 8
+)
