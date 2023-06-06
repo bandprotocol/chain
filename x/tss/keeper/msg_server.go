@@ -655,8 +655,8 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		types.EventTypeRequestSign,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-		sdk.NewAttribute(types.AttributeMessage, hex.EncodeToString(req.Message)),
-		sdk.NewAttribute(types.AttributeBytes, hex.EncodeToString(bytes)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(req.Message)),
+		sdk.NewAttribute(types.AttributeKeyBytes, hex.EncodeToString(bytes)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
 	)
 	for _, member := range assignedMembers {
