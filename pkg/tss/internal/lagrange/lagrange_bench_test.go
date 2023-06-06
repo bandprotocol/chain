@@ -40,13 +40,13 @@ func BenchmarkComputeCoefficient(b *testing.B) {
 	}}
 
 	for _, test := range tests {
-		b.Run(fmt.Sprintf("Compute coefficient - %s", test.name), func(b *testing.B) {
+		b.Run(fmt.Sprintf("Simple version - %s", test.name), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				lagrange.ComputeCoefficient(test.i, test.s)
 			}
 		})
 
-		b.Run(fmt.Sprintf("Compute coefficient optimized - %s", test.name), func(b *testing.B) {
+		b.Run(fmt.Sprintf("Optimized version - %s", test.name), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				lagrange.ComputeCoefficientOptimize(test.i, test.s)
 			}
