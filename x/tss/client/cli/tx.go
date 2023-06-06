@@ -39,7 +39,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
 	txCmd.AddCommand(MsgComplainCmd())
 	txCmd.AddCommand(MsgConfirmCmd())
-	txCmd.AddCommand(MsgSubmitDEPairsCmd())
+	txCmd.AddCommand(MsgSubmitDEsCmd())
 	txCmd.AddCommand(MsgRequestSignCmd())
 
 	return txCmd
@@ -175,10 +175,6 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 				Threshold: threshold,
 				Sender:    clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -250,10 +246,6 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -309,10 +301,6 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -368,11 +356,6 @@ Where complains.json contains:
 				Complains: complains,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
-
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -419,10 +402,6 @@ func MsgConfirmCmd() *cobra.Command {
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -432,14 +411,14 @@ func MsgConfirmCmd() *cobra.Command {
 	return cmd
 }
 
-// MsgSubmitDEPairsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
-func MsgSubmitDEPairsCmd() *cobra.Command {
+// MsgSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
+func MsgSubmitDEsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-de-pairs [d,e] [d,e] ...",
+		Use:   "submit-multi-de [d,e] [d,e] ...",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "submit tss submit-de-pairs containing address and de pairs",
+		Short: "submit tss submit-multi-de containing address and DEs",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-de-pairs [d,e] [d,e] ...`,
+			`%s tx tss submit-multi-de [d,e] [d,e] ...`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -448,32 +427,30 @@ func MsgSubmitDEPairsCmd() *cobra.Command {
 				return err
 			}
 
-			var dePairs []types.DE
+			var des []types.DE
 			for i := 0; i < len(args); i++ {
 				de := strings.Split(args[i], ",")
 				if len(de) != 2 {
-					return fmt.Errorf("DE pairs must be 2 value not %v", de)
+					return fmt.Errorf("DE must be 2 value not %v", de)
 				}
 
 				d, err := hex.DecodeString(de[0])
 				if err != nil {
 					return err
 				}
+
 				e, err := hex.DecodeString(de[1])
 				if err != nil {
 					return err
 				}
-				dePairs = append(dePairs, types.DE{PubD: d, PubE: e})
+
+				des = append(des, types.DE{PubD: d, PubE: e})
 			}
 
-			msg := &types.MsgSubmitDEPairs{
-				DEPairs: dePairs,
-				Member:  clientCtx.GetFromAddress().String(),
+			msg := &types.MsgSubmitDEs{
+				DEs:    des,
+				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -514,11 +491,6 @@ func MsgRequestSignCmd() *cobra.Command {
 				Message: data,
 				Sender:  clientCtx.GetFromAddress().String(),
 			}
-
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

@@ -42,6 +42,6 @@ var (
 	ErrInvalidArgument                  = sdkerrors.Register(ModuleName, 23, "invalid argument")
 	ErrSigningNotFound                  = sdkerrors.Register(ModuleName, 24, "Signing not found")
 	ErrGroupIsNotActive                 = sdkerrors.Register(ModuleName, 25, "group is not active")
-	ErrPartialZNotFound                 = sdkerrors.Register(ModuleName, 26, "partial z not found")
+	ErrPartialSigNotFound               = sdkerrors.Register(ModuleName, 26, "partial sig not found")
 	ErrBadDrbgInitialization            = sdkerrors.Register(ModuleName, 27, "bad drbg initialization")
 )
