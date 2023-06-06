@@ -148,6 +148,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
+						GroupID:   1,
 						Size_:     5,
 						Threshold: 3,
 						PubKey:    nil,

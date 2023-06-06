@@ -101,13 +101,16 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	// Create new group
 	groupID := k.CreateNewGroup(ctx, group)
 
+	// init group ID
+	group.GroupID = tss.GroupID(1)
+
 	// Get group by id
 	got, err := k.GetGroup(ctx, groupID)
 	s.Require().NoError(err)
 	s.Require().Equal(group, got)
 }
 
-func (s *KeeperTestSuite) TestUpdateGroup() {
+func (s *KeeperTestSuite) TestSetGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	group := types.Group{
 		Size_:     5,
@@ -116,12 +119,16 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 		Status:    types.ROUND_1,
 	}
 
-	// Create new group
+	// Set new group
 	groupID := k.CreateNewGroup(ctx, group)
 
 	// Update group size value
 	group.Size_ = 6
-	k.UpdateGroup(ctx, groupID, group)
+
+	// Add group ID
+	group.GroupID = 1
+
+	k.SetGroup(ctx, group)
 
 	// Get group from chain state
 	got, err := k.GetGroup(ctx, groupID)
