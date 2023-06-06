@@ -54,37 +54,38 @@ func ComputeCoefficient(i int64, s []int64) *big.Int {
 	return result.Mod(result, N)
 }
 
-// TODO-TSS: Need to fix on some case (e.g. i = 1, s = [1,2] --> the result should not be 1)
-// func ComputeCoefficient2(i int64, s []int64) *big.Int {
-// 	counts := make([]int64, 20)
-// 	for _, j := range s {
-// 		if j != i {
-// 			for _, v := range PRIME_FACTORS[j] {
-// 				counts[v[0]] += v[1]
-// 			}
+func ComputeCoefficientOptimize(i int64, s []int64) *big.Int {
+	counts := make([]int64, 20)
+	sign := int64(1)
+	for _, j := range s {
+		if j != i {
+			for _, v := range PRIME_FACTORS[j] {
+				counts[v[0]] += v[1]
+			}
 
-// 			j_i := j - i
-// 			if j_i < 0 {
-// 				j_i = -j_i
-// 			}
-// 			for _, v := range PRIME_FACTORS[j_i] {
-// 				counts[v[0]] -= v[1]
-// 			}
-// 		}
-// 	}
+			j_i := j - i
+			if j_i < 0 {
+				j_i = -j_i
+				sign *= -1
+			}
+			for _, v := range PRIME_FACTORS[j_i] {
+				counts[v[0]] -= v[1]
+			}
+		}
+	}
 
-// 	numerator := int64(1)
-// 	denominator := int64(1)
-// 	for k, v := range counts {
-// 		if v > 0 {
-// 			numerator *= TTT[k][v]
-// 		} else if v < 0 {
-// 			denominator *= TTT[k][-v]
-// 		}
-// 	}
+	numerator := int64(1)
+	denominator := int64(1)
+	for k, v := range counts {
+		if v > 0 {
+			numerator *= TTT[k][v]
+		} else if v < 0 {
+			denominator *= TTT[k][-v]
+		}
+	}
 
-// 	numeratorBig := big.NewInt(numerator)
-// 	denominatorBig := big.NewInt(denominator)
-// 	result := new(big.Int).Mul(numeratorBig, denominatorBig.ModInverse(denominatorBig, N))
-// 	return result.Mod(result, N)
-// }
+	numeratorBig := new(big.Int).Mul(big.NewInt(numerator), big.NewInt(sign))
+	denominatorBig := big.NewInt(denominator)
+	result := new(big.Int).Mul(numeratorBig, denominatorBig.ModInverse(denominatorBig, N))
+	return result.Mod(result, N)
+}

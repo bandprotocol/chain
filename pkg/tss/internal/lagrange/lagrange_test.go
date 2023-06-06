@@ -53,6 +53,9 @@ func TestComputeCoefficient(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			res := lagrange.ComputeCoefficient(test.i, test.s)
 			assert.Equal(t, test.exp, res)
+
+			res = lagrange.ComputeCoefficientOptimize(test.i, test.s)
+			assert.Equal(t, test.exp, res)
 		})
 	}
 }

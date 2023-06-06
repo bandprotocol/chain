@@ -10,6 +10,7 @@ import (
 // InitGenesis performs genesis initialization for the tss module.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetGroupCount(ctx, 0)
+	k.SetSigningCount(ctx, 0)
 	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
 }
 
