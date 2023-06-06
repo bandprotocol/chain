@@ -39,7 +39,7 @@ func GetDetail(msgs []sdk.Msg) []Detail {
 				GroupID: t.GroupID,
 				Type:    t.Type(),
 			}
-		case *types.MsgSubmitDEPairs:
+		case *types.MsgSubmitDEs:
 			detail = Detail{
 				Type: t.Type(),
 			}

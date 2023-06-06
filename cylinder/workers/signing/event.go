@@ -36,12 +36,12 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	bytes, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeBytes)
+	bytes, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeMessage)
+	data, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyMessage)
 	if err != nil {
 		return nil, err
 	}

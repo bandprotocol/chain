@@ -91,9 +91,9 @@ func (de *DE) updateDE() {
 	}
 
 	// Send MsgDE
-	de.context.MsgCh <- &types.MsgSubmitDEPairs{
-		DEPairs: pubDEs,
-		Member:  de.context.Config.Granter,
+	de.context.MsgCh <- &types.MsgSubmitDEs{
+		DEs:    pubDEs,
+		Member: de.context.Config.Granter,
 	}
 }
 

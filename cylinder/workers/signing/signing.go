@@ -172,7 +172,7 @@ func (s *Signing) handleSigning(
 	s.context.MsgCh <- &types.MsgSign{
 		SigningID: sid,
 		MemberID:  group.MemberID,
-		Zi:        sig,
+		Signature: sig,
 		Member:    s.context.Config.Granter,
 	}
 }
