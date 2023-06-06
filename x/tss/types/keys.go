@@ -191,7 +191,6 @@ func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []
 }
 
 func SigningIDFromPendingSignKey(key []byte) uint64 {
-	kv.AssertKeyLength(key, 29)
-	// remove acc address from key[21:]
-	return sdk.BigEndianToUint64(key[21:])
+	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
+	return sdk.BigEndianToUint64(key[1+AddrLen:])
 }
