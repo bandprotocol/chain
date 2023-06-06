@@ -19,8 +19,8 @@ service Msg {
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
   // Confirm submit own signature for proof that it's can derive the secret.
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
-  // SubmitDEPairs submit list of pre-commits DE for signing process.
-  rpc SubmitDEPairs(MsgSubmitDEPairs) returns (MsgSubmitDEPairsResponse);
+  // SubmitDEs submit list of pre-commits DE for signing process.
+  rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
   // RequestSign submit a general message to be signed by a specific group
   rpc RequestSign(MsgRequestSign) returns (MsgRequestSignResponse);
   // Sign submit signature on task participant need to do
@@ -108,15 +108,15 @@ message MsgConfirm {
 
 message MsgConfirmResponse {}
 
-message MsgSubmitDEPairs {
-  repeated DE de_pairs = 1 [
-    (gogoproto.customname) = "DEPairs",
+message MsgSubmitDEs {
+  repeated DE des = 1 [
+    (gogoproto.customname) = "DEs",
     (gogoproto.nullable) = false
   ];
   string member = 2;
 }
 
-message MsgSubmitDEPairsResponse {}
+message MsgSubmitDEsResponse {}
 
 message MsgRequestSign {
   uint64 group_id = 1 [

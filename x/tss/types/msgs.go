@@ -249,26 +249,26 @@ func (m MsgConfirm) ValidateBasic() error {
 	return nil
 }
 
-var _ sdk.Msg = &MsgSubmitDEPairs{}
+var _ sdk.Msg = &MsgSubmitDEs{}
 
 // Route Implements Msg.
-func (m MsgSubmitDEPairs) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitDEs) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgSubmitDEPairs) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitDEs) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgSubmitDEPairs) GetSignBytes() []byte {
+func (m MsgSubmitDEs) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
-func (m MsgSubmitDEPairs) GetSigners() []sdk.AccAddress {
+func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgSubmitDEPairs) ValidateBasic() error {
+func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {
@@ -276,7 +276,7 @@ func (m MsgSubmitDEPairs) ValidateBasic() error {
 	}
 
 	// Validate DE pairs
-	for i, de := range m.DEPairs {
+	for i, de := range m.DEs {
 		// Validate public key D
 		_, err = de.PubD.Parse()
 		if err != nil {

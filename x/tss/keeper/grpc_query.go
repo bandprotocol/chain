@@ -103,12 +103,12 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
-	var dePairs []types.DE
+	var des []types.DE
 	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(address))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
 		var de types.DE
 		k.cdc.MustUnmarshal(value, &de)
-		dePairs = append(dePairs, de)
+		des = append(des, de)
 		return nil
 	})
 	if err != nil {
@@ -116,7 +116,7 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 	}
 
 	return &types.QueryDEResponse{
-		DePairs:    dePairs,
+		DEs:        des,
 		Pagination: pageRes,
 	}, nil
 }

@@ -658,10 +658,10 @@ func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) 
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
 }
 
-func (k Keeper) HandleSetDEPairs(ctx sdk.Context, address sdk.AccAddress, dePairs []types.DE) {
+func (k Keeper) HandleSetDEPairs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) {
 	deQueue := k.GetDEQueue(ctx, address)
 
-	for _, de := range dePairs {
+	for _, de := range des {
 		k.SetDE(ctx, address, deQueue.Tail, de)
 		deQueue.Tail += 1
 	}

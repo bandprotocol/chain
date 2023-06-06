@@ -89,7 +89,8 @@ message QueryDERequest {
 }
 
 message QueryDEResponse {
-  repeated DE de_pairs = 1 [
+  repeated DE des = 1 [
+    (gogoproto.customname) = "DEs",
     (gogoproto.nullable) = false
   ];
   // pagination defines an pagination for the response.

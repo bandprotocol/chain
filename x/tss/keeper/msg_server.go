@@ -489,19 +489,19 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
-func (k Keeper) SubmitDEPairs(
+func (k Keeper) SubmitDEs(
 	goCtx context.Context,
-	req *types.MsgSubmitDEPairs,
-) (*types.MsgSubmitDEPairsResponse, error) {
+	req *types.MsgSubmitDEs,
+) (*types.MsgSubmitDEsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	accMember, err := sdk.AccAddressFromBech32(req.Member)
 	if err != nil {
 		return nil, err
 	}
 
-	k.HandleSetDEPairs(ctx, accMember, req.DEPairs)
+	k.HandleSetDEPairs(ctx, accMember, req.DEs)
 
-	return &types.MsgSubmitDEPairsResponse{}, nil
+	return &types.MsgSubmitDEsResponse{}, nil
 }
 
 // Check already confirm or complain.
