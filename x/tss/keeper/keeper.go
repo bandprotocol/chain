@@ -766,39 +766,39 @@ func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uin
 	return pendingSigns
 }
 
-// SetZCount sets the count of sign data for a group in the store.
-func (k Keeper) SetZCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.ZCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
+// SetSigCount sets the count of signature data for a sign in the store.
+func (k Keeper) SetSigCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.SigCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetZCount retrieves the count of sign data for a group from the store.
-func (k Keeper) GetZCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.ZCountStoreKey(signingID))
+// GetSigCount retrieves the count of signature data for a sign from the store.
+func (k Keeper) GetSigCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.SigCountStoreKey(signingID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddZCount increments the count of z count data for a signing data in the store.
-func (k Keeper) AddZCount(ctx sdk.Context, signingID tss.SigningID) {
-	count := k.GetZCount(ctx, signingID)
-	k.SetZCount(ctx, signingID, count+1)
+// AddSigCount increments the count of signature data for a sign in the store.
+func (k Keeper) AddSigCount(ctx sdk.Context, signingID tss.SigningID) {
+	count := k.GetSigCount(ctx, signingID)
+	k.SetSigCount(ctx, signingID, count+1)
 }
 
-// DeleteZCount remove the round z count data of a signing from the store.
-func (k Keeper) DeleteZCount(ctx sdk.Context, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Delete(types.ZCountStoreKey(signingID))
+// DeleteSigCount delete the signature count data of a sign from the store.
+func (k Keeper) DeleteSigCount(ctx sdk.Context, signingID tss.SigningID) {
+	ctx.KVStore(k.storeKey).Delete(types.SigCountStoreKey(signingID))
 }
 
-func (k Keeper) SetPartialZ(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, zi tss.Signature) {
-	k.AddZCount(ctx, signingID)
-	ctx.KVStore(k.storeKey).Set(types.PartialZIndexStoreKey(signingID, memberID), zi)
+func (k Keeper) SetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+	k.AddSigCount(ctx, signingID)
+	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
 }
 
-func (k Keeper) GetPartialZ(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.PartialZIndexStoreKey(signingID, memberID))
+func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrPartialZNotFound,
-			"failed to get partial z with signingID: %d memberID: %d",
+			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,
 			memberID,
 		)
@@ -806,14 +806,14 @@ func (k Keeper) GetPartialZ(ctx sdk.Context, signingID tss.SigningID, memberID t
 	return bz, nil
 }
 
-// GetPartialZIterator function gets an iterator over all partial z of the signing.
-func (k Keeper) GetPartialZIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialZStoreKey(signingID))
+// GetPartialSigIterator function gets an iterator over all partial signature of the signing.
+func (k Keeper) GetPartialSigIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialSigStoreKey(signingID))
 }
 
-func (k Keeper) GetPartialZs(ctx sdk.Context, signingID tss.SigningID) tss.Signatures {
+func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Signatures {
 	var pzs tss.Signatures
-	iterator := k.GetPartialZIterator(ctx, signingID)
+	iterator := k.GetPartialSigIterator(ctx, signingID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, iterator.Value())

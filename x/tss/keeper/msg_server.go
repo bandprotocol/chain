@@ -717,18 +717,18 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		group.PubKey,
 		signing.Message,
 		lagrange,
-		req.Zi,
+		req.Signature,
 		member.PubKey,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	k.SetPartialZ(ctx, req.SigningID, req.MemberID, req.Zi)
+	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
 
-	zCount := k.GetZCount(ctx, req.SigningID)
-	if zCount == group.Threshold {
-		pzs := k.GetPartialZs(ctx, req.SigningID)
+	sigCount := k.GetSigCount(ctx, req.SigningID)
+	if sigCount == group.Threshold {
+		pzs := k.GetPartialSigs(ctx, req.SigningID)
 
 		sig, err := tss.CombineSignatures(pzs...)
 		if err != nil {
@@ -767,7 +767,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyZi, hex.EncodeToString(req.Zi)),
+			sdk.NewAttribute(types.AttributeKeyZi, hex.EncodeToString(req.Signature)),
 		),
 	)
 

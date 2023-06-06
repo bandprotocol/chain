@@ -79,11 +79,11 @@ var (
 	// PendingSignStorKeyPrefix is the key for keeps pending signs data.
 	PendingSignsStorKeyPrefix = []byte{0x15}
 
-	// ZCountStoreKeyKeyPrefix is the key for keeps signing count data.
-	ZCountStoreKeyKeyPrefix = []byte{0x16}
+	// SigCountStoreKeyPrefix is the key for keeps signature count data.
+	SigCountStoreKeyPrefix = []byte{0x16}
 
-	// PartialZStoreKeyPrefix is the key for keeps partial z.
-	PartialZStoreKeyPrefix = []byte{0x17}
+	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
+	PartialSigStoreKeyPrefix = []byte{0x17}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -178,16 +178,16 @@ func PendingSignStorKey(address sdk.AccAddress, signingID tss.SigningID) []byte 
 	return append(PendingSignsStorKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func ZCountStoreKey(signingID tss.SigningID) []byte {
-	return append(ZCountStoreKeyKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+func SigCountStoreKey(signingID tss.SigningID) []byte {
+	return append(SigCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialZStoreKey(signingID tss.SigningID) []byte {
-	return append(PartialZStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+func PartialSigStoreKey(signingID tss.SigningID) []byte {
+	return append(PartialSigStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialZIndexStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
-	return append(PartialZStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
+	return append(PartialSigStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func SigningIDFromPendingSignKey(key []byte) uint64 {

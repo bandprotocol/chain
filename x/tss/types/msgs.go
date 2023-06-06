@@ -312,6 +312,12 @@ func (m MsgRequestSign) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgRequestSign) ValidateBasic() error {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
 	return nil
 }
 
@@ -335,5 +341,17 @@ func (m MsgSign) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSign) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate member signature
+	_, err = m.Signature.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "signature")
+	}
+
 	return nil
 }
