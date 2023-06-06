@@ -73,7 +73,7 @@ message Signing {
   ];
   repeated AssignedMember assigned_members = 3 [ (gogoproto.nullable) = false ];
   bytes message = 4;
-  bytes groupPubNonce = 5 [
+  bytes group_pub_nonce = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes bytes = 6;

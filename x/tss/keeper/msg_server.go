@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -499,7 +500,7 @@ func (k Keeper) SubmitDEs(
 		return nil, err
 	}
 
-	k.HandleSetDEPairs(ctx, accMember, req.DEs)
+	k.HandleSetDEs(ctx, accMember, req.DEs)
 
 	return &types.MsgSubmitDEsResponse{}, nil
 }
@@ -582,7 +583,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 			return nil, err
 		}
 
-		de, err := k.PollDEPairs(ctx, accMember)
+		de, err := k.PollDE(ctx, accMember)
 		if err != nil {
 			return nil, err
 		}
@@ -607,12 +608,10 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	}
 
 	// compute lo and public nonce of each assigned member
-	var los tss.Scalars
 	var ownPubNonces tss.PublicKeys
 	for i, member := range assignedMembers {
 		// compute own lo
 		lo := tss.ComputeOwnLo(member.MemberID, req.Message, bytes)
-		los = append(los, lo)
 
 		// compute own public nonce
 		opn, err := tss.ComputeOwnPublicNonce(member.PublicD, member.PublicE, lo)
@@ -638,8 +637,8 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		Sig:             nil,
 	}
 
-	// set signing
-	signingID := k.SetSigning(ctx, signing)
+	// add signing
+	signingID := k.AddSigning(ctx, signing)
 
 	for _, mid := range mids {
 		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Member)
@@ -701,13 +700,17 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, err
 	}
 
-	// check sender not in assigned participants
+	// check sender not in assigned participants and verify signature R
 	var found bool
 	var mids []tss.MemberID
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
 		if am.MemberID == req.MemberID {
 			found = true
+
+			if bytes.Equal(req.Signature.R(), tss.Point(am.PublicNonce)) {
+				return nil, fmt.Errorf("public nonce is not equal signature r")
+			}
 		}
 	}
 	if !found {
@@ -747,6 +750,12 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 		signing.Sig = sig
 		k.UpdateSigning(ctx, req.SigningID, signing)
+
+		// delete interims data
+		for _, am := range signing.AssignedMembers {
+			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
+		}
+		k.DeleteSigning(ctx, req.SigningID)
 
 		// emit sign success event
 		ctx.EventManager().EmitEvent(

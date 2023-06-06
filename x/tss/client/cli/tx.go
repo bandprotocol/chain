@@ -438,10 +438,12 @@ func MsgSubmitDEsCmd() *cobra.Command {
 				if err != nil {
 					return err
 				}
+
 				e, err := hex.DecodeString(de[1])
 				if err != nil {
 					return err
 				}
+
 				des = append(des, types.DE{PubD: d, PubE: e})
 			}
 

@@ -658,7 +658,7 @@ func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) 
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
 }
 
-func (k Keeper) HandleSetDEPairs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) {
+func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) {
 	deQueue := k.GetDEQueue(ctx, address)
 
 	for _, de := range des {
@@ -669,7 +669,7 @@ func (k Keeper) HandleSetDEPairs(ctx sdk.Context, address sdk.AccAddress, des []
 	k.SetDEQueue(ctx, address, deQueue)
 }
 
-func (k Keeper) PollDEPairs(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
+func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
 	deQueue := k.GetDEQueue(ctx, address)
 	de, err := k.GetDE(ctx, address, deQueue.Head)
 	if err != nil {
@@ -701,7 +701,7 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(signingNumber + 1)
 }
 
-func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
+func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
 	signingID := k.GetNextSigningID(ctx)
 	signing.SigningID = signingID
 	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
@@ -724,6 +724,10 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 	var signing types.Signing
 	k.cdc.MustUnmarshal(bz, &signing)
 	return signing, nil
+}
+
+func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
+	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
 func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
@@ -805,6 +809,11 @@ func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 		)
 	}
 	return bz, nil
+}
+
+// DeletePartialSig delete the partial sign data of a sign from the store.
+func (k Keeper) DeletePartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.PartialSigMemberStoreKey(signingID, memberID))
 }
 
 // GetPartialSigIterator function gets an iterator over all partial signature of the signing.
