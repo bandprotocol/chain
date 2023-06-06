@@ -680,6 +680,12 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, err
 	}
 
+	// check member is already signed
+	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	if err != nil {
+		return nil, fmt.Errorf("member ID: %d is already signed on signing ID: %d", req.MemberID, req.SigningID)
+	}
+
 	// check signing already have signature
 	if signing.Sig != nil {
 		return nil, fmt.Errorf("signing ID: %d is already have signature", req.SigningID)
@@ -710,7 +716,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
 
-	// proof z_i
+	// verify signing signature
 	err = tss.VerifySigningSig(
 		signing.GroupPubNonce,
 		group.PubKey,
@@ -745,7 +751,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		// emit sign success event
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventSignSuccess,
+				types.EventTypeSignSuccess,
 				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
@@ -762,11 +768,11 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	// emit submit sign event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventSubmitSign,
+			types.EventTypeSubmitSign,
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyZi, hex.EncodeToString(req.Signature)),
+			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
 		),
 	)
 

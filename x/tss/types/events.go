@@ -12,8 +12,8 @@ const (
 	EventTypeRound3Success   = "round3_success"
 	EventTypeRound3Failed    = "round3_failed"
 	EventTypeRequestSign     = "request_sign"
-	EventSignSuccess         = "sign_success"
-	EventSubmitSign          = "submit_sign"
+	EventTypeSignSuccess     = "sign_success"
+	EventTypeSubmitSign      = "submit_sign"
 
 	AttributeKeyGroupID              = "group_id"
 	AttributeKeyMemberID             = "member_id"
@@ -40,6 +40,5 @@ const (
 	AttributeKeyOwnPubNonces         = "own_pub_nonces"
 	AttributeKeyPublicD              = "public_d"
 	AttributeKeyPublicE              = "public_e"
-	AttributeKeyZi                   = "zi"
 	AttributeKeyAssignedParticipants = "assigned_participants"
 )

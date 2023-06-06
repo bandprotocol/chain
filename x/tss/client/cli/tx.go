@@ -175,10 +175,6 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 				Threshold: threshold,
 				Sender:    clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -250,10 +246,6 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -309,10 +301,6 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -368,11 +356,6 @@ Where complains.json contains:
 				Complains: complains,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
-
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -419,10 +402,6 @@ func MsgConfirmCmd() *cobra.Command {
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -470,10 +449,6 @@ func MsgSubmitDEPairsCmd() *cobra.Command {
 				DEPairs: dePairs,
 				Member:  clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -514,11 +489,6 @@ func MsgRequestSignCmd() *cobra.Command {
 				Message: data,
 				Sender:  clientCtx.GetFromAddress().String(),
 			}
-
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

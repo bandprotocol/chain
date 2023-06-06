@@ -315,7 +315,7 @@ func (m MsgRequestSign) ValidateBasic() error {
 	// Validate sender address
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(err, "member")
+		return sdkerrors.Wrap(err, "sender")
 	}
 
 	return nil

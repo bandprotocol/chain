@@ -76,8 +76,8 @@ var (
 	// SigningStoreKeyPrefix is the key for keeps signing data.
 	SigningStoreKeyPrefix = []byte{0x14}
 
-	// PendingSignStorKeyPrefix is the key for keeps pending signs data.
-	PendingSignsStorKeyPrefix = []byte{0x15}
+	// PendingSignsStoreKeyPrefix is the key for keeps pending signs data.
+	PendingSignsStoreKeyPrefix = []byte{0x15}
 
 	// SigCountStoreKeyPrefix is the key for keeps signature count data.
 	SigCountStoreKeyPrefix = []byte{0x16}
@@ -170,12 +170,12 @@ func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PendingSignsStorKey(address sdk.AccAddress) []byte {
-	return append(PendingSignsStorKeyPrefix, address...)
+func PendingSignsStoreKey(address sdk.AccAddress) []byte {
+	return append(PendingSignsStoreKeyPrefix, address...)
 }
 
-func PendingSignStorKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
-	return append(PendingSignsStorKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
+func PendingSignStoreKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
+	return append(PendingSignsStoreKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
 func SigCountStoreKey(signingID tss.SigningID) []byte {
@@ -192,5 +192,6 @@ func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []
 
 func SigningIDFromPendingSignKey(key []byte) uint64 {
 	kv.AssertKeyLength(key, 29)
+	// remove acc address from key[21:]
 	return sdk.BigEndianToUint64(key[21:])
 }

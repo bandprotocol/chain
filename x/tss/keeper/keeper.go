@@ -728,11 +728,11 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 
 func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
 	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: true})
-	ctx.KVStore(k.storeKey).Set(types.PendingSignStorKey(address, signingID), bz)
+	ctx.KVStore(k.storeKey).Set(types.PendingSignStoreKey(address, signingID), bz)
 }
 
 func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) bool {
-	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStorKey(address, signingID))
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStoreKey(address, signingID))
 	var have gogotypes.BoolValue
 	if bz == nil {
 		return false
@@ -743,12 +743,12 @@ func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingI
 }
 
 func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Delete(types.PendingSignStorKey(address, signingID))
+	ctx.KVStore(k.storeKey).Delete(types.PendingSignStoreKey(address, signingID))
 }
 
 // GetPendingSignIterator function gets an iterator over all pending sign data.
 func (k Keeper) GetPendingSignIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PendingSignsStorKey(address))
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PendingSignsStoreKey(address))
 }
 
 // GetPendingSignIDs method retrieves all pending sign ids for a given address from the store.
@@ -798,7 +798,7 @@ func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, sdkerrors.Wrapf(
-			types.ErrPartialZNotFound,
+			types.ErrPartialSigNotFound,
 			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,
 			memberID,
@@ -839,7 +839,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 	t uint64,
 ) ([]tss.MemberID, error) {
 	if t > size {
-		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, "t must more than size")
+		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, "t must less than size")
 	}
 
 	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(signingID), []byte(ctx.ChainID()))

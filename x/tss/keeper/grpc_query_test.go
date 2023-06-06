@@ -146,8 +146,6 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			func(res *types.QueryGroupResponse) {
 				dkgContextB, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
 
-				fmt.Printf("%+v", res.Group)
-
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
 						GroupID:   1,
