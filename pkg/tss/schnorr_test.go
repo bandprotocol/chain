@@ -62,6 +62,31 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 	suite.Require().Error(err)
 }
 
+func (suite *TSSTestSuite) TestSignAndVerifyWithCustomLagrange() {
+	lagrange := tss.Scalar(hexDecode("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0336f8d"))
+	fakeLagrange := tss.Scalar(hexDecode("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0336f8e"))
+
+	// Sign
+	sig, err := tss.Sign(suite.member1.OneTimePrivKey, suite.data, suite.nonce, lagrange)
+	suite.Require().NoError(err)
+
+	// Success case
+	err = tss.Verify(sig.R(), sig.S(), suite.data, suite.member1.OneTimePubKey, nil, lagrange)
+	suite.Require().NoError(err)
+
+	// Wrong challenge case
+	err = tss.Verify(sig.R(), sig.S(), suite.fakeData, suite.member1.OneTimePubKey, nil, lagrange)
+	suite.Require().Error(err)
+
+	// Wrong public key case
+	err = tss.Verify(sig.R(), sig.S(), suite.data, suite.fakeKey.PublicKey, nil, lagrange)
+	suite.Require().Error(err)
+
+	// Wrong lagrange case
+	err = tss.Verify(sig.R(), sig.S(), suite.data, suite.member1.OneTimePubKey, nil, fakeLagrange)
+	suite.Require().Error(err)
+}
+
 func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 	// Use a unique random seed each test instance and log it if the tests fail.
 	seed := time.Now().Unix()
