@@ -708,6 +708,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		if am.MemberID == req.MemberID {
 			found = true
 
+			// verify signature R
 			if bytes.Equal(req.Signature.R(), tss.Point(am.PublicNonce)) {
 				return nil, fmt.Errorf("public nonce is not equal signature r")
 			}
