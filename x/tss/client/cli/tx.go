@@ -431,7 +431,7 @@ func MsgSubmitDEsCmd() *cobra.Command {
 			for i := 0; i < len(args); i++ {
 				de := strings.Split(args[i], ",")
 				if len(de) != 2 {
-					return fmt.Errorf("DE pairs must be 2 value not %v", de)
+					return fmt.Errorf("DE must be 2 value not %v", de)
 				}
 
 				d, err := hex.DecodeString(de[0])

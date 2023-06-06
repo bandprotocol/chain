@@ -275,7 +275,7 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "member")
 	}
 
-	// Validate DE pairs
+	// Validate DEs
 	for i, de := range m.DEs {
 		// Validate public key D
 		_, err = de.PubD.Parse()
