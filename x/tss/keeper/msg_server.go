@@ -624,7 +624,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		assignedMembers[i].PublicNonce = opn
 	}
 
-	// comptue group public nonce for this signing
+	// compute group public nonce for this signing
 	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
 	if err != nil {
 		return nil, err
