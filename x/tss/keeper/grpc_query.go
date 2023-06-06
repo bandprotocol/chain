@@ -147,17 +147,17 @@ func (k Querier) PendingSigns(
 	}, nil
 }
 
-func (k Querier) Signing(
+func (k Querier) Signings(
 	goCtx context.Context,
-	req *types.QuerySigningRequest,
-) (*types.QuerySigningResponse, error) {
+	req *types.QuerySigningsRequest,
+) (*types.QuerySigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	signing, err := k.GetSigning(ctx, tss.SigningID(req.Id))
 	if err != nil {
 		return nil, err
 	}
-	return &types.QuerySigningResponse{
+	return &types.QuerySigningsResponse{
 		Signing: &signing,
 	}, nil
 }
