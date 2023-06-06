@@ -159,7 +159,7 @@ func (k Keeper) SubmitDKGRound1(
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
-		k.UpdateGroup(ctx, groupID, group)
+		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound1Success,
@@ -255,7 +255,7 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_3
-		k.UpdateGroup(ctx, groupID, group)
+		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound2Success,
@@ -377,7 +377,7 @@ func (k Keeper) Complain(
 
 		// Handle fallen group if everyone sends confirm or complains already.
 		if confirmComplainCount == group.Size_ {
-			k.handleFallenGroup(ctx, groupID, group)
+			k.handleFallenGroup(ctx, group)
 		}
 	}
 
@@ -450,7 +450,7 @@ func (k Keeper) Confirm(
 		if len(maliciousMembers) == 0 {
 			// Update group status
 			group.Status = types.ACTIVE
-			k.UpdateGroup(ctx, groupID, group)
+			k.SetGroup(ctx, group)
 
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
@@ -462,7 +462,7 @@ func (k Keeper) Confirm(
 			)
 		} else {
 			// Handle fallen group if someone in this group is malicious.
-			k.handleFallenGroup(ctx, groupID, group)
+			k.handleFallenGroup(ctx, group)
 
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
@@ -528,16 +528,15 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 // HandleFallenGroup updates the status of a group and emit event.
 func (k Keeper) handleFallenGroup(
 	ctx sdk.Context,
-	groupID tss.GroupID,
 	group types.Group,
 ) {
 	group.Status = types.FALLEN
 
-	k.UpdateGroup(ctx, groupID, group)
+	k.SetGroup(ctx, group)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRound3Failed,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 		),
 	)

@@ -213,7 +213,8 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 		Threshold: 3,
 		Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	})
-	k.UpdateGroup(ctx, 1, types.Group{
+	k.SetGroup(ctx, types.Group{
+		GroupID:   1,
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
@@ -391,7 +392,8 @@ func (s *KeeperTestSuite) TestComplain() {
 	k.SetMember(ctx, groupID, memberID2, member2)
 
 	// Update group to round 3
-	k.UpdateGroup(ctx, 1, types.Group{
+	k.SetGroup(ctx, types.Group{
+		GroupID:   1,
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
@@ -477,8 +479,9 @@ func (s *KeeperTestSuite) TestConfirm() {
 	// Set dkg context
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
-	// Update group to round 3
-	k.UpdateGroup(ctx, 1, types.Group{
+	// Set group to round 3
+	k.SetGroup(ctx, types.Group{
+		GroupID:   1,
 		Size_:     5,
 		Threshold: 2,
 		PubKey:    groupPubKey,

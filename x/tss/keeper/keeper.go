@@ -71,7 +71,8 @@ func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.A
 // CreateNewGroup function creates a new group in the store and returns the id of the group.
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
-	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(tss.GroupID(groupID)), k.cdc.MustMarshal(&group))
+	group.GroupID = groupID
+	k.SetGroup(ctx, group)
 	return groupID
 }
 
@@ -87,9 +88,9 @@ func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, err
 	return group, nil
 }
 
-// UpdateGroup function updates a group in the store.
-func (k Keeper) UpdateGroup(ctx sdk.Context, groupID tss.GroupID, group types.Group) {
-	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(groupID), k.cdc.MustMarshal(&group))
+// SetGroup function set a group in the store.
+func (k Keeper) SetGroup(ctx sdk.Context, group types.Group) {
+	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(group.GroupID), k.cdc.MustMarshal(&group))
 }
 
 // SetDKGContext function sets DKG context for a group in the store.

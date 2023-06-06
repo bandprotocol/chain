@@ -7,12 +7,16 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
 
 message Group {
-  uint64 size = 1;
-  uint64 threshold = 2;
-  bytes pub_key = 3 [
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  uint64 size = 2;
+  uint64 threshold = 3;
+  bytes pub_key = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  GroupStatus status = 4;
+  GroupStatus status = 5;
 }
 
 message Round1Data {
