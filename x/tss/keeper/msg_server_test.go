@@ -544,3 +544,71 @@ func (s *KeeperTestSuite) TestConfirm() {
 		})
 	}
 }
+
+func (s *KeeperTestSuite) TestSubmitDEs() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberAddress := "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad"
+	des := []types.DE{
+		{
+			PubD: []byte("D"),
+			PubE: []byte("E"),
+		},
+	}
+	group := types.Group{
+		GroupID:   groupID,
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.ROUND_3,
+	}
+
+	// Set group
+	k.SetGroup(ctx, group)
+
+	var req types.MsgSubmitDEs
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func()
+	}{
+		{
+			"failure with invalid member address",
+			func() {
+				req = types.MsgSubmitDEs{
+					DEs:    des,
+					Member: "invalidMemberAddress", //invalid address
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"success",
+			func() {
+				req = types.MsgSubmitDEs{
+					DEs:    des,
+					Member: memberAddress,
+				}
+			},
+			true,
+			func() {},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			_, err := msgSrvr.SubmitDEs(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest()
+		})
+	}
+}
