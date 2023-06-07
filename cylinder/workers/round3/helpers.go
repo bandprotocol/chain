@@ -7,14 +7,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// getOwnPrivKey calculates the own private key for the group member and verifies the secret shares.
+// getOwnPrivKey calculates the own private key for the group member.
 // It returns the own private key, a slice of complaints (if any), and an error, if any.
 func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.PrivateKey, []types.Complain, error) {
-	round1DataI, err := groupRes.GetRound1Data(group.MemberID)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	var secretShares tss.Scalars
 	var complains []types.Complain
 	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
@@ -28,46 +23,13 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 			continue
 		}
 
-		// Get Round1Commitment of J
-		commitmentJ, err := groupRes.GetRound1Data(tss.MemberID(j))
+		secretShare, complain, err := getSecretShare(group.MemberID, tss.MemberID(j), group.OneTimePrivKey, groupRes)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		// Get secret share
-		secretShare, err := getSecretShare(
-			group.MemberID,
-			tss.MemberID(j),
-			group.OneTimePrivKey,
-			commitmentJ.OneTimePubKey,
-			groupRes,
-		)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		// Verify secret share
-		err = tss.VerifySecretShare(group.MemberID, secretShare, commitmentJ.CoefficientsCommit)
-		if err != nil {
-			// Generate complaint if we fail to verify secret share
-			sig, keySym, nonceSym, err := tss.SignComplain(
-				round1DataI.OneTimePubKey,
-				commitmentJ.OneTimePubKey,
-				group.OneTimePrivKey,
-			)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			// Add complaint
-			complains = append(complains, types.Complain{
-				I:         group.MemberID,
-				J:         tss.MemberID(j),
-				KeySym:    keySym,
-				Signature: sig,
-				NonceSym:  nonceSym,
-			})
-
+		if complain != nil {
+			complains = append(complains, *complain)
 			continue
 		}
 
@@ -83,35 +45,72 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 	if err != nil {
 		return nil, nil, err
 	}
+
 	return ownPrivKey, nil, nil
 }
 
 // getSecretShare calculates and retrieves the decrypted secret share between two members.
-// It takes the member IDs, private and public keys, and the group response as input.
-// It returns the decrypted secret share and any error encountered during the process.
+// It takes the Member ID of I and J, private key of Member I, and the group response as input.
+// It returns the secret share, complain if secret share is not valid, and any error encountered during the process.
 func getSecretShare(
-	i, j tss.MemberID,
+	i tss.MemberID,
+	j tss.MemberID,
 	privKeyI tss.PrivateKey,
-	pubKeyJ tss.PublicKey,
 	groupRes *client.GroupResponse,
-) (tss.Scalar, error) {
-	// Calculate keySym
-	keySym, err := tss.ComputeKeySym(privKeyI, pubKeyJ)
+) (tss.Scalar, *types.Complain, error) {
+	// Get Round1Data of I
+	round1DataI, err := groupRes.GetRound1Data(i)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	// Get encrypted secret share between I and J
-	esc, err := groupRes.GetEncryptedSecretShare(j, i)
+	// Get Round1Data of J
+	round1DataJ, err := groupRes.GetRound1Data(j)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	// Get encrypted secret share for I from J
+	encSecretShare, err := groupRes.GetEncryptedSecretShare(j, i)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Calculate keySym
+	keySym, err := tss.ComputeKeySym(privKeyI, round1DataJ.OneTimePubKey)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	// Decrypt secret share
-	secretShare, err := tss.Decrypt(esc, keySym)
+	secretShare, err := tss.Decrypt(encSecretShare, keySym)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return secretShare, nil
+	// Verify secret share
+	err = tss.VerifySecretShare(i, secretShare, round1DataJ.CoefficientsCommit)
+	if err != nil {
+		// Generate complaint if we fail to verify secret share
+		sig, keySym, nonceSym, err := tss.SignComplain(
+			round1DataI.OneTimePubKey,
+			round1DataJ.OneTimePubKey,
+			privKeyI,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		complain := &types.Complain{
+			I:         i,
+			J:         j,
+			KeySym:    keySym,
+			Signature: sig,
+			NonceSym:  nonceSym,
+		}
+
+		return nil, complain, nil
+	}
+
+	return secretShare, nil, nil
 }
