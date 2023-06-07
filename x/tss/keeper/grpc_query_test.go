@@ -369,3 +369,193 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 		})
 	}
 }
+
+func (s *KeeperTestSuite) TestGRPCQueryDE() {
+	ctx, q := s.ctx, s.querier
+
+	var req types.QueryDERequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryDEResponse, err error)
+	}{
+		{
+			"invalid address format",
+			func() {
+				req = types.QueryDERequest{
+					Address: "invalid_address_format",
+				}
+			},
+			false,
+			func(res *types.QueryDEResponse, err error) {
+				s.Require().Error(err)
+				s.Require().Nil(res)
+			},
+		},
+		{
+			"success",
+			func() {
+				req = types.QueryDERequest{
+					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func(res *types.QueryDEResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.DEs, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.DE(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
+	ctx, q := s.ctx, s.querier
+
+	var req types.QueryPendingSignsRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryPendingSignsResponse, err error)
+	}{
+		{
+			"invalid address format",
+			func() {
+				req = types.QueryPendingSignsRequest{
+					Address: "invalid_address_format",
+				}
+			},
+			false,
+			func(res *types.QueryPendingSignsResponse, err error) {
+				s.Require().Error(err)
+				s.Require().Nil(res)
+			},
+		},
+		{
+			"success",
+			func() {
+				req = types.QueryPendingSignsRequest{
+					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func(res *types.QueryPendingSignsResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.PendingSigns, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.PendingSigns(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestGRPCQuerySignings() {
+	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
+	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
+	signing := types.Signing{
+		SigningID: signingID,
+		GroupID:   groupID,
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID:    memberID,
+				Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PublicD:     []byte("D"),
+				PublicE:     []byte("E"),
+				PublicNonce: []byte("public_nonce"),
+			},
+		},
+		Message:       []byte("message"),
+		GroupPubNonce: []byte("group_pub_nonce"),
+		Bytes:         []byte("bytes"),
+		Sig:           []byte("signature"),
+	}
+	sig := []byte("signatures")
+
+	// Set partial signature
+	k.SetPartialSig(ctx, signingID, memberID, []byte("signatures"))
+
+	// Add signing
+	k.AddSigning(ctx, signing)
+
+	var req types.QuerySigningsRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QuerySigningsResponse, err error)
+	}{
+		{
+			"invalid signing id",
+			func() {
+				req = types.QuerySigningsRequest{
+					Id: 999,
+				}
+			},
+			false,
+			func(res *types.QuerySigningsResponse, err error) {
+				s.Require().Error(err)
+				s.Require().Nil(res)
+			},
+		},
+		{
+			"success",
+			func() {
+				req = types.QuerySigningsRequest{
+					Id: 1,
+				}
+			},
+			true,
+			func(res *types.QuerySigningsResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().Equal(&signing, res.Signing)
+				s.Require().Equal([]types.PartialSig{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSigs)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.Signings(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
