@@ -333,6 +333,214 @@ func (m *MsgSubmitDKGRound2Response) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitDKGRound2Response proto.InternalMessageInfo
 
+type MsgComplain struct {
+	// group_id is ID of the group.
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
+	// complains is a list of Complains.
+	Complains []Complain `protobuf:"bytes,3,rep,name=complains,proto3" json:"complains"`
+	// member is the signer of this message. Must be the member of this group.
+	Member string `protobuf:"bytes,4,opt,name=member,proto3" json:"member,omitempty"`
+}
+
+func (m *MsgComplain) Reset()         { *m = MsgComplain{} }
+func (m *MsgComplain) String() string { return proto.CompactTextString(m) }
+func (*MsgComplain) ProtoMessage()    {}
+func (*MsgComplain) Descriptor() ([]byte, []int) {
+	return fileDescriptor_58d13e1023e3ffaf, []int{6}
+}
+func (m *MsgComplain) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgComplain) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgComplain.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgComplain) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgComplain.Merge(m, src)
+}
+func (m *MsgComplain) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgComplain) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgComplain.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgComplain proto.InternalMessageInfo
+
+func (m *MsgComplain) GetGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
+}
+
+func (m *MsgComplain) GetComplains() []Complain {
+	if m != nil {
+		return m.Complains
+	}
+	return nil
+}
+
+func (m *MsgComplain) GetMember() string {
+	if m != nil {
+		return m.Member
+	}
+	return ""
+}
+
+type MsgComplainResponse struct {
+}
+
+func (m *MsgComplainResponse) Reset()         { *m = MsgComplainResponse{} }
+func (m *MsgComplainResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgComplainResponse) ProtoMessage()    {}
+func (*MsgComplainResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_58d13e1023e3ffaf, []int{7}
+}
+func (m *MsgComplainResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgComplainResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgComplainResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgComplainResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgComplainResponse.Merge(m, src)
+}
+func (m *MsgComplainResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgComplainResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgComplainResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgComplainResponse proto.InternalMessageInfo
+
+type MsgConfirm struct {
+	// group_id is ID of the group.
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
+	// member_id is ID of the member.
+	MemberID github_com_bandprotocol_chain_v2_pkg_tss.MemberID `protobuf:"varint,2,opt,name=member_id,json=memberId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.MemberID" json:"member_id,omitempty"`
+	// own_pub_key_sig is a signature of the member_i on its own PubKey to confirm
+	// that the member is able to derive the PubKey.
+	OwnPubKeySig github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,3,opt,name=own_pub_key_sig,json=ownPubKeySig,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"own_pub_key_sig,omitempty"`
+	// member is the signer of this message. Must be the member of this group.
+	Member string `protobuf:"bytes,4,opt,name=member,proto3" json:"member,omitempty"`
+}
+
+func (m *MsgConfirm) Reset()         { *m = MsgConfirm{} }
+func (m *MsgConfirm) String() string { return proto.CompactTextString(m) }
+func (*MsgConfirm) ProtoMessage()    {}
+func (*MsgConfirm) Descriptor() ([]byte, []int) {
+	return fileDescriptor_58d13e1023e3ffaf, []int{8}
+}
+func (m *MsgConfirm) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgConfirm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgConfirm.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgConfirm) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgConfirm.Merge(m, src)
+}
+func (m *MsgConfirm) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgConfirm) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgConfirm.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgConfirm proto.InternalMessageInfo
+
+func (m *MsgConfirm) GetGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
+}
+
+func (m *MsgConfirm) GetMemberID() github_com_bandprotocol_chain_v2_pkg_tss.MemberID {
+	if m != nil {
+		return m.MemberID
+	}
+	return 0
+}
+
+func (m *MsgConfirm) GetOwnPubKeySig() github_com_bandprotocol_chain_v2_pkg_tss.Signature {
+	if m != nil {
+		return m.OwnPubKeySig
+	}
+	return nil
+}
+
+func (m *MsgConfirm) GetMember() string {
+	if m != nil {
+		return m.Member
+	}
+	return ""
+}
+
+type MsgConfirmResponse struct {
+}
+
+func (m *MsgConfirmResponse) Reset()         { *m = MsgConfirmResponse{} }
+func (m *MsgConfirmResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgConfirmResponse) ProtoMessage()    {}
+func (*MsgConfirmResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_58d13e1023e3ffaf, []int{9}
+}
+func (m *MsgConfirmResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgConfirmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgConfirmResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgConfirmResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgConfirmResponse.Merge(m, src)
+}
+func (m *MsgConfirmResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgConfirmResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgConfirmResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgConfirmResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgCreateGroup)(nil), "tss.v1beta1.MsgCreateGroup")
 	proto.RegisterType((*MsgCreateGroupResponse)(nil), "tss.v1beta1.MsgCreateGroupResponse")
@@ -340,40 +548,56 @@ func init() {
 	proto.RegisterType((*MsgSubmitDKGRound1Response)(nil), "tss.v1beta1.MsgSubmitDKGRound1Response")
 	proto.RegisterType((*MsgSubmitDKGRound2)(nil), "tss.v1beta1.MsgSubmitDKGRound2")
 	proto.RegisterType((*MsgSubmitDKGRound2Response)(nil), "tss.v1beta1.MsgSubmitDKGRound2Response")
+	proto.RegisterType((*MsgComplain)(nil), "tss.v1beta1.MsgComplain")
+	proto.RegisterType((*MsgComplainResponse)(nil), "tss.v1beta1.MsgComplainResponse")
+	proto.RegisterType((*MsgConfirm)(nil), "tss.v1beta1.MsgConfirm")
+	proto.RegisterType((*MsgConfirmResponse)(nil), "tss.v1beta1.MsgConfirmResponse")
 }
 
 func init() { proto.RegisterFile("tss/v1beta1/tx.proto", fileDescriptor_58d13e1023e3ffaf) }
 
 var fileDescriptor_58d13e1023e3ffaf = []byte{
-	// 444 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x92, 0x41, 0x6f, 0xd3, 0x30,
-	0x14, 0xc7, 0xeb, 0x75, 0x5a, 0xa9, 0x2b, 0x81, 0x64, 0x8d, 0x11, 0xc2, 0x94, 0x56, 0xe5, 0x40,
-	0x0f, 0x28, 0xa6, 0xe6, 0x0e, 0x52, 0xa9, 0x98, 0x26, 0x54, 0x21, 0x85, 0xdb, 0x38, 0x0c, 0xa7,
-	0x31, 0x6e, 0x44, 0x13, 0x47, 0xb6, 0x33, 0x6d, 0xdf, 0x62, 0x1f, 0xab, 0xc7, 0x1d, 0x39, 0x55,
-	0x28, 0xfd, 0x16, 0x9c, 0x50, 0x9c, 0x64, 0x2c, 0x9d, 0x68, 0xc4, 0x65, 0xb7, 0xbc, 0xff, 0x7b,
-	0xef, 0xff, 0xf2, 0x7b, 0x7e, 0xf0, 0x50, 0x2b, 0x85, 0x2f, 0xc6, 0x3e, 0xd3, 0x74, 0x8c, 0xf5,
-	0xa5, 0x9b, 0x48, 0xa1, 0x05, 0xea, 0x69, 0xa5, 0xdc, 0x52, 0xb5, 0x0f, 0xb9, 0xe0, 0xc2, 0xe8,
-	0x38, 0xff, 0x2a, 0x4a, 0xec, 0xe7, 0x5c, 0x08, 0xbe, 0x64, 0xd8, 0x44, 0x7e, 0xfa, 0x1d, 0xd3,
-	0xf8, 0xaa, 0x4c, 0x3d, 0xad, 0x79, 0x2a, 0x55, 0xc8, 0xc3, 0x6f, 0xf0, 0xf1, 0x4c, 0xf1, 0x0f,
-	0x92, 0x51, 0xcd, 0x4e, 0xa4, 0x48, 0x13, 0x64, 0xc1, 0x4e, 0xc4, 0x22, 0x9f, 0x49, 0x65, 0x81,
-	0x41, 0x7b, 0xd4, 0xf5, 0xaa, 0x10, 0x1d, 0xc3, 0xae, 0x5e, 0x48, 0xa6, 0x16, 0x62, 0x19, 0x58,
-	0x7b, 0x03, 0x30, 0xda, 0xf7, 0xfe, 0x0a, 0xe8, 0x08, 0x1e, 0x28, 0x16, 0x07, 0x4c, 0x5a, 0xed,
-	0x01, 0x18, 0x75, 0xbd, 0x32, 0x1a, 0x5a, 0xf0, 0xa8, 0x3e, 0xc1, 0x63, 0x2a, 0x11, 0xb1, 0x62,
-	0xc3, 0x15, 0x80, 0x68, 0xa6, 0xf8, 0x97, 0xd4, 0x8f, 0x42, 0x3d, 0xfd, 0x74, 0xe2, 0x89, 0x34,
-	0x0e, 0xc6, 0xe8, 0x0c, 0x3e, 0xe2, 0x79, 0xdd, 0x79, 0x18, 0x58, 0x20, 0x9f, 0x32, 0x79, 0x9f,
-	0xad, 0xfb, 0x1d, 0xd3, 0x7b, 0x3a, 0xfd, 0xbd, 0xee, 0xbf, 0xe1, 0xa1, 0x5e, 0xa4, 0xbe, 0x3b,
-	0x17, 0x11, 0xf6, 0x69, 0x1c, 0x18, 0x92, 0xb9, 0x58, 0xe2, 0xf9, 0x82, 0x86, 0x31, 0xbe, 0x20,
-	0x38, 0xf9, 0xc1, 0x0d, 0x63, 0xd9, 0xe3, 0x75, 0x8c, 0xe1, 0x69, 0x80, 0xde, 0xc1, 0x9e, 0x34,
-	0x53, 0xce, 0x03, 0xaa, 0xa9, 0x81, 0xe8, 0x91, 0x67, 0xee, 0x9d, 0xcd, 0xba, 0xc5, 0x5f, 0x4c,
-	0xa9, 0xa6, 0x93, 0xfd, 0xd5, 0xba, 0xdf, 0xf2, 0xa0, 0xbc, 0x55, 0x72, 0xc8, 0x62, 0x1b, 0x15,
-	0x64, 0x11, 0x0d, 0x8f, 0xa1, 0x7d, 0x9f, 0x64, 0x37, 0x28, 0x79, 0x10, 0x50, 0xd2, 0x00, 0x4a,
-	0xee, 0x81, 0x92, 0xff, 0x06, 0x25, 0x15, 0x28, 0xb9, 0xde, 0x83, 0xed, 0x99, 0xe2, 0xe8, 0x33,
-	0xec, 0xdd, 0x3d, 0xa9, 0x17, 0xb5, 0xb9, 0xf5, 0x6b, 0xb0, 0x5f, 0xee, 0x48, 0x56, 0xc6, 0xe8,
-	0x2b, 0x7c, 0xb2, 0x7d, 0x26, 0xfd, 0xed, 0xbe, 0xad, 0x02, 0xfb, 0x55, 0x43, 0xc1, 0xbf, 0xcd,
-	0x49, 0x93, 0x39, 0x69, 0x32, 0xbf, 0x5d, 0xc9, 0xe4, 0xe3, 0x2a, 0x73, 0xc0, 0x4d, 0xe6, 0x80,
-	0x5f, 0x99, 0x03, 0xae, 0x37, 0x4e, 0xeb, 0x66, 0xe3, 0xb4, 0x7e, 0x6e, 0x9c, 0xd6, 0xd9, 0xeb,
-	0xc6, 0xd7, 0xbd, 0xcc, 0xdf, 0x16, 0xeb, 0xab, 0x84, 0x29, 0xff, 0xc0, 0xa4, 0xdf, 0xfe, 0x09,
-	0x00, 0x00, 0xff, 0xff, 0x4c, 0x85, 0x15, 0x8f, 0x1c, 0x04, 0x00, 0x00,
+	// 627 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x94, 0xcb, 0x6e, 0xd3, 0x4c,
+	0x14, 0xc7, 0xe3, 0xba, 0x6a, 0x92, 0x71, 0xf5, 0x55, 0xf2, 0xd7, 0x8b, 0x31, 0x95, 0x1d, 0x85,
+	0x05, 0x59, 0xa0, 0x98, 0x0c, 0x12, 0x12, 0x1b, 0x10, 0x69, 0xd5, 0xaa, 0xaa, 0x22, 0x90, 0xbb,
+	0x2b, 0x82, 0x60, 0xc7, 0xd3, 0x89, 0xd5, 0xd8, 0x63, 0x79, 0xc6, 0x6d, 0xf3, 0x16, 0xbc, 0x00,
+	0x6f, 0x82, 0xc4, 0xb6, 0xcb, 0x2e, 0x59, 0x45, 0x28, 0x79, 0x8b, 0xae, 0x90, 0xc7, 0x97, 0xc6,
+	0x89, 0xd2, 0x94, 0x45, 0xd9, 0x79, 0xce, 0xe5, 0x7f, 0xce, 0xef, 0xf8, 0xcc, 0x80, 0x4d, 0x46,
+	0xa9, 0x71, 0xd1, 0xb2, 0x11, 0xb3, 0x5a, 0x06, 0xbb, 0x6a, 0x06, 0x21, 0x61, 0x44, 0x96, 0x18,
+	0xa5, 0xcd, 0xd4, 0xaa, 0x6e, 0x62, 0x82, 0x09, 0xb7, 0x1b, 0xf1, 0x57, 0x12, 0xa2, 0x3e, 0xc1,
+	0x84, 0xe0, 0x01, 0x32, 0xf8, 0xc9, 0x8e, 0xce, 0x0c, 0xcb, 0x1f, 0xa6, 0xae, 0xad, 0x82, 0x26,
+	0xa5, 0x89, 0xb9, 0xfe, 0x15, 0xfc, 0xd7, 0xa1, 0x78, 0x2f, 0x44, 0x16, 0x43, 0x87, 0x21, 0x89,
+	0x02, 0x59, 0x01, 0x65, 0x0f, 0x79, 0x36, 0x0a, 0xa9, 0x22, 0xd4, 0xc4, 0x46, 0xd5, 0xcc, 0x8e,
+	0xf2, 0x2e, 0xa8, 0xb2, 0x7e, 0x88, 0x68, 0x9f, 0x0c, 0x1c, 0x65, 0xa5, 0x26, 0x34, 0x56, 0xcd,
+	0x3b, 0x83, 0xbc, 0x0d, 0xd6, 0x28, 0xf2, 0x1d, 0x14, 0x2a, 0x62, 0x4d, 0x68, 0x54, 0xcd, 0xf4,
+	0x54, 0x57, 0xc0, 0x76, 0xb1, 0x82, 0x89, 0x68, 0x40, 0x7c, 0x8a, 0xea, 0xd7, 0x02, 0x90, 0x3b,
+	0x14, 0x9f, 0x44, 0xb6, 0xe7, 0xb2, 0xfd, 0xe3, 0x43, 0x93, 0x44, 0xbe, 0xd3, 0x92, 0x4f, 0x41,
+	0x05, 0xc7, 0x71, 0x5d, 0xd7, 0x51, 0x84, 0xb8, 0x4a, 0xfb, 0xdd, 0x78, 0xa4, 0x97, 0x79, 0xee,
+	0xd1, 0xfe, 0xed, 0x48, 0x7f, 0x89, 0x5d, 0xd6, 0x8f, 0xec, 0x66, 0x8f, 0x78, 0x86, 0x6d, 0xf9,
+	0x0e, 0x27, 0xe9, 0x91, 0x81, 0xd1, 0xeb, 0x5b, 0xae, 0x6f, 0x5c, 0x40, 0x23, 0x38, 0xc7, 0x9c,
+	0x31, 0xcd, 0x31, 0xcb, 0x5c, 0xf0, 0xc8, 0x91, 0xdf, 0x02, 0x29, 0xe4, 0x55, 0xba, 0x8e, 0xc5,
+	0x2c, 0x0e, 0x21, 0xc1, 0x9d, 0xe6, 0xd4, 0x64, 0x9b, 0x49, 0x17, 0xfb, 0x16, 0xb3, 0xda, 0xab,
+	0xd7, 0x23, 0xbd, 0x64, 0x82, 0x30, 0xb7, 0xc4, 0x90, 0xc9, 0x34, 0x32, 0xc8, 0xe4, 0x54, 0xdf,
+	0x05, 0xea, 0x3c, 0xc9, 0xfd, 0xa0, 0xf0, 0x9f, 0x80, 0xc2, 0x25, 0xa0, 0x70, 0x0e, 0x14, 0xfe,
+	0x35, 0x28, 0xcc, 0x41, 0x7f, 0x08, 0x40, 0x8a, 0x7f, 0x36, 0xf1, 0x82, 0x81, 0xe5, 0xfa, 0x8f,
+	0x4a, 0xf8, 0x06, 0x54, 0x7b, 0x69, 0x1d, 0xaa, 0x88, 0x35, 0xb1, 0x21, 0xc1, 0xad, 0x02, 0x5f,
+	0xd6, 0x45, 0x4a, 0x77, 0x17, 0x3d, 0x05, 0xb7, 0x5a, 0x80, 0xdb, 0x02, 0xff, 0x4f, 0x75, 0x9f,
+	0x53, 0xfd, 0x5c, 0x01, 0x80, 0xdb, 0xfd, 0x33, 0x37, 0xf4, 0x1e, 0x15, 0xea, 0x0b, 0xa8, 0x26,
+	0xbd, 0xc4, 0xe2, 0xfc, 0x8a, 0xb5, 0xdf, 0x8f, 0x47, 0x7a, 0xa5, 0xc3, 0x8d, 0x5c, 0xbd, 0xf5,
+	0x60, 0xf5, 0x2c, 0xc9, 0xac, 0x24, 0x9a, 0x47, 0x8e, 0xfc, 0x19, 0x6c, 0x90, 0x4b, 0xbf, 0x1b,
+	0x44, 0x76, 0xf7, 0x1c, 0x0d, 0xbb, 0xd4, 0xc5, 0xfc, 0xff, 0xae, 0xb7, 0x5f, 0xdf, 0x8e, 0x74,
+	0xf8, 0x60, 0xe5, 0x13, 0x17, 0xfb, 0x16, 0x8b, 0x42, 0x64, 0xae, 0x93, 0x4b, 0xff, 0x63, 0x64,
+	0x1f, 0xa3, 0xe1, 0x89, 0x8b, 0x17, 0x0e, 0x76, 0x93, 0xef, 0x7f, 0x3a, 0xc0, 0x6c, 0xae, 0xf0,
+	0xbb, 0x08, 0xc4, 0x0e, 0xc5, 0xf2, 0x07, 0x20, 0x4d, 0x3f, 0x40, 0x4f, 0x0b, 0x7f, 0xb1, 0xf8,
+	0x76, 0xa8, 0xcf, 0xee, 0x71, 0x66, 0xc2, 0xf2, 0x27, 0xb0, 0x31, 0xfb, 0xa8, 0xe8, 0xb3, 0x79,
+	0x33, 0x01, 0xea, 0xf3, 0x25, 0x01, 0x8b, 0xc5, 0xe1, 0x32, 0x71, 0xb8, 0x4c, 0x3c, 0xbf, 0x40,
+	0xf2, 0x01, 0xa8, 0xe4, 0x97, 0x47, 0x99, 0x43, 0x4d, 0x3d, 0x6a, 0x6d, 0x91, 0x27, 0xd7, 0xd9,
+	0x03, 0xe5, 0x6c, 0x5d, 0x77, 0xe6, 0x83, 0xb9, 0x43, 0xd5, 0x17, 0x38, 0x32, 0x91, 0xf6, 0xc1,
+	0xf5, 0x58, 0x13, 0x6e, 0xc6, 0x9a, 0xf0, 0x7b, 0xac, 0x09, 0xdf, 0x26, 0x5a, 0xe9, 0x66, 0xa2,
+	0x95, 0x7e, 0x4d, 0xb4, 0xd2, 0xe9, 0x8b, 0xa5, 0x9b, 0x72, 0x15, 0xef, 0x89, 0xc1, 0x86, 0x01,
+	0xa2, 0xf6, 0x1a, 0x77, 0xbf, 0xfa, 0x13, 0x00, 0x00, 0xff, 0xff, 0xeb, 0x87, 0xfe, 0x46, 0xd7,
+	0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -394,6 +618,10 @@ type MsgClient interface {
 	SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1, opts ...grpc.CallOption) (*MsgSubmitDKGRound1Response, error)
 	// SubmitDKGRound2 submit dkg for compute round 2.
 	SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2, opts ...grpc.CallOption) (*MsgSubmitDKGRound2Response, error)
+	// Complain submmit proof for complain malicious.
+	Complain(ctx context.Context, in *MsgComplain, opts ...grpc.CallOption) (*MsgComplainResponse, error)
+	// Confirm submit own signature for proof that it's can derive the secret.
+	Confirm(ctx context.Context, in *MsgConfirm, opts ...grpc.CallOption) (*MsgConfirmResponse, error)
 }
 
 type msgClient struct {
@@ -431,6 +659,24 @@ func (c *msgClient) SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2,
 	return out, nil
 }
 
+func (c *msgClient) Complain(ctx context.Context, in *MsgComplain, opts ...grpc.CallOption) (*MsgComplainResponse, error) {
+	out := new(MsgComplainResponse)
+	err := c.cc.Invoke(ctx, "/tss.v1beta1.Msg/Complain", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) Confirm(ctx context.Context, in *MsgConfirm, opts ...grpc.CallOption) (*MsgConfirmResponse, error) {
+	out := new(MsgConfirmResponse)
+	err := c.cc.Invoke(ctx, "/tss.v1beta1.Msg/Confirm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// CreateGroup creates a new group with a list of members.
@@ -439,6 +685,10 @@ type MsgServer interface {
 	SubmitDKGRound1(context.Context, *MsgSubmitDKGRound1) (*MsgSubmitDKGRound1Response, error)
 	// SubmitDKGRound2 submit dkg for compute round 2.
 	SubmitDKGRound2(context.Context, *MsgSubmitDKGRound2) (*MsgSubmitDKGRound2Response, error)
+	// Complain submmit proof for complain malicious.
+	Complain(context.Context, *MsgComplain) (*MsgComplainResponse, error)
+	// Confirm submit own signature for proof that it's can derive the secret.
+	Confirm(context.Context, *MsgConfirm) (*MsgConfirmResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -453,6 +703,12 @@ func (*UnimplementedMsgServer) SubmitDKGRound1(ctx context.Context, req *MsgSubm
 }
 func (*UnimplementedMsgServer) SubmitDKGRound2(ctx context.Context, req *MsgSubmitDKGRound2) (*MsgSubmitDKGRound2Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitDKGRound2 not implemented")
+}
+func (*UnimplementedMsgServer) Complain(ctx context.Context, req *MsgComplain) (*MsgComplainResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Complain not implemented")
+}
+func (*UnimplementedMsgServer) Confirm(ctx context.Context, req *MsgConfirm) (*MsgConfirmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Confirm not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -513,6 +769,42 @@ func _Msg_SubmitDKGRound2_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_Complain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgComplain)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).Complain(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tss.v1beta1.Msg/Complain",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).Complain(ctx, req.(*MsgComplain))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_Confirm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgConfirm)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).Confirm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tss.v1beta1.Msg/Confirm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).Confirm(ctx, req.(*MsgConfirm))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "tss.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -528,6 +820,14 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitDKGRound2",
 			Handler:    _Msg_SubmitDKGRound2_Handler,
+		},
+		{
+			MethodName: "Complain",
+			Handler:    _Msg_Complain_Handler,
+		},
+		{
+			MethodName: "Confirm",
+			Handler:    _Msg_Confirm_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -737,6 +1037,148 @@ func (m *MsgSubmitDKGRound2Response) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgComplain) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgComplain) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgComplain) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Member) > 0 {
+		i -= len(m.Member)
+		copy(dAtA[i:], m.Member)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Member)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Complains) > 0 {
+		for iNdEx := len(m.Complains) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Complains[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if m.GroupID != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgComplainResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgComplainResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgComplainResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgConfirm) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgConfirm) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgConfirm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Member) > 0 {
+		i -= len(m.Member)
+		copy(dAtA[i:], m.Member)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Member)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.OwnPubKeySig) > 0 {
+		i -= len(m.OwnPubKeySig)
+		copy(dAtA[i:], m.OwnPubKeySig)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OwnPubKeySig)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.MemberID != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MemberID))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.GroupID != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgConfirmResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgConfirmResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgConfirmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -825,6 +1267,69 @@ func (m *MsgSubmitDKGRound2) Size() (n int) {
 }
 
 func (m *MsgSubmitDKGRound2Response) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgComplain) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		n += 1 + sovTx(uint64(m.GroupID))
+	}
+	if len(m.Complains) > 0 {
+		for _, e := range m.Complains {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	l = len(m.Member)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgComplainResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgConfirm) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		n += 1 + sovTx(uint64(m.GroupID))
+	}
+	if m.MemberID != 0 {
+		n += 1 + sovTx(uint64(m.MemberID))
+	}
+	l = len(m.OwnPubKeySig)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Member)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgConfirmResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1367,6 +1872,395 @@ func (m *MsgSubmitDKGRound2Response) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgSubmitDKGRound2Response: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgComplain) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgComplain: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgComplain: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Complains", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Complains = append(m.Complains, Complain{})
+			if err := m.Complains[len(m.Complains)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Member", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Member = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgComplainResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgComplainResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgComplainResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgConfirm) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgConfirm: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgConfirm: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MemberID", wireType)
+			}
+			m.MemberID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MemberID |= github_com_bandprotocol_chain_v2_pkg_tss.MemberID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OwnPubKeySig", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OwnPubKeySig = append(m.OwnPubKeySig[:0], dAtA[iNdEx:postIndex]...)
+			if m.OwnPubKeySig == nil {
+				m.OwnPubKeySig = []byte{}
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Member", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Member = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgConfirmResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgConfirmResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgConfirmResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

@@ -46,6 +46,15 @@ var (
 
 	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
 	Round2DataCountStoreKeyPrefix = []byte{0x08}
+
+	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
+	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
+
+	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
+
+	// ConfirmStoreKeyPrefix is the key that keeps confirm.
+	ConfirmStoreKeyPrefix = []byte{0x11}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -94,4 +103,24 @@ func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte
 
 func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
 	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ConfirmStoreKey(groupID tss.GroupID) []byte {
+	return append(ConfirmStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ConfirmMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(ConfirmStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func ComplainsWithStatusStoreKey(groupID tss.GroupID) []byte {
+	return append(ComplainsWithStatusStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func ComplainsWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(ComplainsWithStatusStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
+	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

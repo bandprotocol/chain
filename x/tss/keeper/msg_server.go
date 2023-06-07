@@ -35,8 +35,9 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	for i, m := range req.Members {
 		// id start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
-			Member: m,
-			PubKey: tss.PublicKey(nil),
+			Member:      m,
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
 		})
 	}
 
@@ -265,4 +266,264 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
+}
+
+// Complain handles complaints from a member of a certain group.
+// It validates the group status, verifies the member making the complaint, and checks previous submissions from the member.
+// Each complaint in the request is verified, marking the member either as malicious or the subject of complaint as malicious depending on the verification result.
+// After each verification, complaint statuses are appended, relevant events are emitted, and the group data is updated.
+// If all members have sent confirmation or complaints, it will handle the fallen group.
+func (k Keeper) Complain(
+	goCtx context.Context,
+	req *types.MsgComplain,
+) (*types.MsgComplainResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+	memberID := req.Complains[0].I
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.ROUND_3 {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
+	}
+
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
+	}
+
+	// Check already confirm or complain
+	err = k.checkConfirmOrComplain(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify complain
+	var complainsWithStatus []types.ComplainWithStatus
+	for _, c := range req.Complains {
+		err := k.HandleVerifyComplainSig(ctx, groupID, c)
+		if err != nil {
+			// Mark i as malicious
+			err := k.MarkMalicious(ctx, groupID, c.I)
+			if err != nil {
+				return nil, err
+			}
+
+			// Add complain status
+			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
+				Complain:       c,
+				ComplainStatus: types.FAILED,
+			})
+
+			// emit complain failed event
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeComplainFailed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+		} else {
+			// Mark j as malicious
+			err := k.MarkMalicious(ctx, groupID, c.J)
+			if err != nil {
+				return nil, err
+			}
+
+			// Add complain status
+			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
+				Complain:       c,
+				ComplainStatus: types.SUCCESS,
+			})
+
+			// Emit complain success event
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeComplainSuccess,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+				),
+			)
+		}
+
+		// Set complain with status
+		k.SetComplainsWithStatus(ctx, groupID, types.ComplainsWithStatus{
+			MemberID:            memberID,
+			ComplainsWithStatus: complainsWithStatus,
+		})
+
+		// Get confirm complain count
+		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+
+		// Handle fallen group if everyone sends confirm or complains already.
+		if confirmComplainCount == group.Size_ {
+			k.handleFallenGroup(ctx, groupID, group)
+		}
+	}
+
+	return &types.MsgComplainResponse{}, nil
+}
+
+// Confirm method handles a member's confirmation for a certain group.
+// It validates the group status, verifies the member making the confirmation, and checks if the member has already submitted a confirmation or complaint.
+// If the member's own public key signature is verified, the member's public key is updated in the data.
+// If all members have sent confirmations or complaints, it will update the group status to active or handle the fallen group if there are any malicious members.
+// Finally, the function sets the confirmation with status, emits an event for confirmation success, and returns a response to the confirmation request.
+func (k Keeper) Confirm(
+	goCtx context.Context,
+	req *types.MsgConfirm,
+) (*types.MsgConfirmResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+	memberID := req.MemberID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.ROUND_3 {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
+	}
+
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
+	}
+
+	// Check already confirm or complain
+	err = k.checkConfirmOrComplain(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify OwnPubKeySig
+	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get confirm complain count
+	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+
+	// Get malicious members
+	maliciousMembers, err := k.GetMaliciousMembers(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, types.Confirm{
+		MemberID:     memberID,
+		OwnPubKeySig: req.OwnPubKeySig,
+	})
+
+	// Handle fallen group if everyone sends confirm or complains already.
+	if confirmComplainCount+1 == group.Size_ {
+		if len(maliciousMembers) == 0 {
+			// Update group status
+			group.Status = types.ACTIVE
+			k.UpdateGroup(ctx, groupID, group)
+
+			// Emit event round 3 success
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound3Success,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+				),
+			)
+		} else {
+			// Handle fallen group if someone in this group is malicious.
+			k.handleFallenGroup(ctx, groupID, group)
+
+			return nil, sdkerrors.Wrapf(
+				types.ErrConfirmFailed,
+				"memberIDs: %v is malicious",
+				maliciousMembers,
+			)
+		}
+
+		// Delete all dkg interim data
+		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
+	}
+
+	// Emit event confirm success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeConfirmSuccess,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+		),
+	)
+
+	return &types.MsgConfirmResponse{}, nil
+}
+
+// Check already confirm or complain.
+func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+	_, err := k.GetConfirm(ctx, groupID, memberID)
+	if err == nil {
+		return sdkerrors.Wrapf(
+			types.ErrMemberIsAlreadyComplainOrConfirm,
+			"memberID %d already send confirm message",
+			memberID,
+		)
+	}
+	_, err = k.GetComplainsWithStatus(ctx, groupID, memberID)
+	if err == nil {
+		return sdkerrors.Wrapf(
+			types.ErrMemberIsAlreadyComplainOrConfirm,
+			"memberID %d already send complain message",
+			memberID,
+		)
+	}
+	return nil
+}
+
+// HandleFallenGroup updates the status of a group and emit event.
+func (k Keeper) handleFallenGroup(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	group types.Group,
+) {
+	group.Status = types.FALLEN
+
+	k.UpdateGroup(ctx, groupID, group)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeRound3Failed,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+		),
+	)
 }

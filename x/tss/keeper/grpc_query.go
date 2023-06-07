@@ -30,20 +30,31 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
+	if group.Status == types.ACTIVE {
+		return &types.QueryGroupResponse{
+			Group:   group,
+			Members: members,
+		}, nil
+	}
+
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	allRound1Data := k.GetAllRound1Data(ctx, groupID)
-	allRound2Data := k.GetAllRound2Data(ctx, groupID)
+	r1s := k.GetAllRound1Data(ctx, groupID)
+	r2s := k.GetAllRound2Data(ctx, groupID)
+	complains := k.GetAllComplainsWithStatus(ctx, groupID)
+	confirms := k.GetConfirms(ctx, groupID)
 
 	return &types.QueryGroupResponse{
-		Group:         group,
-		DKGContext:    dkgContext,
-		Members:       members,
-		AllRound1Data: allRound1Data,
-		AllRound2Data: allRound2Data,
+		Group:                  group,
+		DKGContext:             dkgContext,
+		Members:                members,
+		AllRound1Data:          r1s,
+		AllRound2Data:          r2s,
+		AllComplainsWithStatus: complains,
+		AllConfirm:             confirms,
 	}, nil
 }
 

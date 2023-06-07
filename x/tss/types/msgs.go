@@ -154,3 +154,97 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 
 	return nil
 }
+
+var _ sdk.Msg = &MsgComplain{}
+
+// Route Implements Msg.
+func (m MsgComplain) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgComplain) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgComplain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgComplain) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate complains size
+	if len(m.Complains) < 1 {
+		return sdkerrors.Wrap(fmt.Errorf("must contain at least one complain"), "complains")
+	}
+
+	// Validate complains
+	memberI := m.Complains[0].I
+	for i, c := range m.Complains {
+		// Validate member I
+		if i > 0 && memberI != c.I {
+			return sdkerrors.Wrap(fmt.Errorf("member I in the list of complains must be the same value"), "I")
+		}
+
+		// Validate key sym
+		_, err := c.KeySym.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "key sym")
+		}
+		// Validate nonce sym
+		_, err = c.NonceSym.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "nonce sym")
+		}
+		// Validate signature
+		_, err = c.Signature.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "signature")
+		}
+	}
+
+	return nil
+}
+
+var _ sdk.Msg = &MsgConfirm{}
+
+// Route Implements Msg.
+func (m MsgConfirm) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgConfirm) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgConfirm) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgConfirm) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate own pub key sig
+	_, err = m.OwnPubKeySig.Parse()
+	if err != nil {
+		return sdkerrors.Wrap(err, "own pub key sig")
+	}
+
+	return nil
+}

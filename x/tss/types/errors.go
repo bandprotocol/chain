@@ -32,5 +32,10 @@ var (
 		15,
 		"encrypted secret shares not correct length",
 	)
-	ErrComputeOwnPubKeyFailed = sdkerrors.Register(ModuleName, 16, "fail to compute own public key")
+	ErrComputeOwnPubKeyFailed           = sdkerrors.Register(ModuleName, 16, "fail to compute own public key")
+	ErrMemberIsAlreadyComplainOrConfirm = sdkerrors.Register(ModuleName, 17, "member is already complain or confirm")
+	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 18, "complain failed")
+	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 19, "confirm failed")
+	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 20, "confirm not found")
+	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 21, "complains with status not found")
 )

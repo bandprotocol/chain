@@ -37,6 +37,8 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
 	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
+	txCmd.AddCommand(MsgComplainCmd())
+	txCmd.AddCommand(MsgConfirmCmd())
 
 	return txCmd
 }
@@ -304,6 +306,116 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgComplainCmd creates a CLI command for CLI command for Msg/Complain.
+func MsgComplainCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "complain [group_id] [complains-json-file]",
+		Args:  cobra.ExactArgs(2),
+		Short: "complain containing group_id and complains data",
+		Example: fmt.Sprintf(`
+%s tx tss complain [group_id] [complains-json-file]
+
+Where complains.json contains:
+{
+	complains: [
+		{
+			"i": 1,
+			"j": 2,
+			"key_sym": "symmetric key between i and j",
+			"signature": "signature that complain by i",
+			"nonce_sym": "symmetric nonce"
+		},
+		...
+	]
+}`,
+
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			complains, err := parseComplains(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgComplain{
+				GroupID:   tss.GroupID(groupID),
+				Complains: complains,
+				Member:    clientCtx.GetFromAddress().String(),
+			}
+
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
+func MsgConfirmCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
+		Args:  cobra.ExactArgs(3),
+		Short: "submit tss confirm containing group_id, member_id, and own_pub_key_sig",
+		Example: fmt.Sprintf(
+			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			ownPubKeySig, err := hex.DecodeString(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgConfirm{
+				GroupID:      tss.GroupID(groupID),
+				MemberID:     tss.MemberID(memberID),
+				OwnPubKeySig: ownPubKeySig,
+				Member:       clientCtx.GetFromAddress().String(),
 			}
 			if err = msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("message validation failed: %w", err)
