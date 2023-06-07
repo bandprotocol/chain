@@ -28,6 +28,16 @@ func GetDetail(msgs []sdk.Msg) []Detail {
 				GroupID: t.GroupID,
 				Type:    t.Type(),
 			}
+		case *types.MsgConfirm:
+			detail = Detail{
+				GroupID: t.GroupID,
+				Type:    t.Type(),
+			}
+		case *types.MsgComplain:
+			detail = Detail{
+				GroupID: t.GroupID,
+				Type:    t.Type(),
+			}
 		default:
 			detail = Detail{
 				Type: "Unknown",
