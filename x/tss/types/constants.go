@@ -1,13 +1,16 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 var MsgGrants = []string{
-	"/tss.v1beta1.MsgCreateGroup",
-	"/tss.v1beta1.MsgSubmitDKGRound1",
-	"/tss.v1beta1.MsgSubmitDKGRound2",
-	"/tss.v1beta1.MsgComplain",
-	"/tss.v1beta1.MsgConfirm",
-	"/tss.v1beta1.MsgSubmitDEPairs",
-	"/tss.v1beta1.MsgSign",
+	sdk.MsgTypeURL(&MsgCreateGroup{}),
+	sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
+	sdk.MsgTypeURL(&MsgSubmitDKGRound2{}),
+	sdk.MsgTypeURL(&MsgComplain{}),
+	sdk.MsgTypeURL(&MsgConfirm{}),
+	sdk.MsgTypeURL(&MsgSubmitDEs{}),
+	sdk.MsgTypeURL(&MsgSign{}),
+	sdk.MsgTypeURL(&MsgCreateGroup{}),
 }
 
 const (
