@@ -18,10 +18,8 @@ import (
 // Round1 is a worker responsible for round1 in the DKG process of TSS module
 type Round1 struct {
 	context *cylinder.Context
-
-	logger *logger.Logger
-	client *client.Client
-
+	logger  *logger.Logger
+	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
 }
 
@@ -43,21 +41,17 @@ func New(ctx *cylinder.Context) (*Round1, error) {
 	}, nil
 }
 
-// subscribe subscribes to the round1 events and initializes the event channel for receiving events.
+// subscribe subscribes to the create_group events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
-func (r *Round1) subscribe() error {
-	var err error
-	r.eventCh, err = r.client.Subscribe(
-		"round1",
-		fmt.Sprintf(
-			"tm.event = 'Tx' AND %s.%s = '%s'",
-			types.EventTypeCreateGroup,
-			types.AttributeKeyMember,
-			r.context.Config.Granter,
-		),
-		1000,
+func (r *Round1) subscribe() (err error) {
+	subscriptionQuery := fmt.Sprintf(
+		"tm.event = 'Tx' AND %s.%s = '%s'",
+		types.EventTypeCreateGroup,
+		types.AttributeKeyMember,
+		r.context.Config.Granter,
 	)
-	return err
+	r.eventCh, err = r.client.Subscribe("Round1", subscriptionQuery, 1000)
+	return
 }
 
 // handleTxResult handles the result of a transaction.
@@ -65,14 +59,14 @@ func (r *Round1) subscribe() error {
 func (r *Round1) handleTxResult(txResult abci.TxResult) {
 	msgLogs, err := event.GetMessageLogs(txResult)
 	if err != nil {
-		r.logger.Error("Failed to get message logs: %s", err.Error())
+		r.logger.Error("Failed to get message logs: %s", err)
 		return
 	}
 
 	for _, log := range msgLogs {
 		event, err := ParseEvent(log, r.context.Config.Granter)
 		if err != nil {
-			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err.Error())
+			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
@@ -88,7 +82,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 	// Generate round1 data
 	data, err := tss.GenerateRound1Data(mid, threshold, dkgContext)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err)
 		return
 	}
 
@@ -118,7 +112,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 }
 
 // Start starts the Round1 worker.
-// It subscribes to the round1 events, and continuously processes incoming events by calling handleTxResult.
+// It subscribes to the events, and continuously processes incoming events by calling handleTxResult.
 func (r *Round1) Start() {
 	r.logger.Info("start")
 

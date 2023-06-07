@@ -11,11 +11,9 @@ import (
 
 // Sender is a worker responsible for sending transactions to the node.
 type Sender struct {
-	context *cylinder.Context
-
-	logger *logger.Logger
-	client *client.Client
-
+	context  *cylinder.Context
+	logger   *logger.Logger
+	client   *client.Client
 	freeKeys chan *keyring.Record
 }
 
@@ -83,7 +81,7 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 	// Check message validation
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
-			logger.Error(":exploding_head: Failed to validate basic with error: %s", err.Error())
+			logger.Error(":exploding_head: Failed to validate basic with error: %s", err)
 			return
 		}
 	}
@@ -92,7 +90,7 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 
 	res, err := s.client.BroadcastAndConfirm(logger, key, msgs)
 	if err != nil {
-		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err.Error())
+		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err)
 		return
 	}
 

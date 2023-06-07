@@ -17,10 +17,8 @@ import (
 // Round2 is a worker responsible for round2 in the DKG process of TSS module
 type Round2 struct {
 	context *cylinder.Context
-
-	logger *logger.Logger
-	client *client.Client
-
+	logger  *logger.Logger
+	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
 }
 
@@ -41,20 +39,16 @@ func New(ctx *cylinder.Context) (*Round2, error) {
 	}, nil
 }
 
-// subscribe subscribes to the round2 events and initializes the event channel for receiving events.
+// subscribe subscribes to the round1_success events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
-func (r *Round2) subscribe() error {
-	var err error
-	r.eventCh, err = r.client.Subscribe(
-		"round2",
-		fmt.Sprintf(
-			"tm.event = 'Tx' AND %s.%s EXISTS",
-			types.EventTypeRound1Success,
-			types.AttributeKeyGroupID,
-		),
-		1000,
+func (r *Round2) subscribe() (err error) {
+	subscriptionQuery := fmt.Sprintf(
+		"tm.event = 'Tx' AND %s.%s EXISTS",
+		types.EventTypeRound1Success,
+		types.AttributeKeyGroupID,
 	)
-	return err
+	r.eventCh, err = r.client.Subscribe("Round2", subscriptionQuery, 1000)
+	return
 }
 
 // handleTxResult handles the result of a transaction.
@@ -62,14 +56,14 @@ func (r *Round2) subscribe() error {
 func (r *Round2) handleTxResult(txResult abci.TxResult) {
 	msgLogs, err := event.GetMessageLogs(txResult)
 	if err != nil {
-		r.logger.Error("Failed to get message logs: %s", err.Error())
+		r.logger.Error("Failed to get message logs: %s", err)
 		return
 	}
 
 	for _, log := range msgLogs {
 		event, err := ParseEvent(log)
 		if err != nil {
-			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err.Error())
+			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
@@ -84,7 +78,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	// Query group detail
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to query group information: %s", err)
 		return
 	}
 
@@ -100,7 +94,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	// Get group data
 	group, err := r.context.Store.GetGroup(gid)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to find group in store: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 		return
 	}
 
@@ -118,7 +112,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 		group.Coefficients,
 	)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err)
 		return
 	}
 
@@ -136,7 +130,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 }
 
 // Start starts the Round2 worker.
-// It subscribes to round2 events and starts processing incoming events.
+// It subscribes to events and starts processing incoming events.
 func (r *Round2) Start() {
 	r.logger.Info("start")
 

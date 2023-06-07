@@ -17,10 +17,8 @@ import (
 // Round3 is a worker responsible for round3 in the DKG process of TSS module
 type Round3 struct {
 	context *cylinder.Context
-
-	logger *logger.Logger
-	client *client.Client
-
+	logger  *logger.Logger
+	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
 }
 
@@ -41,20 +39,16 @@ func New(ctx *cylinder.Context) (*Round3, error) {
 	}, nil
 }
 
-// subscribe subscribes to the round2 events and initializes the event channel for receiving events.
+// subscribe subscribes to the round2_success events and initializes the event channel for receiving events.
 // It returns an error if the subscription fails.
-func (r *Round3) subscribe() error {
-	var err error
-	r.eventCh, err = r.client.Subscribe(
-		"round3",
-		fmt.Sprintf(
-			"tm.event = 'Tx' AND %s.%s EXISTS",
-			types.EventTypeRound2Success,
-			types.AttributeKeyGroupID,
-		),
-		1000,
+func (r *Round3) subscribe() (err error) {
+	subscriptionQuery := fmt.Sprintf(
+		"tm.event = 'Tx' AND %s.%s EXISTS",
+		types.EventTypeRound2Success,
+		types.AttributeKeyGroupID,
 	)
-	return err
+	r.eventCh, err = r.client.Subscribe("Round3", subscriptionQuery, 1000)
+	return
 }
 
 // handleTxResult handles the result of a transaction.
@@ -62,14 +56,14 @@ func (r *Round3) subscribe() error {
 func (r *Round3) handleTxResult(txResult abci.TxResult) {
 	msgLogs, err := event.GetMessageLogs(txResult)
 	if err != nil {
-		r.logger.Error("Failed to get message logs: %s", err.Error())
+		r.logger.Error("Failed to get message logs: %s", err)
 		return
 	}
 
 	for _, log := range msgLogs {
 		event, err := ParseEvent(log)
 		if err != nil {
-			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err.Error())
+			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
@@ -84,13 +78,12 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Query group detail
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to query group information: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to query group information: %s", err)
 		return
 	}
 
 	// Check if the user is member in the group
-	isMember := groupRes.IsMember(r.context.Config.Granter)
-	if !isMember {
+	if !groupRes.IsMember(r.context.Config.Granter) {
 		return
 	}
 
@@ -100,14 +93,14 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Set group data
 	group, err := r.context.Store.GetGroup(gid)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to find group in store: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 		return
 	}
 
 	// Get own private key
 	ownPrivKey, complains, err := getOwnPrivKey(group, groupRes)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to get own private key or complains: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to get own private key or complains: %s", err)
 		return
 	}
 
@@ -126,9 +119,11 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	group.PrivKey = ownPrivKey
 	group.PubKey = groupRes.Group.PubKey
 	r.context.Store.SetGroup(gid, group)
+
+	// Get own public key
 	ownPubKey, err := ownPrivKey.PublicKey()
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to generate own public key: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to get own public key: %s", err)
 		return
 	}
 
@@ -140,7 +135,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		ownPrivKey,
 	)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to sign own public key: %s", err.Error())
+		logger.Error(":cold_sweat: Failed to sign own public key: %s", err)
 		return
 	}
 
@@ -154,7 +149,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 }
 
 // Start starts the Round3 worker.
-// It subscribes to round2 events and starts processing incoming events.
+// It subscribes to events and starts processing incoming events.
 func (r *Round3) Start() {
 	r.logger.Info("start")
 
