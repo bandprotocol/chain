@@ -7,12 +7,16 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
 
 message Group {
-  uint64 size = 1;
-  uint64 threshold = 2;
-  bytes pub_key = 3 [
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  uint64 size = 2;
+  uint64 threshold = 3;
+  bytes pub_key = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  GroupStatus status = 4;
+  GroupStatus status = 5;
 }
 
 message Round1Data {
@@ -59,12 +63,44 @@ message DEQueue {
 }
 
 message Signing {
-  uint64 group_id = 1 [ (gogoproto.customname) = "GroupID" ];
-  repeated uint64 assigned_participants = 2;
-  bytes message = 3;
-  bytes sig = 4 [
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  uint64 group_id = 2 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  repeated AssignedMember assigned_members = 3 [ (gogoproto.nullable) = false ];
+  bytes message = 4;
+  bytes group_pub_nonce = 5 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes bytes = 6;
+  bytes sig = 7 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
+}
+
+message AssignedMember {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ]; 
+  string member = 2;
+  bytes public_d = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes public_e = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+  bytes public_nonce = 5 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  ];
+}
+
+message PendingSigns {
+  repeated uint64 signing_ids = 1;
 }
 
 message Member {
@@ -134,4 +170,14 @@ message ComplainsWithStatus {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
   repeated ComplainWithStatus complains_with_status = 2 [ (gogoproto.nullable) = false ];
+}
+
+message PartialSig {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  bytes signature = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
 }

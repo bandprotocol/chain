@@ -237,6 +237,9 @@ func (pks PublicKeys) Points() ([]*secp256k1.JacobianPoint, error) {
 // It uses schnorr.Signature as a base implementation for serialization and parsing.
 type Signature []byte
 
+// Signatures represents a slice of Signature values.
+type Signatures []Signature
+
 // NewSignature generates a signature from Point and Scalar.
 // It returns a signature and an error, if any.
 func NewSignature(rawPoint Point, rawScalar Scalar) (Signature, error) {

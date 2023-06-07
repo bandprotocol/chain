@@ -39,6 +39,8 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
 	txCmd.AddCommand(MsgComplainCmd())
 	txCmd.AddCommand(MsgConfirmCmd())
+	txCmd.AddCommand(MsgSubmitDEsCmd())
+	txCmd.AddCommand(MsgRequestSignCmd())
 
 	return txCmd
 }
@@ -173,10 +175,6 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 				Threshold: threshold,
 				Sender:    clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -248,10 +246,6 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -307,10 +301,6 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -366,11 +356,6 @@ Where complains.json contains:
 				Complains: complains,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
-
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -417,10 +402,95 @@ func MsgConfirmCmd() *cobra.Command {
 				OwnPubKeySig: ownPubKeySig,
 				Member:       clientCtx.GetFromAddress().String(),
 			}
-			if err = msg.ValidateBasic(); err != nil {
-				return fmt.Errorf("message validation failed: %w", err)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
+func MsgSubmitDEsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "submit-multi-de [d,e] [d,e] ...",
+		Args:  cobra.MinimumNArgs(1),
+		Short: "submit tss submit-multi-de containing address and DEs",
+		Example: fmt.Sprintf(
+			`%s tx tss submit-multi-de [d,e] [d,e] ...`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
 			}
 
+			var des []types.DE
+			for i := 0; i < len(args); i++ {
+				de := strings.Split(args[i], ",")
+				if len(de) != 2 {
+					return fmt.Errorf("DE must be 2 value not %v", de)
+				}
+
+				d, err := hex.DecodeString(de[0])
+				if err != nil {
+					return err
+				}
+
+				e, err := hex.DecodeString(de[1])
+				if err != nil {
+					return err
+				}
+
+				des = append(des, types.DE{PubD: d, PubE: e})
+			}
+
+			msg := &types.MsgSubmitDEs{
+				DEs:    des,
+				Member: clientCtx.GetFromAddress().String(),
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
+func MsgRequestSignCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "request-sign [group_id] [message]",
+		Args:  cobra.ExactArgs(2),
+		Short: "request tss sign of the message from a group",
+		Example: fmt.Sprintf(
+			`%s tx tss request-sign [group_id] [message]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			data, err := hex.DecodeString(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRequestSign{
+				GroupID: tss.GroupID(groupID),
+				Message: data,
+				Sender:  clientCtx.GetFromAddress().String(),
+			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

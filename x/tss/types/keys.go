@@ -1,8 +1,10 @@
 package types
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/kv"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 const (
@@ -17,11 +19,20 @@ const (
 )
 
 var (
+	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
+	RollingSeedSizeInBytes = 32
+
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	// GroupCountStoreKey is the key that keeps the total request count.
+	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
+
+	// SigningCountStoreKey is the key that keeps the total signing count.
+	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
+
+	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
+	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
 
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
@@ -55,6 +66,24 @@ var (
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
 	ConfirmStoreKeyPrefix = []byte{0x11}
+
+	// DEStoreKeyPrefix is the key for keeps pre-commit DE.
+	DEStoreKeyPrefix = []byte{0x12}
+
+	// DEQueueStoreKeyPrefix is the key for keeps first and last index of the DEQueue.
+	DEQueueStoreKeyPrefix = []byte{0x13}
+
+	// SigningStoreKeyPrefix is the key for keeps signing data.
+	SigningStoreKeyPrefix = []byte{0x14}
+
+	// PendingSignsStoreKeyPrefix is the key for keeps pending signs data.
+	PendingSignsStoreKeyPrefix = []byte{0x15}
+
+	// SigCountStoreKeyPrefix is the key for keeps signature count data.
+	SigCountStoreKeyPrefix = []byte{0x16}
+
+	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
+	PartialSigStoreKeyPrefix = []byte{0x17}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -123,4 +152,50 @@ func ComplainsWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberI
 
 func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func DEStoreKey(address sdk.AccAddress) []byte {
+	return append(DEStoreKeyPrefix, address...)
+}
+
+func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
+	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
+}
+
+func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
+	return append(DEQueueStoreKeyPrefix, address...)
+}
+
+func SigningStoreKey(signingID tss.SigningID) []byte {
+	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+}
+
+func PendingSignsStoreKey(address sdk.AccAddress) []byte {
+	return append(PendingSignsStoreKeyPrefix, address...)
+}
+
+func PendingSignStoreKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
+	return append(PendingSignsStoreKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
+}
+
+func SigCountStoreKey(signingID tss.SigningID) []byte {
+	return append(SigCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+}
+
+func PartialSigStoreKey(signingID tss.SigningID) []byte {
+	return append(PartialSigStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+}
+
+func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
+	return append(PartialSigStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
+	kv.AssertKeyLength(key, 1+2*uint64Len)
+	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
+}
+
+func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
+	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
+	return sdk.BigEndianToUint64(key[1+AddrLen:])
 }

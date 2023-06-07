@@ -19,6 +19,12 @@ service Msg {
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
   // Confirm submit own signature for proof that it's can derive the secret.
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
+  // SubmitDEs submit list of pre-commits DE for signing process.
+  rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
+  // RequestSign submit a general message to be signed by a specific group
+  rpc RequestSign(MsgRequestSign) returns (MsgRequestSignResponse);
+  // Sign submit signature on task participant need to do
+  rpc Sign(MsgSign) returns (MsgSignResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -101,3 +107,41 @@ message MsgConfirm {
 }
 
 message MsgConfirmResponse {}
+
+message MsgSubmitDEs {
+  repeated DE des = 1 [
+    (gogoproto.customname) = "DEs",
+    (gogoproto.nullable) = false
+  ];
+  string member = 2;
+}
+
+message MsgSubmitDEsResponse {}
+
+message MsgRequestSign {
+  uint64 group_id = 1 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  bytes message = 2;
+  string sender = 3;
+}
+
+message MsgRequestSignResponse {}
+  
+message MsgSign {
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  uint64 member_id = 2 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  bytes signature = 3 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+  string member = 4;
+}
+
+message MsgSignResponse {}

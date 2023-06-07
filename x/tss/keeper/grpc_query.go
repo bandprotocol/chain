@@ -5,8 +5,10 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
 type Querier struct {
@@ -90,5 +92,77 @@ func (k Querier) IsGrantee(
 
 	return &types.QueryIsGranteeResponse{
 		IsGrantee: k.Keeper.IsGrantee(ctx, granter, grantee),
+	}, nil
+}
+
+func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
+	var des []types.DE
+	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(address))
+	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
+		var de types.DE
+		k.cdc.MustUnmarshal(value, &de)
+		des = append(des, de)
+		return nil
+	})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidArgument, "paginate: %v", err)
+	}
+
+	return &types.QueryDEResponse{
+		DEs:        des,
+		Pagination: pageRes,
+	}, nil
+}
+
+func (k Querier) PendingSigns(
+	goCtx context.Context,
+	req *types.QueryPendingSignsRequest,
+) (*types.QueryPendingSignsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
+	var pendingSigns []types.Signing
+	pendingSignIDs := k.GetPendingSignIDs(ctx, address)
+	for _, id := range pendingSignIDs {
+		signing, err := k.GetSigning(ctx, tss.SigningID(id))
+		if err != nil {
+			return nil, err
+		}
+		pendingSigns = append(pendingSigns, signing)
+	}
+
+	return &types.QueryPendingSignsResponse{
+		PendingSigns: pendingSigns,
+	}, nil
+}
+
+func (k Querier) Signings(
+	goCtx context.Context,
+	req *types.QuerySigningsRequest,
+) (*types.QuerySigningsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	signingID := tss.SigningID(req.Id)
+
+	signing, err := k.GetSigning(ctx, signingID)
+	if err != nil {
+		return nil, err
+	}
+
+	pzs := k.GetPartialSigsWithKey(ctx, signingID)
+
+	return &types.QuerySigningsResponse{
+		Signing:             &signing,
+		ReceivedPartialSigs: pzs,
 	}, nil
 }

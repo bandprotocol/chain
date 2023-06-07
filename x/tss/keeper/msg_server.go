@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -159,7 +160,7 @@ func (k Keeper) SubmitDKGRound1(
 	if count == group.Size_ {
 		group.Status = types.ROUND_2
 		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
-		k.UpdateGroup(ctx, groupID, group)
+		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound1Success,
@@ -255,7 +256,7 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2DataCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.ROUND_3
-		k.UpdateGroup(ctx, groupID, group)
+		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound2Success,
@@ -377,7 +378,7 @@ func (k Keeper) Complain(
 
 		// Handle fallen group if everyone sends confirm or complains already.
 		if confirmComplainCount == group.Size_ {
-			k.handleFallenGroup(ctx, groupID, group)
+			k.handleFallenGroup(ctx, group)
 		}
 	}
 
@@ -450,7 +451,7 @@ func (k Keeper) Confirm(
 		if len(maliciousMembers) == 0 {
 			// Update group status
 			group.Status = types.ACTIVE
-			k.UpdateGroup(ctx, groupID, group)
+			k.SetGroup(ctx, group)
 
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
@@ -462,7 +463,7 @@ func (k Keeper) Confirm(
 			)
 		} else {
 			// Handle fallen group if someone in this group is malicious.
-			k.handleFallenGroup(ctx, groupID, group)
+			k.handleFallenGroup(ctx, group)
 
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
@@ -489,6 +490,21 @@ func (k Keeper) Confirm(
 	return &types.MsgConfirmResponse{}, nil
 }
 
+func (k Keeper) SubmitDEs(
+	goCtx context.Context,
+	req *types.MsgSubmitDEs,
+) (*types.MsgSubmitDEsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	accMember, err := sdk.AccAddressFromBech32(req.Member)
+	if err != nil {
+		return nil, err
+	}
+
+	k.HandleSetDEs(ctx, accMember, req.DEs)
+
+	return &types.MsgSubmitDEsResponse{}, nil
+}
+
 // Check already confirm or complain.
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
@@ -513,17 +529,262 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 // HandleFallenGroup updates the status of a group and emit event.
 func (k Keeper) handleFallenGroup(
 	ctx sdk.Context,
-	groupID tss.GroupID,
 	group types.Group,
 ) {
 	group.Status = types.FALLEN
 
-	k.UpdateGroup(ctx, groupID, group)
+	k.SetGroup(ctx, group)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRound3Failed,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 		),
 	)
+}
+
+func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*types.MsgRequestSignResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// get group
+	group, err := k.GetGroup(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// check group status
+	if group.Status != types.ACTIVE {
+		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	members, err := k.GetMembers(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// random assigning participants
+	mids, err := k.GetRandomAssigningParticipants(
+		ctx,
+		k.GetSigningCount(ctx)+1,
+		group.Size_,
+		group.Threshold,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// get public D and E for each asssigned members
+	var assignedMembers []types.AssignedMember
+	var pubDs, pubEs tss.PublicKeys
+	for _, mid := range mids {
+		member := members[mid-1]
+		accMember, err := sdk.AccAddressFromBech32(member.Member)
+		if err != nil {
+			return nil, err
+		}
+
+		de, err := k.PollDE(ctx, accMember)
+		if err != nil {
+			return nil, err
+		}
+
+		pubDs = append(pubDs, de.PubD)
+		pubEs = append(pubEs, de.PubE)
+
+		assignedMembers = append(assignedMembers, types.AssignedMember{
+			MemberID:    mid,
+			Member:      member.Member,
+			PublicD:     de.PubD,
+			PublicE:     de.PubE,
+			PublicNonce: nil,
+		})
+	}
+
+	// compute bytes from mids, public D and public E
+	var bytes []byte
+	bytes, err = tss.ComputeBytes(mids, pubDs, pubEs)
+	if err != nil {
+		return nil, err
+	}
+
+	// compute lo and public nonce of each assigned member
+	var ownPubNonces tss.PublicKeys
+	for i, member := range assignedMembers {
+		// compute own lo
+		lo := tss.ComputeOwnLo(member.MemberID, req.Message, bytes)
+
+		// compute own public nonce
+		opn, err := tss.ComputeOwnPublicNonce(member.PublicD, member.PublicE, lo)
+		if err != nil {
+			return nil, err
+		}
+		ownPubNonces = append(ownPubNonces, opn)
+		assignedMembers[i].PublicNonce = opn
+	}
+
+	// compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
+	if err != nil {
+		return nil, err
+	}
+
+	signing := types.Signing{
+		GroupID:         req.GroupID,
+		Message:         req.Message,
+		GroupPubNonce:   groupPubNonce,
+		Bytes:           bytes,
+		AssignedMembers: assignedMembers,
+		Sig:             nil,
+	}
+
+	// add signing
+	signingID := k.AddSigning(ctx, signing)
+
+	for _, mid := range mids {
+		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Member)
+		if err != nil {
+			return nil, err
+		}
+		k.SetPendingSign(ctx, accMember, signingID)
+	}
+
+	// emit request sign event
+	event := sdk.NewEvent(
+		types.EventTypeRequestSign,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(req.Message)),
+		sdk.NewAttribute(types.AttributeKeyBytes, hex.EncodeToString(bytes)),
+		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
+	)
+	for _, member := range assignedMembers {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PublicNonce)),
+			sdk.NewAttribute(types.AttributeKeyPublicD, hex.EncodeToString(member.PublicD)),
+			sdk.NewAttribute(types.AttributeKeyPublicE, hex.EncodeToString(member.PublicE)),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return &types.MsgRequestSignResponse{}, nil
+}
+
+func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	signing, err := k.GetSigning(ctx, req.SigningID)
+	if err != nil {
+		return nil, err
+	}
+
+	// check member is already signed
+	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	if err != nil {
+		return nil, fmt.Errorf("member ID: %d is already signed on signing ID: %d", req.MemberID, req.SigningID)
+	}
+
+	// check signing already have signature
+	if signing.Sig != nil {
+		return nil, fmt.Errorf("signing ID: %d is already have signature", req.SigningID)
+	}
+
+	group, err := k.GetGroup(ctx, signing.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// check sender not in assigned participants and verify signature R
+	var found bool
+	var mids []tss.MemberID
+	for _, am := range signing.AssignedMembers {
+		mids = append(mids, am.MemberID)
+		if am.MemberID == req.MemberID {
+			found = true
+
+			// verify signature R
+			if bytes.Equal(req.Signature.R(), tss.Point(am.PublicNonce)) {
+				return nil, fmt.Errorf("public nonce is not equal signature r")
+			}
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("member ID: %d is not in assigned participants", req.MemberID)
+	}
+
+	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
+
+	// verify signing signature
+	err = tss.VerifySigningSig(
+		signing.GroupPubNonce,
+		group.PubKey,
+		signing.Message,
+		lagrange,
+		req.Signature,
+		member.PubKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
+
+	sigCount := k.GetSigCount(ctx, req.SigningID)
+	if sigCount == group.Threshold {
+		pzs := k.GetPartialSigs(ctx, req.SigningID)
+
+		sig, err := tss.CombineSignatures(pzs...)
+		if err != nil {
+			return nil, err
+		}
+
+		err = tss.VerifyGroupSigningSig(group.PubKey, signing.Message, sig)
+		if err != nil {
+			return nil, err
+		}
+
+		signing.Sig = sig
+		k.UpdateSigning(ctx, req.SigningID, signing)
+
+		// delete interims data
+		for _, am := range signing.AssignedMembers {
+			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
+		}
+		k.DeleteSigning(ctx, req.SigningID)
+
+		// emit sign success event
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeSignSuccess,
+				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
+				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
+			),
+		)
+	}
+
+	accMember, err := sdk.AccAddressFromBech32(member.Member)
+	if err != nil {
+		return nil, err
+	}
+	k.DeletePendingSign(ctx, accMember, req.SigningID)
+
+	// emit submit sign event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSubmitSign,
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
+			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
+		),
+	)
+
+	return &types.MsgSignResponse{}, nil
 }

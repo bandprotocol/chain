@@ -101,13 +101,16 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	// Create new group
 	groupID := k.CreateNewGroup(ctx, group)
 
+	// init group ID
+	group.GroupID = tss.GroupID(1)
+
 	// Get group by id
 	got, err := k.GetGroup(ctx, groupID)
 	s.Require().NoError(err)
 	s.Require().Equal(group, got)
 }
 
-func (s *KeeperTestSuite) TestUpdateGroup() {
+func (s *KeeperTestSuite) TestSetGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	group := types.Group{
 		Size_:     5,
@@ -116,12 +119,16 @@ func (s *KeeperTestSuite) TestUpdateGroup() {
 		Status:    types.ROUND_1,
 	}
 
-	// Create new group
+	// Set new group
 	groupID := k.CreateNewGroup(ctx, group)
 
 	// Update group size value
 	group.Size_ = 6
-	k.UpdateGroup(ctx, groupID, group)
+
+	// Add group ID
+	group.GroupID = 1
+
+	k.SetGroup(ctx, group)
 
 	// Get group from chain state
 	got, err := k.GetGroup(ctx, groupID)
@@ -706,6 +713,48 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 			IsMalicious: true,
 		},
 	}, got)
+}
+
+func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	got, err := k.GetRandomAssigningParticipants(ctx, 1, 5, 3)
+	s.Require().NoError(err)
+	s.Require().Equal([]tss.MemberID{4, 3, 5}, got)
+}
+
+func (s *KeeperTestSuite) TestGetPendingSignIDs() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	member, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	k.SetPendingSign(ctx, member, 1)
+	k.SetPendingSign(ctx, member, 2)
+	k.SetPendingSign(ctx, member, 5)
+
+	k.DeletePendingSign(ctx, member, 5)
+
+	got := k.GetPendingSignIDs(ctx, member)
+	s.Require().Equal([]uint64{1, 2}, got)
+}
+
+func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	signingID, member1, member2, pz := tss.SigningID(1), tss.MemberID(1), tss.MemberID(2), []byte("pz")
+
+	k.SetPartialSig(ctx, signingID, member1, pz)
+	k.SetPartialSig(ctx, signingID, member2, pz)
+
+	pzs := k.GetPartialSigsWithKey(ctx, signingID)
+	s.Require().Equal([]types.PartialSig{
+		{
+			MemberID:  member1,
+			Signature: pz,
+		},
+		{
+			MemberID:  member2,
+			Signature: pz,
+		},
+	}, pzs)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
