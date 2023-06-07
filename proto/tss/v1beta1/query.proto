@@ -111,4 +111,5 @@ message QuerySigningsRequest {
 
 message QuerySigningsResponse {
   Signing signing = 1;
+  repeated PartialSig received_partial_sigs = 2 [ (gogoproto.nullable) = false ];
 }

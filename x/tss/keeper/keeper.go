@@ -765,7 +765,7 @@ func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uin
 		var have gogotypes.BoolValue
 		k.cdc.MustUnmarshal(iterator.Value(), &have)
 		if have.Value {
-			pendingSigns = append(pendingSigns, types.SigningIDFromPendingSignKey(iterator.Key()))
+			pendingSigns = append(pendingSigns, types.SigningIDFromPendingSignStoreKey(iterator.Key()))
 		}
 	}
 	return pendingSigns
@@ -827,6 +827,19 @@ func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Sig
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, iterator.Value())
+	}
+	return pzs
+}
+
+func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSig {
+	var pzs []types.PartialSig
+	iterator := k.GetPartialSigIterator(ctx, signingID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		pzs = append(pzs, types.PartialSig{
+			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			Signature: iterator.Value(),
+		})
 	}
 	return pzs
 }

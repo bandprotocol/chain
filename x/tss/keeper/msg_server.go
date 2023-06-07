@@ -76,7 +76,7 @@ func (k Keeper) SubmitDKGRound1(
 	groupID := req.GroupID
 	memberID := req.Round1Data.MemberID
 
-	// Check group status
+	// check group status
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err

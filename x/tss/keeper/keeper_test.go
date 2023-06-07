@@ -737,6 +737,26 @@ func (s *KeeperTestSuite) TestGetPendingSignIDs() {
 	s.Require().Equal([]uint64{1, 2}, got)
 }
 
+func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	signingID, member1, member2, pz := tss.SigningID(1), tss.MemberID(1), tss.MemberID(2), []byte("pz")
+
+	k.SetPartialSig(ctx, signingID, member1, pz)
+	k.SetPartialSig(ctx, signingID, member2, pz)
+
+	pzs := k.GetPartialSigsWithKey(ctx, signingID)
+	s.Require().Equal([]types.PartialSig{
+		{
+			MemberID:  member1,
+			Signature: pz,
+		},
+		{
+			MemberID:  member2,
+			Signature: pz,
+		},
+	}, pzs)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

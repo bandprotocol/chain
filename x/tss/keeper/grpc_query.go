@@ -152,12 +152,17 @@ func (k Querier) Signings(
 	req *types.QuerySigningsRequest,
 ) (*types.QuerySigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	signingID := tss.SigningID(req.Id)
 
-	signing, err := k.GetSigning(ctx, tss.SigningID(req.Id))
+	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
 		return nil, err
 	}
+
+	pzs := k.GetPartialSigsWithKey(ctx, signingID)
+
 	return &types.QuerySigningsResponse{
-		Signing: &signing,
+		Signing:             &signing,
+		ReceivedPartialSigs: pzs,
 	}, nil
 }
