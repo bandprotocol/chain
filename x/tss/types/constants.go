@@ -10,7 +10,6 @@ var MsgGrants = []string{
 	sdk.MsgTypeURL(&MsgConfirm{}),
 	sdk.MsgTypeURL(&MsgSubmitDEs{}),
 	sdk.MsgTypeURL(&MsgSign{}),
-	sdk.MsgTypeURL(&MsgCreateGroup{}),
 }
 
 const (
