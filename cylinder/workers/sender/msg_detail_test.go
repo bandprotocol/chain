@@ -3,35 +3,31 @@ package sender_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestGetDetail(t *testing.T) {
+func TestGetMsgDetails(t *testing.T) {
 	tests := []struct {
 		name   string
 		msgs   []sdk.Msg
-		expect []sender.Detail
+		expect []string
 	}{
 		{
 			"no msg",
 			[]sdk.Msg{},
-			[]sender.Detail{},
+			nil,
 		},
 		{
 			"one msg",
 			[]sdk.Msg{&types.MsgSubmitDKGRound1{
 				GroupID: 1,
 			}},
-			[]sender.Detail{
-				{
-					Type:    "/tss.v1beta1.MsgSubmitDKGRound1",
-					GroupID: 1,
-				},
-			},
+			[]string{"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1"},
 		},
 		{
 			"two msgs with the same order",
@@ -43,15 +39,9 @@ func TestGetDetail(t *testing.T) {
 					GroupID: 2,
 				},
 			},
-			[]sender.Detail{
-				{
-					Type:    "/tss.v1beta1.MsgSubmitDKGRound1",
-					GroupID: 1,
-				},
-				{
-					Type:    "/tss.v1beta1.MsgSubmitDKGRound2",
-					GroupID: 2,
-				},
+			[]string{
+				"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1",
+				"Type:/tss.v1beta1.MsgSubmitDKGRound2,GroupID:2",
 			},
 		},
 		{
@@ -59,17 +49,13 @@ func TestGetDetail(t *testing.T) {
 			[]sdk.Msg{
 				&oracletypes.MsgRequestData{},
 			},
-			[]sender.Detail{
-				{
-					Type: "Unknown",
-				},
-			},
+			[]string{"Type:Unknown"},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			details := sender.GetDetail(test.msgs)
+			details := sender.GetMsgDetails(test.msgs...)
 			assert.Equal(t, test.expect, details)
 		})
 	}

@@ -681,7 +681,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 	// check member is already signed
 	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
-	if err != nil {
+	if err == nil {
 		return nil, fmt.Errorf("member ID: %d is already signed on signing ID: %d", req.MemberID, req.SigningID)
 	}
 
@@ -709,7 +709,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			found = true
 
 			// verify signature R
-			if bytes.Equal(req.Signature.R(), tss.Point(am.PublicNonce)) {
+			if !bytes.Equal(req.Signature.R(), tss.Point(am.PublicNonce)) {
 				return nil, fmt.Errorf("public nonce is not equal signature r")
 			}
 		}
@@ -756,7 +756,6 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		for _, am := range signing.AssignedMembers {
 			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
 		}
-		k.DeleteSigning(ctx, req.SigningID)
 
 		// emit sign success event
 		ctx.EventManager().EmitEvent(

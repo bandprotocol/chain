@@ -6,7 +6,7 @@ var MsgGrants = []string{
 	"/tss.v1beta1.MsgSubmitDKGRound2",
 	"/tss.v1beta1.MsgComplain",
 	"/tss.v1beta1.MsgConfirm",
-	"/tss.v1beta1.MsgSubmitDEPairs",
+	"/tss.v1beta1.MsgSubmitDEs",
 	"/tss.v1beta1.MsgSign",
 }
 

@@ -78,7 +78,7 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 		s.freeKeys <- key
 	}()
 
-	logger := s.logger.With("msgs", GetDetail(msgs))
+	logger := s.logger.With("msgs", GetMsgDetails(msgs...))
 
 	// Check message validation
 	for _, msg := range msgs {
