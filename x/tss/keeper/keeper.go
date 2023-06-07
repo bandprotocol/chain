@@ -188,6 +188,24 @@ func (k Keeper) GetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return r1, nil
 }
 
+// GetRound1DataIterator function gets an iterator over all round1 data of a group.
+func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
+}
+
+// GetAllRound1Data retrieves all round1 data for a group from the store.
+func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.Round1Data {
+	var allRound1Data []types.Round1Data
+	iterator := k.GetRound1DataIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var round1Data types.Round1Data
+		k.cdc.MustUnmarshal(iterator.Value(), &round1Data)
+		allRound1Data = append(allRound1Data, round1Data)
+	}
+	return allRound1Data
+}
+
 // DeleteRound1Data removes the round1 data of a group member from the store.
 func (k Keeper) DeleteRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1DataMemberStoreKey(groupID, memberID))
@@ -213,24 +231,6 @@ func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 // DeleteRound1DataCount remove the round 1 data count data of a group from the store.
 func (k Keeper) DeleteRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1DataCountStoreKey(groupID))
-}
-
-// GetRound1DataIterator function gets an iterator over all round1 data of a group.
-func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
-}
-
-// GetAllRound1Data retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.Round1Data {
-	var allRound1Data []types.Round1Data
-	iterator := k.GetRound1DataIterator(ctx, groupID)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var round1Data types.Round1Data
-		k.cdc.MustUnmarshal(iterator.Value(), &round1Data)
-		allRound1Data = append(allRound1Data, round1Data)
-	}
-	return allRound1Data
 }
 
 // GetAccumulatedCommitIterator function gets an iterator over all accumulated commits of a group.
@@ -303,7 +303,7 @@ func (k Keeper) GetRound2Data(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2DataMemberStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Round2Data{}, sdkerrors.Wrapf(
-			types.ErrRoundExpired,
+			types.ErrRound2DataNotFound,
 			"failed to get round2Data with groupID: %d, memberID: %d",
 			groupID,
 			memberID,
@@ -625,6 +625,16 @@ func (k Keeper) DeleteAllDKGInterimData(
 	k.DeleteConfirmComplainCount(ctx, groupID)
 }
 
+func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue types.DEQueue) {
+	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
+}
+
+func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
+	var deQueue types.DEQueue
+	k.cdc.MustUnmarshal(ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address)), &deQueue)
+	return deQueue
+}
+
 func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de types.DE) {
 	ctx.KVStore(k.storeKey).Set(types.DEIndexStoreKey(address, index), k.cdc.MustMarshal(&de))
 }
@@ -642,16 +652,6 @@ func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (ty
 	var de types.DE
 	k.cdc.MustUnmarshal(bz, &de)
 	return de, nil
-}
-
-func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue types.DEQueue) {
-	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
-}
-
-func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
-	var deQueue types.DEQueue
-	k.cdc.MustUnmarshal(ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address)), &deQueue)
-	return deQueue
 }
 
 func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {

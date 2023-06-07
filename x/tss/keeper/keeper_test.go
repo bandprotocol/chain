@@ -323,6 +323,21 @@ func (s *KeeperTestSuite) TestDeleteRound1DataCount() {
 	s.Require().Empty(got)
 }
 
+func (s *KeeperTestSuite) TestGetSetAccumulatedCommit() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	index := uint64(1)
+	commit := tss.Point([]byte("point"))
+
+	// Set Accumulated Commit
+	k.SetAccumulatedCommit(ctx, groupID, index, commit)
+
+	// Get Accumulated Commit
+	got := k.GetAccumulatedCommit(ctx, groupID, index)
+
+	s.Require().Equal(commit, got)
+}
+
 func (s *KeeperTestSuite) TestGetSetRound2Data() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
@@ -713,6 +728,212 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 			IsMalicious: true,
 		},
 	}, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, groupSize, groupThreshold := tss.GroupID(1), uint64(5), uint64(3)
+	dkgContext := []byte("dkg-context")
+
+	// Assuming you have corresponding Set methods for each Delete method
+	// Setting up initial state
+	k.SetDKGContext(ctx, groupID, dkgContext)
+
+	for i := uint64(1); i <= groupSize; i++ {
+		memberID := tss.MemberID(i)
+		round1Data := types.Round1Data{
+			MemberID: memberID,
+			CoefficientsCommit: tss.Points{
+				[]byte("point1"),
+				[]byte("point2"),
+			},
+			OneTimePubKey: []byte("OneTimePubKeySimple"),
+			A0Sig:         []byte("A0SigSimple"),
+			OneTimeSig:    []byte("OneTimeSigSimple"),
+		}
+		round2Data := types.Round2Data{
+			MemberID: memberID,
+			EncryptedSecretShares: tss.Scalars{
+				[]byte("e_12"),
+				[]byte("e_13"),
+				[]byte("e_14"),
+			},
+		}
+		complainWithStatus := types.ComplainsWithStatus{
+			MemberID: memberID,
+			ComplainsWithStatus: []types.ComplainWithStatus{
+				{
+					Complain: types.Complain{
+						I:         1,
+						J:         2,
+						KeySym:    []byte("key_sym"),
+						Signature: []byte("signature"),
+						NonceSym:  []byte("nonce_sym"),
+					},
+					ComplainStatus: types.SUCCESS,
+				},
+			},
+		}
+		confirm := types.Confirm{
+			MemberID:     memberID,
+			OwnPubKeySig: []byte("own_pub_key_sig"),
+		}
+
+		k.SetRound1Data(ctx, groupID, round1Data)
+		k.SetRound2Data(ctx, groupID, round2Data)
+		k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
+		k.SetConfirm(ctx, groupID, confirm)
+	}
+
+	for i := uint64(0); i < groupThreshold; i++ {
+		k.SetAccumulatedCommit(ctx, groupID, i, []byte("point1"))
+	}
+
+	k.SetRound1DataCount(ctx, groupID, 1)
+	k.SetRound2DataCount(ctx, groupID, 1)
+	k.SetConfirmComplainCount(ctx, groupID, 1)
+
+	// Delete all interim data
+	k.DeleteAllDKGInterimData(ctx, groupID, groupSize, groupThreshold)
+
+	// Check if all data is deleted
+	s.Require().Nil(k.GetDKGContext(ctx, groupID))
+
+	for i := uint64(1); i <= groupSize; i++ {
+		memberID := tss.MemberID(i)
+
+		gotRound1Data, err := k.GetRound1Data(ctx, groupID, memberID)
+		s.Require().ErrorIs(types.ErrRound1DataNotFound, err)
+		s.Require().Empty(types.Round1Data{}, gotRound1Data)
+
+		gotRound2Data, err := k.GetRound2Data(ctx, groupID, memberID)
+		s.Require().ErrorIs(types.ErrRound2DataNotFound, err)
+		s.Require().Empty(types.Round2Data{}, gotRound2Data)
+
+		gotComplainWithStatus, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+		s.Require().ErrorIs(types.ErrComplainsWithStatusNotFound, err)
+		s.Require().Empty(types.ComplainWithStatus{}, gotComplainWithStatus)
+	}
+
+	for i := uint64(0); i < groupThreshold; i++ {
+		s.Require().Empty(tss.Point{}, k.GetAccumulatedCommit(ctx, groupID, i))
+	}
+
+	s.Require().Equal(uint64(0), k.GetRound1DataCount(ctx, groupID))
+	s.Require().Equal(uint64(0), k.GetRound2DataCount(ctx, groupID))
+	s.Require().Equal(uint64(0), k.GetConfirmComplainCount(ctx, groupID))
+}
+
+func (s *KeeperTestSuite) TestGetSetDEQueue() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	deQueue := types.DEQueue{
+		Head: 1,
+		Tail: 2,
+	}
+
+	// Set DEQueue
+	k.SetDEQueue(ctx, address, deQueue)
+
+	// Get DEQueue
+	got := k.GetDEQueue(ctx, address)
+
+	s.Require().Equal(deQueue, got)
+}
+
+func (s *KeeperTestSuite) TestGetSetDE() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	index := uint64(1)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	// Set DE
+	k.SetDE(ctx, address, index, de)
+
+	// Get DE
+	got, err := k.GetDE(ctx, address, index)
+
+	s.Require().NoError(err)
+	s.Require().Equal(de, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteDE() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	index := uint64(1)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	// Set DE
+	k.SetDE(ctx, address, index, de)
+
+	// Get DE
+	k.DeleteDE(ctx, address, index)
+
+	// Try to get the deleted DE
+	got, err := k.GetDE(ctx, address, index)
+
+	s.Require().ErrorIs(types.ErrDENotFound, err)
+	s.Require().Equal(types.DE{}, got)
+}
+
+func (s *KeeperTestSuite) TestHandleSetDEs() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	des := []types.DE{
+		{
+			PubD: []byte("D"),
+			PubE: []byte("E"),
+		},
+	}
+
+	// Handle setting DEs
+	k.HandleSetDEs(ctx, address, des)
+
+	// Get DEQueue
+	deQueue := k.GetDEQueue(ctx, address)
+
+	// Check that all DEs have been stored correctly
+	s.Require().Equal(uint64(len(des)), deQueue.Tail)
+	for i := uint64(0); i < deQueue.Tail; i++ {
+		gotDE, err := k.GetDE(ctx, address, i)
+		s.Require().NoError(err)
+		s.Require().Equal(des[i], gotDE)
+	}
+}
+
+func (s *KeeperTestSuite) TestPollDE() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	des := []types.DE{
+		{
+			PubD: []byte("D"),
+			PubE: []byte("E"),
+		},
+	}
+	index := uint64(1)
+
+	// Set DE and DEQueue
+	k.HandleSetDEs(ctx, address, des)
+
+	// Poll DE
+	polledDE, err := k.PollDE(ctx, address)
+	s.Require().NoError(err)
+
+	// Ensure polled DE is equal to original DE
+	s.Require().Equal(des[0], polledDE)
+
+	// Attempt to get deleted DE
+	deletedDE, err := k.GetDE(ctx, address, index)
+
+	// Should return error
+	s.Require().ErrorIs(types.ErrDENotFound, err)
+	s.Require().Equal(types.DE{}, deletedDE)
 }
 
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
