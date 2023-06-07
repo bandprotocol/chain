@@ -40,6 +40,12 @@ var (
 
 	// AccumulatedCommitStoreKeyPrefix is the key that keeps total of each commit
 	AccumulatedCommitStoreKeyPrefix = []byte{0x06}
+
+	// Round2DataStoreKeyPrefix is the key that keeps the round 2 data of the member.
+	Round2DataStoreKeyPrefix = []byte{0x07}
+
+	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
+	Round2DataCountStoreKeyPrefix = []byte{0x08}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -76,4 +82,16 @@ func AccumulatedCommitStoreKey(groupID tss.GroupID) []byte {
 
 func AccumulatedCommitIndexStoreKey(groupID tss.GroupID, index uint64) []byte {
 	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(index)...)
+}
+
+func Round2DataStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
+func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round2DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

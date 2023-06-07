@@ -36,12 +36,14 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 	}
 
 	allRound1Data := k.GetAllRound1Data(ctx, groupID)
+	allRound2Data := k.GetAllRound2Data(ctx, groupID)
 
 	return &types.QueryGroupResponse{
 		Group:         group,
 		DKGContext:    dkgContext,
 		Members:       members,
 		AllRound1Data: allRound1Data,
+		AllRound2Data: allRound2Data,
 	}, nil
 }
 

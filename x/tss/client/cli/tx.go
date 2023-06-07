@@ -36,6 +36,7 @@ func NewTxCmd() *cobra.Command {
 	txCmd.AddCommand(MsgRemoveGrantees())
 	txCmd.AddCommand(MsgCreateGroupCmd())
 	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
+	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
 
 	return txCmd
 }
@@ -242,6 +243,65 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 					OneTimePubKey:      oneTimePubKey,
 					A0Sig:              a0Sig,
 					OneTimeSig:         oneTimeSig,
+				},
+				Member: clientCtx.GetFromAddress().String(),
+			}
+			if err = msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("message validation failed: %w", err)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
+func MsgSubmitDKGRound2Cmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
+		Args:  cobra.MinimumNArgs(2),
+		Short: "submit tss round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
+		Example: fmt.Sprintf(
+			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			var encryptedSecretShares tss.Scalars
+			if len(args) > 2 {
+				encryptedSecretSharesStr := strings.Split(args[2], ",")
+				for _, essStr := range encryptedSecretSharesStr {
+					ess, err := hex.DecodeString(essStr)
+					if err != nil {
+						return err
+					}
+					encryptedSecretShares = append(encryptedSecretShares, ess)
+				}
+			}
+
+			msg := &types.MsgSubmitDKGRound2{
+				GroupID: tss.GroupID(groupID),
+				Round2Data: types.Round2Data{
+					MemberID:              tss.MemberID(memberID),
+					EncryptedSecretShares: encryptedSecretShares,
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}

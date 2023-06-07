@@ -317,6 +317,105 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetRound2Data() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	round2Data := types.Round2Data{
+		MemberID: memberID,
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round2 secret share
+	k.SetRound2Data(ctx, groupID, round2Data)
+
+	got, err := k.GetRound2Data(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(round2Data, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteRound2Data() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	round2Data := types.Round2Data{
+		MemberID: memberID,
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 secret data
+	k.SetRound2Data(ctx, groupID, round2Data)
+
+	// delete round 2 secret data
+	k.DeleteRound2Data(ctx, groupID, memberID)
+
+	_, err := k.GetRound2Data(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetRound2DataCount() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2DataMember1 := types.Round2Data{
+		MemberID: member1,
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+	round2DataMember2 := types.Round2Data{
+		MemberID: member2,
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_11"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// set round 2 data
+	k.SetRound2Data(ctx, groupID, round2DataMember1)
+	k.SetRound2Data(ctx, groupID, round2DataMember2)
+
+	got := k.GetRound2DataCount(ctx, groupID)
+	s.Require().Equal(uint64(2), got)
+}
+
+func (s *KeeperTestSuite) TestGetAllRound2Data() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, member1, member2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
+	round2DataMember1 := types.Round2Data{
+		MemberID: member1,
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+	round2DataMember2 := types.Round2Data{
+		MemberID: member2,
+		EncryptedSecretShares: []tss.Scalar{
+			[]byte("e_11"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// Set round 2 data
+	k.SetRound2Data(ctx, groupID, round2DataMember1)
+	k.SetRound2Data(ctx, groupID, round2DataMember2)
+
+	got := k.GetAllRound2Data(ctx, groupID)
+	// member3 expected nil value because didn't submit round2Data
+	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

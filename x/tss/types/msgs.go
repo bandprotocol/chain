@@ -117,3 +117,40 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 
 	return nil
 }
+
+var _ sdk.Msg = &MsgSubmitDKGRound2{}
+
+// Route Implements Msg.
+func (m MsgSubmitDKGRound2) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgSubmitDKGRound2) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	// Validate encrypted secret shares
+	for _, ess := range m.Round2Data.EncryptedSecretShares {
+		_, err = ess.Parse()
+		if err != nil {
+			return sdkerrors.Wrap(err, "encrypted secret shares")
+		}
+	}
+
+	return nil
+}

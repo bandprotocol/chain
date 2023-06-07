@@ -170,3 +170,99 @@ func (k Keeper) SubmitDKGRound1(
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
+
+// SubmitDKGRound2 is responsible for handling the submission of DKG (Distributed Key Generation) round2.
+// It verifies the group status, member authorization, previous submission, and the correctness of encrypted secret shares length.
+// It sets the round2 data, emits events, and updates the group status.
+func (k Keeper) SubmitDKGRound2(
+	goCtx context.Context,
+	req *types.MsgSubmitDKGRound2,
+) (*types.MsgSubmitDKGRound2Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	groupID := req.GroupID
+	memberID := req.Round2Data.MemberID
+
+	// Check group status
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.Status != types.ROUND_2 {
+		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
+	}
+
+	// Verify member
+	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
+	if !isMember {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not in this group",
+			memberID,
+			req.Member,
+		)
+	}
+
+	// Check previous submit
+	_, err = k.GetRound2Data(ctx, groupID, memberID)
+	if err == nil {
+		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
+	}
+
+	// Check encrypted secret shares length
+	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
+		return nil, sdkerrors.Wrap(
+			types.ErrEncryptedSecretSharesNotCorrectLength,
+			"number of encrypted secret shares is not correct",
+		)
+	}
+
+	// Compute and store its own public key
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compute own public key
+	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
+	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrComputeOwnPubKeyFailed,
+			"compute own public key failed; %s",
+			err,
+		)
+	}
+
+	// Update public key of the member
+	member.PubKey = ownPubKey
+	k.SetMember(ctx, groupID, memberID, member)
+
+	// Set Round2Data
+	k.SetRound2Data(ctx, groupID, req.Round2Data)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSubmitDKGRound2,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			sdk.NewAttribute(types.AttributeKeyRound2Data, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Data))),
+		),
+	)
+
+	count := k.GetRound2DataCount(ctx, groupID)
+	if count == group.Size_ {
+		group.Status = types.ROUND_3
+		k.UpdateGroup(ctx, groupID, group)
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound2Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
+	}
+
+	return &types.MsgSubmitDKGRound2Response{}, nil
+}
