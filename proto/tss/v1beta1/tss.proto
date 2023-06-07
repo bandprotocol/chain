@@ -171,3 +171,13 @@ message ComplainsWithStatus {
   ];
   repeated ComplainWithStatus complains_with_status = 2 [ (gogoproto.nullable) = false ];
 }
+
+message PartialSig {
+  uint64 member_id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ];
+  bytes signature = 2 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
+  ];
+}

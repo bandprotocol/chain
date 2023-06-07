@@ -190,7 +190,12 @@ func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []
 	return append(PartialSigStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func SigningIDFromPendingSignKey(key []byte) uint64 {
+func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
+	kv.AssertKeyLength(key, 1+2*uint64Len)
+	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
+}
+
+func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
 	return sdk.BigEndianToUint64(key[1+AddrLen:])
 }
