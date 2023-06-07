@@ -23,6 +23,15 @@ func GetDetail(msgs []sdk.Msg) []Detail {
 				GroupID: t.GroupID,
 				Type:    t.Type(),
 			}
+		case *types.MsgSubmitDKGRound2:
+			detail = Detail{
+				GroupID: t.GroupID,
+				Type:    t.Type(),
+			}
+		default:
+			detail = Detail{
+				Type: "Unknown",
+			}
 		}
 
 		details = append(details, detail)

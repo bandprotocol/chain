@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,7 @@ func TestGetDetail(t *testing.T) {
 				&types.MsgSubmitDKGRound1{
 					GroupID: 1,
 				},
-				&types.MsgSubmitDKGRound1{
+				&types.MsgSubmitDKGRound2{
 					GroupID: 2,
 				},
 			},
@@ -48,8 +49,19 @@ func TestGetDetail(t *testing.T) {
 					GroupID: 1,
 				},
 				{
-					Type:    "/tss.v1beta1.MsgSubmitDKGRound1",
+					Type:    "/tss.v1beta1.MsgSubmitDKGRound2",
 					GroupID: 2,
+				},
+			},
+		},
+		{
+			"unknown msg",
+			[]sdk.Msg{
+				&oracletypes.MsgRequestData{},
+			},
+			[]sender.Detail{
+				{
+					Type: "Unknown",
 				},
 			},
 		},
