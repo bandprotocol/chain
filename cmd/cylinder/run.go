@@ -6,10 +6,12 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/round1"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/round2"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/round3"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/signing"
 )
 
 const (
@@ -51,12 +53,22 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
+			de, err := de.New(c)
+			if err != nil {
+				return err
+			}
+
+			signing, err := signing.New(c)
+			if err != nil {
+				return err
+			}
+
 			sender, err := sender.New(c)
 			if err != nil {
 				return err
 			}
 
-			workers := cylinder.Workers{round1, round2, round3, sender}
+			workers := cylinder.Workers{round1, round2, round3, de, signing, sender}
 
 			return cylinder.Run(c, workers)
 		},

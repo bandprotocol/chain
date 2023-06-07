@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -125,6 +126,39 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 	}
 
 	return NewGroupResponse(gr), nil
+}
+
+// QueryDE queries the DE information with the given address.
+// It returns the de response or an error.
+func (c *Client) QueryDE(address string) (*DEResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	der, err := queryClient.DE(context.Background(), &types.QueryDERequest{
+		Address: address,
+		Pagination: &query.PageRequest{
+			CountTotal: true,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return NewDEResponse(der), nil
+}
+
+// QueryPendingSignings queries the all pending signings with the given address.
+// It returns the QueryPendingSignsResponse or an error.
+func (c *Client) QueryPendingSignings(address string) (*types.QueryPendingSignsResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	res, err := queryClient.PendingSigns(context.Background(), &types.QueryPendingSignsRequest{
+		Address: address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
