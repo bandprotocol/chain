@@ -62,7 +62,7 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	}
 
 	reportInTime := !k.HasResult(ctx, msg.RequestID)
-	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, reportInTime, msg.RawReports))
+	err = k.AddReport(ctx, msg.RequestID, validator, reportInTime, msg.RawReports)
 	if err != nil {
 		return nil, err
 	}

@@ -412,7 +412,12 @@ func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk
 	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.Chain.QueryProof(packetKey)
 
-	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
+	recvMsg := channeltypes.NewMsgRecvPacket(
+		packet,
+		proof,
+		proofHeight,
+		endpoint.Chain.SenderAccount.GetAddress().String(),
+	)
 
 	// receive on counterparty and update source client
 	res, err := endpoint.Chain.SendMsgs(recvMsg)

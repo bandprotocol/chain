@@ -34,12 +34,12 @@ func TestHasReport(t *testing.T) {
 func TestAddReportSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
-	))
+	)
 	require.NoError(t, err)
 	require.Equal(t, []types.Report{
 		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -51,66 +51,66 @@ func TestAddReportSuccess(t *testing.T) {
 
 func TestReportOnNonExistingRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
-	))
+	)
 	require.ErrorIs(t, err, types.ErrRequestNotFound)
 }
 
 func TestReportByNotRequestedValidator(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Alice.ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
-	))
+	)
 	require.ErrorIs(t, err, types.ErrValidatorNotRequested)
 }
 
 func TestDuplicateReport(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
-	))
+	)
 	require.NoError(t, err)
-	err = k.AddReport(ctx, 1, types.NewReport(
+	err = k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
-	))
+	)
 	require.ErrorIs(t, err, types.ErrValidatorAlreadyReported)
 }
 
 func TestReportInvalidDataSourceCount(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 		},
-	))
+	)
 	require.ErrorIs(t, err, types.ErrInvalidReportSize)
 }
 
 func TestReportInvalidExternalIDs(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1, types.NewReport(
+	err := k.AddReport(ctx, 1,
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(44, 1, []byte("data2/1")), // BAD EXTERNAL ID!
 		},
-	))
+	)
 	require.ErrorIs(t, err, types.ErrRawRequestNotFound)
 }
 

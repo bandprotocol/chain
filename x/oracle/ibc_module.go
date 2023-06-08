@@ -198,7 +198,6 @@ func (im IBCModule) OnRecvPacket(
 	if !im.keeper.IBCRequestEnabled(ctx) {
 		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled)
 	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
-		// TODO: Ack with non-deterministic error break consensus?
 		return channeltypes.NewErrorAcknowledgement(errors.New("cannot unmarshal oracle request packet data"))
 	}
 
