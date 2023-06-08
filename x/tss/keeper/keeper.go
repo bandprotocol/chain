@@ -52,7 +52,7 @@ func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
 
 // IsGrantee function checks if the granter granted permissions to the grantee.
 func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
-	for _, msg := range types.MsgGrants {
+	for _, msg := range types.GetMsgGrants() {
 		cap, _ := k.authzKeeper.GetAuthorization(
 			ctx,
 			grantee,
