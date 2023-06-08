@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -34,10 +33,10 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
 	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransafertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v5/modules/core"
 	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
@@ -81,52 +80,8 @@ func NewDefaultGenesisState() GenesisState {
 	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
 
 	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
-		HostEnabled: true,
-		AllowMessages: []string{
-			sdk.MsgTypeURL(&authz.MsgExec{}),
-			sdk.MsgTypeURL(&authz.MsgGrant{}),
-			sdk.MsgTypeURL(&authz.MsgRevoke{}),
-			sdk.MsgTypeURL(&banktypes.MsgSend{}),
-			sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
-			sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
-			sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
-			sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-			sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
-			sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
-			sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
-			sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
-			sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
-			sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
-			sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-			sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
-			sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
-			sdk.MsgTypeURL(&group.MsgCreateGroup{}),
-			sdk.MsgTypeURL(&group.MsgExec{}),
-			sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
-			sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
-			sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
-			sdk.MsgTypeURL(&group.MsgVote{}),
-			sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
-			sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
-			sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
-			sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
-			sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
-			sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
-			sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
-			sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
-			sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
-			sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-			sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-		},
+		HostEnabled:   true,
+		AllowMessages: v2_6.ICAAllowMessages,
 	}
 
 	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
