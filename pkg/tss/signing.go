@@ -25,8 +25,8 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 	return ParseScalar(scalarValue)
 }
 
-// ComputeBytes calculates the bytes that consists of memberID, public D, and public E.
-func ComputeBytes(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, error) {
+// ComputeCommitment calculates the bytes that consists of memberID, public D, and public E.
+func ComputeCommitment(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, error) {
 	if len(mids) != len(pubDs) {
 		return nil, errors.New("length is not equal")
 	}
@@ -35,32 +35,32 @@ func ComputeBytes(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, 
 		return nil, errors.New("length is not equal")
 	}
 
-	var bytes []byte
+	var commitment []byte
 	for i, mid := range mids {
-		bytes = append(bytes, sdk.Uint64ToBigEndian(uint64(mid))...)
-		bytes = append(bytes, pubDs[i]...)
-		bytes = append(bytes, pubEs[i]...)
+		commitment = append(commitment, sdk.Uint64ToBigEndian(uint64(mid))...)
+		commitment = append(commitment, pubDs[i]...)
+		commitment = append(commitment, pubEs[i]...)
 	}
 
-	return bytes, nil
+	return commitment, nil
 }
 
-// ComputeOwnLo calculates the own Lo value for a given member ID, data, and bytes.
-// Lo = Hash(i, data , B)
+// ComputeOwnBindingFactor calculates the own binding factor (Lo) value for a given member ID, data, and commitment.
+// bindingFactor = Hash(i, data , B)
 // B = <<i,Di,Ei>,...>
-func ComputeOwnLo(mid MemberID, data []byte, bytes []byte) Scalar {
-	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), Hash(data), Hash(bytes))
+func ComputeOwnBindingFactor(mid MemberID, data []byte, commitment []byte) Scalar {
+	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), Hash(data), Hash(commitment))
 
-	var lo secp256k1.ModNScalar
-	lo.SetByteSlice(bz)
+	var bindingFactor secp256k1.ModNScalar
+	bindingFactor.SetByteSlice(bz)
 
-	return ParseScalar(&lo)
+	return ParseScalar(&bindingFactor)
 }
 
-// ComputeOwnPubNonce calculates the own public nonce for a given public D, public E, and Lo.
-// Formula: D + Lo * E
-func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (PublicKey, error) {
-	lo, err := rawLo.Parse()
+// ComputeOwnPubNonce calculates the own public nonce for a given public D, public E, and binding factor.
+// Formula: D + bindingFactor * E
+func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor Scalar) (PublicKey, error) {
+	bindingFactor, err := rawBindingFactor.Parse()
 	if err != nil {
 		return nil, err
 	}
@@ -75,19 +75,19 @@ func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (Pub
 		return nil, err
 	}
 
-	var loE secp256k1.JacobianPoint
-	secp256k1.ScalarMultNonConst(lo, pubE, &loE)
+	var mulE secp256k1.JacobianPoint
+	secp256k1.ScalarMultNonConst(bindingFactor, pubE, &mulE)
 
 	var ownPubNonce secp256k1.JacobianPoint
-	secp256k1.AddNonConst(pubD, &loE, &ownPubNonce)
+	secp256k1.AddNonConst(pubD, &mulE, &ownPubNonce)
 
 	return ParsePublicKey(&ownPubNonce), nil
 }
 
-// ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and Lo.
-// Formula: d + Lo * e
-func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scalar) (PrivateKey, error) {
-	lo, err := rawLo.Parse()
+// ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and binsing factor.
+// Formula: d + bindingFactor * e
+func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawBindingFactor Scalar) (PrivateKey, error) {
+	bindingFactor, err := rawBindingFactor.Parse()
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +102,8 @@ func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scalar)
 		return nil, err
 	}
 
-	lo.Mul(privE)
-	privD.Add(lo)
+	bindingFactor.Mul(privE)
+	privD.Add(bindingFactor)
 
 	return ParsePrivateKey(privD), nil
 }

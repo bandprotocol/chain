@@ -3,13 +3,13 @@ package testutil
 import "github.com/bandprotocol/chain/v2/pkg/tss"
 
 type AssignedMember struct {
-	ID        tss.MemberID
-	PrivD     tss.PrivateKey
-	PrivE     tss.PrivateKey
-	Lo        tss.Scalar
-	PrivNonce tss.PrivateKey
-	Lagrange  tss.Scalar
-	Sig       tss.Signature
+	ID            tss.MemberID
+	PrivD         tss.PrivateKey
+	PrivE         tss.PrivateKey
+	BindingFactor tss.Scalar
+	PrivNonce     tss.PrivateKey
+	Lagrange      tss.Scalar
+	Sig           tss.Signature
 }
 
 func (am AssignedMember) PubD() tss.PublicKey {
@@ -27,7 +27,7 @@ func (am AssignedMember) PubNonce() tss.PublicKey {
 type Signing struct {
 	ID              tss.SigningID
 	Data            []byte
-	Bytes           []byte
+	Commitment      []byte
 	PubNonce        tss.PublicKey
 	Sig             tss.Signature
 	AssignedMembers []AssignedMember
