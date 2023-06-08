@@ -9,6 +9,7 @@ import (
 
 // InitGenesis performs genesis initialization for the tss module.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
+	k.SetParams(ctx, data.Params)
 	k.SetGroupCount(ctx, 0)
 	k.SetSigningCount(ctx, 0)
 	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
@@ -16,5 +17,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
-	return &types.GenesisState{}
+	return &types.GenesisState{
+		Params: k.GetParams(ctx),
+	}
 }

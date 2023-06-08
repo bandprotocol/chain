@@ -7,6 +7,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -18,17 +19,25 @@ import (
 type Keeper struct {
 	cdc         codec.BinaryCodec
 	storeKey    storetypes.StoreKey
+	paramSpace  paramtypes.Subspace
 	authzKeeper types.AuthzKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
+	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 ) Keeper {
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return Keeper{
 		cdc:         cdc,
 		storeKey:    storeKey,
+		paramSpace:  paramSpace,
 		authzKeeper: authzKeeper,
 	}
 }

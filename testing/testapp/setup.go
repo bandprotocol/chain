@@ -43,6 +43,7 @@ import (
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -518,6 +519,10 @@ func SetupWithGenesisValSet(
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 	genesisState[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
+
+	// Add tss genesis
+	tssGenesis := tsstypes.DefaultGenesisState()
+	genesisState[tsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(tssGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)

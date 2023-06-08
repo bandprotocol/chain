@@ -22,7 +22,15 @@ var _ types.MsgServer = Keeper{}
 func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*types.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Validate group size
 	groupSize := uint64(len(req.Members))
+	maxGroupSize := k.MaxGroupSize(ctx)
+	if groupSize > maxGroupSize {
+		return nil, sdkerrors.Wrap(
+			types.ErrGroupSizeTooLarge,
+			fmt.Sprintf("group status should not more than %d", maxGroupSize),
+		)
+	}
 
 	// Create new group
 	groupID := k.CreateNewGroup(ctx, types.Group{

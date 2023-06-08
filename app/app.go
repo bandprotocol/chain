@@ -470,7 +470,12 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.TSSKeeper = tsskeeper.NewKeeper(appCodec, keys[tsstypes.StoreKey], app.AuthzKeeper)
+	app.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		app.AuthzKeeper,
+	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -856,6 +861,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(tsstypes.ModuleName)
 	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
