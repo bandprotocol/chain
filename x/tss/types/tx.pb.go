@@ -919,19 +919,19 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(ctx context.Context, in *MsgCreateGroup, opts ...grpc.CallOption) (*MsgCreateGroupResponse, error)
-	// SubmitDKGRound1 submit dkg for compute round 1.
+	// SubmitDKGRound1 submits dkg for compute round 1.
 	SubmitDKGRound1(ctx context.Context, in *MsgSubmitDKGRound1, opts ...grpc.CallOption) (*MsgSubmitDKGRound1Response, error)
-	// SubmitDKGRound2 submit dkg for compute round 2.
+	// SubmitDKGRound2 submits dkg for compute round 2.
 	SubmitDKGRound2(ctx context.Context, in *MsgSubmitDKGRound2, opts ...grpc.CallOption) (*MsgSubmitDKGRound2Response, error)
-	// Complain submmit proof for complain malicious.
+	// Complain submits proof for complain malicious.
 	Complain(ctx context.Context, in *MsgComplain, opts ...grpc.CallOption) (*MsgComplainResponse, error)
-	// Confirm submit own signature for proof that it's can derive the secret.
+	// Confirm submits own signature for proof that it's can derive the secret.
 	Confirm(ctx context.Context, in *MsgConfirm, opts ...grpc.CallOption) (*MsgConfirmResponse, error)
-	// SubmitDEs submit list of pre-commits DE for signing process.
+	// SubmitDEs submits list of pre-commits DE for signing process.
 	SubmitDEs(ctx context.Context, in *MsgSubmitDEs, opts ...grpc.CallOption) (*MsgSubmitDEsResponse, error)
-	// RequestSign submit a general message to be signed by a specific group
+	// RequestSign submits a general message to be signed by a specific group
 	RequestSign(ctx context.Context, in *MsgRequestSign, opts ...grpc.CallOption) (*MsgRequestSignResponse, error)
-	// Sign submit signature on task participant need to do
+	// Sign submits signature on task participant need to do
 	Sign(ctx context.Context, in *MsgSign, opts ...grpc.CallOption) (*MsgSignResponse, error)
 }
 
@@ -1019,19 +1019,19 @@ func (c *msgClient) Sign(ctx context.Context, in *MsgSign, opts ...grpc.CallOpti
 type MsgServer interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(context.Context, *MsgCreateGroup) (*MsgCreateGroupResponse, error)
-	// SubmitDKGRound1 submit dkg for compute round 1.
+	// SubmitDKGRound1 submits dkg for compute round 1.
 	SubmitDKGRound1(context.Context, *MsgSubmitDKGRound1) (*MsgSubmitDKGRound1Response, error)
-	// SubmitDKGRound2 submit dkg for compute round 2.
+	// SubmitDKGRound2 submits dkg for compute round 2.
 	SubmitDKGRound2(context.Context, *MsgSubmitDKGRound2) (*MsgSubmitDKGRound2Response, error)
-	// Complain submmit proof for complain malicious.
+	// Complain submits proof for complain malicious.
 	Complain(context.Context, *MsgComplain) (*MsgComplainResponse, error)
-	// Confirm submit own signature for proof that it's can derive the secret.
+	// Confirm submits own signature for proof that it's can derive the secret.
 	Confirm(context.Context, *MsgConfirm) (*MsgConfirmResponse, error)
-	// SubmitDEs submit list of pre-commits DE for signing process.
+	// SubmitDEs submits list of pre-commits DE for signing process.
 	SubmitDEs(context.Context, *MsgSubmitDEs) (*MsgSubmitDEsResponse, error)
-	// RequestSign submit a general message to be signed by a specific group
+	// RequestSign submits a general message to be signed by a specific group
 	RequestSign(context.Context, *MsgRequestSign) (*MsgRequestSignResponse, error)
-	// Sign submit signature on task participant need to do
+	// Sign submits signature on task participant need to do
 	Sign(context.Context, *MsgSign) (*MsgSignResponse, error)
 }
 

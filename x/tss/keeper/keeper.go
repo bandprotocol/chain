@@ -158,7 +158,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 // VerifyMember function verifies if a member is part of a group.
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
 	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil || member.Member != memberAddress {
+	if err != nil || member.Address != memberAddress {
 		return false
 	}
 	return true
@@ -395,7 +395,7 @@ func (k Keeper) HandleVerifyComplainSig(
 	}
 
 	// Verify the complain signature
-	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.NonceSym, complain.Signature)
+	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.NonceSym, complain.Sig)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
@@ -708,7 +708,7 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID
 	return signingID
 }
 
-func (k Keeper) UpdateSigning(ctx sdk.Context, signingID tss.SigningID, signing types.Signing) {
+func (k Keeper) SetSigning(ctx sdk.Context, signingID tss.SigningID, signing types.Signing) {
 	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
 }
 
@@ -837,8 +837,8 @@ func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, types.PartialSig{
-			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
-			Signature: iterator.Value(),
+			MemberID: types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			Sig:      iterator.Value(),
 		})
 	}
 	return pzs

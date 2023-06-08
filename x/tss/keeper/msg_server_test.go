@@ -219,7 +219,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
-		Status:    types.ROUND_2,
+		Status:    types.GROUP_STATUS_ROUND_2,
 	})
 
 	var req types.MsgSubmitDKGRound2
@@ -365,12 +365,12 @@ func (s *KeeperTestSuite) TestComplain() {
 	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
 	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
 	member1 := types.Member{
-		Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 		PubKey:      pubKeyI,
 		IsMalicious: false,
 	}
 	member2 := types.Member{
-		Member:      "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+		Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 		PubKey:      pubKeyJ,
 		IsMalicious: false,
 	}
@@ -398,7 +398,7 @@ func (s *KeeperTestSuite) TestComplain() {
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
-		Status:    types.ROUND_3,
+		Status:    types.GROUP_STATUS_ROUND_3,
 	})
 
 	// Sign
@@ -420,11 +420,11 @@ func (s *KeeperTestSuite) TestComplain() {
 					GroupID: groupID,
 					Complains: []types.Complain{
 						{
-							I:         memberID1,
-							J:         memberID2,
-							KeySym:    keySym,
-							Signature: sig,
-							NonceSym:  nonceSym,
+							I:        memberID1,
+							J:        memberID2,
+							KeySym:   keySym,
+							Sig:      sig,
+							NonceSym: nonceSym,
 						},
 					},
 					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -486,7 +486,7 @@ func (s *KeeperTestSuite) TestConfirm() {
 		Size_:     5,
 		Threshold: 2,
 		PubKey:    groupPubKey,
-		Status:    types.ROUND_3,
+		Status:    types.GROUP_STATUS_ROUND_3,
 	})
 
 	// Set round 1 data
@@ -561,7 +561,7 @@ func (s *KeeperTestSuite) TestSubmitDEs() {
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
-		Status:    types.ROUND_3,
+		Status:    types.GROUP_STATUS_ROUND_3,
 	}
 
 	// Set group
@@ -619,7 +619,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	accMember, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	member := types.Member{
-		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey:      tss.PublicKey(nil),
 		IsMalicious: false,
 	}
@@ -635,7 +635,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 		Size_:     1,
 		Threshold: 1,
 		PubKey:    nil,
-		Status:    types.ACTIVE,
+		Status:    types.GROUP_STATUS_ACTIVE,
 	}
 	k.SetGroup(ctx, group)
 	k.SetMember(ctx, groupID, memberID, member)
@@ -667,7 +667,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 					Size_:     5,
 					Threshold: 3,
 					PubKey:    nil,
-					Status:    types.FALLEN,
+					Status:    types.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)
 				req = types.MsgRequestSign{
@@ -711,7 +711,7 @@ func (s *KeeperTestSuite) TestSign() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	groupID, signingID, member1, member2 := tss.GroupID(1), tss.SigningID(1), tss.MemberID(1), tss.MemberID(2)
 	member := types.Member{
-		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey:      hexDecode("0268c34a74f75ea26f3eba73a44afdaaa5e4704baa6f58d6e1ab831a5608e4dae4"),
 		IsMalicious: false,
 	}
@@ -726,7 +726,7 @@ func (s *KeeperTestSuite) TestSign() {
 		Size_:     2,
 		Threshold: 2,
 		PubKey:    hexDecode("03534dfb533fedd09a97cbedeab70ae895399ed48be0ad7f789a705ec023dcf044"),
-		Status:    types.ACTIVE,
+		Status:    types.GROUP_STATUS_ACTIVE,
 	}
 	k.SetGroup(ctx, group)
 	k.SetMember(ctx, groupID, member1, member)
@@ -735,18 +735,18 @@ func (s *KeeperTestSuite) TestSign() {
 		GroupID: groupID,
 		AssignedMembers: []types.AssignedMember{
 			{
-				MemberID:    member1,
-				Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				PublicD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
-				PublicE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
-				PublicNonce: hexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
+				MemberID: member1,
+				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PubD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PubE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PubNonce: hexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
 			},
 			{
-				MemberID:    member2,
-				Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-				PublicD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
-				PublicE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
-				PublicNonce: hexDecode("02aacc8be43d6af147efc41f41754acc7764f31b9d0be33a5acbf9bd46bd3bb4bc"),
+				MemberID: member2,
+				Member:   "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+				PubD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PubE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PubNonce: hexDecode("02aacc8be43d6af147efc41f41754acc7764f31b9d0be33a5acbf9bd46bd3bb4bc"),
 			},
 		},
 		Message:       message,

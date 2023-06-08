@@ -29,7 +29,7 @@ const (
 	AttributeKeyMemberIDJ            = "member_id_j"
 	AttributeKeyKeySym               = "key_sym"
 	AttributeKeyNonceSym             = "nonce_sym"
-	AttributeKeySignature            = "signature"
+	AttributeKeySig                  = "sig"
 	AttributeKeyComplain             = "complain"
 	AttributeKeyGroupPubKey          = "group_pub_key"
 	AttributeKeyOwnPubKeySig         = "own_pub_key_sig"
@@ -38,7 +38,7 @@ const (
 	AttributeKeyMessage              = "message"
 	AttributeKeyGroupPubNonce        = "group_pub_nonce"
 	AttributeKeyOwnPubNonces         = "own_pub_nonces"
-	AttributeKeyPublicD              = "public_d"
-	AttributeKeyPublicE              = "public_e"
+	AttributeKeyPubD                 = "pub_d"
+	AttributeKeyPubE                 = "pub_e"
 	AttributeKeyAssignedParticipants = "assigned_participants"
 )

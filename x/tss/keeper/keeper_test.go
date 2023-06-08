@@ -95,7 +95,7 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
-		Status:    types.ROUND_1,
+		Status:    types.GROUP_STATUS_ROUND_1,
 	}
 
 	// Create new group
@@ -116,7 +116,7 @@ func (s *KeeperTestSuite) TestSetGroup() {
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
-		Status:    types.ROUND_1,
+		Status:    types.GROUP_STATUS_ROUND_1,
 	}
 
 	// Set new group
@@ -153,7 +153,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey:      tss.PublicKey(nil),
 		IsMalicious: false,
 	}
@@ -169,12 +169,12 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
-			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
@@ -195,12 +195,12 @@ func (s *KeeperTestSuite) TestVerifyMember() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
-			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
@@ -438,12 +438,12 @@ func (s *KeeperTestSuite) TestGetMaliciousMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 	member1 := types.Member{
-		Member:      "member_address_1",
+		Address:     "member_address_1",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: true,
 	}
 	member2 := types.Member{
-		Member:      "member_address_2",
+		Address:     "member_address_2",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: true,
 	}
@@ -465,12 +465,12 @@ func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
 	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
 	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
 	member1 := types.Member{
-		Member:      "member_address_1",
+		Address:     "member_address_1",
 		PubKey:      pubKeyI,
 		IsMalicious: false,
 	}
 	member2 := types.Member{
-		Member:      "member_address_2",
+		Address:     "member_address_2",
 		PubKey:      pubKeyJ,
 		IsMalicious: false,
 	}
@@ -484,11 +484,11 @@ func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
 	s.Require().NoError(err)
 
 	err = k.HandleVerifyComplainSig(ctx, groupID, types.Complain{
-		I:         memberID1,
-		J:         memberID2,
-		KeySym:    keySym,
-		Signature: sig,
-		NonceSym:  nonceSym,
+		I:        memberID1,
+		J:        memberID2,
+		KeySym:   keySym,
+		Sig:      sig,
+		NonceSym: nonceSym,
 	})
 	s.Require().NoError(err)
 }
@@ -500,7 +500,7 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
 	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
 	member := types.Member{
-		Member:      "member_address",
+		Address:     "member_address",
 		PubKey:      pubKey,
 		IsMalicious: false,
 	}
@@ -527,13 +527,13 @@ func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:        1,
+					J:        2,
+					KeySym:   []byte("key_sym"),
+					Sig:      []byte("signature"),
+					NonceSym: []byte("nonce_sym"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -554,13 +554,13 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:        1,
+					J:        2,
+					KeySym:   []byte("key_sym"),
+					Sig:      []byte("signature"),
+					NonceSym: []byte("nonce_sym"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -582,13 +582,13 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:        1,
+					J:        2,
+					KeySym:   []byte("key_sym"),
+					Sig:      []byte("signature"),
+					NonceSym: []byte("nonce_sym"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -597,13 +597,13 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:        1,
+					J:        2,
+					KeySym:   []byte("key_sym"),
+					Sig:      []byte("signature"),
+					NonceSym: []byte("nonce_sym"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -710,7 +710,7 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 
 	// Set member
 	k.SetMember(ctx, groupID, memberID, types.Member{
-		Member:      "member_address",
+		Address:     "member_address",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: false,
 	})
@@ -723,7 +723,7 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	s.Require().NoError(err)
 	s.Require().Equal([]types.Member{
 		{
-			Member:      "member_address",
+			Address:     "member_address",
 			PubKey:      []byte("pub_key"),
 			IsMalicious: true,
 		},
@@ -764,13 +764,13 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			ComplainsWithStatus: []types.ComplainWithStatus{
 				{
 					Complain: types.Complain{
-						I:         1,
-						J:         2,
-						KeySym:    []byte("key_sym"),
-						Signature: []byte("signature"),
-						NonceSym:  []byte("nonce_sym"),
+						I:        1,
+						J:        2,
+						KeySym:   []byte("key_sym"),
+						Sig:      []byte("signature"),
+						NonceSym: []byte("nonce_sym"),
 					},
-					ComplainStatus: types.SUCCESS,
+					ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 				},
 			},
 		}
@@ -968,12 +968,12 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	pzs := k.GetPartialSigsWithKey(ctx, signingID)
 	s.Require().Equal([]types.PartialSig{
 		{
-			MemberID:  member1,
-			Signature: pz,
+			MemberID: member1,
+			Sig:      pz,
 		},
 		{
-			MemberID:  member2,
-			Signature: pz,
+			MemberID: member2,
+			Sig:      pz,
 		},
 	}, pzs)
 }

@@ -205,7 +205,7 @@ func (m MsgComplain) ValidateBasic() error {
 			return sdkerrors.Wrap(err, "nonce sym")
 		}
 		// Validate signature
-		_, err = c.Signature.Parse()
+		_, err = c.Sig.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "signature")
 		}

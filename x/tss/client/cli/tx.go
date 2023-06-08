@@ -32,21 +32,23 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(MsgAddGrantees())
-	txCmd.AddCommand(MsgRemoveGrantees())
-	txCmd.AddCommand(MsgCreateGroupCmd())
-	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
-	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
-	txCmd.AddCommand(MsgComplainCmd())
-	txCmd.AddCommand(MsgConfirmCmd())
-	txCmd.AddCommand(MsgSubmitDEsCmd())
-	txCmd.AddCommand(MsgRequestSignCmd())
+	txCmd.AddCommand(
+		NewAddGranteesCmd(),
+		NewRemoveGranteesCmd(),
+		NewCreateGroupCmd(),
+		NewSubmitDKGRound1Cmd(),
+		NewSubmitDKGRound2Cmd(),
+		NewComplainCmd(),
+		NewConfirmCmd(),
+		NewSubmitDEsCmd(),
+		NewRequestSignCmd(),
+	)
 
 	return txCmd
 }
 
-// MsgAddGrantees creates a CLI command for add new grantees
-func MsgAddGrantees() *cobra.Command {
+// NewAddGranteesCmd creates a CLI command for add new grantees
+func NewAddGranteesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
 		Short: "Add agents authorized to submit tss transactions.",
@@ -99,8 +101,8 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 	return cmd
 }
 
-// MsgRemoveGrantees creates a CLI command for remove grantees from granter
-func MsgRemoveGrantees() *cobra.Command {
+// NewRemoveGranteesCmd creates a CLI command for remove grantees from granter
+func NewRemoveGranteesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
 		Short: "Remove agents from the list of authorized grantees.",
@@ -144,8 +146,8 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 	return cmd
 }
 
-// MsgCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
-func MsgCreateGroupCmd() *cobra.Command {
+// NewCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
+func NewCreateGroupCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-group [member1,member2,...] [threshold]",
 		Args:  cobra.ExactArgs(2),
@@ -184,8 +186,8 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 	return cmd
 }
 
-// MsgSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
-func MsgSubmitDKGRound1Cmd() *cobra.Command {
+// NewSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
+func NewSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
@@ -255,8 +257,8 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	return cmd
 }
 
-// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
-func MsgSubmitDKGRound2Cmd() *cobra.Command {
+// NewSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
+func NewSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
 		Args:  cobra.MinimumNArgs(2),
@@ -310,8 +312,8 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	return cmd
 }
 
-// MsgComplainCmd creates a CLI command for CLI command for Msg/Complain.
-func MsgComplainCmd() *cobra.Command {
+// NewComplainCmd creates a CLI command for CLI command for Msg/Complain.
+func NewComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [complains-json-file]",
 		Args:  cobra.ExactArgs(2),
@@ -365,8 +367,8 @@ Where complains.json contains:
 	return cmd
 }
 
-// MsgConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
-func MsgConfirmCmd() *cobra.Command {
+// NewConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
+func NewConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
 		Args:  cobra.ExactArgs(3),
@@ -411,8 +413,8 @@ func MsgConfirmCmd() *cobra.Command {
 	return cmd
 }
 
-// MsgSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
-func MsgSubmitDEsCmd() *cobra.Command {
+// NewSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
+func NewSubmitDEsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-multi-de [d,e] [d,e] ...",
 		Args:  cobra.MinimumNArgs(1),
@@ -460,8 +462,8 @@ func MsgSubmitDEsCmd() *cobra.Command {
 	return cmd
 }
 
-// MsgRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
-func MsgRequestSignCmd() *cobra.Command {
+// NewRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
+func NewRequestSignCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-sign [group_id] [message]",
 		Args:  cobra.ExactArgs(2),
