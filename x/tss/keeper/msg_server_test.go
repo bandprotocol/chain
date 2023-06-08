@@ -6,6 +6,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (s *KeeperTestSuite) TestCreateGroupReq() {
@@ -611,4 +612,218 @@ func (s *KeeperTestSuite) TestSubmitDEs() {
 			tc.postTest()
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestRequestSign() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	accMember, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	member := types.Member{
+		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		PubKey:      tss.PublicKey(nil),
+		IsMalicious: false,
+	}
+	message := []byte("test message")
+	de := types.DE{
+		PubD: hexDecode("03534dfb533fedd09a97cbedeab70ae895399ed48be0ad7f789a705ec023dcf044"),
+		PubE: hexDecode("03534dfb533fedd09a97cbedeab70ae895399ed48be0ad7f789a705ec023dcf044"),
+	}
+
+	// Create an active group
+	group := types.Group{
+		GroupID:   groupID,
+		Size_:     1,
+		Threshold: 1,
+		PubKey:    nil,
+		Status:    types.ACTIVE,
+	}
+	k.SetGroup(ctx, group)
+	k.SetMember(ctx, groupID, memberID, member)
+	k.SetDE(ctx, accMember, 0, de)
+
+	var req types.MsgRequestSign
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func()
+	}{
+		{
+			"failure with invalid groupID",
+			func() {
+				req = types.MsgRequestSign{
+					GroupID: tss.GroupID(999), // non-existent groupID
+					Message: message,
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"failure with inactive group",
+			func() {
+				inactiveGroup := types.Group{
+					GroupID:   2,
+					Size_:     5,
+					Threshold: 3,
+					PubKey:    nil,
+					Status:    types.FALLEN,
+				}
+				k.SetGroup(ctx, inactiveGroup)
+				req = types.MsgRequestSign{
+					GroupID: tss.GroupID(2), // inactive groupID
+					Message: message,
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"success",
+			func() {
+				req = types.MsgRequestSign{
+					GroupID: groupID,
+					Message: message,
+				}
+			},
+			true,
+			func() {},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			_, err := msgSrvr.RequestSign(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSign() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	groupID, signingID, member1, member2 := tss.GroupID(1), tss.SigningID(1), tss.MemberID(1), tss.MemberID(2)
+	member := types.Member{
+		Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		PubKey:      hexDecode("0268c34a74f75ea26f3eba73a44afdaaa5e4704baa6f58d6e1ab831a5608e4dae4"),
+		IsMalicious: false,
+	}
+	signature := hexDecode(
+		"03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67e60572162975eedcd2c605e480ebc5293a7b11472e911ab37e9139a2fb60eddd",
+	)
+	message := []byte("data")
+
+	// Create an active group and a signing in pending state
+	group := types.Group{
+		GroupID:   groupID,
+		Size_:     2,
+		Threshold: 2,
+		PubKey:    hexDecode("03534dfb533fedd09a97cbedeab70ae895399ed48be0ad7f789a705ec023dcf044"),
+		Status:    types.ACTIVE,
+	}
+	k.SetGroup(ctx, group)
+	k.SetMember(ctx, groupID, member1, member)
+
+	signing := types.Signing{
+		GroupID: groupID,
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID:    member1,
+				Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PublicD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PublicE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PublicNonce: hexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
+			},
+			{
+				MemberID:    member2,
+				Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+				PublicD:     hexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PublicE:     hexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PublicNonce: hexDecode("02aacc8be43d6af147efc41f41754acc7764f31b9d0be33a5acbf9bd46bd3bb4bc"),
+			},
+		},
+		Message:       message,
+		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
+		Bytes:         []byte("bytes"),
+		Sig:           nil,
+	}
+	k.AddSigning(ctx, signing)
+
+	var req types.MsgSign
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func()
+	}{
+		{
+			"failure with invalid signingID",
+			func() {
+				req = types.MsgSign{
+					SigningID: tss.SigningID(999), // non-existent signingID
+					MemberID:  member1,
+					Signature: signature,
+					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"failure with invalid memberID",
+			func() {
+				req = types.MsgSign{
+					SigningID: signingID,
+					MemberID:  tss.MemberID(999), // non-existent memberID
+					Signature: signature,
+					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"success",
+			func() {
+				req = types.MsgSign{
+					SigningID: signingID,
+					MemberID:  member1,
+					Signature: signature,
+					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func() {},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			_, err := msgSrvr.Sign(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest()
+		})
+	}
+}
+
+func hexDecode(str string) []byte {
+	b, err := hex.DecodeString(str)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }
