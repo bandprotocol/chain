@@ -14,24 +14,24 @@ func (suite *TSSTestSuite) TestComputeLagrangeCoefficient() {
 		})
 }
 
-func (suite *TSSTestSuite) TestComputeBytes() {
+func (suite *TSSTestSuite) TestComputeCommitment() {
 	suite.RunOnSigning(suite.testCases, func(tc testutil.TestCase, signing testutil.Signing) {
-		bytes, err := tss.ComputeBytes(
+		commitment, err := tss.ComputeCommitment(
 			signing.GetAllIDs(),
 			signing.GetAllPubDs(),
 			signing.GetAllPubEs(),
 		)
 		suite.Require().NoError(err)
-		suite.Require().Equal(signing.Bytes, bytes)
+		suite.Require().Equal(signing.Commitment, commitment)
 	})
 }
 
-func (suite *TSSTestSuite) TestComputeOwnLo() {
+func (suite *TSSTestSuite) TestComputeOwnBindingFactor() {
 	suite.RunOnAssignedMember(
 		suite.testCases,
 		func(tc testutil.TestCase, signing testutil.Signing, assignedMember testutil.AssignedMember) {
-			lo := tss.ComputeOwnLo(assignedMember.ID, signing.Data, signing.Bytes)
-			suite.Require().Equal(assignedMember.Lo, lo)
+			bindingFactor := tss.ComputeOwnBindingFactor(assignedMember.ID, signing.Data, signing.Commitment)
+			suite.Require().Equal(assignedMember.BindingFactor, bindingFactor)
 		},
 	)
 }
@@ -43,7 +43,7 @@ func (suite *TSSTestSuite) TestComputeOwnPublicNonce() {
 			pubNonce, err := tss.ComputeOwnPubNonce(
 				assignedMember.PubD(),
 				assignedMember.PubE(),
-				assignedMember.Lo,
+				assignedMember.BindingFactor,
 			)
 			suite.Require().NoError(err)
 			suite.Require().Equal(assignedMember.PubNonce(), pubNonce)
@@ -58,7 +58,7 @@ func (suite *TSSTestSuite) TestComputeOwnPrivateNonce() {
 			privNonce, err := tss.ComputeOwnPrivNonce(
 				assignedMember.PrivD,
 				assignedMember.PrivE,
-				assignedMember.Lo,
+				assignedMember.BindingFactor,
 			)
 			suite.Require().NoError(err)
 			suite.Require().Equal(assignedMember.PrivNonce, privNonce)

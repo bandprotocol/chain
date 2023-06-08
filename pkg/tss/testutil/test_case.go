@@ -113,7 +113,7 @@ var (
 					ID:       1,
 					Data:     []byte("data"),
 					PubNonce: HexDecode("0305e39f4046be2f3c96c092ce90923e086adf1872a4766c476d2fe98bd4449e9d"),
-					Bytes: HexDecode(
+					Commitment: HexDecode(
 						"000000000000000103cd12d8f9abd0537d125fc6c998567bfd223cbdeb5ba66443f59731ff1a008aa203741dc9ba6f4876636424e02ab325dea615e262cc9b0e14404a1857b762cceba2000000000000000202234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef10250968aba50dbe4b8de4c1a2fa741dbee444ff48f0720b8cdb09ff33c47f34d45",
 					),
 					Sig: HexDecode(
@@ -121,23 +121,43 @@ var (
 					),
 					AssignedMembers: []AssignedMember{
 						{
-							ID:        1,
-							PrivD:     HexDecode("c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f"),
-							PrivE:     HexDecode("dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627"),
-							Lo:        HexDecode("ba578cde667fd3a7769a123a7e4baa0fe72fd323a541b95cff9c5eab86b7d645"),
-							PrivNonce: HexDecode("20c9a3904268432450487aae5fa48c14db670d50fb31417b1aeaf39ebe75e20a"),
-							Lagrange:  HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
+							ID: 1,
+							PrivD: HexDecode(
+								"c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f",
+							),
+							PrivE: HexDecode(
+								"dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627",
+							),
+							BindingFactor: HexDecode(
+								"ba578cde667fd3a7769a123a7e4baa0fe72fd323a541b95cff9c5eab86b7d645",
+							),
+							PrivNonce: HexDecode(
+								"20c9a3904268432450487aae5fa48c14db670d50fb31417b1aeaf39ebe75e20a",
+							),
+							Lagrange: HexDecode(
+								"0000000000000000000000000000000000000000000000000000000000000002",
+							),
 							Sig: HexDecode(
 								"03a6168ec50b9a3696bf690a26eae9842421f2fbf0b889eefb5eb4f7be21469e10eb8595956745253b5b2b47bb28dbbb44d4d36f91ab204d0b5e59c21c1058cb8d",
 							),
 						},
 						{
-							ID:        2,
-							PrivD:     HexDecode("56b6a3783a58558ccc349fb3d8b33efd1184d38e80781b5e5ad6ece6067ae0cc"),
-							PrivE:     HexDecode("2a9ac1414b227155b1d6ae81650f26fbf8a5807c713bf54cc80b1ed86277bde3"),
-							Lo:        HexDecode("cbe64511ff21632a6279ae22f31b237adac9cbf7a415b66e163e41871ec32441"),
-							PrivNonce: HexDecode("cd9eaea5226fe4ff2e05cb3897e56c9d688153fd0436085458019f587f277d26"),
-							Lagrange:  HexDecode("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140"),
+							ID: 2,
+							PrivD: HexDecode(
+								"56b6a3783a58558ccc349fb3d8b33efd1184d38e80781b5e5ad6ece6067ae0cc",
+							),
+							PrivE: HexDecode(
+								"2a9ac1414b227155b1d6ae81650f26fbf8a5807c713bf54cc80b1ed86277bde3",
+							),
+							BindingFactor: HexDecode(
+								"cbe64511ff21632a6279ae22f31b237adac9cbf7a415b66e163e41871ec32441",
+							),
+							PrivNonce: HexDecode(
+								"cd9eaea5226fe4ff2e05cb3897e56c9d688153fd0436085458019f587f277d26",
+							),
+							Lagrange: HexDecode(
+								"fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140",
+							),
 							Sig: HexDecode(
 								"037d2ff91881cb049eff2532def4545a9bbaaaee4f66d24b8c559489a242aa82ae5d55d21de3a8cfc30ea4c44a31513f0c9d471cb10e914ace77e09b158abf7f65",
 							),
@@ -237,7 +257,7 @@ var (
 					ID:       1,
 					Data:     []byte("data"),
 					PubNonce: HexDecode("02c8df48e5de29937cfaadf62c815a6f6c5af616d99a72f41fdcb1c2a9dd304526"),
-					Bytes: HexDecode(
+					Commitment: HexDecode(
 						"000000000000000103cd12d8f9abd0537d125fc6c998567bfd223cbdeb5ba66443f59731ff1a008aa203741dc9ba6f4876636424e02ab325dea615e262cc9b0e14404a1857b762cceba2",
 					),
 					Sig: HexDecode(
@@ -245,12 +265,22 @@ var (
 					),
 					AssignedMembers: []AssignedMember{
 						{
-							ID:        1,
-							PrivD:     HexDecode("c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f"),
-							PrivE:     HexDecode("dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627"),
-							Lo:        HexDecode("30483e7023aa25fe2b5165444c29ea86de32cf9e8f33cfce33341ec3c77e30e0"),
-							PrivNonce: HexDecode("1bbbbdd8a1975c7ab82e7adb760a50ba054fbaa1dba719f190aea14d453540fd"),
-							Lagrange:  HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+							ID: 1,
+							PrivD: HexDecode(
+								"c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f",
+							),
+							PrivE: HexDecode(
+								"dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627",
+							),
+							BindingFactor: HexDecode(
+								"30483e7023aa25fe2b5165444c29ea86de32cf9e8f33cfce33341ec3c77e30e0",
+							),
+							PrivNonce: HexDecode(
+								"1bbbbdd8a1975c7ab82e7adb760a50ba054fbaa1dba719f190aea14d453540fd",
+							),
+							Lagrange: HexDecode(
+								"0000000000000000000000000000000000000000000000000000000000000001",
+							),
 							Sig: HexDecode(
 								"02c8df48e5de29937cfaadf62c815a6f6c5af616d99a72f41fdcb1c2a9dd30452678d1f12380abe66adb1121a35ab7cdeb62f5841a6b6da01f9978431116ed6b46",
 							),
@@ -261,7 +291,7 @@ var (
 					ID:       2,
 					Data:     []byte("data"),
 					PubNonce: HexDecode("028c7ab03ed162b678eca88d2b547f1f9eb2c729658789eb7d4ad8c74a019941f2"),
-					Bytes: HexDecode(
+					Commitment: HexDecode(
 						"000000000000000203cd12d8f9abd0537d125fc6c998567bfd223cbdeb5ba66443f59731ff1a008aa203741dc9ba6f4876636424e02ab325dea615e262cc9b0e14404a1857b762cceba2",
 					),
 					Sig: HexDecode(
@@ -269,12 +299,22 @@ var (
 					),
 					AssignedMembers: []AssignedMember{
 						{
-							ID:        2,
-							PrivD:     HexDecode("c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f"),
-							PrivE:     HexDecode("dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627"),
-							Lo:        HexDecode("fa516f89148cb50781aac1bc1cb8b4ee363827178a32beb3987256b2c200e0cc"),
-							PrivNonce: HexDecode("543f446540e88eb7bbd8bbcc48fd09d2cba30ff34a9f443425f1f2a6095585a2"),
-							Lagrange:  HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+							ID: 2,
+							PrivD: HexDecode(
+								"c51328a8409dab5115f9b081fdaa6f0271ac4482c0bcebf407c5734efdaccb9f",
+							),
+							PrivE: HexDecode(
+								"dc835a4bd0c0e59b1aae9411a10325521b4140e2b02df9516ba8d06071c8d627",
+							),
+							BindingFactor: HexDecode(
+								"fa516f89148cb50781aac1bc1cb8b4ee363827178a32beb3987256b2c200e0cc",
+							),
+							PrivNonce: HexDecode(
+								"543f446540e88eb7bbd8bbcc48fd09d2cba30ff34a9f443425f1f2a6095585a2",
+							),
+							Lagrange: HexDecode(
+								"0000000000000000000000000000000000000000000000000000000000000001",
+							),
 							Sig: HexDecode(
 								"028c7ab03ed162b678eca88d2b547f1f9eb2c729658789eb7d4ad8c74a019941f25186391d5e976e8fa084c470c6db1817745c81aced42611e36cdfa8f139ac9ae",
 							),
