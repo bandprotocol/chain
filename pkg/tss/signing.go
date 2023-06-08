@@ -57,9 +57,9 @@ func ComputeOwnLo(mid MemberID, data []byte, bytes []byte) Scalar {
 	return ParseScalar(&lo)
 }
 
-// ComputeOwnPublicNonce calculates the own public nonce for a given public D, public E, and Lo.
+// ComputeOwnPubNonce calculates the own public nonce for a given public D, public E, and Lo.
 // Formula: D + Lo * E
-func ComputeOwnPublicNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (PublicKey, error) {
+func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (PublicKey, error) {
 	lo, err := rawLo.Parse()
 	if err != nil {
 		return nil, err
@@ -84,9 +84,9 @@ func ComputeOwnPublicNonce(rawPubD PublicKey, rawPubE PublicKey, rawLo Scalar) (
 	return ParsePublicKey(&ownPubNonce), nil
 }
 
-// ComputeOwnPrivateNonce calculates the own private nonce for a given private d, private e, and Lo.
+// ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and Lo.
 // Formula: d + Lo * e
-func ComputeOwnPrivateNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scalar) (PrivateKey, error) {
+func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawLo Scalar) (PrivateKey, error) {
 	lo, err := rawLo.Parse()
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func SignSigning(
 	ownPrivNonce PrivateKey,
 	ownPrivKey PrivateKey,
 ) (Signature, error) {
-	msg := ConcatBytes(groupPubNonce, GenerateMessageGroupSigning(groupPubKey, data))
+	msg := ConcatBytes(groupPubNonce, generateMessageGroupSigning(groupPubKey, data))
 	return Sign(ownPrivKey, msg, Scalar(ownPrivNonce), rawLagrange)
 }
 
@@ -160,7 +160,7 @@ func VerifySigningSig(
 	sig Signature,
 	ownPubKey PublicKey,
 ) error {
-	msg := ConcatBytes(groupPubNonce, GenerateMessageGroupSigning(groupPubKey, data))
+	msg := ConcatBytes(groupPubNonce, generateMessageGroupSigning(groupPubKey, data))
 	return Verify(sig.R(), sig.S(), msg, ownPubKey, nil, rawLagrange)
 }
 
@@ -170,11 +170,11 @@ func VerifyGroupSigningSig(
 	data []byte,
 	sig Signature,
 ) error {
-	msg := ConcatBytes(sig.R(), GenerateMessageGroupSigning(groupPubKey, data))
+	msg := ConcatBytes(sig.R(), generateMessageGroupSigning(groupPubKey, data))
 	return Verify(sig.R(), sig.S(), msg, groupPubKey, nil, nil)
 }
 
-// GenerateMessageGroupSigning generates the message for group signing using the group public key and data.
-func GenerateMessageGroupSigning(rawGroupPubKey PublicKey, data []byte) []byte {
+// generateMessageGroupSigning generates the message for group signing using the group public key and data.
+func generateMessageGroupSigning(rawGroupPubKey PublicKey, data []byte) []byte {
 	return ConcatBytes([]byte("signing"), rawGroupPubKey, data)
 }

@@ -289,8 +289,8 @@ func (s Signature) S() Scalar {
 
 // KeyPair represents a key pair consisting of a private key and a public key.
 type KeyPair struct {
-	PrivateKey PrivateKey
-	PublicKey  PublicKey
+	PrivKey PrivateKey
+	PubKey  PublicKey
 }
 
 // KeyPairs represents a slice of KeyPair values.
