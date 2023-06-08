@@ -131,7 +131,7 @@ func (suite *TSSTestSuite) TestSignComplain() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
-			sig, keySym, nonceSym, err := tss.SignComplain(
+			sig, keySym, err := tss.SignComplain(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.OneTimePrivKey,
@@ -141,8 +141,6 @@ func (suite *TSSTestSuite) TestSignComplain() {
 				Equal(memberI.ComplainSigs[testutil.GetSlot(memberI.ID, memberJ.ID)], sig)
 			suite.Require().
 				Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
-			suite.Require().
-				Equal(memberI.NonceSyms[testutil.GetSlot(memberI.ID, memberJ.ID)], nonceSym)
 		})
 }
 
@@ -156,7 +154,6 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				memberI.NonceSyms[slot],
 				memberI.ComplainSigs[slot],
 			)
 			suite.Require().NoError(err)
@@ -166,7 +163,6 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				testutil.FakePubKey,
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				memberI.NonceSyms[slot],
 				memberI.ComplainSigs[slot],
 			)
 			suite.Require().Error(err)
@@ -176,7 +172,6 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				memberI.OneTimePubKey(),
 				testutil.FakePubKey,
 				memberI.KeySyms[slot],
-				memberI.NonceSyms[slot],
 				memberI.ComplainSigs[slot],
 			)
 			suite.Require().Error(err)
@@ -185,17 +180,6 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 			err = tss.VerifyComplainSig(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
-				testutil.FakePubKey,
-				memberI.NonceSyms[slot],
-				memberI.ComplainSigs[slot],
-			)
-			suite.Require().Error(err)
-
-			// Wrong nonce sym case
-			err = tss.VerifyComplainSig(
-				memberI.OneTimePubKey(),
-				memberJ.OneTimePubKey(),
-				memberI.KeySyms[slot],
 				testutil.FakePubKey,
 				memberI.ComplainSigs[slot],
 			)
@@ -206,7 +190,6 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				memberI.NonceSyms[slot],
 				testutil.FakeSig,
 			)
 			suite.Require().Error(err)
