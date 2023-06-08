@@ -4,7 +4,10 @@ import (
 	"math/big"
 )
 
+// N is the order of the secp256k1 elliptic curve group, represented as a big.Int.
 var N, _ = new(big.Int).SetString("115792089237316195423570985008687907852837564279074904382605163141518161494337", 10)
+
+// PRIME_FACTORS contains pre-computed prime factors for the numbers up to 20.
 var PRIME_FACTORS = [...][][2]int64{
 	2:  {{2, 1}},
 	3:  {{3, 1}},
@@ -27,7 +30,8 @@ var PRIME_FACTORS = [...][][2]int64{
 	20: {{2, 2}, {5, 1}},
 }
 
-var TTT = [...][]int64{
+// PRECOMPUTED_POWERS contains pre-computed powers of certain prime numbers.
+var PRECOMPUTED_POWERS = [...][]int64{
 	2:  {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144},
 	3:  {1, 3, 9, 27, 81, 243, 729, 2187, 6561},
 	5:  {1, 5, 25, 125, 625},
@@ -38,53 +42,92 @@ var TTT = [...][]int64{
 	19: {1, 19},
 }
 
+// ComputeCoefficient calculates the Lagrange coefficient for a given index and set of indices.
+// The formula used is 𝚷(j/(j-i)) for all j in S-{i}, where:
+// - 𝚷 denotes the product of the following statement
+// - S ⊂ {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
+// - i ∈ S
+// - j ∈ S-{i}
+// The Lagrange coefficient is used in polynomial interpolation in threshold secret sharing schemes.
 func ComputeCoefficient(i int64, s []int64) *big.Int {
+    // Initialize numerator and denominator to 1
 	numerator := big.NewInt(1)
 	denominator := big.NewInt(1)
-	for _, j := range s {
-		if j != i {
-			numerator.Mul(big.NewInt(int64(j)), numerator)
 
-			j_i := j - i
-			denominator.Mul(big.NewInt(int64(j_i)), denominator)
-		}
+	// Iterate through all elements in S
+	for _, j := range s {
+	    // Skip if j == i
+	    if j == i {
+	        continue
+	    }
+
+	    // 𝚷(j)
+        numerator.Mul(big.NewInt(int64(j)), numerator)
+        // 𝚷(j-i)
+        denominator.Mul(big.NewInt(int64(j - i)), denominator)
 	}
 
+	// Multiply the numerator by the modular inverse of the denominator.
+	// The modular inverse of a number x is a number y such that (x*y) % N = 1, where N is the order of the group.
+	// This is equivalent to dividing the numerator by the denominator in modular arithmetic as the following formula.
+	// 𝚷(j/(j-i)) = (𝚷(j))/(𝚷(j-i)) = numerator/denominator
 	result := new(big.Int).Mul(numerator, denominator.ModInverse(denominator, N))
 	return result.Mod(result, N)
 }
 
-func ComputeCoefficientOptimize(i int64, s []int64) *big.Int {
+// ComputeCoefficientPreCompute computes the Lagrange coefficient for a given index i and a set S of indices.
+// The function optimizes computations by using pre-computed prime factors and powers of numbers.
+// The formula used is 𝚷(j/(j-i)) for all j in S-{i}, where:
+// - 𝚷 denotes the product of the following statement
+// - S ⊂ {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
+// - i ∈ S
+// - j ∈ S-{i}
+// The Lagrange coefficient is used in polynomial interpolation in threshold secret sharing schemes.
+func ComputeCoefficientPreCompute(i int64, s []int64) *big.Int {
+    // Counts the power of prime factors in the numerator and denominator of the result.
 	counts := make([]int64, 20)
-	sign := int64(1)
-	for _, j := range s {
-		if j != i {
-			for _, v := range PRIME_FACTORS[j] {
-				counts[v[0]] += v[1]
-			}
 
-			j_i := j - i
-			if j_i < 0 {
-				j_i = -j_i
-				sign *= -1
-			}
-			for _, v := range PRIME_FACTORS[j_i] {
-				counts[v[0]] -= v[1]
-			}
-		}
+	// Sign of the result (can be negative if the number of negative terms in the product is odd).
+	sign := int64(1)
+
+	// Loop through each index j in the set S.
+	for _, j := range s {
+	    // Skip if j == i
+	    if j == i {
+	        continue
+	    }
+	    // Add the prime factors of j to the numerator.
+        for _, v := range PRIME_FACTORS[j] {
+            counts[v[0]] += v[1]
+        }
+
+        // Subtract the prime factors of (j-i) from the numerator or denominator depending on its sign.
+        j_i := j - i
+        if j_i < 0 {
+            j_i = -j_i
+            sign *= -1
+        }
+        for _, v := range PRIME_FACTORS[j_i] {
+            counts[v[0]] -= v[1]
+        }
 	}
 
+    // Compute the product of the powers of prime factors for the numerator and the denominator.
 	numerator := int64(1)
 	denominator := int64(1)
 	for k, v := range counts {
 		if v > 0 {
-			numerator *= TTT[k][v]
+			numerator *= PRECOMPUTED_POWERS[k][v]
 		} else if v < 0 {
-			denominator *= TTT[k][-v]
+			denominator *= PRECOMPUTED_POWERS[k][-v]
 		}
 	}
 
-	numeratorBig := new(big.Int).Mul(big.NewInt(numerator), big.NewInt(sign))
+	// Multiply the numerator by the modular inverse of the denominator.
+	// The modular inverse of a number x is a number y such that (x*y) % N = 1, where N is the order of the group.
+	// This is equivalent to dividing the numerator by the denominator in modular arithmetic as the following formula.
+	// 𝚷(j/(j-i)) = (𝚷(j))/(𝚷(j-i)) = numerator/denominator
+	numeratorBig := big.NewInt(numerator * sign)
 	denominatorBig := big.NewInt(denominator)
 	result := new(big.Int).Mul(numeratorBig, denominatorBig.ModInverse(denominatorBig, N))
 	return result.Mod(result, N)
