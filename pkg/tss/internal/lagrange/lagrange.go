@@ -50,21 +50,21 @@ var PRECOMPUTED_POWERS = [...][]int64{
 // - j ∈ S-{i}
 // The Lagrange coefficient is used in polynomial interpolation in threshold secret sharing schemes.
 func ComputeCoefficient(i int64, s []int64) *big.Int {
-    // Initialize numerator and denominator to 1
+	// Initialize numerator and denominator to 1
 	numerator := big.NewInt(1)
 	denominator := big.NewInt(1)
 
 	// Iterate through all elements in S
 	for _, j := range s {
-	    // Skip if j == i
-	    if j == i {
-	        continue
-	    }
+		// Skip if j == i
+		if j == i {
+			continue
+		}
 
-	    // 𝚷(j)
-        numerator.Mul(big.NewInt(int64(j)), numerator)
-        // 𝚷(j-i)
-        denominator.Mul(big.NewInt(int64(j - i)), denominator)
+		// 𝚷(j)
+		numerator.Mul(big.NewInt(int64(j)), numerator)
+		// 𝚷(j-i)
+		denominator.Mul(big.NewInt(int64(j-i)), denominator)
 	}
 
 	// Multiply the numerator by the modular inverse of the denominator.
@@ -84,7 +84,7 @@ func ComputeCoefficient(i int64, s []int64) *big.Int {
 // - j ∈ S-{i}
 // The Lagrange coefficient is used in polynomial interpolation in threshold secret sharing schemes.
 func ComputeCoefficientPreCompute(i int64, s []int64) *big.Int {
-    // Counts the power of prime factors in the numerator and denominator of the result.
+	// Counts the power of prime factors in the numerator and denominator of the result.
 	counts := make([]int64, 20)
 
 	// Sign of the result (can be negative if the number of negative terms in the product is odd).
@@ -92,27 +92,27 @@ func ComputeCoefficientPreCompute(i int64, s []int64) *big.Int {
 
 	// Loop through each index j in the set S.
 	for _, j := range s {
-	    // Skip if j == i
-	    if j == i {
-	        continue
-	    }
-	    // Add the prime factors of j to the numerator.
-        for _, v := range PRIME_FACTORS[j] {
-            counts[v[0]] += v[1]
-        }
+		// Skip if j == i
+		if j == i {
+			continue
+		}
+		// Add the prime factors of j to the numerator.
+		for _, v := range PRIME_FACTORS[j] {
+			counts[v[0]] += v[1]
+		}
 
-        // Subtract the prime factors of (j-i) from the numerator or denominator depending on its sign.
-        j_i := j - i
-        if j_i < 0 {
-            j_i = -j_i
-            sign *= -1
-        }
-        for _, v := range PRIME_FACTORS[j_i] {
-            counts[v[0]] -= v[1]
-        }
+		// Subtract the prime factors of (j-i) from the numerator or denominator depending on its sign.
+		j_i := j - i
+		if j_i < 0 {
+			j_i = -j_i
+			sign *= -1
+		}
+		for _, v := range PRIME_FACTORS[j_i] {
+			counts[v[0]] -= v[1]
+		}
 	}
 
-    // Compute the product of the powers of prime factors for the numerator and the denominator.
+	// Compute the product of the powers of prime factors for the numerator and the denominator.
 	numerator := int64(1)
 	denominator := int64(1)
 	for k, v := range counts {

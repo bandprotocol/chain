@@ -29,16 +29,16 @@ func GenerateRound1Data(
 	}
 
 	// Get one-time information.
-	oneTimePrivKey := kps[0].PrivateKey
-	oneTimePubKey := kps[0].PublicKey
+	oneTimePrivKey := kps[0].PrivKey
+	oneTimePubKey := kps[0].PubKey
 	oneTimeSig, err := SignOneTime(mid, dkgContext, oneTimePubKey, oneTimePrivKey)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get a0 information.
-	a0PrivKey := kps[1].PrivateKey
-	a0PubKey := kps[1].PublicKey
+	a0PrivKey := kps[1].PrivKey
+	a0PubKey := kps[1].PubKey
 	a0Sig, err := SignA0(mid, dkgContext, a0PubKey, a0PrivKey)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func GenerateRound1Data(
 	var coefficientsCommit Points
 	var coefficients Scalars
 	for i := 1; i < len(kps); i++ {
-		coefficientsCommit = append(coefficientsCommit, Point(kps[i].PublicKey))
-		coefficients = append(coefficients, Scalar(kps[i].PrivateKey))
+		coefficientsCommit = append(coefficientsCommit, Point(kps[i].PubKey))
+		coefficients = append(coefficients, Scalar(kps[i].PrivKey))
 	}
 
 	return &Round1Data{
@@ -71,7 +71,7 @@ func SignA0(
 	a0Pub PublicKey,
 	a0Priv PrivateKey,
 ) (Signature, error) {
-	msg := GenerateMessageA0(mid, dkgContext, a0Pub)
+	msg := generateMessageA0(mid, dkgContext, a0Pub)
 	nonce, pubNonce := GenerateNonce(a0Priv, Hash(msg))
 	return Sign(a0Priv, ConcatBytes(pubNonce, msg), nonce, nil)
 }
@@ -83,12 +83,12 @@ func VerifyA0Sig(
 	sig Signature,
 	a0Pub PublicKey,
 ) error {
-	msg := ConcatBytes(sig.R(), GenerateMessageA0(mid, dkgContext, a0Pub))
+	msg := ConcatBytes(sig.R(), generateMessageA0(mid, dkgContext, a0Pub))
 	return Verify(sig.R(), sig.S(), msg, a0Pub, nil, nil)
 }
 
-// GenerateMessageA0 generates the message for the A0 signature.
-func GenerateMessageA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
+// generateMessageA0 generates the message for the A0 signature.
+func generateMessageA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
 	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, a0Pub)
 }
 
@@ -99,7 +99,7 @@ func SignOneTime(
 	oneTimePub PublicKey,
 	onetimePriv PrivateKey,
 ) (Signature, error) {
-	msg := GenerateMessageOneTime(mid, dkgContext, oneTimePub)
+	msg := generateMessageOneTime(mid, dkgContext, oneTimePub)
 	nonce, pubNonce := GenerateNonce(onetimePriv, Hash(msg))
 	return Sign(onetimePriv, ConcatBytes(pubNonce, msg), nonce, nil)
 }
@@ -111,11 +111,11 @@ func VerifyOneTimeSig(
 	sig Signature,
 	oneTimePub PublicKey,
 ) error {
-	msg := ConcatBytes(sig.R(), GenerateMessageOneTime(mid, dkgContext, oneTimePub))
+	msg := ConcatBytes(sig.R(), generateMessageOneTime(mid, dkgContext, oneTimePub))
 	return Verify(sig.R(), sig.S(), msg, oneTimePub, nil, nil)
 }
 
-// GenerateMessageOneTime generates the message for the one-time signature.
-func GenerateMessageOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
+// generateMessageOneTime generates the message for the one-time signature.
+func generateMessageOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
 	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, oneTimePub)
 }
