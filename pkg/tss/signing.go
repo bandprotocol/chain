@@ -17,7 +17,7 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 		mids = append(mids, int64(member))
 	}
 
-	coeff := lagrange.ComputeCoefficientOptimize(int64(mid), mids).Bytes()
+	coeff := lagrange.ComputeCoefficientPreCompute(int64(mid), mids).Bytes()
 
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
