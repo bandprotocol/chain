@@ -34,7 +34,7 @@ func New(ctx *cylinder.Context) (*Signing, error) {
 
 	return &Signing{
 		context: ctx,
-		logger:  ctx.Logger.With("worker", "signing"),
+		logger:  ctx.Logger.With("worker", "Signing"),
 		client:  cli,
 	}, nil
 }

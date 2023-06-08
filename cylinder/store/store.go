@@ -50,7 +50,7 @@ func (s *Store) SetDE(pubDE types.DE, privDE DE) error {
 		return err
 	}
 
-	return s.DB.Set(DEStoreKey(pubDE), bytes)
+	return s.DB.SetSync(DEStoreKey(pubDE), bytes)
 }
 
 // GetDE retrieves the private (d, E) by the given public (D, E)

@@ -40,7 +40,7 @@ func New(ctx *cylinder.Context) (*Sender, error) {
 
 	return &Sender{
 		context:  ctx,
-		logger:   ctx.Logger.With("worker", "sender"),
+		logger:   ctx.Logger.With("worker", "Sender"),
 		client:   cli,
 		freeKeys: freeKeys,
 	}, nil

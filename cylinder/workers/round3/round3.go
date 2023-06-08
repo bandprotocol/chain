@@ -34,7 +34,7 @@ func New(ctx *cylinder.Context) (*Round3, error) {
 
 	return &Round3{
 		context: ctx,
-		logger:  ctx.Logger.With("worker", "round3"),
+		logger:  ctx.Logger.With("worker", "Round3"),
 		client:  cli,
 	}, nil
 }
