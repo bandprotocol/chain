@@ -143,10 +143,10 @@ func SignComplain(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
 	oneTimePrivI PrivateKey,
-) (Signature, PublicKey, PublicKey, error) {
+) (ComplainSignature, PublicKey, error) {
 	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	msg := generateMessageComplain(oneTimePubI, oneTimePubJ, keySym)
@@ -154,15 +154,20 @@ func SignComplain(
 
 	nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	sig, err := Sign(oneTimePrivI, ConcatBytes(pubNonce, nonceSym, msg), nonce, nil)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	return sig, keySym, nonceSym, nil
+	complainSig, err := NewComplainSignature(sig.R(), Point(nonceSym), sig.S())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return complainSig, keySym, nil
 }
 
 // VerifyComplainSig verifies the signature of a complaint using the given parameters.
@@ -170,17 +175,16 @@ func VerifyComplainSig(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
 	keySym PublicKey,
-	nonceSym PublicKey,
-	sig Signature,
+	complainSig ComplainSignature,
 ) error {
-	msg := ConcatBytes(sig.R(), nonceSym, generateMessageComplain(oneTimePubI, oneTimePubJ, keySym))
+	msg := ConcatBytes(complainSig.A1(), complainSig.A2(), generateMessageComplain(oneTimePubI, oneTimePubJ, keySym))
 
-	err := Verify(sig.R(), sig.S(), msg, oneTimePubI, nil, nil)
+	err := Verify(complainSig.A1(), complainSig.Z(), msg, oneTimePubI, nil, nil)
 	if err != nil {
 		return err
 	}
 
-	return Verify(Point(nonceSym), sig.S(), msg, keySym, Point(oneTimePubJ), nil)
+	return Verify(complainSig.A2(), complainSig.Z(), msg, keySym, Point(oneTimePubJ), nil)
 }
 
 // generateMessageComplain generates the message for verifying a complaint signature.
