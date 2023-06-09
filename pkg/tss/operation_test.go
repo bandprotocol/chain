@@ -16,6 +16,7 @@ func (suite *TSSTestSuite) TestComputeKeySym() {
 				memberI.OneTimePrivKey,
 				memberJ.OneTimePubKey(),
 			)
+
 			suite.Require().NoError(err)
 			suite.Require().Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
 		},

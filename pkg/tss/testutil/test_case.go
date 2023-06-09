@@ -8,6 +8,14 @@ type TestCase struct {
 	Signings []Signing
 }
 
+func CopyTestCase(src TestCase) TestCase {
+	return TestCase{
+		Name:     src.Name,
+		Group:    CopyGroup(src.Group),
+		Signings: CopySignings(src.Signings),
+	}
+}
+
 var (
 	FakePrivKey = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
 	FakePubKey  = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
