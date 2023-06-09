@@ -53,7 +53,7 @@ var (
 	ErrCombineSigsFailed                = sdkerrors.Register(ModuleName, 34, "failed to combine signatures")
 	ErrVerifyGroupSigningSigFailed      = sdkerrors.Register(
 		ModuleName,
-		34,
+		35,
 		"failed to verify group signing signature",
 	)
 )
