@@ -480,15 +480,14 @@ func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
 	k.SetMember(ctx, groupID, memberID2, member2)
 
 	// Sign
-	sig, keySym, nonceSym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
+	complainSig, keySym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
 	s.Require().NoError(err)
 
 	err = k.HandleVerifyComplainSig(ctx, groupID, types.Complain{
-		I:        memberID1,
-		J:        memberID2,
-		KeySym:   keySym,
-		Sig:      sig,
-		NonceSym: nonceSym,
+		I:      memberID1,
+		J:      memberID2,
+		KeySym: keySym,
+		Sig:    complainSig,
 	})
 	s.Require().NoError(err)
 }
@@ -527,11 +526,10 @@ func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -554,11 +552,10 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -582,11 +579,10 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -597,11 +593,10 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -764,11 +759,10 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			ComplainsWithStatus: []types.ComplainWithStatus{
 				{
 					Complain: types.Complain{
-						I:        1,
-						J:        2,
-						KeySym:   []byte("key_sym"),
-						Sig:      []byte("signature"),
-						NonceSym: []byte("nonce_sym"),
+						I:      1,
+						J:      2,
+						KeySym: []byte("key_sym"),
+						Sig:    []byte("signature"),
 					},
 					ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 				},

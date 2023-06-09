@@ -340,7 +340,6 @@ func (k Keeper) Complain(
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
 					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Sig)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
@@ -366,7 +365,6 @@ func (k Keeper) Complain(
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeyNonceSym, hex.EncodeToString(c.NonceSym)),
 					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Sig)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
@@ -606,21 +604,20 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		})
 	}
 
-	// compute bytes from mids, public D and public E
-	var bytes []byte
-	bytes, err = tss.ComputeBytes(mids, pubDs, pubEs)
+	// compute commitment from mids, public D and public E
+	commitment, err := tss.ComputeCommitment(mids, pubDs, pubEs)
 	if err != nil {
 		return nil, err
 	}
 
-	// compute lo and public nonce of each assigned member
+	// compute binding factor and public nonce of each assigned member
 	var ownPubNonces tss.PublicKeys
 	for i, member := range assignedMembers {
-		// compute own lo
-		lo := tss.ComputeOwnLo(member.MemberID, req.Message, bytes)
+		// compute binding factor
+		bindingFactor := tss.ComputeOwnBindingFactor(member.MemberID, req.Message, commitment)
 
 		// compute own public nonce
-		opn, err := tss.ComputeOwnPubNonce(member.PubD, member.PubE, lo)
+		opn, err := tss.ComputeOwnPubNonce(member.PubD, member.PubE, bindingFactor)
 		if err != nil {
 			return nil, err
 		}
@@ -638,7 +635,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		GroupID:         req.GroupID,
 		Message:         req.Message,
 		GroupPubNonce:   groupPubNonce,
-		Bytes:           bytes,
+		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
 		Sig:             nil,
 	}
@@ -661,7 +658,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(req.Message)),
-		sdk.NewAttribute(types.AttributeKeyBytes, hex.EncodeToString(bytes)),
+		sdk.NewAttribute(types.AttributeKeyCommitment, hex.EncodeToString(commitment)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
 	)
 	for _, member := range assignedMembers {

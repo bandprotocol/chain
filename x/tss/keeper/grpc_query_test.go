@@ -62,11 +62,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -77,11 +76,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:        1,
-					J:        2,
-					KeySym:   []byte("key_sym"),
-					Sig:      []byte("signature"),
-					NonceSym: []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
 				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
@@ -497,7 +495,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		},
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
-		Bytes:         []byte("bytes"),
+		Commitment:    []byte("commitment"),
 		Sig:           []byte("signature"),
 	}
 	sig := []byte("signatures")

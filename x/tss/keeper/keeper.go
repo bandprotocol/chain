@@ -404,7 +404,12 @@ func (k Keeper) HandleVerifyComplainSig(
 	}
 
 	// Verify the complain signature
-	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.NonceSym, complain.Sig)
+	err = tss.VerifyComplainSig(
+		memberI.PubKey,
+		memberJ.PubKey,
+		complain.KeySym,
+		complain.Sig,
+	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,

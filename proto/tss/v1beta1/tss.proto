@@ -76,7 +76,7 @@ message Signing {
   bytes group_pub_nonce = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes bytes = 6;
+  bytes commitment = 6;
   bytes sig = 7 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
@@ -139,10 +139,7 @@ message Complain {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes sig = 4 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
-  ];
-  bytes nonce_sym = 5 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.ComplainSignature"
   ];
 }
 

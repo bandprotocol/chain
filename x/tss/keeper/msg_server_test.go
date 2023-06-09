@@ -402,7 +402,7 @@ func (s *KeeperTestSuite) TestComplain() {
 	})
 
 	// Sign
-	sig, keySym, nonceSym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
+	sig, keySym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
 	s.Require().NoError(err)
 
 	var req types.MsgComplain
@@ -420,11 +420,10 @@ func (s *KeeperTestSuite) TestComplain() {
 					GroupID: groupID,
 					Complains: []types.Complain{
 						{
-							I:        memberID1,
-							J:        memberID2,
-							KeySym:   keySym,
-							Sig:      sig,
-							NonceSym: nonceSym,
+							I:      memberID1,
+							J:      memberID2,
+							KeySym: keySym,
+							Sig:    sig,
 						},
 					},
 					Member: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -751,7 +750,7 @@ func (s *KeeperTestSuite) TestSign() {
 		},
 		Message:       message,
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Bytes:         []byte("bytes"),
+		Commitment:    []byte("commitment"),
 		Sig:           nil,
 	}
 	k.AddSigning(ctx, signing)
