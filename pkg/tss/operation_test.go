@@ -1,28 +1,35 @@
 package tss_test
 
 import (
+	"encoding/hex"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 func (suite *TSSTestSuite) TestComputeKeySym() {
-	keySym, err := tss.ComputeKeySym(suite.member1.OneTimePrivKey, suite.member2.OneTimePubKey)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.keySyms[0], keySym)
-
-	keySym, err = tss.ComputeKeySym(suite.member2.OneTimePrivKey, suite.member1.OneTimePubKey)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member2.keySyms[0], keySym)
+	suite.RunOnPairMembers(
+		suite.testCases,
+		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
+			keySym, err := tss.ComputeKeySym(
+				memberI.OneTimePrivKey,
+				memberJ.OneTimePubKey(),
+			)
+			suite.Require().NoError(err)
+			suite.Require().Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
+		},
+	)
 }
 
 func (suite *TSSTestSuite) TestComputeNonceSym() {
-	nonceSym, err := tss.ComputeNonceSym(suite.nonce, suite.member1.OneTimePubKey)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.nonceSym, nonceSym)
+	nonce := testutil.HexDecode("1111111111111111111111111111111111111111111111111111111111111111")
+	pubKey := testutil.HexDecode("03c820245f18671206e752122953397786af3444f3a8da8098e594a8f612d94059")
 
-	nonceSym, err = tss.ComputeNonceSym(suite.nonce, suite.member2.OneTimePubKey)
+	nonceSym, err := tss.ComputeNonceSym(nonce, pubKey)
 	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member2.nonceSym, nonceSym)
+	suite.Require().
+		Equal("0360bf3f69810cc3472702c1f76ec76cdbefd85b1537db870e91b382a2e6e2bf6c", hex.EncodeToString(nonceSym))
 }
 
 func (suite *TSSTestSuite) TestSumPoints() {

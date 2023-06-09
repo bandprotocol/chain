@@ -40,8 +40,8 @@ func GenerateKeyPair() (KeyPair, error) {
 	}
 
 	return KeyPair{
-		PrivateKey: key.Serialize(),
-		PublicKey:  key.PubKey().SerializeCompressed(),
+		PrivKey: key.Serialize(),
+		PubKey:  key.PubKey().SerializeCompressed(),
 	}, nil
 }
 

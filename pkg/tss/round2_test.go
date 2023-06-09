@@ -2,30 +2,42 @@ package tss_test
 
 import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 )
 
 func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
-	encSecretShares, err := tss.ComputeEncryptedSecretShares(
-		1,
-		suite.member1.OneTimePrivKey,
-		tss.PublicKeys{suite.member1.OneTimePubKey, suite.member2.OneTimePubKey},
-		suite.member1.Coefficients,
-	)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.encSecretShares, encSecretShares)
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		var pubKeys tss.PublicKeys
+		for _, m := range tc.Group.Members {
+			pubKeys = append(pubKeys, m.OneTimePubKey())
+		}
+
+		encSecretShares, err := tss.ComputeEncryptedSecretShares(
+			member.ID,
+			member.OneTimePrivKey,
+			pubKeys,
+			member.Coefficients,
+		)
+		suite.Require().NoError(err)
+		suite.Require().Equal(member.EncSecretShares, encSecretShares)
+	})
 }
 
 func (suite *TSSTestSuite) TestEncryptSecretShares() {
-	secret := suite.member1.secretShares[0]
-	keySym := suite.member1.keySyms[0]
-
-	encSecretShares, err := tss.EncryptSecretShares(tss.Scalars{secret}, tss.PublicKeys{keySym})
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.encSecretShares, encSecretShares)
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		encSecretShares, err := tss.EncryptSecretShares(member.SecretShares, member.KeySyms)
+		suite.Require().NoError(err)
+		suite.Require().Equal(member.EncSecretShares, encSecretShares)
+	})
 }
 
 func (suite *TSSTestSuite) TestComputeSecretShare() {
-	secret, err := tss.ComputeSecretShare(suite.member1.Coefficients, 2)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.secretShares[0], secret)
+	suite.RunOnPairMembers(
+		suite.testCases,
+		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
+			secret, err := tss.ComputeSecretShare(memberI.Coefficients, memberJ.ID)
+			suite.Require().NoError(err)
+			suite.Require().Equal(memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)], secret)
+		},
+	)
 }
