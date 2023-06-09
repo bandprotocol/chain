@@ -40,9 +40,20 @@ var (
 	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 21, "confirm not found")
 	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 22, "complains with status not found")
 	ErrDENotFound                       = sdkerrors.Register(ModuleName, 23, "DE not found")
-	ErrInvalidArgument                  = sdkerrors.Register(ModuleName, 24, "invalid argument")
-	ErrSigningNotFound                  = sdkerrors.Register(ModuleName, 25, "Signing not found")
-	ErrGroupIsNotActive                 = sdkerrors.Register(ModuleName, 26, "group is not active")
-	ErrPartialSigNotFound               = sdkerrors.Register(ModuleName, 27, "partial sig not found")
-	ErrBadDrbgInitialization            = sdkerrors.Register(ModuleName, 28, "bad drbg initialization")
+	ErrGroupIsNotActive                 = sdkerrors.Register(ModuleName, 24, "group is not active")
+	ErrBadDrbgInitialization            = sdkerrors.Register(ModuleName, 25, "bad drbg initialization")
+	ErrPartialSigNotFound               = sdkerrors.Register(ModuleName, 26, "partial sig not found")
+	ErrInvalidArgument                  = sdkerrors.Register(ModuleName, 27, "invalid argument")
+	ErrSigningNotFound                  = sdkerrors.Register(ModuleName, 28, "signing not found")
+	ErrAlreadySigned                    = sdkerrors.Register(ModuleName, 29, "already signed")
+	ErrSigningAlreadySuccess            = sdkerrors.Register(ModuleName, 30, "signing already success")
+	ErrPubNonceNotEqualToSigR           = sdkerrors.Register(ModuleName, 31, "public nonce not equal to signature r")
+	ErrMemberNotAssigned                = sdkerrors.Register(ModuleName, 32, "member is not assigned participants")
+	ErrVerifySigningSigFailed           = sdkerrors.Register(ModuleName, 33, "failed to verify signing signature")
+	ErrCombineSigsFailed                = sdkerrors.Register(ModuleName, 34, "failed to combine signatures")
+	ErrVerifyGroupSigningSigFailed      = sdkerrors.Register(
+		ModuleName,
+		34,
+		"failed to verify group signing signature",
+	)
 )

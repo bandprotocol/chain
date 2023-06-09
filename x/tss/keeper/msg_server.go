@@ -503,7 +503,7 @@ func (k Keeper) SubmitDEs(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	accMember, err := sdk.AccAddressFromBech32(req.Member)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
 	k.HandleSetDEs(ctx, accMember, req.DEs)
@@ -586,7 +586,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		member := members[mid-1]
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
 
 		de, err := k.PollDE(ctx, accMember)
@@ -649,8 +649,9 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	for _, mid := range mids {
 		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Address)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
+
 		k.SetPendingSign(ctx, accMember, signingID)
 	}
 
@@ -688,12 +689,19 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	// check member is already signed
 	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
 	if err == nil {
-		return nil, fmt.Errorf("member ID: %d is already signed on signing ID: %d", req.MemberID, req.SigningID)
+		return nil, sdkerrors.Wrapf(
+			types.ErrAlreadySigned,
+			"member ID: %d is already signed on signing ID: %d",
+			req.MemberID,
+			req.SigningID,
+		)
 	}
 
 	// check signing already have signature
 	if signing.Sig != nil {
-		return nil, fmt.Errorf("signing ID: %d is already have signature", req.SigningID)
+		return nil, sdkerrors.Wrapf(
+			types.ErrSigningAlreadySuccess, "signing ID: %d is already have signature", req.SigningID,
+		)
 	}
 
 	group, err := k.GetGroup(ctx, signing.GroupID)
@@ -716,12 +724,18 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 			// verify signature R
 			if !bytes.Equal(req.Signature.R(), tss.Point(am.PubNonce)) {
-				return nil, fmt.Errorf("public nonce is not equal signature r")
+				return nil, sdkerrors.Wrapf(
+					types.ErrPubNonceNotEqualToSigR,
+					"public nonce from member ID: %d is not equal signature r",
+					req.MemberID,
+				)
 			}
 		}
 	}
 	if !found {
-		return nil, fmt.Errorf("member ID: %d is not in assigned participants", req.MemberID)
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAssigned, "member ID: %d is not in assigned participants", req.MemberID,
+		)
 	}
 
 	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
@@ -736,7 +750,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		member.PubKey,
 	)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
 	}
 
 	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
@@ -747,12 +761,12 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 		sig, err := tss.CombineSignatures(pzs...)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(types.ErrCombineSigsFailed, err.Error())
 		}
 
 		err = tss.VerifyGroupSigningSig(group.PubKey, signing.Message, sig)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(types.ErrVerifyGroupSigningSigFailed, err.Error())
 		}
 
 		signing.Sig = sig
@@ -776,8 +790,9 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 	accMember, err := sdk.AccAddressFromBech32(member.Address)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
+
 	k.DeletePendingSign(ctx, accMember, req.SigningID)
 
 	// emit submit sign event
