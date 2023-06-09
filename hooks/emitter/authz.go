@@ -53,20 +53,9 @@ func (h *Hook) handleMsgExec(
 	msgs, _ := emsg.GetMessages()
 	grantee := emsg.Grantee
 
-	var detailMsgs []common.JsDict
-	if dm, ok := detail["msgs"].([]common.JsDict); ok {
-		detailMsgs = dm
-	}
-
+	// If cannot cast or invalid length it will panic and fix later
+	subMsgs := detail["msgs"].([]common.JsDict)
 	for i, msg := range msgs {
-		// use detail of msg instead of parent detail if any.
-		detailMsg := detail
-		if i < len(detailMsgs) {
-			if dm, ok := detailMsgs[i]["msg"].(common.JsDict); ok {
-				detailMsg = dm
-			}
-		}
-
 		switch msg := msg.(type) {
 		case *oracletypes.MsgReportData:
 			h.handleMsgReportData(ctx, txHash, msg, grantee)
@@ -78,7 +67,7 @@ func (h *Hook) handleMsgExec(
 				addrs[idx] = signer.String()
 			}
 			h.AddAccountsInTx(addrs...)
-			h.handleMsg(ctx, txHash, msg, log, detailMsg)
+			h.handleMsg(ctx, txHash, msg, log, subMsgs[i])
 		}
 	}
 }
