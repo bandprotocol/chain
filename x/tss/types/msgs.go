@@ -343,7 +343,7 @@ func (m MsgSign) ValidateBasic() error {
 	}
 
 	// Validate member signature
-	_, err = m.Signature.Parse()
+	_, err = m.Sig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "signature")
 	}

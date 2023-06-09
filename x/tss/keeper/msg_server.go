@@ -720,7 +720,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			found = true
 
 			// verify signature R
-			if !bytes.Equal(req.Signature.R(), tss.Point(am.PubNonce)) {
+			if !bytes.Equal(req.Sig.R(), tss.Point(am.PubNonce)) {
 				return nil, sdkerrors.Wrapf(
 					types.ErrPubNonceNotEqualToSigR,
 					"public nonce from member ID: %d is not equal signature r",
@@ -743,14 +743,14 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		group.PubKey,
 		signing.Message,
 		lagrange,
-		req.Signature,
+		req.Sig,
 		member.PubKey,
 	)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
 	}
 
-	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
+	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Sig)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
 	if sigCount == group.Threshold {
@@ -799,7 +799,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(req.Signature)),
+			sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(req.Sig)),
 		),
 	)
 

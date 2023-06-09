@@ -768,7 +768,7 @@ func (s *KeeperTestSuite) TestSign() {
 				req = types.MsgSign{
 					SigningID: tss.SigningID(999), // non-existent signingID
 					MemberID:  member1,
-					Signature: signature,
+					Sig:       signature,
 					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				}
 			},
@@ -781,7 +781,7 @@ func (s *KeeperTestSuite) TestSign() {
 				req = types.MsgSign{
 					SigningID: signingID,
 					MemberID:  tss.MemberID(999), // non-existent memberID
-					Signature: signature,
+					Sig:       signature,
 					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				}
 			},
@@ -794,7 +794,7 @@ func (s *KeeperTestSuite) TestSign() {
 				req = types.MsgSign{
 					SigningID: signingID,
 					MemberID:  member1,
-					Signature: signature,
+					Sig:       signature,
 					Member:    "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				}
 			},

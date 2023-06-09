@@ -138,7 +138,7 @@ message MsgSign {
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
-  bytes signature = 3 [
+  bytes sig = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
   string member = 4;

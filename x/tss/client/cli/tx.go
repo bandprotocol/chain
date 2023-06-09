@@ -42,6 +42,7 @@ func NewTxCmd() *cobra.Command {
 		NewConfirmCmd(),
 		NewSubmitDEsCmd(),
 		NewRequestSignCmd(),
+		NewSignCmd(),
 	)
 
 	return txCmd
@@ -372,7 +373,7 @@ func NewConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
 		Args:  cobra.ExactArgs(3),
-		Short: "submit tss confirm containing group_id, member_id, and own_pub_key_sig",
+		Short: "submit confirm containing group_id, member_id, and own_pub_key_sig",
 		Example: fmt.Sprintf(
 			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
 			version.AppName,
@@ -418,7 +419,7 @@ func NewSubmitDEsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-multi-de [d,e] [d,e] ...",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "submit tss submit-multi-de containing address and DEs",
+		Short: "submit multiple DE containing address and DEs",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-multi-de [d,e] [d,e] ...`,
 			version.AppName,
@@ -467,7 +468,7 @@ func NewRequestSignCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-sign [group_id] [message]",
 		Args:  cobra.ExactArgs(2),
-		Short: "request tss sign of the message from a group",
+		Short: "request sign of the message from the group",
 		Example: fmt.Sprintf(
 			`%s tx tss request-sign [group_id] [message]`,
 			version.AppName,
@@ -492,6 +493,52 @@ func NewRequestSignCmd() *cobra.Command {
 				GroupID: tss.GroupID(groupID),
 				Message: data,
 				Sender:  clientCtx.GetFromAddress().String(),
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// NewSignCmd creates a CLI command for CLI command for Msg/Sign.
+func NewSignCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sign [signing_id] [member_id] [signature]",
+		Args:  cobra.ExactArgs(3),
+		Short: "sign the message by sending signing ID, member ID and signature",
+		Example: fmt.Sprintf(
+			`%s tx tss sign [signing_id] [member_id] [signature]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			signingID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			sig, err := hex.DecodeString(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgSign{
+				SigningID: tss.SigningID(signingID),
+				MemberID:  tss.MemberID(memberID),
+				Sig:       sig,
+				Member:    clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
