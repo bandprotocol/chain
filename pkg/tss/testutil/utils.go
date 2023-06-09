@@ -31,3 +31,20 @@ func PublicKey(privKey tss.PrivateKey) tss.PublicKey {
 
 	return pubKey
 }
+
+func CopySlice[T ~[]U, U ~[]byte](src T) T {
+	dst := make(T, len(src))
+
+	for i := range src {
+		dst[i] = Copy(src[i])
+	}
+
+	return dst
+}
+
+func Copy[T ~[]byte](src T) T {
+	dst := make(T, len(src))
+	copy(dst, src)
+
+	return dst
+}
