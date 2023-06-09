@@ -715,15 +715,8 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(signingNumber + 1)
 }
 
-func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
-	signingID := k.GetNextSigningID(ctx)
-	signing.SigningID = signingID
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
-	return signingID
-}
-
-func (k Keeper) SetSigning(ctx sdk.Context, signingID tss.SigningID, signing types.Signing) {
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
+func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
+	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signing.SigningID), k.cdc.MustMarshal(&signing))
 }
 
 func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
@@ -738,6 +731,13 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 	var signing types.Signing
 	k.cdc.MustUnmarshal(bz, &signing)
 	return signing, nil
+}
+
+func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
+	signingID := k.GetNextSigningID(ctx)
+	signing.SigningID = signingID
+	k.SetSigning(ctx, signing)
+	return signingID
 }
 
 func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {

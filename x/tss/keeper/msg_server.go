@@ -767,7 +767,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		}
 
 		signing.Sig = sig
-		k.SetSigning(ctx, req.SigningID, signing)
+		k.SetSigning(ctx, signing)
 
 		// delete interims data
 		for _, am := range signing.AssignedMembers {
