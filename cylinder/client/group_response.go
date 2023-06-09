@@ -63,7 +63,7 @@ func (gr *GroupResponse) GetEncryptedSecretShare(j, i tss.MemberID) (tss.Scalar,
 // IsMember returns boolean to show if the address is the member in the group
 func (gr *GroupResponse) IsMember(address string) bool {
 	for _, member := range gr.Members {
-		if member.Member == address {
+		if member.Address == address {
 			return true
 		}
 	}

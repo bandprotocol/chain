@@ -92,7 +92,7 @@ func getSecretShare(
 	err = tss.VerifySecretShare(i, secretShare, round1DataJ.CoefficientsCommit)
 	if err != nil {
 		// Generate complaint if we fail to verify secret share
-		sig, keySym, nonceSym, err := tss.SignComplain(
+		sig, keySym, err := tss.SignComplain(
 			round1DataI.OneTimePubKey,
 			round1DataJ.OneTimePubKey,
 			privKeyI,
@@ -102,11 +102,10 @@ func getSecretShare(
 		}
 
 		complain := &types.Complain{
-			I:         i,
-			J:         j,
-			KeySym:    keySym,
-			Signature: sig,
-			NonceSym:  nonceSym,
+			I:      i,
+			J:      j,
+			KeySym: keySym,
+			Sig:    sig,
 		}
 
 		return nil, complain, nil

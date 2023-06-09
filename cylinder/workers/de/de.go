@@ -125,13 +125,13 @@ func generateDEPairs(n uint64) (privDEs []store.DE, pubDEs []types.DE, err error
 		}
 
 		privDEs = append(privDEs, store.DE{
-			PrivD: de[0].PrivateKey,
-			PrivE: de[1].PrivateKey,
+			PrivD: de[0].PrivKey,
+			PrivE: de[1].PrivKey,
 		})
 
 		pubDEs = append(pubDEs, types.DE{
-			PubD: de[0].PublicKey,
-			PubE: de[1].PublicKey,
+			PubD: de[0].PubKey,
+			PubE: de[1].PubKey,
 		})
 	}
 

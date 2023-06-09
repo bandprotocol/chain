@@ -36,11 +36,10 @@ func TestGetOwnPrivKey(t *testing.T) {
 			nil,
 			[]types.Complain{
 				{
-					I:        1,
-					J:        2,
-					KeySym:   hexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26"),
-					NonceSym: hexDecode("034946dba60574e576aef1c252e48db7c2c40f828efdb374ec8bd48ea36af06ac8"),
-					Signature: hexDecode(
+					I:      1,
+					J:      2,
+					KeySym: hexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26"),
+					Sig: hexDecode(
 						"02a55f7d417d1b51d91e6097473f00f528291aaa0dd11733e83eb85680ed5d4e369fe3b8aef036713c547118f5a0adb8108dfe19b4067081f26a2fe27a87f60c0b",
 					),
 				},
@@ -86,11 +85,10 @@ func TestGetSecretShare(t *testing.T) {
 			},
 			nil,
 			&types.Complain{
-				I:        1,
-				J:        2,
-				KeySym:   hexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26"),
-				NonceSym: hexDecode("034946dba60574e576aef1c252e48db7c2c40f828efdb374ec8bd48ea36af06ac8"),
-				Signature: hexDecode(
+				I:      1,
+				J:      2,
+				KeySym: hexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26"),
+				Sig: hexDecode(
 					"02a55f7d417d1b51d91e6097473f00f528291aaa0dd11733e83eb85680ed5d4e369fe3b8aef036713c547118f5a0adb8108dfe19b4067081f26a2fe27a87f60c0b",
 				),
 			},

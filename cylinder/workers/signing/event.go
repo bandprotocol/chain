@@ -36,7 +36,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	bytes, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyBytes)
+	bytes, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyCommitment)
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +51,12 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	pubDs, err := event.GetEventValuesBytes(log, types.EventTypeRequestSign, types.AttributeKeyPublicD)
+	pubDs, err := event.GetEventValuesBytes(log, types.EventTypeRequestSign, types.AttributeKeyPubD)
 	if err != nil {
 		return nil, err
 	}
 
-	pubEs, err := event.GetEventValuesBytes(log, types.EventTypeRequestSign, types.AttributeKeyPublicE)
+	pubEs, err := event.GetEventValuesBytes(log, types.EventTypeRequestSign, types.AttributeKeyPubE)
 	if err != nil {
 		return nil, err
 	}

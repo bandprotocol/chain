@@ -109,13 +109,13 @@ func (s *Signing) handleSigning(
 		return
 	}
 
-	// Compute Lo value
-	lo := tss.ComputeOwnLo(group.MemberID, data, bytes)
+	// Compute binding factor value
+	bindingFactor := tss.ComputeOwnBindingFactor(group.MemberID, data, bytes)
 
 	// Compute own private nonce
-	privNonce, err := tss.ComputeOwnPrivateNonce(privDE.PrivD, privDE.PrivE, lo)
+	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, bindingFactor)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to compute private nonce: %s", err)
+		logger.Error(":cold_sweat: Failed to compute own private nonce: %s", err)
 		return
 	}
 
@@ -133,7 +133,7 @@ func (s *Signing) handleSigning(
 	s.context.MsgCh <- &types.MsgSign{
 		SigningID: sid,
 		MemberID:  group.MemberID,
-		Signature: sig,
+		Sig:       sig,
 		Member:    s.context.Config.Granter,
 	}
 }
@@ -153,8 +153,8 @@ func (s *Signing) handlePendingSignings() {
 			mids = append(mids, member.MemberID)
 			if member.Member == s.context.Config.Granter {
 				pubDE = types.DE{
-					PubD: member.PublicD,
-					PubE: member.PublicE,
+					PubD: member.PubD,
+					PubE: member.PubE,
 				}
 			}
 		}
@@ -164,7 +164,7 @@ func (s *Signing) handlePendingSignings() {
 			signing.SigningID,
 			mids,
 			signing.Message,
-			signing.Bytes,
+			signing.Commitment,
 			signing.GroupPubNonce,
 			pubDE,
 		)

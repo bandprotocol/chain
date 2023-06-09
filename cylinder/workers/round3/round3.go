@@ -128,7 +128,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 
 	// Sign own public key
-	ownPubKeySig, err := tss.SignOwnPublickey(
+	ownPubKeySig, err := tss.SignOwnPubkey(
 		group.MemberID,
 		groupRes.DKGContext,
 		ownPubKey,
