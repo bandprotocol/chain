@@ -33,6 +33,33 @@ func (m Member) PubKey() tss.PublicKey {
 	return PublicKey(m.PrivKey)
 }
 
+func CopyMember(src Member) Member {
+	return Member{
+		ID:                 src.ID,
+		OneTimePrivKey:     Copy(src.OneTimePrivKey),
+		OneTimeSig:         Copy(src.OneTimeSig),
+		A0PrivKey:          Copy(src.A0PrivKey),
+		A0Sig:              Copy(src.A0Sig),
+		Coefficients:       CopySlice(src.Coefficients),
+		CoefficientsCommit: CopySlice(src.CoefficientsCommit),
+		KeySyms:            CopySlice(src.KeySyms),
+		SecretShares:       CopySlice(src.SecretShares),
+		EncSecretShares:    CopySlice(src.EncSecretShares),
+		PrivKey:            Copy(src.PrivKey),
+		PubKeySig:          Copy(src.PubKeySig),
+		ComplainSigs:       CopySlice(src.ComplainSigs),
+	}
+}
+
+func CopyMembers(src []Member) []Member {
+	var dst []Member
+	for _, m := range src {
+		dst = append(dst, CopyMember(m))
+	}
+
+	return dst
+}
+
 type Group struct {
 	ID         tss.GroupID
 	DKGContext []byte
@@ -78,4 +105,15 @@ func (g Group) GetAccumulatedCommits() (tss.Points, error) {
 	}
 
 	return accCommits, nil
+}
+
+func CopyGroup(src Group) Group {
+	return Group{
+		ID:         src.ID,
+		DKGContext: Copy(src.DKGContext),
+		Threshold:  src.Threshold,
+		PubKey:     Copy(src.PubKey),
+		PubNonce:   Copy(src.PubNonce),
+		Members:    CopyMembers(src.Members),
+	}
 }

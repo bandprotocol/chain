@@ -24,6 +24,27 @@ func (am AssignedMember) PubNonce() tss.PublicKey {
 	return PublicKey(am.PrivNonce)
 }
 
+func CopyAssignedMember(src AssignedMember) AssignedMember {
+	return AssignedMember{
+		ID:            src.ID,
+		PrivD:         Copy(src.PrivD),
+		PrivE:         Copy(src.PrivE),
+		BindingFactor: Copy(src.BindingFactor),
+		PrivNonce:     Copy(src.PrivNonce),
+		Lagrange:      Copy(src.Lagrange),
+		Sig:           Copy(src.Sig),
+	}
+}
+
+func CopyAssignedMembers(src []AssignedMember) []AssignedMember {
+	var dst []AssignedMember
+	for _, m := range src {
+		dst = append(dst, CopyAssignedMember(m))
+	}
+
+	return dst
+}
+
 type Signing struct {
 	ID              tss.SigningID
 	Data            []byte
@@ -71,4 +92,24 @@ func (s Signing) GetAllSigs() (res []tss.Signature) {
 	}
 
 	return res
+}
+
+func CopySigning(src Signing) Signing {
+	return Signing{
+		ID:              src.ID,
+		Data:            Copy(src.Data),
+		Commitment:      Copy(src.Commitment),
+		PubNonce:        Copy(src.PubNonce),
+		Sig:             Copy(src.Sig),
+		AssignedMembers: CopyAssignedMembers(src.AssignedMembers),
+	}
+}
+
+func CopySignings(src []Signing) []Signing {
+	var dst []Signing
+	for _, m := range src {
+		dst = append(dst, CopySigning(m))
+	}
+
+	return dst
 }
