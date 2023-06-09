@@ -2,7 +2,6 @@ package cli
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 
@@ -81,7 +80,6 @@ func parseComplains(complainsFile string) ([]types.Complain, error) {
 
 	err = json.Unmarshal(contents, &complainsData)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 

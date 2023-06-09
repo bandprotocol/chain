@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -26,9 +27,8 @@ func TestParseComplains(t *testing.T) {
 			{
 				"i": 1,
 				"j": 2,
-				"key_sym": "a2V5X3N5bQ==",
-				"sig": "c2lnbmF0dXJl",
-				"nonce_sym": "bm9uY2Vfc3lt"
+				"key_sym": "A12yoSWiMwC+8k5XiD9UdQOrJZipntB9ZdSCtOof+O0m",
+				"sig": "Aj1c3dvb5QNZAjHpqAljSM8n2TcUAh/q75GzwJVTcjujxdE324C0ZCgl5IxCVFDxRzHnzTwjl6u0sscOZacLBi4="
 			}
 		]
 	}`
@@ -38,6 +38,8 @@ func TestParseComplains(t *testing.T) {
 	complains, err = parseComplains(tempFile.Name())
 	require.NoError(t, err)
 	require.Equal(t, 1, len(complains))
+
+	fmt.Println(complains)
 
 	// 3. Test with a non-existent file
 	complains, err = parseComplains("non-existent-file")
