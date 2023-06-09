@@ -13,13 +13,12 @@ type Member struct {
 	CoefficientsCommit tss.Points
 
 	KeySyms         tss.PublicKeys
-	NonceSyms       tss.PublicKeys
 	SecretShares    tss.Scalars
 	EncSecretShares tss.Scalars
 
 	PrivKey      tss.PrivateKey
 	PubKeySig    tss.Signature
-	ComplainSigs tss.Signatures
+	ComplainSigs tss.ComplainSignatures
 }
 
 func (m Member) OneTimePubKey() tss.PublicKey {
