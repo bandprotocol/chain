@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"encoding/hex"
 	"testing"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -474,65 +474,54 @@ func (s *KeeperTestSuite) TestGetMaliciousMembers() {
 
 func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	memberID1 := tss.MemberID(1)
-	memberID2 := tss.MemberID(2)
-	privKeyI, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
-	pubKeyI, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
-	pubKeyJ, _ := hex.DecodeString("03f70e80bac0b32b2599fa54d83b5471e90fac27bb09528f0337b49d464d64426f")
-	member1 := types.Member{
-		Address:     "member_address_1",
-		PubKey:      pubKeyI,
-		IsMalicious: false,
+
+	for _, tc := range testutil.TestCases {
+		for _, m := range tc.Group.Members {
+			// Set member
+			k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
+				Address:     "member_address",
+				PubKey:      m.PubKey(),
+				IsMalicious: false,
+			})
+		}
+
+		slot := testutil.GetSlot(tc.Group.Members[0].ID, tc.Group.Members[1].ID)
+
+		err := tss.VerifyComplainSig(
+			tc.Group.Members[0].OneTimePubKey(),
+			tc.Group.Members[1].OneTimePubKey(),
+			tc.Group.Members[0].KeySyms[slot],
+			tc.Group.Members[0].ComplainSigs[slot],
+		)
+		s.Require().NoError(err)
 	}
-	member2 := types.Member{
-		Address:     "member_address_2",
-		PubKey:      pubKeyJ,
-		IsMalicious: false,
-	}
-
-	// Set member
-	k.SetMember(ctx, groupID, memberID1, member1)
-	k.SetMember(ctx, groupID, memberID2, member2)
-
-	// Sign
-	complainSig, keySym, err := tss.SignComplain(pubKeyI, pubKeyJ, privKeyI)
-	s.Require().NoError(err)
-
-	err = k.HandleVerifyComplainSig(ctx, groupID, types.Complain{
-		I:      memberID1,
-		J:      memberID2,
-		KeySym: keySym,
-		Sig:    complainSig,
-	})
-	s.Require().NoError(err)
 }
 
 func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	memberID := tss.MemberID(1)
-	dkgContext, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
-	pubKey, _ := hex.DecodeString("03936f4b0644c78245124c19c9378e307cd955b227ee59c9ba16f4c7426c6418aa")
-	privKey, _ := hex.DecodeString("7fc4175e7eb9661496cc38526f0eb4abccfd89d15f3371c3729e11c3ba1d6a14")
-	member := types.Member{
-		Address:     "member_address",
-		PubKey:      pubKey,
-		IsMalicious: false,
+
+	for _, tc := range testutil.TestCases {
+		// Set dkg context
+		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
+
+		for _, m := range tc.Group.Members {
+			// Set member
+			k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
+				Address:     "member_address",
+				PubKey:      m.PubKey(),
+				IsMalicious: false,
+			})
+
+			// Sign
+			sig, err := tss.SignOwnPubkey(m.ID, tc.Group.DKGContext, m.PubKey(), m.PrivKey)
+			s.Require().NoError(err)
+
+			// Verify own public key signature
+			err = k.HandleVerifyOwnPubKeySig(ctx, tc.Group.ID, m.ID, sig)
+			s.Require().NoError(err)
+		}
+
 	}
-
-	// Set member
-	k.SetMember(ctx, groupID, memberID, member)
-
-	// Set dkg context
-	k.SetDKGContext(ctx, groupID, dkgContext)
-
-	// Sign
-	sig, err := tss.SignOwnPubkey(memberID, dkgContext, pubKey, privKey)
-	s.Require().NoError(err)
-
-	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, sig)
-	s.Require().NoError(err)
 }
 
 func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
