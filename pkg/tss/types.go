@@ -287,10 +287,77 @@ func (s Signature) S() Scalar {
 	return Scalar(s[33:65])
 }
 
+// ComplainSignature represents a signature (a1, a2, z) stored as bytes.
+// It uses schnorr.ComplainSignature as a base implementation for serialization and parsing.
+type ComplainSignature []byte
+
+// Signatures represents a slice of Signature values.
+type ComplainSignatures []ComplainSignature
+
+// NewComplainSignature generates a signature from 2 Points and Scalar.
+// It returns a complain signature and an error, if any.
+func NewComplainSignature(rawPoint1 Point, rawPoint2 Point, rawScalar Scalar) (ComplainSignature, error) {
+	point1, err := rawPoint1.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	point2, err := rawPoint2.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	scalar, err := rawScalar.Parse()
+	if err != nil {
+		return nil, err
+	}
+
+	return ParseComplainSignature(schnorr.NewComplainSignature(point1, point2, scalar)), nil
+}
+
+// ParseComplainSignature parses a schnorr.ComplainSignature into a Signature.
+func ParseComplainSignature(sig *schnorr.ComplainSignature) ComplainSignature {
+	return sig.Serialize()
+}
+
+// Parse converts a ComplainSignature to a schnorr.ComplainSignature.
+func (cs ComplainSignature) Parse() (*schnorr.ComplainSignature, error) {
+	sig, err := schnorr.ParseComplainSignature(cs)
+	if err != nil {
+		return nil, err
+	}
+
+	return sig, nil
+}
+
+// A1 returns A1 part of the complain signature
+func (cs ComplainSignature) A1() Point {
+	if len(cs) < 33 {
+		return []byte{}
+	}
+	return Point(cs[0:33])
+}
+
+// A2 returns A2 part of the complain signature
+func (cs ComplainSignature) A2() Point {
+	if len(cs) < 66 {
+		return []byte{}
+	}
+	return Point(cs[33:66])
+}
+
+// S returns S part of the signature
+func (cs ComplainSignature) Z() Scalar {
+	if len(cs) < 98 {
+		return []byte{}
+	}
+	return Scalar(cs[66:98])
+}
+
 // KeyPair represents a key pair consisting of a private key and a public key.
 type KeyPair struct {
-	PrivateKey PrivateKey
-	PublicKey  PublicKey
+	PrivKey PrivateKey
+	PubKey  PublicKey
 }
 
 // KeyPairs represents a slice of KeyPair values.

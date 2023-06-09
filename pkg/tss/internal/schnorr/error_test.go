@@ -18,6 +18,9 @@ func TestErrorKindStringer(t *testing.T) {
 		{ErrSigTooLong, "ErrSigTooLong"},
 		{ErrSigRTooBig, "ErrSigRTooBig"},
 		{ErrSigSTooBig, "ErrSigSTooBig"},
+		{ErrSigA1TooBig, "ErrSigA1TooBig"},
+		{ErrSigA2TooBig, "ErrSigA2TooBig"},
+		{ErrSigZTooBig, "ErrSigZTooBig"},
 	}
 
 	for i, test := range tests {

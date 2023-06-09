@@ -32,7 +32,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	if group.Status == types.ACTIVE {
+	if group.Status == types.GROUP_STATUS_ACTIVE {
 		return &types.QueryGroupResponse{
 			Group:   group,
 			Members: members,

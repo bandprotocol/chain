@@ -137,10 +137,10 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				clientCtx.GetFromAddress(),
 			)
 
-			if err = msg.ValidateBasic(); err != nil {
+			err = msg.ValidateBasic()
+			if err != nil {
 				return err
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -232,10 +232,10 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 				clientCtx.GetFromAddress(),
 			)
 
-			if err = msg.ValidateBasic(); err != nil {
+			err = msg.ValidateBasic()
+			if err != nil {
 				return err
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -336,10 +336,10 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				clientCtx.GetFromAddress(),
 			)
 
-			if err = msg.ValidateBasic(); err != nil {
+			err = msg.ValidateBasic()
+			if err != nil {
 				return err
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -421,10 +421,10 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 				clientCtx.GetFromAddress(),
 			)
 
-			if err = msg.ValidateBasic(); err != nil {
+			err = msg.ValidateBasic()
+			if err != nil {
 				return err
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -516,10 +516,10 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 				clientCtx.GetFromAddress(),
 			)
 
-			if err = msg.ValidateBasic(); err != nil {
+			err = msg.ValidateBasic()
+			if err != nil {
 				return err
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

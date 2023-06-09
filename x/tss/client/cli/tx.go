@@ -32,21 +32,24 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(MsgAddGrantees())
-	txCmd.AddCommand(MsgRemoveGrantees())
-	txCmd.AddCommand(MsgCreateGroupCmd())
-	txCmd.AddCommand(MsgSubmitDKGRound1Cmd())
-	txCmd.AddCommand(MsgSubmitDKGRound2Cmd())
-	txCmd.AddCommand(MsgComplainCmd())
-	txCmd.AddCommand(MsgConfirmCmd())
-	txCmd.AddCommand(MsgSubmitDEsCmd())
-	txCmd.AddCommand(MsgRequestSignCmd())
+	txCmd.AddCommand(
+		NewAddGranteesCmd(),
+		NewRemoveGranteesCmd(),
+		NewCreateGroupCmd(),
+		NewSubmitDKGRound1Cmd(),
+		NewSubmitDKGRound2Cmd(),
+		NewComplainCmd(),
+		NewConfirmCmd(),
+		NewSubmitDEsCmd(),
+		NewRequestSignCmd(),
+		NewSignCmd(),
+	)
 
 	return txCmd
 }
 
-// MsgAddGrantees creates a CLI command for add new grantees
-func MsgAddGrantees() *cobra.Command {
+// NewAddGranteesCmd creates a CLI command for add new grantees
+func NewAddGranteesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
 		Short: "Add agents authorized to submit tss transactions.",
@@ -80,7 +83,7 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 					return err
 				}
 
-				gMsgs, err := combineGrantMsgs(granter, grantee, types.MsgGrants, &expTime)
+				gMsgs, err := combineGrantMsgs(granter, grantee, types.GetMsgGrants(), &expTime)
 				if err != nil {
 					return err
 				}
@@ -99,8 +102,8 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 	return cmd
 }
 
-// MsgRemoveGrantees creates a CLI command for remove grantees from granter
-func MsgRemoveGrantees() *cobra.Command {
+// NewRemoveGranteesCmd creates a CLI command for remove grantees from granter
+func NewRemoveGranteesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
 		Short: "Remove agents from the list of authorized grantees.",
@@ -128,7 +131,7 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 					return err
 				}
 
-				rMsgs, err := combineRevokeMsgs(granter, grantee, types.MsgGrants)
+				rMsgs, err := combineRevokeMsgs(granter, grantee, types.GetMsgGrants())
 				if err != nil {
 					return err
 				}
@@ -144,8 +147,8 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 	return cmd
 }
 
-// MsgCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
-func MsgCreateGroupCmd() *cobra.Command {
+// NewCreateGroupCmd creates a CLI command for CLI command for Msg/CreateGroup.
+func NewCreateGroupCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-group [member1,member2,...] [threshold]",
 		Args:  cobra.ExactArgs(2),
@@ -184,8 +187,8 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 	return cmd
 }
 
-// MsgSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
-func MsgSubmitDKGRound1Cmd() *cobra.Command {
+// NewSubmitDKGRound1Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound1.
+func NewSubmitDKGRound1Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
@@ -255,8 +258,8 @@ func MsgSubmitDKGRound1Cmd() *cobra.Command {
 	return cmd
 }
 
-// MsgSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
-func MsgSubmitDKGRound2Cmd() *cobra.Command {
+// NewSubmitDKGRound2Cmd creates a CLI command for CLI command for Msg/SubmitDKGRound2.
+func NewSubmitDKGRound2Cmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
 		Args:  cobra.MinimumNArgs(2),
@@ -310,8 +313,8 @@ func MsgSubmitDKGRound2Cmd() *cobra.Command {
 	return cmd
 }
 
-// MsgComplainCmd creates a CLI command for CLI command for Msg/Complain.
-func MsgComplainCmd() *cobra.Command {
+// NewComplainCmd creates a CLI command for CLI command for Msg/Complain.
+func NewComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [complains-json-file]",
 		Args:  cobra.ExactArgs(2),
@@ -365,12 +368,12 @@ Where complains.json contains:
 	return cmd
 }
 
-// MsgConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
-func MsgConfirmCmd() *cobra.Command {
+// NewConfirmCmd creates a CLI command for CLI command for Msg/Confirm.
+func NewConfirmCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
 		Args:  cobra.ExactArgs(3),
-		Short: "submit tss confirm containing group_id, member_id, and own_pub_key_sig",
+		Short: "submit confirm containing group_id, member_id, and own_pub_key_sig",
 		Example: fmt.Sprintf(
 			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
 			version.AppName,
@@ -411,12 +414,12 @@ func MsgConfirmCmd() *cobra.Command {
 	return cmd
 }
 
-// MsgSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
-func MsgSubmitDEsCmd() *cobra.Command {
+// NewSubmitDEsCmd creates a CLI command for CLI command for Msg/SubmitDEPairs.
+func NewSubmitDEsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-multi-de [d,e] [d,e] ...",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "submit tss submit-multi-de containing address and DEs",
+		Short: "submit multiple DE containing address and DEs",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-multi-de [d,e] [d,e] ...`,
 			version.AppName,
@@ -460,12 +463,12 @@ func MsgSubmitDEsCmd() *cobra.Command {
 	return cmd
 }
 
-// MsgRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
-func MsgRequestSignCmd() *cobra.Command {
+// NewRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
+func NewRequestSignCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-sign [group_id] [message]",
 		Args:  cobra.ExactArgs(2),
-		Short: "request tss sign of the message from a group",
+		Short: "request sign of the message from the group",
 		Example: fmt.Sprintf(
 			`%s tx tss request-sign [group_id] [message]`,
 			version.AppName,
@@ -490,6 +493,52 @@ func MsgRequestSignCmd() *cobra.Command {
 				GroupID: tss.GroupID(groupID),
 				Message: data,
 				Sender:  clientCtx.GetFromAddress().String(),
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// NewSignCmd creates a CLI command for CLI command for Msg/Sign.
+func NewSignCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sign [signing_id] [member_id] [signature]",
+		Args:  cobra.ExactArgs(3),
+		Short: "sign the message by sending signing ID, member ID and signature",
+		Example: fmt.Sprintf(
+			`%s tx tss sign [signing_id] [member_id] [signature]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			signingID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			memberID, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			sig, err := hex.DecodeString(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgSign{
+				SigningID: tss.SigningID(signingID),
+				MemberID:  tss.MemberID(memberID),
+				Sig:       sig,
+				Member:    clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

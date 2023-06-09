@@ -1,66 +1,100 @@
 package tss_test
 
 import (
-	"encoding/hex"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 )
 
 func (suite *TSSTestSuite) TestGenerateRound1Data() {
-	data, err := tss.GenerateRound1Data(suite.member1.mid, suite.groupThreshold, suite.groupDKGContext)
+	mid := tss.MemberID(1)
+	dkgContext := []byte("DKGContext")
+	threshold := uint64(2)
+
+	data, err := tss.GenerateRound1Data(mid, threshold, dkgContext)
+	suite.Require().NoError(err)
+	err = tss.VerifyOneTimeSig(mid, dkgContext, data.OneTimeSig, data.OneTimePubKey)
 	suite.Require().NoError(err)
 
-	err = tss.VerifyOneTimeSig(suite.member1.mid, suite.groupDKGContext, data.OneTimeSig, data.OneTimePubKey)
+	err = tss.VerifyA0Sig(mid, dkgContext, data.A0Sig, data.A0PubKey)
 	suite.Require().NoError(err)
 
-	err = tss.VerifyA0Sig(suite.member1.mid, suite.groupDKGContext, data.A0Sig, data.A0PubKey)
-	suite.Require().NoError(err)
+	for i, coeff := range data.Coefficients {
+		commit, err := tss.PrivateKey(coeff).PublicKey()
+		suite.Require().NoError(err)
+		suite.Require().Equal(tss.PublicKey(data.CoefficientsCommit[i]), commit)
+	}
 }
 
-func (suite *TSSTestSuite) TestSignAndVerifyOneTime() {
-	// Sign
-	sig, err := tss.SignOneTime(
-		suite.member1.mid,
-		suite.groupDKGContext,
-		suite.member1.OneTimePubKey,
-		suite.member1.OneTimePrivKey,
-	)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.OneTimeSig, sig)
-
-	// Success case
-	err = tss.VerifyOneTimeSig(suite.member1.mid, suite.groupDKGContext, sig, suite.member1.OneTimePubKey)
-	suite.Require().NoError(err)
+func (suite *TSSTestSuite) TestSignOneTime() {
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		sig, err := tss.SignOneTime(
+			member.ID,
+			tc.Group.DKGContext,
+			member.OneTimePubKey(),
+			member.OneTimePrivKey,
+		)
+		suite.Require().NoError(err)
+		suite.Require().Equal(member.OneTimeSig, sig)
+	})
 }
 
-func (suite *TSSTestSuite) TestGenerateMessageOneTime() {
-	challenge := tss.GenerateMessageOneTime(suite.member1.mid, suite.groupDKGContext, suite.member1.OneTimePubKey)
-	suite.Require().Equal(
-		"726f756e64314f6e6554696d650000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c0383764b806848430ed195ef8017fb4e768893ea07782e679c31e5ff1b8b453973",
-		hex.EncodeToString(challenge),
-	)
+func (suite *TSSTestSuite) TestVerifyOneTimeSig() {
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		// Success case
+		err := tss.VerifyOneTimeSig(member.ID, tc.Group.DKGContext, member.OneTimeSig, member.OneTimePubKey())
+		suite.Require().NoError(err)
+
+		// Wrong ID case
+		err = tss.VerifyOneTimeSig(0, tc.Group.DKGContext, member.OneTimeSig, member.OneTimePubKey())
+		suite.Require().Error(err)
+
+		// Wrong DKGContext case
+		err = tss.VerifyOneTimeSig(member.ID, []byte("fake DKGContext"), member.OneTimeSig, member.OneTimePubKey())
+		suite.Require().Error(err)
+
+		// Wrong signature case
+		err = tss.VerifyOneTimeSig(member.ID, tc.Group.DKGContext, testutil.FakeSig, member.OneTimePubKey())
+		suite.Require().Error(err)
+
+		// Wrong public key case
+		err = tss.VerifyOneTimeSig(member.ID, tc.Group.DKGContext, member.OneTimeSig, testutil.FakePubKey)
+		suite.Require().Error(err)
+	})
 }
 
-func (suite *TSSTestSuite) TestSignAndVerifyA0() {
-	// Sign
-	sig, err := tss.SignA0(
-		suite.member1.mid,
-		suite.groupDKGContext,
-		suite.member1.A0PubKey,
-		suite.member1.A0PrivKey,
-	)
-	suite.Require().NoError(err)
-	suite.Require().Equal(suite.member1.A0Sig, sig)
-
-	// Success case
-	err = tss.VerifyA0Sig(suite.member1.mid, suite.groupDKGContext, sig, suite.member1.A0PubKey)
-	suite.Require().NoError(err)
+func (suite *TSSTestSuite) TestSignA0() {
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		sig, err := tss.SignA0(
+			member.ID,
+			tc.Group.DKGContext,
+			member.A0PubKey(),
+			member.A0PrivKey,
+		)
+		suite.Require().NoError(err)
+		suite.Require().Equal(member.A0Sig, sig)
+	})
 }
 
-func (suite *TSSTestSuite) TestGenerateMessageA0() {
-	msg := tss.GenerateMessageA0(suite.member1.mid, suite.groupDKGContext, suite.member1.OneTimePubKey)
-	suite.Require().Equal(
-		"726f756e643141300000000000000001a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c0383764b806848430ed195ef8017fb4e768893ea07782e679c31e5ff1b8b453973",
-		hex.EncodeToString(msg),
-	)
+func (suite *TSSTestSuite) TestVerifyA0Sig() {
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		// Success case
+		err := tss.VerifyA0Sig(member.ID, tc.Group.DKGContext, member.A0Sig, member.A0PubKey())
+		suite.Require().NoError(err)
+
+		// Wrong ID case
+		err = tss.VerifyA0Sig(0, tc.Group.DKGContext, member.A0Sig, member.A0PubKey())
+		suite.Require().Error(err)
+
+		// Wrong DKGContext case
+		err = tss.VerifyA0Sig(member.ID, []byte("fake DKGContext"), member.A0Sig, member.A0PubKey())
+		suite.Require().Error(err)
+
+		// Wrong signature case
+		err = tss.VerifyA0Sig(member.ID, tc.Group.DKGContext, testutil.FakeSig, member.A0PubKey())
+		suite.Require().Error(err)
+
+		// Wrong public key case
+		err = tss.VerifyA0Sig(member.ID, tc.Group.DKGContext, member.A0Sig, testutil.FakePubKey)
+		suite.Require().Error(err)
+	})
 }

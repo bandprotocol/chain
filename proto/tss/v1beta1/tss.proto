@@ -76,7 +76,7 @@ message Signing {
   bytes group_pub_nonce = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes bytes = 6;
+  bytes commitment = 6;
   bytes sig = 7 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
@@ -88,13 +88,13 @@ message AssignedMember {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ]; 
   string member = 2;
-  bytes public_d = 3 [
+  bytes pub_d = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes public_e = 4 [
+  bytes pub_e = 4 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes public_nonce = 5 [
+  bytes pub_nonce = 5 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
 }
@@ -104,7 +104,7 @@ message PendingSigns {
 }
 
 message Member {
-  string member = 1;
+  string address = 1;
   bytes pub_key = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
@@ -114,16 +114,12 @@ message Member {
 enum GroupStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  ROUND_1 = 0
-      [ (gogoproto.enumvalue_customname) = "ROUND_1" ];
-  ROUND_2 = 1
-      [ (gogoproto.enumvalue_customname) = "ROUND_2" ];
-  ROUND_3 = 2
-      [ (gogoproto.enumvalue_customname) = "ROUND_3" ];
-  ACTIVE = 3
-      [ (gogoproto.enumvalue_customname) = "ACTIVE" ];
-  FALLEN = 4
-      [ (gogoproto.enumvalue_customname) = "FALLEN" ];
+  GROUP_STATUS_UNSPECIFIED = 0;
+  GROUP_STATUS_ROUND_1 = 1;
+  GROUP_STATUS_ROUND_2 = 2;
+  GROUP_STATUS_ROUND_3 = 3;
+  GROUP_STATUS_ACTIVE = 4;
+  GROUP_STATUS_FALLEN = 5;
 }
 
 message Confirm {
@@ -142,21 +138,17 @@ message Complain {
   bytes key_sym = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
-  bytes signature = 4 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
-  ];
-  bytes nonce_sym = 5 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
+  bytes sig = 4 [
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.ComplainSignature"
   ];
 }
 
 enum ComplainStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  SUCCESS = 0
-      [ (gogoproto.enumvalue_customname) = "SUCCESS" ];
-  FAILED= 1
-      [ (gogoproto.enumvalue_customname) = "FAILED" ];
+  COMPLAIN_STATUS_UNSPECIFIED = 0;
+  COMPLAIN_STATUS_SUCCESS = 1;
+  COMPLAIN_STATUS_FAILED= 2;
 }
 
 message ComplainWithStatus {
@@ -177,7 +169,7 @@ message PartialSig {
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
-  bytes signature = 2 [
+  bytes sig = 2 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
 }

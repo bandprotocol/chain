@@ -20,49 +20,23 @@ func GetQueryCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(QueryIsGrantee())
-	cmd.AddCommand(QueryGroupCmd())
-	cmd.AddCommand(QueryMembersCmd())
+	cmd.AddCommand(
+		GetCmdQueryGroup(),
+		GetCmdQueryMembers(),
+		GetCmdQueryIsGrantee(),
+		GetCmdQueryDE(),
+		GetCmdPendingSigns(),
+		GetCmdSignings(),
+	)
 
 	return cmd
 }
 
-// QueryIsGrantee creates a CLI command for Query/IsGrantee.
-func QueryIsGrantee() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "is-grantee [granter_address] [grantee_address]",
-		Short: "Query grantee status",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
-				Granter: args[0],
-				Grantee: args[1],
-			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// QueryGroupCmd creates a CLI command for Query/Group.
-func QueryGroupCmd() *cobra.Command {
+// GetCmdQueryGroup creates a CLI command for Query/Group.
+func GetCmdQueryGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "group [id]",
-		Short: "Query group by group id",
+		Short: "Query group by group ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -93,8 +67,8 @@ func QueryGroupCmd() *cobra.Command {
 	return cmd
 }
 
-// QueryMembersCmd creates a CLI command for Query/Members.
-func QueryMembersCmd() *cobra.Command {
+// GetCmdQueryMembers creates a CLI command for Query/Members.
+func GetCmdQueryMembers() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "members [group-id]",
 		Short: "Query members by group id",
@@ -114,6 +88,132 @@ func QueryMembersCmd() *cobra.Command {
 
 			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
 				GroupId: groupID,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryIsGrantee creates a CLI command for Query/IsGrantee.
+func GetCmdQueryIsGrantee() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "is-grantee [granter_address] [grantee_address]",
+		Short: "Query grantee status",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
+				Granter: args[0],
+				Grantee: args[1],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdQueryDE creates a CLI command for Query/DE.
+func GetCmdQueryDE() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "de-list [address]",
+		Short: "Query all DE for this address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.DE(cmd.Context(), &types.QueryDERequest{
+				Address: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdPendingSigns creates a CLI command for Query/PendingSigns.
+func GetCmdPendingSigns() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pending-sings [address]",
+		Short: "Query all pending sing for this address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.PendingSigns(cmd.Context(), &types.QueryPendingSignsRequest{
+				Address: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetCmdSignings creates a CLI command for Query/Signings.
+func GetCmdSignings() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "signings [id]",
+		Short: "Query signings by signing ID",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			signingID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Signings(cmd.Context(), &types.QuerySigningsRequest{
+				Id: signingID,
 			})
 			if err != nil {
 				return err

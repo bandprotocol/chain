@@ -199,13 +199,8 @@ func (m MsgComplain) ValidateBasic() error {
 		if err != nil {
 			return sdkerrors.Wrap(err, "key sym")
 		}
-		// Validate nonce sym
-		_, err = c.NonceSym.Parse()
-		if err != nil {
-			return sdkerrors.Wrap(err, "nonce sym")
-		}
 		// Validate signature
-		_, err = c.Signature.Parse()
+		_, err = c.Sig.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "signature")
 		}
@@ -348,7 +343,7 @@ func (m MsgSign) ValidateBasic() error {
 	}
 
 	// Validate member signature
-	_, err = m.Signature.Parse()
+	_, err = m.Sig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "signature")
 	}

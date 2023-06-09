@@ -7,6 +7,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -18,17 +19,25 @@ import (
 type Keeper struct {
 	cdc         codec.BinaryCodec
 	storeKey    storetypes.StoreKey
+	paramSpace  paramtypes.Subspace
 	authzKeeper types.AuthzKeeper
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
+	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 ) Keeper {
+	// set KeyTable if it has not already been set
+	if !paramSpace.HasKeyTable() {
+		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return Keeper{
 		cdc:         cdc,
 		storeKey:    storeKey,
+		paramSpace:  paramSpace,
 		authzKeeper: authzKeeper,
 	}
 }
@@ -52,7 +61,7 @@ func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
 
 // IsGrantee function checks if the granter granted permissions to the grantee.
 func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
-	for _, msg := range types.MsgGrants {
+	for _, msg := range types.GetMsgGrants() {
 		cap, _ := k.authzKeeper.GetAuthorization(
 			ctx,
 			grantee,
@@ -150,7 +159,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 		members = append(members, member)
 	}
 	if len(members) == 0 {
-		return nil, sdkerrors.Wrapf(types.ErrGroupNotFound, "failed to get members with groupID: %d", groupID)
+		return nil, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
 	}
 	return members, nil
 }
@@ -158,7 +167,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 // VerifyMember function verifies if a member is part of a group.
 func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
 	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil || member.Member != memberAddress {
+	if err != nil || member.Address != memberAddress {
 		return false
 	}
 	return true
@@ -395,7 +404,12 @@ func (k Keeper) HandleVerifyComplainSig(
 	}
 
 	// Verify the complain signature
-	err = tss.VerifyComplainSig(memberI.PubKey, memberJ.PubKey, complain.KeySym, complain.NonceSym, complain.Signature)
+	err = tss.VerifyComplainSig(
+		memberI.PubKey,
+		memberJ.PubKey,
+		complain.KeySym,
+		complain.Sig,
+	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
@@ -701,15 +715,8 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(signingNumber + 1)
 }
 
-func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
-	signingID := k.GetNextSigningID(ctx)
-	signing.SigningID = signingID
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
-	return signingID
-}
-
-func (k Keeper) UpdateSigning(ctx sdk.Context, signingID tss.SigningID, signing types.Signing) {
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signingID), k.cdc.MustMarshal(&signing))
+func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
+	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signing.SigningID), k.cdc.MustMarshal(&signing))
 }
 
 func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
@@ -724,6 +731,13 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 	var signing types.Signing
 	k.cdc.MustUnmarshal(bz, &signing)
 	return signing, nil
+}
+
+func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
+	signingID := k.GetNextSigningID(ctx)
+	signing.SigningID = signingID
+	k.SetSigning(ctx, signing)
+	return signingID
 }
 
 func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
@@ -837,8 +851,8 @@ func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, types.PartialSig{
-			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
-			Signature: iterator.Value(),
+			MemberID: types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			Sig:      iterator.Value(),
 		})
 	}
 	return pzs

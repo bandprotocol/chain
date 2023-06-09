@@ -27,7 +27,7 @@ func TestParseComplains(t *testing.T) {
 				"i": 1,
 				"j": 2,
 				"key_sym": "a2V5X3N5bQ==",
-				"signature": "c2lnbmF0dXJl",
+				"sig": "c2lnbmF0dXJl",
 				"nonce_sym": "bm9uY2Vfc3lt"
 			}
 		]

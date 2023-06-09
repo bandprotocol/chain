@@ -80,7 +80,6 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icacontrollertypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/controller/types"
 	icahost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
@@ -104,11 +103,15 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/bandprotocol/chain/v2/app/keepers"
 	bandappparams "github.com/bandprotocol/chain/v2/app/params"
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	"github.com/bandprotocol/chain/v2/x/globalfee"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -162,6 +165,7 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		tss.AppModuleBasic{},
+		globalfee.AppModule{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -174,6 +178,8 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
+
+	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
 )
 
 var (
@@ -184,6 +190,8 @@ var (
 // BandApp is the application of BandChain, extended base ABCI application.
 type BandApp struct {
 	*baseapp.BaseApp
+	keepers.AppKeepers
+
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
@@ -462,7 +470,12 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.TSSKeeper = tsskeeper.NewKeeper(appCodec, keys[tsstypes.StoreKey], app.AuthzKeeper)
+	app.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		app.AuthzKeeper,
+	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -517,6 +530,7 @@ func NewBandApp(
 		icaModule,
 		oracleModule,
 		tssModule,
+		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -546,6 +560,7 @@ func NewBandApp(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		globalfee.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -570,6 +585,7 @@ func NewBandApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		globalfee.ModuleName,
 	)
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -599,6 +615,7 @@ func NewBandApp(
 		vestingtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		globalfee.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -624,8 +641,10 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			OracleKeeper: &app.OracleKeeper,
-			IBCKeeper:    app.IBCKeeper,
+			OracleKeeper:      &app.OracleKeeper,
+			IBCKeeper:         app.IBCKeeper,
+			GlobalFeeSubspace: app.GetSubspace(globalfee.ModuleName),
+			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName),
 		},
 	)
 	if err != nil {
@@ -756,8 +775,6 @@ func (app *BandApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 }
 
 // GetSubspace returns a param subspace for a given module name.
-//
-// NOTE: This is solely to be used for testing purposes.
 func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
@@ -844,85 +861,24 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(tsstypes.ModuleName)
+	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }
 
 func (app *BandApp) setupUpgradeHandlers() {
-	app.UpgradeKeeper.SetUpgradeHandler(
-		"v2_4",
-		func(ctx sdk.Context, _ upgradetypes.Plan, _ module.VersionMap) (module.VersionMap, error) {
-			// hardcode version of all modules of v2.3.x
-			fromVM := map[string]uint64{
-				"auth":         2,
-				"authz":        1,
-				"bank":         2,
-				"capability":   1,
-				"crisis":       1,
-				"distribution": 2,
-				"evidence":     1,
-				"feegrant":     1,
-				"genutil":      1,
-				"gov":          2,
-				"ibc":          2,
-				"mint":         1,
-				"oracle":       1,
-				"params":       1,
-				"slashing":     2,
-				"staking":      2,
-				"transfer":     1,
-				"upgrade":      1,
-				"vesting":      1,
-			}
-
-			// set version of ica so that it won't run initgenesis again
-			fromVM["interchainaccounts"] = 1
-
-			// prepare ICS27 controller and host params
-			controllerParams := icacontrollertypes.Params{}
-			hostParams := icahosttypes.Params{
-				HostEnabled: true,
-				AllowMessages: []string{
-					sdk.MsgTypeURL(&authz.MsgExec{}),
-					sdk.MsgTypeURL(&authz.MsgGrant{}),
-					sdk.MsgTypeURL(&authz.MsgRevoke{}),
-					sdk.MsgTypeURL(&banktypes.MsgSend{}),
-					sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
-					sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawValidatorCommission{}),
-					sdk.MsgTypeURL(&distrtypes.MsgFundCommunityPool{}),
-					sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
-					sdk.MsgTypeURL(&feegrant.MsgGrantAllowance{}),
-					sdk.MsgTypeURL(&feegrant.MsgRevokeAllowance{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVoteWeighted{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
-					sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
-					sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
-					sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-					sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
-				},
-			}
-
-			// Oracle DefaultParams only upgrade BaseRequestGas to 50000
-			app.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
-
-			consensusParam := app.GetConsensusParams(ctx)
-			consensusParam.Block.MaxGas = 50_000_000
-			app.StoreConsensusParams(ctx, consensusParam)
-
-			// initialize ICS27 module
-			icaModule, _ := app.mm.Modules[icatypes.ModuleName].(ica.AppModule)
-			icaModule.InitModule(ctx, controllerParams, hostParams)
-
-			// run migration
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
+	for _, upgrade := range Upgrades {
+		app.UpgradeKeeper.SetUpgradeHandler(
+			upgrade.UpgradeName,
+			upgrade.CreateUpgradeHandler(
+				app.mm,
+				app.configurator,
+				app,
+				&app.AppKeepers,
+			),
+		)
+	}
 }
 
 // configure store loader that checks if version == upgradeHeight and applies store upgrades
@@ -936,11 +892,9 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 		return
 	}
 
-	if upgradeInfo.Name == "v2_4" {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{icahosttypes.StoreKey},
+	for _, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &upgrade.StoreUpgrades))
 		}
-
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
 	}
 }

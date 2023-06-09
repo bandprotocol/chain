@@ -62,13 +62,12 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -77,13 +76,12 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplainsWithStatus: []types.ComplainWithStatus{
 			{
 				Complain: types.Complain{
-					I:         1,
-					J:         2,
-					KeySym:    []byte("key_sym"),
-					Signature: []byte("signature"),
-					NonceSym:  []byte("nonce_sym"),
+					I:      1,
+					J:      2,
+					KeySym: []byte("key_sym"),
+					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.SUCCESS,
+				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -152,32 +150,32 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						Size_:     5,
 						Threshold: 3,
 						PubKey:    nil,
-						Status:    types.ROUND_1,
+						Status:    types.GROUP_STATUS_ROUND_1,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
-							Member:      "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
-							Member:      "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
-							Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
-							Member:      "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
-							Member:      "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
@@ -223,12 +221,12 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	members := []types.Member{
 		{
-			Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
-			Member:      "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
@@ -295,7 +293,7 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
 
 	// Save grant msgs to grantee
-	for _, m := range types.MsgGrants {
+	for _, m := range types.GetMsgGrants() {
 		authzKeeper.SaveGrant(s.ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
 	}
 
@@ -488,16 +486,16 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		GroupID:   groupID,
 		AssignedMembers: []types.AssignedMember{
 			{
-				MemberID:    memberID,
-				Member:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				PublicD:     []byte("D"),
-				PublicE:     []byte("E"),
-				PublicNonce: []byte("public_nonce"),
+				MemberID: memberID,
+				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PubD:     []byte("D"),
+				PubE:     []byte("E"),
+				PubNonce: []byte("public_nonce"),
 			},
 		},
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
-		Bytes:         []byte("bytes"),
+		Commitment:    []byte("commitment"),
 		Sig:           []byte("signature"),
 	}
 	sig := []byte("signatures")
@@ -539,7 +537,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 			func(res *types.QuerySigningsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().Equal(&signing, res.Signing)
-				s.Require().Equal([]types.PartialSig{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSigs)
+				s.Require().Equal([]types.PartialSig{{MemberID: memberID, Sig: sig}}, res.ReceivedPartialSigs)
 			},
 		},
 	}
