@@ -67,7 +67,7 @@ func (h *Hook) handleMsgExec(
 				addrs[idx] = signer.String()
 			}
 			h.AddAccountsInTx(addrs...)
-			h.handleMsg(ctx, txHash, msg, log, subMsgs[i])
+			h.handleMsg(ctx, txHash, msg, log, subMsgs[i]["msg"].(common.JsDict))
 		}
 	}
 }
