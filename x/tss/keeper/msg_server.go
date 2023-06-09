@@ -620,7 +620,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		lo := tss.ComputeOwnLo(member.MemberID, req.Message, bytes)
 
 		// compute own public nonce
-		opn, err := tss.ComputeOwnPublicNonce(member.PubD, member.PubE, lo)
+		opn, err := tss.ComputeOwnPubNonce(member.PubD, member.PubE, lo)
 		if err != nil {
 			return nil, err
 		}

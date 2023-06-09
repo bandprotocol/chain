@@ -512,7 +512,7 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	// Sign
-	sig, err := tss.SignOwnPublickey(memberID, dkgContext, pubKey, privKey)
+	sig, err := tss.SignOwnPubkey(memberID, dkgContext, pubKey, privKey)
 	s.Require().NoError(err)
 
 	err = k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, sig)
