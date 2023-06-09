@@ -520,7 +520,6 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 			err = k.HandleVerifyOwnPubKeySig(ctx, tc.Group.ID, m.ID, sig)
 			s.Require().NoError(err)
 		}
-
 	}
 }
 
