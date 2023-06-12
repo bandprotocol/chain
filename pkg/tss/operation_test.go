@@ -5,7 +5,6 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 func (suite *TSSTestSuite) TestComputeKeySym() {
@@ -33,29 +32,125 @@ func (suite *TSSTestSuite) TestComputeNonceSym() {
 }
 
 func (suite *TSSTestSuite) TestSumPoints() {
-	// Prepare
-	var p1, p2, expectedPoint secp256k1.JacobianPoint
+	tests := []struct {
+		name     string
+		points   tss.Points
+		expTotal tss.Point
+		expError bool
+	}{
+		{
+			"zero element",
+			tss.Points{},
+			testutil.HexDecode("020000000000000000000000000000000000000000000000000000000000000000"),
+			false,
+		},
+		{
+			"one element",
+			tss.Points{testutil.HexDecode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")},
+			testutil.HexDecode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
+			false,
+		},
+		{
+			"three element",
+			tss.Points{
+				testutil.HexDecode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
+				testutil.HexDecode("02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"),
+			},
+			testutil.HexDecode("02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"),
+			false,
+		},
+		{
+			"value is too big",
+			tss.Points{
+				testutil.HexDecode("02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+				testutil.HexDecode("02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+			},
+			nil,
+			true,
+		},
+	}
+	for _, t := range tests {
+		suite.Run(t.name, func() {
+			total, err := tss.SumPoints(t.points...)
 
-	s1 := new(secp256k1.ModNScalar).SetInt(1)
-	secp256k1.ScalarBaseMultNonConst(s1, &p1)
+			if t.expError {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+			}
 
-	s2 := new(secp256k1.ModNScalar).SetInt(2)
-	secp256k1.ScalarBaseMultNonConst(s2, &p2)
-
-	secp256k1.ScalarBaseMultNonConst(s1.Add(s2), &expectedPoint)
-
-	// Try sum with function
-	total, err := tss.SumPoints(tss.ParsePoint(&p1), tss.ParsePoint(&p2))
-	suite.Require().NoError(err)
-	suite.Require().Equal(tss.ParsePoint(&expectedPoint), total)
+			suite.Require().Equal(t.expTotal, total)
+		})
+	}
 }
 
 func (suite *TSSTestSuite) TestSumScalars() {
-	total, err := tss.SumScalars(
-		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(1)),
-		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(2)),
-		tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(3)),
-	)
-	suite.Require().NoError(err)
-	suite.Require().Equal(tss.ParseScalar(new(secp256k1.ModNScalar).SetInt(6)), total)
+	tests := []struct {
+		name     string
+		scalars  tss.Scalars
+		expTotal tss.Scalar
+		expError bool
+	}{
+		{
+			"zero element",
+			tss.Scalars{},
+			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000000"),
+			false,
+		},
+		{
+			"one element",
+			tss.Scalars{testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")},
+			testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
+			false,
+		},
+		{
+			"three element",
+			tss.Scalars{
+				testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
+				testutil.HexDecode("c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"),
+			},
+			testutil.HexDecode("3fc2e6133bca391985e5a304644787e0a464ae400b74c54545cc2c87a332753c"),
+			false,
+		},
+		{
+			"big values",
+			tss.Scalars{
+				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+			},
+			testutil.HexDecode("000000000000000000000000000000028aa24632a16ebf88805b42e45f9375de"),
+			false,
+		},
+		{
+			"length is too short",
+			tss.Scalars{
+				testutil.HexDecode("	fffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+			},
+			nil,
+			true,
+		},
+		{
+			"length is too short",
+			tss.Scalars{
+				testutil.HexDecode("02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+			},
+			nil,
+			true,
+		},
+	}
+	for _, t := range tests {
+		suite.Run(t.name, func() {
+			total, err := tss.SumScalars(t.scalars...)
+
+			if t.expError {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
+			}
+
+			suite.Require().Equal(t.expTotal, total)
+		})
+	}
 }
