@@ -345,6 +345,8 @@ func (k Keeper) Complain(
 				),
 			)
 		} else {
+			// TODO: decrypt secret shares
+
 			// Mark j as malicious
 			err := k.MarkMalicious(ctx, groupID, c.J)
 			if err != nil {
