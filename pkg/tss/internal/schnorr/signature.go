@@ -49,8 +49,8 @@ func NewSignature(r *secp256k1.JacobianPoint, s *secp256k1.ModNScalar) *Signatur
 //
 // The signatures are encoded as:
 //
-//	sig[0:33]  jacobian point R with z as 1, encoded by SerializeCompressed of secp256k1.PublicKey
-//	sig[33:65] s, encoded also as big-endian uint256
+//	bytes at 0-32  jacobian point R with z as 1, encoded by SerializeCompressed of secp256k1.PublicKey
+//	bytes at 33-64 s, encoded also as big-endian uint256
 func (sig Signature) Serialize() []byte {
 	// Total length of returned signature is the length of r and s.
 	var b [SignatureSize]byte
