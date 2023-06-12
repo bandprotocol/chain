@@ -765,7 +765,6 @@ func (s *KeeperTestSuite) TestSign() {
 							PubE:     pubE,
 							PubNonce: am.PubNonce(),
 						})
-
 					}
 
 					// Set signing
