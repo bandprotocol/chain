@@ -124,7 +124,7 @@ func (suite *TSSTestSuite) TestSumScalars() {
 		{
 			"length is too short",
 			tss.Scalars{
-				testutil.HexDecode("	fffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
+				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			nil,
