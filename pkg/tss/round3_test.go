@@ -174,7 +174,7 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 
 			// Failed case - correct encrypted secret share
 			err = tss.VerifyComplain(
-				testutil.FakePubKey,
+				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
 				memberI.ComplainSigs[slot],
