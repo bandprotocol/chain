@@ -386,35 +386,50 @@ func (k Keeper) GetMaliciousMembers(ctx sdk.Context, groupID tss.GroupID) ([]typ
 }
 
 // HandleVerifyComplainSig verifies the complain signature for a given groupID and complain.
-func (k Keeper) HandleVerifyComplainSig(
+func (k Keeper) HandleVerifyComplain(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	complain types.Complain,
 ) error {
-	// Get the member I from the store
-	memberI, err := k.GetMember(ctx, groupID, complain.I)
+	// Get round 1 data from member I
+	round1I, err := k.GetRound1Data(ctx, groupID, complain.I)
 	if err != nil {
 		return err
 	}
 
-	// Get the member J from the store
-	memberJ, err := k.GetMember(ctx, groupID, complain.J)
+	// Get round 1 data from member J
+	round1J, err := k.GetRound1Data(ctx, groupID, complain.J)
 	if err != nil {
 		return err
+	}
+
+	// Get round 2 data from member J
+	round2J, err := k.GetRound2Data(ctx, groupID, complain.J)
+	if err != nil {
+		return err
+	}
+
+	// Find index J in encrypted secret shares
+	indexJ := complain.I - 1
+	if complain.J < complain.I {
+		indexJ -= 1
 	}
 
 	// Verify the complain signature
-	err = tss.VerifyComplainSig(
-		memberI.PubKey,
-		memberJ.PubKey,
+	err = tss.VerifyComplain(
+		round1I.OneTimePubKey,
+		round1J.OneTimePubKey,
 		complain.KeySym,
 		complain.Sig,
+		round2J.EncryptedSecretShares[indexJ],
+		complain.I,
+		round1J.CoefficientsCommit,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
 			"failed to complain member: %d with groupID: %d; %s",
-			memberJ,
+			complain.J,
 			groupID,
 			err,
 		)
