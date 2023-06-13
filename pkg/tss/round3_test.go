@@ -79,9 +79,19 @@ func (suite *TSSTestSuite) TestComputeSecretShareCommit() {
 
 func (suite *TSSTestSuite) TestDecryptSecretShares() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		encSecretShares, err := tss.DecryptSecretShares(member.EncSecretShares, member.KeySyms)
+		secretShares, err := tss.DecryptSecretShares(member.EncSecretShares, member.KeySyms)
 		suite.Require().NoError(err)
-		suite.Require().Equal(member.SecretShares, encSecretShares)
+		suite.Require().Equal(member.SecretShares, secretShares)
+	})
+}
+
+func (suite *TSSTestSuite) TestDecryptSecretShare() {
+	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
+		for i, encSecretShare := range member.EncSecretShares {
+			secretShare, err := tss.DecryptSecretShare(encSecretShare, member.KeySyms[i])
+			suite.Require().NoError(err)
+			suite.Require().Equal(member.SecretShares[i], secretShare)
+		}
 	})
 }
 
@@ -141,6 +151,38 @@ func (suite *TSSTestSuite) TestSignComplain() {
 				Equal(memberI.ComplainSigs[testutil.GetSlot(memberI.ID, memberJ.ID)], sig)
 			suite.Require().
 				Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
+		})
+}
+
+func (suite *TSSTestSuite) TestVerifyComplain() {
+	suite.RunOnPairMembers(
+		suite.testCases,
+		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
+			slot := testutil.GetSlot(memberI.ID, memberJ.ID)
+			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
+			// Success case - wrong encrypted secret share
+			err := tss.VerifyComplain(
+				memberI.OneTimePubKey(),
+				memberJ.OneTimePubKey(),
+				memberI.KeySyms[slot],
+				memberI.ComplainSigs[slot],
+				testutil.FakePrivKey,
+				memberI.ID,
+				memberJ.CoefficientsCommit,
+			)
+			suite.Require().NoError(err)
+
+			// Failed case - correct encrypted secret share
+			err = tss.VerifyComplain(
+				testutil.FakePubKey,
+				memberJ.OneTimePubKey(),
+				memberI.KeySyms[slot],
+				memberI.ComplainSigs[slot],
+				memberJ.EncSecretShares[jSlot],
+				memberI.ID,
+				memberJ.CoefficientsCommit,
+			)
+			suite.Require().Error(err)
 		})
 }
 
