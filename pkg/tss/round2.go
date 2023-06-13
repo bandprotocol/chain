@@ -1,8 +1,6 @@
 package tss
 
 import (
-	"errors"
-
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
@@ -23,7 +21,7 @@ func ComputeEncryptedSecretShares(
 
 		keySym, err := ComputeKeySym(rawPrivKey, rawPubKey)
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "compute key sym")
 		}
 
 		keySyms = append(keySyms, keySym)
@@ -38,7 +36,7 @@ func ComputeEncryptedSecretShares(
 
 		secretShare, err := ComputeSecretShare(rawCoeffcients, MemberID(i))
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "compute secret share: member id: %d", i)
 		}
 
 		secretShares = append(secretShares, secretShare)
@@ -54,14 +52,19 @@ func EncryptSecretShares(
 	keySyms PublicKeys,
 ) (Scalars, error) {
 	if len(secretShares) != len(keySyms) {
-		return nil, errors.New("the length of secret shares and key syms is not equal")
+		return nil, NewError(
+			ErrInvalidLength,
+			"len(secret shares) != len(key sym): %d != %d",
+			len(secretShares),
+			len(keySyms),
+		)
 	}
 
 	var encSecretShares Scalars
 	for i := 0; i < len(secretShares); i++ {
 		encSecretShare, err := Encrypt(secretShares[i], keySyms[i])
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "compute secret share: member id: %d", i)
 		}
 
 		encSecretShares = append(encSecretShares, encSecretShare)
@@ -76,7 +79,7 @@ func ComputeSecretShare(rawCoeffcients Scalars, mid MemberID) (Scalar, error) {
 
 	coeffcients, err := rawCoeffcients.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse coefficients")
 	}
 
 	result := solveScalarPolynomial(coeffcients, x)

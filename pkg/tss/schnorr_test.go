@@ -21,11 +21,11 @@ func (suite *TSSTestSuite) TestSignAndVerify() {
 
 		// Wrong msg case
 		err = tss.Verify(sig.R(), sig.S(), []byte("fake data"), member.OneTimePubKey(), nil, nil)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
 		err = tss.Verify(sig.R(), sig.S(), suite.data, testutil.FakePubKey, nil, nil)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
 
@@ -53,19 +53,19 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 
 			// Wrong msg case
 			err = tss.Verify(tss.Point(nonceSym), sig.S(), []byte("fake data"), keySym, generator, nil)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
 			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, testutil.FakePubKey, generator, nil)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong generator case
 			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, keySym, fakeGenerator, nil)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong nonce sym case
 			err = tss.Verify(tss.Point(testutil.FakePubKey), sig.S(), suite.data, keySym, fakeGenerator, nil)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})
 }
 
@@ -84,15 +84,15 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomLagrange() {
 
 		// Wrong msg case
 		err = tss.Verify(sig.R(), sig.S(), []byte("fake data"), member.OneTimePubKey(), nil, lagrange)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
 		err = tss.Verify(sig.R(), sig.S(), suite.data, testutil.FakePubKey, nil, lagrange)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong lagrange case
 		err = tss.Verify(sig.R(), sig.S(), suite.data, member.OneTimePubKey(), nil, fakeLagrange)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
 
