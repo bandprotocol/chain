@@ -158,14 +158,14 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
-			slot := testutil.GetSlot(memberI.ID, memberJ.ID)
+			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
 			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
 			// Success case - wrong encrypted secret share
 			err := tss.VerifyComplain(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
-				memberI.KeySyms[slot],
-				memberI.ComplainSigs[slot],
+				memberI.KeySyms[iSlot],
+				memberI.ComplainSigs[iSlot],
 				testutil.FakePrivKey,
 				memberI.ID,
 				memberJ.CoefficientsCommit,
@@ -176,8 +176,8 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 			err = tss.VerifyComplain(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
-				memberI.KeySyms[slot],
-				memberI.ComplainSigs[slot],
+				memberI.KeySyms[iSlot],
+				memberI.ComplainSigs[iSlot],
 				memberJ.EncSecretShares[jSlot],
 				memberI.ID,
 				memberJ.CoefficientsCommit,
