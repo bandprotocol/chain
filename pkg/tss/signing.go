@@ -84,7 +84,7 @@ func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor S
 	return ParsePublicKey(&ownPubNonce), nil
 }
 
-// ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and binsing factor.
+// ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and binding factor.
 // Formula: d + bindingFactor * e
 func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawBindingFactor Scalar) (PrivateKey, error) {
 	bindingFactor, err := rawBindingFactor.Parse()
