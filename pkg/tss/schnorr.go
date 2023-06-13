@@ -39,7 +39,7 @@ func Sign(
 		challenge.Mul(lagrange)
 	}
 
-	sigS, err := computeSigS(&privKey.Key, nonce, &challenge)
+	sigS, err := computeSigS(privKey, nonce, &challenge)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func Verify(
 // computeSigS generates a S part of schnorr signature over the secp256k1 curve
 // for the provided challenge using the given nonce, and private key.
 func computeSigS(
-	privKey, nonce *secp256k1.ModNScalar,
+	privKey *secp256k1.PrivateKey, nonce *secp256k1.ModNScalar,
 	challenge *secp256k1.ModNScalar,
 ) (*secp256k1.ModNScalar, error) {
 	// G = curve generator
@@ -108,14 +108,14 @@ func computeSigS(
 	// c = challenge (hash of message)
 	// R, S = signature
 	//
-	// 1. Fail if d = 0 or d >= n
-	// 2. S = k - h*d mod n
+	// 1. Fail if d = nil or d = 0
+	// 2. S = k - c*d mod n
 	// 3. Return S
 
 	// Step 1.
 	//
-	// Fail if d = 0 or d >= n
-	if privKey.IsZero() {
+	// Fail if d = nil or d = 0
+	if privKey == nil || privKey.Key.IsZero() {
 		return nil, errors.New("private key is zero")
 	}
 
@@ -124,7 +124,7 @@ func computeSigS(
 	// s = k - c*d mod n
 	c := *challenge
 	k := *nonce
-	S := new(secp256k1.ModNScalar).Mul2(&c, privKey).Negate().Add(&k)
+	S := new(secp256k1.ModNScalar).Mul2(&c, &privKey.Key).Negate().Add(&k)
 	k.Zero()
 
 	// Step 3.
