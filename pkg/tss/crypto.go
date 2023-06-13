@@ -10,12 +10,12 @@ import (
 func Encrypt(value Scalar, key PublicKey) (Scalar, error) {
 	k, err := Scalar(Hash(key)).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse key")
 	}
 
 	v, err := value.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse value")
 	}
 
 	res := k.Add(v).Bytes()
@@ -28,12 +28,12 @@ func Encrypt(value Scalar, key PublicKey) (Scalar, error) {
 func Decrypt(encValue Scalar, key PublicKey) (Scalar, error) {
 	k, err := Scalar(Hash(key)).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse key")
 	}
 
 	ev, err := encValue.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse encrypted value")
 	}
 
 	res := k.Negate().Add(ev).Bytes()

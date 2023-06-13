@@ -1,8 +1,6 @@
 package tss
 
 import (
-	"errors"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
@@ -17,12 +15,12 @@ func Sign(
 ) (Signature, error) {
 	privKey, err := rawPrivKey.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private key")
 	}
 
 	nonce, err := rawNonce.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse nonce")
 	}
 
 	var sigR secp256k1.JacobianPoint
@@ -34,14 +32,14 @@ func Sign(
 	if rawLagrange != nil {
 		lagrange, err := rawLagrange.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse lagrange")
 		}
 		challenge.Mul(lagrange)
 	}
 
 	sigS, err := computeSigS(privKey, nonce, &challenge)
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "compute sig S")
 	}
 
 	sig := schnorr.NewSignature(&sigR, sigS)
@@ -61,24 +59,24 @@ func Verify(
 ) error {
 	sigR, err := rawSigR.Parse()
 	if err != nil {
-		return err
+		return NewError(err, "parse sig R")
 	}
 
 	sigS, err := rawSigS.Parse()
 	if err != nil {
-		return err
+		return NewError(err, "parse sig S")
 	}
 
 	pubKey, err := rawPubKey.Parse()
 	if err != nil {
-		return err
+		return NewError(err, "parse public key")
 	}
 
 	var generator *secp256k1.JacobianPoint
 	if rawGenerator != nil {
 		generator, err = rawGenerator.Parse()
 		if err != nil {
-			return err
+			return NewError(err, "parse generator")
 		}
 	}
 
@@ -88,7 +86,7 @@ func Verify(
 	if rawLagrange != nil {
 		lagrange, err := rawLagrange.Parse()
 		if err != nil {
-			return err
+			return NewError(err, "parse lagrange")
 		}
 		challenge.Mul(lagrange)
 	}
@@ -116,7 +114,7 @@ func computeSigS(
 	//
 	// Fail if d = nil or d = 0
 	if privKey == nil || privKey.Key.IsZero() {
-		return nil, errors.New("private key is zero")
+		return nil, ErrPrivateKeyZero
 	}
 
 	// Step 2.
@@ -154,7 +152,7 @@ func verify(
 	//
 	// Fail if Q is not a point on the curve
 	if !pubKey.IsOnCurve() {
-		return errors.New("pubkey point is not on curve")
+		return NewError(ErrNotOnCurve, "public key")
 	}
 
 	// Step 2.
@@ -175,7 +173,7 @@ func verify(
 	//
 	// Fail if R is the point at infinity
 	if (R.X.IsZero() && R.Y.IsZero()) || R.Z.IsZero() {
-		return errors.New("calculated R point is the point at infinity")
+		return NewError(ErrInvalidSignature, "calculated R point is the point at infinity")
 	}
 	R.ToAffine()
 	expectR.ToAffine()
@@ -186,7 +184,7 @@ func verify(
 	//
 	// Note that R and expectR must be in affine coordinates for this check.
 	if !expectR.X.Equals(&R.X) || !expectR.Y.Equals(&R.Y) || !expectR.Z.Equals(&R.Z) {
-		return errors.New("calculated R point was not given R")
+		return NewError(ErrInvalidSignature, "calculated R point was not given R")
 	}
 
 	return nil

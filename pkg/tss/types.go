@@ -2,7 +2,6 @@ package tss
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
@@ -31,7 +30,7 @@ func ParseScalar(scalar *secp256k1.ModNScalar) Scalar {
 // Parse converts a Scalar back to a secp256k1.ModNScalar.
 func (s Scalar) Parse() (*secp256k1.ModNScalar, error) {
 	if len(s) != 32 {
-		return nil, errors.New("length is not 32")
+		return nil, NewError(ErrInvalidLength, "length: %d != 32", len(s))
 	}
 
 	var scalar secp256k1.ModNScalar
@@ -45,10 +44,10 @@ type Scalars []Scalar
 // Parse converts a slice of Scalars into a slice of secp256k1.ModNScalar.
 func (ss Scalars) Parse() ([]*secp256k1.ModNScalar, error) {
 	var scalars []*secp256k1.ModNScalar
-	for _, s := range ss {
+	for idx, s := range ss {
 		scalar, err := s.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse index: %d", idx)
 		}
 
 		scalars = append(scalars, scalar)
@@ -65,14 +64,14 @@ type Points []Point
 
 // ParsePoint parses a secp256k1.JacobianPoint into a Point.
 func ParsePoint(point *secp256k1.JacobianPoint) Point {
-	return Point(ParsePublicKey(point))
+	return Point(ParsePublicKeyFromPoint(point))
 }
 
 // Parse converts a Point back to a secp256k1.JacobianPoint.
 func (p Point) Parse() (*secp256k1.JacobianPoint, error) {
 	point, err := PublicKey(p).Point()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse to jacobian point")
 	}
 
 	return point, nil
@@ -81,10 +80,10 @@ func (p Point) Parse() (*secp256k1.JacobianPoint, error) {
 // Parse converts a slice of Points into a slice of secp256k1.JacobianPoint.
 func (ps Points) Parse() ([]*secp256k1.JacobianPoint, error) {
 	var points []*secp256k1.JacobianPoint
-	for _, p := range ps {
+	for idx, p := range ps {
 		point, err := p.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse index: %d", idx)
 		}
 
 		points = append(points, point)
@@ -114,8 +113,14 @@ type PrivateKey []byte
 // PrivateKeys represents a slice of PrivateKey values.
 type PrivateKeys []PrivateKey
 
-// ParsePrivateKey parses a secp256k1.ModNScalar into a PrivateKey.
-func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
+// ParsePrivateKey parses a secp256k1.PrivateKey into a PrivateKey.
+func ParsePrivateKey(privKey *secp256k1.PrivateKey) PrivateKey {
+	bytes := privKey.Serialize()
+	return PrivateKey(bytes)
+}
+
+// ParsePrivateKeyFromScalar parses a secp256k1.ModNScalar into a PrivateKey.
+func ParsePrivateKeyFromScalar(scalar *secp256k1.ModNScalar) PrivateKey {
 	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
 	return PrivateKey(bytes)
 }
@@ -123,7 +128,7 @@ func ParsePrivateKey(scalar *secp256k1.ModNScalar) PrivateKey {
 // Parse converts a PrivateKey back to a secp256k1.PrivateKey.
 func (pk PrivateKey) Parse() (*secp256k1.PrivateKey, error) {
 	if len(pk) != 32 {
-		return nil, errors.New("length is not 32")
+		return nil, NewError(ErrInvalidLength, "length: %d != 32", len(pk))
 	}
 
 	return secp256k1.PrivKeyFromBytes(pk), nil
@@ -133,7 +138,7 @@ func (pk PrivateKey) Parse() (*secp256k1.PrivateKey, error) {
 func (pk PrivateKey) Scalar() (*secp256k1.ModNScalar, error) {
 	privKey, err := pk.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private key")
 	}
 
 	return &privKey.Key, nil
@@ -143,7 +148,7 @@ func (pk PrivateKey) Scalar() (*secp256k1.ModNScalar, error) {
 func (pk PrivateKey) PublicKey() (PublicKey, error) {
 	privKey, err := pk.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private key")
 	}
 
 	return privKey.PubKey().SerializeCompressed(), nil
@@ -152,10 +157,10 @@ func (pk PrivateKey) PublicKey() (PublicKey, error) {
 // Parse converts a slice of PrivateKeys into a slice of secp256k1.PrivateKey.
 func (pks PrivateKeys) Parse() ([]*secp256k1.PrivateKey, error) {
 	var privKeys []*secp256k1.PrivateKey
-	for _, pk := range pks {
+	for idx, pk := range pks {
 		privKey, err := pk.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse index: %d", idx)
 		}
 
 		privKeys = append(privKeys, privKey)
@@ -171,8 +176,14 @@ type PublicKey []byte
 // PublicKeys represents a slice of PublicKey values.
 type PublicKeys []PublicKey
 
-// ParsePublicKey parses a secp256k1.JacobianPoint into a PublicKey.
-func ParsePublicKey(point *secp256k1.JacobianPoint) PublicKey {
+// ParsePublicKey parses a secp256k1.PublicKey into a PublicKey.
+func ParsePublicKey(pubKey *secp256k1.PublicKey) PublicKey {
+	bytes := pubKey.SerializeCompressed()
+	return PublicKey(bytes)
+}
+
+// ParsePublicKeyFromPoint parses a secp256k1.JacobianPoint into a PublicKey.
+func ParsePublicKeyFromPoint(point *secp256k1.JacobianPoint) PublicKey {
 	affinePoint := *point
 	affinePoint.ToAffine()
 
@@ -184,7 +195,7 @@ func ParsePublicKey(point *secp256k1.JacobianPoint) PublicKey {
 func (pk PublicKey) Parse() (*secp256k1.PublicKey, error) {
 	pubKey, err := secp256k1.ParsePubKey(pk)
 	if err != nil {
-		return nil, err
+		return nil, NewError(ErrParseError, err.Error())
 	}
 
 	return pubKey, nil
@@ -194,7 +205,7 @@ func (pk PublicKey) Parse() (*secp256k1.PublicKey, error) {
 func (pk PublicKey) Point() (*secp256k1.JacobianPoint, error) {
 	pubKey, err := pk.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse public key")
 	}
 
 	var point secp256k1.JacobianPoint
@@ -206,10 +217,10 @@ func (pk PublicKey) Point() (*secp256k1.JacobianPoint, error) {
 // Parse converts a slice of PublicKeys into a slice of secp256k1.PublicKey.
 func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 	var pubKeys []*secp256k1.PublicKey
-	for _, pk := range pks {
+	for idx, pk := range pks {
 		pubKey, err := pk.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse index: %d", idx)
 		}
 
 		pubKeys = append(pubKeys, pubKey)
@@ -221,10 +232,10 @@ func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
 // Parse converts a slice of PublicKeys into a slice of secp256k1.JacobianPoint.
 func (pks PublicKeys) Points() ([]*secp256k1.JacobianPoint, error) {
 	var points []*secp256k1.JacobianPoint
-	for _, pk := range pks {
+	for idx, pk := range pks {
 		point, err := pk.Point()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse index: %d", idx)
 		}
 
 		points = append(points, point)
@@ -240,20 +251,20 @@ type Signature []byte
 // Signatures represents a slice of Signature values.
 type Signatures []Signature
 
-// NewSignature generates a signature from Point and Scalar.
+// NewSignature generates a signature from Point (R) and Scalar (S).
 // It returns a signature and an error, if any.
-func NewSignature(rawPoint Point, rawScalar Scalar) (Signature, error) {
-	point, err := rawPoint.Parse()
+func NewSignature(rawR Point, rawS Scalar) (Signature, error) {
+	r, err := rawR.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse R")
 	}
 
-	scalar, err := rawScalar.Parse()
+	s, err := rawS.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse S")
 	}
 
-	return ParseSignature(schnorr.NewSignature(point, scalar)), nil
+	return ParseSignature(schnorr.NewSignature(r, s)), nil
 }
 
 // ParseSignature parses a schnorr.Signature into a Signature.
@@ -265,7 +276,7 @@ func ParseSignature(sig *schnorr.Signature) Signature {
 func (s Signature) Parse() (*schnorr.Signature, error) {
 	sig, err := schnorr.ParseSignature(s)
 	if err != nil {
-		return nil, err
+		return nil, NewError(ErrParseError, err.Error())
 	}
 
 	return sig, nil
@@ -294,25 +305,25 @@ type ComplainSignature []byte
 // Signatures represents a slice of Signature values.
 type ComplainSignatures []ComplainSignature
 
-// NewComplainSignature generates a signature from 2 Points and Scalar.
+// NewComplainSignature generates a signature from 2 Points (A1, A2) and Scalar (Z).
 // It returns a complain signature and an error, if any.
-func NewComplainSignature(rawPoint1 Point, rawPoint2 Point, rawScalar Scalar) (ComplainSignature, error) {
-	point1, err := rawPoint1.Parse()
+func NewComplainSignature(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplainSignature, error) {
+	a1, err := rawA1.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse A1")
 	}
 
-	point2, err := rawPoint2.Parse()
+	a2, err := rawA2.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse A2")
 	}
 
-	scalar, err := rawScalar.Parse()
+	z, err := rawZ.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse Z")
 	}
 
-	return ParseComplainSignature(schnorr.NewComplainSignature(point1, point2, scalar)), nil
+	return ParseComplainSignature(schnorr.NewComplainSignature(a1, a2, z)), nil
 }
 
 // ParseComplainSignature parses a schnorr.ComplainSignature into a Signature.
@@ -324,7 +335,7 @@ func ParseComplainSignature(sig *schnorr.ComplainSignature) ComplainSignature {
 func (cs ComplainSignature) Parse() (*schnorr.ComplainSignature, error) {
 	sig, err := schnorr.ParseComplainSignature(cs)
 	if err != nil {
-		return nil, err
+		return nil, NewError(ErrParseError, err.Error())
 	}
 
 	return sig, nil
