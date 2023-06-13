@@ -83,7 +83,7 @@ func getSecretShare(
 	}
 
 	// Decrypt secret share
-	secretShare, err := tss.Decrypt(encSecretShare, keySym)
+	secretShare, err := tss.DecryptSecretShare(encSecretShare, keySym)
 	if err != nil {
 		return nil, nil, err
 	}
