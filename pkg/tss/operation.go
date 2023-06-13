@@ -9,18 +9,18 @@ import (
 func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
 	privKeyI, err := rawPrivKeyI.Scalar()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private key I")
 	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse public key J")
 	}
 
 	keySym := new(secp256k1.JacobianPoint)
 	secp256k1.ScalarMultNonConst(privKeyI, pubKeyJ, keySym)
 
-	return ParsePublicKey(keySym), nil
+	return ParsePublicKeyFromPoint(keySym), nil
 }
 
 // ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
@@ -28,18 +28,18 @@ func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, err
 func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
 	nonce, err := rawNonce.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse nonce")
 	}
 
 	pubKeyJ, err := rawPubKeyJ.Point()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse public key J")
 	}
 
 	nonceSym := new(secp256k1.JacobianPoint)
 	secp256k1.ScalarMultNonConst(nonce, pubKeyJ, nonceSym)
 
-	return ParsePublicKey(nonceSym), nil
+	return ParsePublicKeyFromPoint(nonceSym), nil
 }
 
 // SumPoints computes the sum of multiple points.
@@ -47,7 +47,7 @@ func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
 func SumPoints(rawPoints ...Point) (Point, error) {
 	points, err := Points(rawPoints).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse points")
 	}
 
 	return ParsePoint(sumPoints(points...)), nil
@@ -58,7 +58,7 @@ func SumPoints(rawPoints ...Point) (Point, error) {
 func SumScalars(rawScalars ...Scalar) (Scalar, error) {
 	scalars, err := Scalars(rawScalars).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse scalars")
 	}
 
 	return ParseScalar(sumScalars(scalars...)), nil
