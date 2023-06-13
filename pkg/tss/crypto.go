@@ -4,11 +4,11 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// Encrypt encrypts the given value using the symmetric key.
-// encrypted value = Hash(symmetric key) + value
+// Encrypt encrypts the given value using the key.
+// encrypted value = Hash(key) + value
 // It returns the encrypted value as a Scalar.
-func Encrypt(value Scalar, keySym PublicKey) (Scalar, error) {
-	k, err := Scalar(Hash(keySym)).Parse()
+func Encrypt(value Scalar, key PublicKey) (Scalar, error) {
+	k, err := Scalar(Hash(key)).Parse()
 	if err != nil {
 		return nil, err
 	}
@@ -22,11 +22,11 @@ func Encrypt(value Scalar, keySym PublicKey) (Scalar, error) {
 	return res[:], nil
 }
 
-// Decrypt decrypts the given encrypted value using the symmetric key.
-// value = encrypted value - Hash(symmetric key)
+// Decrypt decrypts the given encrypted value using the key.
+// value = encrypted value - Hash(key)
 // It returns the decrypted value as a Scalar.
-func Decrypt(encValue Scalar, keySym PublicKey) (Scalar, error) {
-	k, err := Scalar(Hash(keySym)).Parse()
+func Decrypt(encValue Scalar, key PublicKey) (Scalar, error) {
+	k, err := Scalar(Hash(key)).Parse()
 	if err != nil {
 		return nil, err
 	}
