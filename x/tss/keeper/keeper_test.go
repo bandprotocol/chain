@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -472,28 +473,66 @@ func (s *KeeperTestSuite) TestGetMaliciousMembers() {
 	s.Require().Equal([]types.Member{member1, member2}, got)
 }
 
-func (s *KeeperTestSuite) TestHandleVerifyComplainSig() {
+func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
 	for _, tc := range testutil.TestCases {
-		for _, m := range tc.Group.Members {
-			// Set member
-			k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
-				Address:     "member_address",
-				PubKey:      m.PubKey(),
-				IsMalicious: false,
+		s.Run(fmt.Sprintf("Case %s", tc.Name), func() {
+			for _, m := range tc.Group.Members {
+				// Set member
+				k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
+					Address:     "member_address",
+					PubKey:      m.PubKey(),
+					IsMalicious: false,
+				})
+
+				// Set round 1 data
+				k.SetRound1Data(ctx, tc.Group.ID, types.Round1Data{
+					MemberID:           m.ID,
+					CoefficientsCommit: m.CoefficientsCommit,
+					OneTimePubKey:      m.OneTimePubKey(),
+					A0Sig:              m.A0Sig,
+					OneTimeSig:         m.OneTimeSig,
+				})
+
+				// Set round 2 data
+				k.SetRound2Data(ctx, tc.Group.ID, types.Round2Data{
+					MemberID:              m.ID,
+					EncryptedSecretShares: m.EncSecretShares,
+				})
+			}
+
+			memberI := tc.Group.Members[0]
+			memberJ := tc.Group.Members[1]
+			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
+			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
+
+			// Failed case - correct encrypted secret share
+			err := k.HandleVerifyComplain(ctx, tc.Group.ID, types.Complain{
+				I:      memberI.ID,
+				J:      memberJ.ID,
+				KeySym: memberI.KeySyms[iSlot],
+				Sig:    memberI.ComplainSigs[iSlot],
 			})
-		}
+			s.Require().Error(err)
 
-		slot := testutil.GetSlot(tc.Group.Members[0].ID, tc.Group.Members[1].ID)
+			// Get round 2 data J
+			round2J, err := k.GetRound2Data(ctx, tc.Group.ID, memberJ.ID)
+			s.Require().NoError(err)
 
-		err := tss.VerifyComplainSig(
-			tc.Group.Members[0].OneTimePubKey(),
-			tc.Group.Members[1].OneTimePubKey(),
-			tc.Group.Members[0].KeySyms[slot],
-			tc.Group.Members[0].ComplainSigs[slot],
-		)
-		s.Require().NoError(err)
+			// Set fake encrypted secret shares
+			round2J.EncryptedSecretShares[jSlot] = testutil.FakePrivKey
+			k.SetRound2Data(ctx, tc.Group.ID, round2J)
+
+			// Success case - wrong encrypted secret share
+			err = k.HandleVerifyComplain(ctx, tc.Group.ID, types.Complain{
+				I:      memberI.ID,
+				J:      memberJ.ID,
+				KeySym: memberI.KeySyms[iSlot],
+				Sig:    memberI.ComplainSigs[iSlot],
+			})
+			s.Require().NoError(err)
+		})
 	}
 }
 

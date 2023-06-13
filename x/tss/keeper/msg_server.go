@@ -318,7 +318,7 @@ func (k Keeper) Complain(
 	// Verify complain
 	var complainsWithStatus []types.ComplainWithStatus
 	for _, c := range req.Complains {
-		err := k.HandleVerifyComplainSig(ctx, groupID, c)
+		err := k.HandleVerifyComplain(ctx, groupID, c)
 		if err != nil {
 			// Mark i as malicious
 			err := k.MarkMalicious(ctx, groupID, c.I)
