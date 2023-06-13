@@ -35,9 +35,9 @@ func NewComplainSignature(
 //
 // The signatures are encoded as:
 //
-//	sig[0:33]  jacobian point R with z as 1 (A1), encoded by SerializeCompressed of secp256k1.PublicKey
-//	sig[33:66]  jacobian point R with z as 1 (A2), encoded by SerializeCompressed of secp256k1.PublicKey
-//	sig[66:98] s, encoded also as big-endian uint256 (Z)
+//	bytes at 0-32  jacobian point R with z as 1 (A1), encoded by SerializeCompressed of secp256k1.PublicKey
+//	bytes at 33-65  jacobian point R with z as 1 (A2), encoded by SerializeCompressed of secp256k1.PublicKey
+//	bytes at 66-97 s, encoded also as big-endian uint256 (Z)
 func (sig ComplainSignature) Serialize() []byte {
 	// Total length of returned signature is the length of a1, a2 and z.
 	var b [ComplainSignatureSize]byte

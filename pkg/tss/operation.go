@@ -70,7 +70,7 @@ func solveScalarPolynomial(scalars []*secp256k1.ModNScalar, x *secp256k1.ModNSca
 	var result secp256k1.ModNScalar
 
 	for i := len(scalars) - 1; i >= 0; i-- {
-		// Compute newResult = oldResult * x + scalar
+		// Compute newResult = scalar + oldResult * x
 		result.Mul(x).Add(scalars[i])
 	}
 
