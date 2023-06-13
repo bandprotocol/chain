@@ -42,7 +42,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 
 	// Set members
 	for i, m := range req.Members {
-		// id start from 1
+		// ID start from 1
 		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
 			Address:     m,
 			PubKey:      tss.PublicKey(nil),
@@ -552,13 +552,13 @@ func (k Keeper) handleFallenGroup(
 func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*types.MsgRequestSignResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// get group
+	// Get group
 	group, err := k.GetGroup(ctx, req.GroupID)
 	if err != nil {
 		return nil, err
 	}
 
-	// check group status
+	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
 		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
@@ -568,7 +568,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
-	// random assigning participants
+	// Random assigning participants
 	mids, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
@@ -579,7 +579,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
-	// get public D and E for each asssigned members
+	// Get public D and E for each assigned members
 	var assignedMembers []types.AssignedMember
 	var pubDs, pubEs tss.PublicKeys
 	for _, mid := range mids {
@@ -606,25 +606,26 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		})
 	}
 
-	// compute commitment from mids, public D and public E
+	// Compute commitment from mids, public D and public E
 	commitment, err := tss.ComputeCommitment(mids, pubDs, pubEs)
 	if err != nil {
 		return nil, err
 	}
 
-	// compute binding factor and public nonce of each assigned member
+	// Compute binding factor and public nonce of each assigned member
 	var ownPubNonces tss.PublicKeys
 	for i, member := range assignedMembers {
-		// compute binding factor
-		bindingFactor := tss.ComputeOwnBindingFactor(member.MemberID, req.Message, commitment)
-
-		// compute own public nonce
-		opn, err := tss.ComputeOwnPubNonce(member.PubD, member.PubE, bindingFactor)
+		// compute and assign binding factor and public nonce
+		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
+			member.PubD,
+			member.PubE,
+			tss.ComputeOwnBindingFactor(member.MemberID, req.Message, commitment),
+		)
 		if err != nil {
 			return nil, err
 		}
-		ownPubNonces = append(ownPubNonces, opn)
-		assignedMembers[i].PubNonce = opn
+
+		ownPubNonces = append(ownPubNonces, assignedMembers[i].PubNonce)
 	}
 
 	// compute group public nonce for this signing
