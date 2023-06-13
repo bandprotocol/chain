@@ -25,7 +25,7 @@ func GenerateRound1Data(
 	// Generate threshold + 1 key pairs (commits, onetime).
 	kps, err := GenerateKeyPairs(threshold + 1)
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "generate key pairs")
 	}
 
 	// Get one-time information.
@@ -33,7 +33,7 @@ func GenerateRound1Data(
 	oneTimePubKey := kps[0].PubKey
 	oneTimeSig, err := SignOneTime(mid, dkgContext, oneTimePubKey, oneTimePrivKey)
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "sign one time")
 	}
 
 	// Get a0 information.
@@ -41,7 +41,7 @@ func GenerateRound1Data(
 	a0PubKey := kps[1].PubKey
 	a0Sig, err := SignA0(mid, dkgContext, a0PubKey, a0PrivKey)
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "sign A0")
 	}
 
 	// Get coefficients.
