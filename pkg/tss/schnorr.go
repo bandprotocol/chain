@@ -109,7 +109,7 @@ func computeSigS(
 	// R, S = signature
 	//
 	// 1. Fail if d = 0 or d >= n
-	// 2. S = k - h*d mod n
+	// 2. S = k - c*d mod n
 	// 3. Return S
 
 	// Step 1.
