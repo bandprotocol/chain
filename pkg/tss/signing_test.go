@@ -123,7 +123,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				assignedMember.Sig,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong group public key case
 			err = tss.VerifySigningSig(
@@ -134,7 +134,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				assignedMember.Sig,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong data case
 			err = tss.VerifySigningSig(
@@ -145,7 +145,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				assignedMember.Sig,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong lagrange case
 			err = tss.VerifySigningSig(
@@ -156,7 +156,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				assignedMember.Sig,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong signature case
 			err = tss.VerifySigningSig(
@@ -167,7 +167,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				testutil.FakeSig,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong own public key case
 			err = tss.VerifySigningSig(
@@ -178,7 +178,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				assignedMember.Sig,
 				testutil.FakePubKey,
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})
 }
 
@@ -190,14 +190,14 @@ func (suite *TSSTestSuite) TestVerifyGroupSigningSig() {
 
 		// Wrong group public key case
 		err = tss.VerifyGroupSigningSig(testutil.FakePubKey, signing.Data, signing.Sig)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong data case
 		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, []byte("fake data"), signing.Sig)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong signature case
 		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, signing.Data, testutil.FakeSig)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }

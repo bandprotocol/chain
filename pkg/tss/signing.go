@@ -1,8 +1,6 @@
 package tss
 
 import (
-	"errors"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,11 +26,11 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 // ComputeCommitment calculates the bytes that consists of memberID, public D, and public E.
 func ComputeCommitment(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, error) {
 	if len(mids) != len(pubDs) {
-		return nil, errors.New("length is not equal")
+		return nil, NewError(ErrInvalidLength, "len(mids) != len(pubDs): %d != %d", len(mids), len(pubDs))
 	}
 
 	if len(mids) != len(pubEs) {
-		return nil, errors.New("length is not equal")
+		return nil, NewError(ErrInvalidLength, "len(mids) != len(pubEs): %d != %d", len(mids), len(pubEs))
 	}
 
 	var commitment []byte
@@ -62,17 +60,17 @@ func ComputeOwnBindingFactor(mid MemberID, data []byte, commitment []byte) Scala
 func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor Scalar) (PublicKey, error) {
 	bindingFactor, err := rawBindingFactor.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse binding factor")
 	}
 
 	pubD, err := rawPubD.Point()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse public D")
 	}
 
 	pubE, err := rawPubE.Point()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse public E")
 	}
 
 	var mulE secp256k1.JacobianPoint
@@ -81,7 +79,7 @@ func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor S
 	var ownPubNonce secp256k1.JacobianPoint
 	secp256k1.AddNonConst(pubD, &mulE, &ownPubNonce)
 
-	return ParsePublicKey(&ownPubNonce), nil
+	return ParsePublicKeyFromPoint(&ownPubNonce), nil
 }
 
 // ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and binding factor.
@@ -89,23 +87,23 @@ func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor S
 func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawBindingFactor Scalar) (PrivateKey, error) {
 	bindingFactor, err := rawBindingFactor.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse binding factor")
 	}
 
 	privD, err := rawPrivD.Scalar()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private D")
 	}
 
 	privE, err := rawPrivE.Scalar()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse private E")
 	}
 
 	bindingFactor.Mul(privE)
 	privD.Add(bindingFactor)
 
-	return ParsePrivateKey(privD), nil
+	return ParsePrivateKeyFromScalar(privD), nil
 }
 
 // ComputeGroupPublicNonce calculates the group public nonce for a given slice of own public nonces.
@@ -113,20 +111,20 @@ func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawBindingFac
 func ComputeGroupPublicNonce(rawOwnPubNonces ...PublicKey) (PublicKey, error) {
 	pubNonces, err := PublicKeys(rawOwnPubNonces).Points()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse own public nonces")
 	}
 
-	return ParsePublicKey(sumPoints(pubNonces...)), nil
+	return ParsePublicKeyFromPoint(sumPoints(pubNonces...)), nil
 }
 
 // CombineSignatures performs combining all signatures by sum up R and sum up S.
 func CombineSignatures(rawSigs ...Signature) (Signature, error) {
 	var allR []*secp256k1.JacobianPoint
 	var allS []*secp256k1.ModNScalar
-	for _, rawSig := range rawSigs {
+	for idx, rawSig := range rawSigs {
 		sig, err := rawSig.Parse()
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "parse sig: index: %d", idx)
 		}
 
 		allR = append(allR, &sig.R)

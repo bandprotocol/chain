@@ -36,19 +36,19 @@ func (suite *TSSTestSuite) TestSumPoints() {
 		name     string
 		points   tss.Points
 		expTotal tss.Point
-		expError bool
+		expError error
 	}{
 		{
 			"zero element",
 			tss.Points{},
 			testutil.HexDecode("020000000000000000000000000000000000000000000000000000000000000000"),
-			false,
+			nil,
 		},
 		{
 			"one element",
 			tss.Points{testutil.HexDecode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")},
 			testutil.HexDecode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
-			false,
+			nil,
 		},
 		{
 			"three element",
@@ -57,7 +57,7 @@ func (suite *TSSTestSuite) TestSumPoints() {
 				testutil.HexDecode("02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"),
 			},
 			testutil.HexDecode("02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9"),
-			false,
+			nil,
 		},
 		{
 			"value is too big",
@@ -66,19 +66,13 @@ func (suite *TSSTestSuite) TestSumPoints() {
 				testutil.HexDecode("02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			nil,
-			true,
+			tss.ErrParseError,
 		},
 	}
 	for _, t := range tests {
 		suite.Run(t.name, func() {
 			total, err := tss.SumPoints(t.points...)
-
-			if t.expError {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
-			}
-
+			suite.Require().ErrorIs(err, t.expError)
 			suite.Require().Equal(t.expTotal, total)
 		})
 	}
@@ -89,19 +83,19 @@ func (suite *TSSTestSuite) TestSumScalars() {
 		name     string
 		scalars  tss.Scalars
 		expTotal tss.Scalar
-		expError bool
+		expError error
 	}{
 		{
 			"zero element",
 			tss.Scalars{},
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000000"),
-			false,
+			nil,
 		},
 		{
 			"one element",
 			tss.Scalars{testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")},
 			testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
-			false,
+			nil,
 		},
 		{
 			"three element",
@@ -110,7 +104,7 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"),
 			},
 			testutil.HexDecode("3fc2e6133bca391985e5a304644787e0a464ae400b74c54545cc2c87a332753c"),
-			false,
+			nil,
 		},
 		{
 			"big values",
@@ -119,7 +113,7 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			testutil.HexDecode("000000000000000000000000000000028aa24632a16ebf88805b42e45f9375de"),
-			false,
+			nil,
 		},
 		{
 			"length is too short",
@@ -128,7 +122,7 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			nil,
-			true,
+			tss.ErrInvalidLength,
 		},
 		{
 			"length is too short",
@@ -137,19 +131,13 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			nil,
-			true,
+			tss.ErrInvalidLength,
 		},
 	}
 	for _, t := range tests {
 		suite.Run(t.name, func() {
 			total, err := tss.SumScalars(t.scalars...)
-
-			if t.expError {
-				suite.Require().Error(err)
-			} else {
-				suite.Require().NoError(err)
-			}
-
+			suite.Require().ErrorIs(err, t.expError)
 			suite.Require().Equal(t.expTotal, total)
 		})
 	}
