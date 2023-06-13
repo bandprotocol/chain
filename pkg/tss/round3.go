@@ -99,7 +99,7 @@ func DecryptSecretShares(
 
 	var secretShares Scalars
 	for i := 0; i < len(encSecretShares); i++ {
-		secretShare, err := Decrypt(encSecretShares[i], keySyms[i])
+		secretShare, err := DecryptSecretShare(encSecretShares[i], keySyms[i])
 		if err != nil {
 			return nil, err
 		}
@@ -108,6 +108,14 @@ func DecryptSecretShares(
 	}
 
 	return secretShares, nil
+}
+
+// DecryptSecretShare decrypts a encrypted secret share using the key sym.
+func DecryptSecretShare(
+	encSecretShare Scalar,
+	keySym PublicKey,
+) (Scalar, error) {
+	return Decrypt(encSecretShare, keySym)
 }
 
 // SignOwnPubkey signs the own public key using the given DKG context, own public key, and own private key.
@@ -168,6 +176,34 @@ func SignComplain(
 	}
 
 	return complainSig, keySym, nil
+}
+
+// VerifyComplain verifies the complaint using the complain signature and encrypted secret share.
+func VerifyComplain(
+	oneTimePubI PublicKey,
+	oneTimePubJ PublicKey,
+	keySym PublicKey,
+	complainSig ComplainSignature,
+	encSecretShare Scalar,
+	midI MemberID,
+	commits Points,
+) error {
+	err := VerifyComplainSig(oneTimePubI, oneTimePubJ, keySym, complainSig)
+	if err != nil {
+		return err
+	}
+
+	secretShare, err := DecryptSecretShare(encSecretShare, keySym)
+	if err != nil {
+		return err
+	}
+
+	err = VerifySecretShare(midI, secretShare, commits)
+	if err == nil {
+		return errors.New("encrypted secret share is correct")
+	}
+
+	return nil
 }
 
 // VerifyComplainSig verifies the signature of a complaint using the given parameters.
