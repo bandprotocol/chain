@@ -12,7 +12,7 @@ import (
 func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) {
 	sumCommits, err := rawSumCommits.Parse()
 	if err != nil {
-		return nil, NewError(err, "parse sub commits")
+		return nil, NewError(err, "parse sum commits")
 	}
 
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
