@@ -217,5 +217,4 @@ func (suite *TSSTestSuite) TestSolvePointPolynomial() {
 			suite.Require().Equal(t.expTotal, result)
 		})
 	}
-
 }
