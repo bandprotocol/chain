@@ -116,7 +116,7 @@ func (suite *TSSTestSuite) TestVerifyOwnPubKeySig() {
 
 		// Wrong ID case
 		err = tss.VerifyOwnPubKeySig(0, tc.Group.DKGContext, member.PubKeySig, member.PubKey())
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong DKGContext case
 		err = tss.VerifyOwnPubKeySig(
@@ -125,15 +125,15 @@ func (suite *TSSTestSuite) TestVerifyOwnPubKeySig() {
 			member.PubKeySig,
 			member.PubKey(),
 		)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong signature case
 		err = tss.VerifyOwnPubKeySig(member.ID, tc.Group.DKGContext, testutil.FakeSig, member.PubKey())
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
 		err = tss.VerifyOwnPubKeySig(member.ID, tc.Group.DKGContext, member.PubKeySig, testutil.FakePubKey)
-		suite.Require().Error(err)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
 
@@ -182,7 +182,7 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 				memberI.ID,
 				memberJ.CoefficientsCommit,
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrValidSecretShare)
 		})
 }
 
@@ -207,7 +207,7 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				memberI.KeySyms[slot],
 				memberI.ComplainSigs[slot],
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong public key J case
 			err = tss.VerifyComplainSig(
@@ -216,7 +216,7 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				memberI.KeySyms[slot],
 				memberI.ComplainSigs[slot],
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
 			err = tss.VerifyComplainSig(
@@ -225,15 +225,15 @@ func (suite *TSSTestSuite) TestVerifyComplainSig() {
 				testutil.FakePubKey,
 				memberI.ComplainSigs[slot],
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong signature case
 			err = tss.VerifyComplainSig(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				testutil.FakeSig,
+				testutil.FakeComplainSig,
 			)
-			suite.Require().Error(err)
+			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})
 }

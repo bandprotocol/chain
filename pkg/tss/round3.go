@@ -2,7 +2,6 @@ package tss
 
 import (
 	"bytes"
-	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
@@ -13,13 +12,13 @@ import (
 func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) {
 	sumCommits, err := rawSumCommits.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse sum commits")
 	}
 
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 	result := solvePointPolynomial(sumCommits, x)
 
-	return ParsePublicKey(result), nil
+	return ParsePublicKeyFromPoint(result), nil
 }
 
 // ComputeGroupPublicKey computes the group public key from a set of A0 commits.
@@ -27,11 +26,11 @@ func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) 
 func ComputeGroupPublicKey(rawA0Commits ...Point) (PublicKey, error) {
 	a0Commits, err := Points(rawA0Commits).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse a0 commits")
 	}
 
 	pubKey := sumPoints(a0Commits...)
-	return ParsePublicKey(pubKey), nil
+	return ParsePublicKeyFromPoint(pubKey), nil
 }
 
 // ComputeOwnPrivateKey computes the own private key from a set of secret shares.
@@ -39,12 +38,12 @@ func ComputeGroupPublicKey(rawA0Commits ...Point) (PublicKey, error) {
 func ComputeOwnPrivateKey(rawSecretShares ...Scalar) (PrivateKey, error) {
 	secretShares, err := Scalars(rawSecretShares).Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse secret shares")
 	}
 
 	privKey := sumScalars(secretShares...)
 
-	return ParsePrivateKey(privKey), nil
+	return ParsePrivateKeyFromScalar(privKey), nil
 }
 
 // VerifySecretShare verifies the validity of a secret share for a given member.
@@ -54,19 +53,19 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 	yG := new(secp256k1.JacobianPoint)
 	secretShare, err := rawSecretShare.Parse()
 	if err != nil {
-		return err
+		return NewError(err, "parse secret share")
 	}
 	secp256k1.ScalarBaseMultNonConst(secretShare, yG)
 
 	// Compute yG from the commits.
 	ssc, err := ComputeSecretShareCommit(rawCommits, mid)
 	if err != nil {
-		return err
+		return NewError(err, "compute secret share commit")
 	}
 
 	// Compare the two yG values to check validity.
 	if !bytes.Equal(ssc, ParsePoint(yG)) {
-		return errors.New("invalid secret share")
+		return ErrInvalidSecretShare
 	}
 
 	return nil
@@ -79,7 +78,7 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 func ComputeSecretShareCommit(rawCommits Points, mid MemberID) (Point, error) {
 	commits, err := rawCommits.Parse()
 	if err != nil {
-		return nil, err
+		return nil, NewError(err, "parse commits")
 	}
 
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
@@ -94,14 +93,19 @@ func DecryptSecretShares(
 	keySyms PublicKeys,
 ) (Scalars, error) {
 	if len(encSecretShares) != len(keySyms) {
-		return nil, errors.New("the length of encrypted secret shares and key syms is not equal")
+		return nil, NewError(
+			ErrInvalidLength,
+			"len(encrypted secret shares) != len(key sym): %d != %d",
+			len(encSecretShares),
+			len(keySyms),
+		)
 	}
 
 	var secretShares Scalars
 	for i := 0; i < len(encSecretShares); i++ {
 		secretShare, err := DecryptSecretShare(encSecretShares[i], keySyms[i])
 		if err != nil {
-			return nil, err
+			return nil, NewError(err, "decrypt secret share")
 		}
 
 		secretShares = append(secretShares, secretShare)
@@ -154,7 +158,7 @@ func SignComplain(
 ) (ComplainSignature, PublicKey, error) {
 	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, NewError(err, "compute key sym")
 	}
 
 	msg := generateMessageComplain(oneTimePubI, oneTimePubJ, keySym)
@@ -162,17 +166,17 @@ func SignComplain(
 
 	nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, NewError(err, "compute nonce sym")
 	}
 
 	sig, err := Sign(oneTimePrivI, ConcatBytes(pubNonce, nonceSym, msg), nonce, nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, NewError(err, "sign")
 	}
 
 	complainSig, err := NewComplainSignature(sig.R(), Point(nonceSym), sig.S())
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, NewError(err, "create complain signature")
 	}
 
 	return complainSig, keySym, nil
@@ -190,17 +194,17 @@ func VerifyComplain(
 ) error {
 	err := VerifyComplainSig(oneTimePubI, oneTimePubJ, keySym, complainSig)
 	if err != nil {
-		return err
+		return NewError(err, "verify complain signature")
 	}
 
 	secretShare, err := DecryptSecretShare(encSecretShare, keySym)
 	if err != nil {
-		return err
+		return NewError(err, "decrypt secret share")
 	}
 
 	err = VerifySecretShare(midI, secretShare, commits)
 	if err == nil {
-		return errors.New("encrypted secret share is correct")
+		return ErrValidSecretShare
 	}
 
 	return nil
@@ -217,7 +221,7 @@ func VerifyComplainSig(
 
 	err := Verify(complainSig.A1(), complainSig.Z(), msg, oneTimePubI, nil, nil)
 	if err != nil {
-		return err
+		return NewError(err, "verify")
 	}
 
 	return Verify(complainSig.A2(), complainSig.Z(), msg, keySym, Point(oneTimePubJ), nil)
