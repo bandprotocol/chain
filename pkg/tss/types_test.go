@@ -15,12 +15,12 @@ func (suite *TSSTestSuite) TestParseScalar() {
 		expScalar tss.Scalar
 	}{
 		{
-			"value 1",
+			"case 1",
 			new(secp256k1.ModNScalar).SetInt(1),
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
 		},
 		{
-			"value 255",
+			"case 2",
 			new(secp256k1.ModNScalar).SetInt(255),
 			testutil.HexDecode("00000000000000000000000000000000000000000000000000000000000000ff"),
 		},
@@ -48,13 +48,13 @@ func (suite *TSSTestSuite) TestScalar() {
 			nil,
 		},
 		{
-			"invalid length - less length",
+			"failed - invalid length - less length",
 			testutil.HexDecode("00"),
 			nil,
 			tss.ErrInvalidLength,
 		},
 		{
-			"invalid length - more length",
+			"failed - invalid length - more length",
 			testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000001"),
 			nil,
 			tss.ErrInvalidLength,
@@ -78,13 +78,13 @@ func (suite *TSSTestSuite) TestScalars() {
 		expParseError error
 	}{
 		{
-			"no element",
+			"success - no element",
 			tss.Scalars{},
 			nil,
 			nil,
 		},
 		{
-			"one element",
+			"success - one element",
 			tss.Scalars{
 				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
 			},
@@ -94,7 +94,7 @@ func (suite *TSSTestSuite) TestScalars() {
 			nil,
 		},
 		{
-			"two element",
+			"success - two element",
 			tss.Scalars{
 				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
 				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
@@ -106,7 +106,7 @@ func (suite *TSSTestSuite) TestScalars() {
 			nil,
 		},
 		{
-			"parse error - less length",
+			"failed - less length",
 			tss.Scalars{
 				testutil.HexDecode("00"),
 			},
@@ -114,7 +114,7 @@ func (suite *TSSTestSuite) TestScalars() {
 			tss.ErrInvalidLength,
 		},
 		{
-			"parse error - more length",
+			"failed - more length",
 			tss.Scalars{
 				testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000001"),
 			},
@@ -132,6 +132,177 @@ func (suite *TSSTestSuite) TestScalars() {
 	}
 }
 
+func (suite *TSSTestSuite) TestParsePoint() {
+	tests := []struct {
+		name     string
+		x        []byte
+		y        []byte
+		z        []byte
+		expPoint tss.Point
+	}{
+		{
+			"case 1 - z != 1",
+			testutil.HexDecode("1a85b4aeb536706399da14007a8360c3253c3b90a4c151a9805816abc90f7055"),
+			testutil.HexDecode("739a528f7105cd60f6e5c4b1bab2eaaa41aec6de84d62a2bee5461c4200c65d7"),
+			testutil.HexDecode("bf538f07e087fb8ded6e09672b57e73fea3505b5055693ac3651ab30460db568"),
+			testutil.HexDecode("03a50a76f243836311dd2fbaaf8b5185f5f7f34bd4cb99ac7309af18f89703960b"),
+		},
+		{
+			"case 2 - z = 1",
+			testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			testutil.HexDecode("4f2694a0f7f145aad7b9f722ce319d3a8145259c390e5596f79f0c17e0c8859a"),
+			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+			testutil.HexDecode("02517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(t.name, func() {
+			var x, y, z secp256k1.FieldVal
+			x.SetByteSlice(t.x)
+			y.SetByteSlice(t.y)
+			z.SetByteSlice(t.z)
+			jacobianPoint := secp256k1.MakeJacobianPoint(&x, &y, &z)
+			point := tss.ParsePoint(&jacobianPoint)
+			suite.Require().Equal(t.expPoint, point)
+		})
+	}
+}
+
+func (suite *TSSTestSuite) TestPoint() {
+	tests := []struct {
+		name     string
+		point    tss.Point
+		expX     []byte
+		expY     []byte
+		expZ     []byte
+		expError error
+	}{
+		{
+			"success",
+			testutil.HexDecode("02517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			testutil.HexDecode("4f2694a0f7f145aad7b9f722ce319d3a8145259c390e5596f79f0c17e0c8859a"),
+			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+			nil,
+		},
+		{
+			"failed - invalid length",
+			testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			nil,
+			nil,
+			nil,
+			tss.ErrParseError,
+		},
+		{
+			"failed - wrong parity",
+			testutil.HexDecode("01517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			nil,
+			nil,
+			nil,
+			tss.ErrParseError,
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
+			point, err := t.point.Parse()
+
+			if t.expError != nil {
+				suite.Require().ErrorIs(err, t.expError)
+			} else {
+				suite.Require().Equal(t.expX, point.X.Bytes()[:])
+				suite.Require().Equal(t.expY, point.Y.Bytes()[:])
+				suite.Require().Equal(t.expZ, point.Z.Bytes()[:])
+			}
+		})
+	}
+}
+
+func (suite *TSSTestSuite) TestPoints() {
+	tests := []struct {
+		name     string
+		points   tss.Points
+		expXs    [][]byte
+		expYs    [][]byte
+		expZs    [][]byte
+		expError error
+	}{
+		{
+			"success - one element",
+			tss.Points{
+				testutil.HexDecode("02517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			},
+			[][]byte{
+				testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			},
+			[][]byte{
+				testutil.HexDecode("4f2694a0f7f145aad7b9f722ce319d3a8145259c390e5596f79f0c17e0c8859a"),
+			},
+			[][]byte{
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+			},
+			nil,
+		},
+		{
+			"success - two elements",
+			tss.Points{
+				testutil.HexDecode("02517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+				testutil.HexDecode("036eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b1"),
+			},
+			[][]byte{
+				testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+				testutil.HexDecode("6eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b1"),
+			},
+			[][]byte{
+				testutil.HexDecode("4f2694a0f7f145aad7b9f722ce319d3a8145259c390e5596f79f0c17e0c8859a"),
+				testutil.HexDecode("883b00bf3bf9136d6a6daf63915b2a66cb0fe8fc5f4d8129ab5834a61916500b"),
+			},
+			[][]byte{
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+			},
+			nil,
+		},
+		{
+			"failed - invalid length",
+			tss.Points{
+				testutil.HexDecode("517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			},
+			nil,
+			nil,
+			nil,
+			tss.ErrParseError,
+		},
+		{
+			"failed - wrong parity",
+			tss.Points{
+				testutil.HexDecode("01517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+			},
+			nil,
+			nil,
+			nil,
+			tss.ErrParseError,
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
+			points, err := t.points.Parse()
+
+			if t.expError != nil {
+				suite.Require().ErrorIs(err, t.expError)
+			} else {
+				for i, p := range points {
+					suite.Require().Equal(t.expXs[i], p.X.Bytes()[:])
+					suite.Require().Equal(t.expYs[i], p.Y.Bytes()[:])
+					suite.Require().Equal(t.expZs[i], p.Z.Bytes()[:])
+				}
+			}
+		})
+	}
+}
+
 func (suite *TSSTestSuite) TestParsePrivateKey() {
 	tests := []struct {
 		name       string
@@ -139,12 +310,12 @@ func (suite *TSSTestSuite) TestParsePrivateKey() {
 		expPrivKey tss.PrivateKey
 	}{
 		{
-			"value 1",
+			"case 1",
 			new(secp256k1.ModNScalar).SetInt(1),
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
 		},
 		{
-			"value 255",
+			"case 255",
 			new(secp256k1.ModNScalar).SetInt(255),
 			testutil.HexDecode("00000000000000000000000000000000000000000000000000000000000000ff"),
 		},
