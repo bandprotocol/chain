@@ -17,21 +17,24 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
-// Group function handles the request to fetch group details.
+// Group function handles the request to fetch information about a group.
 func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := tss.GroupID(req.GroupId)
 
+	// Get group
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Get group members
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
+	// If group is active, return group and member info
 	if group.Status == types.GROUP_STATUS_ACTIVE {
 		return &types.QueryGroupResponse{
 			Group:   group,
@@ -39,31 +42,35 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		}, nil
 	}
 
+	// If group is not active, get additional data
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	r1s := k.GetAllRound1Data(ctx, groupID)
-	r2s := k.GetAllRound2Data(ctx, groupID)
+	// Get rounds data, complaints, and confirms
+	round1s := k.GetAllRound1Data(ctx, groupID)
+	round2s := k.GetAllRound2Data(ctx, groupID)
 	complains := k.GetAllComplainsWithStatus(ctx, groupID)
 	confirms := k.GetConfirms(ctx, groupID)
 
+	// Return all the group information
 	return &types.QueryGroupResponse{
 		Group:                  group,
 		DKGContext:             dkgContext,
 		Members:                members,
-		AllRound1Data:          r1s,
-		AllRound2Data:          r2s,
+		AllRound1Data:          round1s,
+		AllRound2Data:          round2s,
 		AllComplainsWithStatus: complains,
 		AllConfirm:             confirms,
 	}, nil
 }
 
-// Members function handles the request to fetch members of a group.
+// Members function handles the request to get members of a group.
 func (k Querier) Members(goCtx context.Context, req *types.QueryMembersRequest) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Get members using groupID
 	members, err := k.GetMembers(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
 		return nil, err
@@ -81,6 +88,7 @@ func (k Querier) IsGrantee(
 ) (*types.QueryIsGranteeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert granter and grantee addresses from Bech32 to AccAddress
 	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
@@ -95,14 +103,17 @@ func (k Querier) IsGrantee(
 	}, nil
 }
 
+// DE function handles the request to get DEs of a given address.
 func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert address from Bech32 to AccAddress
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
+	// Get DEs and paginate the result
 	var des []types.DE
 	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(address))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
@@ -121,17 +132,20 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 	}, nil
 }
 
+// PendingSigns function handles the request to get pending signs of a given address.
 func (k Querier) PendingSigns(
 	goCtx context.Context,
 	req *types.QueryPendingSignsRequest,
 ) (*types.QueryPendingSignsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert address from Bech32 to AccAddress
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
+	// Get pending sign IDs and then fetch each pending sign
 	var pendingSigns []types.Signing
 	pendingSignIDs := k.GetPendingSignIDs(ctx, address)
 	for _, id := range pendingSignIDs {
@@ -147,6 +161,7 @@ func (k Querier) PendingSigns(
 	}, nil
 }
 
+// Signings function handles the request to get signings of a given ID.
 func (k Querier) Signings(
 	goCtx context.Context,
 	req *types.QuerySigningsRequest,
@@ -154,6 +169,7 @@ func (k Querier) Signings(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	signingID := tss.SigningID(req.Id)
 
+	// Get signing and partial sigs using signingID
 	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
 		return nil, err
