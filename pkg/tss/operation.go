@@ -42,17 +42,6 @@ func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
 	return ParsePublicKeyFromPoint(nonceSym), nil
 }
 
-// SumPoints computes the sum of multiple points.
-// It returns the computed sum as a Point and an error, if any.
-func SumPoints(rawPoints ...Point) (Point, error) {
-	points, err := Points(rawPoints).Parse()
-	if err != nil {
-		return nil, NewError(err, "parse points")
-	}
-
-	return ParsePoint(sumPoints(points...)), nil
-}
-
 // SumScalars computes the sum of multiple scalars.
 // It returns the computed sum as a Scalar.
 func SumScalars(rawScalars ...Scalar) (Scalar, error) {
@@ -64,14 +53,59 @@ func SumScalars(rawScalars ...Scalar) (Scalar, error) {
 	return ParseScalar(sumScalars(scalars...)), nil
 }
 
+// SolveScalarPolynomial solves a scalar polynomial equation.
+// It takes scalars as coefficients and a value x, and returns the result as a scalar and an error, if any.
+func SolveScalarPolynomial(rawCoefficients Scalars, rawX Scalar) (Scalar, error) {
+	coefficients, err := rawCoefficients.Parse()
+	if err != nil {
+		return nil, NewError(err, "parse coefficients")
+	}
+
+	x, err := rawX.Parse()
+	if err != nil {
+		return nil, NewError(err, "parse x")
+	}
+
+	result := solveScalarPolynomial(coefficients, x)
+	return ParseScalar(result), nil
+}
+
+// SumPoints computes the sum of multiple points.
+// It returns the computed sum as a Point and an error, if any.
+func SumPoints(rawPoints ...Point) (Point, error) {
+	points, err := Points(rawPoints).Parse()
+	if err != nil {
+		return nil, NewError(err, "parse coefficients")
+	}
+
+	return ParsePoint(sumPoints(points...)), nil
+}
+
+// SolvePointPolynomial solves a point polynomial equation.
+// It takes points as coefficients and a value x, and returns the result as a point and an error, if any.
+func SolvePointPolynomial(rawCoefficients Points, rawX Scalar) (Point, error) {
+	coefficients, err := rawCoefficients.Parse()
+	if err != nil {
+		return nil, NewError(err, "parse scalars")
+	}
+
+	x, err := rawX.Parse()
+	if err != nil {
+		return nil, NewError(err, "parse x")
+	}
+
+	result := solvePointPolynomial(coefficients, x)
+	return ParsePoint(result), nil
+}
+
 // solveScalarPolynomial solves a scalar polynomial equation.
 // It takes scalars as coefficients and a value x, and returns the result as a *secp256k1.ModNScalar.
-func solveScalarPolynomial(scalars []*secp256k1.ModNScalar, x *secp256k1.ModNScalar) *secp256k1.ModNScalar {
+func solveScalarPolynomial(coefficients []*secp256k1.ModNScalar, x *secp256k1.ModNScalar) *secp256k1.ModNScalar {
 	var result secp256k1.ModNScalar
 
-	for i := len(scalars) - 1; i >= 0; i-- {
+	for i := len(coefficients) - 1; i >= 0; i-- {
 		// Compute newResult = scalar + oldResult * x
-		result.Mul(x).Add(scalars[i])
+		result.Mul(x).Add(coefficients[i])
 	}
 
 	return &result
@@ -79,14 +113,14 @@ func solveScalarPolynomial(scalars []*secp256k1.ModNScalar, x *secp256k1.ModNSca
 
 // solvePointPolynomial solves a point polynomial equation.
 // It takes points as coefficients and a value x, and returns the result as a *secp256k1.JacobianPoint.
-func solvePointPolynomial(points []*secp256k1.JacobianPoint, x *secp256k1.ModNScalar) *secp256k1.JacobianPoint {
+func solvePointPolynomial(coefficients []*secp256k1.JacobianPoint, x *secp256k1.ModNScalar) *secp256k1.JacobianPoint {
 	var result secp256k1.JacobianPoint
 
-	for i := len(points) - 1; i >= 0; i-- {
+	for i := len(coefficients) - 1; i >= 0; i-- {
 		// Compute newValue = point + x * oldValue.
 		var xR, newValue secp256k1.JacobianPoint
 		secp256k1.ScalarMultNonConst(x, &result, &xR)
-		secp256k1.AddNonConst(points[i], &xR, &newValue)
+		secp256k1.AddNonConst(coefficients[i], &xR, &newValue)
 
 		result = newValue
 	}
