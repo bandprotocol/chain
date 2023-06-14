@@ -1,12 +1,13 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gogotypes "github.com/gogo/protobuf/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/bandrng"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // SetSigningCount function sets the number of signing count to the given value.
@@ -223,41 +224,4 @@ func (k Keeper) GetRandomAssigningParticipants(
 		members_size -= 1
 	}
 	return aps, nil
-}
-
-// HandlePollDEForAssignedMembers function handles the polling of Diffie-Hellman key exchange results (DE) for the assigned members.
-// It takes a list of member IDs (mids) and member information (members) and returns the assigned members along with their DE public keys.
-func (k Keeper) HandlePollDEForAssignedMembers(
-	ctx sdk.Context,
-	mids []tss.MemberID,
-	members []types.Member,
-) ([]types.AssignedMember, tss.PublicKeys, tss.PublicKeys, error) {
-	var assignedMembers []types.AssignedMember
-	var pubDs, pubEs tss.PublicKeys
-
-	for _, mid := range mids {
-		member := members[mid-1]
-		accMember, err := sdk.AccAddressFromBech32(member.Address)
-		if err != nil {
-			return nil, nil, nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
-		}
-
-		de, err := k.PollDE(ctx, accMember)
-		if err != nil {
-			return nil, nil, nil, err
-		}
-
-		pubDs = append(pubDs, de.PubD)
-		pubEs = append(pubEs, de.PubE)
-
-		assignedMembers = append(assignedMembers, types.AssignedMember{
-			MemberID: mid,
-			Member:   member.Address,
-			PubD:     de.PubD,
-			PubE:     de.PubE,
-			PubNonce: nil,
-		})
-	}
-
-	return assignedMembers, pubDs, pubEs, nil
 }

@@ -92,11 +92,17 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 1")
 	}
 
+	// Get member
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Verify member
-	if !k.VerifyMember(ctx, groupID, memberID, req.Member) {
+	if !types.VerifyMember(member, req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not in this group",
+			"memberID %d address %s is not match in this group",
 			memberID,
 			req.Member,
 		)
@@ -200,11 +206,17 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 2")
 	}
 
+	// Get member
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Verify member
-	if !k.VerifyMember(ctx, groupID, memberID, req.Member) {
+	if !types.VerifyMember(member, req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not in this group",
+			"memberID %d address %s is not match in this group",
 			memberID,
 			req.Member,
 		)
@@ -222,12 +234,6 @@ func (k Keeper) SubmitDKGRound2(
 			types.ErrEncryptedSecretSharesNotCorrectLength,
 			"number of encrypted secret shares is not correct",
 		)
-	}
-
-	// Compute and store its own public key
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
-		return nil, err
 	}
 
 	// Compute own public key
@@ -295,12 +301,17 @@ func (k Keeper) Complain(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
+	// Get member
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Verify member
-	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
-	if !isMember {
+	if !types.VerifyMember(member, req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not in this group",
+			"memberID %d address %s is not match in this group",
 			memberID,
 			req.Member,
 		)
@@ -408,12 +419,17 @@ func (k Keeper) Confirm(
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group status is not round 3")
 	}
 
+	// Get member
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Verify member
-	isMember := k.VerifyMember(ctx, groupID, memberID, req.Member)
-	if !isMember {
+	if !types.VerifyMember(member, req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not in this group",
+			"memberID %d address %s is not match in this group",
 			memberID,
 			req.Member,
 		)
@@ -434,12 +450,6 @@ func (k Keeper) Confirm(
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	// Get malicious members
-	maliciousMembers, err := k.GetMaliciousMembers(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
 	// Set confirm
 	k.SetConfirm(ctx, groupID, types.Confirm{
 		MemberID:     memberID,
@@ -448,7 +458,13 @@ func (k Keeper) Confirm(
 
 	// Handle fallen group if everyone sends confirm or complains already.
 	if confirmComplainCount+1 == group.Size_ {
-		if len(maliciousMembers) == 0 {
+		// Get members to check malicious
+		members, err := k.GetMembers(ctx, groupID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !types.HaveMalicious(members) {
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
@@ -467,8 +483,7 @@ func (k Keeper) Confirm(
 
 			return nil, sdkerrors.Wrapf(
 				types.ErrConfirmFailed,
-				"memberIDs: %v is malicious",
-				maliciousMembers,
+				"have malicious in this group",
 			)
 		}
 
@@ -523,6 +538,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
+	// Get members in the group
 	members, err := k.GetMembers(ctx, req.GroupID)
 	if err != nil {
 		return nil, err
@@ -554,7 +570,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	// Compute binding factor and public nonce of each assigned member
 	var ownPubNonces tss.PublicKeys
 	for i, member := range assignedMembers {
-		// compute and assign binding factor and public nonce
+		// Compute and assign binding factor and public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
 			member.PubE,
@@ -573,6 +589,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
+	// Create signing struct
 	signing := types.Signing{
 		GroupID:         req.GroupID,
 		Message:         req.Message,
@@ -622,12 +639,29 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Get signing
 	signing, err := k.GetSigning(ctx, req.SigningID)
 	if err != nil {
 		return nil, err
 	}
 
-	// check member is already signed
+	// Get member
+	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify member
+	if !types.VerifyMember(member, req.Member) {
+		return nil, sdkerrors.Wrapf(
+			types.ErrMemberNotAuthorized,
+			"memberID %d address %s is not match in this group",
+			req.MemberID,
+			req.Member,
+		)
+	}
+
+	// Check member is already signed
 	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
 	if err == nil {
 		return nil, sdkerrors.Wrapf(
@@ -638,29 +672,26 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		)
 	}
 
-	// check signing already have signature
+	// Check signing already have signature
 	if signing.Sig != nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrSigningAlreadySuccess, "signing ID: %d is already have signature", req.SigningID,
 		)
 	}
 
+	// Get group
 	group, err := k.GetGroup(ctx, signing.GroupID)
 	if err != nil {
 		return nil, err
 	}
 
-	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
-	if err != nil {
-		return nil, err
-	}
-
-	// check sender not in assigned participants and verify signature R
 	var found bool
 	var mids []tss.MemberID
+	// Check sender not in assigned participants and verify signature R
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
 		if am.MemberID == req.MemberID {
+			// Found member in assigned members
 			found = true
 
 			// verify signature R
@@ -679,9 +710,10 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		)
 	}
 
+	// Compute lagrange coefficient
 	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
 
-	// verify signing signature
+	// Verify signing signature
 	err = tss.VerifySigningSig(
 		signing.GroupPubNonce,
 		group.PubKey,
@@ -694,6 +726,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, sdkerrors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
 	}
 
+	// Set partial signature
 	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Sig)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
@@ -710,15 +743,15 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			return nil, sdkerrors.Wrapf(types.ErrVerifyGroupSigningSigFailed, err.Error())
 		}
 
+		// Set signing with signature
 		signing.Sig = sig
 		k.SetSigning(ctx, signing)
 
-		// delete interims data
+		// Delete interims data
 		for _, am := range signing.AssignedMembers {
 			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
 		}
 
-		// emit sign success event
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeSignSuccess,
@@ -734,9 +767,9 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
+	// Delete this signing out of the pending sign
 	k.DeletePendingSign(ctx, accMember, req.SigningID)
 
-	// emit submit sign event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitSign,

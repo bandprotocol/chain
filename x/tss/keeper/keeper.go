@@ -162,15 +162,6 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
-// VerifyMember function verifies if a member is part of a group.
-func (k Keeper) VerifyMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, memberAddress string) bool {
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil || member.Address != memberAddress {
-		return false
-	}
-	return true
-}
-
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

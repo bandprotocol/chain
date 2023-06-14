@@ -1,28 +1,12 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
-
-// GetMaliciousMembers retrieves the malicious members within a group identified by groupID.
-func (k Keeper) GetMaliciousMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
-	var maliciousMembers []types.Member
-	members, err := k.GetMembers(ctx, groupID)
-	if err != nil {
-		return []types.Member{}, err
-	}
-
-	for _, m := range members {
-		if m.IsMalicious {
-			maliciousMembers = append(maliciousMembers, m)
-		}
-	}
-
-	return maliciousMembers, nil
-}
 
 // HandleVerifyComplainSig verifies the complain signature for a given groupID and complain.
 func (k Keeper) HandleVerifyComplain(
@@ -48,11 +32,8 @@ func (k Keeper) HandleVerifyComplain(
 		return err
 	}
 
-	// Find index J in encrypted secret shares
-	indexJ := complain.I - 1
-	if complain.J < complain.I {
-		indexJ -= 1
-	}
+	// Find member slot for encrypted secret shares
+	indexJ := types.FindMemberSlot(complain.J, complain.I)
 
 	// Verify the complain signature
 	err = tss.VerifyComplain(

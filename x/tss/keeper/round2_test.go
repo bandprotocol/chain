@@ -76,7 +76,6 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 	k.SetRound2Data(ctx, groupID, round2DataMember2)
 
 	got := k.GetAllRound2Data(ctx, groupID)
-	// Member3 expected nil value because didn't submit round2Data
 	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
 }
 

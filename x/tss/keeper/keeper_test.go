@@ -189,33 +189,6 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
-func (s *KeeperTestSuite) TestVerifyMember() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	members := []types.Member{
-		{
-			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
-			IsMalicious: false,
-		},
-		{
-			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
-			IsMalicious: false,
-		},
-	}
-
-	// Set members
-	for i, m := range members {
-		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
-	}
-
-	isMember1 := k.VerifyMember(ctx, groupID, tss.MemberID(1), "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	s.Require().True(isMember1)
-	isMember2 := k.VerifyMember(ctx, groupID, tss.MemberID(2), "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-	s.Require().True(isMember2)
-}
-
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

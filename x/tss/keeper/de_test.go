@@ -1,8 +1,10 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetDEQueue() {
@@ -115,4 +117,39 @@ func (s *KeeperTestSuite) TestPollDE() {
 	// Should return error
 	s.Require().ErrorIs(types.ErrDENotFound, err)
 	s.Require().Equal(types.DE{}, deletedDE)
+}
+
+func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	members := []types.Member{
+		{
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+		{
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+	}
+	des := []types.DE{
+		{
+			PubD: []byte("D1"),
+			PubE: []byte("E1"),
+		},
+		{
+			PubD: []byte("D2"),
+			PubE: []byte("E2"),
+		},
+	}
+
+	var accMembers []sdk.AccAddress
+	for _, m := range members {
+		acc, _ := sdk.AccAddressFromBech32(m.Address)
+		k.HandleSetDEs(ctx, acc, des)
+		accMembers = append(accMembers, acc)
+	}
+
+	// k.HandlePollDEForAssignedMembers(ctx, mid)
 }

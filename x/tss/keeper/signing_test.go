@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetSigningCount() {
@@ -372,8 +373,4 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)
 	s.Require().Error(err)
-}
-
-func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
-	// TODO
 }

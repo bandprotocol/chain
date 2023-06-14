@@ -8,32 +8,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetMaliciousMembers() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	memberID1 := tss.MemberID(1)
-	memberID2 := tss.MemberID(2)
-	member1 := types.Member{
-		Address:     "member_address_1",
-		PubKey:      []byte("pub_key"),
-		IsMalicious: true,
-	}
-	member2 := types.Member{
-		Address:     "member_address_2",
-		PubKey:      []byte("pub_key"),
-		IsMalicious: true,
-	}
-
-	// Set member
-	k.SetMember(ctx, groupID, memberID1, member1)
-	k.SetMember(ctx, groupID, memberID2, member2)
-
-	// Get malicious members
-	got, err := k.GetMaliciousMembers(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().Equal([]types.Member{member1, member2}, got)
-}
-
 func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
@@ -65,8 +39,8 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 
 			memberI := tc.Group.Members[0]
 			memberJ := tc.Group.Members[1]
-			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
-			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
+			iSlot := types.FindMemberSlot(memberI.ID, memberJ.ID)
+			jSlot := types.FindMemberSlot(memberJ.ID, memberI.ID)
 
 			// Failed case - correct encrypted secret share
 			err := k.HandleVerifyComplain(ctx, tc.Group.ID, types.Complain{
@@ -330,15 +304,12 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	err := k.MarkMalicious(ctx, groupID, memberID)
 	s.Require().NoError(err)
 
-	got, err := k.GetMaliciousMembers(ctx, groupID)
+	// Get members
+	members, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
-	s.Require().Equal([]types.Member{
-		{
-			Address:     "member_address",
-			PubKey:      []byte("pub_key"),
-			IsMalicious: true,
-		},
-	}, got)
+
+	got := types.HaveMalicious(members)
+	s.Require().Equal(got, true)
 }
 
 func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
