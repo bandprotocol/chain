@@ -191,7 +191,12 @@ func (m MsgComplain) ValidateBasic() error {
 	for i, c := range m.Complains {
 		// Validate member I
 		if i > 0 && memberI != c.I {
-			return sdkerrors.Wrap(fmt.Errorf("member I in the list of complains must be the same value"), "I")
+			return sdkerrors.Wrap(fmt.Errorf("memberID I in the list of complains must be the same value"), "I")
+		}
+
+		// Validate member I and J
+		if c.I == c.J {
+			return sdkerrors.Wrap(fmt.Errorf("memberID I and J can not be the same value"), "I, J")
 		}
 
 		// Validate key sym
