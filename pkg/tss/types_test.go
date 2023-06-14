@@ -48,13 +48,13 @@ func (suite *TSSTestSuite) TestScalar() {
 			nil,
 		},
 		{
-			"failed - invalid length - less length",
+			"failed - less length",
 			testutil.HexDecode("00"),
 			nil,
 			tss.ErrInvalidLength,
 		},
 		{
-			"failed - invalid length - more length",
+			"failed - more length",
 			testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000001"),
 			nil,
 			tss.ErrInvalidLength,
@@ -171,12 +171,12 @@ func (suite *TSSTestSuite) TestParsePoint() {
 
 func (suite *TSSTestSuite) TestPoint() {
 	tests := []struct {
-		name     string
-		point    tss.Point
-		expX     []byte
-		expY     []byte
-		expZ     []byte
-		expError error
+		name          string
+		point         tss.Point
+		expParseX     []byte
+		expParseY     []byte
+		expParseZ     []byte
+		expParseError error
 	}{
 		{
 			"success",
@@ -208,12 +208,12 @@ func (suite *TSSTestSuite) TestPoint() {
 		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
 			point, err := t.point.Parse()
 
-			if t.expError != nil {
-				suite.Require().ErrorIs(err, t.expError)
+			if t.expParseError != nil {
+				suite.Require().ErrorIs(err, t.expParseError)
 			} else {
-				suite.Require().Equal(t.expX, point.X.Bytes()[:])
-				suite.Require().Equal(t.expY, point.Y.Bytes()[:])
-				suite.Require().Equal(t.expZ, point.Z.Bytes()[:])
+				suite.Require().Equal(t.expParseX, point.X.Bytes()[:])
+				suite.Require().Equal(t.expParseY, point.Y.Bytes()[:])
+				suite.Require().Equal(t.expParseZ, point.Z.Bytes()[:])
 			}
 		})
 	}
@@ -221,12 +221,12 @@ func (suite *TSSTestSuite) TestPoint() {
 
 func (suite *TSSTestSuite) TestPoints() {
 	tests := []struct {
-		name     string
-		points   tss.Points
-		expXs    [][]byte
-		expYs    [][]byte
-		expZs    [][]byte
-		expError error
+		name          string
+		points        tss.Points
+		expParseXs    [][]byte
+		expParseYs    [][]byte
+		expParseZs    [][]byte
+		expParseError error
 	}{
 		{
 			"success - one element",
@@ -290,13 +290,13 @@ func (suite *TSSTestSuite) TestPoints() {
 		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
 			points, err := t.points.Parse()
 
-			if t.expError != nil {
-				suite.Require().ErrorIs(err, t.expError)
+			if t.expParseError != nil {
+				suite.Require().ErrorIs(err, t.expParseError)
 			} else {
 				for i, p := range points {
-					suite.Require().Equal(t.expXs[i], p.X.Bytes()[:])
-					suite.Require().Equal(t.expYs[i], p.Y.Bytes()[:])
-					suite.Require().Equal(t.expZs[i], p.Z.Bytes()[:])
+					suite.Require().Equal(t.expParseXs[i], p.X.Bytes()[:])
+					suite.Require().Equal(t.expParseYs[i], p.Y.Bytes()[:])
+					suite.Require().Equal(t.expParseZs[i], p.Z.Bytes()[:])
 				}
 			}
 		})
@@ -330,6 +330,104 @@ func (suite *TSSTestSuite) TestParsePrivateKey() {
 		suite.Run(fmt.Sprintf("from secp256k1.PrivateKey: %s", t.name), func() {
 			privKey := tss.ParsePrivateKey(secp256k1.NewPrivateKey(t.scalar))
 			suite.Require().Equal(t.expPrivKey, privKey)
+		})
+	}
+}
+
+func (suite *TSSTestSuite) TestPrivateKey() {
+	tests := []struct {
+		name           string
+		privKey        tss.PrivateKey
+		expParse       *secp256k1.PrivateKey
+		expParseError  error
+		expScalar      *secp256k1.ModNScalar
+		expScalarError error
+	}{
+		{
+			"success",
+			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+			secp256k1.NewPrivateKey(new(secp256k1.ModNScalar).SetInt(1)),
+			nil,
+			new(secp256k1.ModNScalar).SetInt(1),
+			nil,
+		},
+		{
+			"failed - invalid length - less length",
+			testutil.HexDecode("00"),
+			nil,
+			tss.ErrInvalidLength,
+			nil,
+			tss.ErrInvalidLength,
+		},
+		{
+			"failed - invalid length - more length",
+			testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000001"),
+			nil,
+			tss.ErrInvalidLength,
+			nil,
+			tss.ErrInvalidLength,
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
+			privKey, err := t.privKey.Parse()
+			suite.Require().ErrorIs(err, t.expParseError)
+			suite.Require().Equal(t.expParse, privKey)
+		})
+
+		suite.Run(fmt.Sprintf("Parse scalar: %s", t.name), func() {
+			scalar, err := t.privKey.Scalar()
+			suite.Require().ErrorIs(err, t.expScalarError)
+			suite.Require().Equal(t.expScalar, scalar)
+		})
+	}
+}
+
+func (suite *TSSTestSuite) TestPrivateKeys() {
+	tests := []struct {
+		name          string
+		privKeys      tss.PrivateKeys
+		expParse      []*secp256k1.PrivateKey
+		expParseError error
+	}{
+		{
+			"success",
+			tss.PrivateKeys{
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
+			},
+			[]*secp256k1.PrivateKey{
+				secp256k1.NewPrivateKey(new(secp256k1.ModNScalar).SetInt(1)),
+				secp256k1.NewPrivateKey(new(secp256k1.ModNScalar).SetInt(2)),
+			},
+			nil,
+		},
+		{
+			"failed - invalid length - less length",
+			tss.PrivateKeys{
+				testutil.HexDecode("00"),
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
+			},
+			nil,
+			tss.ErrInvalidLength,
+		},
+		{
+			"failed - invalid length - more length",
+			tss.PrivateKeys{
+				testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000001"),
+				testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
+			},
+			nil,
+			tss.ErrInvalidLength,
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Parse: %s", t.name), func() {
+			privKeys, err := t.privKeys.Parse()
+			suite.Require().ErrorIs(err, t.expParseError)
+			suite.Require().Equal(t.expParse, privKeys)
 		})
 	}
 }
