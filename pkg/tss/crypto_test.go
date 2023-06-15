@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func (suite *TSSTestSuite) TestEncryptAndDecrypt() {
@@ -131,49 +132,50 @@ func (suite *TSSTestSuite) TestI2OSP() {
 func (suite *TSSTestSuite) TestOS2IP() {
 	tests := []struct {
 		x    []byte
-		want uint
+		want string
 	}{
 		{
 			// zero length string
 			x:    []byte{},
-			want: 0,
+			want: "0",
 		},
 		{
 			// OS2IP(I2OSP(0, 2))
 			x:    []byte{0x00, 0x00},
-			want: 0,
+			want: "0",
 		},
 		{
 			// OS2IP(I2OSP(1, 2))
 			x:    []byte{0x00, 0x01},
-			want: 1,
+			want: "1",
 		},
 		{
 			// OS2IP(I2OSP(255, 2))
 			x:    []byte{0x00, 0xff},
-			want: 255,
+			want: "255",
 		},
 		{
 			// OS2IP(I2OSP(256, 2))
 			x:    []byte{0x01, 0x00},
-			want: 256,
+			want: "256",
 		},
 		{
 			// OS2IP(I2OSP(65535, 2))
 			x:    []byte{0xff, 0xff},
-			want: 65535,
+			want: "65535",
 		},
 		{
 			// OS2IP(I2OSP(1234, 5))
 			x:    []byte{0x00, 0x00, 0x00, 0x04, 0xd2},
-			want: 1234,
+			want: "1234",
 		},
 	}
 	for _, tt := range tests {
-		suite.Require().Equal(tt.want, tss.OS2IP(tt.x))
+		suite.Require().Equal(tt.want, tss.OS2IP(tt.x).String())
 	}
 }
 
+// Using test vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-expand_message_xmdsha-256
 func (suite *TSSTestSuite) TestExpandMessageXMD() {
 	hashSha256 := func(data ...[]byte) []byte {
 		var combined []byte
@@ -309,6 +311,106 @@ func (suite *TSSTestSuite) TestExpandMessageXMD() {
 			suite.Require().Equal(tt.wantUniformBytes, fmt.Sprintf("%x", uniformBytes))
 		} else {
 			suite.Require().EqualError(err, tt.wantErr)
+		}
+	}
+}
+
+// Using test vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-secp256k1
+func (suite *TSSTestSuite) TestH_M1_L48() {
+	p := crypto.S256().Params().P
+	hashSha256 := func(data ...[]byte) []byte {
+		var combined []byte
+		for _, d := range data {
+			combined = append(combined, d...)
+		}
+		hash := sha256.Sum256(combined)
+		return hash[:]
+	}
+	tests := []struct {
+		msg    []byte
+		count  int
+		DST    string
+		wantU0 string
+		wantU1 string
+	}{
+		{
+			msg:    []byte{},
+			count:  2,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_RO_",
+			wantU0: "6b0f9910dd2ba71c78f2ee9f04d73b5f4c5f7fc773a701abea1e573cab002fb3",
+			wantU1: "1ae6c212e08fe1a5937f6202f929a2cc8ef4ee5b9782db68b0d5799fd8f09e16",
+		},
+		{
+			msg:    []byte("abc"),
+			count:  2,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_RO_",
+			wantU0: "128aab5d3679a1f7601e3bdf94ced1f43e491f544767e18a4873f397b08a2b61",
+			wantU1: "5897b65da3b595a813d0fdcc75c895dc531be76a03518b044daaa0f2e4689e00",
+		},
+		{
+			msg:    []byte("abcdef0123456789"),
+			count:  2,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_RO_",
+			wantU0: "ea67a7c02f2cd5d8b87715c169d055a22520f74daeb080e6180958380e2f98b9",
+			wantU1: "7434d0d1a500d38380d1f9615c021857ac8d546925f5f2355319d823a478da18",
+		},
+		{
+			msg:    []byte("q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"),
+			count:  2,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_RO_",
+			wantU0: "eda89a5024fac0a8207a87e8cc4e85aa3bce10745d501a30deb87341b05bcdf5",
+			wantU1: "dfe78cd116818fc2c16f3837fedbe2639fab012c407eac9dfe9245bf650ac51d",
+		},
+		{
+			msg:    []byte("a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+			count:  2,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_RO_",
+			wantU0: "8d862e7e7e23d7843fe16d811d46d7e6480127a6b78838c277bca17df6900e9f",
+			wantU1: "68071d2530f040f081ba818d3c7188a94c900586761e9115efa47ae9bd847938",
+		},
+		{
+			msg:    []byte{},
+			count:  1,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_NU_",
+			wantU0: "0137fcd23bc3da962e8808f97474d097a6c8aa2881fceef4514173635872cf3b",
+		},
+		{
+			msg:    []byte("abc"),
+			count:  1,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_NU_",
+			wantU0: "e03f894b4d7caf1a50d6aa45cac27412c8867a25489e32c5ddeb503229f63a2e",
+		},
+		{
+			msg:    []byte("abcdef0123456789"),
+			count:  1,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_NU_",
+			wantU0: "e7a6525ae7069ff43498f7f508b41c57f80563c1fe4283510b322446f32af41b",
+		},
+		{
+			msg:    []byte("q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"),
+			count:  1,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_NU_",
+			wantU0: "d97cf3d176a2f26b9614a704d7d434739d194226a706c886c5c3c39806bc323c",
+		},
+		{
+			msg:    []byte("a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+			count:  1,
+			DST:    "QUUX-V01-CS02-with-secp256k1_XMD:SHA-256_SSWU_NU_",
+			wantU0: "a9ffbeee1d6e41ac33c248fb3364612ff591b502386c1bf6ac4aaf1ea51f8c3b",
+		},
+	}
+	for _, tt := range tests {
+		result, err := tss.H_M1_L48(hashSha256, tt.count, p, tt.msg, tt.DST)
+		suite.Require().NoError(err)
+		if tt.count == 1 {
+			u0 := result[0][0].Text(16)
+			if len(u0)%2 != 0 {
+				u0 = "0" + u0
+			}
+			suite.Require().Equal(tt.wantU0, u0)
+		} else if tt.count == 2 {
+			suite.Require().Equal(tt.wantU0, result[0][0].Text(16))
+			suite.Require().Equal(tt.wantU1, result[1][0].Text(16))
 		}
 	}
 }
