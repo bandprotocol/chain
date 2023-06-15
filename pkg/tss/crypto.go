@@ -2,10 +2,13 @@ package tss
 
 import (
 	"errors"
+	"math/big"
 	"math/bits"
 
 	"github.com/ethereum/go-ethereum/crypto"
 )
+
+var ContextStringConst = "TSSLib-secp256k1-SHA256-v0"
 
 // Encrypt encrypts the given value using the key.
 // encrypted value = Hash(key) + value
@@ -74,15 +77,9 @@ func I2OSP(x, xLen int) ([]byte, error) {
 // OS2IP - Octet-String-to-Integer primitive converts an octet string to a
 // nonnegative integer.
 // Reference: https://datatracker.ietf.org/doc/html/rfc8017#section-4.2
-func OS2IP(X []byte) uint {
-	var x uint
-
-	for i := 0; i < len(X); i++ {
-		x <<= 8
-		x |= uint(X[i])
-	}
-
-	return x
+func OS2IP(buf []byte) *big.Int {
+	// SetBytes interprets buf as the bytes of a big-endian unsigned integer.
+	return new(big.Int).SetBytes(buf)
 }
 
 // strxor performs a bitwise XOR operation on two byte slices of equal length.
@@ -105,6 +102,28 @@ func strxor(str1, str2 []byte) ([]byte, error) {
 	return xor, nil
 }
 
+// ExpandMessageXMD generates a uniformly random byte string using a cryptographic hash function H that outputs b bits.
+//
+// Requirements:
+//   - H should output b bits where b >= 2 * k (k is the target security level in bits) and b is divisible by 8.
+//     This ensures k-bit collision resistance and uniformity of output.
+//   - H could be a Merkle-Damgaard hash function like SHA-2, a sponge-based hash function like SHA-3 or BLAKE2,
+//     or any hash function that is indifferentiable from a random oracle.
+//   - Recommended choices for H are SHA-2 and SHA-3. For a 128-bit security level, b >= 256 bits and either SHA-256
+//     or SHA3-256 would be appropriate.
+//   - H should ingest fixed-length blocks of data. The length in bits of these blocks is the input block size (s).
+//     H requires b <= s for correctness.
+//
+// Parameters:
+// - H: A hash function.
+// - msg: Input byte string.
+// - DST: Domain Separation Tag, a byte string of at most 255 bytes.
+// - lenInBytes: Length of the requested output in bytes, not greater than the lesser of (255 * b_in_bytes) or 2^16-1.
+//
+// This function returns a byte string of length lenInBytes that is uniformly random and independent of msg,
+// provided H meets the requirements above.
+//
+// https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-expand_message_xmd
 func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len_in_bytes int) ([]byte, error) {
 	// b_in_bytes, b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32
 	b_in_bytes := 32
@@ -168,4 +187,136 @@ func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len
 
 	// 12. return substr(uniform_bytes, 0, len_in_bytes)
 	return b[:len_in_bytes], nil
+}
+
+// HashToField is a function that hashes an input message into a set of field elements.
+// It is designed to be efficient for certain extension fields, specifically fields of the form GF(p^m).
+//
+// Parameters:
+// - msg: The input message to be hashed.
+// - count: The number of field elements to output.
+// - p: The characteristic of the finite field F.
+// - m: The extension degree of the finite field F.
+// - L: A parameter defined as ceil((ceil(log2(p)) + k) / 8), where k is the security parameter of the suite.
+// - expand: A function that expands a byte string into a uniformly random byte string.
+//
+// The function generates field elements that are uniformly random except with bias at most 2^-k,
+// where k is the security parameter. It does not use rejection sampling and is designed to be
+// amenable to straight line implementations.
+//
+// The function may fail (abort) if the expand function fails.
+//
+// Returns:
+// - A slice of field elements, each represented as a *big.Int.
+// - An error if the expand function returns an error.
+//
+// https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#section-5.1
+func HashToField(msg []byte, count int, p *big.Int, m int, L int, expand func([]byte, int) ([]byte, error)) ([][]*big.Int, error) {
+	// 1. len_in_bytes = count * m * L
+	lenInBytes := count * m * L
+	// 2. uniform_bytes = expand_message(msg, DST, len_in_bytes)
+	uniformBytes, err := expand(msg, lenInBytes)
+	if err != nil {
+		return nil, err
+	}
+	uVals := make([][]*big.Int, count)
+	// 3. for i in (0, ..., count - 1):
+	for i := 0; i < count; i++ {
+		eVals := make([]*big.Int, m)
+		// 4. for j in (0, ..., m - 1):
+		for j := 0; j < m; j++ {
+			// 5. elm_offset = L * (j + i * m)
+			elmOffset := L * (j + i*m)
+			// 6. tv = substr(uniform_bytes, elm_offset, L)
+			tv := uniformBytes[elmOffset : elmOffset+L]
+			tvInt := OS2IP(tv)
+			// 7. e_j = OS2IP(tv) mod p
+			eVals[j] = tvInt.Mod(tvInt, p)
+		}
+		// 8. u_i = (e_0, ..., e_(m - 1))
+		uVals[i] = eVals
+	}
+	// 9. return (u_0, ..., u_(count - 1))
+	return uVals, nil
+}
+
+// H_M1_L48 is a helper function that hashes an input message into a set of field elements.
+// It uses a hash function H and an expand function defined by the ExpandMessageXMD method.
+//
+// Parameters:
+//   - H: A function that takes a variable number of byte slices and returns a byte slice.
+//     This function is used as the hash function in the ExpandMessageXMD method.
+//   - count: The number of field elements to produce.
+//   - p: The prime number defining the finite field.
+//   - msg: The input message to be hashed.
+//   - contextString: A domain separation string for the ExpandMessageXMD method.
+//
+// The function first defines an expand function that uses the provided hash function H and
+// the domain separation string. It then calls the HashToField function with this expand function
+// and the other parameters to produce the field elements.
+//
+// Returns:
+// - A slice of field elements, each represented as a *big.Int.
+// - An error if the HashToField function returns an error.
+func H_M1_L48(H func(data ...[]byte) []byte, count int, p *big.Int, msg []byte, contextString string) ([][]*big.Int, error) {
+	expand := func(message []byte, lenInBytes int) ([]byte, error) {
+		DST := []byte(contextString)
+		return ExpandMessageXMD(H, message, DST, lenInBytes)
+	}
+	m := 1
+	L := 48
+	fieldElements, err := HashToField(msg, count, p, m, L, expand)
+	if err != nil {
+		return nil, err
+	}
+	return fieldElements, nil
+}
+
+// Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// DST = contextString || "rho", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
+func H1(msg []byte) ([]byte, error) {
+	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"rho")
+	if err != nil {
+		return nil, err
+	}
+	if len(result) == 0 || len(result[0]) == 0 {
+		return nil, errors.New("H1: got an empty result from HashToField")
+	}
+	return result[0][0].Bytes(), err
+}
+
+// H2(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// DST = contextString || "chal", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
+func H2(msg []byte) ([]byte, error) {
+	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"chal")
+	if err != nil {
+		return nil, err
+	}
+	if len(result) == 0 || len(result[0]) == 0 {
+		return nil, errors.New("H2: got an empty result from HashToField")
+	}
+	return result[0][0].Bytes(), err
+}
+
+// H3(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// DST = contextString || "nonce", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
+func H3(msg []byte) ([]byte, error) {
+	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"nonce")
+	if err != nil {
+		return nil, err
+	}
+	if len(result) == 0 || len(result[0]) == 0 {
+		return nil, errors.New("H3: got an empty result from HashToField")
+	}
+	return result[0][0].Bytes(), err
+}
+
+// H4(m): Implemented by computing H(contextString || "msg" || m).
+func H4(msg []byte) []byte {
+	return Hash(append([]byte(ContextStringConst+"msg"), msg...))
+}
+
+// H5(m): Implemented by computing H(contextString || "com" || m).
+func H5(msg []byte) []byte {
+	return Hash(append([]byte(ContextStringConst+"com"), msg...))
 }
