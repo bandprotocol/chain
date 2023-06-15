@@ -16,9 +16,9 @@ type Member struct {
 	SecretShares    tss.Scalars
 	EncSecretShares tss.Scalars
 
-	PrivKey      tss.PrivateKey
-	PubKeySig    tss.Signature
-	ComplainSigs tss.ComplainSignatures
+	PrivKey       tss.PrivateKey
+	PubKeySig     tss.Signature
+	ComplaintSigs tss.ComplaintSignatures
 }
 
 func (m Member) OneTimePubKey() tss.PublicKey {
@@ -47,7 +47,7 @@ func CopyMember(src Member) Member {
 		EncSecretShares:    CopySlice(src.EncSecretShares),
 		PrivKey:            Copy(src.PrivKey),
 		PubKeySig:          Copy(src.PubKeySig),
-		ComplainSigs:       CopySlice(src.ComplainSigs),
+		ComplaintSigs:      CopySlice(src.ComplaintSigs),
 	}
 }
 

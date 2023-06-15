@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-// TestComplainSignatureParsing ensures that complain signatures are properly parsed including
+// TestComplaintSignatureParsing ensures that complaint signatures are properly parsed including
 // error paths.
-func TestComplainSignatureParsing(t *testing.T) {
+func TestComplaintSignatureParsing(t *testing.T) {
 	tests := []struct {
 		name string // test description
 		sig  string // hex encoded signature to parse
@@ -71,7 +71,7 @@ func TestComplainSignatureParsing(t *testing.T) {
 	}}
 
 	for _, test := range tests {
-		_, err := ParseComplainSignature(hexToBytes(test.sig))
+		_, err := ParseComplaintSignature(hexToBytes(test.sig))
 		if !errors.Is(err, test.err) {
 			t.Errorf("%s mismatched err -- got %v, want %v", test.name, err,
 				test.err)

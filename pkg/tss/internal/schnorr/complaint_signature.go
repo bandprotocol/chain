@@ -7,40 +7,40 @@ import (
 )
 
 const (
-	// ComplainSignatureSize is the size of an encoded complain signature.
-	ComplainSignatureSize = 98
+	// ComplaintSignatureSize is the size of an encoded complaint signature.
+	ComplaintSignatureSize = 98
 )
 
-// ComplainSignature is a type representing a complain signature.
-type ComplainSignature struct {
+// ComplaintSignature is a type representing a complaint signature.
+type ComplaintSignature struct {
 	A1 secp256k1.JacobianPoint
 	A2 secp256k1.JacobianPoint
 	Z  secp256k1.ModNScalar
 }
 
-// NewComplainSignature instantiates a new complain signature given some a1, a2 and z values.
-func NewComplainSignature(
+// NewComplaintSignature instantiates a new complaint signature given some a1, a2 and z values.
+func NewComplaintSignature(
 	a1 *secp256k1.JacobianPoint,
 	a2 *secp256k1.JacobianPoint,
 	z *secp256k1.ModNScalar,
-) *ComplainSignature {
-	var sig ComplainSignature
+) *ComplaintSignature {
+	var sig ComplaintSignature
 	sig.A1.Set(a1)
 	sig.A2.Set(a2)
 	sig.Z.Set(z)
 	return &sig
 }
 
-// Serialize returns the complain signature in the more strict format.
+// Serialize returns the complaint signature in the more strict format.
 //
 // The signatures are encoded as:
 //
 //	bytes at 0-32  jacobian point R with z as 1 (A1), encoded by SerializeCompressed of secp256k1.PublicKey
 //	bytes at 33-65  jacobian point R with z as 1 (A2), encoded by SerializeCompressed of secp256k1.PublicKey
 //	bytes at 66-97 s, encoded also as big-endian uint256 (Z)
-func (sig ComplainSignature) Serialize() []byte {
+func (sig ComplaintSignature) Serialize() []byte {
 	// Total length of returned signature is the length of a1, a2 and z.
-	var b [ComplainSignatureSize]byte
+	var b [ComplaintSignatureSize]byte
 	// Make z = 1
 	sig.A1.ToAffine()
 	sig.A2.ToAffine()
@@ -55,33 +55,33 @@ func (sig ComplainSignature) Serialize() []byte {
 	return b[:]
 }
 
-// ParseComplainSignature parses a signature from bytes
+// ParseComplaintSignature parses a signature from bytes
 //
 // - The a1 component must be in the valid range for secp256k1 field elements
 // - The a2 component must be in the valid range for secp256k1 field elements
 // - The s component must be in the valid range for secp256k1 scalars
-func ParseComplainSignature(sig []byte) (*ComplainSignature, error) {
+func ParseComplaintSignature(sig []byte) (*ComplaintSignature, error) {
 	// The signature must be the correct length.
 	sigLen := len(sig)
-	if sigLen < ComplainSignatureSize {
-		str := fmt.Sprintf("malformed complain signature: too short: %d < %d", sigLen,
-			ComplainSignatureSize)
+	if sigLen < ComplaintSignatureSize {
+		str := fmt.Sprintf("malformed complaint signature: too short: %d < %d", sigLen,
+			ComplaintSignatureSize)
 		return nil, signatureError(ErrSigTooShort, str)
 	}
-	if sigLen > ComplainSignatureSize {
-		str := fmt.Sprintf("malformed complain signature: too long: %d > %d", sigLen,
-			ComplainSignatureSize)
+	if sigLen > ComplaintSignatureSize {
+		str := fmt.Sprintf("malformed complaint signature: too long: %d > %d", sigLen,
+			ComplaintSignatureSize)
 		return nil, signatureError(ErrSigTooLong, str)
 	}
 
 	// The signature is validly encoded at this point, however, enforce
 	// additional restrictions to ensure a1 and a2 are the valid jacobian point, and z is in
-	// the range [0, n-1] since valid complain signatures are required to be in
+	// the range [0, n-1] since valid complaint signatures are required to be in
 	// that range per spec.
 	var a1 secp256k1.JacobianPoint
 	pubKey, err := secp256k1.ParsePubKey(sig[0:33])
 	if err != nil {
-		str := fmt.Sprintf("invalid complain signature: a1 is not valid: %s", err.Error())
+		str := fmt.Sprintf("invalid complaint signature: a1 is not valid: %s", err.Error())
 		return nil, signatureError(ErrSigA1TooBig, str)
 	}
 	pubKey.AsJacobian(&a1)
@@ -89,17 +89,17 @@ func ParseComplainSignature(sig []byte) (*ComplainSignature, error) {
 	var a2 secp256k1.JacobianPoint
 	pubKey, err = secp256k1.ParsePubKey(sig[33:66])
 	if err != nil {
-		str := fmt.Sprintf("invalid complain signature: a2 is not valid: %s", err.Error())
+		str := fmt.Sprintf("invalid complaint signature: a2 is not valid: %s", err.Error())
 		return nil, signatureError(ErrSigA2TooBig, str)
 	}
 	pubKey.AsJacobian(&a2)
 
 	var z secp256k1.ModNScalar
 	if overflow := z.SetByteSlice(sig[66:98]); overflow {
-		str := "invalid complain signature: z >= group order"
+		str := "invalid complaint signature: z >= group order"
 		return nil, signatureError(ErrSigZTooBig, str)
 	}
 
-	// Return the complain signature.
-	return NewComplainSignature(&a1, &a2, &z), nil
+	// Return the complaint signature.
+	return NewComplaintSignature(&a1, &a2, &z), nil
 }
