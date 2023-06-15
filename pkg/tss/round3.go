@@ -150,18 +150,18 @@ func generateMessageOwnPublicKey(mid MemberID, dkgContext []byte, ownPub PublicK
 	return ConcatBytes([]byte("round3OwnPubKey"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, ownPub)
 }
 
-// SignComplain generates a signature and related parameters for complaining against a misbehaving member.
-func SignComplain(
+// SignComplaint generates a signature and related parameters for complaining against a misbehaving member.
+func SignComplaint(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
 	oneTimePrivI PrivateKey,
-) (ComplainSignature, PublicKey, error) {
+) (ComplaintSignature, PublicKey, error) {
 	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
 		return nil, nil, NewError(err, "compute key sym")
 	}
 
-	msg := generateMessageComplain(oneTimePubI, oneTimePubJ, keySym)
+	msg := generateMessageComplaint(oneTimePubI, oneTimePubJ, keySym)
 	nonce, pubNonce := GenerateNonce(oneTimePrivI, Hash(msg))
 
 	nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
@@ -174,27 +174,27 @@ func SignComplain(
 		return nil, nil, NewError(err, "sign")
 	}
 
-	complainSig, err := NewComplainSignature(sig.R(), Point(nonceSym), sig.S())
+	complaintSig, err := NewComplaintSignature(sig.R(), Point(nonceSym), sig.S())
 	if err != nil {
-		return nil, nil, NewError(err, "create complain signature")
+		return nil, nil, NewError(err, "create complaint signature")
 	}
 
-	return complainSig, keySym, nil
+	return complaintSig, keySym, nil
 }
 
-// VerifyComplain verifies the complaint using the complain signature and encrypted secret share.
-func VerifyComplain(
+// VerifyComplaint verifies the complaint using the complaint signature and encrypted secret share.
+func VerifyComplaint(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
 	keySym PublicKey,
-	complainSig ComplainSignature,
+	complaintSig ComplaintSignature,
 	encSecretShare Scalar,
 	midI MemberID,
 	commits Points,
 ) error {
-	err := VerifyComplainSig(oneTimePubI, oneTimePubJ, keySym, complainSig)
+	err := VerifyComplaintSig(oneTimePubI, oneTimePubJ, keySym, complaintSig)
 	if err != nil {
-		return NewError(err, "verify complain signature")
+		return NewError(err, "verify complaint signature")
 	}
 
 	secretShare, err := DecryptSecretShare(encSecretShare, keySym)
@@ -210,24 +210,28 @@ func VerifyComplain(
 	return nil
 }
 
-// VerifyComplainSig verifies the signature of a complaint using the given parameters.
-func VerifyComplainSig(
+// VerifyComplaintSig verifies the signature of a complaint using the given parameters.
+func VerifyComplaintSig(
 	oneTimePubI PublicKey,
 	oneTimePubJ PublicKey,
 	keySym PublicKey,
-	complainSig ComplainSignature,
+	complaintSig ComplaintSignature,
 ) error {
-	msg := ConcatBytes(complainSig.A1(), complainSig.A2(), generateMessageComplain(oneTimePubI, oneTimePubJ, keySym))
+	msg := ConcatBytes(
+		complaintSig.A1(),
+		complaintSig.A2(),
+		generateMessageComplaint(oneTimePubI, oneTimePubJ, keySym),
+	)
 
-	err := Verify(complainSig.A1(), complainSig.Z(), msg, oneTimePubI, nil, nil)
+	err := Verify(complaintSig.A1(), complaintSig.Z(), msg, oneTimePubI, nil, nil)
 	if err != nil {
 		return NewError(err, "verify")
 	}
 
-	return Verify(complainSig.A2(), complainSig.Z(), msg, keySym, Point(oneTimePubJ), nil)
+	return Verify(complaintSig.A2(), complaintSig.Z(), msg, keySym, Point(oneTimePubJ), nil)
 }
 
-// generateMessageComplain generates the message for verifying a complaint signature.
-func generateMessageComplain(oneTimePubI PublicKey, oneTimePubJ PublicKey, keySym PublicKey) []byte {
+// generateMessageComplaint generates the message for verifying a complaint signature.
+func generateMessageComplaint(oneTimePubI PublicKey, oneTimePubJ PublicKey, keySym PublicKey) []byte {
 	return ConcatBytes([]byte("round3Complain"), oneTimePubJ, oneTimePubJ, keySym)
 }
