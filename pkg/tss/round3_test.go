@@ -137,35 +137,35 @@ func (suite *TSSTestSuite) TestVerifyOwnPubKeySig() {
 	})
 }
 
-func (suite *TSSTestSuite) TestSignComplain() {
+func (suite *TSSTestSuite) TestSignComplaint() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
-			sig, keySym, err := tss.SignComplain(
+			sig, keySym, err := tss.SignComplaint(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.OneTimePrivKey,
 			)
 			suite.Require().NoError(err)
 			suite.Require().
-				Equal(memberI.ComplainSigs[testutil.GetSlot(memberI.ID, memberJ.ID)], sig)
+				Equal(memberI.ComplaintSigs[testutil.GetSlot(memberI.ID, memberJ.ID)], sig)
 			suite.Require().
 				Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
 		})
 }
 
-func (suite *TSSTestSuite) TestVerifyComplain() {
+func (suite *TSSTestSuite) TestVerifyComplaint() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
 			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
 			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
 			// Success case - wrong encrypted secret share
-			err := tss.VerifyComplain(
+			err := tss.VerifyComplaint(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[iSlot],
-				memberI.ComplainSigs[iSlot],
+				memberI.ComplaintSigs[iSlot],
 				testutil.FakePrivKey,
 				memberI.ID,
 				memberJ.CoefficientsCommit,
@@ -173,11 +173,11 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 			suite.Require().NoError(err)
 
 			// Failed case - correct encrypted secret share
-			err = tss.VerifyComplain(
+			err = tss.VerifyComplaint(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[iSlot],
-				memberI.ComplainSigs[iSlot],
+				memberI.ComplaintSigs[iSlot],
 				memberJ.EncSecretShares[jSlot],
 				memberI.ID,
 				memberJ.CoefficientsCommit,
@@ -186,53 +186,53 @@ func (suite *TSSTestSuite) TestVerifyComplain() {
 		})
 }
 
-func (suite *TSSTestSuite) TestVerifyComplainSig() {
+func (suite *TSSTestSuite) TestVerifyComplaintSig() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
 			slot := testutil.GetSlot(memberI.ID, memberJ.ID)
 			// Success case
-			err := tss.VerifyComplainSig(
+			err := tss.VerifyComplaintSig(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				memberI.ComplainSigs[slot],
+				memberI.ComplaintSigs[slot],
 			)
 			suite.Require().NoError(err)
 
 			// Wrong public key I case
-			err = tss.VerifyComplainSig(
+			err = tss.VerifyComplaintSig(
 				testutil.FakePubKey,
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				memberI.ComplainSigs[slot],
+				memberI.ComplaintSigs[slot],
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong public key J case
-			err = tss.VerifyComplainSig(
+			err = tss.VerifyComplaintSig(
 				memberI.OneTimePubKey(),
 				testutil.FakePubKey,
 				memberI.KeySyms[slot],
-				memberI.ComplainSigs[slot],
+				memberI.ComplaintSigs[slot],
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
-			err = tss.VerifyComplainSig(
+			err = tss.VerifyComplaintSig(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				testutil.FakePubKey,
-				memberI.ComplainSigs[slot],
+				memberI.ComplaintSigs[slot],
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong signature case
-			err = tss.VerifyComplainSig(
+			err = tss.VerifyComplaintSig(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[slot],
-				testutil.FakeComplainSig,
+				testutil.FakeComplaintSig,
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})

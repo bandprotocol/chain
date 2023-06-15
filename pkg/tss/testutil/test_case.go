@@ -22,7 +22,7 @@ var (
 	FakeSig     = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
-	FakeComplainSig = HexDecode(
+	FakeComplaintSig = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
 	FakeLagrange = HexDecode(
@@ -68,7 +68,7 @@ var (
 						PubKeySig: HexDecode(
 							"02bf7d39a54f6d468ce71317e2d5cc87c34c4ef11ee2b6638f57b435dadd7a976520e65c8e296ff1570ad0bb4a5f18557126642e76cbda0f6ffd4a546ea4651ef8",
 						),
-						ComplainSigs: tss.ComplainSignatures{
+						ComplaintSigs: tss.ComplaintSignatures{
 							HexDecode(
 								"02a55f7d417d1b51d91e6097473f00f528291aaa0dd11733e83eb85680ed5d4e36034946dba60574e576aef1c252e48db7c2c40f828efdb374ec8bd48ea36af06ac89fe3b8aef036713c547118f5a0adb8108dfe19b4067081f26a2fe27a87f60c0b",
 							),
@@ -105,7 +105,7 @@ var (
 						PubKeySig: HexDecode(
 							"026604b13c5e604fa8bf0c8b2c4451469295aa465d7f4b18d1a6663548f5ffaccce75381360b70b1f9be78dbd634f3b27f47da41ec36c1dc611a4543a63163d14f",
 						),
-						ComplainSigs: tss.ComplainSignatures{
+						ComplaintSigs: tss.ComplaintSignatures{
 							HexDecode(
 								"03000b8376dd57146397b8b38edd9f4bd551dfd3d6955c1dbdad1115da1a8fcaf103bb20bf99b70ae76cf2ef8779d0d88f8bb3eada6dd25f1663738f290ce9595b11110db1b2cbfc92e84076de48b1636a480fefcb1df6a4bdc4cea33d45b1851631",
 							),
@@ -208,7 +208,7 @@ var (
 						PubKeySig: HexDecode(
 							"03a2e7b6e1b051079e45237b4982fbe9cb1993ab61cb274ff11d20a8f4c8b96482539b7b3e6d8e615c3b1c81ff9ef58cfbb294d3f75d61f4794d0021c83f4ceb42",
 						),
-						ComplainSigs: tss.ComplainSignatures{
+						ComplaintSigs: tss.ComplaintSignatures{
 							HexDecode(
 								"02a55f7d417d1b51d91e6097473f00f528291aaa0dd11733e83eb85680ed5d4e36034946dba60574e576aef1c252e48db7c2c40f828efdb374ec8bd48ea36af06ac89fe3b8aef036713c547118f5a0adb8108dfe19b4067081f26a2fe27a87f60c0b",
 							),
@@ -243,7 +243,7 @@ var (
 						PubKeySig: HexDecode(
 							"023bfd9ed5683dce2b7ffae8882a019afdfa704936d1569b2fa1b4ff68f6b763139d578263e235745886e1b1e6f5c0bd5cc220eba009054a2738cb7203d6d7d7d2",
 						),
-						ComplainSigs: tss.ComplainSignatures{
+						ComplaintSigs: tss.ComplaintSignatures{
 							HexDecode(
 								"03000b8376dd57146397b8b38edd9f4bd551dfd3d6955c1dbdad1115da1a8fcaf103bb20bf99b70ae76cf2ef8779d0d88f8bb3eada6dd25f1663738f290ce9595b11110db1b2cbfc92e84076de48b1636a480fefcb1df6a4bdc4cea33d45b1851631",
 							),
