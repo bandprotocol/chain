@@ -43,20 +43,20 @@ var (
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x03}
 
-	// Round1DataStoreKeyPrefix is the key that keeps the round 1 data.
-	Round1DataStoreKeyPrefix = []byte{0x04}
+	// Round1InfoStoreKeyPrefix is the key that keeps the round 1 data.
+	Round1InfoStoreKeyPrefix = []byte{0x04}
 
-	// Round1DataCountStoreKeyPrefix is the key that keeps the round 1 data count.
-	Round1DataCountStoreKeyPrefix = []byte{0x05}
+	// Round1InfoCountStoreKeyPrefix is the key that keeps the round 1 data count.
+	Round1InfoCountStoreKeyPrefix = []byte{0x05}
 
 	// AccumulatedCommitStoreKeyPrefix is the key that keeps total of each commit
 	AccumulatedCommitStoreKeyPrefix = []byte{0x06}
 
-	// Round2DataStoreKeyPrefix is the key that keeps the round 2 data of the member.
-	Round2DataStoreKeyPrefix = []byte{0x07}
+	// Round2InfoStoreKeyPrefix is the key that keeps the round 2 data of the member.
+	Round2InfoStoreKeyPrefix = []byte{0x07}
 
-	// Round2DataCountStoreKeyPrefix is the key that keeps the round 2 data count.
-	Round2DataCountStoreKeyPrefix = []byte{0x08}
+	// Round2InfoCountStoreKeyPrefix is the key that keeps the round 2 data count.
+	Round2InfoCountStoreKeyPrefix = []byte{0x08}
 
 	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
 	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
@@ -102,16 +102,16 @@ func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(MembersStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round1DataStoreKey(groupID tss.GroupID) []byte {
-	return append(Round1DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round1InfoStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1InfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1DataCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round1DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round1InfoCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round1InfoCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round1DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(Round1DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func Round1InfoMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round1InfoStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
 func AccumulatedCommitStoreKey(groupID tss.GroupID) []byte {
@@ -122,16 +122,16 @@ func AccumulatedCommitIndexStoreKey(groupID tss.GroupID, index uint64) []byte {
 	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(index)...)
 }
 
-func Round2DataStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2DataStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2InfoStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2InfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func Round2DataMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
-	return append(Round2DataStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func Round2InfoMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+	return append(Round2InfoStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func Round2DataCountStoreKey(groupID tss.GroupID) []byte {
-	return append(Round2DataCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func Round2InfoCountStoreKey(groupID tss.GroupID) []byte {
+	return append(Round2InfoCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
 func ConfirmStoreKey(groupID tss.GroupID) []byte {

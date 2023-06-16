@@ -5,11 +5,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetRound1Data() {
+func (s *KeeperTestSuite) TestGetSetRound1Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	round1Data := types.Round1Data{
+	round1Info := types.Round1Info{
 		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -20,18 +20,18 @@ func (s *KeeperTestSuite) TestGetSetRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, round1Data)
+	k.SetRound1Info(ctx, groupID, round1Info)
 
-	got, err := k.GetRound1Data(ctx, groupID, memberID)
+	got, err := k.GetRound1Info(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Data, got)
+	s.Require().Equal(round1Info, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound1Data() {
+func (s *KeeperTestSuite) TestDeleteRound1Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	round1Data := types.Round1Data{
+	round1Info := types.Round1Info{
 		MemberID: memberID,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -42,24 +42,24 @@ func (s *KeeperTestSuite) TestDeleteRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	k.SetRound1Data(ctx, groupID, round1Data)
+	k.SetRound1Info(ctx, groupID, round1Info)
 
-	got, err := k.GetRound1Data(ctx, groupID, memberID)
+	got, err := k.GetRound1Info(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round1Data, got)
+	s.Require().Equal(round1Info, got)
 
-	k.DeleteRound1Data(ctx, groupID, memberID)
+	k.DeleteRound1Info(ctx, groupID, memberID)
 
-	_, err = k.GetRound1Data(ctx, groupID, memberID)
+	_, err = k.GetRound1Info(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetAllRound1Data() {
+func (s *KeeperTestSuite) TestGetAllround1Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	member2 := tss.MemberID(2)
-	round1DataMember1 := types.Round1Data{
+	round1InfoMember1 := types.Round1Info{
 		MemberID: member1,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -69,7 +69,7 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 		A0Sig:         []byte("A0SigSimple"),
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
-	round1DataMember2 := types.Round1Data{
+	round1InfoMember2 := types.Round1Info{
 		MemberID: member2,
 		CoefficientsCommit: tss.Points{
 			[]byte("point1"),
@@ -80,39 +80,39 @@ func (s *KeeperTestSuite) TestGetAllRound1Data() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round 1 data
-	k.SetRound1Data(ctx, groupID, round1DataMember1)
-	k.SetRound1Data(ctx, groupID, round1DataMember2)
+	// Set round 1 info
+	k.SetRound1Info(ctx, groupID, round1InfoMember1)
+	k.SetRound1Info(ctx, groupID, round1InfoMember2)
 
-	got := k.GetAllRound1Data(ctx, groupID)
+	got := k.GetRound1Infos(ctx, groupID)
 
-	s.Require().Equal([]types.Round1Data{round1DataMember1, round1DataMember2}, got)
+	s.Require().Equal([]types.Round1Info{round1InfoMember1, round1InfoMember2}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound1DataCount() {
+func (s *KeeperTestSuite) TestGetSetRound1InfoCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	count := uint64(5)
 
-	// Set round 1 data count
-	k.SetRound1DataCount(ctx, groupID, count)
+	// Set round 1 info count
+	k.SetRound1InfoCount(ctx, groupID, count)
 
-	got := k.GetRound1DataCount(ctx, groupID)
+	got := k.GetRound1InfoCount(ctx, groupID)
 	s.Require().Equal(uint64(5), got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound1DataCount() {
+func (s *KeeperTestSuite) TestDeleteRound1InfoCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	count := uint64(5)
 
-	// Set round 1 data count
-	k.SetRound1DataCount(ctx, groupID, count)
+	// Set round 1 info count
+	k.SetRound1InfoCount(ctx, groupID, count)
 
-	// Delete round 1 data count
-	k.DeleteRound1DataCount(ctx, groupID)
+	// Delete round 1 info count
+	k.DeleteRound1InfoCount(ctx, groupID)
 
-	got := k.GetRound1DataCount(ctx, groupID)
+	got := k.GetRound1InfoCount(ctx, groupID)
 	s.Require().Empty(got)
 }
 

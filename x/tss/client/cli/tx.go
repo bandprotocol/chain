@@ -240,7 +240,7 @@ func NewSubmitDKGRound1Cmd() *cobra.Command {
 
 			msg := &types.MsgSubmitDKGRound1{
 				GroupID: tss.GroupID(groupID),
-				Round1Data: types.Round1Data{
+				Round1Info: types.Round1Info{
 					MemberID:           tss.MemberID(memberID),
 					CoefficientsCommit: coefficientsCommit,
 					OneTimePubKey:      oneTimePubKey,
@@ -298,7 +298,7 @@ func NewSubmitDKGRound2Cmd() *cobra.Command {
 
 			msg := &types.MsgSubmitDKGRound2{
 				GroupID: tss.GroupID(groupID),
-				Round2Data: types.Round2Data{
+				Round2Info: types.Round2Info{
 					MemberID:              tss.MemberID(memberID),
 					EncryptedSecretShares: encryptedSecretShares,
 				},
@@ -313,18 +313,18 @@ func NewSubmitDKGRound2Cmd() *cobra.Command {
 	return cmd
 }
 
-// NewComplainCmd creates a CLI command for CLI command for Msg/Complain.
+// NewComplainCmd creates a CLI command for CLI command for Msg/Complaint.
 func NewComplainCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "complain [group_id] [complains-json-file]",
+		Use:   "complain [group_id] [complaints-json-file]",
 		Args:  cobra.ExactArgs(2),
-		Short: "complain containing group_id and complains data",
+		Short: "complain containing group_id and complaints data",
 		Example: fmt.Sprintf(`
-%s tx tss complain [group_id] [complains-json-file]
+%s tx tss complain [group_id] [complaints-json-file]
 
-Where complains.json contains:
+Where complaints.json contains:
 {
-	complains: [
+	complaints: [
 		{
 			"i": 1,
 			"j": 2,
@@ -349,15 +349,15 @@ Where complains.json contains:
 				return err
 			}
 
-			complains, err := parseComplains(args[1])
+			complaints, err := parseComplaints(args[1])
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgComplain{
-				GroupID:   tss.GroupID(groupID),
-				Complains: complains,
-				Member:    clientCtx.GetFromAddress().String(),
+				GroupID:    tss.GroupID(groupID),
+				Complaints: complaints,
+				Member:     clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

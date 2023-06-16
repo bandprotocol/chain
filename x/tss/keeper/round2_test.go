@@ -5,11 +5,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetRound2Data() {
+func (s *KeeperTestSuite) TestGetSetRound2Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	round2Data := types.Round2Data{
+	Round2Info := types.Round2Info{
 		MemberID: memberID,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("e_12"),
@@ -18,19 +18,19 @@ func (s *KeeperTestSuite) TestGetSetRound2Data() {
 		},
 	}
 
-	// Set round2 secret share
-	k.SetRound2Data(ctx, groupID, round2Data)
+	// Set round 2 info
+	k.SetRound2Info(ctx, groupID, Round2Info)
 
-	got, err := k.GetRound2Data(ctx, groupID, memberID)
+	got, err := k.GetRound2Info(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(round2Data, got)
+	s.Require().Equal(Round2Info, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound2Data() {
+func (s *KeeperTestSuite) TestDeleteRound2Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	round2Data := types.Round2Data{
+	Round2Info := types.Round2Info{
 		MemberID: memberID,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("e_12"),
@@ -39,22 +39,22 @@ func (s *KeeperTestSuite) TestDeleteRound2Data() {
 		},
 	}
 
-	// Set round 2 secret data
-	k.SetRound2Data(ctx, groupID, round2Data)
+	// Set round 2 info
+	k.SetRound2Info(ctx, groupID, Round2Info)
 
-	// Delete round 2 secret data
-	k.DeleteRound2Data(ctx, groupID, memberID)
+	// Delete round 2 info
+	k.DeleteRound2Info(ctx, groupID, memberID)
 
-	_, err := k.GetRound2Data(ctx, groupID, memberID)
+	_, err := k.GetRound2Info(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetAllRound2Data() {
+func (s *KeeperTestSuite) TestGetRound2Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	member2 := tss.MemberID(2)
-	round2DataMember1 := types.Round2Data{
+	round2InfoMember1 := types.Round2Info{
 		MemberID: member1,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_12"),
@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 			[]byte("e_14"),
 		},
 	}
-	round2DataMember2 := types.Round2Data{
+	round2InfoMember2 := types.Round2Info{
 		MemberID: member2,
 		EncryptedSecretShares: []tss.Scalar{
 			[]byte("e_11"),
@@ -71,37 +71,37 @@ func (s *KeeperTestSuite) TestGetAllRound2Data() {
 		},
 	}
 
-	// Set round 2 data
-	k.SetRound2Data(ctx, groupID, round2DataMember1)
-	k.SetRound2Data(ctx, groupID, round2DataMember2)
+	// Set round 2 info
+	k.SetRound2Info(ctx, groupID, round2InfoMember1)
+	k.SetRound2Info(ctx, groupID, round2InfoMember2)
 
-	got := k.GetAllRound2Data(ctx, groupID)
-	s.Require().Equal([]types.Round2Data{round2DataMember1, round2DataMember2}, got)
+	got := k.GetRound2Infos(ctx, groupID)
+	s.Require().Equal([]types.Round2Info{round2InfoMember1, round2InfoMember2}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound2DataCount() {
+func (s *KeeperTestSuite) TestGetSetRound2InfoCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	count := uint64(5)
 
-	// Set round 2 data count
-	k.SetRound2DataCount(ctx, groupID, count)
+	// Set round 2 info count
+	k.SetRound2InfoCount(ctx, groupID, count)
 
-	got := k.GetRound2DataCount(ctx, groupID)
+	got := k.GetRound2InfoCount(ctx, groupID)
 	s.Require().Equal(uint64(5), got)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound2DataCount() {
+func (s *KeeperTestSuite) TestDeleteRound2InfoCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	count := uint64(5)
 
-	// Set round 2 data count
-	k.SetRound2DataCount(ctx, groupID, count)
+	// Set round 2 info count
+	k.SetRound2InfoCount(ctx, groupID, count)
 
-	// Delete round 2 data count
-	k.DeleteRound2DataCount(ctx, groupID)
+	// Delete round 2 info count
+	k.DeleteRound2InfoCount(ctx, groupID)
 
-	got := k.GetRound2DataCount(ctx, groupID)
+	got := k.GetRound2InfoCount(ctx, groupID)
 	s.Require().Empty(got)
 }

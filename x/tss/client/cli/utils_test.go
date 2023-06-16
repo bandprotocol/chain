@@ -9,21 +9,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseComplains(t *testing.T) {
+func TestParseComplaints(t *testing.T) {
 	// 1. Test with empty string
-	complains, err := parseComplains("")
+	complaints, err := parseComplaints("")
 	require.NoError(t, err)
-	require.Empty(t, complains)
+	require.Empty(t, complaints)
 
 	// 2. Test with a valid file
 	// Write a valid JSON to a temp file
-	tempFile, err := ioutil.TempFile("", "complains")
+	tempFile, err := ioutil.TempFile("", "complaints")
 
 	require.NoError(t, err)
 	defer os.Remove(tempFile.Name())
 
 	validJSON := `{
-		"complains": [
+		"complaints": [
 			{
 				"i": 1,
 				"j": 2,
@@ -35,19 +35,19 @@ func TestParseComplains(t *testing.T) {
 	_, err = tempFile.WriteString(validJSON)
 	require.NoError(t, err)
 
-	complains, err = parseComplains(tempFile.Name())
+	complaints, err = parseComplaints(tempFile.Name())
 	require.NoError(t, err)
-	require.Equal(t, 1, len(complains))
+	require.Equal(t, 1, len(complaints))
 
-	fmt.Println(complains)
+	fmt.Println(complaints)
 
 	// 3. Test with a non-existent file
-	complains, err = parseComplains("non-existent-file")
+	complaints, err = parseComplaints("non-existent-file")
 	require.Error(t, err)
-	require.Nil(t, complains)
+	require.Nil(t, complaints)
 
 	// 4. Test with an invalid JSON file
-	invalidFile, err := ioutil.TempFile("", "invalidComplains")
+	invalidFile, err := ioutil.TempFile("", "invalid-complaints")
 	require.NoError(t, err)
 	defer os.Remove(invalidFile.Name())
 
@@ -55,7 +55,7 @@ func TestParseComplains(t *testing.T) {
 	_, err = invalidFile.WriteString(invalidJSON)
 	require.NoError(t, err)
 
-	complains, err = parseComplains(invalidFile.Name())
+	complaints, err = parseComplaints(invalidFile.Name())
 	require.Error(t, err)
-	require.Nil(t, complains)
+	require.Nil(t, complaints)
 }

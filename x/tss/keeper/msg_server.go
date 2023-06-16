@@ -72,7 +72,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 
 // SubmitDKGRound1 validates the group status, member, coefficients commit length, one-time
 // signature, and A0 signature for a group's round 1. If all checks pass, it updates the
-// accumulated commits, stores the Round1Data, emits an event, and if necessary, updates the
+// accumulated commits, stores the Round1Info, emits an event, and if necessary, updates the
 // group status to round 2.
 func (k Keeper) SubmitDKGRound1(
 	goCtx context.Context,
@@ -80,7 +80,7 @@ func (k Keeper) SubmitDKGRound1(
 ) (*types.MsgSubmitDKGRound1Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Round1Data.MemberID
+	memberID := req.Round1Info.MemberID
 
 	// check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -109,13 +109,13 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound1Data(ctx, groupID, req.Round1Data.MemberID)
+	_, err = k.GetRound1Info(ctx, groupID, req.Round1Info.MemberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1")
 	}
 
 	// Check coefficients commit length
-	if uint64(len(req.Round1Data.CoefficientsCommit)) != group.Threshold {
+	if uint64(len(req.Round1Info.CoefficientsCommit)) != group.Threshold {
 		return nil, sdkerrors.Wrap(
 			types.ErrCommitsNotCorrectLength,
 			"number of coefficients commit is not correct",
@@ -129,7 +129,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Verify one time signature
-	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Data.OneTimeSig, req.Round1Data.OneTimePubKey)
+	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Info.OneTimeSig, req.Round1Info.OneTimePubKey)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
 	}
@@ -138,21 +138,21 @@ func (k Keeper) SubmitDKGRound1(
 	err = tss.VerifyA0Sig(
 		memberID,
 		dkgContext,
-		req.Round1Data.A0Sig,
-		tss.PublicKey(req.Round1Data.CoefficientsCommit[0]),
+		req.Round1Info.A0Sig,
+		tss.PublicKey(req.Round1Info.CoefficientsCommit[0]),
 	)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
 	}
 
 	// Add commits to calculate accumulated commits for each index
-	err = k.AddCommits(ctx, groupID, req.Round1Data.CoefficientsCommit)
+	err = k.AddCommits(ctx, groupID, req.Round1Info.CoefficientsCommit)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrAddCommit, err.Error())
 	}
 
-	// Add Round1Data
-	k.SetRound1Data(ctx, groupID, req.Round1Data)
+	// Set round 1 info
+	k.SetRound1Info(ctx, groupID, req.Round1Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -161,13 +161,13 @@ func (k Keeper) SubmitDKGRound1(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 			sdk.NewAttribute(
-				types.AttributeKeyRound1Data,
-				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Data)),
+				types.AttributeKeyRound1Info,
+				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Info)),
 			),
 		),
 	)
 
-	count := k.GetRound1DataCount(ctx, groupID)
+	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
 		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
@@ -184,9 +184,9 @@ func (k Keeper) SubmitDKGRound1(
 	return &types.MsgSubmitDKGRound1Response{}, nil
 }
 
-// SubmitDKGRound2 checks the group status, member, and whether the member has already submitted round 2 data.
+// SubmitDKGRound2 checks the group status, member, and whether the member has already submitted round 2 info.
 // It verifies the member, checks the length of encrypted secret shares, computes and stores the member's own public key,
-// sets the round 2 data, and emits appropriate events. If all members have submitted round 2 data,
+// sets the round 2 info, and emits appropriate events. If all members have submitted round 2 info,
 // it updates the group status to round 3.
 func (k Keeper) SubmitDKGRound2(
 	goCtx context.Context,
@@ -194,7 +194,7 @@ func (k Keeper) SubmitDKGRound2(
 ) (*types.MsgSubmitDKGRound2Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Round2Data.MemberID
+	memberID := req.Round2Info.MemberID
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -223,13 +223,13 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	// Check previous submit
-	_, err = k.GetRound2Data(ctx, groupID, memberID)
+	_, err = k.GetRound2Info(ctx, groupID, memberID)
 	if err == nil {
 		return nil, sdkerrors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
-	if uint64(len(req.Round2Data.EncryptedSecretShares)) != group.Size_-1 {
+	if uint64(len(req.Round2Info.EncryptedSecretShares)) != group.Size_-1 {
 		return nil, sdkerrors.Wrap(
 			types.ErrEncryptedSecretSharesNotCorrectLength,
 			"number of encrypted secret shares is not correct",
@@ -251,8 +251,8 @@ func (k Keeper) SubmitDKGRound2(
 	member.PubKey = ownPubKey
 	k.SetMember(ctx, groupID, memberID, member)
 
-	// Set Round2Data
-	k.SetRound2Data(ctx, groupID, req.Round2Data)
+	// Set round 2 info
+	k.SetRound2Info(ctx, groupID, req.Round2Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -260,11 +260,11 @@ func (k Keeper) SubmitDKGRound2(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-			sdk.NewAttribute(types.AttributeKeyRound2Data, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Data))),
+			sdk.NewAttribute(types.AttributeKeyRound2Info, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Info))),
 		),
 	)
 
-	count := k.GetRound2DataCount(ctx, groupID)
+	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
 		k.SetGroup(ctx, group)
@@ -289,7 +289,7 @@ func (k Keeper) Complain(
 ) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Complains[0].I
+	memberID := req.Complaints[0].I
 
 	// Check group status
 	group, err := k.GetGroup(ctx, groupID)
@@ -323,10 +323,10 @@ func (k Keeper) Complain(
 		return nil, err
 	}
 
-	// Verify complain
-	var complainsWithStatus []types.ComplainWithStatus
-	for _, c := range req.Complains {
-		err := k.HandleVerifyComplain(ctx, groupID, c)
+	// Verify complaint
+	var complaintsWithStatus []types.ComplaintWithStatus
+	for _, c := range req.Complaints {
+		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
 			// Mark i as malicious
 			err := k.MarkMalicious(ctx, groupID, c.I)
@@ -334,10 +334,10 @@ func (k Keeper) Complain(
 				return nil, err
 			}
 
-			// Add complain status
-			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       c,
-				ComplainStatus: types.COMPLAIN_STATUS_FAILED,
+			// Add complaint status
+			complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
+				Complaint:       c,
+				ComplaintStatus: types.COMPLAINT_STATUS_FAILED,
 			})
 
 			// Emit complain failed event
@@ -359,10 +359,10 @@ func (k Keeper) Complain(
 				return nil, err
 			}
 
-			// Add complain status
-			complainsWithStatus = append(complainsWithStatus, types.ComplainWithStatus{
-				Complain:       c,
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+			// Add complaint status
+			complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
+				Complaint:       c,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			})
 
 			// Emit complain success event
@@ -380,15 +380,15 @@ func (k Keeper) Complain(
 		}
 
 		// Set complain with status
-		k.SetComplainsWithStatus(ctx, groupID, types.ComplainsWithStatus{
-			MemberID:            memberID,
-			ComplainsWithStatus: complainsWithStatus,
+		k.SetComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
+			MemberID:             memberID,
+			ComplaintsWithStatus: complaintsWithStatus,
 		})
 
 		// Get confirm complain count
 		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-		// Handle fallen group if everyone sends confirm or complains already.
+		// Handle fallen group if everyone sends confirm or complain already.
 		if confirmComplainCount == group.Size_ {
 			k.handleFallenGroup(ctx, group)
 		}
@@ -398,7 +398,7 @@ func (k Keeper) Complain(
 }
 
 // Confirm checks the group status and verifies the member. It then verifies the member's public key signature,
-// checks the count of confirmations and complaints, and handles any malicious members. If all members have
+// checks the count of confirmed and complained, and handles any malicious members. If all members have
 // confirmed or complained, it updates the group's status if necessary, deletes all interim data, and emits
 // appropriate events.
 func (k Keeper) Confirm(
@@ -456,7 +456,7 @@ func (k Keeper) Confirm(
 		OwnPubKeySig: req.OwnPubKeySig,
 	})
 
-	// Handle fallen group if everyone sends confirm or complains already.
+	// Handle fallen group if everyone sends confirm or complain already.
 	if confirmComplainCount+1 == group.Size_ {
 		// Get members to check malicious
 		members, err := k.GetMembers(ctx, groupID)
@@ -783,7 +783,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	return &types.MsgSignResponse{}, nil
 }
 
-// checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complain" message in a given group.
+// checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
 // If either a confirm or a complain message from the member is found, an error is returned.
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
@@ -794,7 +794,7 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 			memberID,
 		)
 	}
-	_, err = k.GetComplainsWithStatus(ctx, groupID, memberID)
+	_, err = k.GetComplaintsWithStatus(ctx, groupID, memberID)
 	if err == nil {
 		return sdkerrors.Wrapf(
 			types.ErrMemberIsAlreadyComplainOrConfirm,

@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Round1Data contains the data for round 1 of the DKG process of TSS
-type Round1Data struct {
+// round1Info contains the data for round 1 of the DKG process of TSS
+type round1Info struct {
 	OneTimePrivKey     PrivateKey
 	OneTimePubKey      PublicKey
 	OneTimeSig         Signature
@@ -16,12 +16,12 @@ type Round1Data struct {
 	CoefficientsCommit Points
 }
 
-// GenerateRound1Data generates the data of round 1 for a member in the DKG process of TSS
-func GenerateRound1Data(
+// Generateround1Info generates the data of round 1 for a member in the DKG process of TSS
+func Generateround1Info(
 	mid MemberID,
 	threshold uint64,
 	dkgContext []byte,
-) (*Round1Data, error) {
+) (*round1Info, error) {
 	// Generate threshold + 1 key pairs (commits, onetime).
 	kps, err := GenerateKeyPairs(threshold + 1)
 	if err != nil {
@@ -52,7 +52,7 @@ func GenerateRound1Data(
 		coefficients = append(coefficients, Scalar(kps[i].PrivKey))
 	}
 
-	return &Round1Data{
+	return &round1Info{
 		OneTimePrivKey:     oneTimePrivKey,
 		OneTimePubKey:      oneTimePubKey,
 		OneTimeSig:         oneTimeSig,

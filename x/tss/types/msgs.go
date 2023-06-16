@@ -90,7 +90,7 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate coefficients commit
-	for _, c := range m.Round1Data.CoefficientsCommit {
+	for _, c := range m.Round1Info.CoefficientsCommit {
 		_, err := c.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "coefficients commit")
@@ -98,19 +98,19 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate one time pub key
-	_, err = m.Round1Data.OneTimePubKey.Parse()
+	_, err = m.Round1Info.OneTimePubKey.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "one time pub key")
 	}
 
 	// Validate a0 signature
-	_, err = m.Round1Data.A0Sig.Parse()
+	_, err = m.Round1Info.A0Sig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	_, err = m.Round1Data.OneTimeSig.Parse()
+	_, err = m.Round1Info.OneTimeSig.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "one time sig")
 	}
@@ -145,7 +145,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	}
 
 	// Validate encrypted secret shares
-	for _, ess := range m.Round2Data.EncryptedSecretShares {
+	for _, ess := range m.Round2Info.EncryptedSecretShares {
 		_, err = ess.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "encrypted secret shares")
@@ -181,17 +181,17 @@ func (m MsgComplain) ValidateBasic() error {
 		return sdkerrors.Wrap(err, "member")
 	}
 
-	// Validate complains size
-	if len(m.Complains) < 1 {
-		return sdkerrors.Wrap(fmt.Errorf("must contain at least one complain"), "complains")
+	// Validate complaints size
+	if len(m.Complaints) < 1 {
+		return sdkerrors.Wrap(fmt.Errorf("must contain at least one complaint"), "complaints")
 	}
 
-	// Validate complains
-	memberI := m.Complains[0].I
-	for i, c := range m.Complains {
+	// Validate complaints
+	memberI := m.Complaints[0].I
+	for i, c := range m.Complaints {
 		// Validate member I
 		if i > 0 && memberI != c.I {
-			return sdkerrors.Wrap(fmt.Errorf("memberID I in the list of complains must be the same value"), "I")
+			return sdkerrors.Wrap(fmt.Errorf("memberID I in the list of complaints must be the same value"), "I")
 		}
 
 		// Validate member I and J

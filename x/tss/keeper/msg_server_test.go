@@ -69,7 +69,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			Malleate: func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tcGroup.ID,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           tcGroup.Members[0].ID,
 						CoefficientsCommit: tcGroup.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tcGroup.Members[0].OneTimePubKey(),
@@ -81,7 +81,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			},
 			ExpPass: true,
 			PostTest: func() {
-				k.DeleteRound1Data(ctx, tcGroup.ID, tcGroup.Members[0].ID)
+				k.DeleteRound1Info(ctx, tcGroup.ID, tcGroup.Members[0].ID)
 			},
 		})
 	}
@@ -94,7 +94,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 99,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -112,7 +112,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           99,
 						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -128,8 +128,8 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 		{
 			"round 1 already commit",
 			func() {
-				// Set round 1 data
-				k.SetRound1Data(ctx, tc1Group.ID, types.Round1Data{
+				// Set round 1 info
+				k.SetRound1Info(ctx, tc1Group.ID, types.Round1Info{
 					MemberID:           tc1Group.Members[0].ID,
 					CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -139,7 +139,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -151,7 +151,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			},
 			false,
 			func() {
-				k.DeleteRound1Data(ctx, tc1Group.ID, tc1Group.Members[0].ID)
+				k.DeleteRound1Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
 		},
 		{
@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -177,7 +177,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
-					Round1Data: types.Round1Data{
+					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -249,7 +249,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			Malleate: func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: tcGroup.ID,
-					Round2Data: types.Round2Data{
+					Round2Info: types.Round2Info{
 						MemberID:              tcGroup.Members[0].ID,
 						EncryptedSecretShares: tcGroup.Members[0].EncSecretShares,
 					},
@@ -258,7 +258,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 			ExpPass: true,
 			PostTest: func() {
-				k.DeleteRound2Data(ctx, tcGroup.ID, tcGroup.Members[0].ID)
+				k.DeleteRound2Info(ctx, tcGroup.ID, tcGroup.Members[0].ID)
 			},
 		})
 	}
@@ -271,7 +271,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 99,
-					Round2Data: types.Round2Data{
+					Round2Info: types.Round2Info{
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
@@ -286,7 +286,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: tc1Group.ID,
-					Round2Data: types.Round2Data{
+					Round2Info: types.Round2Info{
 						MemberID:              99,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
@@ -299,15 +299,15 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 		{
 			"round 2 already submit",
 			func() {
-				// Set round 2 data
-				k.SetRound2Data(ctx, tc1Group.ID, types.Round2Data{
+				// Set round 2 info
+				k.SetRound2Info(ctx, tc1Group.ID, types.Round2Info{
 					MemberID:              tc1Group.Members[0].ID,
 					EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 				})
 
 				req = types.MsgSubmitDKGRound2{
 					GroupID: tc1Group.ID,
-					Round2Data: types.Round2Data{
+					Round2Info: types.Round2Info{
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
@@ -316,7 +316,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			},
 			false,
 			func() {
-				k.DeleteRound2Data(ctx, tc1Group.ID, tc1Group.Members[0].ID)
+				k.DeleteRound2Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
 		},
 		{
@@ -325,7 +325,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 				inValidEncSecretShares := append(tc1Group.Members[0].EncSecretShares, []byte("enc"))
 				req = types.MsgSubmitDKGRound2{
 					GroupID: tc1Group.ID,
-					Round2Data: types.Round2Data{
+					Round2Info: types.Round2Info{
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: inValidEncSecretShares,
 					},
@@ -399,7 +399,7 @@ func (s *KeeperTestSuite) TestComplain() {
 		tcs = append(tcs, TestCase{
 			Msg: fmt.Sprintf("success %s", tc.Name),
 			Malleate: func() {
-				sig, keySym, err := tss.SignComplain(
+				sig, keySym, err := tss.SignComplaint(
 					tcGroup.Members[0].OneTimePubKey(),
 					tcGroup.Members[1].OneTimePubKey(),
 					tcGroup.Members[0].OneTimePrivKey,
@@ -408,7 +408,7 @@ func (s *KeeperTestSuite) TestComplain() {
 
 				req = types.MsgComplain{
 					GroupID: tcGroup.ID,
-					Complains: []types.Complain{
+					Complaints: []types.Complaint{
 						{
 							I:      tcGroup.Members[0].ID,
 							J:      tcGroup.Members[1].ID,

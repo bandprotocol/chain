@@ -21,8 +21,8 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 					IsMalicious: false,
 				})
 
-				// Set round 1 data
-				k.SetRound1Data(ctx, tc.Group.ID, types.Round1Data{
+				// Set round 1 info
+				k.SetRound1Info(ctx, tc.Group.ID, types.Round1Info{
 					MemberID:           m.ID,
 					CoefficientsCommit: m.CoefficientsCommit,
 					OneTimePubKey:      m.OneTimePubKey(),
@@ -30,8 +30,8 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 					OneTimeSig:         m.OneTimeSig,
 				})
 
-				// Set round 2 data
-				k.SetRound2Data(ctx, tc.Group.ID, types.Round2Data{
+				// Set round 2 info
+				k.SetRound2Info(ctx, tc.Group.ID, types.Round2Info{
 					MemberID:              m.ID,
 					EncryptedSecretShares: m.EncSecretShares,
 				})
@@ -43,28 +43,28 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 			jSlot := types.FindMemberSlot(memberJ.ID, memberI.ID)
 
 			// Failed case - correct encrypted secret share
-			err := k.HandleVerifyComplain(ctx, tc.Group.ID, types.Complain{
+			err := k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
 				I:      memberI.ID,
 				J:      memberJ.ID,
 				KeySym: memberI.KeySyms[iSlot],
-				Sig:    memberI.ComplainSigs[iSlot],
+				Sig:    memberI.ComplaintSigs[iSlot],
 			})
 			s.Require().Error(err)
 
-			// Get round 2 data J
-			round2J, err := k.GetRound2Data(ctx, tc.Group.ID, memberJ.ID)
+			// Get round 2 info J
+			round2J, err := k.GetRound2Info(ctx, tc.Group.ID, memberJ.ID)
 			s.Require().NoError(err)
 
 			// Set fake encrypted secret shares
 			round2J.EncryptedSecretShares[jSlot] = testutil.FakePrivKey
-			k.SetRound2Data(ctx, tc.Group.ID, round2J)
+			k.SetRound2Info(ctx, tc.Group.ID, round2J)
 
 			// Success case - wrong encrypted secret share
-			err = k.HandleVerifyComplain(ctx, tc.Group.ID, types.Complain{
+			err = k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
 				I:      memberI.ID,
 				J:      memberJ.ID,
 				KeySym: memberI.KeySyms[iSlot],
-				Sig:    memberI.ComplainSigs[iSlot],
+				Sig:    memberI.ComplaintSigs[iSlot],
 			})
 			s.Require().NoError(err)
 		})
@@ -97,58 +97,58 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGetSetComplainsWithStatus() {
+func (s *KeeperTestSuite) TestGetSetComplaintsWithStatus() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	complainWithStatus := types.ComplainsWithStatus{
+	complaintWithStatus := types.ComplaintsWithStatus{
 		MemberID: memberID,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
 
-	// Set complains with status
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
+	// Set complaints with status
+	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus)
 
-	got, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	got, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(complainWithStatus, got)
+	s.Require().Equal(complaintWithStatus, got)
 }
 
 func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	complainWithStatus := types.ComplainsWithStatus{
+	complainWithStatus := types.ComplaintsWithStatus{
 		MemberID: memberID,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
 
-	// Set complains with status
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
-	// Delete complains with status
+	// Set complaints with status
+	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
+	// Delete complaints with status
 	k.DeleteComplainsWithStatus(ctx, groupID, memberID)
 
-	_, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+	_, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
 	s.Require().Error(err)
 }
 
@@ -157,41 +157,41 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 	groupID := tss.GroupID(1)
 	memberID1 := tss.MemberID(1)
 	memberID2 := tss.MemberID(2)
-	complainWithStatus1 := types.ComplainsWithStatus{
+	complainWithStatus1 := types.ComplaintsWithStatus{
 		MemberID: memberID1,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
-	complainWithStatus2 := types.ComplainsWithStatus{
+	complainWithStatus2 := types.ComplaintsWithStatus{
 		MemberID: memberID2,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
 
-	// Set complains with status
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus1)
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus2)
+	// Set complaints with status
+	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus1)
+	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus2)
 
 	got := k.GetAllComplainsWithStatus(ctx, groupID)
-	s.Require().Equal([]types.ComplainsWithStatus{complainWithStatus1, complainWithStatus2}, got)
+	s.Require().Equal([]types.ComplaintsWithStatus{complainWithStatus1, complainWithStatus2}, got)
 }
 
 func (s *KeeperTestSuite) TestGetSetConfirm() {
@@ -325,7 +325,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 
 	for i := uint64(1); i <= groupSize; i++ {
 		memberID := tss.MemberID(i)
-		round1Data := types.Round1Data{
+		round1Info := types.Round1Info{
 			MemberID: memberID,
 			CoefficientsCommit: tss.Points{
 				[]byte("point1"),
@@ -335,7 +335,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			A0Sig:         []byte("A0SigSimple"),
 			OneTimeSig:    []byte("OneTimeSigSimple"),
 		}
-		round2Data := types.Round2Data{
+		round2Info := types.Round2Info{
 			MemberID: memberID,
 			EncryptedSecretShares: tss.Scalars{
 				[]byte("e_12"),
@@ -343,17 +343,17 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 				[]byte("e_14"),
 			},
 		}
-		complainWithStatus := types.ComplainsWithStatus{
+		complainWithStatus := types.ComplaintsWithStatus{
 			MemberID: memberID,
-			ComplainsWithStatus: []types.ComplainWithStatus{
+			ComplaintsWithStatus: []types.ComplaintWithStatus{
 				{
-					Complain: types.Complain{
+					Complaint: types.Complaint{
 						I:      1,
 						J:      2,
 						KeySym: []byte("key_sym"),
 						Sig:    []byte("signature"),
 					},
-					ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+					ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 				},
 			},
 		}
@@ -362,9 +362,9 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			OwnPubKeySig: []byte("own_pub_key_sig"),
 		}
 
-		k.SetRound1Data(ctx, groupID, round1Data)
-		k.SetRound2Data(ctx, groupID, round2Data)
-		k.SetComplainsWithStatus(ctx, groupID, complainWithStatus)
+		k.SetRound1Info(ctx, groupID, round1Info)
+		k.SetRound2Info(ctx, groupID, round2Info)
+		k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
 		k.SetConfirm(ctx, groupID, confirm)
 	}
 
@@ -372,8 +372,8 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		k.SetAccumulatedCommit(ctx, groupID, i, []byte("point1"))
 	}
 
-	k.SetRound1DataCount(ctx, groupID, 1)
-	k.SetRound2DataCount(ctx, groupID, 1)
+	k.SetRound1InfoCount(ctx, groupID, 1)
+	k.SetRound2InfoCount(ctx, groupID, 1)
 	k.SetConfirmComplainCount(ctx, groupID, 1)
 
 	// Delete all interim data
@@ -385,24 +385,24 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 	for i := uint64(1); i <= groupSize; i++ {
 		memberID := tss.MemberID(i)
 
-		gotRound1Data, err := k.GetRound1Data(ctx, groupID, memberID)
-		s.Require().ErrorIs(types.ErrRound1DataNotFound, err)
-		s.Require().Empty(types.Round1Data{}, gotRound1Data)
+		gotRound1Info, err := k.GetRound1Info(ctx, groupID, memberID)
+		s.Require().ErrorIs(types.ErrRound1InfoNotFound, err)
+		s.Require().Empty(types.Round1Info{}, gotRound1Info)
 
-		gotRound2Data, err := k.GetRound2Data(ctx, groupID, memberID)
-		s.Require().ErrorIs(types.ErrRound2DataNotFound, err)
-		s.Require().Empty(types.Round2Data{}, gotRound2Data)
+		gotRound2Info, err := k.GetRound2Info(ctx, groupID, memberID)
+		s.Require().ErrorIs(types.ErrRound2InfoNotFound, err)
+		s.Require().Empty(types.Round2Info{}, gotRound2Info)
 
-		gotComplainWithStatus, err := k.GetComplainsWithStatus(ctx, groupID, memberID)
+		gotComplaintWithStatus, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
 		s.Require().ErrorIs(types.ErrComplainsWithStatusNotFound, err)
-		s.Require().Empty(types.ComplainWithStatus{}, gotComplainWithStatus)
+		s.Require().Empty(types.ComplaintWithStatus{}, gotComplaintWithStatus)
 	}
 
 	for i := uint64(0); i < groupThreshold; i++ {
 		s.Require().Empty(tss.Point{}, k.GetAccumulatedCommit(ctx, groupID, i))
 	}
 
-	s.Require().Equal(uint64(0), k.GetRound1DataCount(ctx, groupID))
-	s.Require().Equal(uint64(0), k.GetRound2DataCount(ctx, groupID))
+	s.Require().Equal(uint64(0), k.GetRound1InfoCount(ctx, groupID))
+	s.Require().Equal(uint64(0), k.GetRound2InfoCount(ctx, groupID))
 	s.Require().Equal(uint64(0), k.GetConfirmComplainCount(ctx, groupID))
 }

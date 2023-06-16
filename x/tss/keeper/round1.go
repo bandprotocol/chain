@@ -7,73 +7,73 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// SetRound1Data function sets round1 data for a member of a group.
-func (k Keeper) SetRound1Data(ctx sdk.Context, groupID tss.GroupID, round1Data types.Round1Data) {
+// SetRound1Info function sets round 1 info for a member of a group.
+func (k Keeper) SetRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
 	// Add count
-	k.AddRound1DataCount(ctx, groupID)
+	k.AddRound1InfoCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
-		Set(types.Round1DataMemberStoreKey(groupID, round1Data.MemberID), k.cdc.MustMarshal(&round1Data))
+		Set(types.Round1InfoMemberStoreKey(groupID, round1Info.MemberID), k.cdc.MustMarshal(&round1Info))
 }
 
-// GetRound1Data function retrieves round1 data of a member from the store.
-func (k Keeper) GetRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Data, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1DataMemberStoreKey(groupID, memberID))
+// GetRound1Info function retrieves round 1 info of a member from the store.
+func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Info, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Data{}, sdkerrors.Wrapf(
-			types.ErrRound1DataNotFound,
-			"failed to get round1 data with groupID: %d and memberID %d",
+		return types.Round1Info{}, sdkerrors.Wrapf(
+			types.ErrRound1InfoNotFound,
+			"failed to get round 1 info with groupID: %d and memberID %d",
 			groupID,
 			memberID,
 		)
 	}
-	var r1 types.Round1Data
+	var r1 types.Round1Info
 	k.cdc.MustUnmarshal(bz, &r1)
 	return r1, nil
 }
 
-// GetRound1DataIterator function gets an iterator over all round1 data of a group.
-func (k Keeper) GetRound1DataIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1DataStoreKey(groupID))
+// GetRound1InfoIterator function gets an iterator over all round 1 info of a group.
+func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1InfoStoreKey(groupID))
 }
 
-// GetAllRound1Data retrieves all round1 data for a group from the store.
-func (k Keeper) GetAllRound1Data(ctx sdk.Context, groupID tss.GroupID) []types.Round1Data {
-	var allRound1Data []types.Round1Data
-	iterator := k.GetRound1DataIterator(ctx, groupID)
+// GetRound1Infos retrieves round 1 infos for a group from the store.
+func (k Keeper) GetRound1Infos(ctx sdk.Context, groupID tss.GroupID) []types.Round1Info {
+	var round1Infos []types.Round1Info
+	iterator := k.GetRound1InfoIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var round1Data types.Round1Data
-		k.cdc.MustUnmarshal(iterator.Value(), &round1Data)
-		allRound1Data = append(allRound1Data, round1Data)
+		var round1Info types.Round1Info
+		k.cdc.MustUnmarshal(iterator.Value(), &round1Info)
+		round1Infos = append(round1Infos, round1Info)
 	}
-	return allRound1Data
+	return round1Infos
 }
 
-// DeleteRound1Data removes the round1 data of a group member from the store.
-func (k Keeper) DeleteRound1Data(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round1DataMemberStoreKey(groupID, memberID))
+// DeleteRound1Info removes the round 1 info of a group member from the store.
+func (k Keeper) DeleteRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1InfoMemberStoreKey(groupID, memberID))
 }
 
-// SetRound1DataCount sets the count of round1 data for a group in the store.
-func (k Keeper) SetRound1DataCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.Round1DataCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
+// SetRound1InfoCount sets the count of round 1 info for a group in the store.
+func (k Keeper) SetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.Round1InfoCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound1DataCount retrieves the count of round1 data for a group from the store.
-func (k Keeper) GetRound1DataCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round1DataCountStoreKey(groupID))
+// GetRound1InfoCount retrieves the count of round 1 info for a group from the store.
+func (k Keeper) GetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound1DataCount increments the count of round1 data for a group in the store.
-func (k Keeper) AddRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
-	count := k.GetRound1DataCount(ctx, groupID)
-	k.SetRound1DataCount(ctx, groupID, count+1)
+// AddRound1InfoCount increments the count of round 1 info for a group in the store.
+func (k Keeper) AddRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
+	count := k.GetRound1InfoCount(ctx, groupID)
+	k.SetRound1InfoCount(ctx, groupID, count+1)
 }
 
-// DeleteRound1DataCount remove the round 1 data count data of a group from the store.
-func (k Keeper) DeleteRound1DataCount(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round1DataCountStoreKey(groupID))
+// DeleteRound1InfoCount remove the round 1 info count data of a group from the store.
+func (k Keeper) DeleteRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.Round1InfoCountStoreKey(groupID))
 }
 
 // GetAccumulatedCommitIterator function gets an iterator over all accumulated commits of a group.
@@ -86,12 +86,12 @@ func (k Keeper) SetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index
 	ctx.KVStore(k.storeKey).Set(types.AccumulatedCommitIndexStoreKey(groupID, index), commit)
 }
 
-// GetAccumulatedCommit function retrieves accummulated commit of a index of the group from the store.
+// GetAccumulatedCommit function retrieves accumulated commit of a index of the group from the store.
 func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) tss.Point {
 	return ctx.KVStore(k.storeKey).Get(types.AccumulatedCommitIndexStoreKey(groupID, index))
 }
 
-// GetAllAccumulatedCommits function retrieves all accummulated commits of a group from the store.
+// GetAllAccumulatedCommits function retrieves all accumulated commits of a group from the store.
 func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) tss.Points {
 	var commits tss.Points
 	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)

@@ -5,12 +5,12 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 )
 
-func (suite *TSSTestSuite) TestGenerateRound1Data() {
+func (suite *TSSTestSuite) TestGenerateround1Info() {
 	mid := tss.MemberID(1)
 	dkgContext := []byte("DKGContext")
 	threshold := uint64(2)
 
-	data, err := tss.GenerateRound1Data(mid, threshold, dkgContext)
+	data, err := tss.Generateround1Info(mid, threshold, dkgContext)
 	suite.Require().NoError(err)
 	err = tss.VerifyOneTimeSig(mid, dkgContext, data.OneTimeSig, data.OneTimePubKey)
 	suite.Require().NoError(err)

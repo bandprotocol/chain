@@ -48,21 +48,21 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	// Get rounds data, complaints, and confirms
-	round1s := k.GetAllRound1Data(ctx, groupID)
-	round2s := k.GetAllRound2Data(ctx, groupID)
-	complains := k.GetAllComplainsWithStatus(ctx, groupID)
+	// Get round infos, complaints, and confirms
+	round1Infos := k.GetRound1Infos(ctx, groupID)
+	round2Infos := k.GetRound2Infos(ctx, groupID)
+	complaints := k.GetAllComplainsWithStatus(ctx, groupID)
 	confirms := k.GetConfirms(ctx, groupID)
 
 	// Return all the group information
 	return &types.QueryGroupResponse{
-		Group:                  group,
-		DKGContext:             dkgContext,
-		Members:                members,
-		AllRound1Data:          round1s,
-		AllRound2Data:          round2s,
-		AllComplainsWithStatus: complains,
-		AllConfirm:             confirms,
+		Group:                group,
+		DKGContext:           dkgContext,
+		Members:              members,
+		Round1Infos:          round1Infos,
+		Round2Infos:          round2Infos,
+		ComplaintsWithStatus: complaints,
+		Confirms:             confirms,
 	}, nil
 }
 

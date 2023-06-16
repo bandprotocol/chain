@@ -21,7 +21,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
-	round1Data1 := types.Round1Data{
+	round1Info1 := types.Round1Info{
 		MemberID: memberID1,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round1Data2 := types.Round1Data{
+	round1Info2 := types.Round1Info{
 		MemberID: memberID2,
 		CoefficientsCommit: []tss.Point{
 			[]byte("point1"),
@@ -43,45 +43,45 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		A0Sig:         []byte("A0SigSample"),
 		OneTimeSig:    []byte("OneTimeSigSample"),
 	}
-	round2Data1 := types.Round2Data{
+	round2Info1 := types.Round2Info{
 		MemberID: memberID1,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
 		},
 	}
-	round2Data2 := types.Round2Data{
+	round2Info2 := types.Round2Info{
 		MemberID: memberID2,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("scalar1"),
 			[]byte("scalar2"),
 		},
 	}
-	complainWithStatus1 := types.ComplainsWithStatus{
+	complaintWithStatus1 := types.ComplaintsWithStatus{
 		MemberID: memberID1,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
-	complainWithStatus2 := types.ComplainsWithStatus{
+	complaintWithStatus2 := types.ComplaintsWithStatus{
 		MemberID: memberID2,
-		ComplainsWithStatus: []types.ComplainWithStatus{
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
-				Complain: types.Complain{
+				Complaint: types.Complaint{
 					I:      1,
 					J:      2,
 					KeySym: []byte("key_sym"),
 					Sig:    []byte("signature"),
 				},
-				ComplainStatus: types.COMPLAIN_STATUS_SUCCESS,
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
 		},
 	}
@@ -100,19 +100,19 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Sender:    members[0],
 	})
 
-	// Set round1 data
-	k.SetRound1Data(ctx, groupID, round1Data1)
-	k.SetRound1Data(ctx, groupID, round1Data2)
+	// Set round 1 infos
+	k.SetRound1Info(ctx, groupID, round1Info1)
+	k.SetRound1Info(ctx, groupID, round1Info2)
 
-	// Set round 2 data
-	k.SetRound2Data(ctx, groupID, round2Data1)
-	k.SetRound2Data(ctx, groupID, round2Data2)
+	// Set round 2 infos
+	k.SetRound2Info(ctx, groupID, round2Info1)
+	k.SetRound2Info(ctx, groupID, round2Info2)
 
-	// Set complain
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus1)
-	k.SetComplainsWithStatus(ctx, groupID, complainWithStatus2)
+	// Set complains
+	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus1)
+	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus2)
 
-	// Set confirm
+	// Set confirms
 	k.SetConfirm(ctx, groupID, confirm1)
 	k.SetConfirm(ctx, groupID, confirm2)
 
@@ -180,19 +180,19 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							IsMalicious: false,
 						},
 					},
-					AllRound1Data: []types.Round1Data{
-						round1Data1,
-						round1Data2,
+					Round1Infos: []types.Round1Info{
+						round1Info1,
+						round1Info2,
 					},
-					AllRound2Data: []types.Round2Data{
-						round2Data1,
-						round2Data2,
+					Round2Infos: []types.Round2Info{
+						round2Info1,
+						round2Info2,
 					},
-					AllComplainsWithStatus: []types.ComplainsWithStatus{
-						complainWithStatus1,
-						complainWithStatus2,
+					ComplaintsWithStatus: []types.ComplaintsWithStatus{
+						complaintWithStatus1,
+						complaintWithStatus2,
 					},
-					AllConfirm: []types.Confirm{
+					Confirms: []types.Confirm{
 						confirm1,
 						confirm2,
 					},
