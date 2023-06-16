@@ -11,7 +11,7 @@ var (
 	ErrGroupNotFound           = sdkerrors.Register(ModuleName, 4, "group not found")
 	ErrMemberNotFound          = sdkerrors.Register(ModuleName, 5, "member not found")
 	ErrAlreadySubmit           = sdkerrors.Register(ModuleName, 6, "member is already submit message")
-	ErrRound1DataNotFound      = sdkerrors.Register(ModuleName, 7, "round 1 data not found")
+	ErrRound1InfoNotFound      = sdkerrors.Register(ModuleName, 7, "round 1 info not found")
 	ErrDKGContextNotFound      = sdkerrors.Register(ModuleName, 8, "dkg context not found")
 	ErrMemberNotAuthorized     = sdkerrors.Register(
 		ModuleName,
@@ -27,7 +27,7 @@ var (
 		14,
 		"coefficients commit not correct length",
 	)
-	ErrRound2DataNotFound                    = sdkerrors.Register(ModuleName, 15, "round 2 data not found")
+	ErrRound2InfoNotFound                    = sdkerrors.Register(ModuleName, 15, "round 2 info not found")
 	ErrEncryptedSecretSharesNotCorrectLength = sdkerrors.Register(
 		ModuleName,
 		16,
@@ -38,7 +38,7 @@ var (
 	ErrComplainFailed                   = sdkerrors.Register(ModuleName, 19, "complain failed")
 	ErrConfirmFailed                    = sdkerrors.Register(ModuleName, 20, "confirm failed")
 	ErrConfirmNotFound                  = sdkerrors.Register(ModuleName, 21, "confirm not found")
-	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 22, "complains with status not found")
+	ErrComplainsWithStatusNotFound      = sdkerrors.Register(ModuleName, 22, "complaints with status not found")
 	ErrDENotFound                       = sdkerrors.Register(ModuleName, 23, "DE not found")
 	ErrGroupIsNotActive                 = sdkerrors.Register(ModuleName, 24, "group is not active")
 	ErrBadDrbgInitialization            = sdkerrors.Register(ModuleName, 25, "bad drbg initialization")

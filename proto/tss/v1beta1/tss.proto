@@ -19,7 +19,7 @@ message Group {
   GroupStatus status = 5;
 }
 
-message Round1Data {
+message Round1Info {
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
@@ -38,7 +38,7 @@ message Round1Data {
   ];
 }
 
-message Round2Data {
+message Round2Info {
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
@@ -132,36 +132,36 @@ message Confirm {
   ];
 }
 
-message Complain {
+message Complaint {
   uint64 i = 1 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
   uint64 j = 2 [ (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID" ];
   bytes key_sym = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   bytes sig = 4 [
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.ComplainSignature"
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.ComplaintSignature"
   ];
 }
 
-enum ComplainStatus {
+enum ComplaintStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  COMPLAIN_STATUS_UNSPECIFIED = 0;
-  COMPLAIN_STATUS_SUCCESS = 1;
-  COMPLAIN_STATUS_FAILED= 2;
+  COMPLAINT_STATUS_UNSPECIFIED = 0;
+  COMPLAINT_STATUS_SUCCESS = 1;
+  COMPLAINT_STATUS_FAILED= 2;
 }
 
-message ComplainWithStatus {
-  Complain complain = 1 [ (gogoproto.nullable) = false ];
-  ComplainStatus complain_status = 2;
+message ComplaintWithStatus {
+  Complaint complaint = 1 [ (gogoproto.nullable) = false ];
+  ComplaintStatus complaint_status = 2;
 }
 
-message ComplainsWithStatus {
+message ComplaintsWithStatus {
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
-  repeated ComplainWithStatus complains_with_status = 2 [ (gogoproto.nullable) = false ];
+  repeated ComplaintWithStatus complaints_with_status = 2 [ (gogoproto.nullable) = false ];
 }
 
 message PartialSig {

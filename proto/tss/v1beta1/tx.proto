@@ -48,8 +48,8 @@ message MsgSubmitDKGRound1 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round1_data is all data that require to handle round 1.
-  Round1Data round1_data = 2 [ (gogoproto.nullable) = false ];
+  // round1_info is all data that require to handle round 1.
+  Round1Info round1_info = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
 }
@@ -64,8 +64,8 @@ message MsgSubmitDKGRound2 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round2_data is is all data that require to handle round 2.
-  Round2Data round2_data = 2 [ (gogoproto.nullable) = false ];
+  // round2_info is is all data that require to handle round 2.
+  Round2Info round2_info = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
 }
@@ -78,8 +78,8 @@ message MsgComplain {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // complains is a list of Complains. 
-  repeated Complain complains  = 3 [ (gogoproto.nullable) = false ];
+  // complaints is a list of Complains. 
+  repeated Complaint complaints  = 3 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 4;
 }

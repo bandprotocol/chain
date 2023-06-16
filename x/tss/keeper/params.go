@@ -5,18 +5,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GetParams get all parameters as types.Params
+// GetParams get all parameters as types.Params from the global param store
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
 		k.MaxGroupSize(ctx),
 	)
 }
 
-// SetParams set the params
+// SetParams set the params to the global param store
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
 
+// MaxGroupSize returns the current MaxGroupSize from the global param store
 func (k Keeper) MaxGroupSize(ctx sdk.Context) (res uint64) {
 	k.paramSpace.Get(ctx, types.KeyMaxGroupSize, &res)
 	return

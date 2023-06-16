@@ -1,5 +1,37 @@
 package types
 
+import "github.com/bandprotocol/chain/v2/pkg/tss"
+
+// VerifyMember checks if the given member's address matches the provided address.
+func VerifyMember(member Member, address string) bool {
+	if member.Address != address {
+		return false
+	}
+	return true
+}
+
+// FindMemberSlot calculates the slot value based on 'from' and 'to' MemberIDs.
+func FindMemberSlot(from tss.MemberID, to tss.MemberID) tss.MemberID {
+	slot := to - 1
+	if from < to {
+		slot--
+	}
+
+	return slot
+}
+
+// HaveMalicious checks if any member in the given slice is marked as malicious.
+func HaveMalicious(members []Member) bool {
+	for _, m := range members {
+		if m.IsMalicious {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Uint64ArrayContains checks if the given array contains the specified uint64 value.
 func Uint64ArrayContains(arr []uint64, a uint64) bool {
 	for _, v := range arr {
 		if v == a {
@@ -9,6 +41,7 @@ func Uint64ArrayContains(arr []uint64, a uint64) bool {
 	return false
 }
 
+// DuplicateInArray checks if there are any duplicates in the given string array.
 func DuplicateInArray(arr []string) bool {
 	visited := make(map[string]bool, 0)
 	for i := 0; i < len(arr); i++ {
@@ -21,6 +54,7 @@ func DuplicateInArray(arr []string) bool {
 	return false
 }
 
+// MakeRange creates a slice of uint64 values starting from 'min' up to 'max' (inclusive).
 func MakeRange(min, max uint64) []uint64 {
 	a := make([]uint64, max-min+1)
 	for i := range a {
