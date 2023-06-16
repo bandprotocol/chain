@@ -54,7 +54,7 @@ func (s *KeeperTestSuite) TestDeleteRound1Info() {
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetAllround1Info() {
+func (s *KeeperTestSuite) TestGetRound1Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
@@ -80,7 +80,7 @@ func (s *KeeperTestSuite) TestGetAllround1Info() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
-	// Set round 1 info
+	// Set round 1 infos
 	k.SetRound1Info(ctx, groupID, round1InfoMember1)
 	k.SetRound1Info(ctx, groupID, round1InfoMember2)
 
