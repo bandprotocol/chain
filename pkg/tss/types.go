@@ -298,16 +298,16 @@ func (s Signature) S() Scalar {
 	return Scalar(s[33:65])
 }
 
-// ComplainSignature represents a signature (a1, a2, z) stored as bytes.
-// It uses schnorr.ComplainSignature as a base implementation for serialization and parsing.
-type ComplainSignature []byte
+// ComplaintSignature represents a signature (a1, a2, z) stored as bytes.
+// It uses schnorr.ComplaintSignature as a base implementation for serialization and parsing.
+type ComplaintSignature []byte
 
 // Signatures represents a slice of Signature values.
-type ComplainSignatures []ComplainSignature
+type ComplaintSignatures []ComplaintSignature
 
-// NewComplainSignature generates a signature from 2 Points (A1, A2) and Scalar (Z).
-// It returns a complain signature and an error, if any.
-func NewComplainSignature(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplainSignature, error) {
+// NewComplaintSignature generates a signature from 2 Points (A1, A2) and Scalar (Z).
+// It returns a complaint signature and an error, if any.
+func NewComplaintSignature(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplaintSignature, error) {
 	a1, err := rawA1.Parse()
 	if err != nil {
 		return nil, NewError(err, "parse A1")
@@ -323,17 +323,17 @@ func NewComplainSignature(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplainSignat
 		return nil, NewError(err, "parse Z")
 	}
 
-	return ParseComplainSignature(schnorr.NewComplainSignature(a1, a2, z)), nil
+	return ParseComplaintSignature(schnorr.NewComplaintSignature(a1, a2, z)), nil
 }
 
-// ParseComplainSignature parses a schnorr.ComplainSignature into a Signature.
-func ParseComplainSignature(sig *schnorr.ComplainSignature) ComplainSignature {
+// ParseComplaintSignature parses a schnorr.ComplaintSignature into a Signature.
+func ParseComplaintSignature(sig *schnorr.ComplaintSignature) ComplaintSignature {
 	return sig.Serialize()
 }
 
-// Parse converts a ComplainSignature to a schnorr.ComplainSignature.
-func (cs ComplainSignature) Parse() (*schnorr.ComplainSignature, error) {
-	sig, err := schnorr.ParseComplainSignature(cs)
+// Parse converts a ComplaintSignature to a schnorr.ComplaintSignature.
+func (cs ComplaintSignature) Parse() (*schnorr.ComplaintSignature, error) {
+	sig, err := schnorr.ParseComplaintSignature(cs)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
 	}
@@ -341,16 +341,16 @@ func (cs ComplainSignature) Parse() (*schnorr.ComplainSignature, error) {
 	return sig, nil
 }
 
-// A1 returns A1 part of the complain signature
-func (cs ComplainSignature) A1() Point {
+// A1 returns A1 part of the complaint signature
+func (cs ComplaintSignature) A1() Point {
 	if len(cs) < 33 {
 		return []byte{}
 	}
 	return Point(cs[0:33])
 }
 
-// A2 returns A2 part of the complain signature
-func (cs ComplainSignature) A2() Point {
+// A2 returns A2 part of the complaint signature
+func (cs ComplaintSignature) A2() Point {
 	if len(cs) < 66 {
 		return []byte{}
 	}
@@ -358,7 +358,7 @@ func (cs ComplainSignature) A2() Point {
 }
 
 // S returns S part of the signature
-func (cs ComplainSignature) Z() Scalar {
+func (cs ComplaintSignature) Z() Scalar {
 	if len(cs) < 98 {
 		return []byte{}
 	}

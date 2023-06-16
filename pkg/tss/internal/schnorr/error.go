@@ -28,15 +28,15 @@ const (
 	// greater than or equal to the group order.
 	ErrSigSTooBig = ErrorKind("ErrSigSTooBig")
 
-	// ErrSigA1TooBig is returned when a complain signature has a1 with a value that is
+	// ErrSigA1TooBig is returned when a complaint signature has a1 with a value that is
 	// greater than or equal to the prime of the field underlying the group.
 	ErrSigA1TooBig = ErrorKind("ErrSigA1TooBig")
 
-	// ErrSigA2TooBig is returned when a complain signature has a2 with a value that is
+	// ErrSigA2TooBig is returned when a complaint signature has a2 with a value that is
 	// greater than or equal to the prime of the field underlying the group.
 	ErrSigA2TooBig = ErrorKind("ErrSigA2TooBig")
 
-	// ErrSigZTooBig is returned when a complain signature has s with a value that is
+	// ErrSigZTooBig is returned when a complaint signature has s with a value that is
 	// greater than or equal to the group order.
 	ErrSigZTooBig = ErrorKind("ErrSigZTooBig")
 )
