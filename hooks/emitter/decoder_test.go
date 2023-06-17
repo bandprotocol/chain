@@ -349,7 +349,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 	emitter.DecodeMsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejsqqqqqqqqqqqqqqqqqqqqy0tmlr\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejhyqqqqqqqqqqqqqqqqqqqrhevnq\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
