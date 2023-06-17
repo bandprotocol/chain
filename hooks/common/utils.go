@@ -2,6 +2,7 @@ package common
 
 import (
 	"strconv"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -45,4 +46,13 @@ func ParseEvents(events sdk.StringEvents) EvMap {
 		}
 	}
 	return evMap
+}
+
+func TimeToNano(time *time.Time) *int64 {
+	if time != nil {
+		nano := time.UnixNano()
+		return &nano
+	} else {
+		return nil
+	}
 }

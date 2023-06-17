@@ -9,6 +9,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -88,12 +89,20 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 	case *transfertypes.MsgTransfer:
 		DecodeMsgTransfer(msg, detail)
 	case *govv1beta1.MsgSubmitProposal:
+		DecodeV1beta1MsgSubmitProposal(msg, detail)
+	case *govv1.MsgSubmitProposal:
 		DecodeMsgSubmitProposal(msg, detail)
 	case *govv1beta1.MsgDeposit:
+		DecodeV1beta1MsgDeposit(msg, detail)
+	case *govv1.MsgDeposit:
 		DecodeMsgDeposit(msg, detail)
 	case *govv1beta1.MsgVote:
+		DecodeV1beta1MsgVote(msg, detail)
+	case *govv1.MsgVote:
 		DecodeMsgVote(msg, detail)
 	case *govv1beta1.MsgVoteWeighted:
+		DecodeV1beta1MsgVoteWeighted(msg, detail)
+	case *govv1.MsgVoteWeighted:
 		DecodeMsgVoteWeighted(msg, detail)
 	case *stakingtypes.MsgCreateValidator:
 		DecodeMsgCreateValidator(msg, detail)
@@ -308,25 +317,63 @@ func DecodeMsgCreateClient(msg *clienttypes.MsgCreateClient, detail common.JsDic
 	detail["signer"] = msg.Signer
 }
 
-func DecodeMsgSubmitProposal(msg *govv1beta1.MsgSubmitProposal, detail common.JsDict) {
+func DecodeMsgSubmitProposal(msg *govv1.MsgSubmitProposal, detail common.JsDict) {
+	detail["initial_deposit"] = msg.GetInitialDeposit()
+	detail["proposer"] = msg.GetProposer()
+	detail["metadata"] = msg.Metadata
+
+	msgs, _ := msg.GetMsgs()
+	messages := make([]common.JsDict, len(msgs))
+	for i, m := range msgs {
+		detail := make(common.JsDict)
+		DecodeMsg(m, detail)
+		messages[i] = common.JsDict{
+			"msg":  detail,
+			"type": sdk.MsgTypeURL(m),
+		}
+	}
+	detail["messages"] = messages
+}
+
+func DecodeV1beta1MsgSubmitProposal(msg *govv1beta1.MsgSubmitProposal, detail common.JsDict) {
 	detail["content"] = msg.GetContent()
 	detail["initial_deposit"] = msg.GetInitialDeposit()
 	detail["proposer"] = msg.GetProposer()
 }
 
-func DecodeMsgDeposit(msg *govv1beta1.MsgDeposit, detail common.JsDict) {
+func DecodeMsgDeposit(msg *govv1.MsgDeposit, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["depositor"] = msg.Depositor
 	detail["amount"] = msg.Amount
 }
 
-func DecodeMsgVote(msg *govv1beta1.MsgVote, detail common.JsDict) {
+func DecodeV1beta1MsgDeposit(msg *govv1beta1.MsgDeposit, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["depositor"] = msg.Depositor
+	detail["amount"] = msg.Amount
+}
+
+func DecodeMsgVote(msg *govv1.MsgVote, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["voter"] = msg.Voter
+	detail["option"] = msg.Option
+	detail["metadata"] = msg.Metadata
+}
+
+func DecodeV1beta1MsgVote(msg *govv1beta1.MsgVote, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["voter"] = msg.Voter
 	detail["option"] = msg.Option
 }
 
-func DecodeMsgVoteWeighted(msg *govv1beta1.MsgVoteWeighted, detail common.JsDict) {
+func DecodeMsgVoteWeighted(msg *govv1.MsgVoteWeighted, detail common.JsDict) {
+	detail["proposal_id"] = msg.ProposalId
+	detail["voter"] = msg.Voter
+	detail["options"] = msg.Options
+	detail["metadata"] = msg.Metadata
+}
+
+func DecodeV1beta1MsgVoteWeighted(msg *govv1beta1.MsgVoteWeighted, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["voter"] = msg.Voter
 	detail["options"] = msg.Options

@@ -6,6 +6,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -72,12 +73,20 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *slashingtypes.MsgUnjail:
 		h.handleMsgUnjail(ctx, msg)
 	case *govv1beta1.MsgSubmitProposal:
+		h.handleV1beta1MsgSubmitProposal(ctx, txHash, msg, evMap, detail)
+	case *govv1.MsgSubmitProposal:
 		h.handleMsgSubmitProposal(ctx, txHash, msg, evMap, detail)
 	case *govv1beta1.MsgVote:
+		h.handleV1beta1MsgVote(ctx, txHash, msg, detail)
+	case *govv1.MsgVote:
 		h.handleMsgVote(ctx, txHash, msg, detail)
 	case *govv1beta1.MsgVoteWeighted:
+		h.handleV1beta1MsgVoteWeighted(ctx, txHash, msg, detail)
+	case *govv1.MsgVoteWeighted:
 		h.handleMsgVoteWeighted(ctx, txHash, msg, detail)
 	case *govv1beta1.MsgDeposit:
+		h.handleV1beta1MsgDeposit(ctx, txHash, msg, detail)
+	case *govv1.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)

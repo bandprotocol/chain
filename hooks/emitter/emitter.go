@@ -16,6 +16,7 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -212,21 +213,22 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 
 	// Gov module
-	var govState govv1beta1.GenesisState
+	var govState govv1.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[govtypes.ModuleName], &govState)
 	for _, proposal := range govState.Proposals {
-		content := proposal.GetContent()
+		msgs, _ := proposal.GetMsgs()
+		content := msgs[0].(*govv1.MsgExecLegacyContent).Content.GetCachedValue().(govv1beta1.Content)
 		h.Write("NEW_PROPOSAL", common.JsDict{
-			"id":               proposal.ProposalId,
+			"id":               proposal.Id,
 			"proposer":         nil,
-			"type":             proposal.ProposalType(),
+			"type":             content.ProposalType(),
 			"title":            content.GetTitle(),
 			"description":      content.GetDescription(),
 			"proposal_route":   content.ProposalRoute(),
 			"status":           int(proposal.Status),
 			"submit_time":      proposal.SubmitTime.UnixNano(),
 			"deposit_end_time": proposal.DepositEndTime.UnixNano(),
-			"total_deposit":    proposal.TotalDeposit.String(),
+			"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
 			"voting_time":      proposal.VotingStartTime.UnixNano(),
 			"voting_end_time":  proposal.VotingEndTime.UnixNano(),
 		})
@@ -235,7 +237,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 		h.Write("SET_DEPOSIT", common.JsDict{
 			"proposal_id": deposit.ProposalId,
 			"depositor":   deposit.Depositor,
-			"amount":      deposit.Amount.String(),
+			"amount":      sdk.NewCoins(deposit.Amount...).String(),
 			"tx_hash":     nil,
 		})
 	}

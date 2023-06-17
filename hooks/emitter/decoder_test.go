@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -32,6 +33,7 @@ import (
 
 var (
 	SenderAddress    = sdk.AccAddress(genAddresFromString("Sender"))
+	ReceiverAddress  = sdk.AccAddress(genAddresFromString("Receiver"))
 	ValAddress       = sdk.ValAddress(genAddresFromString("Validator"))
 	TreasuryAddress  = sdk.AccAddress(genAddresFromString("Treasury"))
 	OwnerAddress     = sdk.AccAddress(genAddresFromString("Owner"))
@@ -43,8 +45,6 @@ var (
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
-	content, _ = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
-
 	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
 	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
 	MinSelfDelegation = sdk.NewInt(1)
@@ -53,6 +53,9 @@ var (
 	NewRate           = sdk.NewDec(1)
 	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
 	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+
+	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
+	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
 )
 
 type DecoderTestSuite struct {
@@ -325,19 +328,44 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 	// {"client_state":{"chain_id":"testchain0","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
 	detail := make(common.JsDict)
 	msg, _ := govv1beta1.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
-	emitter.DecodeMsgSubmitProposal(msg, detail)
+	emitter.DecodeV1beta1MsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"content\":{\"title\":\"Title\",\"description\":\"Desc\"},\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+	detail := make(common.JsDict)
+	msg, _ := govv1.NewMsgSubmitProposal(
+		[]sdk.Msg{proposalMsg},
+		testapp.Coins1000000uband,
+		SenderAddress.String(),
+		"metadata",
+	)
+	emitter.DecodeMsgSubmitProposal(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejsqqqqqqqqqqqqqqqqqqqqy0tmlr\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
 	detail := make(common.JsDict)
 	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	emitter.DecodeV1beta1MsgDeposit(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"depositor\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"proposal_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
+	detail := make(common.JsDict)
+	msg := govv1.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
 	emitter.DecodeMsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -345,12 +373,22 @@ func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgVote() {
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgVote() {
 	detail := make(common.JsDict)
 	msg := govv1beta1.NewMsgVote(SenderAddress, 1, 0)
-	emitter.DecodeMsgVote(msg, detail)
+	emitter.DecodeV1beta1MsgVote(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgVote() {
+	detail := make(common.JsDict)
+	msg := govv1.NewMsgVote(SenderAddress, 1, 0, "metadata")
+	emitter.DecodeMsgVote(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"metadata\":\"metadata\",\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
