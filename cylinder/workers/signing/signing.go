@@ -73,7 +73,7 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 			event.SigningID,
 			event.MemberIDs,
 			event.Data,
-			event.Bytes,
+			event.Commitment,
 			event.GroupPubNonce,
 			event.PubDE,
 		)
@@ -86,7 +86,7 @@ func (s *Signing) handleSigning(
 	sid tss.SigningID,
 	mids []tss.MemberID,
 	data []byte,
-	bytes []byte,
+	commitment []byte,
 	groupPubNonce tss.PublicKey,
 	pubDE types.DE,
 ) {
@@ -110,7 +110,7 @@ func (s *Signing) handleSigning(
 	}
 
 	// Compute binding factor value
-	bindingFactor := tss.ComputeOwnBindingFactor(group.MemberID, data, bytes)
+	bindingFactor := tss.ComputeOwnBindingFactor(group.MemberID, data, commitment)
 
 	// Compute own private nonce
 	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, bindingFactor)

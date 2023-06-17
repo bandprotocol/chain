@@ -14,7 +14,7 @@ type Event struct {
 	MemberIDs     []tss.MemberID
 	GroupPubNonce tss.PublicKey
 	Data          []byte
-	Bytes         []byte
+	Commitment    []byte
 	PubDE         types.DE
 }
 
@@ -36,7 +36,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	bytes, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyCommitment)
+	commitment, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyCommitment)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		MemberIDs:     mids,
 		GroupPubNonce: groupPubNonce,
 		Data:          data,
-		Bytes:         bytes,
+		Commitment:    commitment,
 		PubDE: types.DE{
 			PubD: pubD,
 			PubE: pubE,
