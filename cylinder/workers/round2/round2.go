@@ -100,7 +100,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 
 	// Get all one time public keys in the group
 	oneTimePubKeys := make(tss.PublicKeys, groupRes.Group.Size_)
-	for _, data := range groupRes.AllRound1Data {
+	for _, data := range groupRes.Round1Infos {
 		oneTimePubKeys[data.MemberID-1] = data.OneTimePubKey
 	}
 
@@ -119,7 +119,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	// Generate message for round 2
 	msg := &types.MsgSubmitDKGRound2{
 		GroupID: gid,
-		Round2Data: types.Round2Data{
+		Round2Info: types.Round2Info{
 			MemberID:              group.MemberID,
 			EncryptedSecretShares: encSecretShares,
 		},

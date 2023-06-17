@@ -17,31 +17,31 @@ func NewGroupResponse(gr *types.QueryGroupResponse) *GroupResponse {
 	return &GroupResponse{*gr}
 }
 
-// GetRound1Data retrieves the Round1Commitment for the specified member ID.
-func (gr *GroupResponse) GetRound1Data(mid tss.MemberID) (types.Round1Data, error) {
-	for _, data := range gr.AllRound1Data {
+// GetRound1Info retrieves the Round1Commitment for the specified member ID.
+func (gr *GroupResponse) GetRound1Info(mid tss.MemberID) (types.Round1Info, error) {
+	for _, data := range gr.Round1Infos {
 		if data.MemberID == mid {
 			return data, nil
 		}
 	}
 
-	return types.Round1Data{}, fmt.Errorf("No Round1Data from MemberID(%d)", mid)
+	return types.Round1Info{}, fmt.Errorf("No Round1Info from MemberID(%d)", mid)
 }
 
-// GetRound1Data retrieves the Round1Commitment for the specified member ID.
-func (gr *GroupResponse) GetRound2Data(mid tss.MemberID) (types.Round2Data, error) {
-	for _, data := range gr.AllRound2Data {
+// GetRound2Info retrieves the Round1Commitment for the specified member ID.
+func (gr *GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, error) {
+	for _, data := range gr.Round2Infos {
 		if data.MemberID == mid {
 			return data, nil
 		}
 	}
 
-	return types.Round2Data{}, fmt.Errorf("No Round2Data from MemberID(%d)", mid)
+	return types.Round2Info{}, fmt.Errorf("No Round2Info from MemberID(%d)", mid)
 }
 
 // GetEncryptedSecretShare retrieves the encrypted secret share between specific member I and member J.
 func (gr *GroupResponse) GetEncryptedSecretShare(j, i tss.MemberID) (tss.Scalar, error) {
-	round2DataJ, err := gr.GetRound2Data(j)
+	round2InfoJ, err := gr.GetRound2Info(j)
 	if err != nil {
 		return nil, err
 	}
@@ -53,11 +53,11 @@ func (gr *GroupResponse) GetEncryptedSecretShare(j, i tss.MemberID) (tss.Scalar,
 		idx--
 	}
 
-	if int(idx) > len(round2DataJ.EncryptedSecretShares) {
+	if int(idx) > len(round2InfoJ.EncryptedSecretShares) {
 		return nil, fmt.Errorf("No Round2Shares from MemberID(%d) for MemberID(%d)", j, i)
 	}
 
-	return round2DataJ.EncryptedSecretShares[idx-1], nil
+	return round2InfoJ.EncryptedSecretShares[idx-1], nil
 }
 
 // IsMember returns boolean to show if the address is the member in the group

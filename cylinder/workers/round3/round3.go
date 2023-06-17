@@ -98,19 +98,19 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 
 	// Get own private key
-	ownPrivKey, complains, err := getOwnPrivKey(group, groupRes)
+	ownPrivKey, complaints, err := getOwnPrivKey(group, groupRes)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to get own private key or complains: %s", err)
+		logger.Error(":cold_sweat: Failed to get own private key or complaints: %s", err)
 		return
 	}
 
-	// If there is any complain, send MsgComplain
-	if len(complains) > 0 {
-		// Send message complains
+	// If there is any complaint, send MsgComplain
+	if len(complaints) > 0 {
+		// Send message complaints
 		r.context.MsgCh <- &types.MsgComplain{
-			GroupID:   gid,
-			Complains: complains,
-			Member:    r.context.Config.Granter,
+			GroupID:    gid,
+			Complaints: complaints,
+			Member:     r.context.Config.Granter,
 		}
 		return
 	}

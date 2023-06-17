@@ -80,7 +80,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 	r.logger.Info(":delivery_truck: Processing incoming group")
 
 	// Generate round1 data
-	data, err := tss.GenerateRound1Data(mid, threshold, dkgContext)
+	data, err := tss.GenerateRound1Info(mid, threshold, dkgContext)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err)
 		return
@@ -97,7 +97,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 	// Generate message
 	msg := &types.MsgSubmitDKGRound1{
 		GroupID: gid,
-		Round1Data: types.Round1Data{
+		Round1Info: types.Round1Info{
 			MemberID:           mid,
 			CoefficientsCommit: data.CoefficientsCommit,
 			OneTimePubKey:      data.OneTimePubKey,

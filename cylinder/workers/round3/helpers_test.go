@@ -14,11 +14,11 @@ import (
 
 func TestGetOwnPrivKey(t *testing.T) {
 	tests := []struct {
-		name         string
-		modify       func(*store.Group, *client.GroupResponse, tss.MemberID)
-		expPrivKey   bool
-		expComplains bool
-		expErr       bool
+		name          string
+		modify        func(*store.Group, *client.GroupResponse, tss.MemberID)
+		expPrivKey    bool
+		expComplaints bool
+		expErr        bool
 	}{
 		{
 			"success - private key",
@@ -26,11 +26,11 @@ func TestGetOwnPrivKey(t *testing.T) {
 			true, false, false,
 		},
 		{
-			"success - complain",
+			"success - complaint",
 			func(group *store.Group, groupRes *client.GroupResponse, mid tss.MemberID) {
-				for _, round2Data := range groupRes.AllRound2Data {
-					if round2Data.MemberID != mid {
-						round2Data.EncryptedSecretShares[testutil.GetSlot(round2Data.MemberID, mid)] = testutil.HexDecode(
+				for _, round2Info := range groupRes.Round2Infos {
+					if round2Info.MemberID != mid {
+						round2Info.EncryptedSecretShares[testutil.GetSlot(round2Info.MemberID, mid)] = testutil.HexDecode(
 							"0000000000000000000000000000000000000000000000000000000000000000",
 						)
 					}
@@ -47,7 +47,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 					group, groupRes := getTestData(tc, member)
 					test.modify(&group, &groupRes, member.ID)
 
-					privKey, complains, err := getOwnPrivKey(group, &groupRes)
+					privKey, complaints, err := getOwnPrivKey(group, &groupRes)
 
 					if test.expPrivKey {
 						assert.Equal(t, member.PrivKey, privKey)
@@ -55,8 +55,8 @@ func TestGetOwnPrivKey(t *testing.T) {
 						assert.Nil(t, privKey)
 					}
 
-					if test.expComplains {
-						var expComplains []types.Complain
+					if test.expComplaints {
+						var expComplaints []types.Complaint
 
 						for _, m := range tc.Group.Members {
 							if m.ID == member.ID {
@@ -64,17 +64,17 @@ func TestGetOwnPrivKey(t *testing.T) {
 							}
 
 							slot := testutil.GetSlot(member.ID, m.ID)
-							expComplains = append(expComplains, types.Complain{
+							expComplaints = append(expComplaints, types.Complaint{
 								I:      member.ID,
 								J:      m.ID,
 								KeySym: member.KeySyms[slot],
-								Sig:    member.ComplainSigs[slot],
+								Sig:    member.ComplaintSigs[slot],
 							})
 						}
 
-						assert.Equal(t, expComplains, complains)
+						assert.Equal(t, expComplaints, complaints)
 					} else {
-						assert.Nil(t, complains)
+						assert.Nil(t, complaints)
 					}
 
 					if test.expErr {
@@ -93,7 +93,7 @@ func TestGetSecretShare(t *testing.T) {
 		name           string
 		modify         func(*store.Group, *client.GroupResponse, tss.MemberID, tss.MemberID)
 		expSecretShare bool
-		expComplain    bool
+		expComplaint   bool
 		expErr         bool
 	}{
 		{
@@ -102,11 +102,11 @@ func TestGetSecretShare(t *testing.T) {
 			true, false, false,
 		},
 		{
-			"success - complain",
+			"success - complaint",
 			func(group *store.Group, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {
-				for _, round2Data := range groupRes.AllRound2Data {
-					if round2Data.MemberID == j {
-						round2Data.EncryptedSecretShares[testutil.GetSlot(j, i)] = testutil.HexDecode(
+				for _, round2Info := range groupRes.Round2Infos {
+					if round2Info.MemberID == j {
+						round2Info.EncryptedSecretShares[testutil.GetSlot(j, i)] = testutil.HexDecode(
 							"0000000000000000000000000000000000000000000000000000000000000000",
 						)
 					}
@@ -136,7 +136,7 @@ func TestGetSecretShare(t *testing.T) {
 							group, groupRes := getTestData(tc, memberI)
 							test.modify(&group, &groupRes, memberI.ID, memberJ.ID)
 
-							secretShare, complain, err := getSecretShare(
+							secretShare, complaint, err := getSecretShare(
 								memberI.ID,
 								memberJ.ID,
 								group.OneTimePrivKey,
@@ -144,7 +144,7 @@ func TestGetSecretShare(t *testing.T) {
 							)
 
 							if test.expSecretShare {
-								assert.Nil(t, complain)
+								assert.Nil(t, complaint)
 								assert.Nil(t, err)
 								assert.Equal(
 									t,
@@ -155,18 +155,18 @@ func TestGetSecretShare(t *testing.T) {
 								assert.Nil(t, secretShare)
 							}
 
-							if test.expComplain {
+							if test.expComplaint {
 								slot := testutil.GetSlot(memberI.ID, memberJ.ID)
-								expComplain := &types.Complain{
+								expComplaint := &types.Complaint{
 									I:      memberI.ID,
 									J:      memberJ.ID,
 									KeySym: memberI.KeySyms[slot],
-									Sig:    memberI.ComplainSigs[slot],
+									Sig:    memberI.ComplaintSigs[slot],
 								}
 
-								assert.Equal(t, expComplain, complain)
+								assert.Equal(t, expComplaint, complaint)
 							} else {
-								assert.Nil(t, complain)
+								assert.Nil(t, complaint)
 							}
 
 							if test.expErr {
@@ -196,24 +196,24 @@ func getTestData(testCase testutil.TestCase, member testutil.Member) (store.Grou
 			Group: types.Group{
 				Size_: uint64(tc.Group.GetSize()),
 			},
-			AllRound1Data: []types.Round1Data{},
-			AllRound2Data: []types.Round2Data{},
+			Round1Infos: []types.Round1Info{},
+			Round2Infos: []types.Round2Info{},
 		},
 	}
 
 	for _, m := range tc.Group.Members {
-		round1Data := types.Round1Data{
+		round1Info := types.Round1Info{
 			MemberID:           m.ID,
 			CoefficientsCommit: m.CoefficientsCommit,
 			OneTimePubKey:      m.OneTimePubKey(),
 		}
-		groupRes.AllRound1Data = append(groupRes.AllRound1Data, round1Data)
+		groupRes.Round1Infos = append(groupRes.Round1Infos, round1Info)
 
-		round2Data := types.Round2Data{
+		round2Info := types.Round2Info{
 			MemberID:              m.ID,
 			EncryptedSecretShares: m.EncSecretShares,
 		}
-		groupRes.AllRound2Data = append(groupRes.AllRound2Data, round2Data)
+		groupRes.Round2Infos = append(groupRes.Round2Infos, round2Info)
 	}
 
 	return group, groupRes
