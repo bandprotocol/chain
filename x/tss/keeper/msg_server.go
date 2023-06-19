@@ -25,10 +25,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	groupSize := uint64(len(req.Members))
 	maxGroupSize := k.MaxGroupSize(ctx)
 	if groupSize > maxGroupSize {
-		return nil, sdkerrors.Wrap(
-			types.ErrGroupSizeTooLarge,
-			fmt.Sprintf("group status should not more than %d", maxGroupSize),
-		)
+		return nil, sdkerrors.Wrap(types.ErrGroupSizeTooLarge, fmt.Sprintf("group size exceeds %d", maxGroupSize))
 	}
 
 	// Create new group

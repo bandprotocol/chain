@@ -6,7 +6,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-const DefaultMaxGroupSize = uint64(10)
+const DefaultMaxGroupSize = uint64(20)
 
 var KeyMaxGroupSize = []byte("MaxGroupSize")
 
