@@ -98,7 +98,7 @@ tracking = sa.Table(
     metadata,
     Column("chain_id", sa.String, primary_key=True),
     Column("topic", sa.String),
-    Column("kafka_offset", sa.Integer),
+    Column("kafka_offset", sa.BigInteger),
     Column("replay_topic", sa.String),
     Column("replay_offset", sa.Integer),
 )
@@ -181,7 +181,7 @@ requests = sa.Table(
     "requests",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id")),
     Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id")),
     Column("calldata", CustomBase64),
     Column("ask_count", sa.Integer),
@@ -193,16 +193,16 @@ requests = sa.Table(
     Column("execute_gas_used", sa.Integer, default=0),
     Column("sender", sa.String, nullable=True),
     Column("client_id", sa.String),
-    Column("request_time", sa.Integer, nullable=True),
+    Column("request_time", sa.Integer, nullable=True, index=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
-    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
+    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
-    sa.Index("ix_requests_oracle_script_id", "oracle_script_id", "id"),
-    sa.Index("ix_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
+    sa.Index("ix_requests_oracle_script_id_id", "oracle_script_id", "id", postgresql_include=['transaction_id', 'min_count', 'ask_count', 'resolve_status', 'request_time']),
+    sa.Index("ix_requests_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
 )
 
 raw_requests = sa.Table(
@@ -210,9 +210,10 @@ raw_requests = sa.Table(
     metadata,
     Column("request_id", sa.Integer, sa.ForeignKey("requests.id"), primary_key=True),
     Column("external_id", sa.BigInteger, primary_key=True),
-    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id")),
+    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), index=True),
     Column("fee", sa.BigInteger),
     Column("calldata", CustomBase64),
+    sa.Index("ix_raw_requests_data_source_id_request_id", "data_source_id", "request_id"),
 )
 
 val_requests = sa.Table(
@@ -226,9 +227,10 @@ reports = sa.Table(
     "reports",
     metadata,
     Column("request_id", sa.Integer, sa.ForeignKey("requests.id"), primary_key=True),
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id")),
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
-    Column("reporter_id", sa.Integer, sa.ForeignKey("accounts.id"), nullable=True),
+    Column("reporter_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    sa.Index("ix_reports_validator_id_request_id", "validator_id", "request_id"),
 )
 
 raw_reports = sa.Table(
@@ -311,6 +313,7 @@ account_transactions = sa.Table(
     metadata,
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
+    sa.Index("ix_account_transactions_account_id_transaction_id", "account_id", "transaction_id"),
 )
 
 proposals = sa.Table(
