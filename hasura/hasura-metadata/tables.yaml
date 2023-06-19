@@ -344,6 +344,13 @@
           table:
             name: related_data_source_oracle_scripts
             schema: public
+    - name: request_count_per_oracle_script_and_days
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            name: request_count_per_oracle_script_and_days
+            schema: public
     - name: requests
       using:
         foreign_key_constraint_on:
@@ -501,6 +508,13 @@
 - table:
     name: request_count_per_days
     schema: public
+- table:
+    name: request_count_per_oracle_script_and_days
+    schema: public
+  object_relationships:
+    - name: oracle_script
+      using:
+        foreign_key_constraint_on: oracle_script_id
 - table:
     name: requests
     schema: public
