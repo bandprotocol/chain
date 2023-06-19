@@ -687,12 +687,14 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 	var found bool
 	var mids []tss.MemberID
+	var assignedMember types.AssignedMember
 	// Check sender not in assigned participants and verify signature R
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
 		if am.MemberID == req.MemberID {
 			// Found member in assigned members
 			found = true
+			assignedMember = am
 
 			// verify signature R
 			if !bytes.Equal(req.Sig.R(), tss.Point(am.PubNonce)) {
@@ -776,6 +778,9 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, member.Address),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
 			sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(req.Sig)),
 		),
 	)
