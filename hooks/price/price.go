@@ -11,7 +11,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -80,15 +79,12 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			if result.ResolveStatus == types.RESOLVE_STATUS_SUCCESS {
 				// check whether this result should be stored to database
 				if h.stdOs[result.OracleScriptID] {
-					var input Input
-					var output Output
-					obi.MustDecode(result.Calldata, &input)
-					obi.MustDecode(result.Result, &output)
-					for idx, symbol := range input.Symbols {
+					commonOutput := MustDecodeResult(result.Calldata, result.Result)
+					for idx, symbol := range commonOutput.Symbols {
 						price := types.PriceResult{
 							Symbol:      symbol,
-							Multiplier:  input.Multiplier,
-							Px:          output.Rates[idx],
+							Multiplier:  commonOutput.Multiplier,
+							Px:          commonOutput.Rates[idx],
 							RequestID:   result.RequestID,
 							ResolveTime: result.ResolveTime,
 						}
