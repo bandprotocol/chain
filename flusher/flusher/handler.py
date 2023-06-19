@@ -31,6 +31,7 @@ from .db import (
     data_source_requests,
     oracle_script_requests,
     request_count_per_days,
+    request_count_per_oracle_script_and_days,
     incoming_packets,
     outgoing_packets,
     counterparty_chains,
@@ -61,6 +62,11 @@ class Handler(object):
     def get_request_count(self, date):
         return self.conn.execute(
             select([request_count_per_days.c.count]).where(request_count_per_days.c.date == date)
+        ).scalar()
+
+    def get_request_per_oracle_script_count(self, date, oracle_script_id):
+        return self.conn.execute(
+            select([request_count_per_oracle_script_and_days.c.count]).where((request_count_per_oracle_script_and_days.c.date == date) & (request_count_per_oracle_script_and_days.c.oracle_script_id == oracle_script_id))
         ).scalar()
 
     def get_data_source_id(self, id):
@@ -144,6 +150,7 @@ class Handler(object):
         del msg["tx_hash"]
         if "timestamp" in msg:
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
+            self.handle_set_request_count_per_oracle_script_and_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]})
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
         self.increase_oracle_script_count(msg["oracle_script_id"])
@@ -389,6 +396,18 @@ class Handler(object):
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(
                 request_count_per_days.update(condition).values(count=request_count_per_days.c.count + 1)
+            )
+
+    def handle_set_request_count_per_oracle_script_and_day(self, msg):
+        if self.get_request_per_oracle_script_count(msg["date"], msg["oracle_script_id"]) is None:
+            msg["count"] = 1
+            self.conn.execute(request_count_per_oracle_script_and_days.insert(), msg)
+        else:
+            condition = True
+            for col in request_count_per_oracle_script_and_days.primary_key.columns.values():
+                condition = (col == msg[col.name]) & condition
+            self.conn.execute(
+                request_count_per_oracle_script_and_days.update(condition).values(count=request_count_per_oracle_script_and_days.c.count + 1)
             )
 
     def handle_new_incoming_packet(self, msg):
