@@ -414,6 +414,7 @@ request_count_per_oracle_script_and_days = sa.Table(
     Column("date", CustomDate, primary_key=True),
     Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
     Column("count", sa.Integer),
+    Column("last_update", CustomDateTime),
 )
 
 incoming_packets = sa.Table(

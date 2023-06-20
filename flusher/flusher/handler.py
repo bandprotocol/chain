@@ -150,7 +150,7 @@ class Handler(object):
         del msg["tx_hash"]
         if "timestamp" in msg:
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
-            self.handle_set_request_count_per_oracle_script_and_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]})
+            self.handle_set_request_count_per_oracle_script_and_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"], "last_update": msg["timestamp"]})
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
         self.increase_oracle_script_count(msg["oracle_script_id"])
