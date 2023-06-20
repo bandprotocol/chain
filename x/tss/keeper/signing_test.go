@@ -368,7 +368,7 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	s.Require().Equal([]tss.MemberID{4, 8, 6, 2, 5}, participants)
+	s.Require().Equal([]tss.MemberID{2, 4, 5, 6, 8}, participants)
 
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)

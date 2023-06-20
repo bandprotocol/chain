@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -38,8 +37,6 @@ func TestParseComplaints(t *testing.T) {
 	complaints, err = parseComplaints(tempFile.Name())
 	require.NoError(t, err)
 	require.Equal(t, 1, len(complaints))
-
-	fmt.Println(complaints)
 
 	// 3. Test with a non-existent file
 	complaints, err = parseComplaints("non-existent-file")

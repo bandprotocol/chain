@@ -56,4 +56,5 @@ var (
 		35,
 		"failed to verify group signing signature",
 	)
+	ErrDEQueueFull = sdkerrors.Register(ModuleName, 36, "DE queue is full")
 )

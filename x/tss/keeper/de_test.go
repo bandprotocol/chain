@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -65,13 +67,50 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 	s.Require().Equal(types.DE{}, got)
 }
 
+func (s *KeeperTestSuite) TestNextQueueValue() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	testCases := []struct {
+		name     string
+		value    uint64
+		expValue uint64
+	}{
+		{
+			"first value",
+			0,
+			1,
+		},
+		{
+			"second value",
+			1,
+			2,
+		},
+		{
+			"last value",
+			99,
+			0,
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			nextVal := k.NextQueueValue(ctx, tc.value)
+			s.Require().Equal(tc.expValue, nextVal)
+		})
+	}
+}
+
 func (s *KeeperTestSuite) TestHandleSetDEs() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	des := []types.DE{
 		{
-			PubD: []byte("D"),
-			PubE: []byte("E"),
+			PubD: []byte("D1"),
+			PubE: []byte("E1"),
+		},
+		{
+			PubD: []byte("D2"),
+			PubE: []byte("E2"),
 		},
 	}
 

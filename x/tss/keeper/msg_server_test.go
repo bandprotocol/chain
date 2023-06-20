@@ -521,39 +521,63 @@ func (s *KeeperTestSuite) TestConfirm() {
 
 func (s *KeeperTestSuite) TestSubmitDEs() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
-	deList := []types.DE{
-		{
-			PubD: []byte("D"),
-			PubE: []byte("E"),
-		},
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
 	}
 
-	var tcs []TestCase
 	var req types.MsgSubmitDEs
 
-	// Add success test cases from testutil
-	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		tcs = append(tcs, TestCase{
-			Msg: fmt.Sprintf("success %s", tc.Name),
-			Malleate: func() {
+	// Add failed case
+	tcs := []TestCase{
+		{
+			"success with 1 DE",
+			func() {
 				req = types.MsgSubmitDEs{
-					DEs:    deList,
-					Member: sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
+					DEs:    []types.DE{de},
+					Member: "band197gn3gpq4f8ylnufwxjsafznxykglgacf4t384",
 				}
 			},
-			ExpPass:  true,
-			PostTest: func() {},
-		})
-	}
+			true,
+			func() {},
+		},
+		{
+			"success with 99 DEs",
+			func() {
+				var deList []types.DE
+				for i := 0; i < 99; i++ {
+					deList = append(deList, de)
+				}
 
-	// Add failed case
-	failedCases := []TestCase{
+				req = types.MsgSubmitDEs{
+					DEs:    deList,
+					Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func() {},
+		},
+		{
+			"failure with number of DE more than max",
+			func() {
+				var deList []types.DE
+				for i := 0; i < 100; i++ {
+					deList = append(deList, de)
+				}
+
+				req = types.MsgSubmitDEs{
+					DEs:    deList,
+					Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+				}
+			},
+			false,
+			func() {},
+		},
 		{
 			"failure with invalid member address",
 			func() {
 				req = types.MsgSubmitDEs{
-					DEs:    deList,
+					DEs:    []types.DE{de},
 					Member: "invalidMemberAddress", //invalid address
 				}
 			},
@@ -561,7 +585,6 @@ func (s *KeeperTestSuite) TestSubmitDEs() {
 			func() {},
 		},
 	}
-	tcs = append(tcs, failedCases...)
 
 	for _, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {

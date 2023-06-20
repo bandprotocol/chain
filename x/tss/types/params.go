@@ -6,9 +6,15 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-const DefaultMaxGroupSize = uint64(10)
+const (
+	DefaultMaxGroupSize = uint64(20)
+	DefaultMaxDESize    = uint64(100)
+)
 
-var KeyMaxGroupSize = []byte("MaxGroupSize")
+var (
+	KeyMaxGroupSize = []byte("MaxGroupSize")
+	KeyMaxDESize    = []byte("MaxDESize")
+)
 
 // ParamKeyTable the param key table for launch module
 func ParamKeyTable() paramtypes.KeyTable {
@@ -16,16 +22,19 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(
-	maxGroupSize uint64) Params {
+func NewParams(maxGroupSize uint64, maxDESize uint64) Params {
 	return Params{
 		MaxGroupSize: maxGroupSize,
+		MaxDESize:    maxDESize,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
-	return Params{MaxGroupSize: DefaultMaxGroupSize}
+	return Params{
+		MaxGroupSize: DefaultMaxGroupSize,
+		MaxDESize:    DefaultMaxDESize,
+	}
 }
 
 // Validate validates the set of params
@@ -36,9 +45,8 @@ func (p Params) Validate() error {
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(
-			KeyMaxGroupSize, &p.MaxGroupSize, validateUint64("max group size", true),
-		),
+		paramtypes.NewParamSetPair(KeyMaxGroupSize, &p.MaxGroupSize, validateUint64("max group size", true)),
+		paramtypes.NewParamSetPair(KeyMaxDESize, &p.MaxDESize, validateUint64("max DE size", true)),
 	}
 }
 
