@@ -508,14 +508,10 @@ func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*type
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
 
-	currentDESize := k.GetDESize(ctx, accMember)
-	newDESize := currentDESize + uint64(len(req.DEs))
-	maxDESize := k.MaxDESize(ctx)
-	if newDESize >= maxDESize {
-		return nil, sdkerrors.Wrap(types.ErrDESizeTooLarge, fmt.Sprintf("DE size exceeds %d", maxDESize))
+	err = k.HandleSetDEs(ctx, accMember, req.DEs)
+	if err != nil {
+		return nil, err
 	}
-
-	k.HandleSetDEs(ctx, accMember, req.DEs)
 
 	return &types.MsgSubmitDEsResponse{}, nil
 }

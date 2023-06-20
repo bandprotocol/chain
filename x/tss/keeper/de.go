@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -57,17 +59,29 @@ func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) 
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
 }
 
+// NextQueueValue returns next value of head/tail for DE queue
+func (k Keeper) NextQueueValue(ctx sdk.Context, val uint64) uint64 {
+	nextVal := (val + 1) % k.MaxDESize(ctx)
+	return nextVal
+}
+
 // HandleSetDEs sets multiple DE objects for a given address in the context's KVStore,
-// increasing the tail index for each new DE object.
-func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) {
+// if tail reaches to head, return err as DE is full
+func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) error {
 	deQueue := k.GetDEQueue(ctx, address)
 
 	for _, de := range des {
 		k.SetDE(ctx, address, deQueue.Tail, de)
-		deQueue.Tail += (deQueue.Tail + 1) % k.MaxDESize(ctx)
+		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
+
+		if deQueue.Tail == deQueue.Head {
+			return sdkerrors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.MaxDESize(ctx)))
+		}
 	}
 
 	k.SetDEQueue(ctx, address, deQueue)
+
+	return nil
 }
 
 // PollDE retrieves and removes the DE object at the head of the DEQueue for a given address,
@@ -82,7 +96,7 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 
 	k.DeleteDE(ctx, address, deQueue.Head)
 
-	deQueue.Head += (deQueue.Head + 1) % k.MaxDESize(ctx)
+	deQueue.Head = k.NextQueueValue(ctx, deQueue.Head)
 	k.SetDEQueue(ctx, address, deQueue)
 
 	return de, nil
