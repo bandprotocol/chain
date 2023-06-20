@@ -92,6 +92,9 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 	if err != nil {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err)
 		return
+	} else if res.Code != 0 {
+		logger.Error(":anxious_face_with_sweat: Cannot send messages with error code: codespace: %s, code: %d", res.Codespace, res.Code)
+		return
 	}
 
 	logger.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", res.TxHash)
