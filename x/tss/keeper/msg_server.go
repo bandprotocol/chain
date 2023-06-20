@@ -280,10 +280,7 @@ func (k Keeper) SubmitDKGRound2(
 // Complain checks the group status, member, and whether the member has already confirmed or complained.
 // It then verifies complaints, marks malicious members, updates the group's status if necessary,
 // and finally emits appropriate events.
-func (k Keeper) Complain(
-	goCtx context.Context,
-	req *types.MsgComplain,
-) (*types.MsgComplainResponse, error) {
+func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
 	memberID := req.Complaints[0].I
@@ -504,14 +501,18 @@ func (k Keeper) Confirm(
 
 // SubmitDEs receives a member's request containing Distributed Key Generation (DKG) shares (DEs).
 // It converts the member's address from Bech32 to AccAddress format and then delegates the task of setting the DEs to the HandleSetDEs function.
-func (k Keeper) SubmitDEs(
-	goCtx context.Context,
-	req *types.MsgSubmitDEs,
-) (*types.MsgSubmitDEsResponse, error) {
+func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*types.MsgSubmitDEsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	accMember, err := sdk.AccAddressFromBech32(req.Member)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
+	currentDESize := k.GetDESize(ctx, accMember)
+	newDESize := currentDESize + uint64(len(req.DEs))
+	maxDESize := k.MaxDESize(ctx)
+	if newDESize >= maxDESize {
+		return nil, sdkerrors.Wrap(types.ErrDESizeTooLarge, fmt.Sprintf("DE size exceeds %d", maxDESize))
 	}
 
 	k.HandleSetDEs(ctx, accMember, req.DEs)
@@ -809,10 +810,7 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 
 // handleFallenGroup updates the status of a group to "FALLEN" and triggers an event of the failure of the 3rd round in the given context.
 // A group may be marked as "FALLEN" when one or more members are found to be malicious during the group operation.
-func (k Keeper) handleFallenGroup(
-	ctx sdk.Context,
-	group types.Group,
-) {
+func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	group.Status = types.GROUP_STATUS_FALLEN
 
 	k.SetGroup(ctx, group)

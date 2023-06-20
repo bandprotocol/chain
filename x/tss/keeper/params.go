@@ -9,6 +9,7 @@ import (
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
 		k.MaxGroupSize(ctx),
+		k.MaxDESize(ctx),
 	)
 }
 
@@ -20,5 +21,11 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 // MaxGroupSize returns the current MaxGroupSize from the global param store
 func (k Keeper) MaxGroupSize(ctx sdk.Context) (res uint64) {
 	k.paramSpace.Get(ctx, types.KeyMaxGroupSize, &res)
+	return
+}
+
+// MaxDESize returns the current MaxDESize from the global param store
+func (k Keeper) MaxDESize(ctx sdk.Context) (res uint64) {
+	k.paramSpace.Get(ctx, types.KeyMaxDESize, &res)
 	return
 }

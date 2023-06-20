@@ -56,4 +56,5 @@ var (
 		35,
 		"failed to verify group signing signature",
 	)
+	ErrDESizeTooLarge = sdkerrors.Register(ModuleName, 36, "DE size is too large")
 )

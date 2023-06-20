@@ -15,4 +15,6 @@ message GenesisState {
 message Params {
   // max_group_size is the maximum of the member capacity of the group.
   uint64 max_group_size = 1;
+  // max_d_e_size is the maximum of the de capacity of the member.
+  uint64 max_d_e_size = 2;
 }

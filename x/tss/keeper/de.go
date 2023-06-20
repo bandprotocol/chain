@@ -20,6 +20,16 @@ func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueu
 	return deQueue
 }
 
+// GetDESize retrieves the current size of DE for a given address from the context's KVStore.
+func (k Keeper) GetDESize(ctx sdk.Context, address sdk.AccAddress) uint64 {
+	deQueue := k.GetDEQueue(ctx, address)
+
+	if deQueue.Head <= deQueue.Tail {
+		return deQueue.Tail - deQueue.Head
+	}
+	return k.MaxDESize(ctx) - (deQueue.Head - deQueue.Tail)
+}
+
 // SetDE sets a DE object in the context's KVStore for a given address and index.
 func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de types.DE) {
 	ctx.KVStore(k.storeKey).Set(types.DEIndexStoreKey(address, index), k.cdc.MustMarshal(&de))
@@ -54,7 +64,7 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 
 	for _, de := range des {
 		k.SetDE(ctx, address, deQueue.Tail, de)
-		deQueue.Tail += 1
+		deQueue.Tail += (deQueue.Tail + 1) % k.MaxDESize(ctx)
 	}
 
 	k.SetDEQueue(ctx, address, deQueue)
@@ -72,7 +82,7 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 
 	k.DeleteDE(ctx, address, deQueue.Head)
 
-	deQueue.Head += 1
+	deQueue.Head += (deQueue.Head + 1) % k.MaxDESize(ctx)
 	k.SetDEQueue(ctx, address, deQueue)
 
 	return de, nil

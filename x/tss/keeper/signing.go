@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gogotypes "github.com/gogo/protobuf/types"
@@ -223,5 +225,8 @@ func (k Keeper) GetRandomAssigningParticipants(
 
 		members_size -= 1
 	}
+
+	sort.Slice(aps, func(i, j int) bool { return aps[i] < aps[j] })
+
 	return aps, nil
 }
