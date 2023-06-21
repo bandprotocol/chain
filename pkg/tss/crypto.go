@@ -263,9 +263,8 @@ func H_M1_L48(H func(data ...[]byte) []byte, count int, p *big.Int, msg []byte, 
 		DST := []byte(contextString)
 		return ExpandMessageXMD(H, message, DST, lenInBytes)
 	}
-	m := 1
-	L := 48
-	fieldElements, err := HashToField(msg, count, p, m, L, expand)
+	// m = 1, L = 48
+	fieldElements, err := HashToField(msg, count, p, 1, 48, expand)
 	if err != nil {
 		return nil, err
 	}
