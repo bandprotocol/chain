@@ -14,6 +14,7 @@ func (e ErrorKind) Error() string {
 var (
 	ErrParseError            = ErrorKind("parse error")
 	ErrInvalidLength         = ErrorKind("invalid length")
+	ErrInvalidOrder          = ErrorKind("invalid order")
 	ErrGenerateKeyPairFailed = ErrorKind("generate key pair failed")
 	ErrPrivateKeyZero        = ErrorKind("private key zero")
 	ErrNotOnCurve            = ErrorKind("not on curve")

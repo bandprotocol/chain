@@ -15,7 +15,7 @@ func ComputeEncryptedSecretShares(
 	var keySyms PublicKeys
 	for i, rawPubKey := range rawPubKeys {
 		idx := i + 1
-		if MemberID(idx) == mid {
+		if NewMemberID(idx) == mid {
 			continue
 		}
 
@@ -30,11 +30,11 @@ func ComputeEncryptedSecretShares(
 	// Calculate the secret share for each member 1..n except mid.
 	var secretShares Scalars
 	for i := uint32(1); i <= uint32(len(rawPubKeys)); i++ {
-		if MemberID(i) == mid {
+		if NewMemberID(i) == mid {
 			continue
 		}
 
-		secretShare, err := ComputeSecretShare(rawCoeffcients, MemberID(i))
+		secretShare, err := ComputeSecretShare(rawCoeffcients, NewMemberID(i))
 		if err != nil {
 			return nil, NewError(err, "compute secret share: member id: %d", i)
 		}
