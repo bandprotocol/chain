@@ -34,8 +34,9 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	// If group is active, return group and member info
-	if group.Status == types.GROUP_STATUS_ACTIVE {
+	// If group is in active/fallen, return group and member info
+	// since all other infomations have been deleted
+	if group.Status == types.GROUP_STATUS_ACTIVE || group.Status == types.GROUP_STATUS_FALLEN {
 		return &types.QueryGroupResponse{
 			Group:   group,
 			Members: members,
