@@ -2,6 +2,7 @@ syntax = "proto3";
 package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
@@ -17,6 +18,8 @@ message Group {
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   GroupStatus status = 5;
+  google.protobuf.Timestamp create_time           = 6 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp expiry_time           = 7 [(gogoproto.stdtime) = true];
 }
 
 message Round1Info {
@@ -80,6 +83,8 @@ message Signing {
   bytes sig = 7 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
+  google.protobuf.Timestamp request_time           = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp expiry_time           = 9 [(gogoproto.stdtime) = true];
 }
 
 message AssignedMember {
