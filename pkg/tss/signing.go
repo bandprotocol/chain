@@ -34,7 +34,11 @@ func ComputeCommitment(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]b
 	}
 
 	var commitment []byte
+	prevMid := MemberIDZero()
 	for i, mid := range mids {
+		if prevMid >= mid {
+			return nil, NewError(ErrInvalidOrder, "prevMid >= mid: %d != %d", prevMid, mid)
+		}
 		commitment = append(commitment, sdk.Uint64ToBigEndian(uint64(mid))...)
 		commitment = append(commitment, pubDs[i]...)
 		commitment = append(commitment, pubEs[i]...)
