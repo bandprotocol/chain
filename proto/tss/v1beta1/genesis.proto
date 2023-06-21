@@ -2,6 +2,7 @@ syntax = "proto3";
 package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
@@ -17,4 +18,8 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
+  // round_period is the duration period where a member can submit message for the round.
+  google.protobuf.Duration round_period = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false ];
+  // signing_period is the duration period where a member can submit signing message.
+  google.protobuf.Duration signing_period = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false ];
 }
