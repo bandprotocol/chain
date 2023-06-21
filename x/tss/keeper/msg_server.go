@@ -394,20 +394,20 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				),
 			)
 		}
+	}
 
-		// Set complain with status
-		k.SetComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
-			MemberID:             memberID,
-			ComplaintsWithStatus: complaintsWithStatus,
-		})
+	// Set complain with status
+	k.SetComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
+		MemberID:             memberID,
+		ComplaintsWithStatus: complaintsWithStatus,
+	})
 
-		// Get confirm complain count
-		confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+	// Get confirm complain count
+	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-		// Handle fallen group if everyone sends confirm or complain already.
-		if confirmComplainCount == group.Size_ {
-			k.handleFallenGroup(ctx, group)
-		}
+	// Handle fallen group if everyone sends confirm or complain already.
+	if confirmComplainCount == group.Size_ {
+		k.handleFallenGroup(ctx, group)
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -478,6 +478,17 @@ func (k Keeper) Confirm(
 		OwnPubKeySig: req.OwnPubKeySig,
 	})
 
+	// Emit event confirm success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeConfirmSuccess,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+		),
+	)
+
 	// Handle fallen group if everyone sends confirm or complain already.
 	if confirmComplainCount+1 == group.Size_ {
 		// Get members to check malicious
@@ -492,6 +503,9 @@ func (k Keeper) Confirm(
 			group.ExpiryTime = nil
 			k.SetGroup(ctx, group)
 
+			// Delete all dkg interim data
+			k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
+
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -503,27 +517,8 @@ func (k Keeper) Confirm(
 		} else {
 			// Handle fallen group if someone in this group is malicious.
 			k.handleFallenGroup(ctx, group)
-
-			return nil, sdkerrors.Wrapf(
-				types.ErrConfirmFailed,
-				"have malicious in this group",
-			)
 		}
-
-		// Delete all dkg interim data
-		k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
 	}
-
-	// Emit event confirm success
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeConfirmSuccess,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
-		),
-	)
 
 	return &types.MsgConfirmResponse{}, nil
 }
@@ -844,8 +839,11 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	group.Status = types.GROUP_STATUS_FALLEN
 	group.ExpiryTime = nil
-
 	k.SetGroup(ctx, group)
+
+	// Delete all dkg interim data
+	k.DeleteAllDKGInterimData(ctx, group.GroupID, group.Size_, group.Threshold)
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRound3Failed,
