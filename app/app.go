@@ -451,6 +451,14 @@ func NewBandApp(
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	app.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		app.AuthzKeeper,
+	)
+	tssModule := tss.NewAppModule(app.TSSKeeper)
+
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
@@ -464,19 +472,12 @@ func NewBandApp(
 		app.AuthzKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
+		app.TSSKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
-
-	app.TSSKeeper = tsskeeper.NewKeeper(
-		appCodec,
-		keys[tsstypes.StoreKey],
-		app.GetSubspace(tsstypes.ModuleName),
-		app.AuthzKeeper,
-	)
-	tssModule := tss.NewAppModule(app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

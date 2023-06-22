@@ -38,6 +38,7 @@ func (k msgServer) RequestData(
 	if err != nil {
 		return nil, err
 	}
+
 	return &types.MsgRequestDataResponse{}, nil
 }
 

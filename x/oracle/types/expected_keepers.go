@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -75,4 +76,9 @@ type AuthzKeeper interface {
 	) error
 	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
 	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
+}
+
+// TSSKeeper defines the expected tss keeper.
+type TSSKeeper interface {
+	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) error
 }

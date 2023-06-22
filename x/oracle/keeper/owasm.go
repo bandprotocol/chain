@@ -179,6 +179,9 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
 		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
+
+		// Request sign by tss module
+		k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
 	}
 }
 
