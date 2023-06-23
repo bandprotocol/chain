@@ -15,7 +15,7 @@ func (suite *Suite) RunOnMember(testCases []TestCase, f func(TestCase, Member)) 
 	for _, tc := range testCases {
 		for i := 1; i <= tc.Group.GetSize(); i++ {
 			suite.Run(fmt.Sprintf("%s, Member: %d", tc.Name, i), func() {
-				member := tc.Group.GetMember(tss.MemberID(i))
+				member := tc.Group.GetMember(tss.NewMemberID(i))
 				f(tc, member)
 			})
 		}
@@ -31,8 +31,8 @@ func (suite *Suite) RunOnPairMembers(testCases []TestCase, f func(TestCase, Memb
 				}
 
 				suite.Run(fmt.Sprintf("%s, MemberI: %d, MemberJ: %d", tc.Name, i, j), func() {
-					memberI := tc.Group.GetMember(tss.MemberID(i))
-					memberJ := tc.Group.GetMember(tss.MemberID(j))
+					memberI := tc.Group.GetMember(tss.NewMemberID(i))
+					memberJ := tc.Group.GetMember(tss.NewMemberID(j))
 					f(tc, memberI, memberJ)
 				})
 			}
