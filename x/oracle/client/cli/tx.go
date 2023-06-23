@@ -236,6 +236,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 			if err != nil {
 				return err
 			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -340,6 +341,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			if err != nil {
 				return err
 			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -425,6 +427,7 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 			if err != nil {
 				return err
 			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -520,6 +523,7 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 			if err != nil {
 				return err
 			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -617,7 +621,6 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 					return err
 				}
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
@@ -665,7 +668,6 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 					return err
 				}
 			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}

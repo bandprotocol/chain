@@ -25,7 +25,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryMembers(),
 		GetCmdQueryIsGrantee(),
 		GetCmdQueryDE(),
-		GetCmdPendingSigns(),
+		GetCmdPendingSignings(),
 		GetCmdSignings(),
 	)
 
@@ -163,11 +163,11 @@ func GetCmdQueryDE() *cobra.Command {
 	return cmd
 }
 
-// GetCmdPendingSigns creates a CLI command for Query/PendingSigns.
-func GetCmdPendingSigns() *cobra.Command {
+// GetCmdPendingSignings creates a CLI command for Query/PendingSignings.
+func GetCmdPendingSignings() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pending-sings [address]",
-		Short: "Query all pending sing for this address",
+		Use:   "pending-signings [address]",
+		Short: "Query all pending signing for this address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -177,7 +177,7 @@ func GetCmdPendingSigns() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.PendingSigns(cmd.Context(), &types.QueryPendingSignsRequest{
+			res, err := queryClient.PendingSignings(cmd.Context(), &types.QueryPendingSigningsRequest{
 				Address: args[0],
 			})
 			if err != nil {

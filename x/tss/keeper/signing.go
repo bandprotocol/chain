@@ -174,14 +174,14 @@ func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Sig
 }
 
 // GetPartialSigsWithKey function retrieves all partial signatures for a specific signing ID from the store along with their corresponding member IDs.
-func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSig {
-	var pzs []types.PartialSig
+func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSignature {
+	var pzs []types.PartialSignature
 	iterator := k.GetPartialSigIterator(ctx, signingID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		pzs = append(pzs, types.PartialSig{
-			MemberID: types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
-			Sig:      iterator.Value(),
+		pzs = append(pzs, types.PartialSignature{
+			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			Signature: iterator.Value(),
 		})
 	}
 	return pzs

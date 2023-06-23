@@ -14,42 +14,42 @@ func (k Keeper) HandleVerifyComplaint(
 	groupID tss.GroupID,
 	complaint types.Complaint,
 ) error {
-	// Get round 1 info from member I
-	round1I, err := k.GetRound1Info(ctx, groupID, complaint.I)
+	// Get round 1 info from member Complainer
+	round1I, err := k.GetRound1Info(ctx, groupID, complaint.Complainer)
 	if err != nil {
 		return err
 	}
 
-	// Get round 1 info from member J
-	round1J, err := k.GetRound1Info(ctx, groupID, complaint.J)
+	// Get round 1 info from member Complainant
+	round1J, err := k.GetRound1Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
 
-	// Get round 2 info from member J
-	round2J, err := k.GetRound2Info(ctx, groupID, complaint.J)
+	// Get round 2 info from member Complainant
+	round2J, err := k.GetRound2Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
 
 	// Find member slot for encrypted secret shares
-	indexJ := types.FindMemberSlot(complaint.J, complaint.I)
+	indexJ := types.FindMemberSlot(complaint.Complainant, complaint.Complainer)
 
 	// Verify the complaint signature
 	err = tss.VerifyComplaint(
 		round1I.OneTimePubKey,
 		round1J.OneTimePubKey,
 		complaint.KeySym,
-		complaint.Sig,
+		complaint.Signature,
 		round2J.EncryptedSecretShares[indexJ],
-		complaint.I,
+		complaint.Complainer,
 		round1J.CoefficientsCommit,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
 			"failed to complaint member: %d with groupID: %d; %s",
-			complaint.J,
+			complaint.Complainant,
 			groupID,
 			err,
 		)
