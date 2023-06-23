@@ -140,6 +140,24 @@ func (s *KeeperTestSuite) TestSetGroup() {
 	s.Require().Equal(group.Size_, got.Size_)
 }
 
+func (s *KeeperTestSuite) TestGetGroups() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	group := types.Group{
+		GroupID:   1,
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.GROUP_STATUS_ROUND_1,
+	}
+
+	// Set new group
+	k.SetGroup(ctx, group)
+
+	// Get group from chain state
+	got := k.GetGroups(ctx)
+	s.Require().Equal([]types.Group{group}, got)
+}
+
 func (s *KeeperTestSuite) TestGetSetDKGContext() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 

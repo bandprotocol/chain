@@ -17,13 +17,35 @@ func (s *KeeperTestSuite) TestGetSetDEQueue() {
 		Tail: 2,
 	}
 
-	// Set DEQueue
+	// Set de queue
 	k.SetDEQueue(ctx, address, deQueue)
 
-	// Get DEQueue
+	// Get de queue
 	got := k.GetDEQueue(ctx, address)
 
 	s.Require().Equal(deQueue, got)
+}
+
+func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	deQueue := types.DEQueue{
+		Head: 1,
+		Tail: 2,
+	}
+
+	// Set de queue
+	k.SetDEQueue(ctx, address, deQueue)
+
+	// Get de queues with address
+	got := k.GetDEQueuesGenesis(ctx)
+
+	s.Require().Equal([]types.DEQueueGenesis{
+		{
+			Address: address,
+			DEQueue: &deQueue,
+		},
+	}, got)
 }
 
 func (s *KeeperTestSuite) TestGetSetDE() {
@@ -65,6 +87,30 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 
 	s.Require().ErrorIs(types.ErrDENotFound, err)
 	s.Require().Equal(types.DE{}, got)
+}
+
+func (s *KeeperTestSuite) TestGetDEsGenesis() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	index := uint64(1)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	// Set DE
+	k.SetDE(ctx, address, index, de)
+
+	// Get des with address and index
+	got := k.GetDEsGenesis(ctx)
+
+	s.Require().Equal([]types.DEGenesis{
+		{
+			Address: address,
+			Index:   index,
+			DE:      &de,
+		},
+	}, got)
 }
 
 func (s *KeeperTestSuite) TestNextQueueValue() {

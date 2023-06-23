@@ -104,6 +104,24 @@ func (k Keeper) SetGroup(ctx sdk.Context, group types.Group) {
 	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(group.GroupID), k.cdc.MustMarshal(&group))
 }
 
+// GetGroupsIterator function gets an iterator all group.
+func (k Keeper) GetGroupsIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.GroupStoreKeyPrefix)
+}
+
+// GetGroups function retrieves all group of the store.
+func (k Keeper) GetGroups(ctx sdk.Context) []types.Group {
+	var groups []types.Group
+	iterator := k.GetGroupsIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var group types.Group
+		k.cdc.MustUnmarshal(iterator.Value(), &group)
+		groups = append(groups, group)
+	}
+	return groups
+}
+
 // SetDKGContext function sets DKG context for a group in the store.
 func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext []byte) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)

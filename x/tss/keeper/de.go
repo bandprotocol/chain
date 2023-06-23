@@ -22,6 +22,27 @@ func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueu
 	return deQueue
 }
 
+// GetDEQueueIterator function gets an iterator over all de queue from the context's KVStore.
+func (k Keeper) GetDEQueueIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
+}
+
+// GetDEQueuesGenesis retrieves all DEQueues from the context's KVStore.
+func (k Keeper) GetDEQueuesGenesis(ctx sdk.Context) []types.DEQueueGenesis {
+	var deQueues []types.DEQueueGenesis
+	iterator := k.GetDEQueueIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var deQueue types.DEQueue
+		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
+		deQueues = append(deQueues, types.DEQueueGenesis{
+			Address: types.AddressFromDEQueueStoreKey(iterator.Key()),
+			DEQueue: &deQueue,
+		})
+	}
+	return deQueues
+}
+
 // GetDESize retrieves the current size of DE for a given address from the context's KVStore.
 func (k Keeper) GetDESize(ctx sdk.Context, address sdk.AccAddress) uint64 {
 	deQueue := k.GetDEQueue(ctx, address)
@@ -57,6 +78,29 @@ func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (ty
 // DeleteDE removes a DE object from the context's KVStore for a given address and index.
 func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
+}
+
+// GetDEIterator function gets an iterator over all de from the context's KVStore
+func (k Keeper) GetDEIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEStoreKeyPrefix)
+}
+
+// GetDEsGenesis retrieves all de from the context's KVStore.
+func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
+	var des []types.DEGenesis
+	iterator := k.GetDEIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var de types.DE
+		k.cdc.MustUnmarshal(iterator.Value(), &de)
+		address, index := types.AddressAndIndexFromDEStoreKey(iterator.Key())
+		des = append(des, types.DEGenesis{
+			Address: address,
+			Index:   index,
+			DE:      &de,
+		})
+	}
+	return des
 }
 
 // NextQueueValue returns next value of head/tail for DE queue
