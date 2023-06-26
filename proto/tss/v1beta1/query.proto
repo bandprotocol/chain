@@ -21,7 +21,7 @@ service Query {
 
   // IsGrantee queries grant of account on this granter.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
-    option (google.api.http).get = "/tss/v1beta1/grantee/{granter}/{grantee}";
+    option (google.api.http).get = "/tss/v1beta1/is_grantee/{granter}/{grantee}";
   }
   
   // DE queries all de for this address.
@@ -29,8 +29,8 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/de-list/{address}";
   }
 
-  // PendingSigns queries all pending signs for this address.
-  rpc PendingSigns(QueryPendingSignsRequest) returns (QueryPendingSignsResponse) {
+  // PendingSignings queries all pending signs for this address.
+  rpc PendingSignings(QueryPendingSigningsRequest) returns (QueryPendingSigningsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_signs/{address}";
   }
 
@@ -97,12 +97,12 @@ message QueryDEResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-message QueryPendingSignsRequest {
+message QueryPendingSigningsRequest {
   string address = 1;
 }
 
-message QueryPendingSignsResponse {
-  repeated Signing pending_signs = 1 [ (gogoproto.nullable) = false ];
+message QueryPendingSigningsResponse {
+  repeated Signing pending_signings = 1 [ (gogoproto.nullable) = false ];
 }
 
 message QuerySigningsRequest {
@@ -111,5 +111,5 @@ message QuerySigningsRequest {
 
 message QuerySigningsResponse {
   Signing signing = 1;
-  repeated PartialSig received_partial_sigs = 2 [ (gogoproto.nullable) = false ];
+  repeated PartialSignature received_partial_signatures = 2 [ (gogoproto.nullable) = false ];
 }

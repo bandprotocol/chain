@@ -431,3 +431,91 @@ func (suite *TSSTestSuite) TestPrivateKeys() {
 		})
 	}
 }
+
+func (suite *TSSTestSuite) TestSortingCommitmentIDEs() {
+	tests := []struct {
+		name    string
+		B       tss.CommitmentIDEList
+		wantErr string
+	}{
+		{
+			"sort([<5,...>,<1,...>])",
+			tss.CommitmentIDEList{
+				tss.CommitmentIDE{
+					ID: 5,
+					D:  testutil.HexDecode("02517a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad45"),
+					E:  testutil.HexDecode("035eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b5"),
+				},
+				tss.CommitmentIDE{
+					ID: 1,
+					D:  testutil.HexDecode("02117a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad41"),
+					E:  testutil.HexDecode("031eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b1"),
+				},
+			},
+			"",
+		},
+		{
+			"sort([<1,...>,<2,...>,<3,...>])",
+			tss.CommitmentIDEList{
+				tss.CommitmentIDE{
+					ID: 1,
+					D:  testutil.HexDecode("02117a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad41"),
+					E:  testutil.HexDecode("031eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b1"),
+				},
+				tss.CommitmentIDE{
+					ID: 2,
+					D:  testutil.HexDecode("02217a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+					E:  testutil.HexDecode("032eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b2"),
+				},
+				tss.CommitmentIDE{
+					ID: 3,
+					D:  testutil.HexDecode("02317a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad43"),
+					E:  testutil.HexDecode("033eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b3"),
+				},
+			},
+			"",
+		},
+		{
+			"error because there is a repeated element",
+			tss.CommitmentIDEList{
+				tss.CommitmentIDE{
+					ID: 1,
+					D:  testutil.HexDecode("02117a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad41"),
+					E:  testutil.HexDecode("031eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b1"),
+				},
+				tss.CommitmentIDE{
+					ID: 2,
+					D:  testutil.HexDecode("02217a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+					E:  testutil.HexDecode("032eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b2"),
+				},
+				tss.CommitmentIDE{
+					ID: 2,
+					D:  testutil.HexDecode("02217a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad42"),
+					E:  testutil.HexDecode("032eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b2"),
+				},
+				tss.CommitmentIDE{
+					ID: 3,
+					D:  testutil.HexDecode("02317a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad43"),
+					E:  testutil.HexDecode("033eb31cfac1aeb0466f4c6fe98804b85bcca87a3a55c50340a04bf378830ed9b3"),
+				},
+			},
+			"CommitmentIDEList: sorting fail because repeated element found at ID = 2",
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Sort: %s", t.name), func() {
+			err := t.B.Sort()
+			if t.wantErr != "" {
+				suite.Require().EqualError(err, t.wantErr)
+			} else {
+				suite.Require().NoError(err)
+				j := int64(-1)
+				for _, ide := range t.B {
+					suite.Require().Equal(true, j < int64(ide.ID))
+					j = int64(ide.ID)
+				}
+			}
+		})
+	}
+}

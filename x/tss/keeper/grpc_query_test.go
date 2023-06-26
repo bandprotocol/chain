@@ -64,10 +64,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -78,10 +78,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -429,22 +429,22 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 	ctx, q := s.ctx, s.querier
 
-	var req types.QueryPendingSignsRequest
+	var req types.QueryPendingSigningsRequest
 	testCases := []struct {
 		msg      string
 		malleate func()
 		expPass  bool
-		postTest func(res *types.QueryPendingSignsResponse, err error)
+		postTest func(res *types.QueryPendingSigningsResponse, err error)
 	}{
 		{
 			"invalid address format",
 			func() {
-				req = types.QueryPendingSignsRequest{
+				req = types.QueryPendingSigningsRequest{
 					Address: "invalid_address_format",
 				}
 			},
 			false,
-			func(res *types.QueryPendingSignsResponse, err error) {
+			func(res *types.QueryPendingSigningsResponse, err error) {
 				s.Require().Error(err)
 				s.Require().Nil(res)
 			},
@@ -452,15 +452,15 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		{
 			"success",
 			func() {
-				req = types.QueryPendingSignsRequest{
+				req = types.QueryPendingSigningsRequest{
 					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				}
 			},
 			true,
-			func(res *types.QueryPendingSignsResponse, err error) {
+			func(res *types.QueryPendingSigningsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().NotNil(res)
-				s.Require().Len(res.PendingSigns, 0)
+				s.Require().Len(res.PendingSignings, 0)
 			},
 		},
 	}
@@ -469,7 +469,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			res, err := q.PendingSigns(ctx, &req)
+			res, err := q.PendingSignings(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
@@ -500,7 +500,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
-		Sig:           []byte("signature"),
+		Signature:     []byte("signature"),
 		ExpiryTime:    &expiryTime,
 	}
 	sig := []byte("signatures")
@@ -542,7 +542,8 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 			func(res *types.QuerySigningsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().Equal(&signing, res.Signing)
-				s.Require().Equal([]types.PartialSig{{MemberID: memberID, Sig: sig}}, res.ReceivedPartialSigs)
+				s.Require().
+					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
 			},
 		},
 	}

@@ -60,7 +60,7 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Set signing
@@ -94,7 +94,7 @@ func (s *KeeperTestSuite) TestAddSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Add signing
@@ -130,7 +130,7 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Set signing
@@ -252,10 +252,10 @@ func (s *KeeperTestSuite) TestGetSetPartialSig() {
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
-	// Set PartialSig
+	// Set PartialSignature
 	k.SetPartialSig(ctx, signingID, memberID, sig)
 
-	// Get and check PartialSig
+	// Get and check PartialSignature
 	gotSig, err := k.GetPartialSig(ctx, signingID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(sig, gotSig)
@@ -267,13 +267,13 @@ func (s *KeeperTestSuite) TestDeletePartialSig() {
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
-	// Set PartialSig
+	// Set PartialSignature
 	k.SetPartialSig(ctx, signingID, memberID, sig)
 
-	// Delete PartialSig
+	// Delete PartialSignature
 	k.DeletePartialSig(ctx, signingID, memberID)
 
-	// Try to get the deleted PartialSig, expecting an error
+	// Try to get the deleted PartialSignature, expecting an error
 	_, err := k.GetPartialSig(ctx, signingID, memberID)
 	s.Require().Error(err)
 }
@@ -319,11 +319,11 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	got := k.GetPartialSigsWithKey(ctx, signingID)
 
 	// Construct expected result
-	expected := []types.PartialSig{}
+	expected := []types.PartialSignature{}
 	for i, memberID := range memberIDs {
-		expected = append(expected, types.PartialSig{
-			MemberID: memberID,
-			Sig:      sigs[i],
+		expected = append(expected, types.PartialSignature{
+			MemberID:  memberID,
+			Signature: sigs[i],
 		})
 	}
 

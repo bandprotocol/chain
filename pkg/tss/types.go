@@ -3,6 +3,8 @@ package tss
 import (
 	"encoding/hex"
 	"fmt"
+	"sort"
+	"strconv"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
@@ -12,7 +14,29 @@ import (
 type GroupID uint64
 
 // MemberID represents the ID of a member.
+// Please note that the MemberID can only be 1, 2, 3, ..., 2**64 - 1
 type MemberID uint64
+
+// NewMemberID creates a new MemberID from any value, ensuring it is within the valid range.
+// Panic if the input value cannot be converted to a uint64 or if it is less than 1.
+func NewMemberID(value interface{}) MemberID {
+	str := fmt.Sprint(value)
+	v, err := strconv.ParseUint(str, 10, 64)
+	if err != nil {
+		panic("NewMemberID: conversion to uint64 failed")
+	}
+	if v < 1 {
+		panic("NewMemberID: the value must be greater than 0")
+	}
+	return MemberID(v)
+}
+
+// MemberIDZero returns a MemberID with a value of 0. This is outside the valid range for MemberID values,
+// and thus should not be used as a valid MemberID in any operational context.
+// It is primarily intended for use in scenarios where a placeholder or default value is needed.
+func MemberIDZero() MemberID {
+	return MemberID(0)
+}
 
 // SigningID represents the ID of a signing.
 type SigningID uint64
@@ -373,3 +397,45 @@ type KeyPair struct {
 
 // KeyPairs represents a slice of KeyPair values.
 type KeyPairs []KeyPair
+
+// CommitmentIDE represents a commitment issued by a participant in the signing process
+//
+// Fields:
+// - ID: A NonZeroScalar identifier for the participant (uint64)
+// - D: The hiding nonce commitment is represented by the type PublicKey
+// - E: The binding nonce commitment is represented by the type PublicKey
+type CommitmentIDE struct {
+	ID MemberID
+	D  PublicKey
+	E  PublicKey
+}
+
+// CommitmentIDEList is a slice of CommitmentIDE structs.
+//
+// This type represents a list of commitments issued by each participant in the signing process.
+// Each element in the list indicates an identifier and two commitment PublicKey values as a tuple
+// <i, hiding_nonce_commitment, binding_nonce_commitment>.
+//
+// Please note that this list must be sorted in ascending order by identifier
+type CommitmentIDEList []CommitmentIDE
+
+// Len returns the number of elements in the CommitmentIDEList.
+func (b CommitmentIDEList) Len() int {
+	return len(b)
+}
+
+// Sort sorts the CommitmentIDEList in ascending order by the identifier (ID) of each CommitmentIDE.
+// It also checks for repeated elements and returns an error if any are found.
+func (b CommitmentIDEList) Sort() error {
+	sort.Slice(b, func(i, j int) bool {
+		return b[i].ID < b[j].ID
+	})
+
+	for i := 0; i < len(b)-1; i++ {
+		if b[i].ID == b[i+1].ID {
+			return fmt.Errorf("CommitmentIDEList: sorting fail because repeated element found at ID = %v", b[i].ID)
+		}
+	}
+
+	return nil
+}

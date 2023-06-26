@@ -11,13 +11,13 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
-  // SubmitDKGRound1 submits dkg for compute round 1.
+  // SubmitDKGRound1 submits dkg for computing round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
-  // SubmitDKGRound2 submits dkg for compute round 2.
+  // SubmitDKGRound2 submits dkg for computing round 2.
   rpc SubmitDKGRound2(MsgSubmitDKGRound2) returns (MsgSubmitDKGRound2Response);
-  // Complain submits proof for complain malicious.
+  // Complain submits proof for complaining malicious.
   rpc Complain(MsgComplain) returns (MsgComplainResponse);
-  // Confirm submits own signature for proof that it's can derive the secret.
+  // Confirm submits own signature for proof that it can derive the secret.
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
   // SubmitDEs submits list of pre-commits DE for signing process.
   rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
@@ -31,8 +31,7 @@ service Msg {
 message MsgCreateGroup {
   // members is a list of members in this group.
   repeated string members = 1;
-  // threshold is a minimum number of members required to produce a
-  // signature.
+  // threshold is a minimum number of members required to produce a signature.
   uint64 threshold = 2;
   // sender is the signer of this message.
   string sender = 3;
@@ -64,7 +63,7 @@ message MsgSubmitDKGRound2 {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // round2_info is is all data that require to handle round 2.
+  // round2_info is all data that require to handle round 2.
   Round2Info round2_info = 2 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 3;
@@ -78,7 +77,7 @@ message MsgComplain {
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // complaints is a list of Complains. 
+  // complaints is a list of complains. 
   repeated Complaint complaints  = 3 [ (gogoproto.nullable) = false ];
   // member is the signer of this message. Must be the member of this group.
   string member = 4;
@@ -108,39 +107,51 @@ message MsgConfirm {
 
 message MsgConfirmResponse {}
 
+// MsgSubmitDEs is a message used to submit a list of DEs.
 message MsgSubmitDEs {
+  // des is a list of DE objects.
   repeated DE des = 1 [
     (gogoproto.customname) = "DEs",
     (gogoproto.nullable) = false
   ];
+  // member is the signer of this submission message.
   string member = 2;
 }
 
 message MsgSubmitDEsResponse {}
 
+// MsgRequestSign is a request message used for initiating the signing process.
 message MsgRequestSign {
+  // group_id is the unique identifier of the group.
   uint64 group_id = 1 [
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // message is the data that needs to be signed.
   bytes message = 2;
+  // sender is the requester of the signing process.
   string sender = 3;
 }
 
 message MsgRequestSignResponse {}
-  
+
+// MsgSign is a message used to sign the data.
 message MsgSign {
+  // signing_id is the unique identifier of the signing process.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
+  // member_id is the unique identifier of the group member.
   uint64 member_id = 2 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
   ];
-  bytes sig = 3 [
+  // signature is the signature produced by the member.
+  bytes signature = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"
   ];
+  // member is the signer of this signing message, who must be a member of the group.
   string member = 4;
 }
 

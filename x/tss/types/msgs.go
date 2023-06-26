@@ -187,16 +187,22 @@ func (m MsgComplain) ValidateBasic() error {
 	}
 
 	// Validate complaints
-	memberI := m.Complaints[0].I
+	memberI := m.Complaints[0].Complainer
 	for i, c := range m.Complaints {
-		// Validate member I
-		if i > 0 && memberI != c.I {
-			return sdkerrors.Wrap(fmt.Errorf("memberID I in the list of complaints must be the same value"), "I")
+		// Validate member complainer
+		if i > 0 && memberI != c.Complainer {
+			return sdkerrors.Wrap(
+				fmt.Errorf("memberID complainer in the list of complaints must be the same value"),
+				"complainer",
+			)
 		}
 
-		// Validate member I and J
-		if c.I == c.J {
-			return sdkerrors.Wrap(fmt.Errorf("memberID I and J can not be the same value"), "I, J")
+		// Validate member complainer and complainant
+		if c.Complainer == c.Complainant {
+			return sdkerrors.Wrap(
+				fmt.Errorf("memberID complainer and complainant can not be the same value"),
+				"complainer, complainant",
+			)
 		}
 
 		// Validate key sym
@@ -205,7 +211,7 @@ func (m MsgComplain) ValidateBasic() error {
 			return sdkerrors.Wrap(err, "key sym")
 		}
 		// Validate signature
-		_, err = c.Sig.Parse()
+		_, err = c.Signature.Parse()
 		if err != nil {
 			return sdkerrors.Wrap(err, "signature")
 		}
@@ -348,7 +354,7 @@ func (m MsgSign) ValidateBasic() error {
 	}
 
 	// Validate member signature
-	_, err = m.Sig.Parse()
+	_, err = m.Signature.Parse()
 	if err != nil {
 		return sdkerrors.Wrap(err, "signature")
 	}

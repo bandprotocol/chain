@@ -44,14 +44,14 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 
 			// Failed case - correct encrypted secret share
 			err := k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				I:      memberI.ID,
-				J:      memberJ.ID,
-				KeySym: memberI.KeySyms[iSlot],
-				Sig:    memberI.ComplaintSigs[iSlot],
+				Complainer:  memberI.ID,
+				Complainant: memberJ.ID,
+				KeySym:      memberI.KeySyms[iSlot],
+				Signature:   memberI.ComplaintSigs[iSlot],
 			})
 			s.Require().Error(err)
 
-			// Get round 2 info J
+			// Get round 2 info Complainant
 			round2J, err := k.GetRound2Info(ctx, tc.Group.ID, memberJ.ID)
 			s.Require().NoError(err)
 
@@ -61,10 +61,10 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 
 			// Success case - wrong encrypted secret share
 			err = k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				I:      memberI.ID,
-				J:      memberJ.ID,
-				KeySym: memberI.KeySyms[iSlot],
-				Sig:    memberI.ComplaintSigs[iSlot],
+				Complainer:  memberI.ID,
+				Complainant: memberJ.ID,
+				KeySym:      memberI.KeySyms[iSlot],
+				Signature:   memberI.ComplaintSigs[iSlot],
 			})
 			s.Require().NoError(err)
 		})
@@ -106,10 +106,10 @@ func (s *KeeperTestSuite) TestGetSetComplaintsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -133,10 +133,10 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -162,10 +162,10 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -176,10 +176,10 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -348,10 +348,10 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			ComplaintsWithStatus: []types.ComplaintWithStatus{
 				{
 					Complaint: types.Complaint{
-						I:      1,
-						J:      2,
-						KeySym: []byte("key_sym"),
-						Sig:    []byte("signature"),
+						Complainer:  1,
+						Complainant: 2,
+						KeySym:      []byte("key_sym"),
+						Signature:   []byte("signature"),
 					},
 					ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 				},

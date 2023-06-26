@@ -133,11 +133,11 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 	}, nil
 }
 
-// PendingSigns function handles the request to get pending signs of a given address.
-func (k Querier) PendingSigns(
+// PendingSignings function handles the request to get pending signs of a given address.
+func (k Querier) PendingSignings(
 	goCtx context.Context,
-	req *types.QueryPendingSignsRequest,
-) (*types.QueryPendingSignsResponse, error) {
+	req *types.QueryPendingSigningsRequest,
+) (*types.QueryPendingSigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert address from Bech32 to AccAddress
@@ -157,8 +157,8 @@ func (k Querier) PendingSigns(
 		pendingSigns = append(pendingSigns, signing)
 	}
 
-	return &types.QueryPendingSignsResponse{
-		PendingSigns: pendingSigns,
+	return &types.QueryPendingSigningsResponse{
+		PendingSignings: pendingSigns,
 	}, nil
 }
 
@@ -179,7 +179,7 @@ func (k Querier) Signings(
 	pzs := k.GetPartialSigsWithKey(ctx, signingID)
 
 	return &types.QuerySigningsResponse{
-		Signing:             &signing,
-		ReceivedPartialSigs: pzs,
+		Signing:                   &signing,
+		ReceivedPartialSignatures: pzs,
 	}, nil
 }

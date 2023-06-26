@@ -154,7 +154,7 @@ func NewCreateGroupCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		Short: "Make a new group for tss module",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Make a new group for sign tx in tss module.
+			fmt.Sprintf(`Make a new group for signing tx in tss module.
 Example:
 $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43jx3rz84y4z05xk8dcjjhzzeqnfrt9ua9v,band18f55l8hf4l7zvy8tx28n4r4nksz79p6lp4z305 2 --from mykey
 `,
@@ -537,7 +537,7 @@ func NewSignCmd() *cobra.Command {
 			msg := &types.MsgSign{
 				SigningID: tss.SigningID(signingID),
 				MemberID:  tss.MemberID(memberID),
-				Sig:       sig,
+				Signature: sig,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
