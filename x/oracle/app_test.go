@@ -111,7 +111,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	)
 	expectEvents = []abci.Event{
 		{
-			Type: types.EventTypeHandleRequestSignFail,
+			Type: types.EventTypeTSSHandleRequestSignFail,
 			Attributes: []abci.EventAttribute{
 				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
 				{

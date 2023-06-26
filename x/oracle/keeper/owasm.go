@@ -182,14 +182,13 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		signingID, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
 		if err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeHandleRequestSignFail,
+				types.EventTypeTSSHandleRequestSignFail,
 				sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
 		}
 
 		k.ResolveSuccess(ctx, reqID, signingID, env.Retdata, output.GasUsed)
-
 	}
 }
 
