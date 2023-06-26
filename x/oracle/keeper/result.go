@@ -11,6 +11,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -49,11 +50,18 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 }
 
 // ResolveSuccess resolves the given request as success with the given result.
-func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint64) {
+func (k Keeper) ResolveSuccess(
+	ctx sdk.Context,
+	id types.RequestID,
+	signingID tss.SigningID,
+	result []byte,
+	gasUsed uint64,
+) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
+		sdk.NewAttribute(types.AttributeTSSSigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),

@@ -545,7 +545,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Handle request sign
-	err := k.HandleRequestSign(ctx, req.GroupID, req.Message)
+	_, err := k.HandleRequestSign(ctx, req.GroupID, req.Message)
 	if err != nil {
 		return nil, err
 	}

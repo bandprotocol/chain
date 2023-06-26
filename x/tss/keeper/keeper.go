@@ -169,22 +169,22 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 
 // HandleRequestSign function initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) error {
+func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error) {
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
 	// Get members in the group
 	members, err := k.GetMembers(ctx, groupID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Random assigning participants
@@ -195,19 +195,19 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		group.Threshold,
 	)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Get public D and E for each assigned members
 	assignedMembers, pubDs, pubEs, err := k.HandlePollDEForAssignedMembers(ctx, mids, members)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Compute commitment from mids, public D and public E
 	commitment, err := tss.ComputeCommitment(mids, pubDs, pubEs)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Compute binding factor and public nonce of each assigned member
@@ -220,7 +220,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 			tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment),
 		)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
 		ownPubNonces = append(ownPubNonces, assignedMembers[i].PubNonce)
@@ -229,7 +229,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	// Compute group public nonce for this signing
 	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Create signing struct
@@ -247,7 +247,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	for _, mid := range mids {
 		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Address)
 		if err != nil {
-			return sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+			return 0, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
 
 		k.SetPendingSign(ctx, accMember, signingID)
@@ -272,7 +272,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	}
 	ctx.EventManager().EmitEvent(event)
 
-	return nil
+	return signingID, nil
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

@@ -178,10 +178,14 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
-
 		// Request sign by tss module
-		k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
+		signingID, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
+		if err != nil {
+			k.ResolveFailure(ctx, reqID, fmt.Sprintf("tss signing error: %v", err))
+		}
+
+		k.ResolveSuccess(ctx, reqID, signingID, env.Retdata, output.GasUsed)
+
 	}
 }
 

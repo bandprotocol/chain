@@ -17,6 +17,7 @@ const (
 	EventTypeSendPacketFail     = "send_packet_fail"
 
 	AttributeKeyID             = "id"
+	AttributeTSSSigningID      = "tss_signing_id"
 	AttributeKeyDataSourceID   = "data_source_id"
 	AttributeKeyOracleScriptID = "oracle_script_id"
 	AttributeKeyExternalID     = "external_id"

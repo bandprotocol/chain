@@ -80,5 +80,5 @@ type AuthzKeeper interface {
 
 // TSSKeeper defines the expected tss keeper.
 type TSSKeeper interface {
-	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) error
+	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error)
 }
