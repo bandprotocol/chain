@@ -364,7 +364,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Signature)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
@@ -389,7 +389,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Signature)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
@@ -783,7 +783,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 				types.EventTypeSignSuccess,
 				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-				sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(sig)),
+				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
 			),
 		)
 	}
@@ -805,7 +805,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			sdk.NewAttribute(types.AttributeKeyMember, member.Address),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
-			sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(req.Signature)),
+			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
 		),
 	)
 
