@@ -9,6 +9,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -88,7 +89,7 @@ func (k Keeper) PrepareRequest(
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcChannel, r.GetExecuteGas(),
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), r.GetGroupID(), nil, ibcChannel, r.GetExecuteGas(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
@@ -174,21 +175,25 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)
 
 	if err != nil {
-		k.ResolveFailure(ctx, reqID, err.Error())
+		k.ResolveFailure(ctx, reqID, req.GroupID, err.Error())
 	} else if env.Retdata == nil {
-		k.ResolveFailure(ctx, reqID, "no return data")
+		k.ResolveFailure(ctx, reqID, req.GroupID, "no return data")
 	} else {
 		// Request sign by tss module
-		signingID, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
-		if err != nil {
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeTSSHandleRequestSignFail,
-				sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
-				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-			))
+		var sid tss.SigningID
+		if req.GroupID != tss.GroupID(0) {
+			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
+			if err != nil {
+				ctx.EventManager().EmitEvent(sdk.NewEvent(
+					types.EventTypeTSSHandleRequestSignFail,
+					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
+					sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+				))
+			}
 		}
 
-		k.ResolveSuccess(ctx, reqID, signingID, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, req.GroupID, sid, env.Retdata, output.GasUsed)
 	}
 }
 

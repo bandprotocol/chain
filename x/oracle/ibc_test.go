@@ -80,6 +80,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		2,
@@ -114,6 +115,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		2,
 		1577923380,
@@ -150,6 +152,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 	oracleRequestPackets := []types.OracleRequestPacketData{
 		types.NewOracleRequestPacketData(
 			clientID,
+			0,
 			1,
 			[]byte(strings.Repeat("beeb", 130)),
 			1,
@@ -160,6 +163,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
+			0,
 			1,
 			[]byte("beeb"),
 			1,
@@ -170,6 +174,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
+			0,
 			1,
 			[]byte("beeb"),
 			1,
@@ -180,6 +185,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		),
 		types.NewOracleRequestPacketData(
 			strings.Repeat(clientID, 9),
+			0,
 			1,
 			[]byte("beeb"),
 			1,
@@ -188,10 +194,31 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 		),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, 0, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, testapp.TestDefaultPrepareGas, 0),
 		types.NewOracleRequestPacketData(
 			clientID,
+			0,
+			1,
+			[]byte("beeb"),
+			1,
+			1,
+			coins,
+			0,
+			testapp.TestDefaultExecuteGas,
+		),
+		types.NewOracleRequestPacketData(
+			clientID,
+			0,
+			1,
+			[]byte("beeb"),
+			1,
+			1,
+			coins,
+			testapp.TestDefaultPrepareGas,
+			0,
+		),
+		types.NewOracleRequestPacketData(
+			clientID,
+			0,
 			1,
 			[]byte("beeb"),
 			1,
@@ -202,6 +229,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
+			0,
 			1,
 			[]byte("beeb"),
 			1,
@@ -228,6 +256,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		1,
@@ -268,6 +297,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		1,
@@ -291,6 +321,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte(strings.Repeat("beeb", 2000)),
 		1,
@@ -311,6 +342,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		1,
@@ -332,6 +364,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		17,
@@ -347,6 +380,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 
 	oracleRequestPacket = types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		3,
@@ -373,6 +407,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		1,
@@ -399,6 +434,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		1,
@@ -421,6 +457,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		100,
 		[]byte("beeb"),
 		1,
@@ -442,6 +479,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		2,
 		[]byte("beeb"),
 		1,
@@ -463,6 +501,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		3,
 		[]byte("beeb"),
 		1,
@@ -484,6 +523,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		4,
 		[]byte("beeb"),
 		1,
@@ -509,6 +549,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		4,
 		obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2, 3, 4},
@@ -533,6 +574,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		6,
 		[]byte("beeb"),
 		1,
@@ -553,6 +595,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		8,
 		[]byte("beeb"),
 		1,
@@ -574,6 +617,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		[]byte("beeb"),
 		2,
@@ -606,6 +650,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		1,
 		1577923380,
@@ -634,6 +679,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
+		0,
 		4,
 		obi.MustEncode(testapp.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
 		2,
@@ -665,6 +711,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		2,
 		1577923380,
@@ -700,6 +747,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 			1,
 		testapp.ParseTime(1577923380),
 		path.EndpointA.ClientID,
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		},
@@ -719,6 +767,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		1,
 		1577923380,
@@ -754,6 +803,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 			1,
 		testapp.ParseTime(1577923380),
 		path.EndpointA.ClientID,
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		},
@@ -773,6 +823,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		1,
 		1577923380,
@@ -808,6 +859,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 			1,
 		testapp.ParseTime(1577923380),
 		path.EndpointA.ClientID,
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		},
@@ -827,6 +879,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
+		0,
 		1,
 		1,
 		1577923380,

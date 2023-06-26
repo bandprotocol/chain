@@ -75,6 +75,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		nil,
 		nil,
 		0,

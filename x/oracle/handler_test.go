@@ -425,6 +425,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -641,6 +642,7 @@ func TestReportSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -676,7 +678,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, 1, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, 0, 1, []byte("RESOLVE_RESULT!"), 1234)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
@@ -709,6 +711,7 @@ func TestReportFail(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),

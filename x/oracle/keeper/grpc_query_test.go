@@ -48,6 +48,7 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -588,6 +589,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -604,6 +606,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -623,6 +626,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -642,6 +646,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),

@@ -3,6 +3,7 @@ package types
 import (
 	"time"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,6 +19,7 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
+	GetGroupID() tss.GroupID
 	GetPrepareGas() uint64
 	GetExecuteGas() uint64
 	GetFeeLimit() sdk.Coins
@@ -43,6 +45,7 @@ func NewRequest(
 	requestHeight int64,
 	requestTime time.Time,
 	clientID string,
+	groupID tss.GroupID,
 	rawRequests []RawRequest,
 	ibcChannel *IBCChannel,
 	executeGas uint64,
@@ -63,6 +66,7 @@ func NewRequest(
 		RequestHeight:       requestHeight,
 		RequestTime:         requestTime.Unix(),
 		ClientID:            clientID,
+		GroupID:             groupID,
 		RawRequests:         rawRequests,
 		IBCChannel:          ibcChannel,
 		ExecuteGas:          executeGas,

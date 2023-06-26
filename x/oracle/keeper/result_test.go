@@ -14,7 +14,7 @@ func TestResultBasicFunctions(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// We start by setting result of request#1.
 	result := types.NewResult(
-		"alice", 1, BasicCalldata, 1, 1, 1, 1, 1589535020, 1589535022, 1, BasicResult,
+		"alice", 0, 1, BasicCalldata, 1, 1, 1, 1, 1589535020, 1589535022, 1, BasicResult,
 	)
 	k.SetResult(ctx, 1, result)
 	// GetResult and MustGetResult should return what we set.
@@ -37,9 +37,9 @@ func TestSaveResultOK(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200))
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
+	k.SaveResult(ctx, 42, 0, types.RESOLVE_STATUS_SUCCESS, BasicResult)
 	expect := types.NewResult(
-		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
+		BasicClientID, 0, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
 		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
 	)
 	result, err := k.GetResult(ctx, 42)
@@ -51,13 +51,14 @@ func TestResolveSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveSuccess(ctx, 42, 1, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 42, 0, 0, BasicResult, 1234)
 	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeTSSSigningID, "1"),
+		sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"), // no require sign by tss module
+		sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
@@ -68,7 +69,7 @@ func TestResolveFailure(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveFailure(ctx, 42, "REASON")
+	k.ResolveFailure(ctx, 42, 0, "REASON")
 	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -83,7 +84,7 @@ func TestResolveExpired(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveExpired(ctx, 42)
+	k.ResolveExpired(ctx, 42, 0)
 	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(

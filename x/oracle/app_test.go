@@ -51,6 +51,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -106,26 +107,25 @@ func TestSuccessRequestOracleData(t *testing.T) {
 
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
-		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+		expectRequest.ClientID,
+		expectRequest.GroupID,
+		types.RequestID(1),
+		2,
+		int64(expectRequest.RequestTime),
+		1581589795,
+		types.RESOLVE_STATUS_SUCCESS,
+		[]byte("beeb"),
 	)
 	expectEvents = []abci.Event{
-		{
-			Type: types.EventTypeTSSHandleRequestSignFail,
-			Attributes: []abci.EventAttribute{
-				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-				{
-					Key:   []byte(types.AttributeKeyReason),
-					Value: []byte("failed to get group with groupID: 0: group not found"),
-					// not created group on TSS module
-				},
-			},
-		},
 		{
 			Type: types.EventTypeResolve,
 			Attributes: []abci.EventAttribute{
 				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-				{Key: []byte(types.AttributeTSSSigningID), Value: parseEventAttribute(0)}, // no tss signing ID
+				{
+					Key:   []byte(types.AttributeKeyTSSGroupID),
+					Value: parseEventAttribute(0), // no require sign by tss module
+				},
+				{Key: []byte(types.AttributeKeyTSSSigningID), Value: parseEventAttribute(0)},
 				{
 					Key:   []byte(types.AttributeKeyResolveStatus),
 					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
@@ -180,6 +180,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -196,8 +197,14 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
-		types.RESOLVE_STATUS_EXPIRED, []byte{},
+		expectRequest.ClientID,
+		expectRequest.GroupID,
+		types.RequestID(1),
+		0,
+		int64(expectRequest.RequestTime),
+		ctx.BlockTime().Unix(),
+		types.RESOLVE_STATUS_EXPIRED,
+		[]byte{},
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,
