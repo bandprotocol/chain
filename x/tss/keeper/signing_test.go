@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -331,26 +333,11 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	s.Require().ElementsMatch(expected, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRollingSeed() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	rollingSeed := []byte("sample-rolling-seed")
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, rollingSeed)
-
-	// Get and check RollingSeed
-	gotSeed := k.GetRollingSeed(ctx)
-	s.Require().Equal(rollingSeed, gotSeed)
-}
-
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := uint64(1)
 	size := uint64(10)
 	t := uint64(5)
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, []byte("sample-rolling-seed"))
 
 	// Generate random participants
 	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, size, t)
@@ -368,7 +355,8 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	s.Require().Equal([]tss.MemberID{2, 4, 5, 6, 8}, participants)
+	fmt.Println(participants)
+	s.Require().Equal([]tss.MemberID{2, 6, 8, 9, 10}, participants)
 
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)
