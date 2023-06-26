@@ -699,14 +699,29 @@ func TestResolveRequestSuccess(t *testing.T) {
 		42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
+
 	require.Equal(t, expectResult, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
-	)}, ctx.EventManager().Events())
+	require.Equal(
+		t,
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeTSSHandleRequestSignFail,
+				sdk.NewAttribute(types.AttributeKeyID, "42"),
+				sdk.NewAttribute(
+					types.AttributeKeyReason,
+					"failed to get group with groupID: 0: group not found",
+				), // not created group on TSS module yet
+			),
+			sdk.NewEvent(types.EventTypeResolve,
+				sdk.NewAttribute(types.AttributeKeyID, "42"),
+				sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
+				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
+			),
+		},
+		ctx.EventManager().Events(),
+	)
 }
 
 func TestResolveRequestSuccessComplex(t *testing.T) {
@@ -746,16 +761,27 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(
-			types.AttributeKeyResult,
-			"000000206265656264317631626565626431763262656562643276316265656264327632",
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeTSSHandleRequestSignFail,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(
+				types.AttributeKeyReason,
+				"failed to get group with groupID: 0: group not found",
+			), // not created group on TSS module yet.
 		),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "32492250000"),
-	)}, ctx.EventManager().Events())
+		sdk.NewEvent(
+			types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(
+				types.AttributeKeyResult,
+				"000000206265656264317631626565626431763262656562643276316265656264327632",
+			),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "32492250000"),
+		),
+	}, ctx.EventManager().Events())
 }
 
 func TestResolveRequestOutOfGas(t *testing.T) {
@@ -819,14 +845,23 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeTSSSigningID, "1"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
-	)}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeTSSHandleRequestSignFail,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(
+				types.AttributeKeyReason,
+				"failed to get group with groupID: 0: group not found",
+			), // not created group on TSS module yet
+		),
+		sdk.NewEvent(types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
+		),
+	}, ctx.EventManager().Events())
 }
 
 func TestResolveRequestNoReturnData(t *testing.T) {
