@@ -392,7 +392,11 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
+
+	// commit genesis changes
 	app.Commit()
+
+	// call begin block to set the rolling seed in rollingseed module
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:  app.LastBlockHeight() + 1,
 		AppHash: []byte("app-hash sample"),

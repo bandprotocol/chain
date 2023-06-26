@@ -21,8 +21,10 @@ type KeeperTestSuite struct {
 func (s *KeeperTestSuite) SetupTest() {
 	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
 
-	// Commit genesis for test get LastCommitHash in msg create group
+	// commit genesis changes
 	app.Commit()
+
+	// call begin block to set the rolling seed in rollingseed module
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
 		Height:  app.LastBlockHeight() + 1,
 		AppHash: []byte("app-hash sample"),
