@@ -5,7 +5,7 @@ func NewGenesisState() *GenesisState {
 	return &GenesisState{}
 }
 
-// DefaultGenesisState returns the default tss genesis state.
+// DefaultGenesisState returns the default rollingseed genesis state.
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState()
 }
