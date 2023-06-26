@@ -125,7 +125,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			Type: types.EventTypeResolve,
 			Attributes: []abci.EventAttribute{
 				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-				{Key: []byte(types.AttributeTSSSigningID), Value: parseEventAttribute(0)}, // no signing ID
+				{Key: []byte(types.AttributeTSSSigningID), Value: parseEventAttribute(0)}, // no tss signing ID
 				{
 					Key:   []byte(types.AttributeKeyResolveStatus),
 					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),

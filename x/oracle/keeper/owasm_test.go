@@ -714,7 +714,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 			),
 			sdk.NewEvent(types.EventTypeResolve,
 				sdk.NewAttribute(types.AttributeKeyID, "42"),
-				sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+				sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no tss signing ID
 				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
 				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
@@ -773,7 +773,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		sdk.NewEvent(
 			types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no tss signing ID
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(
 				types.AttributeKeyResult,
@@ -856,7 +856,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		),
 		sdk.NewEvent(types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no signing ID
+			sdk.NewAttribute(types.AttributeTSSSigningID, "0"), // no tss signing ID
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
