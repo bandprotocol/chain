@@ -109,13 +109,31 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
 		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
-	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
-		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
-		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
-	}}}
-
+	expectEvents = []abci.Event{
+		{
+			Type: types.EventTypeHandleRequestSignFail,
+			Attributes: []abci.EventAttribute{
+				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
+				{
+					Key:   []byte(types.AttributeKeyReason),
+					Value: []byte("failed to get group with groupID: 0: group not found"),
+				},
+			},
+		},
+		{
+			Type: types.EventTypeResolve,
+			Attributes: []abci.EventAttribute{
+				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
+				{Key: []byte(types.AttributeTSSSigningID), Value: parseEventAttribute(0)},
+				{
+					Key:   []byte(types.AttributeKeyResolveStatus),
+					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
+				},
+				{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
+				{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
+			},
+		},
+	}
 	require.Equal(t, expectEvents, result.GetEvents())
 
 	ids = k.GetPendingResolveList(ctx)

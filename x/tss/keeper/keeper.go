@@ -257,7 +257,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		GroupPubNonce:   groupPubNonce,
 		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
-		Sig:             nil,
+		Signature:       nil,
 	}
 
 	// Add signing

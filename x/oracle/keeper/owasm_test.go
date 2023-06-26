@@ -822,6 +822,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
+		sdk.NewAttribute(types.AttributeTSSSigningID, "1"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
