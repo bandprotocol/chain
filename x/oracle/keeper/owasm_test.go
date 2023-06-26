@@ -710,7 +710,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 				sdk.NewAttribute(
 					types.AttributeKeyReason,
 					"failed to get group with groupID: 0: group not found",
-				), // not created group on TSS module yet
+				), // not created group on TSS module
 			),
 			sdk.NewEvent(types.EventTypeResolve,
 				sdk.NewAttribute(types.AttributeKeyID, "42"),
@@ -768,7 +768,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			sdk.NewAttribute(
 				types.AttributeKeyReason,
 				"failed to get group with groupID: 0: group not found",
-			), // not created group on TSS module yet.
+			), // not created group on TSS module
 		),
 		sdk.NewEvent(
 			types.EventTypeResolve,
@@ -852,7 +852,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			sdk.NewAttribute(
 				types.AttributeKeyReason,
 				"failed to get group with groupID: 0: group not found",
-			), // not created group on TSS module yet
+			), // not created group on TSS module
 		),
 		sdk.NewEvent(types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),

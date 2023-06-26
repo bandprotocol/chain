@@ -117,7 +117,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 				{
 					Key:   []byte(types.AttributeKeyReason),
 					Value: []byte("failed to get group with groupID: 0: group not found"),
-					// not created group on TSS module yet.
+					// not created group on TSS module
 				},
 			},
 		},
