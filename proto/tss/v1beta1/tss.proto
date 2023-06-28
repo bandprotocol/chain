@@ -122,7 +122,7 @@ message Signing {
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.
 message AssignedMember {
-  // member_id is the unique identifier of a group member.
+  // member_id is the unique identifier of the member.
   uint64 member_id = 1 [
     (gogoproto.customname) = "MemberID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
@@ -151,14 +151,19 @@ message PendingSignings {
 
 // Member is a type representing a member of the group.
 message Member {
+  // id is the unique identifier of a member.
+  uint64 id = 1 [
+    (gogoproto.customname) = "MemberID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"
+  ]; 
   // address is the address of the member.
-  string address = 1;
+  string address = 2;
   // pub_key is the public key of the member.
-  bytes pub_key = 2 [
+  bytes pub_key = 3 [
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.PublicKey"
   ];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
-  bool is_malicious = 3;
+  bool is_malicious = 4;
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

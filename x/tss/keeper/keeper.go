@@ -142,8 +142,8 @@ func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
 }
 
 // SetMember function sets a member of a group in the store.
-func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
-	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
+func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Member) {
+	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
 }
 
 // GetMember function retrieves a member of a group from the store.
@@ -180,6 +180,20 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	}
 	if len(members) == 0 {
 		return nil, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
+	}
+	return members, nil
+}
+
+// GetActiveMembers function retrieves all active members of a group from the store.
+func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+	var members []types.Member
+	iterator := k.GetMembersIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var member types.Member
+		k.cdc.MustUnmarshal(iterator.Value(), &member)
+		// TODO: logic to check active member
+		members = append(members, member)
 	}
 	return members, nil
 }

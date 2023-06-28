@@ -235,7 +235,7 @@ func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss
 
 	// update member status
 	member.IsMalicious = true
-	k.SetMember(ctx, groupID, memberID, member)
+	k.SetMember(ctx, groupID, member)
 	return nil
 }
 
