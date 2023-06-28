@@ -7,9 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -27,22 +24,7 @@ type KeeperTestSuite struct {
 }
 
 func (s *KeeperTestSuite) SetupTest() {
-	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
-
-	// commit genesis changes
-	app.Commit()
-
-	// call begin block to set the rolling seed in rollingseed module
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		Height:  app.LastBlockHeight() + 1,
-		AppHash: []byte("app-hash sample"),
-	}, Hash: []byte("app-hash sample")})
-
-	ctx := app.NewContext(
-		false,
-		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: []byte("app-hash sample")},
-	)
-
+	app, ctx, _ := testapp.CreateTestInput(false)
 	s.app = app
 	s.ctx = ctx
 	s.querier = keeper.Querier{

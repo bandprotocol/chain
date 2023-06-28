@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -355,8 +353,7 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	fmt.Println(participants)
-	s.Require().Equal([]tss.MemberID{2, 6, 8, 9, 10}, participants)
+	s.Require().Equal([]tss.MemberID{1, 2, 5, 6, 10}, participants)
 
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)

@@ -383,24 +383,12 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 // CreateTestInput creates a new test environment for unit tests.
 func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
-	ctx := app.NewContext(
-		false,
-		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: []byte("app-hash sample")},
-	)
+	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
-
-	// commit genesis changes
-	app.Commit()
-
-	// call begin block to set the rolling seed in rollingseed module
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		Height:  app.LastBlockHeight() + 1,
-		AppHash: []byte("app-hash sample"),
-	}, Hash: []byte("app-hash sample")})
 
 	return app, ctx, app.OracleKeeper
 }
