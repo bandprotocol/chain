@@ -389,7 +389,6 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
-
 	return app, ctx, app.OracleKeeper
 }
 
