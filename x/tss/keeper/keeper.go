@@ -143,8 +143,8 @@ func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
 }
 
 // SetMember function sets a member of a group in the store.
-func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
-	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
+func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Member) {
+	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
 }
 
 // GetMember function retrieves a member of a group from the store.

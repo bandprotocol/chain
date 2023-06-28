@@ -346,14 +346,27 @@ func (s *KeeperTestSuite) TestGetSetRollingSeed() {
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := uint64(1)
-	size := uint64(10)
-	t := uint64(5)
+	members := []types.Member{
+		{
+			MemberID:    1,
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+		{
+			MemberID:    2,
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+	}
+	t := uint64(1)
 
 	// Set RollingSeed
 	k.SetRollingSeed(ctx, []byte("sample-rolling-seed"))
 
 	// Generate random participants
-	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, size, t)
+	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, members, t)
 	s.Require().NoError(err)
 
 	// Check that the number of participants is correct
@@ -362,15 +375,15 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	// Check that there are no duplicate participants
 	participantSet := make(map[tss.MemberID]struct{})
 	for _, participant := range participants {
-		_, exists := participantSet[participant]
+		_, exists := participantSet[participant.MemberID]
 		s.Require().False(exists)
-		participantSet[participant] = struct{}{}
+		participantSet[participant.MemberID] = struct{}{}
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	s.Require().Equal([]tss.MemberID{2, 4, 5, 6, 8}, participants)
+	s.Require().Equal([]types.Member{members[1]}, participants)
 
 	// Test that it returns an error if t > size
-	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)
+	_, err = k.GetRandomAssigningParticipants(ctx, signingID, members, uint64(len(members)+1))
 	s.Require().Error(err)
 }

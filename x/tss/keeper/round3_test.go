@@ -15,7 +15,8 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 		s.Run(fmt.Sprintf("Case %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				// Set member
-				k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
+				k.SetMember(ctx, tc.Group.ID, types.Member{
+					MemberID:    m.ID,
 					Address:     "member_address",
 					PubKey:      m.PubKey(),
 					IsMalicious: false,
@@ -80,7 +81,8 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 
 		for _, m := range tc.Group.Members {
 			// Set member
-			k.SetMember(ctx, tc.Group.ID, m.ID, types.Member{
+			k.SetMember(ctx, tc.Group.ID, types.Member{
+				MemberID:    m.ID,
 				Address:     "member_address",
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
@@ -294,7 +296,8 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	memberID := tss.MemberID(1)
 
 	// Set member
-	k.SetMember(ctx, groupID, memberID, types.Member{
+	k.SetMember(ctx, groupID, types.Member{
+		MemberID:    memberID,
 		Address:     "member_address",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: false,
