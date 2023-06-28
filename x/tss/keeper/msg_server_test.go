@@ -382,11 +382,12 @@ func (s *KeeperTestSuite) TestComplain() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 
@@ -472,11 +473,12 @@ func (s *KeeperTestSuite) TestConfirm() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 
@@ -751,11 +753,12 @@ func (s *KeeperTestSuite) TestSign() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 

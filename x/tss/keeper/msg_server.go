@@ -39,7 +39,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	// Set members
 	for i, m := range req.Members {
 		// ID start from 1
-		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
+		k.SetMember(ctx, groupID, types.Member{
+			MemberID:    tss.MemberID(i + 1),
 			Address:     m,
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
@@ -260,7 +261,7 @@ func (k Keeper) SubmitDKGRound2(
 
 	// Update public key of the member
 	member.PubKey = ownPubKey
-	k.SetMember(ctx, groupID, memberID, member)
+	k.SetMember(ctx, groupID, member)
 
 	// Set round 2 info
 	k.SetRound2Info(ctx, groupID, req.Round2Info)
@@ -556,17 +557,23 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
-	// Get members in the group
-	members, err := k.GetMembers(ctx, req.GroupID)
+	// Get active members
+	members, err := k.GetActiveMembers(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter member that have DEs
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
 	if err != nil {
 		return nil, err
 	}
 
 	// Random assigning participants
-	mids, err := k.GetRandomAssigningParticipants(
+	selectedMembers, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
-		group.Size_,
+		filteredMembers,
 		group.Threshold,
 	)
 	if err != nil {
@@ -574,13 +581,13 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	}
 
 	// Get public D and E for each assigned members
-	assignedMembers, pubDs, pubEs, err := k.HandlePollDEForAssignedMembers(ctx, mids, members)
+	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
 	if err != nil {
 		return nil, err
 	}
 
 	// Compute commitment from mids, public D and public E
-	commitment, err := tss.ComputeCommitment(mids, pubDs, pubEs)
+	commitment, err := tss.ComputeCommitment(types.GetMemberIDs(selectedMembers), pubDs, pubEs)
 	if err != nil {
 		return nil, err
 	}
@@ -620,8 +627,9 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	// Add signing
 	signingID := k.AddSigning(ctx, signing)
 
-	for _, mid := range mids {
-		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Address)
+	// Set pending sign
+	for _, member := range selectedMembers {
+		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
