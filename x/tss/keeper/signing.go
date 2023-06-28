@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"encoding/hex"
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -233,4 +235,120 @@ func (k Keeper) GetRandomAssigningParticipants(
 	sort.Slice(members, func(i, j int) bool { return members[i].MemberID < members[j].MemberID })
 
 	return selected, nil
+}
+
+// HandleRequestSign function initiates the signing process by requesting signatures from assigned members.
+// It assigns participants randomly, computes necessary values, and emits appropriate events.
+func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error) {
+	// Get group
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return 0, err
+	}
+
+	// Check group status
+	if group.Status != types.GROUP_STATUS_ACTIVE {
+		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Get active members
+	members, err := k.GetActiveMembers(ctx, groupID)
+	if err != nil {
+		return 0, err
+	}
+
+	// Filter member that have DEs
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
+	if err != nil {
+		return 0, err
+	}
+
+	// Random assigning participants
+	selectedMembers, err := k.GetRandomAssigningParticipants(
+		ctx,
+		k.GetSigningCount(ctx)+1,
+		filteredMembers,
+		group.Threshold,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	// Get public D and E for each assigned members
+	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
+	if err != nil {
+		return 0, err
+	}
+
+	// Compute commitment from mids, public D and public E
+	commitment, err := tss.ComputeCommitment(types.GetMemberIDs(selectedMembers), pubDs, pubEs)
+	if err != nil {
+		return 0, err
+	}
+
+	// Compute binding factor and public nonce of each assigned member
+	var ownPubNonces tss.PublicKeys
+	for i, member := range assignedMembers {
+		// Compute and assign binding factor and public nonce
+		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
+			member.PubD,
+			member.PubE,
+			tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment),
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		ownPubNonces = append(ownPubNonces, assignedMembers[i].PubNonce)
+	}
+
+	// Compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create signing struct
+	signing := types.Signing{
+		GroupID:         groupID,
+		Message:         msg,
+		GroupPubNonce:   groupPubNonce,
+		Commitment:      commitment,
+		AssignedMembers: assignedMembers,
+		Signature:       nil,
+	}
+
+	// Add signing
+	signingID := k.AddSigning(ctx, signing)
+
+	// Set pending sign
+	for _, member := range selectedMembers {
+		accMember, err := sdk.AccAddressFromBech32(member.Address)
+		if err != nil {
+			return 0, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		}
+
+		k.SetPendingSign(ctx, accMember, signingID)
+	}
+
+	event := sdk.NewEvent(
+		types.EventTypeRequestSign,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
+		sdk.NewAttribute(types.AttributeKeyCommitment, hex.EncodeToString(commitment)),
+		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
+	)
+	for _, member := range assignedMembers {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
+			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PubNonce)),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(member.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(member.PubE)),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return signingID, nil
 }
