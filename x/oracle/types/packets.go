@@ -75,12 +75,12 @@ func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPa
 
 // NewOracleResponsePacketData contructs a new OracleResponsePacketData instance
 func NewOracleResponsePacketData(
-	clientID string, groupID tss.GroupID, requestID RequestID, ansCount uint64, requestTime int64,
+	clientID string, signingID tss.SigningID, requestID RequestID, ansCount uint64, requestTime int64,
 	resolveTime int64, resolveStatus ResolveStatus, result []byte,
 ) OracleResponsePacketData {
 	return OracleResponsePacketData{
 		ClientID:      clientID,
-		GroupID:       groupID,
+		SigningID:     signingID,
 		RequestID:     requestID,
 		AnsCount:      ansCount,
 		RequestTime:   requestTime,

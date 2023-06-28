@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -108,7 +109,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
 		expectRequest.ClientID,
-		expectRequest.GroupID,
+		tss.SigningID(0),
 		types.RequestID(1),
 		2,
 		int64(expectRequest.RequestTime),
@@ -198,7 +199,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
 		expectRequest.ClientID,
-		expectRequest.GroupID,
+		tss.SigningID(0),
 		types.RequestID(1),
 		0,
 		int64(expectRequest.RequestTime),

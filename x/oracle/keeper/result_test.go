@@ -69,7 +69,7 @@ func TestResolveFailure(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveFailure(ctx, 42, 0, "REASON")
+	k.ResolveFailure(ctx, 42, "REASON")
 	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -84,7 +84,7 @@ func TestResolveExpired(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveExpired(ctx, 42, 0)
+	k.ResolveExpired(ctx, 42)
 	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(

@@ -164,7 +164,7 @@ func TestProcessExpiredRequests(t *testing.T) {
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
 	k.ResolveSuccess(ctx, 1, 0, 1, BasicResult, 1234)
-	k.ResolveFailure(ctx, 2, 0, "ARBITRARY_REASON")
+	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
 	k.ResolveSuccess(ctx, 4, 0, 0, BasicResult, 1234)
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))

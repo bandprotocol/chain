@@ -218,10 +218,10 @@ message OracleResponsePacketData {
   // ClientID is the unique identifier matched with that of the oracle request
   // packet.
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-  // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 2 [
-    (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  // SigningID is the unique identifier of the signing process in tss moudle.
+  uint64 signing_id = 2 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // RequestID is BandChain's unique identifier for this oracle request.
   uint64 request_id = 3 [
@@ -253,10 +253,10 @@ message Result {
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-  // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 2 [
-    (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  // SigningID is the unique identifier of the signing process in tss moudle.
+  uint64 signing_id = 2 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.

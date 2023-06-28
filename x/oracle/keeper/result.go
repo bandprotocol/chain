@@ -58,7 +58,7 @@ func (k Keeper) ResolveSuccess(
 	result []byte,
 	gasUsed uint64,
 ) {
-	k.SaveResult(ctx, id, gid, types.RESOLVE_STATUS_SUCCESS, result)
+	k.SaveResult(ctx, id, sid, types.RESOLVE_STATUS_SUCCESS, result)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -71,8 +71,8 @@ func (k Keeper) ResolveSuccess(
 }
 
 // ResolveFailure resolves the given request as failure with the given reason.
-func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, gid tss.GroupID, reason string) {
-	k.SaveResult(ctx, id, gid, types.RESOLVE_STATUS_FAILURE, []byte{})
+func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, reason string) {
+	k.SaveResult(ctx, id, 0, types.RESOLVE_STATUS_FAILURE, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -82,8 +82,8 @@ func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, gid tss.Grou
 }
 
 // ResolveExpired resolves the given request as expired.
-func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID, gid tss.GroupID) {
-	k.SaveResult(ctx, id, gid, types.RESOLVE_STATUS_EXPIRED, []byte{})
+func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
+	k.SaveResult(ctx, id, 0, types.RESOLVE_STATUS_EXPIRED, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -93,13 +93,13 @@ func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID, gid tss.Grou
 
 // SaveResult saves the result packets for the request with the given resolve status and result.
 func (k Keeper) SaveResult(
-	ctx sdk.Context, id types.RequestID, gid tss.GroupID, status types.ResolveStatus, result []byte,
+	ctx sdk.Context, id types.RequestID, sid tss.SigningID, status types.ResolveStatus, result []byte,
 ) {
 	r := k.MustGetRequest(ctx, id)
 	reportCount := k.GetReportCount(ctx, id)
 	k.SetResult(ctx, id, types.NewResult(
 		r.ClientID,                         // ClientID
-		gid,                                // GroupID
+		sid,                                // SigningID
 		r.OracleScriptID,                   // OracleScriptID
 		r.Calldata,                         // Calldata
 		uint64(len(r.RequestedValidators)), // AskCount
@@ -155,7 +155,7 @@ func (k Keeper) SaveResult(
 		}
 
 		packetData := types.NewOracleResponsePacketData(
-			r.ClientID, r.GroupID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+			r.ClientID, sid, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
 		)
 
 		packet := channeltypes.NewPacket(

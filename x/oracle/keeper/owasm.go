@@ -175,9 +175,9 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	output, err := k.owasmVM.Execute(code, ConvertToOwasmGas(req.GetExecuteGas()), env)
 
 	if err != nil {
-		k.ResolveFailure(ctx, reqID, req.GroupID, err.Error())
+		k.ResolveFailure(ctx, reqID, err.Error())
 	} else if env.Retdata == nil {
-		k.ResolveFailure(ctx, reqID, req.GroupID, "no return data")
+		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
 		// Request sign by tss module
 		var sid tss.SigningID

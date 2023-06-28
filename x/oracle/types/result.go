@@ -5,7 +5,7 @@ import "github.com/bandprotocol/chain/v2/pkg/tss"
 // NewResult creates a new Result instance.
 func NewResult(
 	clientId string,
-	gid tss.GroupID,
+	sid tss.SigningID,
 	oid OracleScriptID,
 	calldata []byte,
 	askCount, minCount uint64,
@@ -17,7 +17,7 @@ func NewResult(
 ) Result {
 	return Result{
 		ClientID:       clientId,
-		GroupID:        gid,
+		SigningID:      sid,
 		OracleScriptID: oid,
 		Calldata:       calldata,
 		AskCount:       askCount,
