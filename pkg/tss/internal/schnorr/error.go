@@ -39,6 +39,18 @@ const (
 	// ErrSigZTooBig is returned when a complaint signature has s with a value that is
 	// greater than or equal to the group order.
 	ErrSigZTooBig = ErrorKind("ErrSigZTooBig")
+
+	// ErrPrivateKeyZero is returned when a private key is zero.
+	ErrPrivateKeyZero = ErrorKind("ErrPrivateKeyZero")
+
+	// ErrNotOnCurve is returned when a public key is not on curve.
+	ErrNotOnCurve = ErrorKind("ErrNotOnCurve")
+
+	// ErrRInfinity is returned when a calculated R is at infinity.
+	ErrRInfinity = ErrorKind("ErrRInfinity")
+
+	// ErrIncorrectR is returned when a calculated R is not given R.
+	ErrIncorrectR = ErrorKind("ErrIncorrectR")
 )
 
 // Error satisfies the error interface and prints human-readable errors.
