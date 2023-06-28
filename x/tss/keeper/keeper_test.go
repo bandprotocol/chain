@@ -140,6 +140,24 @@ func (s *KeeperTestSuite) TestSetGroup() {
 	s.Require().Equal(group.Size_, got.Size_)
 }
 
+func (s *KeeperTestSuite) TestGetGroups() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	group := types.Group{
+		GroupID:   1,
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.GROUP_STATUS_ROUND_1,
+	}
+
+	// Set new group
+	k.SetGroup(ctx, group)
+
+	// Get group from chain state
+	got := k.GetGroups(ctx)
+	s.Require().Equal([]types.Group{group}, got)
+}
+
 func (s *KeeperTestSuite) TestGetSetDKGContext() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
@@ -155,11 +173,12 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
+		MemberID:    1,
 		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey:      tss.PublicKey(nil),
 		IsMalicious: false,
 	}
-	k.SetMember(ctx, groupID, memberID, member)
+	k.SetMember(ctx, groupID, member)
 
 	got, err := k.GetMember(ctx, groupID, memberID)
 	s.Require().NoError(err)
@@ -171,11 +190,13 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
+			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
+			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
@@ -183,8 +204,8 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	}
 
 	// Set members
-	for i, m := range members {
-		k.SetMember(ctx, groupID, tss.MemberID(i+1), m)
+	for _, m := range members {
+		k.SetMember(ctx, groupID, m)
 	}
 
 	got, err := k.GetMembers(ctx, groupID)

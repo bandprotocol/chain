@@ -10,14 +10,28 @@ import (
 // InitGenesis performs genesis initialization for the tss module.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetParams(ctx, data.Params)
-	k.SetGroupCount(ctx, 0)
-	k.SetSigningCount(ctx, 0)
+	k.SetGroupCount(ctx, data.GroupCount)
+	k.SetSigningCount(ctx, data.SigningCount)
 	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
+	for _, group := range data.Groups {
+		k.SetGroup(ctx, group)
+	}
+	for _, deq := range data.DEQueuesGenesis {
+		k.SetDEQueue(ctx, deq.Address, *deq.DEQueue)
+	}
+	for _, de := range data.DEsGenesis {
+		k.SetDE(ctx, de.Address, de.Index, *de.DE)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params: k.GetParams(ctx),
+		Params:          k.GetParams(ctx),
+		GroupCount:      k.GetGroupCount(ctx),
+		SigningCount:    k.GetSigningCount(ctx),
+		Groups:          k.GetGroups(ctx),
+		DEQueuesGenesis: k.GetDEQueuesGenesis(ctx),
+		DEsGenesis:      k.GetDEsGenesis(ctx),
 	}
 }

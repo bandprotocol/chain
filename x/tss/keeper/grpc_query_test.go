@@ -64,10 +64,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -78,10 +78,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					I:      1,
-					J:      2,
-					KeySym: []byte("key_sym"),
-					Sig:    []byte("signature"),
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
 				},
 				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
 			},
@@ -158,26 +158,31 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
+							MemberID:    1,
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
+							MemberID:    2,
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
+							MemberID:    3,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
+							MemberID:    4,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
 						},
 						{
+							MemberID:    5,
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      tss.PublicKey(nil),
 							IsMalicious: false,
@@ -224,11 +229,13 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	members := []types.Member{
 		{
+			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
+			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
@@ -236,8 +243,8 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	}
 
 	// Set members
-	for i, m := range members {
-		k.SetMember(ctx, tss.GroupID(1), tss.MemberID(i+1), m)
+	for _, m := range members {
+		k.SetMember(ctx, tss.GroupID(1), m)
 	}
 
 	var req types.QueryMembersRequest
@@ -429,22 +436,22 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 	ctx, q := s.ctx, s.querier
 
-	var req types.QueryPendingSignsRequest
+	var req types.QueryPendingSigningsRequest
 	testCases := []struct {
 		msg      string
 		malleate func()
 		expPass  bool
-		postTest func(res *types.QueryPendingSignsResponse, err error)
+		postTest func(res *types.QueryPendingSigningsResponse, err error)
 	}{
 		{
 			"invalid address format",
 			func() {
-				req = types.QueryPendingSignsRequest{
+				req = types.QueryPendingSigningsRequest{
 					Address: "invalid_address_format",
 				}
 			},
 			false,
-			func(res *types.QueryPendingSignsResponse, err error) {
+			func(res *types.QueryPendingSigningsResponse, err error) {
 				s.Require().Error(err)
 				s.Require().Nil(res)
 			},
@@ -452,15 +459,15 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		{
 			"success",
 			func() {
-				req = types.QueryPendingSignsRequest{
+				req = types.QueryPendingSigningsRequest{
 					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				}
 			},
 			true,
-			func(res *types.QueryPendingSignsResponse, err error) {
+			func(res *types.QueryPendingSigningsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().NotNil(res)
-				s.Require().Len(res.PendingSigns, 0)
+				s.Require().Len(res.PendingSignings, 0)
 			},
 		},
 	}
@@ -469,7 +476,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			res, err := q.PendingSigns(ctx, &req)
+			res, err := q.PendingSignings(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
@@ -500,7 +507,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
-		Sig:           []byte("signature"),
+		Signature:     []byte("signature"),
 		ExpiryTime:    &expiryTime,
 	}
 	sig := []byte("signatures")
@@ -542,7 +549,8 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 			func(res *types.QuerySigningsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().Equal(&signing, res.Signing)
-				s.Require().Equal([]types.PartialSig{{MemberID: memberID, Sig: sig}}, res.ReceivedPartialSigs)
+				s.Require().
+					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
 			},
 		},
 	}

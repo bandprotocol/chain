@@ -60,7 +60,7 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Set signing
@@ -94,7 +94,7 @@ func (s *KeeperTestSuite) TestAddSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Add signing
@@ -130,7 +130,7 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 		Message:       []byte("data"),
 		GroupPubNonce: hexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Commitment:    []byte("commitment"),
-		Sig:           nil,
+		Signature:     nil,
 	}
 
 	// Set signing
@@ -252,10 +252,10 @@ func (s *KeeperTestSuite) TestGetSetPartialSig() {
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
-	// Set PartialSig
+	// Set PartialSignature
 	k.SetPartialSig(ctx, signingID, memberID, sig)
 
-	// Get and check PartialSig
+	// Get and check PartialSignature
 	gotSig, err := k.GetPartialSig(ctx, signingID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(sig, gotSig)
@@ -267,13 +267,13 @@ func (s *KeeperTestSuite) TestDeletePartialSig() {
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
-	// Set PartialSig
+	// Set PartialSignature
 	k.SetPartialSig(ctx, signingID, memberID, sig)
 
-	// Delete PartialSig
+	// Delete PartialSignature
 	k.DeletePartialSig(ctx, signingID, memberID)
 
-	// Try to get the deleted PartialSig, expecting an error
+	// Try to get the deleted PartialSignature, expecting an error
 	_, err := k.GetPartialSig(ctx, signingID, memberID)
 	s.Require().Error(err)
 }
@@ -319,11 +319,11 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	got := k.GetPartialSigsWithKey(ctx, signingID)
 
 	// Construct expected result
-	expected := []types.PartialSig{}
+	expected := []types.PartialSignature{}
 	for i, memberID := range memberIDs {
-		expected = append(expected, types.PartialSig{
-			MemberID: memberID,
-			Sig:      sigs[i],
+		expected = append(expected, types.PartialSignature{
+			MemberID:  memberID,
+			Signature: sigs[i],
 		})
 	}
 
@@ -346,14 +346,27 @@ func (s *KeeperTestSuite) TestGetSetRollingSeed() {
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := uint64(1)
-	size := uint64(10)
-	t := uint64(5)
+	members := []types.Member{
+		{
+			MemberID:    1,
+			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+		{
+			MemberID:    2,
+			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			PubKey:      tss.PublicKey(nil),
+			IsMalicious: false,
+		},
+	}
+	t := uint64(1)
 
 	// Set RollingSeed
 	k.SetRollingSeed(ctx, []byte("sample-rolling-seed"))
 
 	// Generate random participants
-	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, size, t)
+	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, members, t)
 	s.Require().NoError(err)
 
 	// Check that the number of participants is correct
@@ -362,15 +375,15 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	// Check that there are no duplicate participants
 	participantSet := make(map[tss.MemberID]struct{})
 	for _, participant := range participants {
-		_, exists := participantSet[participant]
+		_, exists := participantSet[participant.MemberID]
 		s.Require().False(exists)
-		participantSet[participant] = struct{}{}
+		participantSet[participant.MemberID] = struct{}{}
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	s.Require().Equal([]tss.MemberID{2, 4, 5, 6, 8}, participants)
+	s.Require().Equal([]types.Member{members[1]}, participants)
 
 	// Test that it returns an error if t > size
-	_, err = k.GetRandomAssigningParticipants(ctx, signingID, t-1, t)
+	_, err = k.GetRandomAssigningParticipants(ctx, signingID, members, uint64(len(members)+1))
 	s.Require().Error(err)
 }

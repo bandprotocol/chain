@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *TSSTestSuite) TestGenerateRound1Info() {
-	mid := tss.MemberID(1)
+	mid := tss.NewMemberID(1)
 	dkgContext := []byte("DKGContext")
 	threshold := uint64(2)
 

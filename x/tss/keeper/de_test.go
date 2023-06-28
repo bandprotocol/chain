@@ -17,13 +17,35 @@ func (s *KeeperTestSuite) TestGetSetDEQueue() {
 		Tail: 2,
 	}
 
-	// Set DEQueue
+	// Set de queue
 	k.SetDEQueue(ctx, address, deQueue)
 
-	// Get DEQueue
+	// Get de queue
 	got := k.GetDEQueue(ctx, address)
 
 	s.Require().Equal(deQueue, got)
+}
+
+func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	deQueue := types.DEQueue{
+		Head: 1,
+		Tail: 2,
+	}
+
+	// Set de queue
+	k.SetDEQueue(ctx, address, deQueue)
+
+	// Get de queues with address
+	got := k.GetDEQueuesGenesis(ctx)
+
+	s.Require().Equal([]types.DEQueueGenesis{
+		{
+			Address: address,
+			DEQueue: &deQueue,
+		},
+	}, got)
 }
 
 func (s *KeeperTestSuite) TestGetSetDE() {
@@ -65,6 +87,30 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 
 	s.Require().ErrorIs(types.ErrDENotFound, err)
 	s.Require().Equal(types.DE{}, got)
+}
+
+func (s *KeeperTestSuite) TestGetDEsGenesis() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	index := uint64(1)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	// Set DE
+	k.SetDE(ctx, address, index, de)
+
+	// Get des with address and index
+	got := k.GetDEsGenesis(ctx)
+
+	s.Require().Equal([]types.DEGenesis{
+		{
+			Address: address,
+			Index:   index,
+			DE:      &de,
+		},
+	}, got)
 }
 
 func (s *KeeperTestSuite) TestNextQueueValue() {
@@ -162,11 +208,13 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	members := []types.Member{
 		{
+			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
 		},
 		{
+			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
@@ -190,5 +238,24 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		accMembers = append(accMembers, acc)
 	}
 
-	// k.HandlePollDEForAssignedMembers(ctx, mid)
+	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, members)
+	s.Require().NoError(err)
+	s.Require().Equal([]types.AssignedMember{
+		{
+			MemberID: 1,
+			Member:   members[0].Address,
+			PubD:     des[0].PubD,
+			PubE:     des[0].PubE,
+			PubNonce: nil,
+		},
+		{
+			MemberID: 2,
+			Member:   members[1].Address,
+			PubD:     des[0].PubD,
+			PubE:     des[0].PubE,
+			PubNonce: nil,
+		},
+	}, assignedMembers)
+	s.Require().Equal(tss.PublicKeys{[]byte("D1"), []byte("D1")}, pubDs)
+	s.Require().Equal(tss.PublicKeys{[]byte("E1"), []byte("E1")}, pubEs)
 }

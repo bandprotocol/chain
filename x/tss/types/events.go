@@ -28,7 +28,7 @@ const (
 	AttributeKeyMemberIDI            = "member_id_i"
 	AttributeKeyMemberIDJ            = "member_id_j"
 	AttributeKeyKeySym               = "key_sym"
-	AttributeKeySig                  = "sig"
+	AttributeKeySignature            = "signature"
 	AttributeKeyGroupPubKey          = "group_pub_key"
 	AttributeKeyOwnPubKeySig         = "own_pub_key_sig"
 	AttributeKeySigningID            = "signing_id"

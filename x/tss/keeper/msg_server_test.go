@@ -382,11 +382,12 @@ func (s *KeeperTestSuite) TestComplain() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 
@@ -410,10 +411,10 @@ func (s *KeeperTestSuite) TestComplain() {
 					GroupID: tcGroup.ID,
 					Complaints: []types.Complaint{
 						{
-							I:      tcGroup.Members[0].ID,
-							J:      tcGroup.Members[1].ID,
-							KeySym: keySym,
-							Sig:    sig,
+							Complainer:  tcGroup.Members[0].ID,
+							Complainant: tcGroup.Members[1].ID,
+							KeySym:      keySym,
+							Signature:   sig,
 						},
 					},
 					Member: sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
@@ -472,11 +473,12 @@ func (s *KeeperTestSuite) TestConfirm() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 
@@ -751,11 +753,12 @@ func (s *KeeperTestSuite) TestSign() {
 		// Update member public key
 		for i, m := range tc.Group.Members {
 			member := types.Member{
+				MemberID:    tss.MemberID(i + 1),
 				Address:     sdk.AccAddress(m.PubKey()).String(),
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
 			}
-			k.SetMember(ctx, tc.Group.ID, tss.MemberID(i+1), member)
+			k.SetMember(ctx, tc.Group.ID, member)
 		}
 	}
 
@@ -799,14 +802,14 @@ func (s *KeeperTestSuite) TestSign() {
 						Message:         signing.Data,
 						GroupPubNonce:   signing.PubNonce,
 						Commitment:      signing.Commitment,
-						Sig:             nil,
+						Signature:       nil,
 						ExpiryTime:      &expiryTime,
 					})
 
 					req = types.MsgSign{
 						SigningID: signing.ID,
 						MemberID:  signing.AssignedMembers[0].ID,
-						Sig:       signing.AssignedMembers[0].Sig,
+						Signature: signing.AssignedMembers[0].Sig,
 						Member:    sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
 					}
 				},
@@ -829,7 +832,7 @@ func (s *KeeperTestSuite) TestSign() {
 				req = types.MsgSign{
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
-					Sig:       tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Sig,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
@@ -846,14 +849,14 @@ func (s *KeeperTestSuite) TestSign() {
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
 					Commitment:      tc1.Signings[0].Commitment,
-					Sig:             nil,
+					Signature:       nil,
 					ExpiryTime:      &expiryTime,
 				})
 
 				req = types.MsgSign{
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
-					Sig:       tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Sig,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},

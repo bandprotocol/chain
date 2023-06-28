@@ -174,14 +174,14 @@ func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Sig
 }
 
 // GetPartialSigsWithKey function retrieves all partial signatures for a specific signing ID from the store along with their corresponding member IDs.
-func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSig {
-	var pzs []types.PartialSig
+func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSignature {
+	var pzs []types.PartialSignature
 	iterator := k.GetPartialSigIterator(ctx, signingID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		pzs = append(pzs, types.PartialSig{
-			MemberID: types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
-			Sig:      iterator.Value(),
+		pzs = append(pzs, types.PartialSignature{
+			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			Signature: iterator.Value(),
 		})
 	}
 	return pzs
@@ -198,14 +198,15 @@ func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
 }
 
 // GetRandomAssigningParticipants function generates a random selection of participants for a signing process.
-// It selects 't' participants out of 'size' participants using a deterministic random number generator (DRBG).
+// It selects 't' participants out of 'members size' participants using a deterministic random number generator (DRBG).
 func (k Keeper) GetRandomAssigningParticipants(
 	ctx sdk.Context,
 	signingID uint64,
-	size uint64,
+	members []types.Member,
 	t uint64,
-) ([]tss.MemberID, error) {
-	if t > size {
+) ([]types.Member, error) {
+	members_size := uint64(len(members))
+	if t > members_size {
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, "t must less than size")
 	}
 
@@ -215,14 +216,12 @@ func (k Keeper) GetRandomAssigningParticipants(
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}
 
-	var aps []tss.MemberID
-	members := types.MakeRange(1, size)
-	members_size := uint64(len(members))
+	var selected []types.Member
 	for i := uint64(0); i < t; i++ {
 		luckyNumber := rng.NextUint64() % members_size
 
 		// Get the selected member.
-		aps = append(aps, tss.MemberID(members[luckyNumber]))
+		selected = append(selected, members[luckyNumber])
 
 		// Remove the selected member from the list.
 		members = append(members[:luckyNumber], members[luckyNumber+1:]...)
@@ -230,7 +229,8 @@ func (k Keeper) GetRandomAssigningParticipants(
 		members_size -= 1
 	}
 
-	sort.Slice(aps, func(i, j int) bool { return aps[i] < aps[j] })
+	// Sort members
+	sort.Slice(members, func(i, j int) bool { return members[i].MemberID < members[j].MemberID })
 
-	return aps, nil
+	return selected, nil
 }

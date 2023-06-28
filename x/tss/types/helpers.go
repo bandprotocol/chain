@@ -20,6 +20,15 @@ func FindMemberSlot(from tss.MemberID, to tss.MemberID) tss.MemberID {
 	return slot
 }
 
+// GetMemberIDs get the list of the member ID from all members.
+func GetMemberIDs(members []Member) []tss.MemberID {
+	var mids []tss.MemberID
+	for _, member := range members {
+		mids = append(mids, member.MemberID)
+	}
+	return mids
+}
+
 // HaveMalicious checks if any member in the given slice is marked as malicious.
 func HaveMalicious(members []Member) bool {
 	for _, m := range members {

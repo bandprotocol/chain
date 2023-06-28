@@ -39,7 +39,8 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 	// Set members
 	for i, m := range req.Members {
 		// ID start from 1
-		k.SetMember(ctx, groupID, tss.MemberID(i+1), types.Member{
+		k.SetMember(ctx, groupID, types.Member{
+			MemberID:    tss.MemberID(i + 1),
 			Address:     m,
 			PubKey:      tss.PublicKey(nil),
 			IsMalicious: false,
@@ -260,7 +261,7 @@ func (k Keeper) SubmitDKGRound2(
 
 	// Update public key of the member
 	member.PubKey = ownPubKey
-	k.SetMember(ctx, groupID, memberID, member)
+	k.SetMember(ctx, groupID, member)
 
 	// Set round 2 info
 	k.SetRound2Info(ctx, groupID, req.Round2Info)
@@ -299,7 +300,7 @@ func (k Keeper) SubmitDKGRound2(
 func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Complaints[0].I
+	memberID := req.Complaints[0].Complainer
 
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
@@ -345,7 +346,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
 			// Mark i as malicious
-			err := k.MarkMalicious(ctx, groupID, c.I)
+			err := k.MarkMalicious(ctx, groupID, c.Complainer)
 			if err != nil {
 				return nil, err
 			}
@@ -361,16 +362,16 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Sig)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
 		} else {
 			// Mark j as malicious
-			err := k.MarkMalicious(ctx, groupID, c.J)
+			err := k.MarkMalicious(ctx, groupID, c.Complainant)
 			if err != nil {
 				return nil, err
 			}
@@ -386,10 +387,10 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.I)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.J)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(c.Sig)),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
@@ -556,17 +557,23 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
-	// Get members in the group
-	members, err := k.GetMembers(ctx, req.GroupID)
+	// Get active members
+	members, err := k.GetActiveMembers(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter member that have DEs
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
 	if err != nil {
 		return nil, err
 	}
 
 	// Random assigning participants
-	mids, err := k.GetRandomAssigningParticipants(
+	selectedMembers, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
-		group.Size_,
+		filteredMembers,
 		group.Threshold,
 	)
 	if err != nil {
@@ -574,13 +581,13 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	}
 
 	// Get public D and E for each assigned members
-	assignedMembers, pubDs, pubEs, err := k.HandlePollDEForAssignedMembers(ctx, mids, members)
+	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
 	if err != nil {
 		return nil, err
 	}
 
 	// Compute commitment from mids, public D and public E
-	commitment, err := tss.ComputeCommitment(mids, pubDs, pubEs)
+	commitment, err := tss.ComputeCommitment(types.GetMemberIDs(selectedMembers), pubDs, pubEs)
 	if err != nil {
 		return nil, err
 	}
@@ -614,14 +621,15 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		GroupPubNonce:   groupPubNonce,
 		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
-		Sig:             nil,
+		Signature:       nil,
 	}
 
 	// Add signing
 	signingID := k.AddSigning(ctx, signing)
 
-	for _, mid := range mids {
-		accMember, err := sdk.AccAddressFromBech32(members[mid-1].Address)
+	// Set pending sign
+	for _, member := range selectedMembers {
+		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
 			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
@@ -696,7 +704,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	}
 
 	// Check signing already have signature
-	if signing.Sig != nil {
+	if signing.Signature != nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrSigningAlreadySuccess, "signing ID: %d is already have signature", req.SigningID,
 		)
@@ -720,7 +728,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			assignedMember = am
 
 			// verify signature R
-			if !bytes.Equal(req.Sig.R(), tss.Point(am.PubNonce)) {
+			if !bytes.Equal(req.Signature.R(), tss.Point(am.PubNonce)) {
 				return nil, sdkerrors.Wrapf(
 					types.ErrPubNonceNotEqualToSigR,
 					"public nonce from member ID: %d is not equal signature r",
@@ -744,7 +752,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		group.PubKey,
 		signing.Message,
 		lagrange,
-		req.Sig,
+		req.Signature,
 		member.PubKey,
 	)
 	if err != nil {
@@ -752,7 +760,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	}
 
 	// Set partial signature
-	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Sig)
+	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
 	if sigCount == group.Threshold {
@@ -769,7 +777,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		}
 
 		// Set signing with signature
-		signing.Sig = sig
+		signing.Signature = sig
 		signing.ExpiryTime = nil
 		k.SetSigning(ctx, signing)
 
@@ -783,7 +791,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 				types.EventTypeSignSuccess,
 				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-				sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(sig)),
+				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
 			),
 		)
 	}
@@ -805,7 +813,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 			sdk.NewAttribute(types.AttributeKeyMember, member.Address),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
-			sdk.NewAttribute(types.AttributeKeySig, hex.EncodeToString(req.Sig)),
+			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
 		),
 	)
 

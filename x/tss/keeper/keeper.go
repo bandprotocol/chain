@@ -104,6 +104,24 @@ func (k Keeper) SetGroup(ctx sdk.Context, group types.Group) {
 	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(group.GroupID), k.cdc.MustMarshal(&group))
 }
 
+// GetGroupsIterator function gets an iterator all group.
+func (k Keeper) GetGroupsIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.GroupStoreKeyPrefix)
+}
+
+// GetGroups function retrieves all group of the store.
+func (k Keeper) GetGroups(ctx sdk.Context) []types.Group {
+	var groups []types.Group
+	iterator := k.GetGroupsIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var group types.Group
+		k.cdc.MustUnmarshal(iterator.Value(), &group)
+		groups = append(groups, group)
+	}
+	return groups
+}
+
 // SetDKGContext function sets DKG context for a group in the store.
 func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext []byte) {
 	ctx.KVStore(k.storeKey).Set(types.DKGContextStoreKey(groupID), dkgContext)
@@ -124,8 +142,8 @@ func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
 }
 
 // SetMember function sets a member of a group in the store.
-func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID, member types.Member) {
-	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, memberID), k.cdc.MustMarshal(&member))
+func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Member) {
+	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
 }
 
 // GetMember function retrieves a member of a group from the store.
@@ -162,6 +180,20 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	}
 	if len(members) == 0 {
 		return nil, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
+	}
+	return members, nil
+}
+
+// GetActiveMembers function retrieves all active members of a group from the store.
+func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+	var members []types.Member
+	iterator := k.GetMembersIterator(ctx, groupID)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var member types.Member
+		k.cdc.MustUnmarshal(iterator.Value(), &member)
+		// TODO: logic to check active member
+		members = append(members, member)
 	}
 	return members, nil
 }

@@ -21,6 +21,7 @@ import (
 
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 )
 
 type AppKeepers struct {
@@ -45,6 +46,7 @@ type AppKeepers struct {
 	AuthzKeeper    authzkeeper.Keeper
 	GroupKeeper    groupkeeper.Keeper
 	OracleKeeper   oraclekeeper.Keeper
+	TSSKeeper      tsskeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
