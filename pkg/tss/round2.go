@@ -7,12 +7,12 @@ import (
 // ComputeEncryptedSecretShares computes the encrypted secret shares for a member.
 func ComputeEncryptedSecretShares(
 	mid MemberID,
-	rawPrivKey PrivateKey,
-	rawPubKeys PublicKeys,
+	rawPrivKey Scalar,
+	rawPubKeys Points,
 	rawCoeffcients Scalars,
 ) (Scalars, error) {
 	// Compute the key sym for each member 1..n except mid.
-	var keySyms PublicKeys
+	var keySyms Points
 	for i, rawPubKey := range rawPubKeys {
 		idx := i + 1
 		if NewMemberID(idx) == mid {
@@ -49,7 +49,7 @@ func ComputeEncryptedSecretShares(
 // EncryptSecretShares encrypts secret shares using key syms.
 func EncryptSecretShares(
 	secretShares Scalars,
-	keySyms PublicKeys,
+	keySyms Points,
 ) (Scalars, error) {
 	if len(secretShares) != len(keySyms) {
 		return nil, NewError(
@@ -77,11 +77,8 @@ func EncryptSecretShares(
 func ComputeSecretShare(rawCoeffcients Scalars, mid MemberID) (Scalar, error) {
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 
-	coeffcients, err := rawCoeffcients.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse coefficients")
-	}
-
+	coeffcients := rawCoeffcients.modNScalars()
 	result := solveScalarPolynomial(coeffcients, x)
-	return ParseScalar(result), nil
+
+	return NewScalarFromModNScalar(result), nil
 }
