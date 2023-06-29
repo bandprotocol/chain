@@ -7,7 +7,7 @@ import (
 
 func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		var pubKeys tss.PublicKeys
+		var pubKeys tss.Points
 		for _, m := range tc.Group.Members {
 			pubKeys = append(pubKeys, m.OneTimePubKey())
 		}

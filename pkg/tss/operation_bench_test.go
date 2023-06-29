@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 func BenchmarkSumScalars(b *testing.B) {
@@ -96,15 +95,8 @@ func BenchmarkSumPoints(b *testing.B) {
 
 			var points tss.Points
 			for i := 0; i < test.numOfPoints; i++ {
-				bytes := make([]byte, 32)
-				rand.Read(bytes)
-
-				scalar, _ := tss.Scalar(bytes).Parse()
-
-				var point secp256k1.JacobianPoint
-				secp256k1.ScalarBaseMultNonConst(scalar, &point)
-
-				points = append(points, tss.ParsePoint(&point))
+				_, point, _ := tss.GenerateDKGNonce()
+				points = append(points, point)
 			}
 
 			b.ResetTimer()
@@ -208,12 +200,8 @@ func BenchmarkSolvePointPolynomial(b *testing.B) {
 
 			var coeffs tss.Points
 			for i := 0; i < test.numOfCoefficients; i++ {
-				value := make([]byte, 32)
-				rand.Read(value)
-				scalar, _ := tss.Scalar(value).Parse()
-				pubKey, _ := tss.ParsePrivateKeyFromScalar(scalar).PublicKey()
-				coeff := tss.Point(pubKey)
-				coeffs = append(coeffs, coeff)
+				_, point, _ := tss.GenerateDKGNonce()
+				coeffs = append(coeffs, point)
 			}
 
 			b.ResetTimer()

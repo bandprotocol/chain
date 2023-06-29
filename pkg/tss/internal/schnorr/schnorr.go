@@ -15,7 +15,7 @@ func ComputeSigS(
 	// R, S = signature
 	//
 	// 1. Fail if d = nil or d = 0
-	// 2. S = k - c*d mod n
+	// 2. S = k + c*d mod n
 	// 3. Return S
 
 	// Step 1.
@@ -27,10 +27,10 @@ func ComputeSigS(
 
 	// Step 2.
 	//
-	// s = k - c*d mod n
+	// s = k + c*d mod n
 	c := *challenge
 	k := *nonce
-	S := new(secp256k1.ModNScalar).Mul2(&c, &privKey.Key).Negate().Add(&k)
+	S := new(secp256k1.ModNScalar).Mul2(&c, &privKey.Key).Add(&k)
 	k.Zero()
 
 	// Step 3.
@@ -52,7 +52,7 @@ func Verify(
 	// G is default curve generator if generator from input is not specified.
 	//
 	// 1. Fail if Q is not a point on the curve
-	// 2. R = s*G + c*Q
+	// 2. R = s*G - c*Q
 	// 3. Fail if R is the point at infinity
 	// 4. Verified if R == expectR
 
@@ -65,17 +65,17 @@ func Verify(
 
 	// Step 2.
 	//
-	// R = s*G + h*Q
+	// R = s*G - c*Q
 	c := *challenge
-	var Q, R, sG, eQ secp256k1.JacobianPoint
+	var Q, R, sG, cQ secp256k1.JacobianPoint
 	pubKey.AsJacobian(&Q)
 	if generator == nil {
 		secp256k1.ScalarBaseMultNonConst(sigS, &sG)
 	} else {
 		secp256k1.ScalarMultNonConst(sigS, generator, &sG)
 	}
-	secp256k1.ScalarMultNonConst(&c, &Q, &eQ)
-	secp256k1.AddNonConst(&sG, &eQ, &R)
+	secp256k1.ScalarMultNonConst(c.Negate(), &Q, &cQ)
+	secp256k1.AddNonConst(&sG, &cQ, &R)
 
 	// Step 3.
 	//
