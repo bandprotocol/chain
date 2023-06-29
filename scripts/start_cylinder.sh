@@ -39,6 +39,9 @@ cylinder config gas-adjust-start 1.6 --home $HOME_PATH
 # setup gas-adjust-step to cylinder config
 cylinder config gas-adjust-step 0.2 --home $HOME_PATH
 
+# setup random-secret to cylinder config
+cylinder config random-secret "$(openssl rand -hex 32)" --home $HOME_PATH
+
 for i in $(eval echo {1..2})
 do
   # add signer key
