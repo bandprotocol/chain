@@ -3,14 +3,13 @@ package tss
 import (
 	"bytes"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 // ComputeOwnPublicKey computes the own public key for a given set of sum commits and x.
 // The formula used is: Yi = Σ(k=0 to t-1) (i^k * Σ(j=1 to n) (Commit_jk))
-func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) {
-	sumCommits, err := rawSumCommits.Parse()
+func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (Point, error) {
+	sumCommits, err := rawSumCommits.jacobianPoints()
 	if err != nil {
 		return nil, NewError(err, "parse sum commits")
 	}
@@ -18,32 +17,28 @@ func ComputeOwnPublicKey(rawSumCommits Points, mid MemberID) (PublicKey, error) 
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 	result := solvePointPolynomial(sumCommits, x)
 
-	return ParsePublicKeyFromPoint(result), nil
+	return NewPointFromJacobianPoint(result), nil
 }
 
 // ComputeGroupPublicKey computes the group public key from a set of A0 commits.
 // The formula used is: Y = Σ(i=1 to n) (Commit_j0)
-func ComputeGroupPublicKey(rawA0Commits ...Point) (PublicKey, error) {
-	a0Commits, err := Points(rawA0Commits).Parse()
+func ComputeGroupPublicKey(rawA0Commits ...Point) (Point, error) {
+	a0Commits, err := Points(rawA0Commits).jacobianPoints()
 	if err != nil {
 		return nil, NewError(err, "parse a0 commits")
 	}
 
 	pubKey := sumPoints(a0Commits...)
-	return ParsePublicKeyFromPoint(pubKey), nil
+	return NewPointFromJacobianPoint(pubKey), nil
 }
 
 // ComputeOwnPrivateKey computes the own private key from a set of secret shares.
 // The formula used is: si = Σ(j=1 to n) (f_j(i))
-func ComputeOwnPrivateKey(rawSecretShares ...Scalar) (PrivateKey, error) {
-	secretShares, err := Scalars(rawSecretShares).Parse()
-	if err != nil {
-		return nil, NewError(err, "parse secret shares")
-	}
-
+func ComputeOwnPrivateKey(rawSecretShares ...Scalar) (Scalar, error) {
+	secretShares := Scalars(rawSecretShares).modNScalars()
 	privKey := sumScalars(secretShares...)
 
-	return ParsePrivateKeyFromScalar(privKey), nil
+	return NewScalarFromModNScalar(privKey), nil
 }
 
 // VerifySecretShare verifies the validity of a secret share for a given member.
@@ -51,10 +46,7 @@ func ComputeOwnPrivateKey(rawSecretShares ...Scalar) (PrivateKey, error) {
 func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) error {
 	// Compute yG from the secret share.
 	yG := new(secp256k1.JacobianPoint)
-	secretShare, err := rawSecretShare.Parse()
-	if err != nil {
-		return NewError(err, "parse secret share")
-	}
+	secretShare := rawSecretShare.modNScalar()
 	secp256k1.ScalarBaseMultNonConst(secretShare, yG)
 
 	// Compute yG from the commits.
@@ -64,7 +56,7 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 	}
 
 	// Compare the two yG values to check validity.
-	if !bytes.Equal(ssc, ParsePoint(yG)) {
+	if !bytes.Equal(ssc, NewPointFromJacobianPoint(yG)) {
 		return ErrInvalidSecretShare
 	}
 
@@ -76,7 +68,7 @@ func VerifySecretShare(mid MemberID, rawSecretShare Scalar, rawCommits Points) e
 // rawCommits represents the commits c_0, c_1, ..., c_n-1, c_n = a_0 * G, a_1 * G, ..., a_n-1 * G, a_n * G
 // rawX represents x, the index of the shared secret commit.
 func ComputeSecretShareCommit(rawCommits Points, mid MemberID) (Point, error) {
-	commits, err := rawCommits.Parse()
+	commits, err := rawCommits.jacobianPoints()
 	if err != nil {
 		return nil, NewError(err, "parse commits")
 	}
@@ -84,13 +76,13 @@ func ComputeSecretShareCommit(rawCommits Points, mid MemberID) (Point, error) {
 	x := new(secp256k1.ModNScalar).SetInt(uint32(mid))
 	result := solvePointPolynomial(commits, x)
 
-	return ParsePoint(result), nil
+	return NewPointFromJacobianPoint(result), nil
 }
 
 // DecryptSecretShares decrypts a set of encrypted secret shares using the corresponding key syms.
 func DecryptSecretShares(
 	encSecretShares Scalars,
-	keySyms PublicKeys,
+	keySyms Points,
 ) (Scalars, error) {
 	if len(encSecretShares) != len(keySyms) {
 		return nil, NewError(
@@ -117,7 +109,7 @@ func DecryptSecretShares(
 // DecryptSecretShare decrypts a encrypted secret share using the key sym.
 func DecryptSecretShare(
 	encSecretShare Scalar,
-	keySym PublicKey,
+	keySym Point,
 ) (Scalar, error) {
 	return Decrypt(encSecretShare, keySym)
 }
@@ -126,12 +118,25 @@ func DecryptSecretShare(
 func SignOwnPubkey(
 	mid MemberID,
 	dkgContext []byte,
-	ownPub PublicKey,
-	ownPriv PrivateKey,
+	ownPub Point,
+	ownPriv Scalar,
 ) (Signature, error) {
-	msg := generateMessageOwnPublicKey(mid, dkgContext, ownPub)
-	nonce, pubNonce := GenerateNonce(ownPriv, Hash(msg))
-	return Sign(ownPriv, ConcatBytes(pubNonce, msg), nonce, nil)
+	var nonce, challenge Scalar
+	var pubNonce Point
+	var err error
+	for {
+		nonce, pubNonce, err = GenerateDKGNonce()
+		if err != nil {
+			return nil, err
+		}
+
+		challenge, err = HashRound3OwnPubKey(pubNonce, mid, dkgContext, ownPub)
+		if err == nil {
+			break
+		}
+	}
+
+	return Sign(ownPriv, challenge, nonce, nil)
 }
 
 // VerifyOwnPubKeySig verifies the signature of an own public key using the given DKG context, own public key, and signature.
@@ -139,42 +144,53 @@ func VerifyOwnPubKeySig(
 	mid MemberID,
 	dkgContext []byte,
 	sig Signature,
-	ownPub PublicKey,
+	ownPub Point,
 ) error {
-	msg := ConcatBytes(sig.R(), generateMessageOwnPublicKey(mid, dkgContext, ownPub))
-	return Verify(sig.R(), sig.S(), msg, ownPub, nil, nil)
-}
+	challenge, err := HashRound3OwnPubKey(sig.R(), mid, dkgContext, ownPub)
+	if err != nil {
+		return err
+	}
 
-// generateMessageOwnPublicKey generates the message for verifying an own public key signature.
-func generateMessageOwnPublicKey(mid MemberID, dkgContext []byte, ownPub PublicKey) []byte {
-	return ConcatBytes([]byte("round3OwnPubKey"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, ownPub)
+	return Verify(sig.R(), sig.S(), challenge, ownPub, nil, nil)
 }
 
 // SignComplaint generates a signature and related parameters for complaining against a misbehaving member.
 func SignComplaint(
-	oneTimePubI PublicKey,
-	oneTimePubJ PublicKey,
-	oneTimePrivI PrivateKey,
-) (ComplaintSignature, PublicKey, error) {
+	oneTimePubI Point,
+	oneTimePubJ Point,
+	oneTimePrivI Scalar,
+) (ComplaintSignature, Point, error) {
 	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
 		return nil, nil, NewError(err, "compute key sym")
 	}
 
-	msg := generateMessageComplaint(oneTimePubI, oneTimePubJ, keySym)
-	nonce, pubNonce := GenerateNonce(oneTimePrivI, Hash(msg))
+	var nonce, challenge Scalar
+	var nonceSym Point
+	var pubNonce Point
+	for {
+		nonce, pubNonce, err = GenerateDKGNonce()
+		if err != nil {
+			return nil, nil, err
+		}
 
-	nonceSym, err := ComputeNonceSym(nonce, oneTimePubJ)
-	if err != nil {
-		return nil, nil, NewError(err, "compute nonce sym")
+		nonceSym, err = ComputeNonceSym(nonce, oneTimePubJ)
+		if err != nil {
+			return nil, nil, NewError(err, "compute nonce sym")
+		}
+
+		challenge, err = HashRound3Complain(pubNonce, Point(nonceSym), oneTimePubI, oneTimePubJ, keySym)
+		if err == nil {
+			break
+		}
 	}
 
-	sig, err := Sign(oneTimePrivI, ConcatBytes(pubNonce, nonceSym, msg), nonce, nil)
+	sig, err := Sign(oneTimePrivI, challenge, nonce, nil)
 	if err != nil {
 		return nil, nil, NewError(err, "sign")
 	}
 
-	complaintSig, err := NewComplaintSignature(sig.R(), Point(nonceSym), sig.S())
+	complaintSig, err := NewComplaintSignatureFromComponents(sig.R(), nonceSym, sig.S())
 	if err != nil {
 		return nil, nil, NewError(err, "create complaint signature")
 	}
@@ -184,9 +200,9 @@ func SignComplaint(
 
 // VerifyComplaint verifies the complaint using the complaint signature and encrypted secret share.
 func VerifyComplaint(
-	oneTimePubI PublicKey,
-	oneTimePubJ PublicKey,
-	keySym PublicKey,
+	oneTimePubI Point,
+	oneTimePubJ Point,
+	keySym Point,
 	complaintSig ComplaintSignature,
 	encSecretShare Scalar,
 	midI MemberID,
@@ -212,26 +228,26 @@ func VerifyComplaint(
 
 // VerifyComplaintSig verifies the signature of a complaint using the given parameters.
 func VerifyComplaintSig(
-	oneTimePubI PublicKey,
-	oneTimePubJ PublicKey,
-	keySym PublicKey,
+	oneTimePubI Point,
+	oneTimePubJ Point,
+	keySym Point,
 	complaintSig ComplaintSignature,
 ) error {
-	msg := ConcatBytes(
+	challenge, err := HashRound3Complain(
 		complaintSig.A1(),
 		complaintSig.A2(),
-		generateMessageComplaint(oneTimePubI, oneTimePubJ, keySym),
+		oneTimePubI,
+		oneTimePubJ,
+		keySym,
 	)
+	if err != nil {
+		return err
+	}
 
-	err := Verify(complaintSig.A1(), complaintSig.Z(), msg, oneTimePubI, nil, nil)
+	err = Verify(complaintSig.A1(), complaintSig.Z(), challenge, oneTimePubI, nil, nil)
 	if err != nil {
 		return NewError(err, "verify")
 	}
 
-	return Verify(complaintSig.A2(), complaintSig.Z(), msg, keySym, Point(oneTimePubJ), nil)
-}
-
-// generateMessageComplaint generates the message for verifying a complaint signature.
-func generateMessageComplaint(oneTimePubI PublicKey, oneTimePubJ PublicKey, keySym PublicKey) []byte {
-	return ConcatBytes([]byte("round3Complain"), oneTimePubJ, oneTimePubJ, keySym)
+	return Verify(complaintSig.A2(), complaintSig.Z(), challenge, keySym, Point(oneTimePubJ), nil)
 }

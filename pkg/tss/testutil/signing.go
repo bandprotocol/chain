@@ -4,24 +4,24 @@ import "github.com/bandprotocol/chain/v2/pkg/tss"
 
 type AssignedMember struct {
 	ID            tss.MemberID
-	PrivD         tss.PrivateKey
-	PrivE         tss.PrivateKey
+	PrivD         tss.Scalar
+	PrivE         tss.Scalar
 	BindingFactor tss.Scalar
-	PrivNonce     tss.PrivateKey
+	PrivNonce     tss.Scalar
 	Lagrange      tss.Scalar
 	Sig           tss.Signature
 }
 
-func (am AssignedMember) PubD() tss.PublicKey {
-	return PublicKey(am.PrivD)
+func (am AssignedMember) PubD() tss.Point {
+	return Point(am.PrivD)
 }
 
-func (am AssignedMember) PubE() tss.PublicKey {
-	return PublicKey(am.PrivE)
+func (am AssignedMember) PubE() tss.Point {
+	return Point(am.PrivE)
 }
 
-func (am AssignedMember) PubNonce() tss.PublicKey {
-	return PublicKey(am.PrivNonce)
+func (am AssignedMember) PubNonce() tss.Point {
+	return Point(am.PrivNonce)
 }
 
 func CopyAssignedMember(src AssignedMember) AssignedMember {
@@ -49,7 +49,7 @@ type Signing struct {
 	ID              tss.SigningID
 	Data            []byte
 	Commitment      []byte
-	PubNonce        tss.PublicKey
+	PubNonce        tss.Point
 	Sig             tss.Signature
 	AssignedMembers []AssignedMember
 }
@@ -62,25 +62,25 @@ func (s Signing) GetAllIDs() (res []tss.MemberID) {
 	return res
 }
 
-func (s Signing) GetAllPubDs() (res []tss.PublicKey) {
+func (s Signing) GetAllPubDs() (res []tss.Point) {
 	for _, assignedMember := range s.AssignedMembers {
-		res = append(res, PublicKey(assignedMember.PrivD))
+		res = append(res, Point(assignedMember.PrivD))
 	}
 
 	return res
 }
 
-func (s Signing) GetAllPubEs() (res []tss.PublicKey) {
+func (s Signing) GetAllPubEs() (res []tss.Point) {
 	for _, assignedMember := range s.AssignedMembers {
-		res = append(res, PublicKey(assignedMember.PrivE))
+		res = append(res, Point(assignedMember.PrivE))
 	}
 
 	return res
 }
 
-func (s Signing) GetAllOwnPubNonces() (res []tss.PublicKey) {
+func (s Signing) GetAllOwnPubNonces() (res []tss.Point) {
 	for _, assignedMember := range s.AssignedMembers {
-		res = append(res, PublicKey(assignedMember.PrivNonce))
+		res = append(res, Point(assignedMember.PrivNonce))
 	}
 
 	return res

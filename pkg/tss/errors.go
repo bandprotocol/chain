@@ -21,6 +21,8 @@ var (
 	ErrInvalidSecretShare    = ErrorKind("invalid secret share")
 	ErrValidSecretShare      = ErrorKind("valid secret share")
 	ErrInvalidSignature      = ErrorKind("invalid signature")
+	ErrNotInOrder            = ErrorKind("not in group order")
+	ErrRandomError           = ErrorKind("random error")
 )
 
 // Error represents a TSS error.

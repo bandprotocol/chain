@@ -12,19 +12,19 @@ import (
 func (suite *TSSTestSuite) TestSignAndVerify() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
 		// Sign
-		sig, err := tss.Sign(member.OneTimePrivKey, suite.data, suite.nonce, nil)
+		sig, err := tss.Sign(member.OneTimePrivKey, suite.challenge, suite.nonce, nil)
 		suite.Require().NoError(err)
 
 		// Success case
-		err = tss.Verify(sig.R(), sig.S(), suite.data, member.OneTimePubKey(), nil, nil)
+		err = tss.Verify(sig.R(), sig.S(), suite.challenge, member.OneTimePubKey(), nil, nil)
 		suite.Require().NoError(err)
 
 		// Wrong msg case
-		err = tss.Verify(sig.R(), sig.S(), []byte("fake data"), member.OneTimePubKey(), nil, nil)
+		err = tss.Verify(sig.R(), sig.S(), testutil.FakeChallenge, member.OneTimePubKey(), nil, nil)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.Verify(sig.R(), sig.S(), suite.data, testutil.FakePubKey, nil, nil)
+		err = tss.Verify(sig.R(), sig.S(), suite.challenge, testutil.FakePubKey, nil, nil)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
@@ -38,7 +38,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			fakeGenerator := []byte(testutil.FakePubKey)
 
 			// Sign
-			sig, err := tss.Sign(memberI.OneTimePrivKey, suite.data, suite.nonce, nil)
+			sig, err := tss.Sign(memberI.OneTimePrivKey, suite.challenge, suite.nonce, nil)
 			suite.Require().NoError(err)
 
 			keySym, err := tss.ComputeKeySym(memberI.OneTimePrivKey, generator)
@@ -48,23 +48,23 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			suite.Require().NoError(err)
 
 			// Success case
-			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, keySym, generator, nil)
+			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.challenge, keySym, generator, nil)
 			suite.Require().NoError(err)
 
 			// Wrong msg case
-			err = tss.Verify(tss.Point(nonceSym), sig.S(), []byte("fake data"), keySym, generator, nil)
+			err = tss.Verify(tss.Point(nonceSym), sig.S(), testutil.FakeChallenge, keySym, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
-			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, testutil.FakePubKey, generator, nil)
+			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.challenge, testutil.FakePubKey, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong generator case
-			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.data, keySym, fakeGenerator, nil)
+			err = tss.Verify(tss.Point(nonceSym), sig.S(), suite.challenge, keySym, fakeGenerator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong nonce sym case
-			err = tss.Verify(tss.Point(testutil.FakePubKey), sig.S(), suite.data, keySym, fakeGenerator, nil)
+			err = tss.Verify(tss.Point(testutil.FakePubKey), sig.S(), suite.challenge, keySym, fakeGenerator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})
 }
@@ -75,23 +75,23 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomLagrange() {
 
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
 		// Sign
-		sig, err := tss.Sign(member.OneTimePrivKey, suite.data, suite.nonce, lagrange)
+		sig, err := tss.Sign(member.OneTimePrivKey, suite.challenge, suite.nonce, lagrange)
 		suite.Require().NoError(err)
 
 		// Success case
-		err = tss.Verify(sig.R(), sig.S(), suite.data, member.OneTimePubKey(), nil, lagrange)
+		err = tss.Verify(sig.R(), sig.S(), suite.challenge, member.OneTimePubKey(), nil, lagrange)
 		suite.Require().NoError(err)
 
 		// Wrong msg case
-		err = tss.Verify(sig.R(), sig.S(), []byte("fake data"), member.OneTimePubKey(), nil, lagrange)
+		err = tss.Verify(sig.R(), sig.S(), testutil.FakeChallenge, member.OneTimePubKey(), nil, lagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.Verify(sig.R(), sig.S(), suite.data, testutil.FakePubKey, nil, lagrange)
+		err = tss.Verify(sig.R(), sig.S(), suite.challenge, testutil.FakePubKey, nil, lagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong lagrange case
-		err = tss.Verify(sig.R(), sig.S(), suite.data, member.OneTimePubKey(), nil, fakeLagrange)
+		err = tss.Verify(sig.R(), sig.S(), suite.challenge, member.OneTimePubKey(), nil, fakeLagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
@@ -124,17 +124,18 @@ func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 		if _, err := rng.Read(msg[:]); err != nil {
 			suite.T().Fatalf("failed to read random hash: %v", err)
 		}
+		challenge := tss.Hash(msg[:])
 
 		// Sign the hash with the private key and then ensure the produced
 		// signature is valid for the hash and public key associated with the
 		// private key.
-		sig, err := tss.Sign(privKey[:], msg[:], nonce[:], nil)
+		sig, err := tss.Sign(privKey[:], challenge, nonce[:], nil)
 		if err != nil {
 			suite.T().Fatalf("failed to sign\nprivate key: %x\nhash: %x", privKey, msg)
 		}
 
-		pubKey, _ := tss.PrivateKey(privKey[:]).PublicKey()
-		if err := tss.Verify(sig.R(), sig.S(), msg[:], pubKey, nil, nil); err != nil {
+		pubKey := tss.Scalar(privKey[:]).Point()
+		if err := tss.Verify(sig.R(), sig.S(), challenge, pubKey, nil, nil); err != nil {
 			suite.T().
 				Fatalf("failed to verify signature\nsig: %x\nhash: %x\n"+"private key: %x\npublic key: %x", sig, msg, privKey, pubKey)
 		}
