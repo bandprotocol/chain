@@ -21,8 +21,8 @@ service Msg {
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
   // SubmitDEs submits list of pre-commits DE for signing process.
   rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
-  // RequestSign submits a general message to be signed by a specific group
-  rpc RequestSign(MsgRequestSign) returns (MsgRequestSignResponse);
+  // RequestSignature submits a general message to be signed by a specific group
+  rpc RequestSignature(MsgRequestSignature) returns (MsgRequestSignatureResponse);
   // Sign submits signature on task participant need to do
   rpc Sign(MsgSign) returns (MsgSignResponse);
 }
@@ -120,8 +120,8 @@ message MsgSubmitDEs {
 
 message MsgSubmitDEsResponse {}
 
-// MsgRequestSign is a request message used for initiating the signing process.
-message MsgRequestSign {
+// MsgRequestSignature is a request message used for initiating the signing process.
+message MsgRequestSignature {
   // group_id is the unique identifier of the group.
   uint64 group_id = 1 [
     (gogoproto.customname) = "GroupID",
@@ -133,7 +133,7 @@ message MsgRequestSign {
   string sender = 3;
 }
 
-message MsgRequestSignResponse {}
+message MsgRequestSignatureResponse {}
 
 // MsgSign is a message used to sign the data.
 message MsgSign {
