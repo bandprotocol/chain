@@ -148,10 +148,10 @@ func (c *Client) QueryDE(address string) (*DEResponse, error) {
 
 // QueryPendingSignings queries the all pending signings with the given address.
 // It returns the QueryPendingSignsResponse or an error.
-func (c *Client) QueryPendingSignings(address string) (*types.QueryPendingSignsResponse, error) {
+func (c *Client) QueryPendingSignings(address string) (*types.QueryPendingSigningsResponse, error) {
 	queryClient := types.NewQueryClient(c.context)
 
-	res, err := queryClient.PendingSigns(context.Background(), &types.QueryPendingSignsRequest{
+	res, err := queryClient.PendingSignings(context.Background(), &types.QueryPendingSigningsRequest{
 		Address: address,
 	})
 	if err != nil {

@@ -65,10 +65,10 @@ func TestGetOwnPrivKey(t *testing.T) {
 
 							slot := testutil.GetSlot(member.ID, m.ID)
 							expComplaints = append(expComplaints, types.Complaint{
-								I:      member.ID,
-								J:      m.ID,
-								KeySym: member.KeySyms[slot],
-								Sig:    member.ComplaintSigs[slot],
+								Complainer:  member.ID,
+								Complainant: m.ID,
+								KeySym:      member.KeySyms[slot],
+								Signature:   member.ComplaintSigs[slot],
 							})
 						}
 
@@ -158,10 +158,10 @@ func TestGetSecretShare(t *testing.T) {
 							if test.expComplaint {
 								slot := testutil.GetSlot(memberI.ID, memberJ.ID)
 								expComplaint := &types.Complaint{
-									I:      memberI.ID,
-									J:      memberJ.ID,
-									KeySym: memberI.KeySyms[slot],
-									Sig:    memberI.ComplaintSigs[slot],
+									Complainer:  memberI.ID,
+									Complainant: memberJ.ID,
+									KeySym:      memberI.KeySyms[slot],
+									Signature:   memberI.ComplaintSigs[slot],
 								}
 
 								assert.Equal(t, expComplaint, complaint)

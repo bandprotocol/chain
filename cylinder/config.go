@@ -15,4 +15,5 @@ type Config struct {
 	MinDE            uint64        `mapstructure:"min-DE"`            // The minimum number of DE
 	GasAdjustStart   float64       `mapstructure:"gas-adjust-start"`  // The start value of gas adjustment
 	GasAdjustStep    float64       `mapstructure:"gas-adjust-step"`   // The increment step of gad adjustment
+	RandomSecret     []byte        `mapstructure:"random-secret"`     // The secret value that is used for random D,E
 }

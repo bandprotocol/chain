@@ -23,6 +23,7 @@ const (
 	flagMinDE            = "min-de"
 	flagGasAdjustStart   = "gas-adjust-start"
 	flagGasAdjustStep    = "gas-adjust-step"
+	flagRandomSecret     = "random-secret"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -85,6 +86,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
+	cmd.Flags().BytesHex(flagRandomSecret, nil, "The increment step of gad adjustment")
 
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
@@ -97,6 +99,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flagMinDE, cmd.Flags().Lookup(flagMinDE))
 	viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
 	viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
+	viper.BindPFlag(flagRandomSecret, cmd.Flags().Lookup(flagRandomSecret))
 
 	return cmd
 }

@@ -87,7 +87,7 @@ func (s *Signing) handleSigning(
 	mids []tss.MemberID,
 	data []byte,
 	commitment []byte,
-	groupPubNonce tss.PublicKey,
+	groupPubNonce tss.Point,
 	pubDE types.DE,
 ) {
 	logger := s.logger.With("gid", gid).With("sid", sid)
@@ -110,7 +110,11 @@ func (s *Signing) handleSigning(
 	}
 
 	// Compute binding factor value
-	bindingFactor := tss.ComputeOwnBindingFactor(group.MemberID, data, commitment)
+	bindingFactor, err := tss.ComputeOwnBindingFactor(group.MemberID, data, commitment)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to compute own binding factor: %s", err)
+		return
+	}
 
 	// Compute own private nonce
 	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, bindingFactor)
@@ -133,7 +137,7 @@ func (s *Signing) handleSigning(
 	s.context.MsgCh <- &types.MsgSign{
 		SigningID: sid,
 		MemberID:  group.MemberID,
-		Sig:       sig,
+		Signature: sig,
 		Member:    s.context.Config.Granter,
 	}
 }
@@ -146,7 +150,7 @@ func (s *Signing) handlePendingSignings() {
 		return
 	}
 
-	for _, signing := range res.PendingSigns {
+	for _, signing := range res.PendingSignings {
 		var mids []tss.MemberID
 		var pubDE types.DE
 		for _, member := range signing.AssignedMembers {

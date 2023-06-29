@@ -9,7 +9,7 @@ import (
 
 // getOwnPrivKey calculates the own private key for the group member.
 // It returns the own private key, a slice of complaints (if any), and an error, if any.
-func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.PrivateKey, []types.Complaint, error) {
+func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scalar, []types.Complaint, error) {
 	var secretShares tss.Scalars
 	var complaints []types.Complaint
 	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
@@ -53,31 +53,31 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Priva
 // It takes the Member ID of I and J, private key of Member I, and the group response as input.
 // It returns the secret share, complaint if secret share is not valid, and any error encountered during the process.
 func getSecretShare(
-	i tss.MemberID,
-	j tss.MemberID,
-	privKeyI tss.PrivateKey,
+	complainer tss.MemberID,
+	complainant tss.MemberID,
+	privKeyI tss.Scalar,
 	groupRes *client.GroupResponse,
 ) (tss.Scalar, *types.Complaint, error) {
-	// Get Round1Info of I
-	round1InfoI, err := groupRes.GetRound1Info(i)
+	// Get Round1Info of complainer
+	round1InfoComplainer, err := groupRes.GetRound1Info(complainer)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Get Round1Info of J
-	round1InfoJ, err := groupRes.GetRound1Info(j)
+	// Get Round1Info of complinant
+	round1InfoComplainant, err := groupRes.GetRound1Info(complainant)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Get encrypted secret share for I from J
-	encSecretShare, err := groupRes.GetEncryptedSecretShare(j, i)
+	// Get encrypted secret share for complaner from complainant
+	encSecretShare, err := groupRes.GetEncryptedSecretShare(complainant, complainer)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Calculate keySym
-	keySym, err := tss.ComputeKeySym(privKeyI, round1InfoJ.OneTimePubKey)
+	keySym, err := tss.ComputeKeySym(privKeyI, round1InfoComplainant.OneTimePubKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,12 +89,12 @@ func getSecretShare(
 	}
 
 	// Verify secret share
-	err = tss.VerifySecretShare(i, secretShare, round1InfoJ.CoefficientsCommit)
+	err = tss.VerifySecretShare(complainer, secretShare, round1InfoComplainant.CoefficientsCommit)
 	if err != nil {
 		// Generate complaint if we fail to verify secret share
 		sig, keySym, err := tss.SignComplaint(
-			round1InfoI.OneTimePubKey,
-			round1InfoJ.OneTimePubKey,
+			round1InfoComplainer.OneTimePubKey,
+			round1InfoComplainant.OneTimePubKey,
 			privKeyI,
 		)
 		if err != nil {
@@ -102,10 +102,10 @@ func getSecretShare(
 		}
 
 		complaint := &types.Complaint{
-			I:      i,
-			J:      j,
-			KeySym: keySym,
-			Sig:    sig,
+			Complainer:  complainer,
+			Complainant: complainant,
+			KeySym:      keySym,
+			Signature:   sig,
 		}
 
 		return nil, complaint, nil

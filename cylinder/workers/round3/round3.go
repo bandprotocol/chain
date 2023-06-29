@@ -121,11 +121,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	r.context.Store.SetGroup(gid, group)
 
 	// Get own public key
-	ownPubKey, err := ownPrivKey.PublicKey()
-	if err != nil {
-		logger.Error(":cold_sweat: Failed to get own public key: %s", err)
-		return
-	}
+	ownPubKey := ownPrivKey.Point()
 
 	// Sign own public key
 	ownPubKeySig, err := tss.SignOwnPubkey(

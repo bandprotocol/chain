@@ -117,7 +117,7 @@ func (de *DE) updateDE() {
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
-	privDEs, pubDEs, err := generateDEPairs(de.context.Config.MinDE)
+	privDEs, pubDEs, err := de.generateDEPairs()
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to generate new DE pairs: %s", err)
 		return
@@ -173,21 +173,26 @@ func (de *DE) Stop() {
 }
 
 // generateDEPairs generates n pairs of DE
-func generateDEPairs(n uint64) (privDEs []store.DE, pubDEs []types.DE, err error) {
-	for i := uint64(1); i <= n; i++ {
-		de, err := tss.GenerateKeyPairs(2)
+func (de *DE) generateDEPairs() (privDEs []store.DE, pubDEs []types.DE, err error) {
+	for i := uint64(1); i <= de.context.Config.MinDE; i++ {
+		privD, err := tss.GenerateSigningNonce(de.context.Config.RandomSecret)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		privE, err := tss.GenerateSigningNonce(de.context.Config.RandomSecret)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		privDEs = append(privDEs, store.DE{
-			PrivD: de[0].PrivKey,
-			PrivE: de[1].PrivKey,
+			PrivD: privD,
+			PrivE: privE,
 		})
 
 		pubDEs = append(pubDEs, types.DE{
-			PubD: de[0].PubKey,
-			PubE: de[1].PubKey,
+			PubD: privD.Point(),
+			PubE: privE.Point(),
 		})
 	}
 

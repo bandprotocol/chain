@@ -12,7 +12,7 @@ type Event struct {
 	GroupID       tss.GroupID
 	SigningID     tss.SigningID
 	MemberIDs     []tss.MemberID
-	GroupPubNonce tss.PublicKey
+	GroupPubNonce tss.Point
 	Data          []byte
 	Commitment    []byte
 	PubDE         types.DE
@@ -61,7 +61,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	var pubD, pubE tss.PublicKey
+	var pubD, pubE tss.Point
 	var mids []tss.MemberID
 
 	members := event.GetEventValues(log, types.EventTypeRequestSign, types.AttributeKeyMember)
