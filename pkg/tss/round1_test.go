@@ -19,9 +19,9 @@ func (suite *TSSTestSuite) TestGenerateRound1Info() {
 	suite.Require().NoError(err)
 
 	for i, coeff := range data.Coefficients {
-		commit, err := tss.PrivateKey(coeff).PublicKey()
+		commit := coeff.Point()
 		suite.Require().NoError(err)
-		suite.Require().Equal(tss.PublicKey(data.CoefficientsCommit[i]), commit)
+		suite.Require().Equal(data.CoefficientsCommit[i], commit)
 	}
 }
 
@@ -34,7 +34,9 @@ func (suite *TSSTestSuite) TestSignOneTime() {
 			member.OneTimePrivKey,
 		)
 		suite.Require().NoError(err)
-		suite.Require().Equal(member.OneTimeSig, sig)
+
+		err = tss.VerifyOneTimeSig(member.ID, tc.Group.DKGContext, sig, member.OneTimePubKey())
+		suite.Require().NoError(err)
 	})
 }
 
@@ -71,7 +73,9 @@ func (suite *TSSTestSuite) TestSignA0() {
 			member.A0PrivKey,
 		)
 		suite.Require().NoError(err)
-		suite.Require().Equal(member.A0Sig, sig)
+
+		err = tss.VerifyA0Sig(member.ID, tc.Group.DKGContext, sig, member.A0PubKey())
+		suite.Require().NoError(err)
 	})
 }
 

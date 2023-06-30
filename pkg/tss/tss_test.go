@@ -13,18 +13,17 @@ type TSSTestSuite struct {
 
 	testCases []testutil.TestCase
 
-	data    []byte
-	privKey tss.PrivateKey
-	pubKey  tss.PublicKey
-	nonce   tss.Scalar
+	challenge []byte
+	privKey   tss.Scalar
+	pubKey    tss.Point
+	nonce     tss.Scalar
 }
 
 func (suite *TSSTestSuite) SetupTest() {
 	suite.testCases = testutil.TestCases
-	suite.data = []byte("data")
+	suite.challenge = tss.Hash([]byte("data"))
 	suite.privKey = testutil.HexDecode("83127264737dd61b4b7f8058a8418874f0e0e52ada48b39a497712a487096304")
 	suite.pubKey = testutil.HexDecode("0383764b806848430ed195ef8017fb4e768893ea07782e679c31e5ff1b8b453973")
-	suite.data = []byte("data")
 	suite.nonce = testutil.HexDecode("0000000000000000000000000000000000000000000000000000006e6f6e6365")
 }
 

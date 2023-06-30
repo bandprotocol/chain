@@ -1,0 +1,147 @@
+package tss
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/crypto"
+)
+
+const (
+	ContextString = "BAND-TSS-secp256k1-v0"
+)
+
+// Hash calculates the Keccak-256 hash of the given data.
+// It returns the hash value as a byte slice.
+func Hash(data ...[]byte) []byte {
+	return crypto.Keccak256(data...)
+}
+
+// HashRound1A0 computes a hash of the provided data for Round1A0 and returns it as a scalar.
+func HashRound1A0(pubNonce Point, mid MemberID, dkgContext []byte, a0Pub Point) (Scalar, error) {
+	scalar, err := NewScalar(
+		Hash(
+			[]byte(ContextString),
+			[]byte("round1A0"),
+			pubNonce,
+			sdk.Uint64ToBigEndian(uint64(mid)),
+			dkgContext,
+			a0Pub,
+		),
+	)
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash round1A0")
+	}
+
+	return scalar, nil
+}
+
+// HashRound1OneTime computes a hash of the provided data for Round1OneTime and returns it as a scalar.
+func HashRound1OneTime(pubNonce Point, mid MemberID, dkgContext []byte, oneTimePub Point) (Scalar, error) {
+	scalar, err := NewScalar(
+		Hash(
+			[]byte(ContextString),
+			[]byte("round1OneTime"),
+			pubNonce,
+			sdk.Uint64ToBigEndian(uint64(mid)),
+			dkgContext,
+			oneTimePub,
+		),
+	)
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash round1OneTime")
+	}
+
+	return scalar, nil
+}
+
+// HashRound3Complain computes a hash of the provided data for Round3Complain and returns it as a scalar.
+func HashRound3Complain(
+	pubNonce Point,
+	nonceSym Point,
+	oneTimePubI Point,
+	oneTimePubJ Point,
+	keySym Point,
+) (Scalar, error) {
+	scalar, err := NewScalar(
+		Hash(
+			[]byte(ContextString),
+			[]byte("round3Complain"),
+			pubNonce,
+			nonceSym,
+			oneTimePubJ,
+			oneTimePubJ,
+			keySym,
+		),
+	)
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash round3Complain")
+	}
+
+	return scalar, nil
+}
+
+// HashRound3OwnPubKey computes a hash of the provided data for Round3OwnPubKey and returns it as a scalar.
+func HashRound3OwnPubKey(pubNonce Point, mid MemberID, dkgContext []byte, ownPub Point) (Scalar, error) {
+	scalar, err := NewScalar(
+		Hash(
+			[]byte(ContextString),
+			[]byte("round3OwnPubKey"),
+			pubNonce,
+			sdk.Uint64ToBigEndian(uint64(mid)),
+			dkgContext,
+			ownPub,
+		),
+	)
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash round3OwnPubKey")
+	}
+
+	return scalar, nil
+}
+
+// HashSignMsg computes a hash of the message for signing purposes and returns the hash as a byte slice.
+func HashSignMsg(data ...[]byte) []byte {
+	return Hash([]byte(ContextString), []byte("signMsg"), ConcatBytes(data...))
+}
+
+// HashSignCommitment computes a hash of commitment and returns the hash as a byte slice.
+func HashSignCommitment(data ...[]byte) []byte {
+	return Hash([]byte(ContextString), []byte("signCommitment"), ConcatBytes(data...))
+}
+
+// HashBindingFactor computes a hash to generate binding factor and returns it as a scalar.
+func HashBindingFactor(mid MemberID, data []byte, commitment []byte) (Scalar, error) {
+	scalar, err := NewScalar(
+		Hash(
+			[]byte(ContextString),
+			[]byte("bindingFactor"),
+			sdk.Uint64ToBigEndian(uint64(mid)),
+			HashSignMsg(data),
+			HashSignCommitment(commitment),
+		),
+	)
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash bindingFactor")
+	}
+
+	return scalar, nil
+}
+
+// HashSigning computes a hash to generate challenge of signing a signature and returns it as a scalar.
+func HashSigning(groupPubNonce Point, rawGroupPubKey Point, data []byte) (Scalar, error) {
+	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("signing"), groupPubNonce, rawGroupPubKey, data))
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash signing")
+	}
+
+	return scalar, nil
+}
+
+// HashNonce computes a hash of the provided data for the nonce and returns it as a scalar.
+func HashNonce(random []byte, secretKey Scalar) (Scalar, error) {
+	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("nonce"), random, secretKey))
+	if err != nil {
+		return nil, NewError(ErrNotInOrder, "hash nonce")
+	}
+
+	return scalar, nil
+}
