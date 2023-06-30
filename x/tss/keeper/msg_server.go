@@ -702,8 +702,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	}
 
 	// Check member is already signed
-	a, err := k.GetPartialSig(ctx, req.SigningID, req.MemberID)
-	fmt.Printf("=========   %+v\n", a)
+	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
 	if err == nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrAlreadySigned,
