@@ -99,13 +99,13 @@ func HashRound3OwnPubKey(pubNonce Point, mid MemberID, dkgContext []byte, ownPub
 }
 
 // HashSignMsg computes a hash of the message for signing purposes and returns the hash as a byte slice.
-func HashSignMsg(data ...[]byte) []byte {
-	return Hash([]byte(ContextString), []byte("signMsg"), ConcatBytes(data...))
+func HashSignMsg(data []byte) []byte {
+	return Hash([]byte(ContextString), []byte("signMsg"), data)
 }
 
 // HashSignCommitment computes a hash of commitment and returns the hash as a byte slice.
-func HashSignCommitment(data ...[]byte) []byte {
-	return Hash([]byte(ContextString), []byte("signCommitment"), ConcatBytes(data...))
+func HashSignCommitment(data []byte) []byte {
+	return Hash([]byte(ContextString), []byte("signCommitment"), data)
 }
 
 // HashBindingFactor computes a hash to generate binding factor and returns it as a scalar.
