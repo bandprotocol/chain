@@ -69,9 +69,7 @@ func (suite *TSSTestSuite) TestComputeSecretShareCommit() {
 			secretCommit, err := tss.ComputeSecretShareCommit(memberI.CoefficientsCommit, memberJ.ID)
 			suite.Require().NoError(err)
 
-			expSecretCommit, err := tss.PrivateKey(memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)]).
-				PublicKey()
-			suite.Require().NoError(err)
+			expSecretCommit := memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)].Point()
 			suite.Require().Equal(tss.Point(expSecretCommit), secretCommit)
 		},
 	)
@@ -104,7 +102,9 @@ func (suite *TSSTestSuite) TestSignOwnPubKey() {
 			member.PrivKey,
 		)
 		suite.Require().NoError(err)
-		suite.Require().Equal(member.PubKeySig, sig)
+
+		err = tss.VerifyOwnPubKeySig(member.ID, tc.Group.DKGContext, sig, member.PubKey())
+		suite.Require().NoError(err)
 	})
 }
 
@@ -147,8 +147,10 @@ func (suite *TSSTestSuite) TestSignComplaint() {
 				memberI.OneTimePrivKey,
 			)
 			suite.Require().NoError(err)
-			suite.Require().
-				Equal(memberI.ComplaintSigs[testutil.GetSlot(memberI.ID, memberJ.ID)], sig)
+
+			err = tss.VerifyComplaintSig(memberI.OneTimePubKey(), memberJ.OneTimePubKey(), keySym, sig)
+			suite.Require().NoError(err)
+
 			suite.Require().
 				Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
 		})

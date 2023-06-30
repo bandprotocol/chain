@@ -1,16 +1,12 @@
 package tss
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 // Round1Info contains the data for round 1 of the DKG process of TSS
 type Round1Info struct {
-	OneTimePrivKey     PrivateKey
-	OneTimePubKey      PublicKey
+	OneTimePrivKey     Scalar
+	OneTimePubKey      Point
 	OneTimeSig         Signature
-	A0PrivKey          PrivateKey
-	A0PubKey           PublicKey
+	A0PrivKey          Scalar
+	A0PubKey           Point
 	A0Sig              Signature
 	Coefficients       Scalars
 	CoefficientsCommit Points
@@ -68,12 +64,25 @@ func GenerateRound1Info(
 func SignA0(
 	mid MemberID,
 	dkgContext []byte,
-	a0Pub PublicKey,
-	a0Priv PrivateKey,
+	a0Pub Point,
+	a0Priv Scalar,
 ) (Signature, error) {
-	msg := generateMessageA0(mid, dkgContext, a0Pub)
-	nonce, pubNonce := GenerateNonce(a0Priv, Hash(msg))
-	return Sign(a0Priv, ConcatBytes(pubNonce, msg), nonce, nil)
+	var nonce, challenge Scalar
+	var pubNonce Point
+	var err error
+	for {
+		nonce, pubNonce, err = GenerateDKGNonce()
+		if err != nil {
+			return nil, err
+		}
+
+		challenge, err = HashRound1A0(pubNonce, mid, dkgContext, a0Pub)
+		if err == nil {
+			break
+		}
+	}
+
+	return Sign(a0Priv, challenge, nonce, nil)
 }
 
 // VerifyA0Sig verifies the signature for the A0 in round 1.
@@ -81,27 +90,39 @@ func VerifyA0Sig(
 	mid MemberID,
 	dkgContext []byte,
 	sig Signature,
-	a0Pub PublicKey,
+	a0Pub Point,
 ) error {
-	msg := ConcatBytes(sig.R(), generateMessageA0(mid, dkgContext, a0Pub))
-	return Verify(sig.R(), sig.S(), msg, a0Pub, nil, nil)
-}
+	challenge, err := HashRound1A0(sig.R(), mid, dkgContext, a0Pub)
+	if err != nil {
+		return err
+	}
 
-// generateMessageA0 generates the message for the A0 signature.
-func generateMessageA0(mid MemberID, dkgContext []byte, a0Pub PublicKey) []byte {
-	return ConcatBytes([]byte("round1A0"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, a0Pub)
+	return Verify(sig.R(), sig.S(), challenge, a0Pub, nil, nil)
 }
 
 // SignOneTime generates a signature for the one-time in round 1.
 func SignOneTime(
 	mid MemberID,
 	dkgContext []byte,
-	oneTimePub PublicKey,
-	onetimePriv PrivateKey,
+	oneTimePub Point,
+	onetimePriv Scalar,
 ) (Signature, error) {
-	msg := generateMessageOneTime(mid, dkgContext, oneTimePub)
-	nonce, pubNonce := GenerateNonce(onetimePriv, Hash(msg))
-	return Sign(onetimePriv, ConcatBytes(pubNonce, msg), nonce, nil)
+	var nonce, challenge Scalar
+	var pubNonce Point
+	var err error
+	for {
+		nonce, pubNonce, err = GenerateDKGNonce()
+		if err != nil {
+			return nil, err
+		}
+
+		challenge, err = HashRound1OneTime(pubNonce, mid, dkgContext, oneTimePub)
+		if err == nil {
+			break
+		}
+	}
+
+	return Sign(onetimePriv, challenge, nonce, nil)
 }
 
 // VerifyOneTimeSig verifies the signature for the one-time in round 1.
@@ -109,13 +130,12 @@ func VerifyOneTimeSig(
 	mid MemberID,
 	dkgContext []byte,
 	sig Signature,
-	oneTimePub PublicKey,
+	oneTimePub Point,
 ) error {
-	msg := ConcatBytes(sig.R(), generateMessageOneTime(mid, dkgContext, oneTimePub))
-	return Verify(sig.R(), sig.S(), msg, oneTimePub, nil, nil)
-}
+	challenge, err := HashRound1OneTime(sig.R(), mid, dkgContext, oneTimePub)
+	if err != nil {
+		return err
+	}
 
-// generateMessageOneTime generates the message for the one-time signature.
-func generateMessageOneTime(mid MemberID, dkgContext []byte, oneTimePub PublicKey) []byte {
-	return ConcatBytes([]byte("round1OneTime"), sdk.Uint64ToBigEndian(uint64(mid)), dkgContext, oneTimePub)
+	return Verify(sig.R(), sig.S(), challenge, oneTimePub, nil, nil)
 }

@@ -91,27 +91,23 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 
 	// Validate coefficients commit
 	for _, c := range m.Round1Info.CoefficientsCommit {
-		_, err := c.Parse()
-		if err != nil {
+		if err := c.Valid(); err != nil {
 			return sdkerrors.Wrap(err, "coefficients commit")
 		}
 	}
 
 	// Validate one time pub key
-	_, err = m.Round1Info.OneTimePubKey.Parse()
-	if err != nil {
+	if err := m.Round1Info.OneTimePubKey.Valid(); err != nil {
 		return sdkerrors.Wrap(err, "one time pub key")
 	}
 
 	// Validate a0 signature
-	_, err = m.Round1Info.A0Sig.Parse()
-	if err != nil {
+	if err := m.Round1Info.A0Sig.Valid(); err != nil {
 		return sdkerrors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	_, err = m.Round1Info.OneTimeSig.Parse()
-	if err != nil {
+	if err := m.Round1Info.OneTimeSig.Valid(); err != nil {
 		return sdkerrors.Wrap(err, "one time sig")
 	}
 
@@ -146,8 +142,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 
 	// Validate encrypted secret shares
 	for _, ess := range m.Round2Info.EncryptedSecretShares {
-		_, err = ess.Parse()
-		if err != nil {
+		if err := ess.Valid(); err != nil {
 			return sdkerrors.Wrap(err, "encrypted secret shares")
 		}
 	}
@@ -206,13 +201,12 @@ func (m MsgComplain) ValidateBasic() error {
 		}
 
 		// Validate key sym
-		_, err := c.KeySym.Parse()
-		if err != nil {
+		if err := c.KeySym.Valid(); err != nil {
 			return sdkerrors.Wrap(err, "key sym")
 		}
+
 		// Validate signature
-		_, err = c.Signature.Parse()
-		if err != nil {
+		if err := c.Signature.Valid(); err != nil {
 			return sdkerrors.Wrap(err, "signature")
 		}
 	}
@@ -247,8 +241,7 @@ func (m MsgConfirm) ValidateBasic() error {
 	}
 
 	// Validate own pub key sig
-	_, err = m.OwnPubKeySig.Parse()
-	if err != nil {
+	if err = m.OwnPubKeySig.Valid(); err != nil {
 		return sdkerrors.Wrap(err, "own pub key sig")
 	}
 
@@ -284,13 +277,12 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate DEs
 	for i, de := range m.DEs {
 		// Validate public key D
-		_, err = de.PubD.Parse()
-		if err != nil {
+		if err = de.PubD.Valid(); err != nil {
 			return sdkerrors.Wrap(err, fmt.Sprintf("pub D in DE index: %d", i))
 		}
+
 		// Validate public key E
-		_, err = de.PubE.Parse()
-		if err != nil {
+		if err = de.PubE.Valid(); err != nil {
 			return sdkerrors.Wrap(err, fmt.Sprintf("pub E in DE index: %d", i))
 		}
 	}
@@ -298,26 +290,26 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 	return nil
 }
 
-var _ sdk.Msg = &MsgRequestSign{}
+var _ sdk.Msg = &MsgRequestSignature{}
 
 // Route Implements Msg.
-func (m MsgRequestSign) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgRequestSignature) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgRequestSign) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgRequestSign) GetSignBytes() []byte {
+func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
-func (m MsgRequestSign) GetSigners() []sdk.AccAddress {
+func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgRequestSign) ValidateBasic() error {
+func (m MsgRequestSignature) ValidateBasic() error {
 	// Validate sender address
 	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
@@ -354,8 +346,7 @@ func (m MsgSign) ValidateBasic() error {
 	}
 
 	// Validate member signature
-	_, err = m.Signature.Parse()
-	if err != nil {
+	if err = m.Signature.Valid(); err != nil {
 		return sdkerrors.Wrap(err, "signature")
 	}
 

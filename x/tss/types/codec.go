@@ -13,7 +13,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgComplain{}, "tss/Complaint", nil)
 	cdc.RegisterConcrete(&MsgConfirm{}, "tss/Confirm", nil)
 	cdc.RegisterConcrete(&MsgSubmitDEs{}, "tss/SubmitDEs", nil)
-	cdc.RegisterConcrete(&MsgRequestSign{}, "tss/RequestSign", nil)
+	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSign", nil)
 	cdc.RegisterConcrete(&MsgSign{}, "tss/Sign", nil)
 }
 
@@ -25,7 +25,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgComplain{},
 		&MsgConfirm{},
 		&MsgSubmitDEs{},
-		&MsgRequestSign{},
+		&MsgRequestSignature{},
 		&MsgSign{},
 	)
 }

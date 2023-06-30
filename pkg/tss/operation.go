@@ -6,96 +6,74 @@ import (
 
 // ComputeKeySym computes the key symmetry between a private key and a public key.
 // It returns the computed key symmetry as a PublicKey and an error, if any.
-func ComputeKeySym(rawPrivKeyI PrivateKey, rawPubKeyJ PublicKey) (PublicKey, error) {
-	privKeyI, err := rawPrivKeyI.Scalar()
+func ComputeKeySym(rawPrivKeyI Scalar, rawPubKeyJ Point) (Point, error) {
+	privKeyI := rawPrivKeyI.modNScalar()
+	pubKeyJ, err := rawPubKeyJ.jacobianPoint()
 	if err != nil {
-		return nil, NewError(err, "parse private key I")
-	}
-
-	pubKeyJ, err := rawPubKeyJ.Point()
-	if err != nil {
-		return nil, NewError(err, "parse public key J")
+		return nil, NewError(err, "parse publicKeyJ")
 	}
 
 	keySym := new(secp256k1.JacobianPoint)
 	secp256k1.ScalarMultNonConst(privKeyI, pubKeyJ, keySym)
 
-	return ParsePublicKeyFromPoint(keySym), nil
+	return NewPointFromJacobianPoint(keySym), nil
 }
 
 // ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
 // It returns the computed nonce symmetry as a PublicKey and an error, if any.
-func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ PublicKey) (PublicKey, error) {
-	nonce, err := rawNonce.Parse()
+func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ Point) (Point, error) {
+	nonce := rawNonce.modNScalar()
+	pubKeyJ, err := rawPubKeyJ.jacobianPoint()
 	if err != nil {
-		return nil, NewError(err, "parse nonce")
-	}
-
-	pubKeyJ, err := rawPubKeyJ.Point()
-	if err != nil {
-		return nil, NewError(err, "parse public key J")
+		return nil, NewError(err, "parse publicKeyJ")
 	}
 
 	nonceSym := new(secp256k1.JacobianPoint)
 	secp256k1.ScalarMultNonConst(nonce, pubKeyJ, nonceSym)
 
-	return ParsePublicKeyFromPoint(nonceSym), nil
+	return NewPointFromJacobianPoint(nonceSym), nil
 }
 
 // SumScalars computes the sum of multiple scalars.
 // It returns the computed sum as a Scalar.
-func SumScalars(rawScalars ...Scalar) (Scalar, error) {
-	scalars, err := Scalars(rawScalars).Parse()
-	if err != nil {
-		return nil, NewError(err, "parse scalars")
-	}
-
-	return ParseScalar(sumScalars(scalars...)), nil
+func SumScalars(rawScalars ...Scalar) Scalar {
+	scalars := Scalars(rawScalars).modNScalars()
+	return NewScalarFromModNScalar(sumScalars(scalars...))
 }
 
 // SolveScalarPolynomial solves a scalar polynomial equation.
 // It takes scalars as coefficients and a value x, and returns the result as a scalar and an error, if any.
-func SolveScalarPolynomial(rawCoefficients Scalars, rawX Scalar) (Scalar, error) {
-	coefficients, err := rawCoefficients.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse coefficients")
-	}
-
-	x, err := rawX.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse x")
-	}
-
+func SolveScalarPolynomial(rawCoefficients Scalars, rawX Scalar) Scalar {
+	coefficients := rawCoefficients.modNScalars()
+	x := rawX.modNScalar()
 	result := solveScalarPolynomial(coefficients, x)
-	return ParseScalar(result), nil
+
+	return NewScalarFromModNScalar(result)
 }
 
 // SumPoints computes the sum of multiple points.
 // It returns the computed sum as a Point and an error, if any.
 func SumPoints(rawPoints ...Point) (Point, error) {
-	points, err := Points(rawPoints).Parse()
+	points, err := Points(rawPoints).jacobianPoints()
 	if err != nil {
-		return nil, NewError(err, "parse coefficients")
+		return nil, NewError(err, "parse points")
 	}
 
-	return ParsePoint(sumPoints(points...)), nil
+	return NewPointFromJacobianPoint(sumPoints(points...)), nil
 }
 
 // SolvePointPolynomial solves a point polynomial equation.
 // It takes points as coefficients and a value x, and returns the result as a point and an error, if any.
-func SolvePointPolynomial(rawCoefficients Points, rawX Scalar) (Point, error) {
-	coefficients, err := rawCoefficients.Parse()
+func SolvePointPolynomial(rawCoefficientsCommit Points, rawX Scalar) (Point, error) {
+	coefficientsCommit, err := rawCoefficientsCommit.jacobianPoints()
 	if err != nil {
-		return nil, NewError(err, "parse scalars")
+		return nil, NewError(err, "parse coefficientsCommit")
 	}
 
-	x, err := rawX.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse x")
-	}
+	x := rawX.modNScalar()
+	result := solvePointPolynomial(coefficientsCommit, x)
 
-	result := solvePointPolynomial(coefficients, x)
-	return ParsePoint(result), nil
+	return NewPointFromJacobianPoint(result), nil
 }
 
 // solveScalarPolynomial solves a scalar polynomial equation.

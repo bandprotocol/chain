@@ -42,7 +42,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		k.SetMember(ctx, groupID, types.Member{
 			MemberID:    tss.MemberID(i + 1),
 			Address:     m,
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		})
 	}
@@ -143,7 +143,7 @@ func (k Keeper) SubmitDKGRound1(
 		memberID,
 		dkgContext,
 		req.Round1Info.A0Sig,
-		tss.PublicKey(req.Round1Info.CoefficientsCommit[0]),
+		req.Round1Info.CoefficientsCommit[0],
 	)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
@@ -176,7 +176,7 @@ func (k Keeper) SubmitDKGRound1(
 		group.Status = types.GROUP_STATUS_ROUND_2
 		expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 		group.ExpiryTime = &expiryTime
-		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
+		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -543,7 +543,10 @@ func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*type
 
 // RequestSign initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*types.MsgRequestSignResponse, error) {
+func (k Keeper) RequestSignature(
+	goCtx context.Context,
+	req *types.MsgRequestSignature,
+) (*types.MsgRequestSignatureResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get group
@@ -593,13 +596,19 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	}
 
 	// Compute binding factor and public nonce of each assigned member
-	var ownPubNonces tss.PublicKeys
+	var ownPubNonces tss.Points
 	for i, member := range assignedMembers {
-		// Compute and assign binding factor and public nonce
+		// Compute own binding factor
+		ownBindingFactor, err := tss.ComputeOwnBindingFactor(member.MemberID, req.Message, commitment)
+		if err != nil {
+			return nil, err
+		}
+
+		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
 			member.PubE,
-			tss.ComputeOwnBindingFactor(member.MemberID, req.Message, commitment),
+			ownBindingFactor,
 		)
 		if err != nil {
 			return nil, err
@@ -656,7 +665,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 	}
 	ctx.EventManager().EmitEvent(event)
 
-	return &types.MsgRequestSignResponse{}, nil
+	return &types.MsgRequestSignatureResponse{}, nil
 }
 
 // Sign verifies that the member and signing process are valid, and that the member hasn't already signed.
@@ -693,7 +702,8 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	}
 
 	// Check member is already signed
-	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	a, err := k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	fmt.Printf("=========   %+v\n", a)
 	if err == nil {
 		return nil, sdkerrors.Wrapf(
 			types.ErrAlreadySigned,
