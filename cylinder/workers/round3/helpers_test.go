@@ -56,23 +56,32 @@ func TestGetOwnPrivKey(t *testing.T) {
 					}
 
 					if test.expComplaints {
-						var expComplaints []types.Complaint
-
 						for _, m := range tc.Group.Members {
 							if m.ID == member.ID {
 								continue
 							}
 
 							slot := testutil.GetSlot(member.ID, m.ID)
-							expComplaints = append(expComplaints, types.Complaint{
+							expComplaint := types.Complaint{
 								Complainer:  member.ID,
 								Complainant: m.ID,
 								KeySym:      member.KeySyms[slot],
 								Signature:   member.ComplaintSigs[slot],
-							})
-						}
+							}
 
-						assert.Equal(t, expComplaints, complaints)
+							assert.Equal(t, expComplaint.Complainer, complaints[slot].Complainer)
+							assert.Equal(t, expComplaint.Complainant, complaints[slot].Complainant)
+							assert.Equal(t, expComplaint.KeySym, complaints[slot].KeySym)
+
+							// Can't compare signature as the nonce will be randomly generated
+							err := tss.VerifyComplaintSig(
+								member.OneTimePubKey(),
+								m.OneTimePubKey(),
+								expComplaint.KeySym,
+								complaints[slot].Signature,
+							)
+							assert.Nil(t, err)
+						}
 					} else {
 						assert.Nil(t, complaints)
 					}
@@ -164,7 +173,18 @@ func TestGetSecretShare(t *testing.T) {
 									Signature:   memberI.ComplaintSigs[slot],
 								}
 
-								assert.Equal(t, expComplaint, complaint)
+								assert.Equal(t, expComplaint.Complainer, complaint.Complainer)
+								assert.Equal(t, expComplaint.Complainant, complaint.Complainant)
+								assert.Equal(t, expComplaint.KeySym, complaint.KeySym)
+
+								// Can't compare signature as the nonce will be randomly generated
+								err := tss.VerifyComplaintSig(
+									memberI.OneTimePubKey(),
+									memberJ.OneTimePubKey(),
+									expComplaint.KeySym,
+									complaint.Signature,
+								)
+								assert.Nil(t, err)
 							} else {
 								assert.Nil(t, complaint)
 							}
