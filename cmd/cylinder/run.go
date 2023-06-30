@@ -86,7 +86,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
-	cmd.Flags().BytesHex(flagRandomSecret, nil, "The increment step of gad adjustment")
+	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
 
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
