@@ -21,6 +21,7 @@ import (
 
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	rollingseedKeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 )
 
@@ -38,15 +39,16 @@ type AppKeepers struct {
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	IBCKeeper      *ibckeeper.Keeper
-	ICAHostKeeper  icahostkeeper.Keeper
-	EvidenceKeeper evidencekeeper.Keeper
-	TransferKeeper ibctransferkeeper.Keeper
-	FeegrantKeeper feegrantkeeper.Keeper
-	AuthzKeeper    authzkeeper.Keeper
-	GroupKeeper    groupkeeper.Keeper
-	OracleKeeper   oraclekeeper.Keeper
-	TSSKeeper      tsskeeper.Keeper
+	IBCKeeper         *ibckeeper.Keeper
+	ICAHostKeeper     icahostkeeper.Keeper
+	EvidenceKeeper    evidencekeeper.Keeper
+	TransferKeeper    ibctransferkeeper.Keeper
+	FeegrantKeeper    feegrantkeeper.Keeper
+	AuthzKeeper       authzkeeper.Keeper
+	GroupKeeper       groupkeeper.Keeper
+	RollingseedKeeper rollingseedKeeper.Keeper
+	OracleKeeper      oraclekeeper.Keeper
+	TSSKeeper         tsskeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper

@@ -15,10 +15,11 @@ import (
 )
 
 type Keeper struct {
-	cdc         codec.BinaryCodec
-	storeKey    storetypes.StoreKey
-	paramSpace  paramtypes.Subspace
-	authzKeeper types.AuthzKeeper
+	cdc               codec.BinaryCodec
+	storeKey          storetypes.StoreKey
+	paramSpace        paramtypes.Subspace
+	authzKeeper       types.AuthzKeeper
+	rollingseedKeeper types.RollingseedKeeper
 }
 
 func NewKeeper(
@@ -26,6 +27,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
+	rollingseedKeeper types.RollingseedKeeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
@@ -33,10 +35,11 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:         cdc,
-		storeKey:    storeKey,
-		paramSpace:  paramSpace,
-		authzKeeper: authzKeeper,
+		cdc:               cdc,
+		storeKey:          storeKey,
+		paramSpace:        paramSpace,
+		authzKeeper:       authzKeeper,
+		rollingseedKeeper: rollingseedKeeper,
 	}
 }
 

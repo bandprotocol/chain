@@ -1,7 +1,6 @@
-package tss
+package rollingseed
 
 import (
-	"context"
 	"encoding/json"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -13,9 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/v2/x/tss/client/cli"
-	"github.com/bandprotocol/chain/v2/x/tss/keeper"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
+	"github.com/bandprotocol/chain/v2/x/rollingseed/types"
 )
 
 var (
@@ -23,10 +21,10 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the tss module.
+// AppModuleBasic defines the basic application module used by the rollingseed module.
 type AppModuleBasic struct{}
 
-// Name returns the tss module's name.
+// Name returns the rollingseed module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
@@ -41,29 +39,26 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, config client.TxEncodin
 	return nil
 }
 
-// GetQueryCmd returns the cli query commands for the tss module.
+// GetQueryCmd returns the cli query commands for the rollingseed module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
+	return nil
 }
 
-// GetTxCmd returns the transaction commands for the tss module.
+// GetTxCmd returns the transaction commands for the rollingseed module.
 func (b AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return nil
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the rollingseed module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
-// RegisterInterfaces registers the tss module's interface types
+// RegisterInterfaces registers the rollingseed module's interface types
 func (a AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
 }
 
-// RegisterLegacyAminoCodec registers the tss module's types for the given codec.
+// RegisterLegacyAminoCodec registers the rollingseed module's types for the given codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
 }
 
 // AppModule implements the AppModule interface that defines the inter-dependent methods that modules need to implement.
@@ -81,30 +76,27 @@ func NewAppModule(k keeper.Keeper) AppModule {
 	}
 }
 
-// Name returns the tss module's name.
+// Name returns the rollingseed module's name.
 func (am AppModule) Name() string {
 	return am.AppModuleBasic.Name()
 }
 
-// Deprecated: Route returns the message routing key for the tss module.
+// Deprecated: Route returns the message routing key for the rollingseed module.
 func (am AppModule) Route() sdk.Route { return sdk.Route{} }
 
 // QuerierRoute returns the route we respond to for abci queries
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+func (AppModule) QuerierRoute() string { return "" }
 
-// LegacyQuerierHandler returns the tss module sdk.Querier.
+// LegacyQuerierHandler returns the rollingseed module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
 	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
-	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper})
-}
+func (am AppModule) RegisterServices(cfg module.Configurator) {}
 
-// RegisterInvariants registers the tss module's invariants.
+// RegisterInvariants registers the rollingseed module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs a no-op.
@@ -121,8 +113,10 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock processes ABCI begin block message for this tss module (SDK AppModule interface).
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {}
+// BeginBlock processes ABCI begin block message for this rollingseed module (SDK AppModule interface).
+func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+	handleBeginBlock(ctx, req, am.keeper)
+}
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return 1 }
