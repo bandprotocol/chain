@@ -115,6 +115,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/rollingseed"
+	rollingseedkeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
+	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -252,7 +255,7 @@ func NewBandApp(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey, icahosttypes.StoreKey,
+		feegrant.StoreKey, authzkeeper.StoreKey, icahosttypes.StoreKey, rollingseedtypes.StoreKey,
 		oracletypes.StoreKey, tsstypes.StoreKey, group.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -422,6 +425,9 @@ func NewBandApp(
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(appCodec, keys[rollingseedtypes.StoreKey])
+	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
+
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
@@ -435,6 +441,7 @@ func NewBandApp(
 		app.AuthzKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
+		app.RollingseedKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 	)
@@ -446,6 +453,7 @@ func NewBandApp(
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
+		app.RollingseedKeeper,
 	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
@@ -499,6 +507,7 @@ func NewBandApp(
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		transferModule,
 		icaModule,
+		rollingseedModule,
 		oracleModule,
 		tssModule,
 		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
@@ -512,6 +521,7 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		distrtypes.ModuleName,
@@ -537,6 +547,7 @@ func NewBandApp(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		ibctransfertypes.ModuleName,
@@ -584,6 +595,7 @@ func NewBandApp(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		globalfee.ModuleName,

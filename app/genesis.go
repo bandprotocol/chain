@@ -41,6 +41,8 @@ import (
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/rollingseed"
+	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -109,6 +111,7 @@ func NewDefaultGenesisState() GenesisState {
 		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
+		rollingseedtypes.ModuleName:  rollingseed.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfee.ModuleName:         cdc.MustMarshalJSON(globalfeeGenesis),
