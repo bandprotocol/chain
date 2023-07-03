@@ -23,7 +23,7 @@ service Query {
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get = "/tss/v1beta1/is_grantee/{granter}/{grantee}";
   }
-  
+
   // DE queries all de for this address.
   rpc DE(QueryDERequest) returns (QueryDEResponse) {
     option (google.api.http).get = "/tss/v1beta1/de-list/{address}";
@@ -48,24 +48,24 @@ message QueryGroupRequest {
 
 // QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-  Group group = 1 [ (gogoproto.nullable) = false ];
-  bytes dkg_context = 2 [ (gogoproto.customname) = "DKGContext" ];
-  repeated Member members = 3 [ (gogoproto.nullable) = false ];
-  repeated Round1Info round1_infos = 4 [ (gogoproto.nullable) = false ];
-  repeated Round2Info round2_infos = 5 [ (gogoproto.nullable) = false ];
-  repeated ComplaintsWithStatus complaints_with_status = 6 [ (gogoproto.nullable) = false ];
-  repeated Confirm confirms = 7 [ (gogoproto.nullable) = false ];
+  Group                         group                  = 1 [(gogoproto.nullable) = false];
+  bytes                         dkg_context            = 2 [(gogoproto.customname) = "DKGContext"];
+  repeated Member               members                = 3 [(gogoproto.nullable) = false];
+  repeated Round1Info           round1_infos           = 4 [(gogoproto.nullable) = false];
+  repeated Round2Info           round2_infos           = 5 [(gogoproto.nullable) = false];
+  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
+  repeated Confirm              confirms               = 7 [(gogoproto.nullable) = false];
 }
-  
+
 // QueryMembersRequest is the request type for the Query/Members RPC method
 message QueryMembersRequest {
-    // group_id defines the unique id of the group.
-    uint64 group_id = 1;
+  // group_id defines the unique id of the group.
+  uint64 group_id = 1;
 }
 
 // QueryMembersResponse is the response type for the Query/Members RPC method
 message QueryMembersResponse {
-  repeated Member members = 1 [ (gogoproto.nullable) = false ];
+  repeated Member members = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
@@ -89,10 +89,7 @@ message QueryDERequest {
 }
 
 message QueryDEResponse {
-  repeated DE des = 1 [
-    (gogoproto.customname) = "DEs",
-    (gogoproto.nullable) = false
-  ];
+  repeated DE des = 1 [(gogoproto.customname) = "DEs", (gogoproto.nullable) = false];
   // pagination defines an pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -102,7 +99,7 @@ message QueryPendingSigningsRequest {
 }
 
 message QueryPendingSigningsResponse {
-  repeated Signing pending_signings = 1 [ (gogoproto.nullable) = false ];
+  repeated Signing pending_signings = 1 [(gogoproto.nullable) = false];
 }
 
 message QuerySigningsRequest {
@@ -110,6 +107,6 @@ message QuerySigningsRequest {
 }
 
 message QuerySigningsResponse {
-  Signing signing = 1;
-  repeated PartialSignature received_partial_signatures = 2 [ (gogoproto.nullable) = false ];
+  Signing                   signing                     = 1;
+  repeated PartialSignature received_partial_signatures = 2 [(gogoproto.nullable) = false];
 }
