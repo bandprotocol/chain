@@ -10,23 +10,18 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 // GenesisState defines the tss module's genesis state.
 message GenesisState {
   // params defines all the paramiters of the module.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
   // group_count defines the number of groups.
   uint64 group_count = 2;
   // signing_count defines the number of signers.
   uint64 signing_count = 3;
   // groups is an array containing information about each group.
-  repeated Group groups = 4 [ (gogoproto.nullable) = false ];
+  repeated Group groups = 4 [(gogoproto.nullable) = false];
   // de_queues_genesis is an array containing the de queues of all the address.
-  repeated DEQueueGenesis de_queues_genesis = 5 [
-    (gogoproto.customname) = "DEQueuesGenesis",
-    (gogoproto.nullable) = false
-  ];
+  repeated DEQueueGenesis de_queues_genesis = 5
+      [(gogoproto.customname) = "DEQueuesGenesis", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the address.
-  repeated DEGenesis des_genesis = 6 [
-    (gogoproto.customname) = "DEsGenesis",
-    (gogoproto.nullable) = false
-  ];
+  repeated DEGenesis des_genesis = 6 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
@@ -36,13 +31,12 @@ message Params {
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
   // round_period is the duration period where a member can submit message for the round.
-  google.protobuf.Duration round_period = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false ];
+  google.protobuf.Duration round_period = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // signing_period is the duration period where a member can submit signing message.
-  google.protobuf.Duration signing_period = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false ];
+  google.protobuf.Duration signing_period = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
 }
 
-// DEQueueGenesis defines an account address and de queue used in the tss module's
-// genesis state.
+// DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
 message DEQueueGenesis {
   // address is the address of the de holder.
   bytes address = 1;
@@ -50,8 +44,7 @@ message DEQueueGenesis {
   DEQueue de_queue = 2 [(gogoproto.customname) = "DEQueue"];
 }
 
-// DEGenesis defines an account address and de pair used in the tss module's
-// genesis state.
+// DEGenesis defines an account address and de pair used in the tss module's genesis state.
 message DEGenesis {
   // address is the address of the de holder.
   bytes address = 1;
