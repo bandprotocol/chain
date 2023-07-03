@@ -36,19 +36,16 @@ func (suite *TSSTestSuite) TestSumScalars() {
 		name     string
 		scalars  tss.Scalars
 		expTotal tss.Scalar
-		expError error
 	}{
 		{
 			"zero element",
 			tss.Scalars{},
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000000"),
-			nil,
 		},
 		{
 			"one element",
 			tss.Scalars{testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")},
 			testutil.HexDecode("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"),
-			nil,
 		},
 		{
 			"three element",
@@ -57,7 +54,6 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"),
 			},
 			testutil.HexDecode("3fc2e6133bca391985e5a304644787e0a464ae400b74c54545cc2c87a332753c"),
-			nil,
 		},
 		{
 			"big values",
@@ -66,31 +62,12 @@ func (suite *TSSTestSuite) TestSumScalars() {
 				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
 			},
 			testutil.HexDecode("000000000000000000000000000000028aa24632a16ebf88805b42e45f9375de"),
-			nil,
-		},
-		{
-			"length is too short",
-			tss.Scalars{
-				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
-				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
-			},
-			nil,
-			tss.ErrInvalidLength,
-		},
-		{
-			"length is too short",
-			tss.Scalars{
-				testutil.HexDecode("02fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
-				testutil.HexDecode("fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc30"),
-			},
-			nil,
-			tss.ErrInvalidLength,
 		},
 	}
+
 	for _, t := range tests {
 		suite.Run(t.name, func() {
-			total, err := tss.SumScalars(t.scalars...)
-			suite.Require().ErrorIs(err, t.expError)
+			total := tss.SumScalars(t.scalars...)
 			suite.Require().Equal(t.expTotal, total)
 		})
 	}
@@ -102,7 +79,6 @@ func (suite *TSSTestSuite) TestSolveScalarPolynomial() {
 		coefficients tss.Scalars
 		x            tss.Scalar
 		expTotal     tss.Scalar
-		expError     error
 	}{
 		{
 			"case 1",
@@ -112,7 +88,6 @@ func (suite *TSSTestSuite) TestSolveScalarPolynomial() {
 			},
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000002"),
 			testutil.HexDecode("fc93f14f4e3e4e15378e2c65ba1986494a3f54b7c135dd21d67a44435332eb71"),
-			nil,
 		},
 		{
 			"case 2",
@@ -122,13 +97,11 @@ func (suite *TSSTestSuite) TestSolveScalarPolynomial() {
 			},
 			testutil.HexDecode("0000000000000000000000000000000000000000000000000000000000000001"),
 			testutil.HexDecode("dbc69d7d8fb753f3143e050a4d3fe01c35de8c5fe8937490dd9c5ccbf29567be"),
-			nil,
 		},
 	}
 	for _, t := range tests {
 		suite.Run(t.name, func() {
-			result, err := tss.SolveScalarPolynomial(t.coefficients, t.x)
-			suite.Require().ErrorIs(err, t.expError)
+			result := tss.SolveScalarPolynomial(t.coefficients, t.x)
 			suite.Require().Equal(t.expTotal, result)
 		})
 	}

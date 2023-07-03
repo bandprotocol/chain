@@ -30,7 +30,8 @@ func (suite *TSSTestSuite) TestComputeOwnBindingFactor() {
 	suite.RunOnAssignedMember(
 		suite.testCases,
 		func(tc testutil.TestCase, signing testutil.Signing, assignedMember testutil.AssignedMember) {
-			bindingFactor := tss.ComputeOwnBindingFactor(assignedMember.ID, signing.Data, signing.Commitment)
+			bindingFactor, err := tss.ComputeOwnBindingFactor(assignedMember.ID, signing.Data, signing.Commitment)
+			suite.Require().NoError(err)
 			suite.Require().Equal(assignedMember.BindingFactor, bindingFactor)
 		},
 	)

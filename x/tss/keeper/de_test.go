@@ -210,13 +210,13 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		{
 			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
 			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 	}
@@ -256,6 +256,6 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 			PubNonce: nil,
 		},
 	}, assignedMembers)
-	s.Require().Equal(tss.PublicKeys{[]byte("D1"), []byte("D1")}, pubDs)
-	s.Require().Equal(tss.PublicKeys{[]byte("E1"), []byte("E1")}, pubEs)
+	s.Require().Equal(tss.Points{[]byte("D1"), []byte("D1")}, pubDs)
+	s.Require().Equal(tss.Points{[]byte("E1"), []byte("E1")}, pubEs)
 }

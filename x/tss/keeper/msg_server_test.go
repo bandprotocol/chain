@@ -631,10 +631,8 @@ func (s *KeeperTestSuite) TestRequestSign() {
 		// Add DEs
 		for _, signing := range tc.Signings {
 			for _, am := range signing.AssignedMembers {
-				pubD, err := am.PrivD.PublicKey()
-				s.Require().NoError(err)
-				pubE, err := am.PrivE.PublicKey()
-				s.Require().NoError(err)
+				pubD := am.PrivD.Point()
+				pubE := am.PrivE.Point()
 
 				member, err := k.GetMember(ctx, group.GroupID, am.ID)
 				s.Require().NoError(err)
@@ -652,7 +650,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 	}
 
 	var tcs []TestCase
-	var req types.MsgRequestSign
+	var req types.MsgRequestSignature
 
 	// Add success test cases from testutil
 	for _, tc := range testutil.TestCases {
@@ -660,7 +658,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 		tcs = append(tcs, TestCase{
 			Msg: fmt.Sprintf("success %s", tc.Name),
 			Malleate: func() {
-				req = types.MsgRequestSign{
+				req = types.MsgRequestSignature{
 					GroupID: tcGroup.ID,
 					Message: tc.Signings[0].Data,
 					Sender:  sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
@@ -676,7 +674,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 		{
 			"failure with invalid groupID",
 			func() {
-				req = types.MsgRequestSign{
+				req = types.MsgRequestSignature{
 					GroupID: tss.GroupID(999), // non-existent groupID
 					Message: []byte("data"),
 				}
@@ -695,7 +693,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 					Status:    types.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)
-				req = types.MsgRequestSign{
+				req = types.MsgRequestSignature{
 					GroupID: tss.GroupID(2), // inactive groupID
 					Message: []byte("data"),
 				}
@@ -710,7 +708,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
 
-			_, err := msgSrvr.RequestSign(ctx, &req)
+			_, err := msgSrvr.RequestSignature(ctx, &req)
 			if tc.ExpPass {
 				s.Require().NoError(err)
 			} else {
@@ -770,7 +768,8 @@ func (s *KeeperTestSuite) TestSign() {
 		tcSignings := tc.Signings
 		tcGroup := tc.Group
 
-		for _, signing := range tcSignings {
+		for _, si := range tcSignings {
+			signing := si
 			tcs = append(tcs, TestCase{
 				Msg: fmt.Sprintf("success %s signing ID: %d", tc.Name, signing.ID),
 				Malleate: func() {
@@ -780,10 +779,8 @@ func (s *KeeperTestSuite) TestSign() {
 						member, err := k.GetMember(ctx, tcGroup.ID, am.ID)
 						s.Require().NoError(err)
 
-						pubD, err := am.PrivD.PublicKey()
-						s.Require().NoError(err)
-						pubE, err := am.PrivE.PublicKey()
-						s.Require().NoError(err)
+						pubD := am.PrivD.Point()
+						pubE := am.PrivE.Point()
 
 						ams = append(ams, types.AssignedMember{
 							MemberID: am.ID,

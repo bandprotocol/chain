@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	member := types.Member{
 		MemberID:    1,
 		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		PubKey:      tss.PublicKey(nil),
+		PubKey:      nil,
 		IsMalicious: false,
 	}
 	k.SetMember(ctx, groupID, member)
@@ -176,13 +176,13 @@ func (s *KeeperTestSuite) TestGetMembers() {
 		{
 			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
 			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 	}

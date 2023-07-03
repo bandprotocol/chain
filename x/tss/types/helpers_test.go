@@ -11,7 +11,7 @@ func TestVerifyMember(t *testing.T) {
 	// Create a test member with a known address
 	member := types.Member{
 		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		PubKey:      tss.PublicKey(nil),
+		PubKey:      nil,
 		IsMalicious: false,
 	}
 
@@ -97,12 +97,12 @@ func TestHaveMalicious(t *testing.T) {
 			members: []types.Member{
 				{
 					Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					PubKey:      tss.PublicKey(nil),
+					PubKey:      nil,
 					IsMalicious: false,
 				},
 				{
 					Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-					PubKey:      tss.PublicKey(nil),
+					PubKey:      nil,
 					IsMalicious: false,
 				},
 			},
@@ -113,12 +113,12 @@ func TestHaveMalicious(t *testing.T) {
 			members: []types.Member{
 				{
 					Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					PubKey:      tss.PublicKey(nil),
+					PubKey:      nil,
 					IsMalicious: false,
 				},
 				{
 					Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-					PubKey:      tss.PublicKey(nil),
+					PubKey:      nil,
 					IsMalicious: true,
 				},
 			},

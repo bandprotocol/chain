@@ -1,7 +1,6 @@
 package tss
 
 import (
-	"encoding/hex"
 	"fmt"
 	"sort"
 	"strconv"
@@ -42,182 +41,162 @@ func MemberIDZero() MemberID {
 type SigningID uint64
 
 // Scalar represents a scalar value stored as bytes.
-// It uses secp256k1.ModNScalar as a base implementation for serialization and parsing.
+// It uses secp256k1.ModNScalar and secp256k1.PrivateKey as a base implementation for serialization and parsing.
 type Scalar []byte
 
-// ParseScalar parses a secp256k1.ModNScalar into a Scalar.
-func ParseScalar(scalar *secp256k1.ModNScalar) Scalar {
-	bytes := scalar.Bytes()
-	return Scalar(bytes[:])
-}
+// NewScalar constructs a Scalar from bytes.
+func NewScalar(bytes []byte) (Scalar, error) {
+	// Create a Scalar from the provided bytes.
+	scalar := Scalar(bytes)
 
-// Parse converts a Scalar back to a secp256k1.ModNScalar.
-func (s Scalar) Parse() (*secp256k1.ModNScalar, error) {
-	if len(s) != 32 {
-		return nil, NewError(ErrInvalidLength, "length: %d != 32", len(s))
+	// Check the validity of the scalar value.
+	if err := scalar.Valid(); err != nil {
+		return nil, NewError(err, "check valid")
 	}
 
+	return scalar, nil
+}
+
+// NewScalarFromModNScalar parses a secp256k1.ModNScalar into a Scalar.
+func NewScalarFromModNScalar(scalar *secp256k1.ModNScalar) Scalar {
+	bytes := scalar.Bytes()
+	return bytes[:]
+}
+
+// NewScalarFromPrivateKey parses a secp256k1.PrivateKey into a Scalar.
+func NewScalarFromPrivateKey(privKey *secp256k1.PrivateKey) Scalar {
+	return privKey.Serialize()
+}
+
+// Valid returns an error if the scalar value is invalid.
+func (s Scalar) Valid() error {
+	// Check the length of the Scalar value.
+	if len(s) != 32 {
+		return NewError(ErrInvalidLength, "length: %d != 32", len(s))
+	}
+
+	// Set the byte slice value of the Scalar.
+	var scalar secp256k1.ModNScalar
+	overflow := scalar.SetByteSlice(s)
+
+	// Check if the Scalar is zero or if there was an overflow.
+	if scalar.IsZero() || overflow {
+		return NewError(ErrInvalidOrder, "set bytes")
+	}
+
+	return nil
+}
+
+// Point converts a Scalar to a Point.
+func (s Scalar) Point() Point {
+	point := s.jacobianPoint()
+	return NewPointFromJacobianPoint(point)
+}
+
+// modNScalar converts a Scalar back to a secp256k1.ModNScalar.
+func (s Scalar) modNScalar() *secp256k1.ModNScalar {
 	var scalar secp256k1.ModNScalar
 	scalar.SetByteSlice(s)
-	return &scalar, nil
+
+	return &scalar
+}
+
+// privateKey converts a Scalar back to a secp256k1.PrivateKey.
+func (s Scalar) privateKey() *secp256k1.PrivateKey {
+	scalar := s.modNScalar()
+	return secp256k1.NewPrivateKey(scalar)
+}
+
+// publicKey converts a Scalar back to a secp256k1.PublicKey.
+func (s Scalar) publicKey() *secp256k1.PublicKey {
+	return s.privateKey().PubKey()
+}
+
+// jacobianPoint converts a Scalar to a secp256k1.JacobianPoint.
+func (s Scalar) jacobianPoint() *secp256k1.JacobianPoint {
+	// Convert the Scalar to a ModNScalar.
+	scalar := s.modNScalar()
+
+	// Create a new JacobianPoint by performing scalar base multiplication.
+	var point secp256k1.JacobianPoint
+	secp256k1.ScalarBaseMultNonConst(scalar, &point)
+	point.ToAffine()
+
+	return &point
 }
 
 // Scalars represents a slice of Scalar values.
 type Scalars []Scalar
 
-// Parse converts a slice of Scalars into a slice of secp256k1.ModNScalar.
-func (ss Scalars) Parse() ([]*secp256k1.ModNScalar, error) {
+// modNScalars converts a slice of Scalars into a slice of secp256k1.ModNScalar.
+func (ss Scalars) modNScalars() []*secp256k1.ModNScalar {
 	var scalars []*secp256k1.ModNScalar
-	for idx, s := range ss {
-		scalar, err := s.Parse()
-		if err != nil {
-			return nil, NewError(err, "parse index: %d", idx)
-		}
-
+	for _, s := range ss {
+		scalar := s.modNScalar()
 		scalars = append(scalars, scalar)
 	}
-	return scalars, nil
+
+	return scalars
+}
+
+// jacobianPoints converts a slice of Scalars into a slice of secp256k1.JacobianPoint.
+func (ss Scalars) jacobianPoints() []*secp256k1.JacobianPoint {
+	var points []*secp256k1.JacobianPoint
+	for _, s := range ss {
+		point := s.jacobianPoint()
+		points = append(points, point)
+	}
+
+	return points
 }
 
 // Point represents a point (x, y, z) stored as bytes.
 // It uses secp256k1.JacobianPoint and secp256k1.PublicKey as base implementations for serialization and parsing.
 type Point []byte
 
-// Points represents a slice of Point values.
-type Points []Point
+// NewPoint constructs a Point from bytes.
+func NewPoint(bytes []byte) (Point, error) {
+	// Create a Point from the provided bytes.
+	point := Point(bytes)
 
-// ParsePoint parses a secp256k1.JacobianPoint into a Point.
-func ParsePoint(point *secp256k1.JacobianPoint) Point {
-	return Point(ParsePublicKeyFromPoint(point))
-}
-
-// Parse converts a Point back to a secp256k1.JacobianPoint.
-func (p Point) Parse() (*secp256k1.JacobianPoint, error) {
-	point, err := PublicKey(p).Point()
-	if err != nil {
-		return nil, NewError(err, "parse to jacobian point")
+	// Check the validity of the point value.
+	if err := point.Valid(); err != nil {
+		return nil, NewError(err, "check valid")
 	}
 
 	return point, nil
 }
 
-// Parse converts a slice of Points into a slice of secp256k1.JacobianPoint.
-func (ps Points) Parse() ([]*secp256k1.JacobianPoint, error) {
-	var points []*secp256k1.JacobianPoint
-	for idx, p := range ps {
-		point, err := p.Parse()
-		if err != nil {
-			return nil, NewError(err, "parse index: %d", idx)
-		}
-
-		points = append(points, point)
-	}
-
-	return points, nil
-}
-
-// ToString converts a slice of Points to a string representation.
-func (ps Points) ToString() string {
-	var points string
-	l := len(ps)
-	for i, p := range ps {
-		if i == l-1 {
-			points += hex.EncodeToString(p)
-		} else {
-			points += fmt.Sprintf("%s,", hex.EncodeToString(p))
-		}
-	}
-	return points
-}
-
-// PrivateKey represents a private key stored as bytes.
-// It uses secp256k1.ModNScalar as a base implementation for serialization and parsing.
-type PrivateKey []byte
-
-// PrivateKeys represents a slice of PrivateKey values.
-type PrivateKeys []PrivateKey
-
-// ParsePrivateKey parses a secp256k1.PrivateKey into a PrivateKey.
-func ParsePrivateKey(privKey *secp256k1.PrivateKey) PrivateKey {
-	bytes := privKey.Serialize()
-	return PrivateKey(bytes)
-}
-
-// ParsePrivateKeyFromScalar parses a secp256k1.ModNScalar into a PrivateKey.
-func ParsePrivateKeyFromScalar(scalar *secp256k1.ModNScalar) PrivateKey {
-	bytes := secp256k1.NewPrivateKey(scalar).Serialize()
-	return PrivateKey(bytes)
-}
-
-// Parse converts a PrivateKey back to a secp256k1.PrivateKey.
-func (pk PrivateKey) Parse() (*secp256k1.PrivateKey, error) {
-	if len(pk) != 32 {
-		return nil, NewError(ErrInvalidLength, "length: %d != 32", len(pk))
-	}
-
-	return secp256k1.PrivKeyFromBytes(pk), nil
-}
-
-// Scalar converts a PrivateKey to a secp256k1.ModNScalar.
-func (pk PrivateKey) Scalar() (*secp256k1.ModNScalar, error) {
-	privKey, err := pk.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse private key")
-	}
-
-	return &privKey.Key, nil
-}
-
-// PublicKey converts a PrivateKey to a PublicKey.
-func (pk PrivateKey) PublicKey() (PublicKey, error) {
-	privKey, err := pk.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse private key")
-	}
-
-	return privKey.PubKey().SerializeCompressed(), nil
-}
-
-// Parse converts a slice of PrivateKeys into a slice of secp256k1.PrivateKey.
-func (pks PrivateKeys) Parse() ([]*secp256k1.PrivateKey, error) {
-	var privKeys []*secp256k1.PrivateKey
-	for idx, pk := range pks {
-		privKey, err := pk.Parse()
-		if err != nil {
-			return nil, NewError(err, "parse index: %d", idx)
-		}
-
-		privKeys = append(privKeys, privKey)
-	}
-
-	return privKeys, nil
-}
-
-// PublicKey represents a public key stored as bytes.
-// It uses secp256k1.JacobianPoint as a base implementation for serialization and parsing.
-type PublicKey []byte
-
-// PublicKeys represents a slice of PublicKey values.
-type PublicKeys []PublicKey
-
-// ParsePublicKey parses a secp256k1.PublicKey into a PublicKey.
-func ParsePublicKey(pubKey *secp256k1.PublicKey) PublicKey {
-	bytes := pubKey.SerializeCompressed()
-	return PublicKey(bytes)
-}
-
-// ParsePublicKeyFromPoint parses a secp256k1.JacobianPoint into a PublicKey.
-func ParsePublicKeyFromPoint(point *secp256k1.JacobianPoint) PublicKey {
+// NewPointFromJacobianPoint parses a secp256k1.JacobianPoint into a Point.
+func NewPointFromJacobianPoint(point *secp256k1.JacobianPoint) Point {
+	// Convert the JacobianPoint to affine coordinates.
 	affinePoint := *point
 	affinePoint.ToAffine()
 
+	// Serialize the affine coordinates into bytes and create a Point from it.
 	bytes := secp256k1.NewPublicKey(&affinePoint.X, &affinePoint.Y).SerializeCompressed()
-	return PublicKey(bytes)
+	return Point(bytes)
 }
 
-// Parse converts a PublicKey back to a secp256k1.PublicKey.
-func (pk PublicKey) Parse() (*secp256k1.PublicKey, error) {
-	pubKey, err := secp256k1.ParsePubKey(pk)
+// NewPointFromPublicKey parses a secp256k1.PublicKey into a Point.
+func NewPointFromPublicKey(pubKey *secp256k1.PublicKey) Point {
+	// Serialize the PublicKey into bytes and create a Point from it.
+	bytes := pubKey.SerializeCompressed()
+	return Point(bytes)
+}
+
+// Valid returns an error if the value is invalid.
+func (p Point) Valid() error {
+	if _, err := p.publicKey(); err != nil {
+		return NewError(err, "check valid")
+	}
+
+	return nil
+}
+
+// publicKey converts a Point back to a secp256k1.PublicKey.
+func (p Point) publicKey() (*secp256k1.PublicKey, error) {
+	pubKey, err := secp256k1.ParsePubKey(p)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
 	}
@@ -225,9 +204,9 @@ func (pk PublicKey) Parse() (*secp256k1.PublicKey, error) {
 	return pubKey, nil
 }
 
-// Point converts a PublicKey to a secp256k1.JacobianPoint.
-func (pk PublicKey) Point() (*secp256k1.JacobianPoint, error) {
-	pubKey, err := pk.Parse()
+// jacobianPoint converts a Point back to a secp256k1.JacobianPoint.
+func (p Point) jacobianPoint() (*secp256k1.JacobianPoint, error) {
+	pubKey, err := p.publicKey()
 	if err != nil {
 		return nil, NewError(err, "parse public key")
 	}
@@ -238,26 +217,14 @@ func (pk PublicKey) Point() (*secp256k1.JacobianPoint, error) {
 	return &point, nil
 }
 
-// Parse converts a slice of PublicKeys into a slice of secp256k1.PublicKey.
-func (pks PublicKeys) Parse() ([]*secp256k1.PublicKey, error) {
-	var pubKeys []*secp256k1.PublicKey
-	for idx, pk := range pks {
-		pubKey, err := pk.Parse()
-		if err != nil {
-			return nil, NewError(err, "parse index: %d", idx)
-		}
+// Points represents a slice of Point values.
+type Points []Point
 
-		pubKeys = append(pubKeys, pubKey)
-	}
-
-	return pubKeys, nil
-}
-
-// Parse converts a slice of PublicKeys into a slice of secp256k1.JacobianPoint.
-func (pks PublicKeys) Points() ([]*secp256k1.JacobianPoint, error) {
+// jacobianPoints converts a slice of Points into a slice of secp256k1.JacobianPoint.
+func (ps Points) jacobianPoints() ([]*secp256k1.JacobianPoint, error) {
 	var points []*secp256k1.JacobianPoint
-	for idx, pk := range pks {
-		point, err := pk.Point()
+	for idx, p := range ps {
+		point, err := p.jacobianPoint()
 		if err != nil {
 			return nil, NewError(err, "parse index: %d", idx)
 		}
@@ -275,29 +242,45 @@ type Signature []byte
 // Signatures represents a slice of Signature values.
 type Signatures []Signature
 
-// NewSignature generates a signature from Point (R) and Scalar (S).
-// It returns a signature and an error, if any.
-func NewSignature(rawR Point, rawS Scalar) (Signature, error) {
-	r, err := rawR.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse R")
+// NewSignature constructs a Signature from bytes.
+func NewSignature(bytes []byte) (Signature, error) {
+	sig := Signature(bytes)
+	if err := sig.Valid(); err != nil {
+		return nil, NewError(err, "check valid")
 	}
 
-	s, err := rawS.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse S")
-	}
-
-	return ParseSignature(schnorr.NewSignature(r, s)), nil
+	return sig, nil
 }
 
-// ParseSignature parses a schnorr.Signature into a Signature.
-func ParseSignature(sig *schnorr.Signature) Signature {
+// NewSignatureFromComponents generates a signature from Point (R) and Scalar (S).
+// It returns a Signature and an error, if any.
+func NewSignatureFromComponents(rawR Point, rawS Scalar) (Signature, error) {
+	r, err := rawR.jacobianPoint()
+	if err != nil {
+		return nil, NewError(err, "parse r")
+	}
+
+	s := rawS.modNScalar()
+
+	return NewSignatureFromType(schnorr.NewSignature(r, s)), nil
+}
+
+// NewSignatureFromType parses a schnorr.Signature into a Signature.
+func NewSignatureFromType(sig *schnorr.Signature) Signature {
 	return sig.Serialize()
 }
 
-// Parse converts a Signature to a schnorr.Signature.
-func (s Signature) Parse() (*schnorr.Signature, error) {
+// Valid returns an error if the value is invalid.
+func (s Signature) Valid() error {
+	if _, err := s.signature(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// signature converts a Signature to a schnorr.Signature.
+func (s Signature) signature() (*schnorr.Signature, error) {
 	sig, err := schnorr.ParseSignature(s)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
@@ -306,7 +289,7 @@ func (s Signature) Parse() (*schnorr.Signature, error) {
 	return sig, nil
 }
 
-// R returns R part of the signature
+// R returns the R part of the signature.
 func (s Signature) R() Point {
 	if len(s) < 33 {
 		return []byte{}
@@ -314,7 +297,7 @@ func (s Signature) R() Point {
 	return Point(s[0:33])
 }
 
-// S returns S part of the signature
+// S returns the S part of the signature.
 func (s Signature) S() Scalar {
 	if len(s) < 65 {
 		return []byte{}
@@ -326,37 +309,54 @@ func (s Signature) S() Scalar {
 // It uses schnorr.ComplaintSignature as a base implementation for serialization and parsing.
 type ComplaintSignature []byte
 
-// Signatures represents a slice of Signature values.
+// ComplaintSignatures represents a slice of ComplaintSignature values.
 type ComplaintSignatures []ComplaintSignature
 
-// NewComplaintSignature generates a signature from 2 Points (A1, A2) and Scalar (Z).
-// It returns a complaint signature and an error, if any.
-func NewComplaintSignature(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplaintSignature, error) {
-	a1, err := rawA1.Parse()
+// NewComplaintSignature constructs a ComplaintSignature from bytes.
+func NewComplaintSignature(bytes []byte) (ComplaintSignature, error) {
+	comSig := ComplaintSignature(bytes)
+	if err := comSig.Valid(); err != nil {
+		return nil, NewError(err, "invalid")
+	}
+
+	return comSig, nil
+}
+
+// NewComplaintSignatureFromComponents generates a complaint signature from 2 Points (A1, A2) and Scalar (Z).
+// It returns a ComplaintSignature and an error, if any.
+func NewComplaintSignatureFromComponents(rawA1 Point, rawA2 Point, rawZ Scalar) (ComplaintSignature, error) {
+	a1, err := rawA1.jacobianPoint()
 	if err != nil {
 		return nil, NewError(err, "parse A1")
 	}
 
-	a2, err := rawA2.Parse()
+	a2, err := rawA2.jacobianPoint()
 	if err != nil {
 		return nil, NewError(err, "parse A2")
 	}
 
-	z, err := rawZ.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse Z")
-	}
+	z := rawZ.modNScalar()
 
-	return ParseComplaintSignature(schnorr.NewComplaintSignature(a1, a2, z)), nil
+	return NewComplaintSignatureFromType(schnorr.NewComplaintSignature(a1, a2, z)), nil
 }
 
-// ParseComplaintSignature parses a schnorr.ComplaintSignature into a Signature.
-func ParseComplaintSignature(sig *schnorr.ComplaintSignature) ComplaintSignature {
+// NewComplaintSignatureFromType parses a schnorr.ComplaintSignature into a ComplaintSignature.
+func NewComplaintSignatureFromType(sig *schnorr.ComplaintSignature) ComplaintSignature {
 	return sig.Serialize()
 }
 
-// Parse converts a ComplaintSignature to a schnorr.ComplaintSignature.
-func (cs ComplaintSignature) Parse() (*schnorr.ComplaintSignature, error) {
+// Valid returns an error if the value is invalid.
+func (cs ComplaintSignature) Valid() error {
+	if _, err := cs.complaintSignature(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// complaintSignature converts a ComplaintSignature to a schnorr.ComplaintSignature.
+func (cs ComplaintSignature) complaintSignature() (*schnorr.ComplaintSignature, error) {
+	// No need to check error as the caller should validate it first.
 	sig, err := schnorr.ParseComplaintSignature(cs)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
@@ -365,7 +365,7 @@ func (cs ComplaintSignature) Parse() (*schnorr.ComplaintSignature, error) {
 	return sig, nil
 }
 
-// A1 returns A1 part of the complaint signature
+// A1 returns the A1 part of the complaint signature.
 func (cs ComplaintSignature) A1() Point {
 	if len(cs) < 33 {
 		return []byte{}
@@ -373,7 +373,7 @@ func (cs ComplaintSignature) A1() Point {
 	return Point(cs[0:33])
 }
 
-// A2 returns A2 part of the complaint signature
+// A2 returns the A2 part of the complaint signature.
 func (cs ComplaintSignature) A2() Point {
 	if len(cs) < 66 {
 		return []byte{}
@@ -381,7 +381,7 @@ func (cs ComplaintSignature) A2() Point {
 	return Point(cs[33:66])
 }
 
-// S returns S part of the signature
+// Z returns the Z part of the complaint signature.
 func (cs ComplaintSignature) Z() Scalar {
 	if len(cs) < 98 {
 		return []byte{}
@@ -391,8 +391,8 @@ func (cs ComplaintSignature) Z() Scalar {
 
 // KeyPair represents a key pair consisting of a private key and a public key.
 type KeyPair struct {
-	PrivKey PrivateKey
-	PubKey  PublicKey
+	PrivKey Scalar
+	PubKey  Point
 }
 
 // KeyPairs represents a slice of KeyPair values.
@@ -402,12 +402,12 @@ type KeyPairs []KeyPair
 //
 // Fields:
 // - ID: A NonZeroScalar identifier for the participant (uint64)
-// - D: The hiding nonce commitment is represented by the type PublicKey
-// - E: The binding nonce commitment is represented by the type PublicKey
+// - D: The hiding nonce commitment is represented by the type Point
+// - E: The binding nonce commitment is represented by the type Point
 type CommitmentIDE struct {
 	ID MemberID
-	D  PublicKey
-	E  PublicKey
+	D  Point
+	E  Point
 }
 
 // CommitmentIDEList is a slice of CommitmentIDE structs.

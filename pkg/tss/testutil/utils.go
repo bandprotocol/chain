@@ -23,13 +23,9 @@ func GetSlot(from tss.MemberID, to tss.MemberID) tss.MemberID {
 	return slot
 }
 
-func PublicKey(privKey tss.PrivateKey) tss.PublicKey {
-	pubKey, err := privKey.PublicKey()
-	if err != nil {
-		panic(err)
-	}
-
-	return pubKey
+func Point(scalar tss.Scalar) tss.Point {
+	point := scalar.Point()
+	return point
 }
 
 func CopySlice[T ~[]U, U ~[]byte](src T) T {

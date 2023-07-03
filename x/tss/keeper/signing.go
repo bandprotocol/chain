@@ -223,8 +223,8 @@ func (k Keeper) GetRandomAssigningParticipants(
 		members_size -= 1
 	}
 
-	// Sort members
-	sort.Slice(members, func(i, j int) bool { return members[i].MemberID < members[j].MemberID })
+	// Sort selected members
+	sort.Slice(selected, func(i, j int) bool { return selected[i].MemberID < selected[j].MemberID })
 
 	return selected, nil
 }
