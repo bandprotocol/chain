@@ -124,6 +124,8 @@ func SignOwnPubkey(
 	var nonce, challenge Scalar
 	var pubNonce Point
 	var err error
+	// We omit implementing a timeout here as the probability of the hash exceeding
+	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		nonce, pubNonce, err = GenerateDKGNonce()
 		if err != nil {
@@ -168,6 +170,8 @@ func SignComplaint(
 	var nonce, challenge Scalar
 	var nonceSym Point
 	var pubNonce Point
+	// We omit implementing a timeout here as the probability of the hash exceeding
+	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		nonce, pubNonce, err = GenerateDKGNonce()
 		if err != nil {
