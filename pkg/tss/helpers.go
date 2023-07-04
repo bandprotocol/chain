@@ -65,9 +65,13 @@ func GenerateDKGNonce() (Scalar, Point, error) {
 	return NewScalarFromModNScalar(nonce), NewPointFromJacobianPoint(&pubNonce), nil
 }
 
-// GenerateSigningNonce generates a signing nonce based on the provided private key.
+// GenerateSigningNonce is a function responsible for producing a signing nonce
+// derived from a given private key. This nonce generation ensures a uniform distribution
+// of hash values over the span of the elliptic curve's order.
 func GenerateSigningNonce(secret Scalar) (Scalar, error) {
 	var nonce Scalar
+	// We omit implementing a timeout here as the probability of the hash exceeding
+	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		// Generate random bytes
 		random, err := RandomBytes()
@@ -86,9 +90,12 @@ func GenerateSigningNonce(secret Scalar) (Scalar, error) {
 	}
 }
 
-// RandomScalar generates a random scalar value.
+// RandomScalar is a function that creates a random scalar value.
+// This method ensures a uniform distribution of generated scalars across the span of the elliptic curve's order.
 func RandomScalar() (Scalar, error) {
 	var nonce Scalar
+	// We omit implementing a timeout here as the probability of the hash exceeding
+	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		// Generate random bytes
 		random, err := RandomBytes()
