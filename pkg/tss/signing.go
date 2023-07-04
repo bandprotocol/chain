@@ -134,7 +134,7 @@ func SignSigning(
 	ownPrivNonce Scalar,
 	ownPrivKey Scalar,
 ) (Signature, error) {
-	challenge, err := HashSigning(groupPubNonce, groupPubKey, data)
+	challenge, err := HashChallenge(groupPubNonce, groupPubKey, data)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func VerifySigningSig(
 	sig Signature,
 	ownPubKey Point,
 ) error {
-	challenge, err := HashSigning(groupPubNonce, groupPubKey, data)
+	challenge, err := HashChallenge(groupPubNonce, groupPubKey, data)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func VerifyGroupSigningSig(
 	data []byte,
 	sig Signature,
 ) error {
-	challenge, err := HashSigning(sig.R(), groupPubKey, data)
+	challenge, err := HashChallenge(sig.R(), groupPubKey, data)
 	if err != nil {
 		return err
 	}
