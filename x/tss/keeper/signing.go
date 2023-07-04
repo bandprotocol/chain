@@ -281,13 +281,19 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	}
 
 	// Compute binding factor and public nonce of each assigned member
-	var ownPubNonces tss.PublicKeys
+	var ownPubNonces tss.Points
 	for i, member := range assignedMembers {
-		// Compute and assign binding factor and public nonce
+		// Compute own binding factor
+		ownBindingFactor, err := tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
+		if err != nil {
+			return 0, err
+		}
+
+		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
 			member.PubE,
-			tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment),
+			ownBindingFactor,
 		)
 		if err != nil {
 			return 0, err
