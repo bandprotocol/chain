@@ -22,3 +22,8 @@ type AuthzKeeper interface {
 		expiration *time.Time,
 	) error
 }
+
+// RollingseedKeeper defines the expected rollingseed keeper
+type RollingseedKeeper interface {
+	GetRollingSeed(ctx sdk.Context) []byte
+}

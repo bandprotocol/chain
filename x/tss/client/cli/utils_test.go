@@ -4,9 +4,58 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/require"
+
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
+
+func TestCombineGrantMsgs(t *testing.T) {
+	granter := sdk.AccAddress([]byte("granter"))
+	grantee := sdk.AccAddress([]byte("grantee"))
+	msgGrants := types.GetMsgGrants()
+	expiration := time.Now()
+
+	msgs, err := combineGrantMsgs(granter, grantee, msgGrants, &expiration)
+	require.NoError(t, err)
+	require.Len(t, msgs, len(msgGrants))
+
+	for i, msg := range msgs {
+		// cast type
+		msgGrant, ok := msg.(*authz.MsgGrant)
+		require.True(t, ok)
+
+		authorization, err := msgGrant.GetAuthorization()
+		require.NoError(t, err)
+
+		require.Equal(t, msgGrants[i], authorization.MsgTypeURL())
+		require.Equal(t, granter.String(), msgGrant.Granter)
+		require.Equal(t, grantee.String(), msgGrant.Grantee)
+		require.Equal(t, expiration, *msgGrant.Grant.Expiration)
+	}
+}
+
+func TestCombineRevokeMsgs(t *testing.T) {
+	granter := sdk.AccAddress([]byte("granter"))
+	grantee := sdk.AccAddress([]byte("grantee"))
+	msgRevokes := []string{"revoke1", "revoke2"}
+
+	msgs, err := combineRevokeMsgs(granter, grantee, msgRevokes)
+	require.NoError(t, err)
+	require.Len(t, msgs, len(msgRevokes))
+
+	for i, msg := range msgs {
+		// cast type
+		msgRevoke, ok := msg.(*authz.MsgRevoke)
+		require.True(t, ok)
+		require.Equal(t, granter.String(), msgRevoke.Granter)
+		require.Equal(t, grantee.String(), msgRevoke.Grantee)
+		require.Equal(t, msgRevokes[i], msgRevoke.MsgTypeUrl)
+	}
+}
 
 func TestParseComplaints(t *testing.T) {
 	// 1. Test with empty string

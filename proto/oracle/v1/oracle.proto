@@ -24,10 +24,8 @@ message DataSource {
   string treasury = 5;
   // Fee is the data source fee per ask_count that data provider will receive
   // from requester.
-  repeated cosmos.base.v1beta1.Coin fee = 6 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  repeated cosmos.base.v1beta1.Coin fee = 6
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 // OracleScript is the data structure for storing oracle scripts in the storage.
@@ -49,22 +47,16 @@ message OracleScript {
   // SourceCodeURL is the URL of oracle script's source code.
   // It is recommendded to store source code on IPFS and get its URL to preserve
   // decentralization.
-  string source_code_url = 6 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 6 [(gogoproto.customname) = "SourceCodeURL"];
 }
 
 // RawRequest is the data structure for storing raw requests in the storage.
 message RawRequest {
   option (gogoproto.equal) = true;
   // ExternalID is an ID of the raw request
-  uint64 external_id = 1 [
-    (gogoproto.customname) = "ExternalID",
-    (gogoproto.casttype) = "ExternalID"
-  ];
+  uint64 external_id = 1 [(gogoproto.customname) = "ExternalID", (gogoproto.casttype) = "ExternalID"];
   // DataSourceID is an ID of data source script that relates to the raw request
-  uint64 data_source_id = 2 [
-    (gogoproto.customname) = "DataSourceID",
-    (gogoproto.casttype) = "DataSourceID"
-  ];
+  uint64 data_source_id = 2 [(gogoproto.customname) = "DataSourceID", (gogoproto.casttype) = "DataSourceID"];
   // Calldata is the data used as argument params for executing data source
   // script
   bytes calldata = 3;
@@ -74,10 +66,7 @@ message RawRequest {
 message RawReport {
   option (gogoproto.equal) = true;
   // ExternalID is an ID of the raw request
-  uint64 external_id = 1 [
-    (gogoproto.customname) = "ExternalID",
-    (gogoproto.casttype) = "ExternalID"
-  ];
+  uint64 external_id = 1 [(gogoproto.customname) = "ExternalID", (gogoproto.casttype) = "ExternalID"];
   // ExitCode is status code provided by validators to specify error, if any.
   // Exit code is usually filled by the exit code returned from execution of
   // specified data source script. With code 0 means there is no error.
@@ -92,10 +81,7 @@ message RawReport {
 message Request {
   option (gogoproto.equal) = true;
   // OracleScriptID is ID of an oracle script
-  uint64 oracle_script_id = 1 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
+  uint64 oracle_script_id = 1 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
   // Calldata is the data used as argument params for the oracle script
   bytes calldata = 2;
   // RequestedValidators is a list of validator addresses that are assigned for
@@ -137,7 +123,7 @@ message Report {
   bool in_before_resolve = 2;
   // RawReports is list of raw reports provided by the validator.
   // Each raw report has different external ID
-  repeated RawReport raw_reports = 3 [ (gogoproto.nullable) = false ];
+  repeated RawReport raw_reports = 3 [(gogoproto.nullable) = false];
 }
 
 // ResolveStatus encodes the status of an oracle request.
@@ -145,18 +131,14 @@ enum ResolveStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // Open - the request is not yet resolved.
-  RESOLVE_STATUS_OPEN_UNSPECIFIED = 0
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN" ];
+  RESOLVE_STATUS_OPEN_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN"];
   // Success - the request has been resolved successfully with no errors.
-  RESOLVE_STATUS_SUCCESS = 1
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS" ];
+  RESOLVE_STATUS_SUCCESS = 1 [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS"];
   // Failure - an error occured during the request's resolve call.
-  RESOLVE_STATUS_FAILURE = 2
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE" ];
+  RESOLVE_STATUS_FAILURE = 2 [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE"];
   // Expired - the request does not get enough reports from validator within the
   // timeframe.
-  RESOLVE_STATUS_EXPIRED = 3
-      [ (gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED" ];
+  RESOLVE_STATUS_EXPIRED = 3 [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED"];
 }
 
 // OracleRequestPacketData encodes an oracle request sent from other blockchains
@@ -205,10 +187,7 @@ message OracleRequestPacketData {
 message OracleRequestPacketAcknowledgement {
   option (gogoproto.equal) = true;
   // RequestID is BandChain's unique identifier for this oracle request.
-  uint64 request_id = 1 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
+  uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
 }
 
 // OracleResponsePacketData encodes an oracle response from BandChain to the
@@ -217,16 +196,16 @@ message OracleResponsePacketData {
   option (gogoproto.equal) = true;
   // ClientID is the unique identifier matched with that of the oracle request
   // packet.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-  // SigningID is the unique identifier of the signing process in tss moudle.
-  uint64 signing_id = 2 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // RequestID is BandChain's unique identifier for this oracle request.
-  uint64 request_id = 3 [
+  uint64 request_id = 2 [
     (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "RequestID"
+  ];
+  // SigningID is the unique identifier of the signing process in tss moudle.
+  uint64 signing_id = 3 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // AnsCount is the number of validators among to the asked validators that
   // actually responded to this oracle request prior to this oracle request
@@ -252,31 +231,25 @@ message Result {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-  // SigningID is the unique identifier of the signing process in tss moudle.
-  uint64 signing_id = 2 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
-  uint64 oracle_script_id = 3 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
+  uint64 oracle_script_id = 2 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
   // Calldata is the calldata bytes available for oracle executor to read.
-  bytes calldata = 4;
+  bytes calldata = 3;
   // AskCount is the number of validators that are requested to respond to this
   // oracle request. Higher value means more security, at a higher gas cost.
-  uint64 ask_count = 5;
+  uint64 ask_count = 4;
   // MinCount is the minimum number of validators necessary for the request to
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
-  uint64 min_count = 6;
+  uint64 min_count = 5;
   // RequestID is BandChain's unique identifier for this oracle request.
-  uint64 request_id = 7 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
+  uint64 request_id = 6 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
+  // SigningID is the unique identifier of the signing process in tss moudle.
+  uint64 signing_id = 7 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // AnsCount is the number of validators among to the asked validators that
   // actually responded to this oracle request prior to this oracle request
@@ -303,8 +276,7 @@ message ValidatorStatus {
   // to fulfill oracle request before the request expired.
   bool is_active = 1;
   // Since is a block timestamp when validator has been activated/deactivated
-  google.protobuf.Timestamp since = 2
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp since = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // ActiveValidator is information of currently active validator
@@ -317,7 +289,7 @@ message ActiveValidator {
 
 // Params is the data structure that keeps the parameters of the oracle module.
 message Params {
-  option (gogoproto.equal) = true;
+  option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;
   // MaxRawRequestCount is the maximum number of data source raw requests a
   // request can make.
@@ -349,8 +321,7 @@ message Params {
   uint64 inactive_penalty_duration = 10;
   // IBCRequestEnabled is a flag indicating whether sending oracle request via
   // IBC is allowed
-  bool ibc_request_enabled = 11
-      [ (gogoproto.customname) = "IBCRequestEnabled" ];
+  bool ibc_request_enabled = 11 [(gogoproto.customname) = "IBCRequestEnabled"];
 }
 
 // PendingResolveList is a list of requests that are waiting to be resolved
@@ -378,24 +349,15 @@ message IBCChannel {
 message RequestVerification {
   option (gogoproto.equal) = true;
   // ChainID is the ID of targeted chain
-  string chain_id = 1 [ (gogoproto.customname) = "ChainID" ];
+  string chain_id = 1 [(gogoproto.customname) = "ChainID"];
   // Validator is an validator address
   string validator = 2;
   // RequestID is the targeted request ID
-  uint64 request_id = 3 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
+  uint64 request_id = 3 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
   // ExternalID is the oracle's external ID of data source
-  uint64 external_id = 4 [
-    (gogoproto.customname) = "ExternalID",
-    (gogoproto.casttype) = "ExternalID"
-  ];
+  uint64 external_id = 4 [(gogoproto.customname) = "ExternalID", (gogoproto.casttype) = "ExternalID"];
   // DataSourceID is the ID of data source
-  uint64 data_source_id = 5 [
-    (gogoproto.customname) = "DataSourceID",
-    (gogoproto.casttype) = "DataSourceID"
-  ];
+  uint64 data_source_id = 5 [(gogoproto.customname) = "DataSourceID", (gogoproto.casttype) = "DataSourceID"];
 }
 
 // PriceResult is a result from standard price reference
@@ -409,10 +371,7 @@ message PriceResult {
   // Px is the actual data, which is rate number multiplied by the multiplier.
   uint64 px = 3;
   // RequestID is oracle request ID that contains this price
-  uint64 request_id = 4 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
+  uint64 request_id = 4 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
   // ResolveTime is epoch timestamp indicating the time when the request had
   // been resolved
   int64 resolve_time = 5;

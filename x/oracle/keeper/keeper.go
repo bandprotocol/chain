@@ -33,15 +33,16 @@ type Keeper struct {
 	paramstore       paramtypes.Subspace
 	owasmVM          *owasm.Vm
 
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
-	distrKeeper   types.DistrKeeper
-	authzKeeper   types.AuthzKeeper
-	channelKeeper types.ChannelKeeper
-	portKeeper    types.PortKeeper
-	tssKeeper     types.TSSKeeper
-	scopedKeeper  capabilitykeeper.ScopedKeeper
+	authKeeper        types.AccountKeeper
+	bankKeeper        types.BankKeeper
+	stakingKeeper     types.StakingKeeper
+	distrKeeper       types.DistrKeeper
+	authzKeeper       types.AuthzKeeper
+	channelKeeper     types.ChannelKeeper
+	portKeeper        types.PortKeeper
+	rollingseedKepper types.RollingseedKeeper
+	tssKeeper         types.TSSKeeper
+	scopedKeeper      capabilitykeeper.ScopedKeeper
 }
 
 // NewKeeper creates a new oracle Keeper instance.
@@ -58,6 +59,7 @@ func NewKeeper(
 	authzKeeper types.AuthzKeeper,
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
+	rollingseedKepper types.RollingseedKeeper,
 	tssKeeper types.TSSKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
@@ -66,37 +68,28 @@ func NewKeeper(
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
 	return Keeper{
-		storeKey:         key,
-		cdc:              cdc,
-		fileCache:        filecache.New(fileDir),
-		feeCollectorName: feeCollectorName,
-		paramstore:       ps,
-		owasmVM:          owasmVM,
-		authKeeper:       authKeeper,
-		bankKeeper:       bankKeeper,
-		stakingKeeper:    stakingKeeper,
-		distrKeeper:      distrKeeper,
-		authzKeeper:      authzKeeper,
-		channelKeeper:    channelKeeper,
-		portKeeper:       portKeeper,
-		tssKeeper:        tssKeeper,
-		scopedKeeper:     scopeKeeper,
+		storeKey:          key,
+		cdc:               cdc,
+		fileCache:         filecache.New(fileDir),
+		feeCollectorName:  feeCollectorName,
+		paramstore:        ps,
+		owasmVM:           owasmVM,
+		authKeeper:        authKeeper,
+		bankKeeper:        bankKeeper,
+		stakingKeeper:     stakingKeeper,
+		distrKeeper:       distrKeeper,
+		authzKeeper:       authzKeeper,
+		channelKeeper:     channelKeeper,
+		portKeeper:        portKeeper,
+		rollingseedKepper: rollingseedKepper,
+		tssKeeper:         tssKeeper,
+		scopedKeeper:      scopeKeeper,
 	}
 }
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-// SetRollingSeed sets the rolling seed value to be provided value.
-func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
-	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
-}
-
-// GetRollingSeed returns the current rolling seed value.
-func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
-	return ctx.KVStore(k.storeKey).Get(types.RollingSeedStoreKey)
 }
 
 // SetRequestCount sets the number of request count to the given value. Useful for genesis state.

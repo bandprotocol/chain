@@ -151,9 +151,9 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 func (k Keeper) HandleAssignedMembersPollDE(
 	ctx sdk.Context,
 	members []types.Member,
-) ([]types.AssignedMember, tss.PublicKeys, tss.PublicKeys, error) {
+) ([]types.AssignedMember, tss.Points, tss.Points, error) {
 	var assignedMembers []types.AssignedMember
-	var pubDs, pubEs tss.PublicKeys
+	var pubDs, pubEs tss.Points
 
 	for _, member := range members {
 		accMember, err := sdk.AccAddressFromBech32(member.Address)

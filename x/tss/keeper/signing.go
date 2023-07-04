@@ -56,8 +56,8 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID
 	signingID := k.GetNextSigningID(ctx)
 	signing.SigningID = signingID
 	signing.RequestTime = ctx.BlockHeader().Time
-	expiryTime := signing.RequestTime.Add(k.SigningPeriod(ctx))
-	signing.ExpiryTime = &expiryTime
+	expiredTime := signing.RequestTime.Add(k.SigningPeriod(ctx))
+	signing.ExpiredTime = &expiredTime
 	k.SetSigning(ctx, signing)
 
 	return signingID
@@ -189,16 +189,6 @@ func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) 
 	return pzs
 }
 
-// SetRollingSeed sets the rolling seed value to be provided value.
-func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
-	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
-}
-
-// GetRollingSeed returns the current rolling seed value.
-func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
-	return ctx.KVStore(k.storeKey).Get(types.RollingSeedStoreKey)
-}
-
 // GetRandomAssigningParticipants function generates a random selection of participants for a signing process.
 // It selects 't' participants out of 'members size' participants using a deterministic random number generator (DRBG).
 func (k Keeper) GetRandomAssigningParticipants(
@@ -213,7 +203,11 @@ func (k Keeper) GetRandomAssigningParticipants(
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
-	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(signingID), []byte(ctx.ChainID()))
+	rng, err := bandrng.NewRng(
+		k.rollingseedKeeper.GetRollingSeed(ctx),
+		sdk.Uint64ToBigEndian(signingID),
+		[]byte(ctx.ChainID()),
+	)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}
@@ -231,8 +225,8 @@ func (k Keeper) GetRandomAssigningParticipants(
 		members_size -= 1
 	}
 
-	// Sort members
-	sort.Slice(members, func(i, j int) bool { return members[i].MemberID < members[j].MemberID })
+	// Sort selected members
+	sort.Slice(selected, func(i, j int) bool { return selected[i].MemberID < selected[j].MemberID })
 
 	return selected, nil
 }

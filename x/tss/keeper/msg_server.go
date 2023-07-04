@@ -42,7 +42,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		k.SetMember(ctx, groupID, types.Member{
 			MemberID:    tss.MemberID(i + 1),
 			Address:     m,
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		})
 	}
@@ -91,8 +91,8 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
 	}
 
-	// Check expiry time
-	if ctx.BlockHeader().Time.After(*group.ExpiryTime) {
+	// Check expired time
+	if ctx.BlockHeader().Time.After(*group.ExpiredTime) {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
@@ -143,7 +143,7 @@ func (k Keeper) SubmitDKGRound1(
 		memberID,
 		dkgContext,
 		req.Round1Info.A0Sig,
-		tss.PublicKey(req.Round1Info.CoefficientsCommit[0]),
+		req.Round1Info.CoefficientsCommit[0],
 	)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
@@ -174,9 +174,9 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
-		expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.ExpiryTime = &expiryTime
-		group.PubKey = tss.PublicKey(k.GetAccumulatedCommit(ctx, groupID, 0))
+		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		group.ExpiredTime = &expiredTime
+		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -213,8 +213,8 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
 	}
 
-	// Check expiry time
-	if ctx.BlockHeader().Time.After(*group.ExpiryTime) {
+	// Check expired time
+	if ctx.BlockHeader().Time.After(*group.ExpiredTime) {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
@@ -279,8 +279,8 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
-		expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.ExpiryTime = &expiryTime
+		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		group.ExpiredTime = &expiredTime
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -313,8 +313,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
 	}
 
-	// Check expiry time
-	if ctx.BlockHeader().Time.After(*group.ExpiryTime) {
+	// Check expired time
+	if ctx.BlockHeader().Time.After(*group.ExpiredTime) {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
@@ -362,8 +362,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyComplainerMemberID, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyComplainantMemberID, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
@@ -387,8 +387,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDI, fmt.Sprintf("%d", c.Complainer)),
-					sdk.NewAttribute(types.AttributeKeyMemberIDJ, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyComplainerMemberID, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyComplainantMemberID, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
@@ -437,8 +437,8 @@ func (k Keeper) Confirm(
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
 	}
 
-	// Check expiry time
-	if ctx.BlockHeader().Time.After(*group.ExpiryTime) {
+	// Check expired time
+	if ctx.BlockHeader().Time.After(*group.ExpiredTime) {
 		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
@@ -501,7 +501,7 @@ func (k Keeper) Confirm(
 		if !types.HaveMalicious(members) {
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
-			group.ExpiryTime = nil
+			group.ExpiredTime = nil
 			k.SetGroup(ctx, group)
 
 			// Delete all dkg interim data
@@ -541,8 +541,12 @@ func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*type
 	return &types.MsgSubmitDEsResponse{}, nil
 }
 
-// RequestSign initiates the signing process by requesting signatures from assigned members of the group.
-func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*types.MsgRequestSignResponse, error) {
+// RequestSign initiates the signing process by requesting signatures from assigned members.
+// It assigns participants randomly, computes necessary values, and emits appropriate events.
+func (k Keeper) RequestSignature(
+	goCtx context.Context,
+	req *types.MsgRequestSignature,
+) (*types.MsgRequestSignatureResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Handle request sign
@@ -551,7 +555,7 @@ func (k Keeper) RequestSign(goCtx context.Context, req *types.MsgRequestSign) (*
 		return nil, err
 	}
 
-	return &types.MsgRequestSignResponse{}, nil
+	return &types.MsgRequestSignatureResponse{}, nil
 }
 
 // Sign verifies that the member and signing process are valid, and that the member hasn't already signed.
@@ -566,8 +570,8 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		return nil, err
 	}
 
-	// Check expiry time
-	if ctx.BlockHeader().Time.After(*signing.ExpiryTime) {
+	// Check expired time
+	if ctx.BlockHeader().Time.After(*signing.ExpiredTime) {
 		return nil, sdkerrors.Wrap(types.ErrSigningExpired, "signing is expired")
 	}
 
@@ -673,7 +677,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 		// Set signing with signature
 		signing.Signature = sig
-		signing.ExpiryTime = nil
+		signing.ExpiredTime = nil
 		k.SetSigning(ctx, signing)
 
 		// Delete interims data
@@ -741,7 +745,7 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 // A group may be marked as "FALLEN" when one or more members are found to be malicious during the group operation.
 func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	group.Status = types.GROUP_STATUS_FALLEN
-	group.ExpiryTime = nil
+	group.ExpiredTime = nil
 	k.SetGroup(ctx, group)
 
 	// Delete all dkg interim data

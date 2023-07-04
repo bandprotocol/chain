@@ -331,18 +331,6 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	s.Require().ElementsMatch(expected, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRollingSeed() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	rollingSeed := []byte("sample-rolling-seed")
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, rollingSeed)
-
-	// Get and check RollingSeed
-	gotSeed := k.GetRollingSeed(ctx)
-	s.Require().Equal(rollingSeed, gotSeed)
-}
-
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := uint64(1)
@@ -350,20 +338,17 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 		{
 			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
 			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 	}
 	t := uint64(1)
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, []byte("sample-rolling-seed"))
 
 	// Generate random participants
 	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, members, t)

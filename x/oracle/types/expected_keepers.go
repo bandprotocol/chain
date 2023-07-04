@@ -78,6 +78,11 @@ type AuthzKeeper interface {
 	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
 }
 
+// RollingseedKeeper defines the expected rollingseed keeper
+type RollingseedKeeper interface {
+	GetRollingSeed(ctx sdk.Context) []byte
+}
+
 // TSSKeeper defines the expected tss keeper.
 type TSSKeeper interface {
 	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error)

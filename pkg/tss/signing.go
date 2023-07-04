@@ -20,11 +20,11 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
 
-	return ParseScalar(scalarValue)
+	return NewScalarFromModNScalar(scalarValue)
 }
 
 // ComputeCommitment calculates the bytes that consists of memberID, public D, and public E.
-func ComputeCommitment(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]byte, error) {
+func ComputeCommitment(mids []MemberID, pubDs Points, pubEs Points) ([]byte, error) {
 	if len(mids) != len(pubDs) {
 		return nil, NewError(ErrInvalidLength, "len(mids) != len(pubDs): %d != %d", len(mids), len(pubDs))
 	}
@@ -48,31 +48,28 @@ func ComputeCommitment(mids []MemberID, pubDs PublicKeys, pubEs PublicKeys) ([]b
 }
 
 // ComputeOwnBindingFactor calculates the own binding factor (Lo) value for a given member ID, data, and commitment.
-// bindingFactor = Hash(i, data , B)
+// bindingFactor = HashBindingFactor(i, data , B)
 // B = <<i,Di,Ei>,...>
-func ComputeOwnBindingFactor(mid MemberID, data []byte, commitment []byte) Scalar {
-	bz := Hash([]byte("signingLo"), sdk.Uint64ToBigEndian(uint64(mid)), Hash(data), Hash(commitment))
+func ComputeOwnBindingFactor(mid MemberID, data []byte, commitment []byte) (Scalar, error) {
+	scalar, err := HashBindingFactor(mid, data, commitment)
+	if err != nil {
+		return nil, err
+	}
 
-	var bindingFactor secp256k1.ModNScalar
-	bindingFactor.SetByteSlice(bz)
-
-	return ParseScalar(&bindingFactor)
+	return scalar, nil
 }
 
 // ComputeOwnPubNonce calculates the own public nonce for a given public D, public E, and binding factor.
 // Formula: D + bindingFactor * E
-func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor Scalar) (PublicKey, error) {
-	bindingFactor, err := rawBindingFactor.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse binding factor")
-	}
+func ComputeOwnPubNonce(rawPubD Point, rawPubE Point, rawBindingFactor Scalar) (Point, error) {
+	bindingFactor := rawBindingFactor.modNScalar()
 
-	pubD, err := rawPubD.Point()
+	pubD, err := rawPubD.jacobianPoint()
 	if err != nil {
 		return nil, NewError(err, "parse public D")
 	}
 
-	pubE, err := rawPubE.Point()
+	pubE, err := rawPubE.jacobianPoint()
 	if err != nil {
 		return nil, NewError(err, "parse public E")
 	}
@@ -83,42 +80,31 @@ func ComputeOwnPubNonce(rawPubD PublicKey, rawPubE PublicKey, rawBindingFactor S
 	var ownPubNonce secp256k1.JacobianPoint
 	secp256k1.AddNonConst(pubD, &mulE, &ownPubNonce)
 
-	return ParsePublicKeyFromPoint(&ownPubNonce), nil
+	return NewPointFromJacobianPoint(&ownPubNonce), nil
 }
 
 // ComputeOwnPrivNonce calculates the own private nonce for a given private d, private e, and binding factor.
 // Formula: d + bindingFactor * e
-func ComputeOwnPrivNonce(rawPrivD PrivateKey, rawPrivE PrivateKey, rawBindingFactor Scalar) (PrivateKey, error) {
-	bindingFactor, err := rawBindingFactor.Parse()
-	if err != nil {
-		return nil, NewError(err, "parse binding factor")
-	}
-
-	privD, err := rawPrivD.Scalar()
-	if err != nil {
-		return nil, NewError(err, "parse private D")
-	}
-
-	privE, err := rawPrivE.Scalar()
-	if err != nil {
-		return nil, NewError(err, "parse private E")
-	}
+func ComputeOwnPrivNonce(rawPrivD Scalar, rawPrivE Scalar, rawBindingFactor Scalar) (Scalar, error) {
+	bindingFactor := rawBindingFactor.modNScalar()
+	privD := rawPrivD.modNScalar()
+	privE := rawPrivE.modNScalar()
 
 	bindingFactor.Mul(privE)
 	privD.Add(bindingFactor)
 
-	return ParsePrivateKeyFromScalar(privD), nil
+	return NewScalarFromModNScalar(privD), nil
 }
 
 // ComputeGroupPublicNonce calculates the group public nonce for a given slice of own public nonces.
 // Formula: Sum(PubNonce1, PubNonce2, ..., PubNonceN)
-func ComputeGroupPublicNonce(rawOwnPubNonces ...PublicKey) (PublicKey, error) {
-	pubNonces, err := PublicKeys(rawOwnPubNonces).Points()
+func ComputeGroupPublicNonce(rawOwnPubNonces ...Point) (Point, error) {
+	pubNonces, err := Points(rawOwnPubNonces).jacobianPoints()
 	if err != nil {
 		return nil, NewError(err, "parse own public nonces")
 	}
 
-	return ParsePublicKeyFromPoint(sumPoints(pubNonces...)), nil
+	return NewPointFromJacobianPoint(sumPoints(pubNonces...)), nil
 }
 
 // CombineSignatures performs combining all signatures by sum up R and sum up S.
@@ -126,7 +112,7 @@ func CombineSignatures(rawSigs ...Signature) (Signature, error) {
 	var allR []*secp256k1.JacobianPoint
 	var allS []*secp256k1.ModNScalar
 	for idx, rawSig := range rawSigs {
-		sig, err := rawSig.Parse()
+		sig, err := rawSig.signature()
 		if err != nil {
 			return nil, NewError(err, "parse sig: index: %d", idx)
 		}
@@ -135,48 +121,55 @@ func CombineSignatures(rawSigs ...Signature) (Signature, error) {
 		allS = append(allS, &sig.S)
 	}
 
-	return ParseSignature(schnorr.NewSignature(sumPoints(allR...), sumScalars(allS...))), nil
+	return NewSignatureFromType(schnorr.NewSignature(sumPoints(allR...), sumScalars(allS...))), nil
 }
 
 // SignSigning performs signing using the group public nonce, group public key, data, Lagrange coefficient,
 // own private nonce, and own private key.
 func SignSigning(
-	groupPubNonce PublicKey,
-	groupPubKey PublicKey,
+	groupPubNonce Point,
+	groupPubKey Point,
 	data []byte,
 	rawLagrange Scalar,
-	ownPrivNonce PrivateKey,
-	ownPrivKey PrivateKey,
+	ownPrivNonce Scalar,
+	ownPrivKey Scalar,
 ) (Signature, error) {
-	msg := ConcatBytes(groupPubNonce, generateMessageGroupSigning(groupPubKey, data))
-	return Sign(ownPrivKey, msg, Scalar(ownPrivNonce), rawLagrange)
+	challenge, err := HashChallenge(groupPubNonce, groupPubKey, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return Sign(ownPrivKey, challenge, Scalar(ownPrivNonce), rawLagrange)
 }
 
 // VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,
 // signature, and own public key.
 func VerifySigningSig(
-	groupPubNonce PublicKey,
-	groupPubKey PublicKey,
+	groupPubNonce Point,
+	groupPubKey Point,
 	data []byte,
 	rawLagrange Scalar,
 	sig Signature,
-	ownPubKey PublicKey,
+	ownPubKey Point,
 ) error {
-	msg := ConcatBytes(groupPubNonce, generateMessageGroupSigning(groupPubKey, data))
-	return Verify(sig.R(), sig.S(), msg, ownPubKey, nil, rawLagrange)
+	challenge, err := HashChallenge(groupPubNonce, groupPubKey, data)
+	if err != nil {
+		return err
+	}
+
+	return Verify(sig.R(), sig.S(), challenge, ownPubKey, nil, rawLagrange)
 }
 
 // VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
 func VerifyGroupSigningSig(
-	groupPubKey PublicKey,
+	groupPubKey Point,
 	data []byte,
 	sig Signature,
 ) error {
-	msg := ConcatBytes(sig.R(), generateMessageGroupSigning(groupPubKey, data))
-	return Verify(sig.R(), sig.S(), msg, groupPubKey, nil, nil)
-}
+	challenge, err := HashChallenge(sig.R(), groupPubKey, data)
+	if err != nil {
+		return err
+	}
 
-// generateMessageGroupSigning generates the message for group signing using the group public key and data.
-func generateMessageGroupSigning(rawGroupPubKey PublicKey, data []byte) []byte {
-	return ConcatBytes([]byte("signing"), rawGroupPubKey, data)
+	return Verify(sig.R(), sig.S(), challenge, groupPubKey, nil, nil)
 }

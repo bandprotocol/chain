@@ -18,19 +18,16 @@ service Msg {
   rpc ReportData(MsgReportData) returns (MsgReportDataResponse);
 
   // CreateDataSource defines a method for creating a new data source.
-  rpc CreateDataSource(MsgCreateDataSource)
-      returns (MsgCreateDataSourceResponse);
+  rpc CreateDataSource(MsgCreateDataSource) returns (MsgCreateDataSourceResponse);
 
   // EditDataSource defines a method for editing an existing data source.
   rpc EditDataSource(MsgEditDataSource) returns (MsgEditDataSourceResponse);
 
   // CreateOracleScript defines a method for creating a new oracle script.
-  rpc CreateOracleScript(MsgCreateOracleScript)
-      returns (MsgCreateOracleScriptResponse);
+  rpc CreateOracleScript(MsgCreateOracleScript) returns (MsgCreateOracleScriptResponse);
 
   // EditOracleScript defines a method for editing an existing oracle script.
-  rpc EditOracleScript(MsgEditOracleScript)
-      returns (MsgEditOracleScriptResponse);
+  rpc EditOracleScript(MsgEditOracleScript) returns (MsgEditOracleScriptResponse);
 
   // Activate defines a method for applying to be an oracle validator.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
@@ -40,10 +37,7 @@ service Msg {
 message MsgRequestData {
   option (gogoproto.equal) = true;
   // OracleScriptID is the identifier of the oracle script to be called.
-  uint64 oracle_script_id = 1 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
+  uint64 oracle_script_id = 1 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
   // Calldata is the OBI-encoded call parameters for the oracle script.
   bytes calldata = 2;
   // AskCount is the number of validators to perform the oracle task.
@@ -52,7 +46,7 @@ message MsgRequestData {
   // oracle tasks.
   uint64 min_count = 4;
   // ClientID is the client-provided unique identifier to track the request.
-  string client_id = 5 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 5 [(gogoproto.customname) = "ClientID"];
   // FeeLimit is the maximum tokens that will be paid to all data source
   // providers.
   repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
@@ -79,13 +73,10 @@ message MsgRequestDataResponse {}
 message MsgReportData {
   option (gogoproto.equal) = true;
   // RequestID is the identifier of the request to be reported to.
-  uint64 request_id = 1 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
+  uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
   // RawReports is the list of report information provided by data sources
   // identified by external ID
-  repeated RawReport raw_reports = 2 [ (gogoproto.nullable) = false ];
+  repeated RawReport raw_reports = 2 [(gogoproto.nullable) = false];
   // Validator is the address of the validator that owns this report.
   string validator = 3;
 }
@@ -106,10 +97,8 @@ message MsgCreateDataSource {
   bytes executable = 3;
   // Fee is the data source fee per ask_count that data provider will receive
   // from requester.
-  repeated cosmos.base.v1beta1.Coin fee = 4 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  repeated cosmos.base.v1beta1.Coin fee = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // Treasury is the account address who receive data source fee from requester.
   string treasury = 5;
   // Owner is the account address who is allowed to make further changes to the
@@ -126,10 +115,7 @@ message MsgCreateDataSourceResponse {}
 message MsgEditDataSource {
   option (gogoproto.equal) = true;
   // DataSourceID is the unique identifier of the data source to be edited.
-  uint64 data_source_id = 1 [
-    (gogoproto.customname) = "DataSourceID",
-    (gogoproto.casttype) = "DataSourceID"
-  ];
+  uint64 data_source_id = 1 [(gogoproto.customname) = "DataSourceID", (gogoproto.casttype) = "DataSourceID"];
   // Name is the name of this data source used for display (optional).
   string name = 2;
   // Description is the description of this data source used for display
@@ -140,10 +126,8 @@ message MsgEditDataSource {
   bytes executable = 4;
   // Fee is the data source fee per ask_count that data provider will receive
   // from requester.
-  repeated cosmos.base.v1beta1.Coin fee = 5 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  repeated cosmos.base.v1beta1.Coin fee = 5
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // Treasury is the address who receive data source fee from requester.
   string treasury = 6;
   // Owner is the address who is allowed to make further changes to the data
@@ -168,7 +152,7 @@ message MsgCreateOracleScript {
   // Schema is the OBI schema of this oracle script (optional).
   string schema = 3;
   // SourceCodeURL is the absolute URI to the script's source code (optional).
-  string source_code_url = 4 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 4 [(gogoproto.customname) = "SourceCodeURL"];
   // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
   bytes code = 5;
   // Owner is the address who is allowed to make further changes to the oracle
@@ -186,10 +170,7 @@ message MsgCreateOracleScriptResponse {}
 message MsgEditOracleScript {
   option (gogoproto.equal) = true;
   // OracleScriptID is the unique identifier of the oracle script to be edited.
-  uint64 oracle_script_id = 1 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
+  uint64 oracle_script_id = 1 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
   // Name is the name of this oracle script used for display (optional).
   string name = 2;
   // Description is the description of this oracle script used for display
@@ -198,7 +179,7 @@ message MsgEditOracleScript {
   // Schema is the OBI schema of this oracle script (optional).
   string schema = 4;
   // SourceCodeURL is the absolute URI to the script's source code (optional).
-  string source_code_url = 5 [ (gogoproto.customname) = "SourceCodeURL" ];
+  string source_code_url = 5 [(gogoproto.customname) = "SourceCodeURL"];
   // Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
   bytes code = 6;
   // Owner is an account address who is allowed to make further changes to the

@@ -7,9 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -27,20 +24,7 @@ type KeeperTestSuite struct {
 }
 
 func (s *KeeperTestSuite) SetupTest() {
-	app := testapp.NewTestApp("BANDCHAIN", log.NewNopLogger())
-
-	// Commit genesis for test get LastCommitHash in msg create group
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		Height:  app.LastBlockHeight() + 1,
-		AppHash: []byte("app-hash sample"),
-	}, Hash: []byte("app-hash sample")})
-
-	ctx := app.NewContext(
-		false,
-		tmproto.Header{Height: app.LastBlockHeight(), LastCommitHash: []byte("app-hash sample")},
-	)
-
+	app, ctx, _ := testapp.CreateTestInput(false)
 	s.app = app
 	s.ctx = ctx
 	s.querier = keeper.Querier{
@@ -90,14 +74,14 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	group := types.Group{
-		Size_:      5,
-		Threshold:  3,
-		PubKey:     nil,
-		Status:     types.GROUP_STATUS_ROUND_1,
-		ExpiryTime: &expiryTime,
+		Size_:       5,
+		Threshold:   3,
+		PubKey:      nil,
+		Status:      types.GROUP_STATUS_ROUND_1,
+		ExpiredTime: &expiredTime,
 	}
 
 	// Create new group
@@ -175,7 +159,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	member := types.Member{
 		MemberID:    1,
 		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		PubKey:      tss.PublicKey(nil),
+		PubKey:      nil,
 		IsMalicious: false,
 	}
 	k.SetMember(ctx, groupID, member)
@@ -192,13 +176,13 @@ func (s *KeeperTestSuite) TestGetMembers() {
 		{
 			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
 			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 	}

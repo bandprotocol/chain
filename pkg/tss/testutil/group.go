@@ -5,32 +5,32 @@ import "github.com/bandprotocol/chain/v2/pkg/tss"
 type Member struct {
 	ID tss.MemberID
 
-	OneTimePrivKey     tss.PrivateKey
+	OneTimePrivKey     tss.Scalar
 	OneTimeSig         tss.Signature
-	A0PrivKey          tss.PrivateKey
+	A0PrivKey          tss.Scalar
 	A0Sig              tss.Signature
 	Coefficients       tss.Scalars
 	CoefficientsCommit tss.Points
 
-	KeySyms         tss.PublicKeys
+	KeySyms         tss.Points
 	SecretShares    tss.Scalars
 	EncSecretShares tss.Scalars
 
-	PrivKey       tss.PrivateKey
+	PrivKey       tss.Scalar
 	PubKeySig     tss.Signature
 	ComplaintSigs tss.ComplaintSignatures
 }
 
-func (m Member) OneTimePubKey() tss.PublicKey {
-	return PublicKey(m.OneTimePrivKey)
+func (m Member) OneTimePubKey() tss.Point {
+	return Point(m.OneTimePrivKey)
 }
 
-func (m Member) A0PubKey() tss.PublicKey {
-	return PublicKey(m.A0PrivKey)
+func (m Member) A0PubKey() tss.Point {
+	return Point(m.A0PrivKey)
 }
 
-func (m Member) PubKey() tss.PublicKey {
-	return PublicKey(m.PrivKey)
+func (m Member) PubKey() tss.Point {
+	return Point(m.PrivKey)
 }
 
 func CopyMember(src Member) Member {
@@ -64,8 +64,7 @@ type Group struct {
 	ID         tss.GroupID
 	DKGContext []byte
 	Threshold  uint64
-	PubKey     tss.PublicKey
-	PubNonce   tss.PublicKey
+	PubKey     tss.Point
 	Members    []Member
 }
 
@@ -113,7 +112,6 @@ func CopyGroup(src Group) Group {
 		DKGContext: Copy(src.DKGContext),
 		Threshold:  src.Threshold,
 		PubKey:     Copy(src.PubKey),
-		PubNonce:   Copy(src.PubNonce),
 		Members:    CopyMembers(src.Members),
 	}
 }

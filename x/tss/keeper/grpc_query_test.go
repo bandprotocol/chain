@@ -14,7 +14,7 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -144,47 +144,47 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			},
 			true,
 			func(res *types.QueryGroupResponse) {
-				dkgContextB, _ := hex.DecodeString("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c")
+				dkgContextB, _ := hex.DecodeString("6c31fc15422ebad28aaf9089c306702f67540b53c7eea8b7d2941044b027100f")
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						GroupID:    1,
-						Size_:      5,
-						Threshold:  3,
-						PubKey:     nil,
-						Status:     types.GROUP_STATUS_ROUND_1,
-						ExpiryTime: &expiryTime,
+						GroupID:     1,
+						Size_:       5,
+						Threshold:   3,
+						PubKey:      nil,
+						Status:      types.GROUP_STATUS_ROUND_1,
+						ExpiredTime: &expiredTime,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
 							MemberID:    1,
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							PubKey:      tss.PublicKey(nil),
+							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
 							MemberID:    2,
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							PubKey:      tss.PublicKey(nil),
+							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
 							MemberID:    3,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey:      tss.PublicKey(nil),
+							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
 							MemberID:    4,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							PubKey:      tss.PublicKey(nil),
+							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
 							MemberID:    5,
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							PubKey:      tss.PublicKey(nil),
+							PubKey:      nil,
 							IsMalicious: false,
 						},
 					},
@@ -231,13 +231,13 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		{
 			MemberID:    1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
 			MemberID:    2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			PubKey:      tss.PublicKey(nil),
+			PubKey:      nil,
 			IsMalicious: false,
 		},
 	}
@@ -491,7 +491,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
-	expiryTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
+	expiredTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 	signing := types.Signing{
 		SigningID: signingID,
 		GroupID:   groupID,
@@ -508,7 +508,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
 		Signature:     []byte("signature"),
-		ExpiryTime:    &expiryTime,
+		ExpiredTime:   &expiredTime,
 	}
 	sig := []byte("signatures")
 

@@ -41,7 +41,7 @@ func NewTxCmd() *cobra.Command {
 		NewComplainCmd(),
 		NewConfirmCmd(),
 		NewSubmitDEsCmd(),
-		NewRequestSignCmd(),
+		NewRequestCmd(),
 		NewSignCmd(),
 	)
 
@@ -463,14 +463,14 @@ func NewSubmitDEsCmd() *cobra.Command {
 	return cmd
 }
 
-// NewRequestSignCmd creates a CLI command for CLI command for Msg/RequestSign.
-func NewRequestSignCmd() *cobra.Command {
+// NewRequestCmd creates a CLI command for CLI command for Msg/RequestSignature.
+func NewRequestCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request-sign [group_id] [message]",
+		Use:   "request [group_id] [message]",
 		Args:  cobra.ExactArgs(2),
 		Short: "request sign of the message from the group",
 		Example: fmt.Sprintf(
-			`%s tx tss request-sign [group_id] [message]`,
+			`%s tx tss request [group_id] [message]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -489,7 +489,7 @@ func NewRequestSignCmd() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgRequestSign{
+			msg := &types.MsgRequestSignature{
 				GroupID: tss.GroupID(groupID),
 				Message: data,
 				Sender:  clientCtx.GetFromAddress().String(),
