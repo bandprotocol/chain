@@ -54,8 +54,8 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID
 	signingID := k.GetNextSigningID(ctx)
 	signing.SigningID = signingID
 	signing.RequestTime = ctx.BlockHeader().Time
-	expireTime := signing.RequestTime.Add(k.SigningPeriod(ctx))
-	signing.ExpiryTime = &expireTime
+	expiredTime := signing.RequestTime.Add(k.SigningPeriod(ctx))
+	signing.ExpiredTime = &expiredTime
 	k.SetSigning(ctx, signing)
 
 	return signingID

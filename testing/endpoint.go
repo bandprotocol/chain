@@ -99,7 +99,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			height,
 			commitmenttypes.GetSDKSpecs(),
 			UpgradePath,
-			tmConfig.AllowUpdateAfterExpiry,
+			tmConfig.AllowUpdateAfterExpired,
 			tmConfig.AllowUpdateAfterMisbehaviour,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()

@@ -420,7 +420,7 @@ func (m *QueryDERequest) GetPagination() *query.PageRequest {
 type QueryDEResponse struct {
 	// des is a list of DEs.
 	DEs []DE `protobuf:"bytes,1,rep,name=des,proto3" json:"des"`
-	// pagination defines pagination settings for the response.
+	// pagination defines an pagination for the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

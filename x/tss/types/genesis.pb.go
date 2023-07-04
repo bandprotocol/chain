@@ -191,8 +191,7 @@ func (m *Params) GetSigningPeriod() time.Duration {
 	return 0
 }
 
-// DEQueueGenesis defines an account address and de queue used in the tss module's
-// genesis state.
+// DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
 type DEQueueGenesis struct {
 	// address is the address of the de holder.
 	Address []byte `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -247,8 +246,7 @@ func (m *DEQueueGenesis) GetDEQueue() *DEQueue {
 	return nil
 }
 
-// DEGenesis defines an account address and de pair used in the tss module's
-// genesis state.
+// DEGenesis defines an account address and de pair used in the tss module's genesis state.
 type DEGenesis struct {
 	// address is the address of the de holder.
 	Address []byte `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
