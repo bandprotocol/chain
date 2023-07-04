@@ -9,12 +9,14 @@ const (
 	ContextString = "BAND-TSS-secp256k1-v0"
 )
 
+// H(m)
 // Hash calculates the Keccak-256 hash of the given data.
 // It returns the hash value as a byte slice.
 func Hash(data ...[]byte) []byte {
 	return crypto.Keccak256(data...)
 }
 
+// H1(m)
 // HashRound1A0 computes a hash of the provided data for Round1A0 and returns it as a scalar.
 func HashRound1A0(pubNonce Point, mid MemberID, dkgContext []byte, a0Pub Point) (Scalar, error) {
 	scalar, err := NewScalar(
@@ -34,6 +36,7 @@ func HashRound1A0(pubNonce Point, mid MemberID, dkgContext []byte, a0Pub Point) 
 	return scalar, nil
 }
 
+// H2(m)
 // HashRound1OneTime computes a hash of the provided data for Round1OneTime and returns it as a scalar.
 func HashRound1OneTime(pubNonce Point, mid MemberID, dkgContext []byte, oneTimePub Point) (Scalar, error) {
 	scalar, err := NewScalar(
@@ -53,6 +56,7 @@ func HashRound1OneTime(pubNonce Point, mid MemberID, dkgContext []byte, oneTimeP
 	return scalar, nil
 }
 
+// H3(m)
 // HashRound3Complain computes a hash of the provided data for Round3Complain and returns it as a scalar.
 func HashRound3Complain(
 	pubNonce Point,
@@ -79,6 +83,7 @@ func HashRound3Complain(
 	return scalar, nil
 }
 
+// H4(m)
 // HashRound3OwnPubKey computes a hash of the provided data for Round3OwnPubKey and returns it as a scalar.
 func HashRound3OwnPubKey(pubNonce Point, mid MemberID, dkgContext []byte, ownPub Point) (Scalar, error) {
 	scalar, err := NewScalar(
@@ -98,16 +103,19 @@ func HashRound3OwnPubKey(pubNonce Point, mid MemberID, dkgContext []byte, ownPub
 	return scalar, nil
 }
 
+// H5(m)
 // HashSignMsg computes a hash of the message for signing purposes and returns the hash as a byte slice.
-func HashSignMsg(data ...[]byte) []byte {
-	return Hash([]byte(ContextString), []byte("signMsg"), ConcatBytes(data...))
+func HashSignMsg(data []byte) []byte {
+	return Hash([]byte(ContextString), []byte("signMsg"), data)
 }
 
+// H6(m)
 // HashSignCommitment computes a hash of commitment and returns the hash as a byte slice.
-func HashSignCommitment(data ...[]byte) []byte {
-	return Hash([]byte(ContextString), []byte("signCommitment"), ConcatBytes(data...))
+func HashSignCommitment(data []byte) []byte {
+	return Hash([]byte(ContextString), []byte("signCommitment"), data)
 }
 
+// H7(m)
 // HashBindingFactor computes a hash to generate binding factor and returns it as a scalar.
 func HashBindingFactor(mid MemberID, data []byte, commitment []byte) (Scalar, error) {
 	scalar, err := NewScalar(
@@ -126,16 +134,18 @@ func HashBindingFactor(mid MemberID, data []byte, commitment []byte) (Scalar, er
 	return scalar, nil
 }
 
-// HashSigning computes a hash to generate challenge of signing a signature and returns it as a scalar.
-func HashSigning(groupPubNonce Point, rawGroupPubKey Point, data []byte) (Scalar, error) {
-	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("signing"), groupPubNonce, rawGroupPubKey, data))
+// H8(m)
+// HashChallenge computes a hash to generate challenge of signing a signature and returns it as a scalar.
+func HashChallenge(groupPubNonce Point, rawGroupPubKey Point, data []byte) (Scalar, error) {
+	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("challenge"), groupPubNonce, rawGroupPubKey, data))
 	if err != nil {
-		return nil, NewError(ErrNotInOrder, "hash signing")
+		return nil, NewError(ErrNotInOrder, "hash challenge")
 	}
 
 	return scalar, nil
 }
 
+// H9(m)
 // HashNonce computes a hash of the provided data for the nonce and returns it as a scalar.
 func HashNonce(random []byte, secretKey Scalar) (Scalar, error) {
 	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("nonce"), random, secretKey))

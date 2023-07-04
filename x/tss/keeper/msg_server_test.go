@@ -820,6 +820,51 @@ func (s *KeeperTestSuite) TestSign() {
 		}
 	}
 
+	// Add failed cases
+	tc1 := testutil.TestCases[0]
+	failedCases := []TestCase{
+		{
+			"failure with invalid signingID",
+			func() {
+				req = types.MsgSign{
+					SigningID: tss.SigningID(99), // non-existent signingID
+					MemberID:  tc1.Group.Members[0].ID,
+					Signature: tc1.Signings[0].Sig,
+					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+				}
+			},
+			false,
+			func() {},
+		},
+		{
+			"failure with invalid memberID",
+			func() {
+				k.SetSigning(ctx, types.Signing{
+					SigningID:       tc1.Signings[0].ID,
+					GroupID:         tc1.Group.ID,
+					AssignedMembers: []types.AssignedMember{},
+					Message:         tc1.Signings[0].Data,
+					GroupPubNonce:   tc1.Signings[0].PubNonce,
+					Commitment:      tc1.Signings[0].Commitment,
+					Signature:       nil,
+					ExpiryTime:      &expiryTime,
+				})
+
+				req = types.MsgSign{
+					SigningID: tc1.Signings[0].ID,
+					MemberID:  tss.MemberID(99), // non-existent memberID
+					Signature: tc1.Signings[0].Sig,
+					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+				}
+			},
+			false,
+			func() {
+				k.DeleteSigning(ctx, tc1.Signings[0].ID)
+			},
+		},
+	}
+	tcs = append(tcs, failedCases...)
+
 	for _, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()

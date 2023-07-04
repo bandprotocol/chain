@@ -331,18 +331,6 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	s.Require().ElementsMatch(expected, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRollingSeed() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	rollingSeed := []byte("sample-rolling-seed")
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, rollingSeed)
-
-	// Get and check RollingSeed
-	gotSeed := k.GetRollingSeed(ctx)
-	s.Require().Equal(rollingSeed, gotSeed)
-}
-
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := uint64(1)
@@ -361,9 +349,6 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 		},
 	}
 	t := uint64(1)
-
-	// Set RollingSeed
-	k.SetRollingSeed(ctx, []byte("sample-rolling-seed"))
 
 	// Generate random participants
 	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, members, t)

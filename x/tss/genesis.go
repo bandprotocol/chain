@@ -12,7 +12,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetParams(ctx, data.Params)
 	k.SetGroupCount(ctx, data.GroupCount)
 	k.SetSigningCount(ctx, data.SigningCount)
-	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
 	for _, group := range data.Groups {
 		k.SetGroup(ctx, group)
 	}
