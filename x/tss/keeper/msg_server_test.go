@@ -722,7 +722,7 @@ func (s *KeeperTestSuite) TestRequestSign() {
 
 func (s *KeeperTestSuite) TestSign() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiryTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
+	expiredTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -800,7 +800,7 @@ func (s *KeeperTestSuite) TestSign() {
 						GroupPubNonce:   signing.PubNonce,
 						Commitment:      signing.Commitment,
 						Signature:       nil,
-						ExpiryTime:      &expiryTime,
+						ExpiredTime:     &expiredTime,
 					})
 
 					req = types.MsgSign{
@@ -847,7 +847,7 @@ func (s *KeeperTestSuite) TestSign() {
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
 					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
-					ExpiryTime:      &expiryTime,
+					ExpiredTime:     &expiredTime,
 				})
 
 				req = types.MsgSign{

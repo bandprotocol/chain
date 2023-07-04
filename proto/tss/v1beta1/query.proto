@@ -82,31 +82,45 @@ message QueryIsGranteeResponse {
   bool is_grantee = 1;
 }
 
+// QueryDERequest is the request type for the Query/DE RPC method.
 message QueryDERequest {
+  // address is the address for the request.
   string address = 1;
-  // pagination defines an pagination for the request.
+  // pagination defines pagination settings for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
-
+  
+// QueryDEResponse is the response type for the Query/DE RPC method.
 message QueryDEResponse {
+  // des is a list of DEs.
   repeated DE des = 1 [(gogoproto.customname) = "DEs", (gogoproto.nullable) = false];
   // pagination defines an pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
+// QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.
 message QueryPendingSigningsRequest {
+  // address is the address for the request.
   string address = 1;
-}
-
-message QueryPendingSigningsResponse {
-  repeated Signing pending_signings = 1 [(gogoproto.nullable) = false];
-}
-
-message QuerySigningsRequest {
+  }
+  
+  // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
+  message QueryPendingSigningsResponse {
+  // pending_signings is a list of signing requests that are pending.
+  repeated Signing pending_signings = 1 [ (gogoproto.nullable) = false ];
+  }
+  
+  // QuerySigningsRequest is the request type for the Query/Signings RPC method.
+  message QuerySigningsRequest {
+  // id is the ID of the signing request.
   uint64 id = 1;
+  }
+  
+  // QuerySigningsResponse is the response type for the Query/Signings RPC method.
+  message QuerySigningsResponse {
+  // signing is the signing request.
+  Signing signing = 1;
+  // received_partial_signatures is a list of received partial signatures.
+  repeated PartialSignature received_partial_signatures = 2 [ (gogoproto.nullable) = false ];
 }
-
-message QuerySigningsResponse {
-  Signing                   signing                     = 1;
-  repeated PartialSignature received_partial_signatures = 2 [(gogoproto.nullable) = false];
-}
+  

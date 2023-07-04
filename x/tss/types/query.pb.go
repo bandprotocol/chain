@@ -361,9 +361,11 @@ func (m *QueryIsGranteeResponse) GetIsGrantee() bool {
 	return false
 }
 
+// QueryDERequest is the request type for the Query/DE RPC method.
 type QueryDERequest struct {
+	// address is the address for the request.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// pagination defines an pagination for the request.
+	// pagination defines pagination settings for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -414,7 +416,9 @@ func (m *QueryDERequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryDEResponse is the response type for the Query/DE RPC method.
 type QueryDEResponse struct {
+	// des is a list of DEs.
 	DEs []DE `protobuf:"bytes,1,rep,name=des,proto3" json:"des"`
 	// pagination defines an pagination for the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -467,7 +471,9 @@ func (m *QueryDEResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+// QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.
 type QueryPendingSigningsRequest struct {
+	// address is the address for the request.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -511,7 +517,9 @@ func (m *QueryPendingSigningsRequest) GetAddress() string {
 	return ""
 }
 
+// QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
 type QueryPendingSigningsResponse struct {
+	// pending_signings is a list of signing requests that are pending.
 	PendingSignings []Signing `protobuf:"bytes,1,rep,name=pending_signings,json=pendingSignings,proto3" json:"pending_signings"`
 }
 
@@ -555,7 +563,9 @@ func (m *QueryPendingSigningsResponse) GetPendingSignings() []Signing {
 	return nil
 }
 
+// QuerySigningsRequest is the request type for the Query/Signings RPC method.
 type QuerySigningsRequest struct {
+	// id is the ID of the signing request.
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -599,8 +609,11 @@ func (m *QuerySigningsRequest) GetId() uint64 {
 	return 0
 }
 
+// QuerySigningsResponse is the response type for the Query/Signings RPC method.
 type QuerySigningsResponse struct {
-	Signing                   *Signing           `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing,omitempty"`
+	// signing is the signing request.
+	Signing *Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing,omitempty"`
+	// received_partial_signatures is a list of received partial signatures.
 	ReceivedPartialSignatures []PartialSignature `protobuf:"bytes,2,rep,name=received_partial_signatures,json=receivedPartialSignatures,proto3" json:"received_partial_signatures"`
 }
 
