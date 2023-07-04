@@ -30,10 +30,8 @@ service Query {
   }
 
   // OracleScript queries oracle script summary info for given oracle script id.
-  rpc OracleScript(QueryOracleScriptRequest)
-      returns (QueryOracleScriptResponse) {
-    option (google.api.http).get =
-        "/oracle/v1/oracle_scripts/{oracle_script_id}";
+  rpc OracleScript(QueryOracleScriptRequest) returns (QueryOracleScriptResponse) {
+    option (google.api.http).get = "/oracle/v1/oracle_scripts/{oracle_script_id}";
   }
 
   // Request queries request info for given request id.
@@ -43,10 +41,8 @@ service Query {
 
   // PendingRequests queries list of pending request IDs assigned to given
   // validator.
-  rpc PendingRequests(QueryPendingRequestsRequest)
-      returns (QueryPendingRequestsResponse) {
-    option (google.api.http).get =
-        "/oracle/v1/pending_requests/{validator_address}";
+  rpc PendingRequests(QueryPendingRequestsRequest) returns (QueryPendingRequestsResponse) {
+    option (google.api.http).get = "/oracle/v1/pending_requests/{validator_address}";
   }
 
   // Validator queries properties of given validator address.
@@ -56,8 +52,7 @@ service Query {
 
   // IsReporter queries grant of account on this validator.
   rpc IsReporter(QueryIsReporterRequest) returns (QueryIsReporterResponse) {
-    option (google.api.http).get =
-        "/oracle/v1/reporter/{validator_address}/{reporter_address}";
+    option (google.api.http).get = "/oracle/v1/reporter/{validator_address}/{reporter_address}";
   }
 
   // Reporters queries all reporters associated with given validator address.
@@ -66,8 +61,7 @@ service Query {
   }
 
   // ActiveValidators queries all active oracle validators.
-  rpc ActiveValidators(QueryActiveValidatorsRequest)
-      returns (QueryActiveValidatorsResponse) {
+  rpc ActiveValidators(QueryActiveValidatorsRequest) returns (QueryActiveValidatorsResponse) {
     option (google.api.http).get = "/oracle/v1/active_validators";
   }
 
@@ -77,22 +71,19 @@ service Query {
   }
 
   // RequestSearch queries the latest request that match search criteria.
-  rpc RequestSearch(QueryRequestSearchRequest)
-      returns (QueryRequestSearchResponse) {
+  rpc RequestSearch(QueryRequestSearchRequest) returns (QueryRequestSearchResponse) {
     option (google.api.http).get = "/oracle/v1/request_search";
   }
 
   // RequestPrice queries the latest price on standard price reference oracle
   // script.
-  rpc RequestPrice(QueryRequestPriceRequest)
-      returns (QueryRequestPriceResponse) {
+  rpc RequestPrice(QueryRequestPriceRequest) returns (QueryRequestPriceResponse) {
     option (google.api.http).get = "/oracle/v1/request_prices";
   }
 
   // RequestVerification verifies a request to make sure that
   // all information that will be used to report the data is valid
-  rpc RequestVerification(QueryRequestVerificationRequest)
-      returns (QueryRequestVerificationResponse) {
+  rpc RequestVerification(QueryRequestVerificationRequest) returns (QueryRequestVerificationResponse) {
     option (google.api.http).get = "/oracle/v1/verify_request";
   }
 }
@@ -161,7 +152,7 @@ message QueryRequestResponse {
   Request request = 1;
   // Reports is list of result data as raw reports that are fulfilled by
   // assigned validators
-  repeated Report reports = 2 [ (gogoproto.nullable) = false ];
+  repeated Report reports = 2 [(gogoproto.nullable) = false];
   // Result is a final form of result data
   Result result = 3;
 }
@@ -177,7 +168,7 @@ message QueryPendingRequestsRequest {
 // RPC method.
 message QueryPendingRequestsResponse {
   // RequestIDs is a list of pending request IDs assigned to the given validator
-  repeated uint64 request_ids = 1 [ (gogoproto.customname) = "RequestIDs" ];
+  repeated uint64 request_ids = 1 [(gogoproto.customname) = "RequestIDs"];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -186,7 +177,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // pagination defines an optional pagination for the request.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorRequest is request type for the Query/Validator RPC method.
