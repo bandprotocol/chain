@@ -24,7 +24,7 @@ message QueryChainIDRequest {}
 
 // QueryChainIDResponse is response type for the Service/ChainID RPC method.
 message QueryChainIDResponse {
-  string chain_id = 1 [ (gogoproto.customname) = "ChainID" ];
+  string chain_id = 1 [(gogoproto.customname) = "ChainID"];
 }
 
 // QueryEVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
@@ -35,12 +35,11 @@ message QueryEVMValidatorsResponse {
   // BlockHeight is the latest block height
   int64 block_height = 1;
   // Validators is list of validator's addresss and voting power
-  repeated ValidatorMinimal validators = 2 [ (gogoproto.nullable) = false ];
-
+  repeated ValidatorMinimal validators = 2 [(gogoproto.nullable) = false];
 }
 
 // ValidatorMinimal is the data structure for storing validator's address and voting power
 message ValidatorMinimal {
-  string address = 1;
-  int64 voting_power = 2;
+  string address      = 1;
+  int64  voting_power = 2;
 }

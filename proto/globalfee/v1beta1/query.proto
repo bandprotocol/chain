@@ -9,10 +9,8 @@ option go_package = "github.com/bandprotocol/chain/v2/x/globalfee/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  rpc MinimumGasPrices(QueryMinimumGasPricesRequest)
-      returns (QueryMinimumGasPricesResponse) {
-    option (google.api.http).get =
-        "/globalfee/v1beta1/minimum_gas_prices";
+  rpc MinimumGasPrices(QueryMinimumGasPricesRequest) returns (QueryMinimumGasPricesResponse) {
+    option (google.api.http).get = "/globalfee/v1beta1/minimum_gas_prices";
   }
 }
 
@@ -24,9 +22,9 @@ message QueryMinimumGasPricesRequest {}
 // Query/MinimumGasPrices RPC method.
 message QueryMinimumGasPricesResponse {
   repeated cosmos.base.v1beta1.DecCoin minimum_gas_prices = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.jsontag) = "minimum_gas_prices,omitempty",
-    (gogoproto.moretags) = "yaml:\"minimum_gas_prices\"",
+    (gogoproto.nullable)     = false,
+    (gogoproto.jsontag)      = "minimum_gas_prices,omitempty",
+    (gogoproto.moretags)     = "yaml:\"minimum_gas_prices\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"
   ];
 }

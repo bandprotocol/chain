@@ -21,7 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -60,7 +60,7 @@ func NewDefaultGenesisState() GenesisState {
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 	distrGenesis := distrtypes.DefaultGenesisState()
 	mintGenesis := minttypes.DefaultGenesisState()
-	govGenesis := govv1beta1.DefaultGenesisState()
+	govGenesis := govv1.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
 	icaGenesis := icatypes.DefaultGenesis()
