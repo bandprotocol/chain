@@ -120,7 +120,7 @@ type Group struct {
 	// create_time is the time when the group was created.
 	CreateTime time.Time `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3,stdtime" json:"create_time"`
 	// expiry_time is the time when the group will be dissolved if it has not finished its process.
-	ExpiryTime *time.Time `protobuf:"bytes,7,opt,name=expiry_time,json=expiryTime,proto3,stdtime" json:"expiry_time,omitempty"`
+	ExpiryTime *time.Time `protobuf:"bytes,7,opt,name=expiry_time,json=expireTime,proto3,stdtime" json:"expiry_time,omitempty"`
 }
 
 func (m *Group) Reset()         { *m = Group{} }
@@ -471,7 +471,7 @@ type Signing struct {
 	// request_time is the time when the signing request was made.
 	RequestTime time.Time `protobuf:"bytes,8,opt,name=request_time,json=requestTime,proto3,stdtime" json:"request_time"`
 	// expiry_time is the time when the signing request will expire if not completed.
-	ExpiryTime *time.Time `protobuf:"bytes,9,opt,name=expiry_time,json=expiryTime,proto3,stdtime" json:"expiry_time,omitempty"`
+	ExpiryTime *time.Time `protobuf:"bytes,9,opt,name=expiry_time,json=expireTime,proto3,stdtime" json:"expiry_time,omitempty"`
 }
 
 func (m *Signing) Reset()         { *m = Signing{} }

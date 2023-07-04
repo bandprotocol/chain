@@ -90,14 +90,14 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expireTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	group := types.Group{
 		Size_:      5,
 		Threshold:  3,
 		PubKey:     nil,
 		Status:     types.GROUP_STATUS_ROUND_1,
-		ExpiryTime: &expiryTime,
+		ExpiryTime: &expireTime,
 	}
 
 	// Create new group

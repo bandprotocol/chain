@@ -174,8 +174,8 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
-		expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.ExpiryTime = &expiryTime
+		expireTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		group.ExpiryTime = &expireTime
 		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -279,8 +279,8 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
-		expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.ExpiryTime = &expiryTime
+		expireTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		group.ExpiryTime = &expireTime
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(

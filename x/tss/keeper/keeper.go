@@ -80,8 +80,8 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
 	group.GroupID = groupID
 	group.CreateTime = ctx.BlockHeader().Time
-	expiryTime := group.CreateTime.Add(k.RoundPeriod(ctx))
-	group.ExpiryTime = &expiryTime
+	expireTime := group.CreateTime.Add(k.RoundPeriod(ctx))
+	group.ExpiryTime = &expireTime
 	k.SetGroup(ctx, group)
 
 	return groupID

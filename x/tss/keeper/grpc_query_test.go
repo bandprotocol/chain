@@ -14,7 +14,7 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiryTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expireTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -153,7 +153,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						Threshold:  3,
 						PubKey:     nil,
 						Status:     types.GROUP_STATUS_ROUND_1,
-						ExpiryTime: &expiryTime,
+						ExpiryTime: &expireTime,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
@@ -491,7 +491,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
-	expiryTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
+	expireTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 	signing := types.Signing{
 		SigningID: signingID,
 		GroupID:   groupID,
@@ -508,7 +508,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
 		Signature:     []byte("signature"),
-		ExpiryTime:    &expiryTime,
+		ExpiryTime:    &expireTime,
 	}
 	sig := []byte("signatures")
 
