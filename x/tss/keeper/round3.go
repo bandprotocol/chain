@@ -284,5 +284,4 @@ func (k Keeper) DeleteAllDKGInterimData(
 	k.DeleteAccumulatedCommits(ctx, groupID)
 	// Delete confirm complaint count
 	k.DeleteConfirmComplainCount(ctx, groupID)
-
 }
