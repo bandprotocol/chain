@@ -29,9 +29,10 @@ from .db import (
     related_data_source_oracle_scripts,
     historical_oracle_statuses,
     data_source_requests,
+    data_source_requests_per_days,
     oracle_script_requests,
+    oracle_script_requests_per_days,
     request_count_per_days,
-    request_count_per_oracle_script_and_days,
     incoming_packets,
     outgoing_packets,
     counterparty_chains,
@@ -64,9 +65,14 @@ class Handler(object):
             select([request_count_per_days.c.count]).where(request_count_per_days.c.date == date)
         ).scalar()
 
-    def get_request_per_oracle_script_count(self, date, oracle_script_id):
+    def get_oracle_script_requests_count_per_day(self, date, oracle_script_id):
         return self.conn.execute(
-            select([request_count_per_oracle_script_and_days.c.count]).where((request_count_per_oracle_script_and_days.c.date == date) & (request_count_per_oracle_script_and_days.c.oracle_script_id == oracle_script_id))
+            select([oracle_script_requests_per_days.c.count]).where((oracle_script_requests_per_days.c.date == date) & (oracle_script_requests_per_days.c.oracle_script_id == oracle_script_id))
+        ).scalar()
+
+    def get_data_source_requests_count_per_day(self, date, data_source_id):
+        return self.conn.execute(
+            select([data_source_requests_per_days.c.count]).where((data_source_requests_per_days.c.date == date) & (data_source_requests_per_days.c.data_source_id == data_source_id))
         ).scalar()
 
     def get_data_source_id(self, id):
@@ -150,7 +156,8 @@ class Handler(object):
         del msg["tx_hash"]
         if "timestamp" in msg:
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
-            self.handle_set_request_count_per_oracle_script_and_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"], "last_update": msg["timestamp"]})
+            self.handle_update_oracle_script_requests_count_per_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]})
+            self.update_oracle_script_last_request(msg["oracle_script_id"], msg["timestamp"])
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
         self.increase_oracle_script_count(msg["oracle_script_id"])
@@ -173,6 +180,10 @@ class Handler(object):
 
     def handle_new_raw_request(self, msg):
         self.increase_data_source_count(msg["data_source_id"])
+        if "timestamp" in msg:
+            self.handle_update_data_source_requests_count_per_day({"date": msg["timestamp"], "data_source_id": msg["data_source_id"]})
+            self.update_data_source_last_request(msg["data_source_id"], msg["timestamp"])
+            del msg["timestamp"]
         self.handle_update_related_ds_os(
             {
                 "oracle_script_id": self.conn.execute(
@@ -398,16 +409,28 @@ class Handler(object):
                 request_count_per_days.update(condition).values(count=request_count_per_days.c.count + 1)
             )
 
-    def handle_set_request_count_per_oracle_script_and_day(self, msg):
-        if self.get_request_per_oracle_script_count(msg["date"], msg["oracle_script_id"]) is None:
+    def handle_update_oracle_script_requests_count_per_day(self, msg):
+        if self.get_oracle_script_requests_count_per_day(msg["date"], msg["oracle_script_id"]) is None:
             msg["count"] = 1
-            self.conn.execute(request_count_per_oracle_script_and_days.insert(), msg)
+            self.conn.execute(oracle_script_requests_per_days.insert(), msg)
         else:
             condition = True
-            for col in request_count_per_oracle_script_and_days.primary_key.columns.values():
+            for col in oracle_script_requests_per_days.primary_key.columns.values():
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(
-                request_count_per_oracle_script_and_days.update(condition).values(count=request_count_per_oracle_script_and_days.c.count + 1)
+                oracle_script_requests_per_days.update(condition).values(count=oracle_script_requests_per_days.c.count + 1)
+            )
+
+    def handle_update_data_source_requests_count_per_day(self, msg):
+        if self.get_data_source_requests_count_per_day(msg["date"], msg["data_source_id"]) is None:
+            msg["count"] = 1
+            self.conn.execute(data_source_requests_per_days.insert(), msg)
+        else:
+            condition = True
+            for col in data_source_requests_per_days.primary_key.columns.values():
+                condition = (col == msg[col.name]) & condition
+            self.conn.execute(
+                data_source_requests_per_days.update(condition).values(count=data_source_requests_per_days.c.count + 1)
             )
 
     def handle_new_incoming_packet(self, msg):
@@ -444,6 +467,20 @@ class Handler(object):
         self.conn.execute(
             oracle_script_requests.update(oracle_script_requests.c.oracle_script_id == id).values(
                 count=oracle_script_requests.c.count + 1
+            )
+        )
+
+    def update_oracle_script_last_request(self, id, timestamp):
+        self.conn.execute(
+            oracle_scripts.update(oracle_scripts.c.oracle_script_id == id).values(
+                last_request=timestamp
+            )
+        )
+
+    def update_data_source_last_request(self, id, timestamp):
+        self.conn.execute(
+            data_sources.update(data_sources.c.data_source_id == id).values(
+                last_request=timestamp
             )
         )
 

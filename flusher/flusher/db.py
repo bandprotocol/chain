@@ -59,8 +59,7 @@ class CustomDateTime(sa.types.TypeDecorator):
     impl = sa.DateTime
 
     def process_bind_param(self, value, dialect):
-        return datetime.fromtimestamp(value / 1e9)
-
+        return datetime.fromtimestamp(value / 1e9) if value != None else None
 
 class CustomBase64(sa.types.TypeDecorator):
     """Custom LargeBinary type that accepts base64-encoded string."""
@@ -161,6 +160,7 @@ data_sources = sa.Table(
     Column("fee", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
     Column("accumulated_revenue", sa.BigInteger),
+    Column("last_request", CustomDateTime, nullable=True),
 )
 
 oracle_scripts = sa.Table(
@@ -175,6 +175,7 @@ oracle_scripts = sa.Table(
     Column("source_code_url", sa.String),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
     Column("version", sa.Integer, nullable=True),
+    Column("last_request", CustomDateTime, nullable=True),
 )
 
 requests = sa.Table(
@@ -394,9 +395,25 @@ data_source_requests = sa.Table(
     Column("count", sa.Integer),
 )
 
+data_source_requests_per_days = sa.Table(
+    "data_source_requests_per_days",
+    metadata,
+    Column("date", CustomDate, primary_key=True),
+    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True),
+    Column("count", sa.Integer),
+)
+
 oracle_script_requests = sa.Table(
     "oracle_script_requests",
     metadata,
+    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
+    Column("count", sa.Integer),
+)
+
+oracle_script_requests_per_days = sa.Table(
+    "oracle_script_requests_per_days",
+    metadata,
+    Column("date", CustomDate, primary_key=True),
     Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
     Column("count", sa.Integer),
 )
@@ -406,15 +423,6 @@ request_count_per_days = sa.Table(
     metadata,
     Column("date", CustomDate, primary_key=True),
     Column("count", sa.Integer),
-)
-
-request_count_per_oracle_script_and_days = sa.Table(
-    "request_count_per_oracle_script_and_days",
-    metadata,
-    Column("date", CustomDate, primary_key=True),
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
-    Column("count", sa.Integer),
-    Column("last_update", CustomDateTime),
 )
 
 incoming_packets = sa.Table(
