@@ -10,12 +10,12 @@ import (
 func TestEncodeResult(t *testing.T) {
 	result := NewResult(
 		"beeb",
-		0,
 		1,
 		mustDecodeString("0000000342544300000000000003e8"),
 		1,
 		1,
 		2,
+		0,
 		1,
 		1591622616,
 		1591622618,
@@ -31,12 +31,12 @@ func TestEncodeResult(t *testing.T) {
 func TestEncodeResultOfEmptyClientID(t *testing.T) {
 	result := NewResult(
 		"",
-		0,
 		1,
 		mustDecodeString("0000000342544300000000000003e8"),
 		1,
 		1,
 		1,
+		0,
 		1,
 		1591622426,
 		1591622429,
@@ -52,12 +52,12 @@ func TestEncodeResultOfEmptyClientID(t *testing.T) {
 func TestEncodeFailResult(t *testing.T) {
 	result := NewResult(
 		"client_id",
-		0,
 		1,
 		mustDecodeString("0000000342544300000000000003e8"),
 		1,
 		1,
 		1,
+		0,
 		1,
 		1591622426,
 		1591622429,

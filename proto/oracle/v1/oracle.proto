@@ -97,14 +97,14 @@ message Request {
   // ClientID is arbitrary id provided by requester.
   // It is used by client-side for referencing the request
   string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
+  // RawRequests is a list of raw requests specified by execution of oracle
+  // script
+  repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
   // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 8 [
+  uint64 group_id = 9 [
     (gogoproto.customname) = "GroupID",
     (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // RawRequests is a list of raw requests specified by execution of oracle
-  // script
-  repeated RawRequest raw_requests = 9 [ (gogoproto.nullable) = false ];
   // IBCChannel is an IBC channel info of the other chain, which contains a
   // channel and a port to allow bandchain connect to that chain. This field
   // allows other chain be able to request data from bandchain via IBC.
@@ -149,11 +149,6 @@ message OracleRequestPacketData {
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-  // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 2 [
-    (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
   uint64 oracle_script_id = 3 [
@@ -170,16 +165,21 @@ message OracleRequestPacketData {
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
   uint64 min_count = 6;
+  // GroupID is ID of the group that assign for sign the result data on tss module.
+  uint64 group_id = 7 [
+    (gogoproto.customname) = "GroupID",
+    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // FeeLimit is the maximum tokens that will be paid to all data source
   // providers.
-  repeated cosmos.base.v1beta1.Coin fee_limit = 7 [
+  repeated cosmos.base.v1beta1.Coin fee_limit = 8 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
   // PrepareGas is amount of gas to pay to prepare raw requests
-  uint64 prepare_gas = 8;
+  uint64 prepare_gas = 9;
   // ExecuteGas is amount of gas to reserve for executing
-  uint64 execute_gas = 9;
+  uint64 execute_gas = 10;
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement

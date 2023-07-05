@@ -695,8 +695,8 @@ func TestResolveRequestSuccess(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	expectResult := types.NewResult(
-		BasicClientID, 0, 1, BasicCalldata, 2, 1,
-		42, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 1, BasicCalldata, 2, 1,
+		42, 0, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 
@@ -706,8 +706,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		sdk.Events{
 			sdk.NewEvent(types.EventTypeResolve,
 				sdk.NewAttribute(types.AttributeKeyID, "42"),
-				sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"), // no require sign by tss module
-				sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"),
+				sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
 				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
 				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
@@ -745,11 +744,11 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 0, 4, obi.MustEncode(testapp.Wasm4Input{
+		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
-		42, 2, testapp.ParseTime(1581589790).Unix(),
+		42, 0, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
@@ -758,8 +757,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		sdk.NewEvent(
 			types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"), // no require sign by tss module
-			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"),
+			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(
 				types.AttributeKeyResult,
@@ -787,8 +785,8 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 0, 1, BasicCalldata, 2, 1,
-		42, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 1, BasicCalldata, 2, 1,
+		42, 0, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -822,11 +820,11 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 0, 4, obi.MustEncode(testapp.Wasm4Input{
+		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
-		42, 2, testapp.ParseTime(1581589790).Unix(),
+		42, 0, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
@@ -834,8 +832,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"), // no require sign by tss module
-			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"),
+			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
@@ -860,7 +857,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 0, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 3, BasicCalldata, 2, 1, 42, 0, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -889,7 +886,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 0, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 6, BasicCalldata, 2, 1, 42, 0, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -914,7 +911,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 
 	result := types.NewResult(
-		BasicClientID, 0, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, 0, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
