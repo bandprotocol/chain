@@ -4,7 +4,6 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 
 func GetMsgGrants() []string {
 	return []string{
-		sdk.MsgTypeURL(&MsgCreateGroup{}),
 		sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
 		sdk.MsgTypeURL(&MsgSubmitDKGRound2{}),
 		sdk.MsgTypeURL(&MsgComplain{}),

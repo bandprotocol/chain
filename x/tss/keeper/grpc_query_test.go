@@ -488,7 +488,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQuerySignings() {
+func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
 	expiredTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
@@ -518,22 +518,22 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 	// Add signing
 	k.AddSigning(ctx, signing)
 
-	var req types.QuerySigningsRequest
+	var req types.QuerySigningRequest
 	testCases := []struct {
 		msg      string
 		malleate func()
 		expPass  bool
-		postTest func(res *types.QuerySigningsResponse, err error)
+		postTest func(res *types.QuerySigningResponse, err error)
 	}{
 		{
 			"invalid signing id",
 			func() {
-				req = types.QuerySigningsRequest{
+				req = types.QuerySigningRequest{
 					Id: 999,
 				}
 			},
 			false,
-			func(res *types.QuerySigningsResponse, err error) {
+			func(res *types.QuerySigningResponse, err error) {
 				s.Require().Error(err)
 				s.Require().Nil(res)
 			},
@@ -541,12 +541,12 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		{
 			"success",
 			func() {
-				req = types.QuerySigningsRequest{
+				req = types.QuerySigningRequest{
 					Id: 1,
 				}
 			},
 			true,
-			func(res *types.QuerySigningsResponse, err error) {
+			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().Equal(&signing, res.Signing)
 				s.Require().
@@ -559,7 +559,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySignings() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			res, err := q.Signings(ctx, &req)
+			res, err := q.Signing(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
