@@ -89,7 +89,7 @@ message QueryDERequest {
   // pagination defines pagination settings for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
-  
+
 // QueryDEResponse is the response type for the Query/DE RPC method.
 message QueryDEResponse {
   // des is a list of DEs.
@@ -102,25 +102,24 @@ message QueryDEResponse {
 message QueryPendingSigningsRequest {
   // address is the address for the request.
   string address = 1;
-  }
-  
-  // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
-  message QueryPendingSigningsResponse {
+}
+
+// QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
+message QueryPendingSigningsResponse {
   // pending_signings is a list of signing requests that are pending.
-  repeated Signing pending_signings = 1 [ (gogoproto.nullable) = false ];
-  }
-  
-  // QuerySigningsRequest is the request type for the Query/Signings RPC method.
-  message QuerySigningsRequest {
+  repeated Signing pending_signings = 1 [(gogoproto.nullable) = false];
+}
+
+// QuerySigningsRequest is the request type for the Query/Signings RPC method.
+message QuerySigningsRequest {
   // id is the ID of the signing request.
   uint64 id = 1;
-  }
-  
-  // QuerySigningsResponse is the response type for the Query/Signings RPC method.
-  message QuerySigningsResponse {
+}
+
+// QuerySigningsResponse is the response type for the Query/Signings RPC method.
+message QuerySigningsResponse {
   // signing is the signing request.
   Signing signing = 1;
   // received_partial_signatures is a list of received partial signatures.
-  repeated PartialSignature received_partial_signatures = 2 [ (gogoproto.nullable) = false ];
+  repeated PartialSignature received_partial_signatures = 2 [(gogoproto.nullable) = false];
 }
-  

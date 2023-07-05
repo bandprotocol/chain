@@ -108,7 +108,7 @@ message Request {
   // IBCChannel is an IBC channel info of the other chain, which contains a
   // channel and a port to allow bandchain connect to that chain. This field
   // allows other chain be able to request data from bandchain via IBC.
-  IBCChannel ibc_channel = 10 [ (gogoproto.customname) = "IBCChannel" ];
+  IBCChannel ibc_channel = 10 [(gogoproto.customname) = "IBCChannel"];
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 11;
 }
@@ -148,13 +148,17 @@ message OracleRequestPacketData {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
+<<<<<<< HEAD
   string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
+=======
+  string client_id = 1 [(gogoproto.customname) = "ClientID"];
+  // GroupID is ID of the group that assign for sign the result data on tss module.
+  uint64 group_id = 2
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+>>>>>>> df0e917e63311ffb210665253f8b28fe5a6a9dd1
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
-  uint64 oracle_script_id = 3 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
+  uint64 oracle_script_id = 3 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
   // Calldata is the OBI-encoded calldata bytes available for oracle executor to
   // read.
   bytes calldata = 4;
@@ -172,10 +176,15 @@ message OracleRequestPacketData {
   ];
   // FeeLimit is the maximum tokens that will be paid to all data source
   // providers.
+<<<<<<< HEAD
   repeated cosmos.base.v1beta1.Coin fee_limit = 8 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
+=======
+  repeated cosmos.base.v1beta1.Coin fee_limit = 7
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+>>>>>>> df0e917e63311ffb210665253f8b28fe5a6a9dd1
   // PrepareGas is amount of gas to pay to prepare raw requests
   uint64 prepare_gas = 9;
   // ExecuteGas is amount of gas to reserve for executing
@@ -198,14 +207,11 @@ message OracleResponsePacketData {
   // packet.
   string client_id = 1 [(gogoproto.customname) = "ClientID"];
   // RequestID is BandChain's unique identifier for this oracle request.
-  uint64 request_id = 2 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
+  uint64 request_id = 2 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
   // SigningID is the unique identifier of the signing process in tss moudle.
   uint64 signing_id = 3 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // AnsCount is the number of validators among to the asked validators that
   // actually responded to this oracle request prior to this oracle request
@@ -249,7 +255,7 @@ message Result {
   // SigningID is the unique identifier of the signing process in tss moudle.
   uint64 signing_id = 7 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
   // AnsCount is the number of validators among to the asked validators that
   // actually responded to this oracle request prior to this oracle request
