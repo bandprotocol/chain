@@ -566,17 +566,11 @@ func (k Keeper) RequestSignature(
 		return nil, err
 	}
 
-	// Filter member that have DEs
-	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
-	if err != nil {
-		return nil, err
-	}
-
 	// Random assigning participants
 	selectedMembers, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
-		filteredMembers,
+		members,
 		group.Threshold,
 	)
 	if err != nil {
