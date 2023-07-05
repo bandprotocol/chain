@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -146,28 +145,24 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 	return de, nil
 }
 
-// HandleAssignedMembersPollDE function handles the polling of Diffie-Hellman key exchange results (DE) for the assigned members.
-// It takes a list of member IDs (mids) and member information (members) and returns the assigned members along with their DE public keys.
+// HandleAssignedMembersPollDE function handles the polling of DE for the assigned members.
+// It takes a list of member IDs (mids) and members information (members) and returns the assigned members.
 func (k Keeper) HandleAssignedMembersPollDE(
 	ctx sdk.Context,
 	members []types.Member,
-) ([]types.AssignedMember, tss.Points, tss.Points, error) {
-	var assignedMembers []types.AssignedMember
-	var pubDs, pubEs tss.Points
+) (types.AssignedMembers, error) {
+	var assignedMembers types.AssignedMembers
 
 	for _, member := range members {
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, nil, nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 		}
 
 		de, err := k.PollDE(ctx, accMember)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, err
 		}
-
-		pubDs = append(pubDs, de.PubD)
-		pubEs = append(pubEs, de.PubE)
 
 		assignedMembers = append(assignedMembers, types.AssignedMember{
 			MemberID: member.MemberID,
@@ -178,7 +173,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		})
 	}
 
-	return assignedMembers, pubDs, pubEs, nil
+	return assignedMembers, nil
 }
 
 // FilterMembersHaveDEs function retrieves all members that have DEs in the store.

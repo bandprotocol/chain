@@ -505,7 +505,7 @@ func (k Keeper) Confirm(
 			k.SetGroup(ctx, group)
 
 			// Delete all dkg interim data
-			k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
+			k.DeleteAllDKGInterimData(ctx, groupID)
 
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
@@ -583,14 +583,18 @@ func (k Keeper) RequestSignature(
 		return nil, err
 	}
 
-	// Get public D and E for each assigned members
-	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
+	// Handle assigned members by polling DE and retrieve assigned members information.
+	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
 	if err != nil {
 		return nil, err
 	}
 
 	// Compute commitment from mids, public D and public E
-	commitment, err := tss.ComputeCommitment(types.GetMemberIDs(selectedMembers), pubDs, pubEs)
+	commitment, err := tss.ComputeCommitment(
+		types.GetMemberIDs(selectedMembers),
+		assignedMembers.PubDs(),
+		assignedMembers.PubEs(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -859,7 +863,7 @@ func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	k.SetGroup(ctx, group)
 
 	// Delete all dkg interim data
-	k.DeleteAllDKGInterimData(ctx, group.GroupID, group.Size_, group.Threshold)
+	k.DeleteAllDKGInterimData(ctx, group.GroupID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
