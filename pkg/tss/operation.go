@@ -76,8 +76,12 @@ func SolvePointPolynomial(rawCoefficientsCommit Points, rawX Scalar) (Point, err
 	return NewPointFromJacobianPoint(result), nil
 }
 
-// solveScalarPolynomial solves a scalar polynomial equation.
-// It takes scalars as coefficients and a value x, and returns the result as a *secp256k1.ModNScalar.
+// solveScalarPolynomial solves a scalar polynomial equation of degree 't'.
+// The function takes an array of ModNScalar pointers as coefficients (ϕ0, ϕ1, ϕ2, ..., ϕ{t-1}) and a ModNScalar 'x'.
+// The order of the coefficients is expected to be from lower degree to higher.
+// The function calculates the polynomial using Horner's method for efficient computation:
+// ϕ0 + ϕ1*x + ϕ2*x^2 + ... + ϕt*x^{t-1} is computed as: ((...(ϕ{t-1}*x + ϕ{t-2})*x + ϕ{t-3})...)*x + ϕ0
+// The result is returned as a pointer to a secp256k1.ModNScalar.
 func solveScalarPolynomial(coefficients []*secp256k1.ModNScalar, x *secp256k1.ModNScalar) *secp256k1.ModNScalar {
 	var result secp256k1.ModNScalar
 
@@ -89,8 +93,14 @@ func solveScalarPolynomial(coefficients []*secp256k1.ModNScalar, x *secp256k1.Mo
 	return &result
 }
 
-// solvePointPolynomial solves a point polynomial equation.
-// It takes points as coefficients and a value x, and returns the result as a *secp256k1.JacobianPoint.
+// solvePointPolynomial solves a point polynomial equation of degree 't' on the elliptic curve.
+// The function takes an array of JacobianPoint pointers as coefficients (Φ0, Φ1, Φ2, ..., Φ{t-1}) and a ModNScalar 'x'.
+// The coefficients are the elliptic curve points obtained from scalar multiplication of the respective ϕ{i}'s with
+// the generator point G, i.e., Φ{i} = ϕ{i}G.
+// This operation is done to mask the true scalar values ϕ{i} using the properties of the elliptic curve.
+// The polynomial is calculated using a variant of Horner's method adapted for elliptic curves:
+// Φ0 + Φ1x + Φ2x^2 + ... + Φtx^{t-1} is computed as: ((...(Φ{t-1}*x + Φ{t-2})*x + Φ{t-3})...)*x + Φ0
+// The result is returned as a pointer to a secp256k1.JacobianPoint.
 func solvePointPolynomial(coefficients []*secp256k1.JacobianPoint, x *secp256k1.ModNScalar) *secp256k1.JacobianPoint {
 	var result secp256k1.JacobianPoint
 
@@ -107,6 +117,7 @@ func solvePointPolynomial(coefficients []*secp256k1.JacobianPoint, x *secp256k1.
 }
 
 // sumPoints sums up multiple *secp256k1.JacobianPoint values.
+// total = P1 + P2 + P3 + ... + Pn (Elliptic Curve point addition)
 func sumPoints(points ...*secp256k1.JacobianPoint) *secp256k1.JacobianPoint {
 	total := new(secp256k1.JacobianPoint)
 
@@ -123,6 +134,7 @@ func sumPoints(points ...*secp256k1.JacobianPoint) *secp256k1.JacobianPoint {
 }
 
 // sumScalars sums up multiple *secp256k1.ModNScalar values.
+// total = (s1 + s2 + s3 + ... + sn) mod (order)
 func sumScalars(scalars ...*secp256k1.ModNScalar) *secp256k1.ModNScalar {
 	total := new(secp256k1.ModNScalar).SetInt(0)
 
