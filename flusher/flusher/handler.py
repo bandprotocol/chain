@@ -472,14 +472,14 @@ class Handler(object):
 
     def update_oracle_script_last_request(self, id, timestamp):
         self.conn.execute(
-            oracle_scripts.update(oracle_scripts.c.oracle_script_id == id).values(
+            oracle_scripts.update(oracle_scripts.c.id == id).values(
                 last_request=timestamp
             )
         )
 
     def update_data_source_last_request(self, id, timestamp):
         self.conn.execute(
-            data_sources.update(data_sources.c.data_source_id == id).values(
+            data_sources.update(data_sources.c.id == id).values(
                 last_request=timestamp
             )
         )
