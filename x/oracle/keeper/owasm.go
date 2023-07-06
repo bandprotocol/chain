@@ -9,6 +9,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -92,7 +93,7 @@ func (k Keeper) PrepareRequest(
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
 		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcChannel, r.GetExecuteGas(),
+		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), r.GetGroupID(), nil, ibcChannel, r.GetExecuteGas(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
@@ -138,6 +139,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(req.Calldata)),
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
+		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.GroupID)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)
@@ -182,7 +184,21 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
+		// Request sign by tss module
+		var sid tss.SigningID
+		if req.GroupID != tss.GroupID(0) {
+			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
+			if err != nil {
+				ctx.EventManager().EmitEvent(sdk.NewEvent(
+					types.EventTypeTSSHandleRequestSignFail,
+					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
+					sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+				))
+			}
+		}
+
+		k.ResolveSuccess(ctx, reqID, sid, env.Retdata, output.GasUsed)
 	}
 }
 

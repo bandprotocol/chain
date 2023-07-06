@@ -24,13 +24,14 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		AskCount:       1,
 		MinCount:       1,
 		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
+		GroupID:        0, // no require sign by tss module
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}
 	require.Equal(
 		t,
 		[]byte(
-			`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`,
+			`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"group_id":"0","min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`,
 		),
 		req.GetBytes(),
 	)
@@ -39,6 +40,7 @@ func TestGetBytesRequestPacket(t *testing.T) {
 func TestGetBytesResponsePacket(t *testing.T) {
 	res := OracleResponsePacketData{
 		ClientID:      "test",
+		SigningID:     0, // no require sign by tss module
 		RequestID:     1,
 		AnsCount:      1,
 		RequestTime:   1589535020,
@@ -46,10 +48,11 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("4bb10e0000000000"),
 	}
+
 	require.Equal(
 		t,
 		[]byte(
-			`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA="}`,
+			`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA=","signing_id":"0"}`,
 		),
 		res.GetBytes(),
 	)

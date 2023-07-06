@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -12,6 +13,7 @@ func NewOracleRequestPacketData(
 	calldata []byte,
 	askCount uint64,
 	minCount uint64,
+	GroupID tss.GroupID,
 	feeLimit sdk.Coins,
 	prepareGas uint64,
 	executeGas uint64,
@@ -22,6 +24,7 @@ func NewOracleRequestPacketData(
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
+		GroupID:        GroupID,
 		FeeLimit:       feeLimit,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
@@ -72,12 +75,13 @@ func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPa
 
 // NewOracleResponsePacketData contructs a new OracleResponsePacketData instance
 func NewOracleResponsePacketData(
-	clientID string, requestID RequestID, ansCount uint64, requestTime int64,
+	clientID string, requestID RequestID, signingID tss.SigningID, ansCount uint64, requestTime int64,
 	resolveTime int64, resolveStatus ResolveStatus, result []byte,
 ) OracleResponsePacketData {
 	return OracleResponsePacketData{
 		ClientID:      clientID,
 		RequestID:     requestID,
+		SigningID:     signingID,
 		AnsCount:      ansCount,
 		RequestTime:   requestTime,
 		ResolveTime:   resolveTime,

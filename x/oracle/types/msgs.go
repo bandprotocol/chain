@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -37,6 +38,7 @@ func NewMsgRequestData(
 	askCount, minCount uint64,
 	clientID string,
 	feeLimit sdk.Coins,
+	groupID tss.GroupID,
 	prepareGas, executeGas uint64,
 	sender sdk.AccAddress,
 ) *MsgRequestData {
@@ -47,9 +49,10 @@ func NewMsgRequestData(
 		MinCount:       minCount,
 		ClientID:       clientID,
 		FeeLimit:       feeLimit,
-		Sender:         sender.String(),
+		GroupID:        groupID,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
+		Sender:         sender.String(),
 	}
 }
 

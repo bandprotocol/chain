@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -29,6 +30,7 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
+	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -125,6 +127,12 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
+			uint64GroupID, err := cmd.Flags().GetUint64(flagGroupID)
+			if err != nil {
+				return err
+			}
+			groupID := tss.GroupID(uint64GroupID)
+
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
@@ -132,6 +140,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				minCount,
 				clientID,
 				feeLimit,
+				groupID,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
@@ -149,7 +158,9 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
-	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid to all data source providers")
+	cmd.Flags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

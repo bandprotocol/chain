@@ -442,6 +442,7 @@ func NewBandApp(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.RollingseedKeeper,
+		app.TSSKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 	)

@@ -15,7 +15,7 @@ func defaultRequest() types.Request {
 		1, BasicCalldata,
 		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
 		2, 0, testapp.ParseTime(0),
-		BasicClientID, []types.RawRequest{
+		BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(42, 1, BasicCalldata),
 			types.NewRawRequest(43, 2, BasicCalldata),
 		}, nil, 0,

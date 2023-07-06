@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -30,6 +31,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
@@ -51,6 +53,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -106,16 +109,30 @@ func TestSuccessRequestOracleData(t *testing.T) {
 
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
-		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+		expectRequest.ClientID,
+		types.RequestID(1),
+		tss.SigningID(0),
+		2,
+		int64(expectRequest.RequestTime),
+		1581589795,
+		types.RESOLVE_STATUS_SUCCESS,
+		[]byte("beeb"),
 	)
-	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
-		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
-		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
-	}}}
-
+	expectEvents = []abci.Event{
+		{
+			Type: types.EventTypeResolve,
+			Attributes: []abci.EventAttribute{
+				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
+				{Key: []byte(types.AttributeKeyTSSSigningID), Value: parseEventAttribute(0)},
+				{
+					Key:   []byte(types.AttributeKeyResolveStatus),
+					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
+				},
+				{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
+				{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
+			},
+		},
+	}
 	require.Equal(t, expectEvents, result.GetEvents())
 
 	ids = k.GetPendingResolveList(ctx)
@@ -141,6 +158,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
@@ -161,6 +179,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -177,8 +196,14 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
-		types.RESOLVE_STATUS_EXPIRED, []byte{},
+		expectRequest.ClientID,
+		types.RequestID(1),
+		tss.SigningID(0),
+		0,
+		int64(expectRequest.RequestTime),
+		ctx.BlockTime().Unix(),
+		types.RESOLVE_STATUS_EXPIRED,
+		[]byte{},
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,
