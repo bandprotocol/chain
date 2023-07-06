@@ -158,6 +158,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
 
@@ -192,7 +193,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	}
 
 	// Run test cases
-	for _, tc := range tcs {
+	for i, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
 
@@ -204,8 +205,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 			group, err := k.GetGroup(ctx, reqs[0].GroupID)
 			s.Require().NoError(err)
 			s.Require().Equal(group.Status, types.GROUP_STATUS_ROUND_2)
-			s.Require().Equal(group.Expiration, ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx)))
-			s.Require().Equal(group.PubKey, tss.Point{})
+			s.Require().Equal(*group.Expiration, expiration)
+			s.Require().Equal(group.PubKey, testutil.TestCases[i].Group.PubKey)
 
 			tc.PostTest()
 		})
@@ -413,7 +414,57 @@ func (s *KeeperTestSuite) TestConfirmReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSubmitDEsReq() {
+func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	var req types.MsgSubmitDEs
+
+	// Add failed case
+	tcs := []TestCase{
+		{
+			"failure with number of DE more than max",
+			func() {
+				var deList []types.DE
+				for i := 0; i < 100; i++ {
+					deList = append(deList, de)
+				}
+
+				req = types.MsgSubmitDEs{
+					DEs:    deList,
+					Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+				}
+			},
+			func() {},
+		},
+		{
+			"failure with invalid member address",
+			func() {
+				req = types.MsgSubmitDEs{
+					DEs:    []types.DE{de},
+					Member: "invalidMemberAddress", //invalid address
+				}
+			},
+			func() {},
+		},
+	}
+
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			tc.Malleate()
+
+			_, err := msgSrvr.SubmitDEs(ctx, &req)
+			s.Require().Error(err)
+
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	de := types.DE{
 		PubD: []byte("D"),
@@ -445,31 +496,6 @@ func (s *KeeperTestSuite) TestSubmitDEsReq() {
 				req = types.MsgSubmitDEs{
 					DEs:    deList,
 					Member: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				}
-			},
-			func() {},
-		},
-		{
-			"failure with number of DE more than max",
-			func() {
-				var deList []types.DE
-				for i := 0; i < 100; i++ {
-					deList = append(deList, de)
-				}
-
-				req = types.MsgSubmitDEs{
-					DEs:    deList,
-					Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-				}
-			},
-			func() {},
-		},
-		{
-			"failure with invalid member address",
-			func() {
-				req = types.MsgSubmitDEs{
-					DEs:    []types.DE{de},
-					Member: "invalidMemberAddress", //invalid address
 				}
 			},
 			func() {},
