@@ -14,7 +14,7 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -25,7 +25,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 	round1Info1 := types.Round1Info{
 		MemberID: memberID1,
-		CoefficientsCommit: []tss.Point{
+		CoefficientCommits: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
 			[]byte("point3"),
@@ -36,7 +36,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 	round1Info2 := types.Round1Info{
 		MemberID: memberID2,
-		CoefficientsCommit: []tss.Point{
+		CoefficientCommits: []tss.Point{
 			[]byte("point1"),
 			[]byte("point2"),
 			[]byte("point3"),
@@ -148,12 +148,12 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						GroupID:     1,
-						Size_:       5,
-						Threshold:   3,
-						PubKey:      nil,
-						Status:      types.GROUP_STATUS_ROUND_1,
-						ExpiredTime: &expiredTime,
+						GroupID:    1,
+						Size_:      5,
+						Threshold:  3,
+						PubKey:     nil,
+						Status:     types.GROUP_STATUS_ROUND_1,
+						Expiration: &expiration,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{

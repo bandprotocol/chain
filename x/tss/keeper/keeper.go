@@ -82,9 +82,9 @@ func (k Keeper) IsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.A
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
 	group.GroupID = groupID
-	group.CreateTime = ctx.BlockHeader().Time
-	expiredTime := group.CreateTime.Add(k.RoundPeriod(ctx))
-	group.ExpiredTime = &expiredTime
+	group.CreatedAt = ctx.BlockHeader().Time
+	expiration := group.CreatedAt.Add(k.RoundPeriod(ctx))
+	group.Expiration = &expiration
 	k.SetGroup(ctx, group)
 
 	return groupID
