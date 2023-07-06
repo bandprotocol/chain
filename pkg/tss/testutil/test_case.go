@@ -54,7 +54,7 @@ var (
 							HexDecode("3149ffc8d1fb31890c493fdb9b85fb7fb83090527fe80df27a4f8c09c2c3de11"),
 							HexDecode("e60eb5ac73febf973c30704e1ed0037b7f2f53b44c5f9041b55a3d85999a3fe3"),
 						},
-						CoefficientsCommit: tss.Points{
+						CoefficientCommits: tss.Points{
 							HexDecode("02d14f38cea1abe9a3406ed84d937cb202a72f0b1742d922f1983462587e31b782"),
 							HexDecode("02c3d07f122b5015e134c9e19fa72966dab8e8279966ae1882f8f0b5093756d419"),
 						},
@@ -91,7 +91,7 @@ var (
 							HexDecode("c90e95106aba6b0d5808f77b5bc5ff9678a59bb2e42ebaca793f2b4ae0e635e0"),
 							HexDecode("2bc45d1b72b3ab3b99e60e6c413812fefc3dd79c3f0e10d65501d41a9c2b2e06"),
 						},
-						CoefficientsCommit: tss.Points{
+						CoefficientCommits: tss.Points{
 							HexDecode("0278a9bd9ed98306ac26f35f9783278abc12796fd0b993ee6ab85bd59f20c7eac9"),
 							HexDecode("024da1fd7050eb2c554e6d05168213051d40a09f017627355088dfde6fb09e423d"),
 						},
@@ -250,7 +250,7 @@ var (
 						Coefficients: tss.Scalars{
 							HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
 						},
-						CoefficientsCommit: tss.Points{
+						CoefficientCommits: tss.Points{
 							HexDecode("0262f4888feb37b89c9744444093f6c00b0e196087c7c28671bb8247a32eef704f"),
 						},
 						KeySyms: tss.Points{
@@ -285,7 +285,7 @@ var (
 						Coefficients: tss.Scalars{
 							HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
 						},
-						CoefficientsCommit: tss.Points{
+						CoefficientCommits: tss.Points{
 							HexDecode("0369f21b7c2841750b8ba29e8559147643f8f49c41b54be2f4f7c453c84b0bc929"),
 						},
 						KeySyms: tss.Points{
