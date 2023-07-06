@@ -109,8 +109,8 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
 		expectRequest.ClientID,
-		tss.SigningID(0),
 		types.RequestID(1),
+		tss.SigningID(0),
 		2,
 		int64(expectRequest.RequestTime),
 		1581589795,
@@ -195,8 +195,8 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
 		expectRequest.ClientID,
-		tss.SigningID(0),
 		types.RequestID(1),
+		tss.SigningID(0),
 		0,
 		int64(expectRequest.RequestTime),
 		ctx.BlockTime().Unix(),

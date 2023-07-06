@@ -153,7 +153,7 @@ func (k Keeper) SaveResult(
 		}
 
 		packetData := types.NewOracleResponsePacketData(
-			r.ClientID, sid, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+			r.ClientID, id, sid, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
 		)
 
 		packet := channeltypes.NewPacket(

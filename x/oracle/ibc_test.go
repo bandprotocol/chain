@@ -115,8 +115,8 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		2,
 		1577923380,
 		1577923405,
@@ -650,8 +650,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		1,
 		1577923380,
 		1577923400,
@@ -711,8 +711,8 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		2,
 		1577923380,
 		1577923405,
@@ -767,8 +767,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		1,
 		1577923380,
 		1577923355,
@@ -823,8 +823,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		1,
 		1577923380,
 		1577923355,
@@ -879,8 +879,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
+		0,
 		1,
 		1577923380,
 		1577923355,
