@@ -62,12 +62,3 @@ func DuplicateInArray(arr []string) bool {
 	}
 	return false
 }
-
-// MakeRange creates a slice of uint64 values starting from 'min' up to 'max' (inclusive).
-func MakeRange(min, max uint64) []uint64 {
-	a := make([]uint64, max-min+1)
-	for i := range a {
-		a[i] = min + uint64(i)
-	}
-	return a
-}

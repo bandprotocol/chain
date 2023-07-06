@@ -154,6 +154,34 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 	s.Require().Error(err)
 }
 
+func (s *KeeperTestSuite) TestDeleteAllComplainsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	complainWithStatus := types.ComplaintsWithStatus{
+		MemberID: memberID,
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
+			{
+				Complaint: types.Complaint{
+					Complainer:  1,
+					Complainant: 2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
+				},
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
+			},
+		},
+	}
+
+	// Set complaints with status
+	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
+	// Delete complaints with status
+	k.DeleteAllComplainsWithStatus(ctx, groupID)
+
+	_, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
 func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
@@ -231,6 +259,25 @@ func (s *KeeperTestSuite) TestDeleteConfirm() {
 
 	// Delete confirm
 	k.DeleteConfirm(ctx, groupID, memberID)
+
+	_, err := k.GetConfirm(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestDeleteConfirms() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	confirm := types.Confirm{
+		MemberID:     memberID,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Set confirm
+	k.SetConfirm(ctx, groupID, confirm)
+
+	// Delete confirm
+	k.DeleteConfirms(ctx, groupID)
 
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	s.Require().Error(err)
@@ -380,7 +427,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 	k.SetConfirmComplainCount(ctx, groupID, 1)
 
 	// Delete all interim data
-	k.DeleteAllDKGInterimData(ctx, groupID, groupSize, groupThreshold)
+	k.DeleteAllDKGInterimData(ctx, groupID)
 
 	// Check if all data is deleted
 	s.Require().Nil(k.GetDKGContext(ctx, groupID))

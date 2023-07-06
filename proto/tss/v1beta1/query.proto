@@ -34,8 +34,8 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/pending_signs/{address}";
   }
 
-  // Signings queries signing details.
-  rpc Signings(QuerySigningsRequest) returns (QuerySigningsResponse) {
+  // Signing queries signing details.
+  rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{id}";
   }
 }
@@ -48,13 +48,20 @@ message QueryGroupRequest {
 
 // QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-  Group                         group                  = 1 [(gogoproto.nullable) = false];
-  bytes                         dkg_context            = 2 [(gogoproto.customname) = "DKGContext"];
-  repeated Member               members                = 3 [(gogoproto.nullable) = false];
-  repeated Round1Info           round1_infos           = 4 [(gogoproto.nullable) = false];
-  repeated Round2Info           round2_infos           = 5 [(gogoproto.nullable) = false];
+  // group defines the group object containing group information.
+  Group group = 1 [(gogoproto.nullable) = false];
+  // dkg_context defines the DKG context data.
+  bytes dkg_context = 2 [(gogoproto.customname) = "DKGContext"];
+  // members is the list of members in the group.
+  repeated Member members = 3 [(gogoproto.nullable) = false];
+  // round1_infos is the list of Round 1 information.
+  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
+  // round2_infos is the list of Round 2 information.
+  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
+  // complaints_with_status is the list of complaints with status.
   repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
-  repeated Confirm              confirms               = 7 [(gogoproto.nullable) = false];
+  // confirms is the list of confirms.
+  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
@@ -89,7 +96,7 @@ message QueryDERequest {
   // pagination defines pagination settings for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
-  
+
 // QueryDEResponse is the response type for the Query/DE RPC method.
 message QueryDEResponse {
   // des is a list of DEs.
@@ -102,25 +109,24 @@ message QueryDEResponse {
 message QueryPendingSigningsRequest {
   // address is the address for the request.
   string address = 1;
-  }
-  
-  // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
-  message QueryPendingSigningsResponse {
+}
+
+// QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
+message QueryPendingSigningsResponse {
   // pending_signings is a list of signing requests that are pending.
-  repeated Signing pending_signings = 1 [ (gogoproto.nullable) = false ];
-  }
-  
-  // QuerySigningsRequest is the request type for the Query/Signings RPC method.
-  message QuerySigningsRequest {
+  repeated Signing pending_signings = 1 [(gogoproto.nullable) = false];
+}
+
+// QuerySigningRequest is the request type for the Query/Signing RPC method.
+message QuerySigningRequest {
   // id is the ID of the signing request.
   uint64 id = 1;
-  }
-  
-  // QuerySigningsResponse is the response type for the Query/Signings RPC method.
-  message QuerySigningsResponse {
+}
+
+// QuerySigningResponse is the response type for the Query/Signing RPC method.
+message QuerySigningResponse {
   // signing is the signing request.
   Signing signing = 1;
   // received_partial_signatures is a list of received partial signatures.
-  repeated PartialSignature received_partial_signatures = 2 [ (gogoproto.nullable) = false ];
+  repeated PartialSignature received_partial_signatures = 2 [(gogoproto.nullable) = false];
 }
-  

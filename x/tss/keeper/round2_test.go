@@ -49,6 +49,29 @@ func (s *KeeperTestSuite) TestDeleteRound2Info() {
 	s.Require().Error(err)
 }
 
+func (s *KeeperTestSuite) TestDeleteRound2Infos() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	Round2Info := types.Round2Info{
+		MemberID: memberID,
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// Set round 2 info
+	k.SetRound2Info(ctx, groupID, Round2Info)
+
+	// Delete round 2 info
+	k.DeleteRound2Infos(ctx, groupID)
+
+	_, err := k.GetRound2Info(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
 func (s *KeeperTestSuite) TestGetRound2Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)

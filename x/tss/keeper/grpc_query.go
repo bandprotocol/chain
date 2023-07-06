@@ -162,11 +162,11 @@ func (k Querier) PendingSignings(
 	}, nil
 }
 
-// Signings function handles the request to get signings of a given ID.
-func (k Querier) Signings(
+// Signing function handles the request to get signing of a given ID.
+func (k Querier) Signing(
 	goCtx context.Context,
-	req *types.QuerySigningsRequest,
-) (*types.QuerySigningsResponse, error) {
+	req *types.QuerySigningRequest,
+) (*types.QuerySigningResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	signingID := tss.SigningID(req.Id)
 
@@ -178,7 +178,7 @@ func (k Querier) Signings(
 
 	pzs := k.GetPartialSigsWithKey(ctx, signingID)
 
-	return &types.QuerySigningsResponse{
+	return &types.QuerySigningResponse{
 		Signing:                   &signing,
 		ReceivedPartialSignatures: pzs,
 	}, nil

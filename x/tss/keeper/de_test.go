@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -238,9 +237,9 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		accMembers = append(accMembers, acc)
 	}
 
-	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, members)
+	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, members)
 	s.Require().NoError(err)
-	s.Require().Equal([]types.AssignedMember{
+	s.Require().Equal(types.AssignedMembers{
 		{
 			MemberID: 1,
 			Member:   members[0].Address,
@@ -256,6 +255,4 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 			PubNonce: nil,
 		},
 	}, assignedMembers)
-	s.Require().Equal(tss.Points{[]byte("D1"), []byte("D1")}, pubDs)
-	s.Require().Equal(tss.Points{[]byte("E1"), []byte("E1")}, pubEs)
 }
