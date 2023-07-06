@@ -279,22 +279,19 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	}
 
 	// Compute binding factor and public nonce of each assigned member
-	var ownBindingFactors tss.Scalars
 	var ownPubNonces tss.Points
 	for i, member := range assignedMembers {
-		// Compute own binding factor
-		ownBindingFactor, err := tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
+		// Compute binding factor
+		assignedMembers[i].BindingFactor, err = tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
 		if err != nil {
 			return 0, err
 		}
-
-		ownBindingFactors = append(ownBindingFactors, ownBindingFactor)
 
 		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
 			member.PubE,
-			ownBindingFactor,
+			assignedMembers[i].BindingFactor,
 		)
 		if err != nil {
 			return 0, err
@@ -339,11 +336,11 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
 	)
-	for i, member := range assignedMembers {
+	for _, member := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
-			sdk.NewAttribute(types.AttributeKeyOwnBindingFactor, hex.EncodeToString(ownBindingFactors[i])),
+			sdk.NewAttribute(types.AttributeKeyOwnBindingFactor, hex.EncodeToString(member.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(member.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(member.PubE)),

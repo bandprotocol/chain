@@ -241,18 +241,20 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.AssignedMembers{
 		{
-			MemberID: 1,
-			Member:   members[0].Address,
-			PubD:     des[0].PubD,
-			PubE:     des[0].PubE,
-			PubNonce: nil,
+			MemberID:      1,
+			Member:        members[0].Address,
+			PubD:          des[0].PubD,
+			PubE:          des[0].PubE,
+			BindingFactor: nil,
+			PubNonce:      nil,
 		},
 		{
-			MemberID: 2,
-			Member:   members[1].Address,
-			PubD:     des[0].PubD,
-			PubE:     des[0].PubE,
-			PubNonce: nil,
+			MemberID:      2,
+			Member:        members[1].Address,
+			PubD:          des[0].PubD,
+			PubE:          des[0].PubE,
+			BindingFactor: nil,
+			PubNonce:      nil,
 		},
 	}, assignedMembers)
 }
