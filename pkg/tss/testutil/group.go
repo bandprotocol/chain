@@ -10,7 +10,7 @@ type Member struct {
 	A0PrivKey          tss.Scalar
 	A0Sig              tss.Signature
 	Coefficients       tss.Scalars
-	CoefficientsCommit tss.Points
+	CoefficientCommits tss.Points
 
 	KeySyms         tss.Points
 	SecretShares    tss.Scalars
@@ -41,7 +41,7 @@ func CopyMember(src Member) Member {
 		A0PrivKey:          Copy(src.A0PrivKey),
 		A0Sig:              Copy(src.A0Sig),
 		Coefficients:       CopySlice(src.Coefficients),
-		CoefficientsCommit: CopySlice(src.CoefficientsCommit),
+		CoefficientCommits: CopySlice(src.CoefficientCommits),
 		KeySyms:            CopySlice(src.KeySyms),
 		SecretShares:       CopySlice(src.SecretShares),
 		EncSecretShares:    CopySlice(src.EncSecretShares),
@@ -85,7 +85,7 @@ func (g Group) GetSize() int {
 func (g Group) GetCommits(idx uint64) tss.Points {
 	var commits tss.Points
 	for _, member := range g.Members {
-		commits = append(commits, member.CoefficientsCommit[idx])
+		commits = append(commits, member.CoefficientCommits[idx])
 	}
 
 	return commits

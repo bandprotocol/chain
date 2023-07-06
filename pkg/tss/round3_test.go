@@ -55,7 +55,7 @@ func (suite *TSSTestSuite) TestVerifySecretShare() {
 			err := tss.VerifySecretShare(
 				memberJ.ID,
 				memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)],
-				memberI.CoefficientsCommit,
+				memberI.CoefficientCommits,
 			)
 			suite.Require().NoError(err)
 		},
@@ -66,7 +66,7 @@ func (suite *TSSTestSuite) TestComputeSecretShareCommit() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
-			secretCommit, err := tss.ComputeSecretShareCommit(memberI.CoefficientsCommit, memberJ.ID)
+			secretCommit, err := tss.ComputeSecretShareCommit(memberI.CoefficientCommits, memberJ.ID)
 			suite.Require().NoError(err)
 
 			expSecretCommit := memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)].Point()
@@ -170,7 +170,7 @@ func (suite *TSSTestSuite) TestVerifyComplaint() {
 				memberI.ComplaintSigs[iSlot],
 				testutil.FakePrivKey,
 				memberI.ID,
-				memberJ.CoefficientsCommit,
+				memberJ.CoefficientCommits,
 			)
 			suite.Require().NoError(err)
 
@@ -182,7 +182,7 @@ func (suite *TSSTestSuite) TestVerifyComplaint() {
 				memberI.ComplaintSigs[iSlot],
 				memberJ.EncSecretShares[jSlot],
 				memberI.ID,
-				memberJ.CoefficientsCommit,
+				memberJ.CoefficientCommits,
 			)
 			suite.Require().ErrorIs(err, tss.ErrValidSecretShare)
 		})
