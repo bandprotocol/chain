@@ -228,21 +228,21 @@ func NewSubmitDKGRound1Cmd() *cobra.Command {
 				return err
 			}
 
-			var coefficientsCommit tss.Points
+			var coefficientCommits tss.Points
 			for i := 5; i < len(args); i++ {
 				coefficientCommit, err := hex.DecodeString(args[i])
 				if err != nil {
 					return err
 				}
 
-				coefficientsCommit = append(coefficientsCommit, tss.Point(coefficientCommit))
+				coefficientCommits = append(coefficientCommits, tss.Point(coefficientCommit))
 			}
 
 			msg := &types.MsgSubmitDKGRound1{
 				GroupID: tss.GroupID(groupID),
 				Round1Info: types.Round1Info{
 					MemberID:           tss.MemberID(memberID),
-					CoefficientCommits: coefficientsCommit,
+					CoefficientCommits: coefficientCommits,
 					OneTimePubKey:      oneTimePubKey,
 					A0Sig:              a0Sig,
 					OneTimeSig:         oneTimeSig,
