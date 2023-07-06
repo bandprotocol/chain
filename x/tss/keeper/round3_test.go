@@ -25,7 +25,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				// Set round 1 info
 				k.SetRound1Info(ctx, tc.Group.ID, types.Round1Info{
 					MemberID:           m.ID,
-					CoefficientsCommit: m.CoefficientsCommit,
+					CoefficientCommits: m.CoefficientCommits,
 					OneTimePubKey:      m.OneTimePubKey(),
 					A0Sig:              m.A0Sig,
 					OneTimeSig:         m.OneTimeSig,
@@ -377,7 +377,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		memberID := tss.MemberID(i)
 		round1Info := types.Round1Info{
 			MemberID: memberID,
-			CoefficientsCommit: tss.Points{
+			CoefficientCommits: tss.Points{
 				[]byte("point1"),
 				[]byte("point2"),
 			},

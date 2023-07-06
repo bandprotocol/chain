@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -31,6 +32,40 @@ func (s *KeeperTestSuite) SetupTest() {
 		app.TSSKeeper,
 	}
 	s.msgSrvr = app.TSSKeeper
+}
+
+func (s *KeeperTestSuite) SetupGroup(groupStatus types.GroupStatus) {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Create group from testutil
+	for _, tc := range testutil.TestCases {
+		// Init members
+		var members []string
+		for _, m := range tc.Group.Members {
+			members = append(members, sdk.AccAddress(m.PubKey()).String())
+		}
+
+		// Create group
+		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+			Members:   members,
+			Threshold: tc.Group.Threshold,
+			Sender:    sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+		})
+		s.Require().NoError(err)
+
+		// Set dkg context
+		s.app.TSSKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
+
+		switch groupStatus {
+		case types.GROUP_STATUS_ROUND_2:
+			// Get group
+			group, err := k.GetGroup(ctx, tc.Group.ID)
+			s.Require().NoError(err)
+			// update group status
+			group.Status = types.GROUP_STATUS_ROUND_2
+			k.SetGroup(ctx, group)
+		}
+	}
 }
 
 func (s *KeeperTestSuite) TestGetSetGroupCount() {
@@ -74,14 +109,14 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	group := types.Group{
-		Size_:       5,
-		Threshold:   3,
-		PubKey:      nil,
-		Status:      types.GROUP_STATUS_ROUND_1,
-		ExpiredTime: &expiredTime,
+		Size_:      5,
+		Threshold:  3,
+		PubKey:     nil,
+		Status:     types.GROUP_STATUS_ROUND_1,
+		Expiration: &expiration,
 	}
 
 	// Create new group

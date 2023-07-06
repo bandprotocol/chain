@@ -43,7 +43,7 @@ func (k Keeper) HandleVerifyComplaint(
 		complaint.Signature,
 		round2J.EncryptedSecretShares[indexJ],
 		complaint.Complainer,
-		round1J.CoefficientsCommit,
+		round1J.CoefficientCommits,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(

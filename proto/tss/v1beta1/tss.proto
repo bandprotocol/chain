@@ -20,10 +20,10 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // create_time is the time when the group was created.
-  google.protobuf.Timestamp create_time = 6 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-  // expired_time is the time when the group will be dissolved if it has not finished its process.
-  google.protobuf.Timestamp expired_time = 7 [(gogoproto.stdtime) = true];
+  // created_at is the time when the group was created.
+  google.protobuf.Timestamp created_at = 6 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // expiration is the time when the group will be dissolved if it has not finished its process.
+  google.protobuf.Timestamp expiration = 7 [(gogoproto.stdtime) = true];
 }
 
 // Round1Info contains all necessary information for handling round 1 of the DKG process.
@@ -31,8 +31,8 @@ message Round1Info {
   // member_id is the unique identifier of a group member.
   uint64 member_id = 1
       [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
-  // coefficients_commit is a list of commitments to the coefficients of the member's secret polynomial.
-  repeated bytes coefficients_commit = 2 [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"];
+  // coefficients_commits is a list of commitments to the coefficients of the member's secret polynomial.
+  repeated bytes coefficient_commits = 2 [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"];
   // one_time_pub_key is the one-time public key used by the member to encrypt secret shares.
   bytes one_time_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // a0_sig is the member's signature on the first coefficient of its secret polynomial.

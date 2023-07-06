@@ -90,7 +90,7 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate coefficients commit
-	for _, c := range m.Round1Info.CoefficientsCommit {
+	for _, c := range m.Round1Info.CoefficientCommits {
 		if err := c.Valid(); err != nil {
 			return sdkerrors.Wrap(err, "coefficients commit")
 		}

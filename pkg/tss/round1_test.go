@@ -21,7 +21,7 @@ func (suite *TSSTestSuite) TestGenerateRound1Info() {
 	for i, coeff := range data.Coefficients {
 		commit := coeff.Point()
 		suite.Require().NoError(err)
-		suite.Require().Equal(data.CoefficientsCommit[i], commit)
+		suite.Require().Equal(data.CoefficientCommits[i], commit)
 	}
 }
 

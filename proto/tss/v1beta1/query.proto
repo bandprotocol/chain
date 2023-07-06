@@ -26,7 +26,7 @@ service Query {
 
   // DE queries all de for this address.
   rpc DE(QueryDERequest) returns (QueryDEResponse) {
-    option (google.api.http).get = "/tss/v1beta1/de-list/{address}";
+    option (google.api.http).get = "/tss/v1beta1/de_list/{address}";
   }
 
   // PendingSignings queries all pending signs for this address.
@@ -75,15 +75,15 @@ message QueryMembersResponse {
   repeated Member members = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryIsSignerRequest is request type for the Query/IsSigner RPC method.
+// QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
 message QueryIsGranteeRequest {
   // Granter is a granter address
   string granter = 1;
-  // Grantee is a candidate account
+  // Grantee is a grantee address
   string grantee = 2;
 }
 
-// QueryIsGranteeResponse is response type for the Query/IsSigner RPC method.
+// QueryIsGranteeResponse is response type for the Query/IsGrantee RPC method.
 message QueryIsGranteeResponse {
   // IsGrantee is true if this account has been granted by granter
   bool is_grantee = 1;

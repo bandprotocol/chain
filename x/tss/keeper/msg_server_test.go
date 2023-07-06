@@ -36,59 +36,16 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 	})
 }
 
-func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
+func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	// Create group from testutil
-	for _, tc := range testutil.TestCases {
-		// Init members
-		var members []string
-		for _, m := range tc.Group.Members {
-			members = append(members, sdk.AccAddress(m.PubKey()).String())
-		}
-
-		// Create group
-		msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members:   members,
-			Threshold: tc.Group.Threshold,
-			Sender:    sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
-		})
-
-		// Set dkg context
-		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
-	}
-
-	var tcs []TestCase
-	var req types.MsgSubmitDKGRound1
-
-	// Add success test cases from testutil
-	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		tcs = append(tcs, TestCase{
-			Msg: fmt.Sprintf("success %s", tc.Name),
-			Malleate: func() {
-				req = types.MsgSubmitDKGRound1{
-					GroupID: tcGroup.ID,
-					Round1Info: types.Round1Info{
-						MemberID:           tcGroup.Members[0].ID,
-						CoefficientsCommit: tcGroup.Members[0].CoefficientsCommit,
-						OneTimePubKey:      tcGroup.Members[0].OneTimePubKey(),
-						A0Sig:              tcGroup.Members[0].A0Sig,
-						OneTimeSig:         tcGroup.Members[0].OneTimeSig,
-					},
-					Member: sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
-				}
-			},
-			ExpPass: true,
-			PostTest: func() {
-				k.DeleteRound1Info(ctx, tcGroup.ID, tcGroup.Members[0].ID)
-			},
-		})
-	}
-
-	// Add failed cases
 	tc1Group := testutil.TestCases[0].Group
-	failedCases := []TestCase{
+
+	// Set up group
+	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
+
+	// Add test cases
+	var req types.MsgSubmitDKGRound1
+	tcs := []TestCase{
 		{
 			"group not found",
 			func() {
@@ -96,7 +53,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 					GroupID: 99,
 					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
-						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 						A0Sig:              tc1Group.Members[0].A0Sig,
 						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
@@ -114,7 +71,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 					GroupID: tc1Group.ID,
 					Round1Info: types.Round1Info{
 						MemberID:           99,
-						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 						A0Sig:              tc1Group.Members[0].A0Sig,
 						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
@@ -131,7 +88,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 				// Set round 1 info
 				k.SetRound1Info(ctx, tc1Group.ID, types.Round1Info{
 					MemberID:           tc1Group.Members[0].ID,
-					CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 					A0Sig:              tc1Group.Members[0].A0Sig,
 					OneTimeSig:         tc1Group.Members[0].OneTimeSig,
@@ -141,7 +98,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 					GroupID: tc1Group.ID,
 					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
-						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 						A0Sig:              tc1Group.Members[0].A0Sig,
 						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
@@ -161,7 +118,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 					GroupID: tc1Group.ID,
 					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
-						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 						A0Sig:              tc1Group.Members[0].A0Sig,
 						OneTimeSig:         []byte("wrong one_time_sig"),
@@ -179,7 +136,7 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 					GroupID: tc1Group.ID,
 					Round1Info: types.Round1Info{
 						MemberID:           tc1Group.Members[0].ID,
-						CoefficientsCommit: tc1Group.Members[0].CoefficientsCommit,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
 						A0Sig:              []byte("wrong a0_sig"),
 						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
@@ -191,7 +148,6 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 			func() {},
 		},
 	}
-	tcs = append(tcs, failedCases...)
 
 	// Run test cases
 	for _, tc := range tcs {
@@ -210,36 +166,14 @@ func (s *KeeperTestSuite) TestSubmitDKGRound1Req() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
+func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
-	// Create group from testutil
-	for _, tc := range testutil.TestCases {
-		// Init members
-		var members []string
-		for _, m := range tc.Group.Members {
-			members = append(members, sdk.AccAddress(m.PubKey()).String())
-		}
-
-		// Create group
-		msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members:   members,
-			Threshold: tc.Group.Threshold,
-			Sender:    sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
-		})
-
-		// Update group status
-		group, err := k.GetGroup(ctx, tc.Group.ID)
-		s.Require().NoError(err)
-		group.Status = types.GROUP_STATUS_ROUND_2
-		k.SetGroup(ctx, group)
-
-		// Set dkg context
-		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
-	}
+	// Set up group
+	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
 
 	var tcs []TestCase
-	var req types.MsgSubmitDKGRound2
+	var req types.MsgSubmitDKGRound1
 
 	// Add success test cases from testutil
 	for _, tc := range testutil.TestCases {
@@ -247,25 +181,52 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 		tcs = append(tcs, TestCase{
 			Msg: fmt.Sprintf("success %s", tc.Name),
 			Malleate: func() {
-				req = types.MsgSubmitDKGRound2{
+				req = types.MsgSubmitDKGRound1{
 					GroupID: tcGroup.ID,
-					Round2Info: types.Round2Info{
-						MemberID:              tcGroup.Members[0].ID,
-						EncryptedSecretShares: tcGroup.Members[0].EncSecretShares,
+					Round1Info: types.Round1Info{
+						MemberID:           tcGroup.Members[0].ID,
+						CoefficientCommits: tcGroup.Members[0].CoefficientCommits,
+						OneTimePubKey:      tcGroup.Members[0].OneTimePubKey(),
+						A0Sig:              tcGroup.Members[0].A0Sig,
+						OneTimeSig:         tcGroup.Members[0].OneTimeSig,
 					},
 					Member: sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
 				}
 			},
 			ExpPass: true,
 			PostTest: func() {
-				k.DeleteRound2Info(ctx, tcGroup.ID, tcGroup.Members[0].ID)
+				k.DeleteRound1Info(ctx, tcGroup.ID, tcGroup.Members[0].ID)
 			},
 		})
 	}
 
-	// Add failed case
+	// Run test cases
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			tc.Malleate()
+
+			_, err := msgSrvr.SubmitDKGRound1(ctx, &req)
+			if tc.ExpPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	tc1Group := testutil.TestCases[0].Group
-	failedCases := []TestCase{
+
+	// Set up group
+	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
+
+	// Add test cases
+	var req types.MsgSubmitDKGRound2
+	tcs := []TestCase{
 		{
 			"group not found",
 			func() {
@@ -336,7 +297,34 @@ func (s *KeeperTestSuite) TestSubmitDKGRound2Req() {
 			func() {},
 		},
 	}
-	tcs = append(tcs, failedCases...)
+
+	// Run test cases
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			tc.Malleate()
+
+			_, err := msgSrvr.SubmitDKGRound2(ctx, &req)
+			if tc.ExpPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
+	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Setup group as round 2
+	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
+
+	var tcs []TestCase
+	var req types.MsgSubmitDKGRound2
+
+	// TODO: add success case
 
 	// Run test cases
 	for _, tc := range tcs {

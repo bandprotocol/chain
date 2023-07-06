@@ -242,7 +242,7 @@ func NewSubmitDKGRound1Cmd() *cobra.Command {
 				GroupID: tss.GroupID(groupID),
 				Round1Info: types.Round1Info{
 					MemberID:           tss.MemberID(memberID),
-					CoefficientsCommit: coefficientsCommit,
+					CoefficientCommits: coefficientsCommit,
 					OneTimePubKey:      oneTimePubKey,
 					A0Sig:              a0Sig,
 					OneTimeSig:         oneTimeSig,

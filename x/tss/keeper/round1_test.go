@@ -11,7 +11,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Info() {
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
 		MemberID: memberID,
-		CoefficientsCommit: tss.Points{
+		CoefficientCommits: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
@@ -33,7 +33,7 @@ func (s *KeeperTestSuite) TestDeleteRound1Info() {
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
 		MemberID: memberID,
-		CoefficientsCommit: tss.Points{
+		CoefficientCommits: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
@@ -60,7 +60,7 @@ func (s *KeeperTestSuite) TestDeleteRound1Infos() {
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
 		MemberID: memberID,
-		CoefficientsCommit: tss.Points{
+		CoefficientCommits: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
@@ -88,7 +88,7 @@ func (s *KeeperTestSuite) TestGetRound1Infos() {
 	member2 := tss.MemberID(2)
 	round1InfoMember1 := types.Round1Info{
 		MemberID: member1,
-		CoefficientsCommit: tss.Points{
+		CoefficientCommits: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
@@ -98,7 +98,7 @@ func (s *KeeperTestSuite) TestGetRound1Infos() {
 	}
 	round1InfoMember2 := types.Round1Info{
 		MemberID: member2,
-		CoefficientsCommit: tss.Points{
+		CoefficientCommits: tss.Points{
 			[]byte("point1"),
 			[]byte("point2"),
 		},
