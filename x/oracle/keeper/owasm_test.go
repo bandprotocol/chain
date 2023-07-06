@@ -209,6 +209,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "5294700000"),
 			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),

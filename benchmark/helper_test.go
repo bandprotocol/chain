@@ -61,6 +61,7 @@ func GenMsgRequestData(
 		MinCount:   1,
 		ClientID:   "",
 		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+		GroupID:    0,
 		PrepareGas: prepareGas,
 		ExecuteGas: executeGas,
 		Sender:     sender.Address.String(),
