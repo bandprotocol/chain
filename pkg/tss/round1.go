@@ -9,7 +9,7 @@ type Round1Info struct {
 	A0PubKey           Point
 	A0Sig              Signature
 	Coefficients       Scalars
-	CoefficientsCommit Points
+	CoefficientCommits Points
 }
 
 // GenerateRound1Info generates the data of round 1 for a member in the DKG process of TSS
@@ -41,10 +41,10 @@ func GenerateRound1Info(
 	}
 
 	// Get coefficients.
-	var coefficientsCommit Points
+	var coefficientCommits Points
 	var coefficients Scalars
 	for i := 1; i < len(kps); i++ {
-		coefficientsCommit = append(coefficientsCommit, Point(kps[i].PubKey))
+		coefficientCommits = append(coefficientCommits, Point(kps[i].PubKey))
 		coefficients = append(coefficients, Scalar(kps[i].PrivKey))
 	}
 
@@ -56,7 +56,7 @@ func GenerateRound1Info(
 		A0PubKey:           a0PubKey,
 		A0Sig:              a0Sig,
 		Coefficients:       coefficients,
-		CoefficientsCommit: coefficientsCommit,
+		CoefficientCommits: coefficientCommits,
 	}, nil
 }
 
