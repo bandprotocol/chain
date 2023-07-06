@@ -106,8 +106,8 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 	tests := []struct {
 		name               string
 		queryGroupResponse *types.QueryGroupResponse
-		memberIDJ          tss.MemberID
 		memberIDI          tss.MemberID
+		memberIDJ          tss.MemberID
 		expectedShare      tss.Scalar
 		expectedError      error
 	}{
@@ -121,8 +121,8 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDJ:     1,
 			memberIDI:     1,
+			memberIDJ:     1,
 			expectedShare: []byte("share1"),
 			expectedError: nil,
 		},
@@ -136,8 +136,8 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDJ:     2,
 			memberIDI:     1,
+			memberIDJ:     2,
 			expectedShare: nil,
 			expectedError: fmt.Errorf("No Round2Info from MemberID(2)"),
 		},
@@ -151,8 +151,8 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDJ:     1,
 			memberIDI:     4,
+			memberIDJ:     1,
 			expectedShare: nil,
 			expectedError: fmt.Errorf("No Round2Shares from MemberID(1) for MemberID(4)"),
 		},

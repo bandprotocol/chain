@@ -73,7 +73,7 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 			event.SigningID,
 			event.MemberIDs,
 			event.Data,
-			event.Commitment,
+			event.BindingFactor,
 			event.GroupPubNonce,
 			event.PubDE,
 		)
@@ -86,7 +86,7 @@ func (s *Signing) handleSigning(
 	sid tss.SigningID,
 	mids []tss.MemberID,
 	data []byte,
-	commitment []byte,
+	bindingFactor tss.Scalar,
 	groupPubNonce tss.Point,
 	pubDE types.DE,
 ) {
@@ -106,13 +106,6 @@ func (s *Signing) handleSigning(
 	privDE, err := s.context.Store.GetDE(pubDE)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to get private DE from store: %s", err)
-		return
-	}
-
-	// Compute binding factor value
-	bindingFactor, err := tss.ComputeOwnBindingFactor(group.MemberID, data, commitment)
-	if err != nil {
-		logger.Error(":cold_sweat: Failed to compute own binding factor: %s", err)
 		return
 	}
 
@@ -153,9 +146,11 @@ func (s *Signing) handlePendingSignings() {
 	for _, signing := range res.PendingSignings {
 		var mids []tss.MemberID
 		var pubDE types.DE
+		var bindingFactor tss.Scalar
 		for _, member := range signing.AssignedMembers {
 			mids = append(mids, member.MemberID)
 			if member.Member == s.context.Config.Granter {
+				bindingFactor = member.BindingFactor
 				pubDE = types.DE{
 					PubD: member.PubD,
 					PubE: member.PubE,
@@ -168,7 +163,7 @@ func (s *Signing) handlePendingSignings() {
 			signing.SigningID,
 			mids,
 			signing.Message,
-			signing.Commitment,
+			bindingFactor,
 			signing.GroupPubNonce,
 			pubDE,
 		)

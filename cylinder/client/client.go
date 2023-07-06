@@ -130,12 +130,14 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 
 // QueryDE queries the DE information with the given address.
 // It returns the de response or an error.
-func (c *Client) QueryDE(address string) (*DEResponse, error) {
+func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DEResponse, error) {
 	queryClient := types.NewQueryClient(c.context)
 
 	der, err := queryClient.DE(context.Background(), &types.QueryDERequest{
 		Address: address,
 		Pagination: &query.PageRequest{
+			Offset:     offset,
+			Limit:      limit,
 			CountTotal: true,
 		},
 	})

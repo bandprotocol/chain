@@ -14,7 +14,7 @@ type Event struct {
 	MemberIDs     []tss.MemberID
 	GroupPubNonce tss.Point
 	Data          []byte
-	Commitment    []byte
+	BindingFactor tss.Scalar
 	PubDE         types.DE
 }
 
@@ -36,7 +36,11 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		return nil, err
 	}
 
-	commitment, err := event.GetEventValueBytes(log, types.EventTypeRequestSign, types.AttributeKeyCommitment)
+	bindingFactors, err := event.GetEventValuesBytes(
+		log,
+		types.EventTypeRequestSign,
+		types.AttributeKeyOwnBindingFactor,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -63,11 +67,13 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 
 	var pubD, pubE tss.Point
 	var mids []tss.MemberID
+	var bindingFactor tss.Scalar
 
 	members := event.GetEventValues(log, types.EventTypeRequestSign, types.AttributeKeyMember)
 	for i, member := range members {
 		mids = append(mids, tss.MemberID(midInts[i]))
 		if member == address {
+			bindingFactor = bindingFactors[i]
 			pubD = pubDs[i]
 			pubE = pubEs[i]
 		}
@@ -79,7 +85,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		MemberIDs:     mids,
 		GroupPubNonce: groupPubNonce,
 		Data:          data,
-		Commitment:    commitment,
+		BindingFactor: bindingFactor,
 		PubDE: types.DE{
 			PubD: pubD,
 			PubE: pubE,

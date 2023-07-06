@@ -101,7 +101,7 @@ func (de *DE) removeDE(pubDE types.DE) {
 // updateDE updates DE if the remaining DE is too low.
 func (de *DE) updateDE() {
 	// Query DE information
-	deRes, err := de.client.QueryDE(de.context.Config.Granter)
+	deRes, err := de.client.QueryDE(de.context.Config.Granter, 0, 1)
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to query DE information: %s", err)
 		return
