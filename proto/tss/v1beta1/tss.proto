@@ -104,8 +104,10 @@ message AssignedMember {
   bytes pub_d = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // pub_e is the public part of a member's encryption key.
   bytes pub_e = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  // binding_factor is the binding factor of the member for the signing process.
+  bytes binding_factor = 5 [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalar"];
   // pub_nonce is the public nonce of the member for the signing process.
-  bytes pub_nonce = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  bytes pub_nonce = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
 }
 
 // PendingSignings is a list of all signing processes that are currently pending.
