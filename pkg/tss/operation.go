@@ -63,15 +63,15 @@ func SumPoints(rawPoints ...Point) (Point, error) {
 }
 
 // SolvePointPolynomial solves a point polynomial equation.
-// It takes points as coefficients and a value x, and returns the result as a point and an error, if any.
-func SolvePointPolynomial(rawCoefficientsCommit Points, rawX Scalar) (Point, error) {
-	coefficientsCommit, err := rawCoefficientsCommit.jacobianPoints()
+// It takes points as coefficient commits and a value x, and returns the result as a point and an error, if any.
+func SolvePointPolynomial(rawCoefficientCommits Points, rawX Scalar) (Point, error) {
+	coefficientCommits, err := rawCoefficientCommits.jacobianPoints()
 	if err != nil {
-		return nil, NewError(err, "parse coefficientsCommit")
+		return nil, NewError(err, "parse coefficientCommits")
 	}
 
 	x := rawX.modNScalar()
-	result := solvePointPolynomial(coefficientsCommit, x)
+	result := solvePointPolynomial(coefficientCommits, x)
 
 	return NewPointFromJacobianPoint(result), nil
 }
