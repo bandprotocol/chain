@@ -168,6 +168,21 @@ AS
             requests.resolve_status;
 """
     )
+    engine.execute(
+        """
+CREATE VIEW data_source_statistic_last_1_day
+AS
+  SELECT data_sources.id,
+         count(*) AS count
+  FROM   data_sources
+         join raw_requests
+           ON data_sources.id = raw_requests.data_source_id
+         join requests
+           ON raw_requests.request_id  = requests.id
+  WHERE  requests.request_time >= CAST(EXTRACT(epoch FROM NOW()) AS INT) - 86400
+  GROUP  BY data_sources.id;
+        """
+    )
     # TODO: replace select&group_by d.validator_id with d.delegator_id
     engine.execute(
         """

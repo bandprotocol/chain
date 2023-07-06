@@ -69,6 +69,7 @@ func (h *Hook) emitRawRequestAndValRequest(
 			"data_source_id": raw.DataSourceID,
 			"fee":            fee.Amount,
 			"calldata":       parseBytes(raw.Calldata),
+			"timestamp":      ctx.BlockTime().UnixNano(),
 		})
 		ds := h.oracleKeeper.MustGetDataSource(ctx, raw.DataSourceID)
 		h.AddAccountsInTx(ds.Treasury)
