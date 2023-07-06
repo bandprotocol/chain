@@ -56,14 +56,61 @@ func (s *KeeperTestSuite) SetupGroup(groupStatus types.GroupStatus) {
 		// Set dkg context
 		s.app.TSSKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
 
+		// Get group
+		group, err := k.GetGroup(ctx, tc.Group.ID)
+		s.Require().NoError(err)
+
 		switch groupStatus {
 		case types.GROUP_STATUS_ROUND_2:
-			// Get group
-			group, err := k.GetGroup(ctx, tc.Group.ID)
-			s.Require().NoError(err)
-			// update group status
 			group.Status = types.GROUP_STATUS_ROUND_2
 			k.SetGroup(ctx, group)
+		case types.GROUP_STATUS_ROUND_3:
+			group.Status = types.GROUP_STATUS_ROUND_3
+			k.SetGroup(ctx, group)
+			// Update member public key
+			for i, m := range tc.Group.Members {
+				member := types.Member{
+					MemberID:    tss.MemberID(i + 1),
+					Address:     sdk.AccAddress(m.PubKey()).String(),
+					PubKey:      m.PubKey(),
+					IsMalicious: false,
+				}
+				k.SetMember(ctx, tc.Group.ID, member)
+			}
+		case types.GROUP_STATUS_ACTIVE:
+			group.Status = types.GROUP_STATUS_ACTIVE
+			group.PubKey = tc.Group.PubKey
+			k.SetGroup(ctx, group)
+
+			// Update member public key
+			for i, m := range tc.Group.Members {
+				member := types.Member{
+					MemberID:    tss.MemberID(i + 1),
+					Address:     sdk.AccAddress(m.PubKey()).String(),
+					PubKey:      m.PubKey(),
+					IsMalicious: false,
+				}
+				k.SetMember(ctx, tc.Group.ID, member)
+			}
+
+			for _, signing := range tc.Signings {
+				for _, am := range signing.AssignedMembers {
+					pubD := am.PrivD.Point()
+					pubE := am.PrivE.Point()
+
+					member, err := k.GetMember(ctx, tc.Group.ID, am.ID)
+					s.Require().NoError(err)
+					address, err := sdk.AccAddressFromBech32(member.Address)
+					s.Require().NoError(err)
+
+					k.HandleSetDEs(ctx, address, []types.DE{
+						{
+							PubD: pubD,
+							PubE: pubE,
+						},
+					})
+				}
+			}
 		}
 	}
 }
