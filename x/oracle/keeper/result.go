@@ -53,7 +53,6 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 func (k Keeper) ResolveSuccess(
 	ctx sdk.Context,
 	id types.RequestID,
-	gid tss.GroupID,
 	sid tss.SigningID,
 	result []byte,
 	gasUsed uint64,

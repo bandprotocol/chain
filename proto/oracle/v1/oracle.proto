@@ -96,15 +96,13 @@ message Request {
   int64 request_time = 6;
   // ClientID is arbitrary id provided by requester.
   // It is used by client-side for referencing the request
-  string client_id = 7 [ (gogoproto.customname) = "ClientID" ];
+  string client_id = 7 [(gogoproto.customname) = "ClientID"];
   // RawRequests is a list of raw requests specified by execution of oracle
   // script
-  repeated RawRequest raw_requests = 8 [ (gogoproto.nullable) = false ];
+  repeated RawRequest raw_requests = 8 [(gogoproto.nullable) = false];
   // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 9 [
-    (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
+  uint64 group_id = 9
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // IBCChannel is an IBC channel info of the other chain, which contains a
   // channel and a port to allow bandchain connect to that chain. This field
   // allows other chain be able to request data from bandchain via IBC.
@@ -148,14 +146,7 @@ message OracleRequestPacketData {
   // ClientID is the unique identifier of this oracle request, as specified by
   // the client. This same unique ID will be sent back to the requester with the
   // oracle response.
-<<<<<<< HEAD
-  string client_id = 1 [ (gogoproto.customname) = "ClientID" ];
-=======
   string client_id = 1 [(gogoproto.customname) = "ClientID"];
-  // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
->>>>>>> df0e917e63311ffb210665253f8b28fe5a6a9dd1
   // OracleScriptID is the unique identifier of the oracle script to be
   // executed.
   uint64 oracle_script_id = 3 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
@@ -170,21 +161,12 @@ message OracleRequestPacketData {
   // cost of liveness.
   uint64 min_count = 6;
   // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 7 [
-    (gogoproto.customname) = "GroupID",
-    (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
+  uint64 group_id = 7
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // FeeLimit is the maximum tokens that will be paid to all data source
   // providers.
-<<<<<<< HEAD
-  repeated cosmos.base.v1beta1.Coin fee_limit = 8 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-=======
-  repeated cosmos.base.v1beta1.Coin fee_limit = 7
+  repeated cosmos.base.v1beta1.Coin fee_limit = 8
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
->>>>>>> df0e917e63311ffb210665253f8b28fe5a6a9dd1
   // PrepareGas is amount of gas to pay to prepare raw requests
   uint64 prepare_gas = 9;
   // ExecuteGas is amount of gas to reserve for executing

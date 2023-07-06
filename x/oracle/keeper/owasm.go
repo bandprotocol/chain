@@ -197,7 +197,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 			}
 		}
 
-		k.ResolveSuccess(ctx, reqID, req.GroupID, sid, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, sid, env.Retdata, output.GasUsed)
 	}
 }
 
