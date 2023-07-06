@@ -9,22 +9,22 @@ import (
 // NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
 	clientID string,
-	GroupID tss.GroupID,
 	oracleScriptID OracleScriptID,
 	calldata []byte,
 	askCount uint64,
 	minCount uint64,
+	GroupID tss.GroupID,
 	feeLimit sdk.Coins,
 	prepareGas uint64,
 	executeGas uint64,
 ) OracleRequestPacketData {
 	return OracleRequestPacketData{
 		ClientID:       clientID,
-		GroupID:        GroupID,
 		OracleScriptID: oracleScriptID,
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
+		GroupID:        GroupID,
 		FeeLimit:       feeLimit,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,

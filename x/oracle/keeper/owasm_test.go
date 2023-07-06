@@ -136,6 +136,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -258,6 +259,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.EmptyCoins,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -271,6 +273,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -284,6 +287,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -297,6 +301,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -310,6 +315,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -330,6 +336,7 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -347,6 +354,7 @@ func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -369,6 +377,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.EmptyCoins,
+		0,
 		1,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -399,6 +408,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -417,6 +427,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -435,6 +446,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -460,6 +472,7 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -489,6 +502,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -506,6 +520,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -525,6 +540,7 @@ func TestPrepareRequestEmptyCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -542,6 +558,7 @@ func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -559,6 +576,7 @@ func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -576,6 +594,7 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -589,7 +608,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.EqualError(t, err, "id: 99: data source not found")
 }
@@ -602,13 +621,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -624,6 +643,7 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -638,6 +658,7 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -656,6 +677,7 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -670,6 +692,7 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,

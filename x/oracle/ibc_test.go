@@ -80,11 +80,11 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		2,
 		2,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -152,88 +152,88 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 	oracleRequestPackets := []types.OracleRequestPacketData{
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte(strings.Repeat("beeb", 130)),
 			1,
 			1,
+			0,
 			coins,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			0,
+			0,
 			coins,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			2,
+			0,
 			coins,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			strings.Repeat(clientID, 9),
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			1,
+			0,
 			coins,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			1,
+			0,
 			coins,
 			0,
 			testapp.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			1,
+			0,
 			coins,
 			testapp.TestDefaultPrepareGas,
 			0,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			1,
+			0,
 			coins,
 			types.MaximumOwasmGas,
 			types.MaximumOwasmGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
-			0,
 			1,
 			[]byte("beeb"),
 			1,
 			1,
+			0,
 			testapp.BadCoins,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
@@ -256,11 +256,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -297,11 +297,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -321,11 +321,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte(strings.Repeat("beeb", 2000)),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -342,11 +342,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		1,
 		testapp.TestDefaultExecuteGas,
@@ -364,11 +364,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		17,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -380,11 +380,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 
 	oracleRequestPacket = types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		3,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -407,11 +407,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -434,11 +434,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -457,11 +457,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		100,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -479,11 +479,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		2,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -501,11 +501,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		3,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -523,11 +523,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		4,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -549,7 +549,6 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		4,
 		obi.MustEncode(testapp.Wasm4Input{
 			IDs:      []int64{1, 2, 3, 4},
@@ -557,6 +556,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 		}),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -574,11 +574,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		6,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -595,11 +595,11 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		8,
 		[]byte("beeb"),
 		1,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
@@ -617,11 +617,11 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		1,
 		[]byte("beeb"),
 		2,
 		1,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
 		testapp.TestDefaultPrepareGas,
 		1,
@@ -679,11 +679,11 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	timeoutHeight := clienttypes.NewHeight(0, 110)
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
-		0,
 		4,
 		obi.MustEncode(testapp.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
 		2,
 		2,
+		0,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
