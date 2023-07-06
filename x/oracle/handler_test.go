@@ -411,6 +411,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		2,
 		"CID",
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -425,6 +426,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -483,6 +485,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
 			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
 			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
+			{Key: []byte(types.AttributeKeyTSSGroupID), Value: []byte("0")},
 			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("5294700000")},
 			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
 			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
@@ -539,6 +542,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -560,6 +564,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -579,6 +584,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -598,6 +604,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -617,6 +624,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.EmptyCoins,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -641,6 +649,7 @@ func TestReportSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -676,7 +685,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, 0, []byte("RESOLVE_RESULT!"), 1234)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
@@ -709,6 +718,7 @@ func TestReportFail(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),

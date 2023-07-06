@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -80,4 +81,9 @@ type AuthzKeeper interface {
 // RollingseedKeeper defines the expected rollingseed keeper
 type RollingseedKeeper interface {
 	GetRollingSeed(ctx sdk.Context) []byte
+}
+
+// TSSKeeper defines the expected tss keeper.
+type TSSKeeper interface {
+	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error)
 }

@@ -41,6 +41,7 @@ type Keeper struct {
 	channelKeeper     types.ChannelKeeper
 	portKeeper        types.PortKeeper
 	rollingseedKepper types.RollingseedKeeper
+	tssKeeper         types.TSSKeeper
 	scopedKeeper      capabilitykeeper.ScopedKeeper
 }
 
@@ -59,6 +60,7 @@ func NewKeeper(
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	rollingseedKepper types.RollingseedKeeper,
+	tssKeeper types.TSSKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
 ) Keeper {
@@ -80,6 +82,7 @@ func NewKeeper(
 		channelKeeper:     channelKeeper,
 		portKeeper:        portKeeper,
 		rollingseedKepper: rollingseedKepper,
+		tssKeeper:         tssKeeper,
 		scopedKeeper:      scopeKeeper,
 	}
 }
