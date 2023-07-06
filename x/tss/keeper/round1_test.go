@@ -54,6 +54,33 @@ func (s *KeeperTestSuite) TestDeleteRound1Info() {
 	s.Require().Error(err)
 }
 
+func (s *KeeperTestSuite) TestDeleteRound1Infos() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	round1Info := types.Round1Info{
+		MemberID: memberID,
+		CoefficientsCommit: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+
+	k.SetRound1Info(ctx, groupID, round1Info)
+
+	got, err := k.GetRound1Info(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(round1Info, got)
+
+	k.DeleteRound1Infos(ctx, groupID)
+
+	_, err = k.GetRound1Info(ctx, groupID, memberID)
+	s.Require().Error(err)
+}
+
 func (s *KeeperTestSuite) TestGetRound1Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
@@ -129,4 +156,38 @@ func (s *KeeperTestSuite) TestGetSetAccumulatedCommit() {
 	got := k.GetAccumulatedCommit(ctx, groupID, index)
 
 	s.Require().Equal(commit, got)
+}
+
+func (s *KeeperTestSuite) TestDeleteAccumulatedCommit() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	index := uint64(1)
+	commit := tss.Point([]byte("point"))
+
+	// Set Accumulated Commit
+	k.SetAccumulatedCommit(ctx, groupID, index, commit)
+
+	// Delete Accumulated Commit
+	k.DeleteAccumulatedCommit(ctx, groupID, index)
+
+	// Get Accumulated Commit
+	got := k.GetAccumulatedCommit(ctx, groupID, index)
+	s.Require().Equal(tss.Point(nil), got)
+}
+
+func (s *KeeperTestSuite) TestDeleteAccumulatedCommits() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	index := uint64(1)
+	commit := tss.Point([]byte("point"))
+
+	// Set Accumulated Commit
+	k.SetAccumulatedCommit(ctx, groupID, index, commit)
+
+	// Delete Accumulated Commits
+	k.DeleteAccumulatedCommits(ctx, groupID)
+
+	// Get Accumulated Commit
+	got := k.GetAccumulatedCommit(ctx, groupID, index)
+	s.Require().Equal(tss.Point(nil), got)
 }

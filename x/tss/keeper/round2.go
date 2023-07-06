@@ -41,6 +41,17 @@ func (k Keeper) DeleteRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID 
 	ctx.KVStore(k.storeKey).Delete(types.Round2InfoMemberStoreKey(groupID, memberID))
 }
 
+// DeleteRound2Infos removes all round 2 info associated with a specific group ID from the store.
+func (k Keeper) DeleteRound2Infos(ctx sdk.Context, groupID tss.GroupID) {
+	iterator := k.GetRound2InfoIterator(ctx, groupID)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
+}
+
 // SetRound2InfoCount method sets the count of round2Info in the store.
 func (k Keeper) SetRound2InfoCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round2InfoCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))

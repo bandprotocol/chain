@@ -199,7 +199,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 ) ([]types.Member, error) {
 	members_size := uint64(len(members))
 	if t > members_size {
-		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, "t must less than size")
+		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than size")
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
@@ -251,36 +251,35 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		return 0, err
 	}
 
-	// Filter member that have DEs
-	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
-	if err != nil {
-		return 0, err
-	}
-
 	// Random assigning participants
 	selectedMembers, err := k.GetRandomAssigningParticipants(
 		ctx,
 		k.GetSigningCount(ctx)+1,
-		filteredMembers,
+		members,
 		group.Threshold,
 	)
 	if err != nil {
 		return 0, err
 	}
 
-	// Get public D and E for each assigned members
-	assignedMembers, pubDs, pubEs, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
+	// Handle assigned members by polling DE and retrieve assigned members information.
+	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
 	if err != nil {
 		return 0, err
 	}
 
 	// Compute commitment from mids, public D and public E
-	commitment, err := tss.ComputeCommitment(types.GetMemberIDs(selectedMembers), pubDs, pubEs)
+	commitment, err := tss.ComputeCommitment(
+		types.GetMemberIDs(selectedMembers),
+		assignedMembers.PubDs(),
+		assignedMembers.PubEs(),
+	)
 	if err != nil {
 		return 0, err
 	}
 
 	// Compute binding factor and public nonce of each assigned member
+	var ownBindingFactors tss.Scalars
 	var ownPubNonces tss.Points
 	for i, member := range assignedMembers {
 		// Compute own binding factor
@@ -288,6 +287,8 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		if err != nil {
 			return 0, err
 		}
+
+		ownBindingFactors = append(ownBindingFactors, ownBindingFactor)
 
 		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
@@ -336,13 +337,13 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
-		sdk.NewAttribute(types.AttributeKeyCommitment, hex.EncodeToString(commitment)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
 	)
-	for _, member := range assignedMembers {
+	for i, member := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
+			sdk.NewAttribute(types.AttributeKeyOwnBindingFactor, hex.EncodeToString(ownBindingFactors[i])),
 			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(member.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(member.PubE)),

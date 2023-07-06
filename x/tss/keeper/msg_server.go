@@ -362,8 +362,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerMemberID, fmt.Sprintf("%d", c.Complainer)),
-					sdk.NewAttribute(types.AttributeKeyComplainantMemberID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
@@ -387,8 +387,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerMemberID, fmt.Sprintf("%d", c.Complainer)),
-					sdk.NewAttribute(types.AttributeKeyComplainantMemberID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
+					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
@@ -505,7 +505,7 @@ func (k Keeper) Confirm(
 			k.SetGroup(ctx, group)
 
 			// Delete all dkg interim data
-			k.DeleteAllDKGInterimData(ctx, groupID, group.Size_, group.Threshold)
+			k.DeleteAllDKGInterimData(ctx, groupID)
 
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
@@ -749,7 +749,7 @@ func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	k.SetGroup(ctx, group)
 
 	// Delete all dkg interim data
-	k.DeleteAllDKGInterimData(ctx, group.GroupID, group.Size_, group.Threshold)
+	k.DeleteAllDKGInterimData(ctx, group.GroupID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

@@ -198,7 +198,12 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		// TODO: logic to check active member
 		members = append(members, member)
 	}
-	return members, nil
+	// Filter members that have DE left
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
+	if err != nil {
+		return nil, err
+	}
+	return filteredMembers, nil
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

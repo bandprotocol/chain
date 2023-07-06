@@ -54,6 +54,17 @@ func (k Keeper) DeleteRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID 
 	ctx.KVStore(k.storeKey).Delete(types.Round1InfoMemberStoreKey(groupID, memberID))
 }
 
+// DeleteRound1Infos removes all round 1 info associated with a specific group ID from the store.
+func (k Keeper) DeleteRound1Infos(ctx sdk.Context, groupID tss.GroupID) {
+	iterator := k.GetRound1InfoIterator(ctx, groupID)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
+}
+
 // SetRound1InfoCount sets the count of round 1 info for a group in the store.
 func (k Keeper) SetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round1InfoCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
@@ -105,6 +116,17 @@ func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) t
 // DeleteAccumulatedCommit removes a accumulated commit of a index of the group from the store.
 func (k Keeper) DeleteAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.AccumulatedCommitIndexStoreKey(groupID, index))
+}
+
+// DeleteAccumulatedCommits removes all accumulated commit associated with a specific group ID from the store.
+func (k Keeper) DeleteAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) {
+	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
 }
 
 // AddCommits function adds each coefficient commit into the accumulated commit of its index.
