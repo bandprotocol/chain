@@ -209,6 +209,16 @@
       using:
         foreign_key_constraint_on: data_source_id
 - table:
+    name: data_source_requests_per_days
+    schema: public
+  object_relationships:
+    - name: data_source
+      using:
+        foreign_key_constraint_on: data_source_id
+- table:
+    name: data_source_statistic_last_1_day
+    schema: public
+- table:
     name: data_sources
     schema: public
   object_relationships:
@@ -223,6 +233,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: data_source_requests_per_days
+      using:
+        foreign_key_constraint_on:
+          column: data_source_id
+          table:
+            name: data_source_requests_per_days
+            schema: public
     - name: raw_requests
       using:
         foreign_key_constraint_on:
@@ -314,6 +331,13 @@
       using:
         foreign_key_constraint_on: oracle_script_id
 - table:
+    name: oracle_script_requests_per_days
+    schema: public
+  object_relationships:
+    - name: oracle_script
+      using:
+        foreign_key_constraint_on: oracle_script_id
+- table:
     name: oracle_script_statistic_last_1_day
     schema: public
 - table:
@@ -337,6 +361,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: oracle_script_requests_per_days
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            name: oracle_script_requests_per_days
+            schema: public
     - name: related_data_source_oracle_scripts
       using:
         foreign_key_constraint_on:

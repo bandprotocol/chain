@@ -65,6 +65,7 @@ func (h *Hook) emitUpdateValidator(ctx sdk.Context, addr sdk.ValAddress) (types.
 		"delegator_shares": val.DelegatorShares.String(),
 		"current_reward":   currentReward,
 		"current_ratio":    currentRatio,
+		"jailed":           val.Jailed,
 		"last_update":      ctx.BlockTime().UnixNano(),
 	})
 	return val, true
