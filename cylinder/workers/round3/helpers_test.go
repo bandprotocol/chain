@@ -224,7 +224,7 @@ func getTestData(testCase testutil.TestCase, member testutil.Member) (store.Grou
 	for _, m := range tc.Group.Members {
 		round1Info := types.Round1Info{
 			MemberID:           m.ID,
-			CoefficientsCommit: m.CoefficientsCommit,
+			CoefficientCommits: m.CoefficientCommits,
 			OneTimePubKey:      m.OneTimePubKey(),
 		}
 		groupRes.Round1Infos = append(groupRes.Round1Infos, round1Info)

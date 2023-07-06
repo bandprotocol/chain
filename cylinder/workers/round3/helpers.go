@@ -89,7 +89,7 @@ func getSecretShare(
 	}
 
 	// Verify secret share
-	err = tss.VerifySecretShare(complainer, secretShare, round1InfoComplainant.CoefficientsCommit)
+	err = tss.VerifySecretShare(complainer, secretShare, round1InfoComplainant.CoefficientCommits)
 	if err != nil {
 		// Generate complaint if we fail to verify secret share
 		sig, keySym, err := tss.SignComplaint(

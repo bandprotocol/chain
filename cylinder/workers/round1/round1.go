@@ -99,7 +99,7 @@ func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64
 		GroupID: gid,
 		Round1Info: types.Round1Info{
 			MemberID:           mid,
-			CoefficientsCommit: data.CoefficientsCommit,
+			CoefficientCommits: data.CoefficientCommits,
 			OneTimePubKey:      data.OneTimePubKey,
 			A0Sig:              data.A0Sig,
 			OneTimeSig:         data.OneTimeSig,
