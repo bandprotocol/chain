@@ -13,10 +13,10 @@ func TestGenerateDEs(t *testing.T) {
 	assert.Nil(t, err)
 
 	for _, privDE := range privDEs {
-		err = privDE.PrivD.Valid()
+		err = privDE.PrivD.Validate()
 		assert.Nil(t, err)
 
-		err = privDE.PrivE.Valid()
+		err = privDE.PrivE.Validate()
 		assert.Nil(t, err)
 	}
 }
