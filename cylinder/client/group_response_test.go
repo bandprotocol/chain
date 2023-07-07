@@ -106,13 +106,13 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 	tests := []struct {
 		name               string
 		queryGroupResponse *types.QueryGroupResponse
-		memberIDI          tss.MemberID
-		memberIDJ          tss.MemberID
+		senderID           tss.MemberID
+		receiverID         tss.MemberID
 		expectedShare      tss.Scalar
 		expectedError      error
 	}{
 		{
-			name: "Existing Member IDs",
+			name: "Existing share",
 			queryGroupResponse: &types.QueryGroupResponse{
 				Round2Infos: []types.Round2Info{
 					{
@@ -121,13 +121,13 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDI:     1,
-			memberIDJ:     1,
+			senderID:      1,
+			receiverID:    1,
 			expectedShare: []byte("share1"),
 			expectedError: nil,
 		},
 		{
-			name: "Invalid Member J ID",
+			name: "Invalid ReceiverID",
 			queryGroupResponse: &types.QueryGroupResponse{
 				Round2Infos: []types.Round2Info{
 					{
@@ -136,13 +136,13 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDI:     1,
-			memberIDJ:     2,
+			senderID:      2,
+			receiverID:    1,
 			expectedShare: nil,
 			expectedError: fmt.Errorf("No Round2Info from MemberID(2)"),
 		},
 		{
-			name: "Invalid Member I ID",
+			name: "Invalid SenderID",
 			queryGroupResponse: &types.QueryGroupResponse{
 				Round2Infos: []types.Round2Info{
 					{
@@ -151,17 +151,17 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 					},
 				},
 			},
-			memberIDI:     4,
-			memberIDJ:     1,
+			senderID:      1,
+			receiverID:    4,
 			expectedShare: nil,
-			expectedError: fmt.Errorf("No Round2Shares from MemberID(1) for MemberID(4)"),
+			expectedError: fmt.Errorf("No encrypted secret share from MemberID(1) to MemberID(4)"),
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			groupResponse := client.NewGroupResponse(test.queryGroupResponse)
-			share, err := groupResponse.GetEncryptedSecretShare(test.memberIDJ, test.memberIDI)
+			share, err := groupResponse.GetEncryptedSecretShare(test.senderID, test.receiverID)
 			assert.Equal(t, test.expectedError, err)
 			assert.Equal(t, test.expectedShare, share)
 		})

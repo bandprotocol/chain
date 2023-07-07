@@ -50,34 +50,34 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scala
 }
 
 // getSecretShare calculates and retrieves the decrypted secret share between two members.
-// It takes the Member ID of I and J, private key of Member I, and the group response as input.
+// It takes the Member ID of sender and receiver, private key of receiver, and the group response as input.
 // It returns the secret share, complaint if secret share is not valid, and any error encountered during the process.
 func getSecretShare(
-	complainer tss.MemberID,
-	complainant tss.MemberID,
-	privKeyI tss.Scalar,
+	receiverID tss.MemberID,
+	senderID tss.MemberID,
+	privKeyReceiver tss.Scalar,
 	groupRes *client.GroupResponse,
 ) (tss.Scalar, *types.Complaint, error) {
-	// Get Round1Info of complainer
-	round1InfoComplainer, err := groupRes.GetRound1Info(complainer)
+	// Get Round1Info of receiver
+	r1Receiver, err := groupRes.GetRound1Info(receiverID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Get Round1Info of complinant
-	round1InfoComplainant, err := groupRes.GetRound1Info(complainant)
+	r1Sender, err := groupRes.GetRound1Info(senderID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Get encrypted secret share for complaner from complainant
-	encSecretShare, err := groupRes.GetEncryptedSecretShare(complainant, complainer)
+	encSecretShare, err := groupRes.GetEncryptedSecretShare(senderID, receiverID)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Calculate keySym
-	keySym, err := tss.ComputeKeySym(privKeyI, round1InfoComplainant.OneTimePubKey)
+	keySym, err := tss.ComputeKeySym(privKeyReceiver, r1Sender.OneTimePubKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,21 +89,21 @@ func getSecretShare(
 	}
 
 	// Verify secret share
-	err = tss.VerifySecretShare(complainer, secretShare, round1InfoComplainant.CoefficientCommits)
+	err = tss.VerifySecretShare(receiverID, secretShare, r1Sender.CoefficientCommits)
 	if err != nil {
 		// Generate complaint if we fail to verify secret share
 		sig, keySym, err := tss.SignComplaint(
-			round1InfoComplainer.OneTimePubKey,
-			round1InfoComplainant.OneTimePubKey,
-			privKeyI,
+			r1Receiver.OneTimePubKey,
+			r1Sender.OneTimePubKey,
+			privKeyReceiver,
 		)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		complaint := &types.Complaint{
-			Complainer:  complainer,
-			Complainant: complainant,
+			Complainer:  receiverID,
+			Complainant: senderID,
 			KeySym:      keySym,
 			Signature:   sig,
 		}

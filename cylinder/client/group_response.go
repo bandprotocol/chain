@@ -39,25 +39,21 @@ func (gr *GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, erro
 	return types.Round2Info{}, fmt.Errorf("No Round2Info from MemberID(%d)", mid)
 }
 
-// GetEncryptedSecretShare retrieves the encrypted secret share between specific member I and member J.
-func (gr *GroupResponse) GetEncryptedSecretShare(j, i tss.MemberID) (tss.Scalar, error) {
-	round2InfoJ, err := gr.GetRound2Info(j)
+// GetEncryptedSecretShare retrieves the encrypted secret share from member (Sender) to member (Receiver)
+func (gr *GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.Scalar, error) {
+	r2Sender, err := gr.GetRound2Info(senderID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Determine which index of encrypted secret shares is for Member I
-	// If Member I > Member J, the index should be reduced by 1 (As J doesn't submit its own encrypt secret share)
-	idx := i
-	if i > j {
-		idx--
+	// Determine which slot of encrypted secret shares is for Receiver
+	slot := types.FindMemberSlot(senderID, receiverID)
+
+	if int(slot) >= len(r2Sender.EncryptedSecretShares) {
+		return nil, fmt.Errorf("No encrypted secret share from MemberID(%d) to MemberID(%d)", senderID, receiverID)
 	}
 
-	if int(idx) > len(round2InfoJ.EncryptedSecretShares) {
-		return nil, fmt.Errorf("No Round2Shares from MemberID(%d) for MemberID(%d)", j, i)
-	}
-
-	return round2InfoJ.EncryptedSecretShares[idx-1], nil
+	return r2Sender.EncryptedSecretShares[slot], nil
 }
 
 // IsMember returns boolean to show if the address is the member in the group

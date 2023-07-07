@@ -51,12 +51,12 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 		Short:   "Add a new key to the keychain",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var mnemonic string
 			recover, err := cmd.Flags().GetBool(flagRecover)
 			if err != nil {
 				return err
 			}
 
+			var mnemonic string
 			if recover {
 				inBuf := bufio.NewReader(cmd.InOrStdin())
 				mnemonic, err = input.GetString("Enter your bip39 mnemonic", inBuf)
@@ -68,10 +68,12 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 				if err != nil {
 					return err
 				}
+
 				mnemonic, err = bip39.NewMnemonic(seed)
 				if err != nil {
 					return err
 				}
+
 				fmt.Printf("Mnemonic: %s\n", mnemonic)
 			}
 
@@ -97,6 +99,7 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 			}
 
 			fmt.Printf("Address: %s\n", address.String())
+
 			return nil
 		},
 	}
@@ -143,6 +146,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 			}
 
 			fmt.Printf("Deleted key: %s\n", name)
+
 			return nil
 		},
 	}
@@ -238,6 +242,7 @@ func keysShowCmd(ctx *Context) *cobra.Command {
 			}
 
 			fmt.Println(address.String())
+
 			return nil
 		},
 	}
