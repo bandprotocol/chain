@@ -61,7 +61,7 @@ func (k Keeper) ResolveSuccess(
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyTSSSigningID, fmt.Sprintf("%d", sid)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", sid)),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),

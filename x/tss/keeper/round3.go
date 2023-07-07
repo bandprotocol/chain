@@ -15,19 +15,19 @@ func (k Keeper) HandleVerifyComplaint(
 	complaint types.Complaint,
 ) error {
 	// Get round 1 info from member Complainer
-	round1I, err := k.GetRound1Info(ctx, groupID, complaint.Complainer)
+	round1Complainer, err := k.GetRound1Info(ctx, groupID, complaint.Complainer)
 	if err != nil {
 		return err
 	}
 
 	// Get round 1 info from member Complainant
-	round1J, err := k.GetRound1Info(ctx, groupID, complaint.Complainant)
+	round1Complainant, err := k.GetRound1Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
 
 	// Get round 2 info from member Complainant
-	round2J, err := k.GetRound2Info(ctx, groupID, complaint.Complainant)
+	round2Complainant, err := k.GetRound2Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
@@ -37,13 +37,13 @@ func (k Keeper) HandleVerifyComplaint(
 
 	// Verify the complaint signature
 	err = tss.VerifyComplaint(
-		round1I.OneTimePubKey,
-		round1J.OneTimePubKey,
+		round1Complainer.OneTimePubKey,
+		round1Complainant.OneTimePubKey,
 		complaint.KeySym,
 		complaint.Signature,
-		round2J.EncryptedSecretShares[indexJ],
+		round2Complainant.EncryptedSecretShares[indexJ],
 		complaint.Complainer,
-		round1J.CoefficientCommits,
+		round1Complainant.CoefficientCommits,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(

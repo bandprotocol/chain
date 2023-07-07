@@ -87,10 +87,10 @@ message Signing {
   bytes commitment = 6;
   // signature is the group's signature on the message.
   bytes signature = 7 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
-  // request_time is the time when the signing request was made.
-  google.protobuf.Timestamp request_time = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-  // expired_time is the time when the signing request will expire if not completed.
-  google.protobuf.Timestamp expired_time = 9 [(gogoproto.stdtime) = true];
+  // created_at is the time when the signing request was made.
+  google.protobuf.Timestamp created_at = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // expiration is the time when the signing request will expire if not completed.
+  google.protobuf.Timestamp expiration = 9 [(gogoproto.stdtime) = true];
 }
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.

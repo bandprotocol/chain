@@ -571,7 +571,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 	}
 
 	// Check expired time
-	if ctx.BlockHeader().Time.After(*signing.ExpiredTime) {
+	if ctx.BlockHeader().Time.After(*signing.Expiration) {
 		return nil, sdkerrors.Wrap(types.ErrSigningExpired, "signing is expired")
 	}
 
@@ -677,7 +677,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 
 		// Set signing with signature
 		signing.Signature = sig
-		signing.ExpiredTime = nil
+		signing.Expiration = nil
 		k.SetSigning(ctx, signing)
 
 		// Delete interims data

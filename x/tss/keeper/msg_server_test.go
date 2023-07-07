@@ -286,6 +286,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	// Setup group as round 2
 	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
@@ -311,7 +312,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 			got, err := k.GetGroup(ctx, tcGroup.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(got.Status, types.GROUP_STATUS_ROUND_3)
-			s.Require().Equal(*got.Expiration, ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx)))
+			s.Require().Equal(*got.Expiration, expiration)
 
 			// Clean up Round1Infos and Round2Infos
 			k.DeleteRound1Infos(ctx, tcGroup.ID)
@@ -414,11 +415,10 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 			}
 
 			// Check the group's status and expiration time after confirmation
-			var nilTime *time.Time
 			got, err := k.GetGroup(ctx, tcGroup.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_ACTIVE, got.Status)
-			s.Require().Equal(nilTime, got.Expiration)
+			s.Require().Nil(got.Expiration)
 		})
 	}
 }
@@ -585,7 +585,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
 
 func (s *KeeperTestSuite) TestFailedSignReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiredTime := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -617,7 +617,7 @@ func (s *KeeperTestSuite) TestFailedSignReq() {
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
 					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
-					ExpiredTime:     &expiredTime,
+					Expiration:      &expiration,
 				})
 
 				req = types.MsgSign{
@@ -708,7 +708,7 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
 			s.Require().NotNil(signing.Signature)
-			s.Require().Nil(signing.ExpiredTime)
+			s.Require().Nil(signing.Expiration)
 		})
 	}
 }

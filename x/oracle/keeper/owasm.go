@@ -139,7 +139,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(req.Calldata)),
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
-		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.GroupID)),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)
@@ -192,7 +192,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 				ctx.EventManager().EmitEvent(sdk.NewEvent(
 					types.EventTypeTSSHandleRequestSignFail,
 					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
-					sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 				))
 			}
