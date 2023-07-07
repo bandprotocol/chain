@@ -41,7 +41,7 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 	bindingFactors, err := event.GetEventValuesBytes(
 		log,
 		types.EventTypeRequestSign,
-		types.AttributeKeyOwnBindingFactor,
+		types.AttributeKeyBindingFactor,
 	)
 	if err != nil {
 		return nil, err
