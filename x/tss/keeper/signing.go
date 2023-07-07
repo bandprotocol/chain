@@ -199,7 +199,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 ) ([]types.Member, error) {
 	members_size := uint64(len(members))
 	if t > members_size {
-		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than size")
+		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than or equal to size")
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.

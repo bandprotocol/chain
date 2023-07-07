@@ -22,3 +22,11 @@ func (as AssignedMembers) PubEs() (pubEs tss.Points) {
 	}
 	return
 }
+
+// MemberIDs returns a list of MemberIDs extracted from the AssignedMembers slice.
+func (as AssignedMembers) MemberIDs() (mids []tss.MemberID) {
+	for _, a := range as {
+		mids = append(mids, a.MemberID)
+	}
+	return
+}
