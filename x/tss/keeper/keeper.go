@@ -203,6 +203,10 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 	if err != nil {
 		return nil, err
 	}
+
+	if len(filteredMembers) == 0 {
+		return nil, sdkerrors.Wrapf(types.ErrNoActiveMember, "no active member in groupID: %d", groupID)
+	}
 	return filteredMembers, nil
 }
 

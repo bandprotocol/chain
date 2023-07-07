@@ -38,34 +38,34 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				})
 			}
 
-			memberI := tc.Group.Members[0]
-			memberJ := tc.Group.Members[1]
-			iSlot := types.FindMemberSlot(memberI.ID, memberJ.ID)
-			jSlot := types.FindMemberSlot(memberJ.ID, memberI.ID)
+			complainer := tc.Group.Members[0]
+			complainant := tc.Group.Members[1]
+			complainerSlot := types.FindMemberSlot(complainer.ID, complainant.ID)
+			complainantSlot := types.FindMemberSlot(complainant.ID, complainer.ID)
 
 			// Failed case - correct encrypted secret share
 			err := k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				Complainer:  memberI.ID,
-				Complainant: memberJ.ID,
-				KeySym:      memberI.KeySyms[iSlot],
-				Signature:   memberI.ComplaintSigs[iSlot],
+				Complainer:  complainer.ID,
+				Complainant: complainant.ID,
+				KeySym:      complainer.KeySyms[complainerSlot],
+				Signature:   complainer.ComplaintSigs[complainerSlot],
 			})
 			s.Require().Error(err)
 
-			// Get round 2 info Complainant
-			round2J, err := k.GetRound2Info(ctx, tc.Group.ID, memberJ.ID)
+			// Get complainant round 2 info
+			complainantRound2, err := k.GetRound2Info(ctx, tc.Group.ID, complainant.ID)
 			s.Require().NoError(err)
 
 			// Set fake encrypted secret shares
-			round2J.EncryptedSecretShares[jSlot] = testutil.FakePrivKey
-			k.SetRound2Info(ctx, tc.Group.ID, round2J)
+			complainantRound2.EncryptedSecretShares[complainantSlot] = testutil.FakePrivKey
+			k.SetRound2Info(ctx, tc.Group.ID, complainantRound2)
 
 			// Success case - wrong encrypted secret share
 			err = k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				Complainer:  memberI.ID,
-				Complainant: memberJ.ID,
-				KeySym:      memberI.KeySyms[iSlot],
-				Signature:   memberI.ComplaintSigs[iSlot],
+				Complainer:  complainer.ID,
+				Complainant: complainant.ID,
+				KeySym:      complainer.KeySyms[complainerSlot],
+				Signature:   complainer.ComplaintSigs[complainerSlot],
 			})
 			s.Require().NoError(err)
 		})

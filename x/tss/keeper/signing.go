@@ -55,9 +55,9 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
 	signingID := k.GetNextSigningID(ctx)
 	signing.SigningID = signingID
-	signing.RequestTime = ctx.BlockHeader().Time
-	expiredTime := signing.RequestTime.Add(k.SigningPeriod(ctx))
-	signing.ExpiredTime = &expiredTime
+	signing.CreatedAt = ctx.BlockHeader().Time
+	expiredTime := signing.CreatedAt.Add(k.SigningPeriod(ctx))
+	signing.Expiration = &expiredTime
 	k.SetSigning(ctx, signing)
 
 	return signingID
@@ -199,7 +199,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 ) ([]types.Member, error) {
 	members_size := uint64(len(members))
 	if t > members_size {
-		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than size")
+		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than or equal to size")
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
@@ -279,14 +279,12 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	}
 
 	// Compute binding factor and public nonce of each assigned member
-	var ownPubNonces tss.Points
 	for i, member := range assignedMembers {
 		// Compute binding factor
 		assignedMembers[i].BindingFactor, err = tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
 		if err != nil {
 			return 0, err
 		}
-
 		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
@@ -296,12 +294,10 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		if err != nil {
 			return 0, err
 		}
-
-		ownPubNonces = append(ownPubNonces, assignedMembers[i].PubNonce)
 	}
 
 	// Compute group public nonce for this signing
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(ownPubNonces...)
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
 	if err != nil {
 		return 0, err
 	}
@@ -340,8 +336,8 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
-			sdk.NewAttribute(types.AttributeKeyOwnBindingFactor, hex.EncodeToString(member.BindingFactor)),
-			sdk.NewAttribute(types.AttributeKeyOwnPubNonces, hex.EncodeToString(member.PubNonce)),
+			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(member.BindingFactor)),
+			sdk.NewAttribute(types.AttributeKeyPubNonces, hex.EncodeToString(member.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(member.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(member.PubE)),
 		)

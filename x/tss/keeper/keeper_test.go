@@ -24,6 +24,13 @@ type KeeperTestSuite struct {
 	msgSrvr types.MsgServer
 }
 
+var (
+	PrivD = testutil.HexDecode("de6aedbe8ba688dd6d342881eb1e67c3476e825106477360148e2858a5eb565c")
+	PrivE = testutil.HexDecode("3ff4fb2beac0cee0ab230829a5ae0881310046282e79c978ca22f44897ea434a")
+	PubD  = tss.Scalar(PrivD).Point()
+	PubE  = tss.Scalar(PrivE).Point()
+)
+
 func (s *KeeperTestSuite) SetupTest() {
 	app, ctx, _ := testapp.CreateTestInput(false)
 	s.app = app
@@ -34,12 +41,12 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.msgSrvr = app.TSSKeeper
 }
 
-func (s *KeeperTestSuite) SetupGroup(groupStatus types.GroupStatus) {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+func (s *KeeperTestSuite) setupCreateGroup() {
+	ctx, msgSrvr := s.ctx, s.msgSrvr
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
-		// Init members
+		// Initialize members
 		var members []string
 		for _, m := range tc.Group.Members {
 			members = append(members, sdk.AccAddress(m.PubKey()).String())
@@ -53,65 +60,108 @@ func (s *KeeperTestSuite) SetupGroup(groupStatus types.GroupStatus) {
 		})
 		s.Require().NoError(err)
 
-		// Set dkg context
+		// Set DKG context
 		s.app.TSSKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
+	}
+}
 
-		// Get group
-		group, err := k.GetGroup(ctx, tc.Group.ID)
-		s.Require().NoError(err)
+func (s *KeeperTestSuite) setupRound1() {
+	s.setupCreateGroup()
 
-		switch groupStatus {
-		case types.GROUP_STATUS_ROUND_2:
-			group.Status = types.GROUP_STATUS_ROUND_2
-			k.SetGroup(ctx, group)
-		case types.GROUP_STATUS_ROUND_3:
-			group.Status = types.GROUP_STATUS_ROUND_3
-			k.SetGroup(ctx, group)
-			// Update member public key
-			for i, m := range tc.Group.Members {
-				member := types.Member{
-					MemberID:    tss.MemberID(i + 1),
-					Address:     sdk.AccAddress(m.PubKey()).String(),
-					PubKey:      m.PubKey(),
-					IsMalicious: false,
-				}
-				k.SetMember(ctx, tc.Group.ID, member)
-			}
-		case types.GROUP_STATUS_ACTIVE:
-			group.Status = types.GROUP_STATUS_ACTIVE
-			group.PubKey = tc.Group.PubKey
-			k.SetGroup(ctx, group)
-
-			// Update member public key
-			for i, m := range tc.Group.Members {
-				member := types.Member{
-					MemberID:    tss.MemberID(i + 1),
-					Address:     sdk.AccAddress(m.PubKey()).String(),
-					PubKey:      m.PubKey(),
-					IsMalicious: false,
-				}
-				k.SetMember(ctx, tc.Group.ID, member)
-			}
-
-			for _, signing := range tc.Signings {
-				for _, am := range signing.AssignedMembers {
-					pubD := am.PrivD.Point()
-					pubE := am.PrivE.Point()
-
-					member, err := k.GetMember(ctx, tc.Group.ID, am.ID)
-					s.Require().NoError(err)
-					address, err := sdk.AccAddressFromBech32(member.Address)
-					s.Require().NoError(err)
-
-					k.HandleSetDEs(ctx, address, []types.DE{
-						{
-							PubD: pubD,
-							PubE: pubE,
-						},
-					})
-				}
-			}
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	for _, tc := range testutil.TestCases {
+		tcGroup := tc.Group
+		for _, m := range tcGroup.Members {
+			// Submit Round 1 information for each member
+			_, err := msgSrvr.SubmitDKGRound1(ctx, &types.MsgSubmitDKGRound1{
+				GroupID: tcGroup.ID,
+				Round1Info: types.Round1Info{
+					MemberID:           m.ID,
+					CoefficientCommits: m.CoefficientCommits,
+					OneTimePubKey:      m.OneTimePubKey(),
+					A0Sig:              m.A0Sig,
+					OneTimeSig:         m.OneTimeSig,
+				},
+				Member: sdk.AccAddress(m.PubKey()).String(),
+			})
+			s.Require().NoError(err)
 		}
+	}
+}
+
+func (s *KeeperTestSuite) setupRound2() {
+	s.setupRound1()
+
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	for _, tc := range testutil.TestCases {
+		tcGroup := tc.Group
+		for _, m := range tcGroup.Members {
+			// Submit Round 2 information for each member
+			_, err := msgSrvr.SubmitDKGRound2(ctx, &types.MsgSubmitDKGRound2{
+				GroupID: tcGroup.ID,
+				Round2Info: types.Round2Info{
+					MemberID:              m.ID,
+					EncryptedSecretShares: m.EncSecretShares,
+				},
+				Member: sdk.AccAddress(m.PubKey()).String(),
+			})
+			s.Require().NoError(err)
+		}
+	}
+}
+
+func (s *KeeperTestSuite) setupConfirm() {
+	s.setupRound2()
+
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	for _, tc := range testutil.TestCases {
+		tcGroup := tc.Group
+		for _, m := range tcGroup.Members {
+			// Confirm the group participation for each member
+			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
+				GroupID:      tcGroup.ID,
+				MemberID:     m.ID,
+				OwnPubKeySig: m.PubKeySig,
+				Member:       sdk.AccAddress(m.PubKey()).String(),
+			})
+			s.Require().NoError(err)
+		}
+	}
+}
+
+func (s *KeeperTestSuite) setupDE() {
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+
+	for _, tc := range testutil.TestCases {
+		tcGroup := tc.Group
+		for _, m := range tcGroup.Members {
+			// Submit DEs for each member
+			_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+				DEs: []types.DE{
+					{PubD: PubD, PubE: PubE},
+					{PubD: PubD, PubE: PubE},
+					{PubD: PubD, PubE: PubE},
+					{PubD: PubD, PubE: PubE},
+					{PubD: PubD, PubE: PubE},
+				},
+				Member: sdk.AccAddress(m.PubKey()).String(),
+			})
+			s.Require().NoError(err)
+		}
+	}
+}
+
+func (s *KeeperTestSuite) SetupGroup(groupStatus types.GroupStatus) {
+	switch groupStatus {
+	case types.GROUP_STATUS_ROUND_1:
+		s.setupCreateGroup()
+	case types.GROUP_STATUS_ROUND_2:
+		s.setupRound1()
+	case types.GROUP_STATUS_ROUND_3:
+		s.setupRound2()
+	case types.GROUP_STATUS_ACTIVE:
+		s.setupConfirm()
+		s.setupDE()
 	}
 }
 

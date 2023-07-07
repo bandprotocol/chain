@@ -21,10 +21,10 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetCmdQueryGroup(),
-		GetCmdQueryMembers(),
-		GetCmdQueryIsGrantee(),
-		GetCmdQueryDE(),
+		GetQueryCmdGroup(),
+		GetQueryCmdMembers(),
+		GetQueryCmdIsGrantee(),
+		GetQueryCmdDE(),
 		GetCmdPendingSignings(),
 		GetCmdSignings(),
 	)
@@ -32,8 +32,8 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryGroup creates a CLI command for Query/Group.
-func GetCmdQueryGroup() *cobra.Command {
+// GetQueryCmdGroup creates a CLI command for Query/Group.
+func GetQueryCmdGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "group [id]",
 		Short: "Query group by group ID",
@@ -67,8 +67,8 @@ func GetCmdQueryGroup() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryMembers creates a CLI command for Query/Members.
-func GetCmdQueryMembers() *cobra.Command {
+// GetQueryCmdMembers creates a CLI command for Query/Members.
+func GetQueryCmdMembers() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "members [group-id]",
 		Short: "Query members by group id",
@@ -102,8 +102,8 @@ func GetCmdQueryMembers() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryIsGrantee creates a CLI command for Query/IsGrantee.
-func GetCmdQueryIsGrantee() *cobra.Command {
+// GetQueryCmdIsGrantee creates a CLI command for Query/IsGrantee.
+func GetQueryCmdIsGrantee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "is-grantee [granter_address] [grantee_address]",
 		Short: "Query grantee status",
@@ -133,8 +133,8 @@ func GetCmdQueryIsGrantee() *cobra.Command {
 	return cmd
 }
 
-// GetCmdQueryDE creates a CLI command for Query/DE.
-func GetCmdQueryDE() *cobra.Command {
+// GetQueryCmdDE creates a CLI command for Query/DE.
+func GetQueryCmdDE() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "de-list [address]",
 		Short: "Query all DE for this address",

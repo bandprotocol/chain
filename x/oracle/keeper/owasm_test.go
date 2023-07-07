@@ -209,7 +209,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
-			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"),
+			sdk.NewAttribute(types.AttributeKeyGroupID, "0"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "5294700000"),
 			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
@@ -730,7 +730,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		sdk.Events{
 			sdk.NewEvent(types.EventTypeResolve,
 				sdk.NewAttribute(types.AttributeKeyID, "42"),
-				sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
+				sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
 				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
@@ -781,7 +781,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		sdk.NewEvent(
 			types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
+			sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(
 				types.AttributeKeyResult,
@@ -856,7 +856,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
+			sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),

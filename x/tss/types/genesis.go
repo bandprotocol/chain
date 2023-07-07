@@ -13,6 +13,7 @@ func NewGenesisState(
 		Params:          params,
 		GroupCount:      groupCount,
 		SigningCount:    signingCount,
+		Groups:          groups,
 		DEQueuesGenesis: deQueuesGenesis,
 		DEsGenesis:      desGenesis,
 	}

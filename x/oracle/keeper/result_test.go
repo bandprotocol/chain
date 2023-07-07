@@ -57,7 +57,7 @@ func TestResolveSuccess(t *testing.T) {
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyTSSSigningID, "0"), // no require sign by tss module
+		sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
