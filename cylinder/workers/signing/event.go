@@ -1,6 +1,8 @@
 package signing
 
 import (
+	"errors"
+
 	"github.com/bandprotocol/chain/v2/pkg/event"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -68,15 +70,21 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 	var pubD, pubE tss.Point
 	var mids []tss.MemberID
 	var bindingFactor tss.Scalar
+	found := false
 
 	members := event.GetEventValues(log, types.EventTypeRequestSign, types.AttributeKeyMember)
 	for i, member := range members {
 		mids = append(mids, tss.MemberID(midInts[i]))
 		if member == address {
+			found = true
 			bindingFactor = bindingFactors[i]
 			pubD = pubDs[i]
 			pubE = pubEs[i]
 		}
+	}
+
+	if !found {
+		return nil, errors.New("failed to find member in the event")
 	}
 
 	return &Event{

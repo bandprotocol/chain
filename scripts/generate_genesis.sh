@@ -19,6 +19,8 @@ echo "measure fence mail fluid olive cute empower fossil ahead manage snow marbl
 # add accounts to genesis
 bandd add-genesis-account validator 10000000000000uband --keyring-backend test
 bandd add-genesis-account requester 10000000000000uband --keyring-backend test
+
+## add tss accounts to genesis
 bandd add-genesis-account tss1 10000000000000uband --keyring-backend test
 bandd add-genesis-account tss2 10000000000000uband --keyring-backend test
 bandd add-genesis-account tss3 10000000000000uband --keyring-backend test

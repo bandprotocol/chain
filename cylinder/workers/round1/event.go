@@ -15,7 +15,6 @@ type Event struct {
 	MemberID   tss.MemberID
 	Threshold  uint64
 	DKGContext []byte
-	Members    []string
 }
 
 // ParseEvent parses the ABCIMessageLog and extracts the relevant information to create a create_group event.
@@ -48,7 +47,6 @@ func ParseEvent(log sdk.ABCIMessageLog, address string) (*Event, error) {
 		MemberID:   mid,
 		Threshold:  threshold,
 		DKGContext: dkgContext,
-		Members:    members,
 	}, nil
 }
 

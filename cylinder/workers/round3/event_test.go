@@ -1,4 +1,4 @@
-package round2_test
+package round3_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/cylinder/workers/round2"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/round3"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -14,19 +14,19 @@ func TestParseEvent(t *testing.T) {
 	tests := []struct {
 		name     string
 		log      sdk.ABCIMessageLog
-		expEvent *round2.Event
+		expEvent *round3.Event
 		expError string
 	}{
 		{
 			"success",
 			sdk.NewABCIMessageLog(0, "", sdk.Events{
 				sdk.NewEvent(
-					types.EventTypeRound1Success,
+					types.EventTypeRound2Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
-					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_2.String()),
+					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_3.String()),
 				),
 			}),
-			&round2.Event{
+			&round3.Event{
 				GroupID: 1,
 			},
 			"",
@@ -41,7 +41,7 @@ func TestParseEvent(t *testing.T) {
 			"invalid value",
 			sdk.NewABCIMessageLog(0, "", sdk.Events{
 				sdk.NewEvent(
-					types.EventTypeRound1Success,
+					types.EventTypeRound2Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "aaa"),
 					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_2.String()),
 				),
@@ -53,7 +53,7 @@ func TestParseEvent(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			event, err := round2.ParseEvent(test.log)
+			event, err := round3.ParseEvent(test.log)
 			assert.Equal(t, test.expEvent, event)
 			if test.expError != "" {
 				assert.ErrorContains(t, err, test.expError)
