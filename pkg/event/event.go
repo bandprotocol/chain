@@ -36,6 +36,7 @@ func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []
 			}
 		}
 	}
+
 	return res
 }
 

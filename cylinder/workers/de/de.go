@@ -117,16 +117,19 @@ func (de *DE) updateDE() {
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
-	privDEs, pubDEs, err := de.generateDEPairs()
+	privDEs, err := GenerateDEs(de.context.Config.MinDE, de.context.Config.RandomSecret)
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to generate new DE pairs: %s", err)
 		return
 	}
 
 	// Store all DEs in the store
-	for i, privDE := range privDEs {
-		err := de.context.Store.SetDE(pubDEs[i], privDE)
-		if err != nil {
+	var pubDEs []types.DE
+	for _, privDE := range privDEs {
+		pubDE := privDE.PubDE()
+		pubDEs = append(pubDEs, pubDE)
+
+		if err := de.context.Store.SetDE(pubDE, privDE); err != nil {
 			de.logger.Error(":cold_sweat: Failed to set new DE in the store: %s", err)
 			return
 		}
@@ -172,29 +175,24 @@ func (de *DE) Stop() {
 	de.client.Stop()
 }
 
-// generateDEPairs generates n pairs of DE
-func (de *DE) generateDEPairs() (privDEs []store.DE, pubDEs []types.DE, err error) {
-	for i := uint64(1); i <= de.context.Config.MinDE; i++ {
-		privD, err := tss.GenerateSigningNonce(de.context.Config.RandomSecret)
+// GenerateDEs generates n pairs of DE by using secret value as a random factor
+func GenerateDEs(n uint64, secret tss.Scalar) (privDEs []store.DE, err error) {
+	for i := uint64(1); i <= n; i++ {
+		privD, err := tss.GenerateSigningNonce(secret)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
-		privE, err := tss.GenerateSigningNonce(de.context.Config.RandomSecret)
+		privE, err := tss.GenerateSigningNonce(secret)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		privDEs = append(privDEs, store.DE{
 			PrivD: privD,
 			PrivE: privE,
 		})
-
-		pubDEs = append(pubDEs, types.DE{
-			PubD: privD.Point(),
-			PubE: privE.Point(),
-		})
 	}
 
-	return privDEs, pubDEs, nil
+	return privDEs, nil
 }

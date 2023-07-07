@@ -12,9 +12,9 @@ import (
 func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scalar, []types.Complaint, error) {
 	var secretShares tss.Scalars
 	var complaints []types.Complaint
-	for j := uint64(1); j <= groupRes.Group.Size_; j++ {
+	for senderID := uint64(1); senderID <= groupRes.Group.Size_; senderID++ {
 		// Calculate your own secret value
-		if j == uint64(group.MemberID) {
+		if senderID == uint64(group.MemberID) {
 			secretShare, err := tss.ComputeSecretShare(group.Coefficients, group.MemberID)
 			if err != nil {
 				return nil, nil, err
@@ -23,7 +23,12 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scala
 			continue
 		}
 
-		secretShare, complaint, err := getSecretShare(group.MemberID, tss.MemberID(j), group.OneTimePrivKey, groupRes)
+		secretShare, complaint, err := getSecretShare(
+			group.MemberID,
+			tss.MemberID(senderID),
+			group.OneTimePrivKey,
+			groupRes,
+		)
 		if err != nil {
 			return nil, nil, err
 		}
