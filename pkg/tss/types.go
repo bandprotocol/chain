@@ -50,7 +50,7 @@ func NewScalar(bytes []byte) (Scalar, error) {
 	scalar := Scalar(bytes)
 
 	// Check the validity of the scalar value.
-	if err := scalar.Valid(); err != nil {
+	if err := scalar.Validate(); err != nil {
 		return nil, NewError(err, "check valid")
 	}
 
@@ -68,8 +68,8 @@ func NewScalarFromPrivateKey(privKey *secp256k1.PrivateKey) Scalar {
 	return privKey.Serialize()
 }
 
-// Valid returns an error if the scalar value is invalid.
-func (s Scalar) Valid() error {
+// Validate returns an error if the scalar value is invalid.
+func (s Scalar) Validate() error {
 	// Check the length of the Scalar value.
 	if len(s) != 32 {
 		return NewError(ErrInvalidLength, "length: %d != 32", len(s))
@@ -160,7 +160,7 @@ func NewPoint(bytes []byte) (Point, error) {
 	point := Point(bytes)
 
 	// Check the validity of the point value.
-	if err := point.Valid(); err != nil {
+	if err := point.Validate(); err != nil {
 		return nil, NewError(err, "check valid")
 	}
 
@@ -185,8 +185,8 @@ func NewPointFromPublicKey(pubKey *secp256k1.PublicKey) Point {
 	return Point(bytes)
 }
 
-// Valid returns an error if the value is invalid.
-func (p Point) Valid() error {
+// Validate returns an error if the value is invalid.
+func (p Point) Validate() error {
 	if _, err := p.publicKey(); err != nil {
 		return NewError(err, "check valid")
 	}
@@ -245,7 +245,7 @@ type Signatures []Signature
 // NewSignature constructs a Signature from bytes.
 func NewSignature(bytes []byte) (Signature, error) {
 	sig := Signature(bytes)
-	if err := sig.Valid(); err != nil {
+	if err := sig.Validate(); err != nil {
 		return nil, NewError(err, "check valid")
 	}
 
@@ -270,8 +270,8 @@ func NewSignatureFromType(sig *schnorr.Signature) Signature {
 	return sig.Serialize()
 }
 
-// Valid returns an error if the value is invalid.
-func (s Signature) Valid() error {
+// Validate returns an error if the value is invalid.
+func (s Signature) Validate() error {
 	if _, err := s.signature(); err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ type ComplaintSignatures []ComplaintSignature
 // NewComplaintSignature constructs a ComplaintSignature from bytes.
 func NewComplaintSignature(bytes []byte) (ComplaintSignature, error) {
 	comSig := ComplaintSignature(bytes)
-	if err := comSig.Valid(); err != nil {
+	if err := comSig.Validate(); err != nil {
 		return nil, NewError(err, "invalid")
 	}
 
@@ -345,8 +345,8 @@ func NewComplaintSignatureFromType(sig *schnorr.ComplaintSignature) ComplaintSig
 	return sig.Serialize()
 }
 
-// Valid returns an error if the value is invalid.
-func (cs ComplaintSignature) Valid() error {
+// Validate returns an error if the value is invalid.
+func (cs ComplaintSignature) Validate() error {
 	if _, err := cs.complaintSignature(); err != nil {
 		return err
 	}

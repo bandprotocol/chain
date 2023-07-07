@@ -91,23 +91,23 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 
 	// Validate coefficients commit
 	for _, c := range m.Round1Info.CoefficientCommits {
-		if err := c.Valid(); err != nil {
+		if err := c.Validate(); err != nil {
 			return sdkerrors.Wrap(err, "coefficients commit")
 		}
 	}
 
 	// Validate one time pub key
-	if err := m.Round1Info.OneTimePubKey.Valid(); err != nil {
+	if err := m.Round1Info.OneTimePubKey.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "one time pub key")
 	}
 
 	// Validate a0 signature
-	if err := m.Round1Info.A0Sig.Valid(); err != nil {
+	if err := m.Round1Info.A0Sig.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	if err := m.Round1Info.OneTimeSig.Valid(); err != nil {
+	if err := m.Round1Info.OneTimeSig.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "one time sig")
 	}
 
@@ -142,7 +142,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 
 	// Validate encrypted secret shares
 	for _, ess := range m.Round2Info.EncryptedSecretShares {
-		if err := ess.Valid(); err != nil {
+		if err := ess.Validate(); err != nil {
 			return sdkerrors.Wrap(err, "encrypted secret shares")
 		}
 	}
@@ -201,12 +201,12 @@ func (m MsgComplain) ValidateBasic() error {
 		}
 
 		// Validate key sym
-		if err := c.KeySym.Valid(); err != nil {
+		if err := c.KeySym.Validate(); err != nil {
 			return sdkerrors.Wrap(err, "key sym")
 		}
 
 		// Validate signature
-		if err := c.Signature.Valid(); err != nil {
+		if err := c.Signature.Validate(); err != nil {
 			return sdkerrors.Wrap(err, "signature")
 		}
 	}
@@ -241,7 +241,7 @@ func (m MsgConfirm) ValidateBasic() error {
 	}
 
 	// Validate own pub key sig
-	if err = m.OwnPubKeySig.Valid(); err != nil {
+	if err = m.OwnPubKeySig.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "own pub key sig")
 	}
 
@@ -277,12 +277,12 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate DEs
 	for i, de := range m.DEs {
 		// Validate public key D
-		if err = de.PubD.Valid(); err != nil {
+		if err = de.PubD.Validate(); err != nil {
 			return sdkerrors.Wrap(err, fmt.Sprintf("pub D in DE index: %d", i))
 		}
 
 		// Validate public key E
-		if err = de.PubE.Valid(); err != nil {
+		if err = de.PubE.Validate(); err != nil {
 			return sdkerrors.Wrap(err, fmt.Sprintf("pub E in DE index: %d", i))
 		}
 	}
@@ -346,7 +346,7 @@ func (m MsgSign) ValidateBasic() error {
 	}
 
 	// Validate member signature
-	if err = m.Signature.Valid(); err != nil {
+	if err = m.Signature.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "signature")
 	}
 
