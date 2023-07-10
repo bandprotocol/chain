@@ -337,11 +337,12 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				}
 				complainant := tc.Group.Members[complaintID]
 
-				complainantSlot := types.FindMemberSlot(complaintID, m.ID)
-
 				// Get complainant's Round 2 info
 				complainantRound2, err := k.GetRound2Info(ctx, tc.Group.ID, complainant.ID)
 				s.Require().NoError(err)
+
+				// Determine which slot of encrypted secret shares is for complainant
+				complainantSlot := types.FindMemberSlot(complaintID, m.ID)
 
 				// Set fake encrypted secret shares
 				complainantRound2.EncryptedSecretShares[complainantSlot] = testutil.FakePrivKey
