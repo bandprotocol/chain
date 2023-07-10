@@ -42,7 +42,7 @@ func TestParseEvent(t *testing.T) {
 			sdk.NewABCIMessageLog(0, "", sdk.Events{
 				sdk.NewEvent(
 					types.EventTypeRound1Success,
-					sdk.NewAttribute(types.AttributeKeyGroupID, "aaa"),
+					sdk.NewAttribute(types.AttributeKeyGroupID, "invalid uint64"),
 					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_2.String()),
 				),
 			}),

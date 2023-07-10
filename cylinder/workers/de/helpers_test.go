@@ -9,7 +9,7 @@ import (
 )
 
 func TestGenerateDEs(t *testing.T) {
-	privDEs, err := de.GenerateDEs(10, []byte("aaaaaa"))
+	privDEs, err := de.GenerateDEs(10, []byte("secret"))
 	assert.Nil(t, err)
 
 	for _, privDE := range privDEs {

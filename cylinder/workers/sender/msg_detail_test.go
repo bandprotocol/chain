@@ -30,7 +30,7 @@ func TestGetMsgDetails(t *testing.T) {
 			[]string{"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1"},
 		},
 		{
-			"two msgs with the same order",
+			"multiple messages",
 			[]sdk.Msg{
 				&types.MsgSubmitDKGRound1{
 					GroupID: 1,
@@ -38,10 +38,24 @@ func TestGetMsgDetails(t *testing.T) {
 				&types.MsgSubmitDKGRound2{
 					GroupID: 2,
 				},
+				&types.MsgConfirm{
+					GroupID: 3,
+				},
+				&types.MsgComplain{
+					GroupID: 4,
+				},
+				&types.MsgSubmitDEs{},
+				&types.MsgSubmitSignature{
+					SigningID: 1,
+				},
 			},
 			[]string{
 				"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1",
 				"Type:/tss.v1beta1.MsgSubmitDKGRound2,GroupID:2",
+				"Type:/tss.v1beta1.MsgConfirm,GroupID:3",
+				"Type:/tss.v1beta1.MsgComplain,GroupID:4",
+				"Type:/tss.v1beta1.MsgSubmitDEs",
+				"Type:/tss.v1beta1.MsgSubmitSignature,SigningID:1",
 			},
 		},
 		{

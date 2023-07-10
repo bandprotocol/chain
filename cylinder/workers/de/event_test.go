@@ -1,10 +1,10 @@
 package de_test
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -25,16 +25,16 @@ func TestParseSubmitSignEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
-					sdk.NewAttribute(types.AttributeKeyMember, "bandb"),
-					sdk.NewAttribute(types.AttributeKeyPubD, "dddddd"),
-					sdk.NewAttribute(types.AttributeKeyPubE, "eeeeee"),
-					sdk.NewAttribute(types.AttributeKeySignature, "aaaaaa"),
+					sdk.NewAttribute(types.AttributeKeyMember, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE"))),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				),
 			}),
 			&de.Event{
 				PubDE: types.DE{
-					PubD: testutil.HexDecode("dddddd"),
-					PubE: testutil.HexDecode("eeeeee"),
+					PubD: []byte("pubD"),
+					PubE: []byte("pubE"),
 				},
 			},
 			"",
@@ -53,10 +53,10 @@ func TestParseSubmitSignEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
-					sdk.NewAttribute(types.AttributeKeyMember, "bandb"),
-					sdk.NewAttribute(types.AttributeKeyPubD, "zzzzzz"),
-					sdk.NewAttribute(types.AttributeKeyPubE, "eeeeee"),
-					sdk.NewAttribute(types.AttributeKeySignature, "aaaaaa"),
+					sdk.NewAttribute(types.AttributeKeyMember, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyPubD, "invalid hex"),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE"))),
+					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				),
 			}),
 			nil,
