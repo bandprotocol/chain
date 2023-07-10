@@ -345,7 +345,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	for _, c := range req.Complaints {
 		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
-			// Mark i as malicious
+			// Mark complainer as malicious
 			err := k.MarkMalicious(ctx, groupID, c.Complainer)
 			if err != nil {
 				return nil, err
@@ -370,7 +370,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				),
 			)
 		} else {
-			// Mark j as malicious
+			// Mark complainant as malicious
 			err := k.MarkMalicious(ctx, groupID, c.Complainant)
 			if err != nil {
 				return nil, err
