@@ -406,7 +406,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	// Handle fallen group if everyone sends confirm or complain already.
+	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount == group.Size_ {
 		k.handleFallenGroup(ctx, group)
 	}
@@ -490,7 +490,7 @@ func (k Keeper) Confirm(
 		),
 	)
 
-	// Handle fallen group if everyone sends confirm or complain already.
+	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount+1 == group.Size_ {
 		// Get members to check malicious
 		members, err := k.GetMembers(ctx, groupID)
