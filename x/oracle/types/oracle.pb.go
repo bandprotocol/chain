@@ -890,6 +890,7 @@ func (m *OracleResponsePacketData) GetResult() []byte {
 	return nil
 }
 
+// RequestToSigningMap encodes a request to signing map by ID and store in chain
 type RequestToSigningMap struct {
 	// RequestID is BandChain's unique identifier for this oracle request.
 	RequestID RequestID `protobuf:"varint,6,opt,name=request_id,json=requestId,proto3,casttype=RequestID" json:"request_id,omitempty"`

@@ -213,6 +213,7 @@ message OracleResponsePacketData {
   bytes result = 8;
 }
 
+// RequestToSigningMap encodes a request to signing map by ID and store in chain
 message RequestToSigningMap {
   // RequestID is BandChain's unique identifier for this oracle request.
   uint64 request_id = 6 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
