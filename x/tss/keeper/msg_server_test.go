@@ -294,11 +294,10 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 	// Add success test cases from testutil
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			tcGroup := tc.Group
-			for _, m := range tcGroup.Members {
+			for _, m := range tc.Group.Members {
 				// Submit DKGRound2 message for each member
 				_, err := msgSrvr.SubmitDKGRound2(ctx, &types.MsgSubmitDKGRound2{
-					GroupID: tcGroup.ID,
+					GroupID: tc.Group.ID,
 					Round2Info: types.Round2Info{
 						MemberID:              m.ID,
 						EncryptedSecretShares: m.EncSecretShares,
@@ -309,14 +308,14 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 			}
 
 			// Verify group status and expiration after submitting Round 2
-			got, err := k.GetGroup(ctx, tcGroup.ID)
+			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(got.Status, types.GROUP_STATUS_ROUND_3)
 			s.Require().Equal(*got.Expiration, expiration)
 
 			// Clean up Round1Infos and Round2Infos
-			k.DeleteRound1Infos(ctx, tcGroup.ID)
-			k.DeleteRound2Infos(ctx, tcGroup.ID)
+			k.DeleteRound1Infos(ctx, tc.Group.ID)
+			k.DeleteRound2Infos(ctx, tc.Group.ID)
 		})
 	}
 }
@@ -371,12 +370,11 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				s.Require().NoError(err)
 			}
 
-			groupTc := tc.Group
-			complainant := groupTc.Members[complaintID]
+			complainant := tc.Group.Members[complaintID]
 
 			// Complaint send message confirm
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
-				GroupID:      groupTc.ID,
+				GroupID:      tc.Group.ID,
 				MemberID:     complainant.ID,
 				OwnPubKeySig: complainant.PubKeySig,
 				Member:       sdk.AccAddress(complainant.PubKey()).String(),
@@ -385,7 +383,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 
 			// Check the group's status and expiration time after complain
 			var nilTime *time.Time
-			got, err := k.GetGroup(ctx, groupTc.ID)
+			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_FALLEN, got.Status)
 			s.Require().Equal(nilTime, got.Expiration)
@@ -401,12 +399,10 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 	// Iterate through test cases from testutil
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			tcGroup := tc.Group
-
 			// Confirm the participation of each member in the group
-			for _, m := range tcGroup.Members {
+			for _, m := range tc.Group.Members {
 				_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
-					GroupID:      tcGroup.ID,
+					GroupID:      tc.Group.ID,
 					MemberID:     m.ID,
 					OwnPubKeySig: m.PubKeySig,
 					Member:       sdk.AccAddress(m.PubKey()).String(),
@@ -415,7 +411,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 			}
 
 			// Check the group's status and expiration time after confirmation
-			got, err := k.GetGroup(ctx, tcGroup.ID)
+			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_ACTIVE, got.Status)
 			s.Require().Nil(got.Expiration)
@@ -498,11 +494,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 				s.Require().NoError(err)
 				s.Require().Equal(de, got)
 			}
-
-			// Clean up round 1 infos, round 2 infos, and confirms after the test
-			k.DeleteRound1Infos(ctx, tc.Group.ID)
-			k.DeleteRound2Infos(ctx, tc.Group.ID)
-			k.DeleteConfirms(ctx, tc.Group.ID)
 		})
 	}
 }
@@ -565,20 +556,16 @@ func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
 
 	// Iterate through test cases from testutil
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-
 		// Request signature for each member in the group
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			for _, m := range tcGroup.Members {
+			for _, m := range tc.Group.Members {
 				_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-					GroupID: tcGroup.ID,
+					GroupID: tc.Group.ID,
 					Message: tc.Signings[0].Data,
 					Sender:  sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
-
-			// TODO: Perform post-test cleanup, remove DE
 		})
 	}
 }
@@ -652,14 +639,12 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 
 	// Iterate through test cases from testutil
 	for i, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Request signature for the first member in the group
 			_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-				GroupID: tcGroup.ID,
+				GroupID: tc.Group.ID,
 				Message: []byte("msg"),
-				Sender:  sdk.AccAddress(tcGroup.Members[0].PubKey()).String(),
+				Sender:  sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
 			})
 			s.Require().NoError(err)
 
@@ -668,7 +653,7 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 			s.Require().NoError(err)
 
 			// Get the group information
-			group, err := k.GetGroup(ctx, tcGroup.ID)
+			group, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 
 			// Process signing for each assigned member
@@ -690,7 +675,7 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 					signing.Message,
 					lgc,
 					pn,
-					tcGroup.GetMember(am.MemberID).PrivKey,
+					tc.Group.GetMember(am.MemberID).PrivKey,
 				)
 				s.Require().NoError(err)
 
@@ -699,7 +684,7 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
 					Signature: sig,
-					Member:    sdk.AccAddress(tcGroup.GetMember(am.MemberID).PubKey()).String(),
+					Member:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
