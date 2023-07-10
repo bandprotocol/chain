@@ -42,7 +42,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdConfirm(),
 		GetTxCmdSubmitDEs(),
 		GetTxCmdRequest(),
-		GetTxCmdSign(),
+		GetTxCmdSubmitSignature(),
 	)
 
 	return txCmd
@@ -502,14 +502,14 @@ func GetTxCmdRequest() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdSign creates a CLI command for CLI command for Msg/Sign.
-func GetTxCmdSign() *cobra.Command {
+// GetTxCmdSubmitSignature creates a CLI command for CLI command for Msg/SubmitSignature.
+func GetTxCmdSubmitSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sign [signing_id] [member_id] [signature]",
+		Use:   "submit-signature [signing_id] [member_id] [signature]",
 		Args:  cobra.ExactArgs(3),
-		Short: "sign the message by sending signing ID, member ID and signature",
+		Short: "submit-signature the message by sending signing ID, member ID and signature",
 		Example: fmt.Sprintf(
-			`%s tx tss sign [signing_id] [member_id] [signature]`,
+			`%s tx tss submit-signature [signing_id] [member_id] [signature]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -533,7 +533,7 @@ func GetTxCmdSign() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgSign{
+			msg := &types.MsgSubmitSignature{
 				SigningID: tss.SigningID(signingID),
 				MemberID:  tss.MemberID(memberID),
 				Signature: sig,

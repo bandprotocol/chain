@@ -571,13 +571,13 @@ func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedSignReq() {
+func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	expiration := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
-	var req types.MsgSign
+	var req types.MsgSubmitSignature
 
 	// Add test cases
 	tc1 := testutil.TestCases[0]
@@ -585,7 +585,7 @@ func (s *KeeperTestSuite) TestFailedSignReq() {
 		{
 			"failure with invalid signingID",
 			func() {
-				req = types.MsgSign{
+				req = types.MsgSubmitSignature{
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
 					Signature: tc1.Signings[0].Sig,
@@ -608,7 +608,7 @@ func (s *KeeperTestSuite) TestFailedSignReq() {
 					Expiration:      &expiration,
 				})
 
-				req = types.MsgSign{
+				req = types.MsgSubmitSignature{
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
 					Signature: tc1.Signings[0].Sig,
@@ -625,7 +625,7 @@ func (s *KeeperTestSuite) TestFailedSignReq() {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
 
-			_, err := msgSrvr.Sign(ctx, &req)
+			_, err := msgSrvr.SubmitSignature(ctx, &req)
 			s.Require().Error(err)
 
 			tc.PostTest()
@@ -633,7 +633,7 @@ func (s *KeeperTestSuite) TestFailedSignReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessSignReq() {
+func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -681,7 +681,7 @@ func (s *KeeperTestSuite) TestSuccessSignReq() {
 				s.Require().NoError(err)
 
 				// Submit the signature
-				_, err = msgSrvr.Sign(ctx, &types.MsgSign{
+				_, err = msgSrvr.SubmitSignature(ctx, &types.MsgSubmitSignature{
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
 					Signature: sig,
