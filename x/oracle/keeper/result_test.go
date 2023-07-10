@@ -14,7 +14,7 @@ func TestResultBasicFunctions(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// We start by setting result of request#1.
 	result := types.NewResult(
-		"alice", 1, BasicCalldata, 1, 1, 1, 0, 1, 1589535020, 1589535022, 1, BasicResult,
+		"alice", 1, BasicCalldata, 1, 1, 1, 1, 1589535020, 1589535022, 1, BasicResult,
 	)
 	k.SetResult(ctx, 1, result)
 	// GetResult and MustGetResult should return what we set.
@@ -39,7 +39,7 @@ func TestSaveResultOK(t *testing.T) {
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
 	k.SaveResult(ctx, 42, 0, types.RESOLVE_STATUS_SUCCESS, BasicResult)
 	expect := types.NewResult(
-		BasicClientID, 1, BasicCalldata, 2, 2, 42, 0, 1, testapp.ParseTime(0).Unix(),
+		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
 		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
 	)
 	result, err := k.GetResult(ctx, 42)
