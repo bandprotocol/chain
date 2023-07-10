@@ -345,7 +345,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	for _, c := range req.Complaints {
 		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
-			// Mark i as malicious
+			// Mark complainer as malicious
 			err := k.MarkMalicious(ctx, groupID, c.Complainer)
 			if err != nil {
 				return nil, err
@@ -370,7 +370,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				),
 			)
 		} else {
-			// Mark j as malicious
+			// Mark complainant as malicious
 			err := k.MarkMalicious(ctx, groupID, c.Complainant)
 			if err != nil {
 				return nil, err
@@ -406,7 +406,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	// Handle fallen group if everyone sends confirm or complain already.
+	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount == group.Size_ {
 		k.handleFallenGroup(ctx, group)
 	}
@@ -490,7 +490,7 @@ func (k Keeper) Confirm(
 		),
 	)
 
-	// Handle fallen group if everyone sends confirm or complain already.
+	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount+1 == group.Size_ {
 		// Get members to check malicious
 		members, err := k.GetMembers(ctx, groupID)
@@ -558,10 +558,13 @@ func (k Keeper) RequestSignature(
 	return &types.MsgRequestSignatureResponse{}, nil
 }
 
-// Sign verifies that the member and signing process are valid, and that the member hasn't already signed.
+// SubmitSignature verifies that the member and signing process are valid, and that the member hasn't already signed.
 // It checks the correctness of the signature and if the threshold is met, it combines all partial signatures into a group signature.
 // It then updates the signing record, deletes all interim data, and emits appropriate events.
-func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignResponse, error) {
+func (k Keeper) SubmitSignature(
+	goCtx context.Context,
+	req *types.MsgSubmitSignature,
+) (*types.MsgSubmitSignatureResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get signing
@@ -716,7 +719,7 @@ func (k Keeper) Sign(goCtx context.Context, req *types.MsgSign) (*types.MsgSignR
 		),
 	)
 
-	return &types.MsgSignResponse{}, nil
+	return &types.MsgSubmitSignatureResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.

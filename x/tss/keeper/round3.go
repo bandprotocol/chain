@@ -32,8 +32,18 @@ func (k Keeper) HandleVerifyComplaint(
 		return err
 	}
 
-	// Find member slot for encrypted secret shares
-	indexJ := types.FindMemberSlot(complaint.Complainant, complaint.Complainer)
+	// Find complainer index in complainant encrypted secret shares
+	complainerIndex := types.FindMemberSlot(complaint.Complainant, complaint.Complainer)
+
+	// Return error if the slot exceeds length of shares
+	if int(complainerIndex) >= len(round2Complainant.EncryptedSecretShares) {
+		return sdkerrors.Wrapf(
+			types.ErrComplainFailed,
+			"No encrypted secret share from MemberID(%d) to MemberID(%d)",
+			complaint.Complainer,
+			complaint.Complainant,
+		)
+	}
 
 	// Verify the complaint signature
 	err = tss.VerifyComplaint(
@@ -41,7 +51,7 @@ func (k Keeper) HandleVerifyComplaint(
 		round1Complainant.OneTimePubKey,
 		complaint.KeySym,
 		complaint.Signature,
-		round2Complainant.EncryptedSecretShares[indexJ],
+		round2Complainant.EncryptedSecretShares[complainerIndex],
 		complaint.Complainer,
 		round1Complainant.CoefficientCommits,
 	)

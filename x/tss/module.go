@@ -48,7 +48,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the tss module.
 func (b AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.NewTxCmd()
+	return cli.GetTxCmd()
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.

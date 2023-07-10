@@ -319,26 +319,26 @@ func (m MsgRequestSignature) ValidateBasic() error {
 	return nil
 }
 
-var _ sdk.Msg = &MsgSign{}
+var _ sdk.Msg = &MsgSubmitSignature{}
 
 // Route Implements Msg.
-func (m MsgSign) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignature) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgSign) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgSign) GetSignBytes() []byte {
+func (m MsgSubmitSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
-func (m MsgSign) GetSigners() []sdk.AccAddress {
+func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgSign) ValidateBasic() error {
+func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Member)
 	if err != nil {

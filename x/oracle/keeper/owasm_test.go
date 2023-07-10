@@ -720,7 +720,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	expectResult := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
-		42, 0, 1, testapp.ParseTime(1581589790).Unix(),
+		42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 
@@ -772,7 +772,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
-		42, 0, 2, testapp.ParseTime(1581589790).Unix(),
+		42, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
@@ -810,7 +810,7 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 1,
-		42, 0, 1, testapp.ParseTime(1581589790).Unix(),
+		42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -848,7 +848,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
-		42, 0, 2, testapp.ParseTime(1581589790).Unix(),
+		42, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
@@ -881,7 +881,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 3, BasicCalldata, 2, 1, 42, 0, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 3, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -910,7 +910,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 6, BasicCalldata, 2, 1, 42, 0, 1, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 6, BasicCalldata, 2, 1, 42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
@@ -935,7 +935,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 	k.ResolveRequest(ctx, 42)
 
 	result := types.NewResult(
-		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, 0, testapp.ParseTime(1581589790).Unix(),
+		BasicClientID, 9, BasicCalldata, 2, 1, 42, 0, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))

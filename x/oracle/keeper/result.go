@@ -102,13 +102,17 @@ func (k Keeper) SaveResult(
 		uint64(len(r.RequestedValidators)), // AskCount
 		r.MinCount,                         // MinCount
 		id,                                 // RequestID
-		sid,                                // SigningID
 		reportCount,                        // AnsCount
 		int64(r.RequestTime),               // RequestTime
 		ctx.BlockTime().Unix(),             // ResolveTime
 		status,                             // ResolveStatus
 		result,                             // Result
 	))
+
+	// Set the request to the signing map if have the signing id
+	if sid != 0 {
+		k.SetRequestToSigningMap(ctx, id, sid)
+	}
 
 	if r.IBCChannel != nil {
 		sourceChannel := r.IBCChannel.ChannelId

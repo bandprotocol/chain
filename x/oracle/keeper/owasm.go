@@ -190,7 +190,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
 			if err != nil {
 				ctx.EventManager().EmitEvent(sdk.NewEvent(
-					types.EventTypeTSSHandleRequestSignFail,
+					types.EventTypeHandleRequestSignFail,
 					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
