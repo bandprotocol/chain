@@ -17,6 +17,7 @@ import (
 const (
 	flagGranter          = "granter"
 	flagLogLevel         = "log-level"
+	flagMaxMessages      = "max-messages"
 	flagBroadcastTimeout = "broadcast-timeout"
 	flagRPCPollInterval  = "rpc-poll-interval"
 	flagMaxTry           = "max-try"
@@ -80,6 +81,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().String(flagGranter, "", "granter address")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
+	cmd.Flags().Uint64(flagMaxMessages, 10, "The maximum number of messages in a transaction")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that cylinder will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
@@ -93,6 +95,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flagGranter, cmd.Flags().Lookup(flagGranter))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	viper.BindPFlag(flagMaxMessages, cmd.Flags().Lookup(flagMaxMessages))
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))

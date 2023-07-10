@@ -127,7 +127,7 @@ func (s *Signing) handleSigning(
 	}
 
 	// Send MsgSigning
-	s.context.MsgCh <- &types.MsgSign{
+	s.context.MsgCh <- &types.MsgSubmitSignature{
 		SigningID: sid,
 		MemberID:  group.MemberID,
 		Signature: sig,

@@ -77,7 +77,7 @@ func (r *Round1) handleTxResult(txResult abci.TxResult) {
 // handleGroup processes an incoming group.
 func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64, dkgContext []byte) {
 	logger := r.logger.With("gid", gid)
-	r.logger.Info(":delivery_truck: Processing incoming group")
+	logger.Info(":delivery_truck: Processing incoming group")
 
 	// Generate round1 data
 	data, err := tss.GenerateRound1Info(mid, threshold, dkgContext)

@@ -13,6 +13,7 @@ type Config struct {
 	Granter          string        `mapstructure:"granter"`           // The granter address
 	GasPrices        string        `mapstructure:"gas-prices"`        // Gas prices of the transaction
 	LogLevel         string        `mapstructure:"log-level"`         // Log level of the logger
+	MaxMessages      uint64        `mapstructure:"max-messages"`      // The maximum number of messages in a transaction
 	BroadcastTimeout time.Duration `mapstructure:"broadcast-timeout"` // The time that cylinder will wait for tx commit
 	RPCPollInterval  time.Duration `mapstructure:"rpc-poll-interval"` // The duration of rpc poll interval
 	MaxTry           uint64        `mapstructure:"max-try"`           // The maximum number of tries to submit a report transaction

@@ -58,10 +58,10 @@ func (s *Sender) Start() {
 
 // collectMsgs collects messages from the message channel up to a limit size.
 func (s *Sender) collectMsgs() []sdk.Msg {
-	size := 10
+	maxSize := int(s.context.Config.MaxMessages)
 	var msgs []sdk.Msg
 
-	for len(msgs) == 0 || (len(msgs) < size && len(s.context.MsgCh) > 0) {
+	for len(msgs) == 0 || (len(msgs) < maxSize && len(s.context.MsgCh) > 0) {
 		msg := <-s.context.MsgCh
 		msgs = append(msgs, msg)
 	}
