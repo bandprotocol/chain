@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/hex"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -73,10 +74,10 @@ func TestParseComplaints(t *testing.T) {
 	validJSON := `{
 		"complaints": [
 			{
-				"i": 1,
-				"j": 2,
+				"complainer": 1,
+				"complainant": 2,
 				"key_sym": "A12yoSWiMwC+8k5XiD9UdQOrJZipntB9ZdSCtOof+O0m",
-				"sig": "Aj1c3dvb5QNZAjHpqAljSM8n2TcUAh/q75GzwJVTcjujxdE324C0ZCgl5IxCVFDxRzHnzTwjl6u0sscOZacLBi4="
+				"signature": "Aj1c3dvb5QNZAjHpqAljSM8n2TcUAh/q75GzwJVTcjujxdE324C0ZCgl5IxCVFDxRzHnzTwjl6u0sscOZacLBi4="
 			}
 		]
 	}`
@@ -86,6 +87,14 @@ func TestParseComplaints(t *testing.T) {
 	complaints, err = parseComplaints(tempFile.Name())
 	require.NoError(t, err)
 	require.Equal(t, 1, len(complaints))
+	require.Equal(t, types.Complaint{
+		Complainer:  1,
+		Complainant: 2,
+		KeySym:      hexToBytes("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26"),
+		Signature: hexToBytes(
+			"023d5cdddbdbe503590231e9a8096348cf27d93714021feaef91b3c09553723ba3c5d137db80b4642825e48c425450f14731e7cd3c2397abb4b2c70e65a70b062e",
+		),
+	}, complaints[0])
 
 	// 3. Test with a non-existent file
 	complaints, err = parseComplaints("non-existent-file")
@@ -104,4 +113,12 @@ func TestParseComplaints(t *testing.T) {
 	complaints, err = parseComplaints(invalidFile.Name())
 	require.Error(t, err)
 	require.Nil(t, complaints)
+}
+
+func hexToBytes(s string) []byte {
+	b, err := hex.DecodeString(s)
+	if err != nil {
+		panic("invalid hex in source file: " + s)
+	}
+	return b
 }
