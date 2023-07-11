@@ -40,8 +40,8 @@ func (k Keeper) HandleVerifyComplaint(
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
 			"No encrypted secret share from MemberID(%d) to MemberID(%d)",
-			complaint.Complainer,
 			complaint.Complainant,
+			complaint.Complainer,
 		)
 	}
 

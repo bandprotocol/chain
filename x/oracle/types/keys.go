@@ -52,8 +52,8 @@ var (
 	OracleScriptStoreKeyPrefix = []byte{0x04}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
 	ValidatorStatusKeyPrefix = []byte{0x05}
-	// RequestToSigningMapStoreKeyPrefix is the request to signing map store.
-	RequestToSigningMapStoreKeyPrefix = []byte{0x06}
+	// SigningIDStoreKeyPrefix is the prefix for signing ID store.
+	SigningIDStoreKeyPrefix = []byte{0x06}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 
@@ -86,9 +86,9 @@ func ValidatorStatusStoreKey(v sdk.ValAddress) []byte {
 	return append(ValidatorStatusKeyPrefix, v.Bytes()...)
 }
 
-// RequestToSigningMapStoreKey returns the key to a  request to signing map in the store.
-func RequestToSigningMapStoreKey(requestID RequestID) []byte {
-	return append(RequestToSigningMapStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
+// SigningIDStoreKey returns the key to a signing id in the store.
+func SigningIDStoreKey(requestID RequestID) []byte {
+	return append(SigningIDStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
 }
 
 // ResultStoreKey returns the key to a request result in the store.

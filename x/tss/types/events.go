@@ -34,7 +34,7 @@ const (
 	AttributeKeySigningID     = "signing_id"
 	AttributeKeyMessage       = "message"
 	AttributeKeyGroupPubNonce = "group_pub_nonce"
-	AttributeKeyPubNonces     = "pub_nonces"
+	AttributeKeyPubNonce      = "pub_nonce"
 	AttributeKeyBindingFactor = "binding_factor"
 	AttributeKeyPubD          = "pub_d"
 	AttributeKeyPubE          = "pub_e"

@@ -15,11 +15,11 @@ func TestGetSetRequestToSigningMap(t *testing.T) {
 	rid := types.RequestID(123)
 	sid := tss.SigningID(456)
 
-	// Set the request to signing map
-	k.SetRequestToSigningMap(ctx, rid, sid)
+	// Set the signing ID by request ID
+	k.SetSigningID(ctx, rid, sid)
 
 	// Get the signing ID associated with the request ID
-	gotSid, err := k.GetRequestToSigningMap(ctx, rid)
+	gotSid, err := k.GetSigningID(ctx, rid)
 	require.NoError(t, err)
 	require.Equal(t, sid, gotSid)
 }

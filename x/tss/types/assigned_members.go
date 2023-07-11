@@ -23,7 +23,7 @@ func (ams AssignedMembers) PubEs() (pubEs tss.Points) {
 	return
 }
 
-// PubEs returns a list of public E points extracted from the AssignedMembers slice.
+// PubNonces returns a list of public nonce points extracted from the AssignedMembers slice.
 func (ams AssignedMembers) PubNonces() (pubNonces tss.Points) {
 	for _, am := range ams {
 		pubNonces = append(pubNonces, am.PubNonce)

@@ -72,9 +72,9 @@ message MsgComplain {
   uint64 group_id = 1
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // complaints is a list of complains.
-  repeated Complaint complaints = 3 [(gogoproto.nullable) = false];
+  repeated Complaint complaints = 2 [(gogoproto.nullable) = false];
   // member is the signer of this message. Must be the member of this group.
-  string member = 4;
+  string member = 3;
 }
 
 message MsgComplainResponse {}
