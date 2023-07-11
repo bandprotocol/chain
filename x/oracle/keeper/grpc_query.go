@@ -98,16 +98,29 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 			)
 		}
 		result := k.MustGetResult(ctx, rid)
-		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
+		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result, Signing: nil}, nil
 	}
 
 	reports := k.GetReports(ctx, rid)
 	if !k.HasResult(ctx, rid) {
-		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil, Signing: nil}, nil
 	}
 
 	result := k.MustGetResult(ctx, rid)
-	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
+
+	// Check if there is a signing ID associated with the request
+	sid, err := k.GetSigningID(ctx, rid)
+	if err == nil {
+		signing := k.MustGetSigning(ctx, sid)
+		return &types.QueryRequestResponse{
+			Request: &request,
+			Reports: reports,
+			Result:  &result,
+			Signing: &signing,
+		}, nil
+	}
+
+	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result, Signing: nil}, nil
 }
 
 func (k Querier) PendingRequests(
