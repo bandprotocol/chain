@@ -103,7 +103,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -225,7 +225,7 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -325,7 +325,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -449,7 +449,7 @@ func (k Keeper) Confirm(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -498,7 +498,7 @@ func (k Keeper) Confirm(
 			return nil, err
 		}
 
-		if !types.HaveMalicious(members) {
+		if !types.Members(members).HaveMalicious() {
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
 			group.Expiration = nil
@@ -585,7 +585,7 @@ func (k Keeper) SubmitSignature(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",

@@ -270,7 +270,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 
 	// Compute commitment from mids, public D and public E
 	commitment, err := tss.ComputeCommitment(
-		types.GetMemberIDs(selectedMembers),
+		types.Members(selectedMembers).GetIDs(),
 		assignedMembers.PubDs(),
 		assignedMembers.PubEs(),
 	)

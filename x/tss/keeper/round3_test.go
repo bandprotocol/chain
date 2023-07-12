@@ -358,7 +358,7 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	members, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
 
-	got := types.HaveMalicious(members)
+	got := types.Members(members).HaveMalicious()
 	s.Require().Equal(got, true)
 }
 
