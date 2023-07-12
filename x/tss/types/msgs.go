@@ -182,21 +182,21 @@ func (m MsgComplain) ValidateBasic() error {
 	}
 
 	// Validate complaints
-	memberI := m.Complaints[0].Complainer
+	memberI := m.Complaints[0].Complainant
 	for i, c := range m.Complaints {
-		// Validate member complainer
-		if i > 0 && memberI != c.Complainer {
+		// Validate member complainant
+		if i > 0 && memberI != c.Complainant {
 			return sdkerrors.Wrap(
-				fmt.Errorf("memberID complainer in the list of complaints must be the same value"),
-				"complainer",
+				fmt.Errorf("memberID complainant in the list of complaints must be the same value"),
+				"complainant",
 			)
 		}
 
-		// Validate member complainer and complainant
-		if c.Complainer == c.Complainant {
+		// Validate member complainant and respondent
+		if c.Complainant == c.Respondent {
 			return sdkerrors.Wrap(
-				fmt.Errorf("memberID complainer and complainant can not be the same value"),
-				"complainer, complainant",
+				fmt.Errorf("memberID complainant and respondent can not be the same value"),
+				"complainant, respondent",
 			)
 		}
 

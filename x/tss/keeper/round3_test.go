@@ -38,34 +38,34 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				})
 			}
 
-			complainer := tc.Group.Members[0]
-			complainant := tc.Group.Members[1]
-			complainerSlot := types.FindMemberSlot(complainer.ID, complainant.ID)
-			complainantSlot := types.FindMemberSlot(complainant.ID, complainer.ID)
+			complainant := tc.Group.Members[0]
+			respondent := tc.Group.Members[1]
+			complainantSlot := types.FindMemberSlot(complainant.ID, respondent.ID)
+			respondentSlot := types.FindMemberSlot(respondent.ID, complainant.ID)
 
 			// Failed case - correct encrypted secret share
 			err := k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				Complainer:  complainer.ID,
 				Complainant: complainant.ID,
-				KeySym:      complainer.KeySyms[complainerSlot],
-				Signature:   complainer.ComplaintSigs[complainerSlot],
+				Respondent:  respondent.ID,
+				KeySym:      complainant.KeySyms[complainantSlot],
+				Signature:   complainant.ComplaintSigs[complainantSlot],
 			})
 			s.Require().Error(err)
 
-			// Get complainant round 2 info
-			complainantRound2, err := k.GetRound2Info(ctx, tc.Group.ID, complainant.ID)
+			// Get respondent round 2 info
+			respondentRound2, err := k.GetRound2Info(ctx, tc.Group.ID, respondent.ID)
 			s.Require().NoError(err)
 
 			// Set fake encrypted secret shares
-			complainantRound2.EncryptedSecretShares[complainantSlot] = testutil.FakePrivKey
-			k.SetRound2Info(ctx, tc.Group.ID, complainantRound2)
+			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
+			k.SetRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 			// Success case - wrong encrypted secret share
 			err = k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
-				Complainer:  complainer.ID,
 				Complainant: complainant.ID,
-				KeySym:      complainer.KeySyms[complainerSlot],
-				Signature:   complainer.ComplaintSigs[complainerSlot],
+				Respondent:  respondent.ID,
+				KeySym:      complainant.KeySyms[complainantSlot],
+				Signature:   complainant.ComplaintSigs[complainantSlot],
 			})
 			s.Require().NoError(err)
 		})
@@ -108,8 +108,8 @@ func (s *KeeperTestSuite) TestGetSetComplaintsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -135,8 +135,8 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -163,8 +163,8 @@ func (s *KeeperTestSuite) TestDeleteAllComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -192,8 +192,8 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -206,8 +206,8 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -398,8 +398,8 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			ComplaintsWithStatus: []types.ComplaintWithStatus{
 				{
 					Complaint: types.Complaint{
-						Complainer:  1,
-						Complainant: 2,
+						Complainant: 1,
+						Respondent:  2,
 						KeySym:      []byte("key_sym"),
 						Signature:   []byte("signature"),
 					},

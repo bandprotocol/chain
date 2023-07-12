@@ -331,37 +331,37 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Iterate through the group members to handle complaints
 			for i, m := range tc.Group.Members {
-				// Skip the complainant
+				// Skip the respondent
 				if i == 1 {
 					continue
 				}
-				complainant := tc.Group.Members[complaintID]
+				respondent := tc.Group.Members[complaintID]
 
-				// Get complainant's Round 2 info
-				complainantRound2, err := k.GetRound2Info(ctx, tc.Group.ID, complainant.ID)
+				// Get respondent's Round 2 info
+				respondentRound2, err := k.GetRound2Info(ctx, tc.Group.ID, respondent.ID)
 				s.Require().NoError(err)
 
-				// Determine which slot of encrypted secret shares is for complainant
-				complainantSlot := types.FindMemberSlot(complaintID, m.ID)
+				// Determine which slot of encrypted secret shares is for respondent
+				respondentSlot := types.FindMemberSlot(complaintID, m.ID)
 
 				// Set fake encrypted secret shares
-				complainantRound2.EncryptedSecretShares[complainantSlot] = testutil.FakePrivKey
-				k.SetRound2Info(ctx, tc.Group.ID, complainantRound2)
+				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
+				k.SetRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 				sig, keySym, err := tss.SignComplaint(
 					m.OneTimePubKey(),
-					complainant.OneTimePubKey(),
+					respondent.OneTimePubKey(),
 					m.OneTimePrivKey,
 				)
 				s.Require().NoError(err)
 
-				// Complain the complainant
+				// Complain the respondent
 				_, err = msgSrvr.Complain(ctx, &types.MsgComplain{
 					GroupID: tc.Group.ID,
 					Complaints: []types.Complaint{
 						{
-							Complainer:  m.ID,
-							Complainant: complainant.ID,
+							Complainant: m.ID,
+							Respondent:  respondent.ID,
 							KeySym:      keySym,
 							Signature:   sig,
 						},
@@ -371,14 +371,14 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				s.Require().NoError(err)
 			}
 
-			complainant := tc.Group.Members[complaintID]
+			respondent := tc.Group.Members[complaintID]
 
 			// Complaint send message confirm
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 				GroupID:      tc.Group.ID,
-				MemberID:     complainant.ID,
-				OwnPubKeySig: complainant.PubKeySig,
-				Member:       sdk.AccAddress(complainant.PubKey()).String(),
+				MemberID:     respondent.ID,
+				OwnPubKeySig: respondent.PubKeySig,
+				Member:       sdk.AccAddress(respondent.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 

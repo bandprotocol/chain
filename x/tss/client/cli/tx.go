@@ -326,10 +326,10 @@ Where complaints.json contains:
 {
 	complaints: [
 		{
-            "complainer": 1,
-            "complainant": 2,
-            "key_sym": "symmetric key between complainer and complainant",
-            "signature": "signature that complain by complainer"
+            "complainant": 1,
+            "respondent": 2,
+            "key_sym": "symmetric key between complainant and respondent",
+            "signature": "signature that complain by complainant"
         },
 		...
 	]

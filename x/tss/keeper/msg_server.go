@@ -300,7 +300,7 @@ func (k Keeper) SubmitDKGRound2(
 func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Complaints[0].Complainer
+	memberID := req.Complaints[0].Complainant
 
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
@@ -345,8 +345,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	for _, c := range req.Complaints {
 		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
-			// Mark complainer as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Complainer)
+			// Mark complainant as malicious
+			err := k.MarkMalicious(ctx, groupID, c.Complainant)
 			if err != nil {
 				return nil, err
 			}
@@ -362,16 +362,16 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
 		} else {
-			// Mark complainant as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Complainant)
+			// Mark respondent as malicious
+			err := k.MarkMalicious(ctx, groupID, c.Respondent)
 			if err != nil {
 				return nil, err
 			}
@@ -387,8 +387,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),

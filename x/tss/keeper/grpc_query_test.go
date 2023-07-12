@@ -64,8 +64,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
@@ -78,8 +78,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		ComplaintsWithStatus: []types.ComplaintWithStatus{
 			{
 				Complaint: types.Complaint{
-					Complainer:  1,
-					Complainant: 2,
+					Complainant: 1,
+					Respondent:  2,
 					KeySym:      []byte("key_sym"),
 					Signature:   []byte("signature"),
 				},
