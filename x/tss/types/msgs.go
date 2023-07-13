@@ -76,7 +76,7 @@ func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDKGRound1.
 func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -127,7 +127,7 @@ func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDKGRound2.
 func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -163,7 +163,7 @@ func (m MsgComplain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgComplain.
 func (m MsgComplain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -227,7 +227,7 @@ func (m MsgConfirm) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgConfirm.
 func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -261,7 +261,7 @@ func (m MsgSubmitDEs) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDEs.
 func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -303,7 +303,7 @@ func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgRequestSignature.
 func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
@@ -332,7 +332,7 @@ func (m MsgSubmitSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitSignature.
 func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
