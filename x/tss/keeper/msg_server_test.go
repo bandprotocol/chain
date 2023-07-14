@@ -158,7 +158,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
 
@@ -286,7 +286,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	// Setup group as round 2
 	s.SetupGroup(types.GROUP_STATUS_ROUND_2)

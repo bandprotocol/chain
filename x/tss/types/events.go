@@ -14,6 +14,7 @@ const (
 	EventTypeRequestSign     = "request_sign"
 	EventTypeSignSuccess     = "sign_success"
 	EventTypeSubmitSign      = "submit_sign"
+	EventTypeActivate        = "activate"
 
 	AttributeKeyGroupID       = "group_id"
 	AttributeKeyMemberID      = "member_id"

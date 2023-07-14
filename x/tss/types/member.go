@@ -1,6 +1,8 @@
 package types
 
-import "github.com/bandprotocol/chain/v2/pkg/tss"
+import (
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+)
 
 // Verify checks if the address of the Member matches the given address
 func (m Member) Verify(address string) bool {
@@ -19,6 +21,7 @@ func (ms Members) GetIDs() []tss.MemberID {
 	for _, member := range ms {
 		mids = append(mids, member.MemberID)
 	}
+
 	return mids
 }
 

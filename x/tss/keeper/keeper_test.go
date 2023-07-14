@@ -206,7 +206,7 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	group := types.Group{
 		Size_:      5,

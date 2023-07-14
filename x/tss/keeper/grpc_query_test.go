@@ -14,7 +14,7 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",

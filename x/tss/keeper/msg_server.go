@@ -44,6 +44,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		})
 	}
 
@@ -89,11 +90,6 @@ func (k Keeper) SubmitDKGRound1(
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
-	}
-
-	// Check expiration time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -174,8 +170,6 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.Expiration = &expiredTime
 		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -211,11 +205,6 @@ func (k Keeper) SubmitDKGRound2(
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
-	}
-
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -279,7 +268,7 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		expiredTime := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 		group.Expiration = &expiredTime
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -311,11 +300,6 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
-	}
-
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -720,6 +704,29 @@ func (k Keeper) SubmitSignature(
 	)
 
 	return &types.MsgSubmitSignatureResponse{}, nil
+}
+
+func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	for _, gid := range msg.GroupIDs {
+		member, err := k.GetMemberByAddress(ctx, tss.GroupID(gid), msg.Member)
+		if err != nil {
+			return nil, err
+		}
+
+		err = k.SetActive(ctx, tss.GroupID(gid), member.MemberID)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeActivate,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
+			sdk.NewAttribute(types.AttributeKeyMember, msg.Member),
+		))
+	}
+	return &types.MsgActivateResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.

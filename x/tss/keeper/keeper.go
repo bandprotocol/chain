@@ -83,7 +83,7 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
 	group.GroupID = groupID
 	group.CreatedAt = ctx.BlockHeader().Time
-	expiration := group.CreatedAt.Add(k.RoundPeriod(ctx))
+	expiration := group.CreatedAt.Add(k.CreationPeriod(ctx))
 	group.Expiration = &expiration
 	k.SetGroup(ctx, group)
 
@@ -149,6 +149,27 @@ func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Mem
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
 }
 
+// GetMemberByAddress function retrieves a member of a group from the store by using address.
+func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (types.Member, error) {
+	members, err := k.GetMembers(ctx, groupID)
+	if err != nil {
+		return types.Member{}, err
+	}
+
+	for _, member := range members {
+		if member.Verify(address) {
+			return member, nil
+		}
+	}
+
+	return types.Member{}, sdkerrors.Wrapf(
+		types.ErrMemberNotFound,
+		"failed to get member with groupID: %d and address: ",
+		groupID,
+		address,
+	)
+}
+
 // GetMember function retrieves a member of a group from the store.
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
@@ -195,9 +216,12 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
-		// TODO: logic to check active member
-		members = append(members, member)
+
+		if member.IsActive {
+			members = append(members, member)
+		}
 	}
+
 	// Filter members that have DE left
 	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
 	if err != nil {
