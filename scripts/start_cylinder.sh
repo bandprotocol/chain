@@ -18,6 +18,9 @@ cylinder config chain-id bandchain --home $HOME_PATH
 # add member to cylinder config
 cylinder config granter $(bandd keys show $KEY -a --keyring-backend test) --home $HOME_PATH
 
+# setup group ids
+cylinder config group-ids "" --home $HOME_PATH
+
 # setup max-messages to cylinder config
 cylinder config max-messages 10 --home $HOME_PATH
 

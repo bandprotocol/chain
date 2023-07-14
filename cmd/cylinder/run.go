@@ -16,6 +16,7 @@ import (
 
 const (
 	flagGranter          = "granter"
+	flagGroupIDs         = "group-ids"
 	flagLogLevel         = "log-level"
 	flagMaxMessages      = "max-messages"
 	flagBroadcastTimeout = "broadcast-timeout"
@@ -79,6 +80,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagGranter, "", "granter address")
+	cmd.Flags().String(flagGroupIDs, "", "The list of group ids that are allowed to interact")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().Uint64(flagMaxMessages, 10, "The maximum number of messages in a transaction")
@@ -93,6 +95,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
 	viper.BindPFlag(flagGranter, cmd.Flags().Lookup(flagGranter))
+	viper.BindPFlag(flagGroupIDs, cmd.Flags().Lookup(flagGroupIDs))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
 	viper.BindPFlag(flagMaxMessages, cmd.Flags().Lookup(flagMaxMessages))

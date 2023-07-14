@@ -76,6 +76,10 @@ func (r *Round1) handleTxResult(txResult abci.TxResult) {
 
 // handleGroup processes an incoming group.
 func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64, dkgContext []byte) {
+	if !r.context.Config.IsAllowedGroup(gid) {
+		return
+	}
+
 	logger := r.logger.With("gid", gid)
 	logger.Info(":delivery_truck: Processing incoming group")
 

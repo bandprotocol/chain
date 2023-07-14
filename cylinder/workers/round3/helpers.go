@@ -75,7 +75,7 @@ func getSecretShare(
 		return nil, nil, err
 	}
 
-	// Get encrypted secret share for complaner from complainant
+	// Get encrypted secret share for complaner from respondent
 	encSecretShare, err := groupRes.GetEncryptedSecretShare(senderID, receiverID)
 	if err != nil {
 		return nil, nil, err
@@ -107,8 +107,8 @@ func getSecretShare(
 		}
 
 		complaint := &types.Complaint{
-			Complainer:  receiverID,
-			Complainant: senderID,
+			Complainant: receiverID,
+			Respondent:  senderID,
 			KeySym:      keySym,
 			Signature:   sig,
 		}

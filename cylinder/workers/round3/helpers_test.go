@@ -63,14 +63,14 @@ func TestGetOwnPrivKey(t *testing.T) {
 
 							slot := testutil.GetSlot(member.ID, m.ID)
 							expComplaint := types.Complaint{
-								Complainer:  member.ID,
-								Complainant: m.ID,
+								Complainant: member.ID,
+								Respondent:  m.ID,
 								KeySym:      member.KeySyms[slot],
 								Signature:   member.ComplaintSigs[slot],
 							}
 
-							assert.Equal(t, expComplaint.Complainer, complaints[slot].Complainer)
 							assert.Equal(t, expComplaint.Complainant, complaints[slot].Complainant)
+							assert.Equal(t, expComplaint.Respondent, complaints[slot].Respondent)
 							assert.Equal(t, expComplaint.KeySym, complaints[slot].KeySym)
 
 							// Can't compare signature as the nonce will be randomly generated
@@ -167,14 +167,14 @@ func TestGetSecretShare(t *testing.T) {
 							if test.expComplaint {
 								slot := testutil.GetSlot(receiver.ID, sender.ID)
 								expComplaint := &types.Complaint{
-									Complainer:  receiver.ID,
-									Complainant: sender.ID,
+									Complainant: receiver.ID,
+									Respondent:  sender.ID,
 									KeySym:      receiver.KeySyms[slot],
 									Signature:   receiver.ComplaintSigs[slot],
 								}
 
-								assert.Equal(t, expComplaint.Complainer, complaint.Complainer)
 								assert.Equal(t, expComplaint.Complainant, complaint.Complainant)
+								assert.Equal(t, expComplaint.Respondent, complaint.Respondent)
 								assert.Equal(t, expComplaint.KeySym, complaint.KeySym)
 
 								// Can't compare signature as the nonce will be randomly generated
