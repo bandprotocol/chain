@@ -21,10 +21,12 @@ service Msg {
   rpc Confirm(MsgConfirm) returns (MsgConfirmResponse);
   // SubmitDEs submits list of pre-commits DE for signing process.
   rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
-  // RequestSignature submits a general message to be signed by a specific group
+  // RequestSignature submits a general message to be signed by a specific group.
   rpc RequestSignature(MsgRequestSignature) returns (MsgRequestSignatureResponse);
-  // SubmitSignature submits signature on task participant need to do
+  // SubmitSignature submits signature on task participant need to do.
   rpc SubmitSignature(MsgSubmitSignature) returns (MsgSubmitSignatureResponse);
+  // Activate activates the status of the group's member.
+  rpc Activate(MsgActivate) returns (MsgActivateResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -72,9 +74,9 @@ message MsgComplain {
   uint64 group_id = 1
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // complaints is a list of complains.
-  repeated Complaint complaints = 3 [(gogoproto.nullable) = false];
+  repeated Complaint complaints = 2 [(gogoproto.nullable) = false];
   // member is the signer of this message. Must be the member of this group.
-  string member = 4;
+  string member = 3;
 }
 
 message MsgComplainResponse {}
@@ -135,3 +137,13 @@ message MsgSubmitSignature {
 }
 
 message MsgSubmitSignatureResponse {}
+
+// MsgActivate is a message used to activate the status of the group's member.
+message MsgActivate {
+  // group_ids is the list of groups.
+  repeated uint64 group_ids = 1 [(gogoproto.customname) = "GroupIDs"];
+  // member is the signer of this signing message, who must be a member of the group.
+  string member = 2;
+}
+
+message MsgActivateResponse {}

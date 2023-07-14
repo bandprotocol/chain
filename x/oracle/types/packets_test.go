@@ -40,7 +40,6 @@ func TestGetBytesRequestPacket(t *testing.T) {
 func TestGetBytesResponsePacket(t *testing.T) {
 	res := OracleResponsePacketData{
 		ClientID:      "test",
-		SigningID:     0, // no require sign by tss module
 		RequestID:     1,
 		AnsCount:      1,
 		RequestTime:   1589535020,
@@ -52,7 +51,7 @@ func TestGetBytesResponsePacket(t *testing.T) {
 	require.Equal(
 		t,
 		[]byte(
-			`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA=","signing_id":"0"}`,
+			`{"ans_count":"1","client_id":"test","request_id":"1","request_time":"1589535020","resolve_status":"RESOLVE_STATUS_SUCCESS","resolve_time":"1589535022","result":"S7EOAAAAAAA="}`,
 		),
 		res.GetBytes(),
 	)

@@ -109,9 +109,9 @@ func (k Keeper) SaveResult(
 		result,                             // Result
 	))
 
-	// Set the request to the signing map if have the signing id
+	// If a signing ID not zero, set the signing ID.
 	if sid != 0 {
-		k.SetRequestToSigningMap(ctx, id, sid)
+		k.SetSigningID(ctx, id, sid)
 	}
 
 	if r.IBCChannel != nil {
@@ -157,7 +157,7 @@ func (k Keeper) SaveResult(
 		}
 
 		packetData := types.NewOracleResponsePacketData(
-			r.ClientID, id, sid, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+			r.ClientID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
 		)
 
 		packet := channeltypes.NewPacket(

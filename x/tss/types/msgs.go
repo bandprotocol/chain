@@ -76,7 +76,7 @@ func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDKGRound1.
 func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -127,7 +127,7 @@ func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDKGRound2.
 func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -163,7 +163,7 @@ func (m MsgComplain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgComplain.
 func (m MsgComplain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -182,21 +182,21 @@ func (m MsgComplain) ValidateBasic() error {
 	}
 
 	// Validate complaints
-	memberI := m.Complaints[0].Complainer
+	memberI := m.Complaints[0].Complainant
 	for i, c := range m.Complaints {
-		// Validate member complainer
-		if i > 0 && memberI != c.Complainer {
+		// Validate member complainant
+		if i > 0 && memberI != c.Complainant {
 			return sdkerrors.Wrap(
-				fmt.Errorf("memberID complainer in the list of complaints must be the same value"),
-				"complainer",
+				fmt.Errorf("memberID complainant in the list of complaints must be the same value"),
+				"complainant",
 			)
 		}
 
-		// Validate member complainer and complainant
-		if c.Complainer == c.Complainant {
+		// Validate member complainant and respondent
+		if c.Complainant == c.Respondent {
 			return sdkerrors.Wrap(
-				fmt.Errorf("memberID complainer and complainant can not be the same value"),
-				"complainer, complainant",
+				fmt.Errorf("memberID complainant and respondent can not be the same value"),
+				"complainant, respondent",
 			)
 		}
 
@@ -227,7 +227,7 @@ func (m MsgConfirm) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgConfirm.
 func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -261,7 +261,7 @@ func (m MsgSubmitDEs) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitDEs.
 func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -303,7 +303,7 @@ func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgRequestSignature.
 func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
@@ -332,7 +332,7 @@ func (m MsgSubmitSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgSubmitSignature.
 func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
 }
@@ -348,6 +348,35 @@ func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member signature
 	if err = m.Signature.Validate(); err != nil {
 		return sdkerrors.Wrap(err, "signature")
+	}
+
+	return nil
+}
+
+var _ sdk.Msg = &MsgActivate{}
+
+// Route Implements Msg.
+func (m MsgActivate) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgActivate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgActivate.
+func (m MsgActivate) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgActivate) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
 	}
 
 	return nil

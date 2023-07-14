@@ -270,7 +270,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 
 	// Compute commitment from mids, public D and public E
 	commitment, err := tss.ComputeCommitment(
-		types.GetMemberIDs(selectedMembers),
+		types.Members(selectedMembers).GetIDs(),
 		assignedMembers.PubDs(),
 		assignedMembers.PubEs(),
 	)
@@ -337,7 +337,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", member.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", member.Member)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(member.BindingFactor)),
-			sdk.NewAttribute(types.AttributeKeyPubNonces, hex.EncodeToString(member.PubNonce)),
+			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(member.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(member.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(member.PubE)),
 		)

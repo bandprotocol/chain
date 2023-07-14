@@ -44,6 +44,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		})
 	}
 
@@ -91,11 +92,6 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
 	}
 
-	// Check expiration time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -103,7 +99,7 @@ func (k Keeper) SubmitDKGRound1(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -174,8 +170,6 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.Expiration = &expiredTime
 		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -213,11 +207,6 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
 	}
 
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -225,7 +214,7 @@ func (k Keeper) SubmitDKGRound2(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -279,7 +268,7 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
+		expiredTime := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 		group.Expiration = &expiredTime
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -300,7 +289,7 @@ func (k Keeper) SubmitDKGRound2(
 func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
-	memberID := req.Complaints[0].Complainer
+	memberID := req.Complaints[0].Complainant
 
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
@@ -313,11 +302,6 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
 	}
 
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, groupID, memberID)
 	if err != nil {
@@ -325,7 +309,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -345,8 +329,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	for _, c := range req.Complaints {
 		err := k.HandleVerifyComplaint(ctx, groupID, c)
 		if err != nil {
-			// Mark complainer as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Complainer)
+			// Mark complainant as malicious
+			err := k.MarkMalicious(ctx, groupID, c.Complainant)
 			if err != nil {
 				return nil, err
 			}
@@ -362,16 +346,16 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainFailed,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
 				),
 			)
 		} else {
-			// Mark complainant as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Complainant)
+			// Mark respondent as malicious
+			err := k.MarkMalicious(ctx, groupID, c.Respondent)
 			if err != nil {
 				return nil, err
 			}
@@ -387,8 +371,8 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 				sdk.NewEvent(
 					types.EventTypeComplainSuccess,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainerID, fmt.Sprintf("%d", c.Complainer)),
 					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
 					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
@@ -449,7 +433,7 @@ func (k Keeper) Confirm(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -498,7 +482,7 @@ func (k Keeper) Confirm(
 			return nil, err
 		}
 
-		if !types.HaveMalicious(members) {
+		if !types.Members(members).HaveMalicious() {
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
 			group.Expiration = nil
@@ -585,7 +569,7 @@ func (k Keeper) SubmitSignature(
 	}
 
 	// Verify member
-	if !types.VerifyMember(member, req.Member) {
+	if !member.Verify(req.Member) {
 		return nil, sdkerrors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
@@ -720,6 +704,29 @@ func (k Keeper) SubmitSignature(
 	)
 
 	return &types.MsgSubmitSignatureResponse{}, nil
+}
+
+func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	for _, gid := range msg.GroupIDs {
+		member, err := k.GetMemberByAddress(ctx, tss.GroupID(gid), msg.Member)
+		if err != nil {
+			return nil, err
+		}
+
+		err = k.SetActive(ctx, tss.GroupID(gid), member.MemberID)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeActivate,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
+			sdk.NewAttribute(types.AttributeKeyMember, msg.Member),
+		))
+	}
+	return &types.MsgActivateResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.

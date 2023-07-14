@@ -43,6 +43,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdSubmitDEs(),
 		GetTxCmdRequest(),
 		GetTxCmdSubmitSignature(),
+		GetTxCmdActivate(),
 	)
 
 	return txCmd
@@ -326,10 +327,10 @@ Where complaints.json contains:
 {
 	complaints: [
 		{
-            "complainer": 1,
-            "complainant": 2,
-            "key_sym": "symmetric key between complainer and complainant",
-            "signature": "signature that complain by complainer"
+            "complainant": 1,
+            "respondent": 2,
+            "key_sym": "symmetric key between complainant and respondent",
+            "signature": "signature that complain by complainant"
         },
 		...
 	]
@@ -539,6 +540,48 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 				Signature: sig,
 				Member:    clientCtx.GetFromAddress().String(),
 			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdActivate creates a CLI command for CLI command for Msg/Activate.
+func GetTxCmdActivate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "activate [group_ids]",
+		Args:  cobra.ExactArgs(3),
+		Short: "active status of the member in groups",
+		Example: fmt.Sprintf(
+			`%s tx tss activate [group_ids]`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			gidStrs := strings.Split(args[0], ",")
+
+			var gids []uint64
+			for _, gidStr := range gidStrs {
+				gid, err := strconv.ParseUint(gidStr, 10, 64)
+				if err != nil {
+					return err
+				}
+
+				gids = append(gids, gid)
+			}
+
+			msg := &types.MsgActivate{
+				GroupIDs: gids,
+				Member:   clientCtx.GetFromAddress().String(),
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

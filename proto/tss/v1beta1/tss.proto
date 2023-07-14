@@ -127,6 +127,8 @@ message Member {
   bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 4;
+  // is_active is a boolean indicating active status of member.
+  bool is_active = 5;
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.
@@ -158,11 +160,11 @@ message Confirm {
 
 // Complaint is a message type used to issue a complaint against a member.
 message Complaint {
-  // complainer is the member issuing the complaint.
-  uint64 complainer = 1 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
-  // complainant is the member against whom the complaint is issued.
-  uint64 complainant = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
-  // key_sym is a symmetric key between complainer's private key and complainant's public key.
+  // complainant is the member issuing the complaint.
+  uint64 complainant = 1 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+  // respondent is the member against whom the complaint is issued.
+  uint64 respondent = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+  // key_sym is a symmetric key between respondent's private key and respondent's public key.
   bytes key_sym = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // signature is the complaint signature that can do a symmetric key validation and complaint verification.
   bytes signature = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.ComplaintSignature"];

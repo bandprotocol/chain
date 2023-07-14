@@ -14,52 +14,52 @@ func (k Keeper) HandleVerifyComplaint(
 	groupID tss.GroupID,
 	complaint types.Complaint,
 ) error {
-	// Get round 1 info from member Complainer
-	round1Complainer, err := k.GetRound1Info(ctx, groupID, complaint.Complainer)
-	if err != nil {
-		return err
-	}
-
 	// Get round 1 info from member Complainant
 	round1Complainant, err := k.GetRound1Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
 
-	// Get round 2 info from member Complainant
-	round2Complainant, err := k.GetRound2Info(ctx, groupID, complaint.Complainant)
+	// Get round 1 info from member Respondent
+	round1Respondent, err := k.GetRound1Info(ctx, groupID, complaint.Respondent)
 	if err != nil {
 		return err
 	}
 
-	// Find complainer index in complainant encrypted secret shares
-	complainerIndex := types.FindMemberSlot(complaint.Complainant, complaint.Complainer)
+	// Get round 2 info from member Respondent
+	round2Respondent, err := k.GetRound2Info(ctx, groupID, complaint.Respondent)
+	if err != nil {
+		return err
+	}
+
+	// Find complainant index in respondent encrypted secret shares
+	complainantIndex := types.FindMemberSlot(complaint.Respondent, complaint.Complainant)
 
 	// Return error if the slot exceeds length of shares
-	if int(complainerIndex) >= len(round2Complainant.EncryptedSecretShares) {
+	if int(complainantIndex) >= len(round2Respondent.EncryptedSecretShares) {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
 			"No encrypted secret share from MemberID(%d) to MemberID(%d)",
-			complaint.Complainer,
+			complaint.Respondent,
 			complaint.Complainant,
 		)
 	}
 
 	// Verify the complaint signature
 	err = tss.VerifyComplaint(
-		round1Complainer.OneTimePubKey,
 		round1Complainant.OneTimePubKey,
+		round1Respondent.OneTimePubKey,
 		complaint.KeySym,
 		complaint.Signature,
-		round2Complainant.EncryptedSecretShares[complainerIndex],
-		complaint.Complainer,
-		round1Complainant.CoefficientCommits,
+		round2Respondent.EncryptedSecretShares[complainantIndex],
+		complaint.Complainant,
+		round1Respondent.CoefficientCommits,
 	)
 	if err != nil {
 		return sdkerrors.Wrapf(
 			types.ErrComplainFailed,
 			"failed to complaint member: %d with groupID: %d; %s",
-			complaint.Complainant,
+			complaint.Respondent,
 			groupID,
 			err,
 		)

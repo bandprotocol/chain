@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -13,6 +12,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v5/modules/core/exported"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -86,4 +88,5 @@ type RollingseedKeeper interface {
 // TSSKeeper defines the expected tss keeper.
 type TSSKeeper interface {
 	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error)
+	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
 }

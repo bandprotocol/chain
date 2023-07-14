@@ -7,15 +7,33 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
+// ComputeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
 // Note: Currently, supports a maximum mid at 20.
-func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
+func ComputeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
+	if len(memberList) > 20 {
+		panic("compute lagrange coefficient optimization supports a maximum mid at 20.")
+	}
 	var mids []int64
 	for _, member := range memberList {
 		mids = append(mids, int64(member))
 	}
 
 	coeff := lagrange.ComputeCoefficientPreCompute(int64(mid), mids).Bytes()
+
+	scalarValue := new(secp256k1.ModNScalar)
+	scalarValue.SetByteSlice(coeff)
+
+	return NewScalarFromModNScalar(scalarValue)
+}
+
+// ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
+func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
+	var mids []int64
+	for _, member := range memberList {
+		mids = append(mids, int64(member))
+	}
+
+	coeff := lagrange.ComputeCoefficient(int64(mid), mids).Bytes()
 
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
