@@ -144,7 +144,7 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetPendingSignIDs() {
+func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	memberID := tss.MemberID(1)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
@@ -165,10 +165,13 @@ func (s *KeeperTestSuite) TestGetPendingSignIDs() {
 	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSignIDs(ctx, address)
+	got := k.GetPendingSigns(ctx, address)
 
-	// Check if the returned IDs are equal to the ones we set
-	s.Require().Equal(uint64(signingID), got[0])
+	// Update signing id
+	signing.SigningID = signingID
+
+	// Check if the returned signings are equal to the ones we set
+	s.Require().Equal(signing, got[0])
 }
 
 func (s *KeeperTestSuite) TestSetGetSigCount() {

@@ -152,16 +152,8 @@ func (k Querier) PendingSignings(
 		)
 	}
 
-	// Get pending sign IDs and then fetch each pending sign
-	var pendingSigns []types.Signing
-	pendingSignIDs := k.GetPendingSignIDs(ctx, accAddress)
-	for _, id := range pendingSignIDs {
-		signing, err := k.GetSigning(ctx, tss.SigningID(id))
-		if err != nil {
-			return nil, err
-		}
-		pendingSigns = append(pendingSigns, signing)
-	}
+	// Get pending signs.
+	pendingSigns := k.GetPendingSigns(ctx, accAddress)
 
 	return &types.QueryPendingSigningsResponse{
 		PendingSignings: pendingSigns,

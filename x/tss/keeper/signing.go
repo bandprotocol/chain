@@ -74,15 +74,15 @@ func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
-// GetPendingSignIDs retrieves the IDs of pending signs associated with the given account address.
-func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uint64 {
+// GetPendingSigns retrieves the pending signing objects associated with the given account address.
+func (k Keeper) GetPendingSigns(ctx sdk.Context, address sdk.AccAddress) []types.Signing {
 	// Get the ID of the last expired signing
 	lastExpired := k.GetLastExpiredSigningID(ctx)
 
 	// Get the total signing count
 	signingCount := k.GetSigningCount(ctx)
 
-	var pendingSigns []uint64
+	var pendingSigns []types.Signing
 	for id := lastExpired + 1; uint64(id) <= signingCount; id++ {
 		// Retrieve the signing object
 		signing := k.MustGetSigning(ctx, id)
@@ -91,8 +91,8 @@ func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uin
 		for _, am := range signing.AssignedMembers {
 			// Check if the member's address matches the given account address
 			if am.Member == address.String() {
-				// Add the member's ID to the pendingSigns slice
-				pendingSigns = append(pendingSigns, uint64(am.MemberID))
+				// Add the signing to the pendingSigns slice
+				pendingSigns = append(pendingSigns, signing)
 			}
 		}
 	}
