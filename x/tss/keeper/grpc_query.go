@@ -34,20 +34,27 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	// If group is in active/fallen, return group and member info
-	// since all other infomations have been deleted
-	if group.Status == types.GROUP_STATUS_ACTIVE || group.Status == types.GROUP_STATUS_FALLEN {
-		return &types.QueryGroupResponse{
-			Group:   group,
-			Members: members,
-		}, nil
+	var statuses []types.Status
+	for _, m := range members {
+		address, err := sdk.AccAddressFromBech32(m.Address)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
+		}
+
+		// Ignore error as status can be null if the group is not active
+		status, err := k.GetStatus(ctx, address, groupID)
+		if err != nil {
+			continue
+		}
+
+		statuses = append(statuses, status)
 	}
 
-	// If group is not active, get additional data
-	dkgContext, err := k.GetDKGContext(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
+	// Ignore error as dkgContext can be deleted
+	dkgContext, _ := k.GetDKGContext(ctx, groupID)
 
 	// Get round infos, complaints, and confirms
 	round1Infos := k.GetRound1Infos(ctx, groupID)
@@ -60,6 +67,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		Group:                group,
 		DKGContext:           dkgContext,
 		Members:              members,
+		Statuses:             statuses,
 		Round1Infos:          round1Infos,
 		Round2Infos:          round2Infos,
 		ComplaintsWithStatus: complaints,

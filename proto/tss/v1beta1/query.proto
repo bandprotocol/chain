@@ -59,14 +59,16 @@ message QueryGroupResponse {
   bytes dkg_context = 2 [(gogoproto.customname) = "DKGContext"];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
+  // members is the list of members in the group.
+  repeated Status statuses = 4 [(gogoproto.nullable) = false];
   // round1_infos is the list of Round 1 information.
-  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
+  repeated Round1Info round1_infos = 5 [(gogoproto.nullable) = false];
   // round2_infos is the list of Round 2 information.
-  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
+  repeated Round2Info round2_infos = 6 [(gogoproto.nullable) = false];
   // complaints_with_status is the list of complaints with status.
-  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
+  repeated ComplaintsWithStatus complaints_with_status = 7 [(gogoproto.nullable) = false];
   // confirms is the list of confirms.
-  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
+  repeated Confirm confirms = 8 [(gogoproto.nullable) = false];
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
