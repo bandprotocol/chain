@@ -229,7 +229,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
-		if member.IsActive {
+		if member.Status.IsActive {
 			members = append(members, member)
 		}
 	}

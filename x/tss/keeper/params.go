@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -12,6 +14,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.MaxDESize(ctx),
 		k.CreatingPeriod(ctx),
 		k.SigningPeriod(ctx),
+		k.InactivePenaltyDuration(ctx),
 	)
 }
 
@@ -41,5 +44,11 @@ func (k Keeper) CreatingPeriod(ctx sdk.Context) (res int64) {
 // SigningPeriod returns the current SigningPeriod from the global param store
 func (k Keeper) SigningPeriod(ctx sdk.Context) (res int64) {
 	k.paramSpace.Get(ctx, types.KeySigningPeriod, &res)
+	return
+}
+
+// InactivePenaltyDuration returns the current InactivePenaltyDuration from the global param store
+func (k Keeper) InactivePenaltyDuration(ctx sdk.Context) (res time.Duration) {
+	k.paramSpace.Get(ctx, types.KeyInactivePenaltyDuration, &res)
 	return
 }

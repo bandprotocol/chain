@@ -123,8 +123,18 @@ message Member {
   bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 4;
-  // is_active is a boolean indicating active status of member.
-  bool is_active = 5;
+  // status is a status of member.
+  MemberStatus status = 5 [(gogoproto.nullable) = false];
+}
+
+// MemberStatus maintains whether a member is an active member.
+message MemberStatus {
+  option (gogoproto.equal) = true;
+  // IsActive is a boolean indicating active status of member.
+  // The member will be deactivated when they are unable to send signature before the signing expired.
+  bool is_active = 1;
+  // Since is a block timestamp when validator has been activated/deactivated
+  google.protobuf.Timestamp since = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

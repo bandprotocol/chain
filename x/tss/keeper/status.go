@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // SetActive sets the member status to active
@@ -13,7 +14,19 @@ func (k Keeper) SetActive(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 		return err
 	}
 
-	member.IsActive = true
+	if member.Status.IsActive {
+		return nil
+	}
+
+	penaltyDuration := k.InactivePenaltyDuration(ctx)
+	if member.Status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
+		return types.ErrTooSoonToActivate
+	}
+
+	member.Status = types.MemberStatus{
+		IsActive: true,
+		Since:    ctx.BlockTime(),
+	}
 	k.SetMember(ctx, groupID, member)
 
 	return nil
@@ -26,7 +39,15 @@ func (k Keeper) SetInActive(ctx sdk.Context, groupID tss.GroupID, memberID tss.M
 		return err
 	}
 
-	member.IsActive = false
+	if !member.Status.IsActive {
+		return nil
+	}
+
+	member.Status = types.MemberStatus{
+		IsActive: false,
+		Since:    ctx.BlockTime(),
+	}
+
 	k.SetMember(ctx, groupID, member)
 
 	return nil

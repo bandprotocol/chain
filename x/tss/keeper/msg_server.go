@@ -44,7 +44,10 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
-			IsActive:    true,
+			Status: types.MemberStatus{
+				IsActive: true,
+				Since:    ctx.BlockTime(),
+			},
 		})
 	}
 

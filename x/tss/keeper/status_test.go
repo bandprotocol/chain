@@ -14,7 +14,10 @@ func (s *KeeperTestSuite) TestSetInActive() {
 
 	member, err := k.GetMember(ctx, 1, 1)
 	s.Require().NoError(err)
-	s.Require().Equal(false, member.IsActive)
+	s.Require().Equal(types.MemberStatus{
+		IsActive: false,
+		Since:    ctx.BlockTime(),
+	}, member.Status)
 
 	// Failed case - no member
 	err = k.SetInActive(ctx, 1, 300)
@@ -26,14 +29,24 @@ func (s *KeeperTestSuite) TestSetActive() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	// Success case
-	err := k.SetInActive(ctx, 1, 1)
+	err := k.SetActive(ctx, 1, 1)
 	s.Require().NoError(err)
 
 	member, err := k.GetMember(ctx, 1, 1)
 	s.Require().NoError(err)
-	s.Require().Equal(false, member.IsActive)
+	s.Require().Equal(types.MemberStatus{
+		IsActive: true,
+		Since:    ctx.BlockTime(),
+	}, member.Status)
+
+	// Failed case - penalty
+	err = k.SetInActive(ctx, 1, 1)
+	s.Require().NoError(err)
+
+	err = k.SetActive(ctx, 1, 1)
+	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
 
 	// Failed case - no member
-	err = k.SetInActive(ctx, 1, 300)
+	err = k.SetActive(ctx, 1, 300)
 	s.Require().Error(err)
 }
