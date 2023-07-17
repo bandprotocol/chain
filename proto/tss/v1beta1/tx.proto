@@ -143,7 +143,7 @@ message MsgActivate {
   // group_ids is the list of groups.
   repeated uint64 group_ids = 1 [(gogoproto.customname) = "GroupIDs"];
   // member is the signer of this signing message, who must be a member of the group.
-  string member = 2;
+  string address = 2;
 }
 
 message MsgActivateResponse {}

@@ -579,7 +579,7 @@ func GetTxCmdActivate() *cobra.Command {
 
 			msg := &types.MsgActivate{
 				GroupIDs: gids,
-				Member:   clientCtx.GetFromAddress().String(),
+				Address:  clientCtx.GetFromAddress().String(),
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)

@@ -229,7 +229,20 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
-		if member.Status.IsActive {
+		address, err := sdk.AccAddressFromBech32(member.Address)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
+		}
+
+		status, err := k.GetStatus(ctx, address, groupID)
+		if err != nil {
+			return nil, err
+		}
+
+		if status.IsActive {
 			members = append(members, member)
 		}
 	}
@@ -291,6 +304,51 @@ func (k Keeper) ProcessExpiredGroups(ctx sdk.Context) {
 		// Set the last expired group ID to the current group ID
 		k.SetLastExpiredGroupID(ctx, currentGroupID)
 	}
+}
+
+// SetStatus sets a status of a member of the group in the store.
+func (k Keeper) SetStatus(ctx sdk.Context, address sdk.AccAddress, status types.Status) {
+	ctx.KVStore(k.storeKey).Set(types.StatusGroupStoreKey(address, status.GroupID), k.cdc.MustMarshal(&status))
+}
+
+// GetStatusesIterator gets an iterator all statuses of address.
+func (k Keeper) GetStatusesIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StatusStoreKey(address))
+}
+
+// GetStatuses retrieves all statuses of the address.
+func (k Keeper) GetStatuses(ctx sdk.Context, address sdk.AccAddress) []types.Status {
+	var statuses []types.Status
+	iterator := k.GetStatusesIterator(ctx, address)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var status types.Status
+		k.cdc.MustUnmarshal(iterator.Value(), &status)
+		statuses = append(statuses, status)
+	}
+	return statuses
+}
+
+// GetStatus retrieves a status of the address of the group.
+func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) (types.Status, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.StatusGroupStoreKey(address, groupID))
+	if bz == nil {
+		return types.Status{}, sdkerrors.Wrapf(
+			types.ErrStatusNotFound,
+			"failed to get status with address: %d and groupID: %d",
+			address.String(),
+			groupID,
+		)
+	}
+
+	status := types.Status{}
+	k.cdc.MustUnmarshal(bz, &status)
+	return status, nil
+}
+
+// DeleteStatus removes the status of the address of the group
+func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.StatusGroupStoreKey(address, groupID))
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

@@ -87,6 +87,9 @@ var (
 
 	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
 	PartialSigStoreKeyPrefix = []byte{0x16}
+
+	// StatusStoreKeyPrefix is the prefix for status store.
+	StatusStoreKeyPrefix = []byte{0x17}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -203,4 +206,12 @@ func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
 func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
 	return sdk.BigEndianToUint64(key[1+AddrLen:])
+}
+
+func StatusStoreKey(address sdk.AccAddress) []byte {
+	return append(StatusStoreKeyPrefix, address...)
+}
+
+func StatusGroupStoreKey(address sdk.AccAddress, groupID tss.GroupID) []byte {
+	return append(StatusStoreKey(address), sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

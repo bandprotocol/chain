@@ -698,7 +698,7 @@ func (s *KeeperTestSuite) TestActivateReq() {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-					Member:   sdk.AccAddress(m.PubKey()).String(),
+					Address:  sdk.AccAddress(m.PubKey()).String(),
 					GroupIDs: []uint64{uint64(tc.Group.ID)},
 				})
 				s.Require().NoError(err)
@@ -708,7 +708,7 @@ func (s *KeeperTestSuite) TestActivateReq() {
 		s.Run(fmt.Sprintf("failed %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-					Member:   sdk.AccAddress(m.PubKey()).String(),
+					Address:  sdk.AccAddress(m.PubKey()).String(),
 					GroupIDs: []uint64{10000},
 				})
 				s.Require().Error(err)

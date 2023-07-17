@@ -94,6 +94,7 @@ func (k Querier) IsGrantee(
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
+
 	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
@@ -111,10 +112,7 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 	// Convert the address from Bech32 format to AccAddress format
 	accAddress, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidAccAddressFormat,
-			"invalid account address: %s", err,
-		)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
 	}
 
 	// Get DEs and paginate the result
@@ -146,10 +144,7 @@ func (k Querier) PendingSignings(
 	// Convert the address from Bech32 format to AccAddress format
 	accAddress, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidAccAddressFormat,
-			"invalid account address: %s", err,
-		)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
 	}
 
 	// Get pending signs.
@@ -177,7 +172,28 @@ func (k Querier) Signing(
 	pzs := k.GetPartialSigsWithKey(ctx, signingID)
 
 	return &types.QuerySigningResponse{
-		Signing:                   &signing,
+		Signing:                   signing,
 		ReceivedPartialSignatures: pzs,
+	}, nil
+}
+
+// Statuses function handles the request to get statuses of a given ID.
+func (k Querier) Statuses(
+	goCtx context.Context,
+	req *types.QueryStatusesRequest,
+) (*types.QueryStatusesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
+	}
+
+	// Get all statuses of the address
+	statuses := k.GetStatuses(ctx, accAddress)
+
+	return &types.QueryStatusesResponse{
+		Statuses: statuses,
 	}, nil
 }

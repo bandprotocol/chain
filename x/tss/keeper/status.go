@@ -8,47 +8,42 @@ import (
 )
 
 // SetActive sets the member status to active
-func (k Keeper) SetActive(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
-	member, err := k.GetMember(ctx, groupID, memberID)
+func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	status, err := k.GetStatus(ctx, address, groupID)
 	if err != nil {
 		return err
 	}
 
-	if member.Status.IsActive {
+	if status.IsActive {
 		return nil
 	}
 
 	penaltyDuration := k.InactivePenaltyDuration(ctx)
-	if member.Status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
+	if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
 		return types.ErrTooSoonToActivate
 	}
 
-	member.Status = types.MemberStatus{
-		IsActive: true,
-		Since:    ctx.BlockTime(),
-	}
-	k.SetMember(ctx, groupID, member)
+	status.IsActive = true
+	status.Since = ctx.BlockTime()
+	k.SetStatus(ctx, address, status)
 
 	return nil
 }
 
 // SetInActive sets the member status to inactive
-func (k Keeper) SetInActive(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
-	member, err := k.GetMember(ctx, groupID, memberID)
+func (k Keeper) SetInActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	status, err := k.GetStatus(ctx, address, groupID)
 	if err != nil {
 		return err
 	}
 
-	if !member.Status.IsActive {
+	if !status.IsActive {
 		return nil
 	}
 
-	member.Status = types.MemberStatus{
-		IsActive: false,
-		Since:    ctx.BlockTime(),
-	}
-
-	k.SetMember(ctx, groupID, member)
+	status.IsActive = false
+	status.Since = ctx.BlockTime()
+	k.SetStatus(ctx, address, status)
 
 	return nil
 }

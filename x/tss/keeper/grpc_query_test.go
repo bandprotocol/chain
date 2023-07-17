@@ -160,50 +160,30 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      nil,
 							IsMalicious: false,
-							Status: types.MemberStatus{
-								IsActive: true,
-								Since:    ctx.BlockTime(),
-							},
 						},
 						{
 							MemberID:    2,
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      nil,
 							IsMalicious: false,
-							Status: types.MemberStatus{
-								IsActive: true,
-								Since:    ctx.BlockTime(),
-							},
 						},
 						{
 							MemberID:    3,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      nil,
 							IsMalicious: false,
-							Status: types.MemberStatus{
-								IsActive: true,
-								Since:    ctx.BlockTime(),
-							},
 						},
 						{
 							MemberID:    4,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      nil,
 							IsMalicious: false,
-							Status: types.MemberStatus{
-								IsActive: true,
-								Since:    ctx.BlockTime(),
-							},
 						},
 						{
 							MemberID:    5,
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      nil,
 							IsMalicious: false,
-							Status: types.MemberStatus{
-								IsActive: true,
-								Since:    ctx.BlockTime(),
-							},
 						},
 					},
 					Round1Infos: []types.Round1Info{
@@ -539,7 +519,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			true,
 			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
-				s.Require().Equal(&signing, res.Signing)
+				s.Require().Equal(signing, res.Signing)
 				s.Require().
 					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
 			},
@@ -551,6 +531,48 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			tc.malleate()
 
 			res, err := q.Signing(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
+	ctx, q := s.ctx, s.querier
+
+	var req types.QueryStatusesRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryStatusesResponse, err error)
+	}{
+		{
+			"success",
+			func() {
+				req = types.QueryStatusesRequest{
+					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func(res *types.QueryStatusesResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.Statuses, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.Statuses(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
