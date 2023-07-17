@@ -690,18 +690,6 @@ func (k Keeper) SubmitSignature(
 		)
 	}
 
-	// Convert the address from Bech32 format to AccAddress format
-	accMember, err := sdk.AccAddressFromBech32(member.Address)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInvalidAccAddressFormat,
-			"invalid account address: %s", err,
-		)
-	}
-
-	// Delete this signing out of the pending sign
-	k.DeletePendingSign(ctx, accMember, req.SigningID)
-
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitSign,

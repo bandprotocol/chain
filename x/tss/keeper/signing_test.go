@@ -144,93 +144,31 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetSetPendingSign() {
+func (s *KeeperTestSuite) TestGetPendingSignIDs() {
 	ctx, k := s.ctx, s.app.TSSKeeper
+	memberID := tss.MemberID(1)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingID := tss.SigningID(1)
 
-	// Set PendingSign
-	k.SetPendingSign(ctx, address, signingID)
-
-	// Get PendingSign
-	got := k.GetPendingSign(ctx, address, signingID)
-
-	s.Require().True(got)
-}
-
-func (s *KeeperTestSuite) TestDeletePendingSign() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingID := tss.SigningID(1)
-
-	// Set PendingSign
-	k.SetPendingSign(ctx, address, signingID)
-
-	// Confirm PendingSign was set
-	got := k.GetPendingSign(ctx, address, signingID)
-	s.Require().True(got)
-
-	// Delete PendingSign
-	k.DeletePendingSign(ctx, address, signingID)
-
-	// Confirm PendingSign was deleted
-	got = k.GetPendingSign(ctx, address, signingID)
-	s.Require().False(got)
-}
-
-func (s *KeeperTestSuite) TestDeletePendingSigns() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	signingID, memberID := tss.SigningID(1), tss.MemberID(1)
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	signing := types.Signing{
-		SigningID: signingID,
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
 				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
 			},
 		},
 	}
 
 	// Set signing
-	k.SetSigning(ctx, signing)
-
-	// Set pendingSign
-	k.SetPendingSign(ctx, address, signingID)
-
-	// Confirm pendingSign was set
-	got := k.GetPendingSign(ctx, address, signingID)
-	s.Require().True(got)
-
-	// Delete pendingSign
-	k.DeletePendingSigns(ctx, signingID)
-
-	// Confirm pendingSign was deleted
-	got = k.GetPendingSign(ctx, address, signingID)
-	s.Require().False(got)
-}
-
-func (s *KeeperTestSuite) TestGetPendingSignIDs() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingIDs := []tss.SigningID{1, 2, 3}
-
-	// Set PendingSign for multiple SigningIDs
-	for _, id := range signingIDs {
-		k.SetPendingSign(ctx, address, id)
-	}
+	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
 	got := k.GetPendingSignIDs(ctx, address)
 
-	// Convert got (which is []uint64) to []tss.SigningID for comparison
-	var gotConverted []tss.SigningID
-	for _, id := range got {
-		gotConverted = append(gotConverted, tss.SigningID(id))
-	}
-
 	// Check if the returned IDs are equal to the ones we set
-	s.Require().Equal(signingIDs, gotConverted)
+	s.Require().Equal(uint64(signingID), got[0])
 }
 
 func (s *KeeperTestSuite) TestSetGetSigCount() {

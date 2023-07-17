@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gogotypes "github.com/gogo/protobuf/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -75,56 +74,29 @@ func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
-// SetPendingSign sets the pending sign flag for a specific address and signing ID.
-func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
-	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: true})
-	ctx.KVStore(k.storeKey).Set(types.PendingSignStoreKey(address, signingID), bz)
-}
-
-// GetPendingSign retrieves the pending sign flag for a specific address and signing ID from the store.
-func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) bool {
-	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStoreKey(address, signingID))
-	var have gogotypes.BoolValue
-	if bz == nil {
-		return false
-	}
-	k.cdc.MustUnmarshal(bz, &have)
-
-	return have.Value
-}
-
-// DeletePendingSign deletes the pending sign flag for a specific address and signing ID from the store.
-func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Delete(types.PendingSignStoreKey(address, signingID))
-}
-
-// DeleteRound1Infos removes all pending sign info associated with a specific signing ID from the store.
-func (k Keeper) DeletePendingSigns(ctx sdk.Context, signingID tss.SigningID) {
-	signing, _ := k.GetSigning(ctx, signingID)
-	for _, am := range signing.AssignedMembers {
-		accAm := sdk.MustAccAddressFromBech32(am.Member)
-		k.DeletePendingSign(ctx, accAm, signingID)
-	}
-}
-
-// GetPendingSignIterator gets an iterator over all pending sign data.
-func (k Keeper) GetPendingSignIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PendingSignsStoreKey(address))
-}
-
-// GetPendingSignIDs method retrieves all pending sign ids for a given address from the store.
+// GetPendingSignIDs retrieves the IDs of pending signs associated with the given account address.
 func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uint64 {
-	var pendingSigns []uint64
-	iterator := k.GetPendingSignIterator(ctx, address)
+	// Get the ID of the last expired signing
+	lastExpired := k.GetLastExpiredSigningID(ctx)
 
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var have gogotypes.BoolValue
-		k.cdc.MustUnmarshal(iterator.Value(), &have)
-		if have.Value {
-			pendingSigns = append(pendingSigns, types.SigningIDFromPendingSignStoreKey(iterator.Key()))
+	// Get the total signing count
+	signingCount := k.GetSigningCount(ctx)
+
+	var pendingSigns []uint64
+	for id := lastExpired + 1; uint64(id) <= signingCount; id++ {
+		// Retrieve the signing object
+		signing := k.MustGetSigning(ctx, id)
+
+		// Iterate over the assigned members in the signing object
+		for _, am := range signing.AssignedMembers {
+			// Check if the member's address matches the given account address
+			if am.Member == address.String() {
+				// Add the member's ID to the pendingSigns slice
+				pendingSigns = append(pendingSigns, uint64(am.MemberID))
+			}
 		}
 	}
+
 	return pendingSigns
 }
 
@@ -331,15 +303,6 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	// Add signing
 	signingID := k.AddSigning(ctx, signing)
 
-	// Set pending sign
-	for _, sm := range selectedMembers {
-		accSm, err := sdk.AccAddressFromBech32(sm.Address)
-		if err != nil {
-			return 0, err
-		}
-		k.SetPendingSign(ctx, accSm, signingID)
-	}
-
 	event := sdk.NewEvent(
 		types.EventTypeRequestSign,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
@@ -390,9 +353,6 @@ func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
 		if signing.CreatedHeight+k.SigningPeriod(ctx) > ctx.BlockHeight() {
 			break
 		}
-
-		// Remove the pending signs associated with the signing
-		k.DeletePendingSigns(ctx, signing.SigningID)
 
 		// Remove the signing from the store
 		k.DeleteSigning(ctx, signing.SigningID)
