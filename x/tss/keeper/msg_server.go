@@ -690,11 +690,6 @@ func (k Keeper) SubmitSignature(
 		signing.Signature = sig
 		k.SetSigning(ctx, signing)
 
-		// Delete interims data
-		for _, am := range signing.AssignedMembers {
-			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
-		}
-
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeSignSuccess,

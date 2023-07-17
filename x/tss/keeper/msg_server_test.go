@@ -584,7 +584,6 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
-					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
 				})
 

@@ -478,7 +478,6 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 		},
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
-		Commitment:    []byte("commitment"),
 		Signature:     []byte("signature"),
 	}
 	sig := []byte("signatures")

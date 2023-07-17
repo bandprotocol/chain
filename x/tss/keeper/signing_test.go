@@ -59,7 +59,6 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -93,7 +92,6 @@ func (s *KeeperTestSuite) TestAddSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -129,7 +127,6 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
