@@ -266,7 +266,7 @@ func (k Keeper) ProcessExpiredGroups(ctx sdk.Context) {
 	lastGroupID := tss.GroupID(k.GetGroupCount(ctx))
 
 	// Get the group signature creating period
-	groupSigCreatingPeriod := k.GroupSigCreatingPeriod(ctx)
+	creatingPeriod := k.CreatingPeriod(ctx)
 
 	// Process each group starting from currentGroupID
 	for ; currentGroupID <= lastGroupID; currentGroupID++ {
@@ -274,7 +274,7 @@ func (k Keeper) ProcessExpiredGroups(ctx sdk.Context) {
 		group := k.MustGetGroup(ctx, currentGroupID)
 
 		// Check if the group is still within the expiration period
-		if group.CreatedHeight+groupSigCreatingPeriod > ctx.BlockHeight() {
+		if group.CreatedHeight+creatingPeriod > ctx.BlockHeight() {
 			break
 		}
 

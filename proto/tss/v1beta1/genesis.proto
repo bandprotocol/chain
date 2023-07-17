@@ -30,8 +30,8 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
-  // group_sig_creating_period is the number of blocks allowed to creating group signature.
-  int64 group_sig_creating_period = 3;
+  // creating_period is the number of blocks allowed to creating group signature.
+  int64 creating_period = 3;
   // signing_period is the number of blocks allowed to signing.
   int64 signing_period = 4;
 }

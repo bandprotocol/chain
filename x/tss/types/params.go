@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	DefaultMaxGroupSize           = uint64(20)
-	DefaultMaxDESize              = uint64(100)
-	DefaultGroupSigCreatingPeriod = int64(100)
-	DefaultSigningPeriod          = int64(100)
+	DefaultMaxGroupSize   = uint64(20)
+	DefaultMaxDESize      = uint64(100)
+	DefaultCreatingPeriod = int64(100)
+	DefaultSigningPeriod  = int64(100)
 )
 
 var (
-	KeyMaxGroupSize           = []byte("MaxGroupSize")
-	KeyMaxDESize              = []byte("MaxDESize")
-	KeyRoundPeriod            = []byte("RoundPeriod")
-	KeyGroupSigCreatingPeriod = []byte("GroupSigCreatingPeriod")
-	KeySigningPeriod          = []byte("SigningPeriod")
+	KeyMaxGroupSize   = []byte("MaxGroupSize")
+	KeyMaxDESize      = []byte("MaxDESize")
+	KeyRoundPeriod    = []byte("RoundPeriod")
+	KeyCreatingPeriod = []byte("CreatingPeriod")
+	KeySigningPeriod  = []byte("SigningPeriod")
 )
 
 // ParamKeyTable the param key table for launch module
@@ -30,24 +30,24 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	maxGroupSize uint64,
 	maxDESize uint64,
-	groupSigCreatingPeriod int64,
+	creatingPeriod int64,
 	signingPeriod int64,
 ) Params {
 	return Params{
-		MaxGroupSize:           maxGroupSize,
-		MaxDESize:              maxDESize,
-		GroupSigCreatingPeriod: groupSigCreatingPeriod,
-		SigningPeriod:          signingPeriod,
+		MaxGroupSize:   maxGroupSize,
+		MaxDESize:      maxDESize,
+		CreatingPeriod: creatingPeriod,
+		SigningPeriod:  signingPeriod,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
-		MaxGroupSize:           DefaultMaxGroupSize,
-		MaxDESize:              DefaultMaxDESize,
-		GroupSigCreatingPeriod: DefaultGroupSigCreatingPeriod,
-		SigningPeriod:          DefaultSigningPeriod,
+		MaxGroupSize:   DefaultMaxGroupSize,
+		MaxDESize:      DefaultMaxDESize,
+		CreatingPeriod: DefaultCreatingPeriod,
+		SigningPeriod:  DefaultSigningPeriod,
 	}
 }
 
@@ -62,8 +62,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxGroupSize, &p.MaxGroupSize, validateUint64("max group size", true)),
 		paramtypes.NewParamSetPair(KeyMaxDESize, &p.MaxDESize, validateUint64("max DE size", true)),
 		paramtypes.NewParamSetPair(
-			KeyGroupSigCreatingPeriod,
-			&p.GroupSigCreatingPeriod,
+			KeyCreatingPeriod,
+			&p.CreatingPeriod,
 			validateInt64("group sig creating period", true),
 		),
 		paramtypes.NewParamSetPair(KeySigningPeriod, &p.SigningPeriod, validateInt64("signing period", true)),

@@ -10,7 +10,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
 		k.MaxGroupSize(ctx),
 		k.MaxDESize(ctx),
-		k.GroupSigCreatingPeriod(ctx),
+		k.CreatingPeriod(ctx),
 		k.SigningPeriod(ctx),
 	)
 }
@@ -32,9 +32,9 @@ func (k Keeper) MaxDESize(ctx sdk.Context) (res uint64) {
 	return
 }
 
-// GroupSigCreatingPeriod returns the current GroupSigCreatingPeriod from the global param store
-func (k Keeper) GroupSigCreatingPeriod(ctx sdk.Context) (res int64) {
-	k.paramSpace.Get(ctx, types.KeyGroupSigCreatingPeriod, &res)
+// CreatingPeriod returns the current CreatingPeriod from the global param store
+func (k Keeper) CreatingPeriod(ctx sdk.Context) (res int64) {
+	k.paramSpace.Get(ctx, types.KeyCreatingPeriod, &res)
 	return
 }
 
