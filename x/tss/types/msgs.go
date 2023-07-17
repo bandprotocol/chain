@@ -368,13 +368,13 @@ func (m MsgActivate) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgActivate.
 func (m MsgActivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return sdkerrors.Wrap(err, "member")
 	}

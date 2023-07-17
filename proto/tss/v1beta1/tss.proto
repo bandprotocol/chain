@@ -20,10 +20,8 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // created_at is the time when the group was created.
-  google.protobuf.Timestamp created_at = 6 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-  // expiration is the time when the group will be dissolved if it has not finished its process.
-  google.protobuf.Timestamp expiration = 7 [(gogoproto.stdtime) = true];
+  // created_height is the block height when the group was created.
+  int64 created_height = 6;
 }
 
 // Round1Info contains all necessary information for handling round 1 of the DKG process.
@@ -87,10 +85,8 @@ message Signing {
   bytes commitment = 6;
   // signature is the group's signature on the message.
   bytes signature = 7 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
-  // created_at is the time when the signing request was made.
-  google.protobuf.Timestamp created_at = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-  // expiration is the time when the signing request will expire if not completed.
-  google.protobuf.Timestamp expiration = 9 [(gogoproto.stdtime) = true];
+  // created_height is the block height when the signing was created.
+  int64 created_height = 8;
 }
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.
@@ -127,8 +123,22 @@ message Member {
   bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 4;
-  // is_active is a boolean indicating active status of member.
-  bool is_active = 5;
+}
+
+// Status maintains whether a member is an active member.
+message Status {
+  option (gogoproto.equal) = true;
+  // group_id is the unique identifier of a group.
+  uint64 group_id = 1
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // member_id is the unique identifier of a member.
+  uint64 member_id = 2
+      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+  // IsActive is a boolean indicating active status of member.
+  // The member will be deactivated when they are unable to send signature before the signing expired.
+  bool is_active = 3;
+  // Since is a block timestamp when validator has been activated/deactivated
+  google.protobuf.Timestamp since = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.
@@ -145,8 +155,10 @@ enum GroupStatus {
   GROUP_STATUS_ROUND_3 = 3;
   // GROUP_STATUS_ACTIVE is the status of a group that is actively participating in the protocol.
   GROUP_STATUS_ACTIVE = 4;
+  // GROUP_STATUS_EXPIRED is the status of a group that has expired in the protocol.
+  GROUP_STATUS_EXPIRED = 5;
   // GROUP_STATUS_FALLEN is the status of a group that has fallen out of the protocol.
-  GROUP_STATUS_FALLEN = 5;
+  GROUP_STATUS_FALLEN = 6;
 }
 
 // Confirm is a message type used to confirm participation in the protocol.

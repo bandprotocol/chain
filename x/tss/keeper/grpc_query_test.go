@@ -14,7 +14,6 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -148,12 +147,11 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						GroupID:    1,
-						Size_:      5,
-						Threshold:  3,
-						PubKey:     nil,
-						Status:     types.GROUP_STATUS_ROUND_1,
-						Expiration: &expiration,
+						GroupID:   1,
+						Size_:     5,
+						Threshold: 3,
+						PubKey:    nil,
+						Status:    types.GROUP_STATUS_ROUND_1,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
@@ -389,19 +387,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 		postTest func(res *types.QueryDEResponse, err error)
 	}{
 		{
-			"invalid address format",
-			func() {
-				req = types.QueryDERequest{
-					Address: "invalid_address_format",
-				}
-			},
-			false,
-			func(res *types.QueryDEResponse, err error) {
-				s.Require().Error(err)
-				s.Require().Nil(res)
-			},
-		},
-		{
 			"success",
 			func() {
 				req = types.QueryDERequest{
@@ -444,19 +429,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		postTest func(res *types.QueryPendingSigningsResponse, err error)
 	}{
 		{
-			"invalid address format",
-			func() {
-				req = types.QueryPendingSigningsRequest{
-					Address: "invalid_address_format",
-				}
-			},
-			false,
-			func(res *types.QueryPendingSigningsResponse, err error) {
-				s.Require().Error(err)
-				s.Require().Nil(res)
-			},
-		},
-		{
 			"success",
 			func() {
 				req = types.QueryPendingSigningsRequest{
@@ -491,7 +463,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
-	expiration := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 	signing := types.Signing{
 		SigningID: signingID,
 		GroupID:   groupID,
@@ -509,7 +480,6 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
 		Signature:     []byte("signature"),
-		Expiration:    &expiration,
 	}
 	sig := []byte("signatures")
 
@@ -549,7 +519,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			true,
 			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
-				s.Require().Equal(&signing, res.Signing)
+				s.Require().Equal(signing, res.Signing)
 				s.Require().
 					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
 			},
@@ -561,6 +531,48 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			tc.malleate()
 
 			res, err := q.Signing(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
+	ctx, q := s.ctx, s.querier
+
+	var req types.QueryStatusesRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryStatusesResponse, err error)
+	}{
+		{
+			"success",
+			func() {
+				req = types.QueryStatusesRequest{
+					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func(res *types.QueryStatusesResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.Statuses, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.Statuses(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {

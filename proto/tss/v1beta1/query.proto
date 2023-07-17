@@ -38,6 +38,11 @@ service Query {
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{id}";
   }
+
+  // Statuses queries all statuses of the address.
+  rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
+    option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
+  }
 }
 
 // QueryGroupRequest is the request type for the Query/Group RPC method
@@ -126,7 +131,19 @@ message QuerySigningRequest {
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
 message QuerySigningResponse {
   // signing is the signing request.
-  Signing signing = 1;
+  Signing signing = 1 [(gogoproto.nullable) = false];
   // received_partial_signatures is a list of received partial signatures.
   repeated PartialSignature received_partial_signatures = 2 [(gogoproto.nullable) = false];
+}
+
+// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
+message QueryStatusesRequest {
+  // address is the member address.
+  string address = 1;
+}
+
+// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
+message QueryStatusesResponse {
+  // statuses is the statuses request.
+  repeated Status statuses = 1 [(gogoproto.nullable) = false];
 }

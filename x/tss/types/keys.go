@@ -28,8 +28,14 @@ var (
 	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
 
+	// LastExpiredGroupIDStoreKey is the key for keeps last expired groupID.
+	LastExpiredGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredGroupID")...)
+
 	// SigningCountStoreKey is the key that keeps the total signing count.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
+
+	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
+	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
 
 	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
 	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
@@ -76,14 +82,14 @@ var (
 	// SigningStoreKeyPrefix is the key for keeps signing data.
 	SigningStoreKeyPrefix = []byte{0x14}
 
-	// PendingSignsStoreKeyPrefix is the key for keeps pending signs data.
-	PendingSignsStoreKeyPrefix = []byte{0x15}
-
 	// SigCountStoreKeyPrefix is the key for keeps signature count data.
-	SigCountStoreKeyPrefix = []byte{0x16}
+	SigCountStoreKeyPrefix = []byte{0x15}
 
 	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
-	PartialSigStoreKeyPrefix = []byte{0x17}
+	PartialSigStoreKeyPrefix = []byte{0x16}
+
+	// StatusStoreKeyPrefix is the prefix for status store.
+	StatusStoreKeyPrefix = []byte{0x17}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -180,14 +186,6 @@ func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PendingSignsStoreKey(address sdk.AccAddress) []byte {
-	return append(PendingSignsStoreKeyPrefix, address...)
-}
-
-func PendingSignStoreKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
-	return append(PendingSignsStoreKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
-}
-
 func SigCountStoreKey(signingID tss.SigningID) []byte {
 	return append(SigCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
@@ -208,4 +206,12 @@ func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
 func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
 	return sdk.BigEndianToUint64(key[1+AddrLen:])
+}
+
+func StatusStoreKey(address sdk.AccAddress) []byte {
+	return append(StatusStoreKeyPrefix, address...)
+}
+
+func StatusGroupStoreKey(address sdk.AccAddress, groupID tss.GroupID) []byte {
+	return append(StatusStoreKey(address), sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

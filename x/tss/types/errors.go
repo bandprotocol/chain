@@ -20,7 +20,7 @@ var (
 		"member is not authorized for this group",
 	)
 	ErrInvalidStatus           = sdkerrors.Register(ModuleName, 11, "invalid status")
-	ErrRoundExpired            = sdkerrors.Register(ModuleName, 12, "round expired")
+	ErrGroupExpired            = sdkerrors.Register(ModuleName, 12, "group expired")
 	ErrVerifyOneTimeSigFailed  = sdkerrors.Register(ModuleName, 13, "fail to verify one time sign")
 	ErrVerifyA0SigFailed       = sdkerrors.Register(ModuleName, 14, "fail to verify a0 sign")
 	ErrAddCommit               = sdkerrors.Register(ModuleName, 15, "fail to add coefficient commit")
@@ -60,6 +60,8 @@ var (
 		39,
 		"failed to verify group signing signature",
 	)
-	ErrDEQueueFull    = sdkerrors.Register(ModuleName, 40, "DE queue is full")
-	ErrSigningExpired = sdkerrors.Register(ModuleName, 41, "signing expired")
+	ErrDEQueueFull       = sdkerrors.Register(ModuleName, 40, "DE queue is full")
+	ErrSigningExpired    = sdkerrors.Register(ModuleName, 41, "signing expired")
+	ErrTooSoonToActivate = sdkerrors.Register(ModuleName, 42, "too soon to activate")
+	ErrStatusNotFound    = sdkerrors.Register(ModuleName, 43, "status not found")
 )

@@ -94,6 +94,7 @@ func (k Querier) IsGrantee(
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
 	}
+
 	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
@@ -108,15 +109,15 @@ func (k Querier) IsGrantee(
 func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Convert address from Bech32 to AccAddress
-	address, err := sdk.AccAddressFromBech32(req.Address)
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
 	}
 
 	// Get DEs and paginate the result
 	var des []types.DE
-	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(address))
+	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(accAddress))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
 		var de types.DE
 		k.cdc.MustUnmarshal(value, &de)
@@ -140,22 +141,14 @@ func (k Querier) PendingSignings(
 ) (*types.QueryPendingSigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Convert address from Bech32 to AccAddress
-	address, err := sdk.AccAddressFromBech32(req.Address)
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
 	}
 
-	// Get pending sign IDs and then fetch each pending sign
-	var pendingSigns []types.Signing
-	pendingSignIDs := k.GetPendingSignIDs(ctx, address)
-	for _, id := range pendingSignIDs {
-		signing, err := k.GetSigning(ctx, tss.SigningID(id))
-		if err != nil {
-			return nil, err
-		}
-		pendingSigns = append(pendingSigns, signing)
-	}
+	// Get pending signs.
+	pendingSigns := k.GetPendingSigns(ctx, accAddress)
 
 	return &types.QueryPendingSigningsResponse{
 		PendingSignings: pendingSigns,
@@ -179,7 +172,28 @@ func (k Querier) Signing(
 	pzs := k.GetPartialSigsWithKey(ctx, signingID)
 
 	return &types.QuerySigningResponse{
-		Signing:                   &signing,
+		Signing:                   signing,
 		ReceivedPartialSignatures: pzs,
+	}, nil
+}
+
+// Statuses function handles the request to get statuses of a given ID.
+func (k Querier) Statuses(
+	goCtx context.Context,
+	req *types.QueryStatusesRequest,
+) (*types.QueryStatusesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
+	}
+
+	// Get all statuses of the address
+	statuses := k.GetStatuses(ctx, accAddress)
+
+	return &types.QueryStatusesResponse{
+		Statuses: statuses,
 	}, nil
 }

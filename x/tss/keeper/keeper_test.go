@@ -206,14 +206,12 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 func (s *KeeperTestSuite) TestCreateNewGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.CreationPeriod(ctx))
 
 	group := types.Group{
-		Size_:      5,
-		Threshold:  3,
-		PubKey:     nil,
-		Status:     types.GROUP_STATUS_ROUND_1,
-		Expiration: &expiration,
+		Size_:     5,
+		Threshold: 3,
+		PubKey:    nil,
+		Status:    types.GROUP_STATUS_ROUND_1,
 	}
 
 	// Create new group
@@ -274,6 +272,27 @@ func (s *KeeperTestSuite) TestGetGroups() {
 	s.Require().Equal([]types.Group{group}, got)
 }
 
+func (s *KeeperTestSuite) TestDeleteGroup() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create a sample group ID
+	groupID := tss.GroupID(123)
+
+	// Set up a sample group in the store
+	group := types.Group{
+		GroupID: groupID,
+		// Set other fields as needed
+	}
+	k.SetGroup(ctx, group)
+
+	// Delete the group
+	k.DeleteGroup(ctx, groupID)
+
+	// Verify that the group is deleted
+	_, err := k.GetGroup(ctx, groupID)
+	s.Require().Error(err)
+}
+
 func (s *KeeperTestSuite) TestGetSetDKGContext() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
@@ -327,6 +346,47 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	got, err := k.GetMembers(ctx, groupID)
 	s.Require().NoError(err)
 	s.Require().Equal(members, got)
+}
+
+func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	k.SetLastExpiredGroupID(ctx, groupID)
+
+	got := k.GetLastExpiredGroupID(ctx)
+	s.Require().Equal(groupID, got)
+}
+
+func (s *KeeperTestSuite) TestGetSetLastExpiredGroupID() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Set the last expired group ID
+	groupID := tss.GroupID(98765)
+	k.SetLastExpiredGroupID(ctx, groupID)
+
+	// Get the last expired group ID
+	got := k.GetLastExpiredGroupID(ctx)
+
+	// Assert equality
+	s.Require().Equal(groupID, got)
+}
+
+func (s *KeeperTestSuite) TestProcessExpiredGroups() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create group
+	groupID := k.CreateNewGroup(ctx, types.Group{})
+
+	// Set the current block height
+	blockHeight := int64(101)
+	ctx = ctx.WithBlockHeight(blockHeight)
+
+	// Process expired groups
+	k.ProcessExpiredGroups(ctx)
+
+	// Assert that the last expired group ID is updated correctly
+	lastExpiredGroupID := k.GetLastExpiredGroupID(ctx)
+	s.Require().Equal(groupID, lastExpiredGroupID)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

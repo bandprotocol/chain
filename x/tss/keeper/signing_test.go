@@ -1,11 +1,10 @@
 package keeper_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetSigningCount() {
@@ -145,61 +144,34 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetSetPendingSign() {
+func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingID := tss.SigningID(1)
+	memberID := tss.MemberID(1)
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
-	// Set PendingSign
-	k.SetPendingSign(ctx, address, signingID)
-
-	// Get PendingSign
-	got := k.GetPendingSign(ctx, address, signingID)
-
-	s.Require().True(got)
-}
-
-func (s *KeeperTestSuite) TestDeletePendingSign() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingID := tss.SigningID(1)
-
-	// Set PendingSign
-	k.SetPendingSign(ctx, address, signingID)
-
-	// Confirm PendingSign was set
-	got := k.GetPendingSign(ctx, address, signingID)
-	s.Require().True(got)
-
-	// Delete PendingSign
-	k.DeletePendingSign(ctx, address, signingID)
-
-	// Confirm PendingSign was deleted
-	got = k.GetPendingSign(ctx, address, signingID)
-	s.Require().False(got)
-}
-
-func (s *KeeperTestSuite) TestGetPendingSignIDs() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	address, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	signingIDs := []tss.SigningID{1, 2, 3}
-
-	// Set PendingSign for multiple SigningIDs
-	for _, id := range signingIDs {
-		k.SetPendingSign(ctx, address, id)
+	signing := types.Signing{
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID: memberID,
+				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
+			},
+		},
 	}
+
+	// Set signing
+	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSignIDs(ctx, address)
+	got := k.GetPendingSigns(ctx, address)
 
-	// Convert got (which is []uint64) to []tss.SigningID for comparison
-	var gotConverted []tss.SigningID
-	for _, id := range got {
-		gotConverted = append(gotConverted, tss.SigningID(id))
-	}
+	// Update signing id
+	signing.SigningID = signingID
 
-	// Check if the returned IDs are equal to the ones we set
-	s.Require().Equal(signingIDs, gotConverted)
+	// Check if the returned signings are equal to the ones we set
+	s.Require().Equal(signing, got[0])
 }
 
 func (s *KeeperTestSuite) TestSetGetSigCount() {
@@ -372,4 +344,36 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, members, uint64(len(members)+1))
 	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Set the last expired signing ID
+	signingID := tss.SigningID(12345)
+	k.SetLastExpiredSigningID(ctx, signingID)
+
+	// Get the last expired signing ID
+	got := k.GetLastExpiredSigningID(ctx)
+
+	// Assert equality
+	s.Require().Equal(signingID, got)
+}
+
+func (s *KeeperTestSuite) TestProcessExpiredSignings() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create signing
+	signingID := k.AddSigning(ctx, types.Signing{})
+
+	// Set the current block height
+	blockHeight := int64(101)
+	ctx = ctx.WithBlockHeight(blockHeight)
+
+	// Process expired signings
+	k.ProcessExpiredSignings(ctx)
+
+	// Assert that the last expired group ID is updated correctly
+	lastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
+	s.Require().Equal(signingID, lastExpiredSigningID)
 }

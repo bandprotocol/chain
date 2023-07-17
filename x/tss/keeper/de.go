@@ -65,7 +65,7 @@ func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (ty
 		return types.DE{}, sdkerrors.Wrapf(
 			types.ErrDENotFound,
 			"failed to get DE with address %s index %d",
-			address.String(),
+			address,
 			index,
 		)
 	}
@@ -154,9 +154,13 @@ func (k Keeper) HandleAssignedMembersPollDE(
 	var assignedMembers types.AssignedMembers
 
 	for _, member := range members {
+		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
 		}
 
 		de, err := k.PollDE(ctx, accMember)
@@ -181,12 +185,16 @@ func (k Keeper) HandleAssignedMembersPollDE(
 func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]types.Member, error) {
 	var filtered []types.Member
 	for _, member := range members {
-		acc, err := sdk.AccAddressFromBech32(member.Address)
+		// Convert the address from Bech32 format to AccAddress format
+		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
 		}
 
-		count := k.GetDECount(ctx, sdk.AccAddress(acc))
+		count := k.GetDECount(ctx, accMember)
 		if count > 0 {
 			filtered = append(filtered, member)
 		}

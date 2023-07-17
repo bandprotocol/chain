@@ -30,10 +30,12 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
-  // creation_period is the duration period where a group can be created.
-  google.protobuf.Duration creation_period = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // signing_period is the duration period where a member can submit signing message.
-  google.protobuf.Duration signing_period = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // creating_period is the number of blocks allowed to creating group signature.
+  int64 creating_period = 3;
+  // signing_period is the number of blocks allowed to signing.
+  int64 signing_period = 4;
+  // inactive_penalty_duration is the duration where a member cannot activate back.
+  google.protobuf.Duration inactive_penalty_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
 }
 
 // DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
