@@ -39,7 +39,7 @@ message Params {
 // DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
 message DEQueueGenesis {
   // address is the address of the de holder.
-  string address = 1;
+  bytes address = 1;
   // de_queue defines the different de queue this balance holds.
   DEQueue de_queue = 2 [(gogoproto.customname) = "DEQueue"];
 }
@@ -47,7 +47,7 @@ message DEQueueGenesis {
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.
 message DEGenesis {
   // address is the address of the de holder.
-  string address = 1;
+  bytes address = 1;
   // index is the index for store de of the address
   uint64 index = 2;
   // de defines the different de this balance holds.

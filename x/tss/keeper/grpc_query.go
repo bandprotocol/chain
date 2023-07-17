@@ -108,9 +108,18 @@ func (k Querier) IsGrantee(
 func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
 	// Get DEs and paginate the result
 	var des []types.DE
-	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(req.Address))
+	deStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.DEStoreKey(accAddress))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
 		var de types.DE
 		k.cdc.MustUnmarshal(value, &de)
@@ -134,9 +143,18 @@ func (k Querier) PendingSignings(
 ) (*types.QueryPendingSigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert the address from Bech32 format to AccAddress format
+	accAddress, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
 	// Get pending sign IDs and then fetch each pending sign
 	var pendingSigns []types.Signing
-	pendingSignIDs := k.GetPendingSignIDs(ctx, req.Address)
+	pendingSignIDs := k.GetPendingSignIDs(ctx, accAddress)
 	for _, id := range pendingSignIDs {
 		signing, err := k.GetSigning(ctx, tss.SigningID(id))
 		if err != nil {

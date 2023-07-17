@@ -160,40 +160,37 @@ func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func DEStoreKey(address string) []byte {
-	addressBytes := []byte(address)
-	return append(DEStoreKeyPrefix, addressBytes...)
+func DEStoreKey(address sdk.AccAddress) []byte {
+	return append(DEStoreKeyPrefix, address...)
 }
 
-func DEIndexStoreKey(address string, index uint64) []byte {
+func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
 	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
 }
 
-func AddressAndIndexFromDEStoreKey(key []byte) (string, uint64) {
+func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
 	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return string(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
+	return sdk.AccAddress(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
 }
 
-func DEQueueKeyStoreKey(address string) []byte {
-	addressBytes := []byte(address)
-	return append(DEQueueStoreKeyPrefix, addressBytes...)
+func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
+	return append(DEQueueStoreKeyPrefix, address...)
 }
 
-func AddressFromDEQueueStoreKey(key []byte) string {
+func AddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
 	kv.AssertKeyLength(key, 1+AddrLen)
-	return string(key[1:])
+	return sdk.AccAddress(key[1:])
 }
 
 func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PendingSignsStoreKey(address string) []byte {
-	addressBytes := []byte(address)
-	return append(PendingSignsStoreKeyPrefix, addressBytes...)
+func PendingSignsStoreKey(address sdk.AccAddress) []byte {
+	return append(PendingSignsStoreKeyPrefix, address...)
 }
 
-func PendingSignStoreKey(address string, signingID tss.SigningID) []byte {
+func PendingSignStoreKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
 	return append(PendingSignsStoreKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 

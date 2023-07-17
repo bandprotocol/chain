@@ -76,13 +76,13 @@ func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 }
 
 // SetPendingSign sets the pending sign flag for a specific address and signing ID.
-func (k Keeper) SetPendingSign(ctx sdk.Context, address string, signingID tss.SigningID) {
+func (k Keeper) SetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
 	bz := k.cdc.MustMarshal(&gogotypes.BoolValue{Value: true})
 	ctx.KVStore(k.storeKey).Set(types.PendingSignStoreKey(address, signingID), bz)
 }
 
 // GetPendingSign retrieves the pending sign flag for a specific address and signing ID from the store.
-func (k Keeper) GetPendingSign(ctx sdk.Context, address string, signingID tss.SigningID) bool {
+func (k Keeper) GetPendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) bool {
 	bz := ctx.KVStore(k.storeKey).Get(types.PendingSignStoreKey(address, signingID))
 	var have gogotypes.BoolValue
 	if bz == nil {
@@ -94,7 +94,7 @@ func (k Keeper) GetPendingSign(ctx sdk.Context, address string, signingID tss.Si
 }
 
 // DeletePendingSign deletes the pending sign flag for a specific address and signing ID from the store.
-func (k Keeper) DeletePendingSign(ctx sdk.Context, address string, signingID tss.SigningID) {
+func (k Keeper) DeletePendingSign(ctx sdk.Context, address sdk.AccAddress, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.PendingSignStoreKey(address, signingID))
 }
 
@@ -102,17 +102,18 @@ func (k Keeper) DeletePendingSign(ctx sdk.Context, address string, signingID tss
 func (k Keeper) DeletePendingSigns(ctx sdk.Context, signingID tss.SigningID) {
 	signing, _ := k.GetSigning(ctx, signingID)
 	for _, am := range signing.AssignedMembers {
-		k.DeletePendingSign(ctx, am.Member, signingID)
+		accAm := sdk.MustAccAddressFromBech32(am.Member)
+		k.DeletePendingSign(ctx, accAm, signingID)
 	}
 }
 
 // GetPendingSignIterator gets an iterator over all pending sign data.
-func (k Keeper) GetPendingSignIterator(ctx sdk.Context, address string) sdk.Iterator {
+func (k Keeper) GetPendingSignIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PendingSignsStoreKey(address))
 }
 
 // GetPendingSignIDs method retrieves all pending sign ids for a given address from the store.
-func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address string) []uint64 {
+func (k Keeper) GetPendingSignIDs(ctx sdk.Context, address sdk.AccAddress) []uint64 {
 	var pendingSigns []uint64
 	iterator := k.GetPendingSignIterator(ctx, address)
 
@@ -332,7 +333,11 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 
 	// Set pending sign
 	for _, sm := range selectedMembers {
-		k.SetPendingSign(ctx, sm.Address, signingID)
+		accSm, err := sdk.AccAddressFromBech32(sm.Address)
+		if err != nil {
+			return 0, err
+		}
+		k.SetPendingSign(ctx, accSm, signingID)
 	}
 
 	event := sdk.NewEvent(

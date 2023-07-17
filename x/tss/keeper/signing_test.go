@@ -4,6 +4,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetSigningCount() {
@@ -145,7 +146,7 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 
 func (s *KeeperTestSuite) TestGetSetPendingSign() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	signingID := tss.SigningID(1)
 
 	// Set PendingSign
@@ -159,7 +160,7 @@ func (s *KeeperTestSuite) TestGetSetPendingSign() {
 
 func (s *KeeperTestSuite) TestDeletePendingSign() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	signingID := tss.SigningID(1)
 
 	// Set PendingSign
@@ -180,7 +181,7 @@ func (s *KeeperTestSuite) TestDeletePendingSign() {
 func (s *KeeperTestSuite) TestDeletePendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID, memberID := tss.SigningID(1), tss.MemberID(1)
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	signing := types.Signing{
 		SigningID: signingID,
 		AssignedMembers: []types.AssignedMember{
@@ -211,7 +212,7 @@ func (s *KeeperTestSuite) TestDeletePendingSigns() {
 
 func (s *KeeperTestSuite) TestGetPendingSignIDs() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	signingIDs := []tss.SigningID{1, 2, 3}
 
 	// Set PendingSign for multiple SigningIDs

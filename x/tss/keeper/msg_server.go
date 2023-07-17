@@ -505,7 +505,16 @@ func (k Keeper) Confirm(
 func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*types.MsgSubmitDEsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := k.HandleSetDEs(ctx, req.Member, req.DEs)
+	// Convert the address from Bech32 format to AccAddress format
+	member, err := sdk.AccAddressFromBech32(req.Member)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
+	err = k.HandleSetDEs(ctx, member, req.DEs)
 	if err != nil {
 		return nil, err
 	}
@@ -664,8 +673,17 @@ func (k Keeper) SubmitSignature(
 		)
 	}
 
+	// Convert the address from Bech32 format to AccAddress format
+	accMember, err := sdk.AccAddressFromBech32(member.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
 	// Delete this signing out of the pending sign
-	k.DeletePendingSign(ctx, member.Address, req.SigningID)
+	k.DeletePendingSign(ctx, accMember, req.SigningID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

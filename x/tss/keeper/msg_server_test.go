@@ -473,7 +473,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 
 			// Verify that each member has the correct DE
 			for _, m := range tc.Group.Members {
-				got, err := k.GetDE(ctx, sdk.AccAddress(m.PubKey()).String(), 0)
+				got, err := k.GetDE(ctx, sdk.AccAddress(m.PubKey()), 0)
 				s.Require().NoError(err)
 				s.Require().Equal(de, got)
 			}

@@ -3,12 +3,14 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetDEQueue() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	deQueue := types.DEQueue{
 		Head: 1,
 		Tail: 2,
@@ -25,7 +27,7 @@ func (s *KeeperTestSuite) TestGetSetDEQueue() {
 
 func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	deQueue := types.DEQueue{
 		Head: 1,
 		Tail: 2,
@@ -47,7 +49,7 @@ func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
 
 func (s *KeeperTestSuite) TestGetSetDE() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	index := uint64(1)
 	de := types.DE{
 		PubD: []byte("D"),
@@ -66,7 +68,7 @@ func (s *KeeperTestSuite) TestGetSetDE() {
 
 func (s *KeeperTestSuite) TestDeleteDE() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	index := uint64(1)
 	de := types.DE{
 		PubD: []byte("D"),
@@ -88,7 +90,7 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 
 func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	index := uint64(1)
 	de := types.DE{
 		PubD: []byte("D"),
@@ -145,7 +147,7 @@ func (s *KeeperTestSuite) TestNextQueueValue() {
 
 func (s *KeeperTestSuite) TestHandleSetDEs() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	des := []types.DE{
 		{
 			PubD: []byte("D1"),
@@ -174,7 +176,7 @@ func (s *KeeperTestSuite) TestHandleSetDEs() {
 
 func (s *KeeperTestSuite) TestPollDE() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	des := []types.DE{
 		{
 			PubD: []byte("D"),
@@ -229,7 +231,8 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	}
 
 	for _, m := range members {
-		k.HandleSetDEs(ctx, m.Address, des)
+		accM := sdk.MustAccAddressFromBech32(m.Address)
+		k.HandleSetDEs(ctx, accM, des)
 	}
 
 	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, members)
