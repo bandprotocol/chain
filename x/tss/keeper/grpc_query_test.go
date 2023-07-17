@@ -19,7 +19,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
 	round1Info1 := types.Round1Info{
@@ -175,7 +175,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 						},
 						{
 							MemberID:    4,
-							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Address:     "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 							PubKey:      nil,
 							IsMalicious: false,
 						},
@@ -184,6 +184,38 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      nil,
 							IsMalicious: false,
+						},
+					},
+					Statuses: []types.Status{
+						{
+							GroupID:  1,
+							MemberID: 1,
+							IsActive: true,
+							Since:    ctx.BlockTime(),
+						},
+						{
+							GroupID:  1,
+							MemberID: 2,
+							IsActive: true,
+							Since:    ctx.BlockTime(),
+						},
+						{
+							GroupID:  1,
+							MemberID: 3,
+							IsActive: true,
+							Since:    ctx.BlockTime(),
+						},
+						{
+							GroupID:  1,
+							MemberID: 4,
+							IsActive: true,
+							Since:    ctx.BlockTime(),
+						},
+						{
+							GroupID:  1,
+							MemberID: 5,
+							IsActive: true,
+							Since:    ctx.BlockTime(),
 						},
 					},
 					Round1Infos: []types.Round1Info{
