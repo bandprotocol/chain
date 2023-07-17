@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -158,7 +157,6 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
 
@@ -185,7 +183,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_ROUND_2, got.Status)
-			s.Require().Equal(expiration, *got.Expiration)
 			s.Require().Equal(tc.Group.PubKey, got.PubKey)
 
 			// Clean up Round1Infos
@@ -286,7 +283,6 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	// Setup group as round 2
 	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
@@ -311,7 +307,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(got.Status, types.GROUP_STATUS_ROUND_3)
-			s.Require().Equal(*got.Expiration, expiration)
 
 			// Clean up Round1Infos and Round2Infos
 			k.DeleteRound1Infos(ctx, tc.Group.ID)
@@ -383,11 +378,9 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 			s.Require().NoError(err)
 
 			// Check the group's status and expiration time after complain
-			var nilTime *time.Time
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_FALLEN, got.Status)
-			s.Require().Equal(nilTime, got.Expiration)
 		})
 	}
 }
@@ -415,7 +408,6 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 			s.Require().Equal(types.GROUP_STATUS_ACTIVE, got.Status)
-			s.Require().Nil(got.Expiration)
 		})
 	}
 }
@@ -442,16 +434,6 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				req = types.MsgSubmitDEs{
 					DEs:    deList,
 					Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-				}
-			},
-			func() {},
-		},
-		{
-			"failure with invalid member address",
-			func() {
-				req = types.MsgSubmitDEs{
-					DEs:    []types.DE{de},
-					Member: "invalidMemberAddress", //invalid address
 				}
 			},
 			func() {},
@@ -491,7 +473,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 
 			// Verify that each member has the correct DE
 			for _, m := range tc.Group.Members {
-				got, err := k.GetDE(ctx, sdk.AccAddress(m.PubKey()), 0)
+				got, err := k.GetDE(ctx, sdk.AccAddress(m.PubKey()).String(), 0)
 				s.Require().NoError(err)
 				s.Require().Equal(de, got)
 			}
@@ -573,7 +555,6 @@ func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
 
 func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	expiration := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -605,7 +586,6 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
 					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
-					Expiration:      &expiration,
 				})
 
 				req = types.MsgSubmitSignature{
@@ -705,7 +685,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
 			s.Require().NotNil(signing.Signature)
-			s.Require().Nil(signing.Expiration)
 		})
 	}
 }

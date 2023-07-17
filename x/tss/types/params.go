@@ -2,23 +2,23 @@ package types
 
 import (
 	"fmt"
-	"time"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 const (
-	DefaultMaxGroupSize                = uint64(20)
-	DefaultMaxDESize                   = uint64(100)
-	DefaultRoundPeriod   time.Duration = time.Minute * 5
-	DefaultSigningPeriod time.Duration = time.Minute * 5
+	DefaultMaxGroupSize           = uint64(20)
+	DefaultMaxDESize              = uint64(100)
+	DefaultGroupSigCreatingPeriod = int64(100)
+	DefaultSigningPeriod          = int64(100)
 )
 
 var (
-	KeyMaxGroupSize  = []byte("MaxGroupSize")
-	KeyMaxDESize     = []byte("MaxDESize")
-	KeyRoundPeriod   = []byte("RoundPeriod")
-	KeySigningPeriod = []byte("SigningPeriod")
+	KeyMaxGroupSize           = []byte("MaxGroupSize")
+	KeyMaxDESize              = []byte("MaxDESize")
+	KeyRoundPeriod            = []byte("RoundPeriod")
+	KeyGroupSigCreatingPeriod = []byte("GroupSigCreatingPeriod")
+	KeySigningPeriod          = []byte("SigningPeriod")
 )
 
 // ParamKeyTable the param key table for launch module
@@ -27,22 +27,27 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(maxGroupSize uint64, maxDESize uint64, roundPeriod time.Duration, signingPeriod time.Duration) Params {
+func NewParams(
+	maxGroupSize uint64,
+	maxDESize uint64,
+	groupSigCreatingPeriod int64,
+	signingPeriod int64,
+) Params {
 	return Params{
-		MaxGroupSize:  maxGroupSize,
-		MaxDESize:     maxDESize,
-		RoundPeriod:   roundPeriod,
-		SigningPeriod: signingPeriod,
+		MaxGroupSize:           maxGroupSize,
+		MaxDESize:              maxDESize,
+		GroupSigCreatingPeriod: groupSigCreatingPeriod,
+		SigningPeriod:          signingPeriod,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
-		MaxGroupSize:  DefaultMaxGroupSize,
-		MaxDESize:     DefaultMaxDESize,
-		RoundPeriod:   DefaultRoundPeriod,
-		SigningPeriod: DefaultSigningPeriod,
+		MaxGroupSize:           DefaultMaxGroupSize,
+		MaxDESize:              DefaultMaxDESize,
+		GroupSigCreatingPeriod: DefaultGroupSigCreatingPeriod,
+		SigningPeriod:          DefaultSigningPeriod,
 	}
 }
 
@@ -56,8 +61,12 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMaxGroupSize, &p.MaxGroupSize, validateUint64("max group size", true)),
 		paramtypes.NewParamSetPair(KeyMaxDESize, &p.MaxDESize, validateUint64("max DE size", true)),
-		paramtypes.NewParamSetPair(KeyRoundPeriod, &p.RoundPeriod, validateTimeDuration("round period")),
-		paramtypes.NewParamSetPair(KeySigningPeriod, &p.SigningPeriod, validateTimeDuration("signing period")),
+		paramtypes.NewParamSetPair(
+			KeyGroupSigCreatingPeriod,
+			&p.GroupSigCreatingPeriod,
+			validateInt64("group sig creating period", true),
+		),
+		paramtypes.NewParamSetPair(KeySigningPeriod, &p.SigningPeriod, validateInt64("signing period", true)),
 	}
 }
 
@@ -74,14 +83,13 @@ func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 	}
 }
 
-func validateTimeDuration(name string) func(interface{}) error {
+func validateInt64(name string, positiveOnly bool) func(interface{}) error {
 	return func(i interface{}) error {
-		v, ok := i.(time.Duration)
+		v, ok := i.(int64)
 		if !ok {
 			return fmt.Errorf("invalid parameter type: %T", i)
 		}
-
-		if v.Seconds() <= 0 {
+		if v <= 0 && positiveOnly {
 			return fmt.Errorf("%s must be positive: %d", name, v)
 		}
 		return nil

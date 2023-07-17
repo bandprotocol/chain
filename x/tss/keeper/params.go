@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"time"
-
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -12,7 +10,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(
 		k.MaxGroupSize(ctx),
 		k.MaxDESize(ctx),
-		k.RoundPeriod(ctx),
+		k.GroupSigCreatingPeriod(ctx),
 		k.SigningPeriod(ctx),
 	)
 }
@@ -34,14 +32,14 @@ func (k Keeper) MaxDESize(ctx sdk.Context) (res uint64) {
 	return
 }
 
-// RoundPeriod returns the current RoundPeriod from the global param store
-func (k Keeper) RoundPeriod(ctx sdk.Context) (res time.Duration) {
-	k.paramSpace.Get(ctx, types.KeyRoundPeriod, &res)
+// GroupSigCreatingPeriod returns the current GroupSigCreatingPeriod from the global param store
+func (k Keeper) GroupSigCreatingPeriod(ctx sdk.Context) (res int64) {
+	k.paramSpace.Get(ctx, types.KeyGroupSigCreatingPeriod, &res)
 	return
 }
 
 // SigningPeriod returns the current SigningPeriod from the global param store
-func (k Keeper) SigningPeriod(ctx sdk.Context) (res time.Duration) {
+func (k Keeper) SigningPeriod(ctx sdk.Context) (res int64) {
 	k.paramSpace.Get(ctx, types.KeySigningPeriod, &res)
 	return
 }

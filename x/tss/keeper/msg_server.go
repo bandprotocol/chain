@@ -86,14 +86,9 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, err
 	}
 
-	// Check group status
+	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
-	}
-
-	// Check expiration time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -174,8 +169,6 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_2
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.Expiration = &expiredTime
 		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
@@ -208,14 +201,9 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, err
 	}
 
-	// Check group status
+	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
-	}
-
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -279,8 +267,6 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		group.Status = types.GROUP_STATUS_ROUND_3
-		expiredTime := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
-		group.Expiration = &expiredTime
 		k.SetGroup(ctx, group)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -308,14 +294,9 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 		return nil, err
 	}
 
-	// Check group status
+	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
-	}
-
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -432,14 +413,9 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
-	// Check group status
+	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
-	}
-
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*group.Expiration) {
-		return nil, sdkerrors.Wrap(types.ErrRoundExpired, "group is expired")
 	}
 
 	// Get member
@@ -501,7 +477,6 @@ func (k Keeper) Confirm(
 		if !types.Members(members).HaveMalicious() {
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
-			group.Expiration = nil
 			k.SetGroup(ctx, group)
 
 			// Delete all dkg interim data
@@ -528,12 +503,8 @@ func (k Keeper) Confirm(
 // It converts the member's address from Bech32 to AccAddress format and then delegates the task of setting the DEs to the HandleSetDEs function.
 func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*types.MsgSubmitDEsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	accMember, err := sdk.AccAddressFromBech32(req.Member)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
-	}
 
-	err = k.HandleSetDEs(ctx, accMember, req.DEs)
+	err := k.HandleSetDEs(ctx, req.Member, req.DEs)
 	if err != nil {
 		return nil, err
 	}
@@ -573,8 +544,8 @@ func (k Keeper) SubmitSignature(
 		return nil, err
 	}
 
-	// Check expired time
-	if ctx.BlockHeader().Time.After(*signing.Expiration) {
+	// Check expired block
+	if ctx.BlockHeader().Height >= signing.CreatedHeight+k.GetParams(ctx).SigningPeriod {
 		return nil, sdkerrors.Wrap(types.ErrSigningExpired, "signing is expired")
 	}
 
@@ -680,7 +651,6 @@ func (k Keeper) SubmitSignature(
 
 		// Set signing with signature
 		signing.Signature = sig
-		signing.Expiration = nil
 		k.SetSigning(ctx, signing)
 
 		// Delete interims data
@@ -698,13 +668,8 @@ func (k Keeper) SubmitSignature(
 		)
 	}
 
-	accMember, err := sdk.AccAddressFromBech32(member.Address)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
-	}
-
 	// Delete this signing out of the pending sign
-	k.DeletePendingSign(ctx, accMember, req.SigningID)
+	k.DeletePendingSign(ctx, member.Address, req.SigningID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -748,7 +713,6 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 // A group may be marked as "FALLEN" when one or more members are found to be malicious during the group operation.
 func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	group.Status = types.GROUP_STATUS_FALLEN
-	group.Expiration = nil
 	k.SetGroup(ctx, group)
 
 	// Delete all dkg interim data

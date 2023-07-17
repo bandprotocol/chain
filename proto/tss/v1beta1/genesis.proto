@@ -30,16 +30,16 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
-  // round_period is the duration period where a member can submit message for the round.
-  google.protobuf.Duration round_period = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // signing_period is the duration period where a member can submit signing message.
-  google.protobuf.Duration signing_period = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // group_sig_creating_period is the number of blocks allowed to creating group signature.
+  int64 group_sig_creating_period = 3;
+  // signing_period is the number of blocks allowed to signing.
+  int64 signing_period = 4;
 }
 
 // DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
 message DEQueueGenesis {
   // address is the address of the de holder.
-  bytes address = 1;
+  string address = 1;
   // de_queue defines the different de queue this balance holds.
   DEQueue de_queue = 2 [(gogoproto.customname) = "DEQueue"];
 }
@@ -47,7 +47,7 @@ message DEQueueGenesis {
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.
 message DEGenesis {
   // address is the address of the de holder.
-  bytes address = 1;
+  string address = 1;
   // index is the index for store de of the address
   uint64 index = 2;
   // de defines the different de this balance holds.

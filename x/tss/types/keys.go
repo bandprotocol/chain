@@ -28,8 +28,14 @@ var (
 	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
 
+	// LastExpiredGroupIDStoreKey is the key for keeps last expired groupID.
+	LastExpiredGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredGroupID")...)
+
 	// SigningCountStoreKey is the key that keeps the total signing count.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
+
+	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
+	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
 
 	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
 	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
@@ -154,37 +160,40 @@ func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-func DEStoreKey(address sdk.AccAddress) []byte {
-	return append(DEStoreKeyPrefix, address...)
+func DEStoreKey(address string) []byte {
+	addressBytes := []byte(address)
+	return append(DEStoreKeyPrefix, addressBytes...)
 }
 
-func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
+func DEIndexStoreKey(address string, index uint64) []byte {
 	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
 }
 
-func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
+func AddressAndIndexFromDEStoreKey(key []byte) (string, uint64) {
 	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return sdk.AccAddress(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
+	return string(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
 }
 
-func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
-	return append(DEQueueStoreKeyPrefix, address...)
+func DEQueueKeyStoreKey(address string) []byte {
+	addressBytes := []byte(address)
+	return append(DEQueueStoreKeyPrefix, addressBytes...)
 }
 
-func AddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
+func AddressFromDEQueueStoreKey(key []byte) string {
 	kv.AssertKeyLength(key, 1+AddrLen)
-	return sdk.AccAddress(key[1:])
+	return string(key[1:])
 }
 
 func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PendingSignsStoreKey(address sdk.AccAddress) []byte {
-	return append(PendingSignsStoreKeyPrefix, address...)
+func PendingSignsStoreKey(address string) []byte {
+	addressBytes := []byte(address)
+	return append(PendingSignsStoreKeyPrefix, addressBytes...)
 }
 
-func PendingSignStoreKey(address sdk.AccAddress, signingID tss.SigningID) []byte {
+func PendingSignStoreKey(address string, signingID tss.SigningID) []byte {
 	return append(PendingSignsStoreKey(address), sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 

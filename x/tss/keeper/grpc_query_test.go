@@ -14,7 +14,6 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
-	expiration := ctx.BlockHeader().Time.Add(k.RoundPeriod(ctx))
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
@@ -148,12 +147,11 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						GroupID:    1,
-						Size_:      5,
-						Threshold:  3,
-						PubKey:     nil,
-						Status:     types.GROUP_STATUS_ROUND_1,
-						Expiration: &expiration,
+						GroupID:   1,
+						Size_:     5,
+						Threshold: 3,
+						PubKey:    nil,
+						Status:    types.GROUP_STATUS_ROUND_1,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
@@ -389,19 +387,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 		postTest func(res *types.QueryDEResponse, err error)
 	}{
 		{
-			"invalid address format",
-			func() {
-				req = types.QueryDERequest{
-					Address: "invalid_address_format",
-				}
-			},
-			false,
-			func(res *types.QueryDEResponse, err error) {
-				s.Require().Error(err)
-				s.Require().Nil(res)
-			},
-		},
-		{
 			"success",
 			func() {
 				req = types.QueryDERequest{
@@ -444,19 +429,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 		postTest func(res *types.QueryPendingSigningsResponse, err error)
 	}{
 		{
-			"invalid address format",
-			func() {
-				req = types.QueryPendingSigningsRequest{
-					Address: "invalid_address_format",
-				}
-			},
-			false,
-			func(res *types.QueryPendingSigningsResponse, err error) {
-				s.Require().Error(err)
-				s.Require().Nil(res)
-			},
-		},
-		{
 			"success",
 			func() {
 				req = types.QueryPendingSigningsRequest{
@@ -491,7 +463,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
-	expiration := ctx.BlockHeader().Time.Add(k.SigningPeriod(ctx))
 	signing := types.Signing{
 		SigningID: signingID,
 		GroupID:   groupID,
@@ -509,7 +480,6 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 		GroupPubNonce: []byte("group_pub_nonce"),
 		Commitment:    []byte("commitment"),
 		Signature:     []byte("signature"),
-		Expiration:    &expiration,
 	}
 	sig := []byte("signatures")
 

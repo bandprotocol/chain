@@ -20,7 +20,7 @@ var (
 		"member is not authorized for this group",
 	)
 	ErrInvalidStatus           = sdkerrors.Register(ModuleName, 11, "invalid status")
-	ErrRoundExpired            = sdkerrors.Register(ModuleName, 12, "round expired")
+	ErrGroupExpired            = sdkerrors.Register(ModuleName, 12, "group expired")
 	ErrVerifyOneTimeSigFailed  = sdkerrors.Register(ModuleName, 13, "fail to verify one time sign")
 	ErrVerifyA0SigFailed       = sdkerrors.Register(ModuleName, 14, "fail to verify a0 sign")
 	ErrAddCommit               = sdkerrors.Register(ModuleName, 15, "fail to add coefficient commit")

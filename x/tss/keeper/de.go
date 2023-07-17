@@ -10,12 +10,12 @@ import (
 )
 
 // SetDEQueue sets the DEQueue for a given address in the context's KVStore.
-func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue types.DEQueue) {
+func (k Keeper) SetDEQueue(ctx sdk.Context, address string, deQueue types.DEQueue) {
 	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
 }
 
 // GetDEQueue retrieves the DEQueue for a given address from the context's KVStore.
-func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
+func (k Keeper) GetDEQueue(ctx sdk.Context, address string) types.DEQueue {
 	var deQueue types.DEQueue
 	k.cdc.MustUnmarshal(ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address)), &deQueue)
 	return deQueue
@@ -43,7 +43,7 @@ func (k Keeper) GetDEQueuesGenesis(ctx sdk.Context) []types.DEQueueGenesis {
 }
 
 // GetDECount retrieves the current count of DE for a given address from the context's KVStore.
-func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
+func (k Keeper) GetDECount(ctx sdk.Context, address string) uint64 {
 	deQueue := k.GetDEQueue(ctx, address)
 
 	if deQueue.Head <= deQueue.Tail {
@@ -53,19 +53,19 @@ func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
 }
 
 // SetDE sets a DE object in the context's KVStore for a given address and index.
-func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de types.DE) {
+func (k Keeper) SetDE(ctx sdk.Context, address string, index uint64, de types.DE) {
 	ctx.KVStore(k.storeKey).Set(types.DEIndexStoreKey(address, index), k.cdc.MustMarshal(&de))
 }
 
 // GetDE retrieves a DE object from the context's KVStore for a given address and index.
 // Returns an error if DE is not found.
-func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
+func (k Keeper) GetDE(ctx sdk.Context, address string, index uint64) (types.DE, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
 	if bz == nil {
 		return types.DE{}, sdkerrors.Wrapf(
 			types.ErrDENotFound,
 			"failed to get DE with address %s index %d",
-			address.String(),
+			address,
 			index,
 		)
 	}
@@ -75,7 +75,7 @@ func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (ty
 }
 
 // DeleteDE removes a DE object from the context's KVStore for a given address and index.
-func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {
+func (k Keeper) DeleteDE(ctx sdk.Context, address string, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
 }
 
@@ -110,7 +110,7 @@ func (k Keeper) NextQueueValue(ctx sdk.Context, val uint64) uint64 {
 
 // HandleSetDEs sets multiple DE objects for a given address in the context's KVStore,
 // if tail reaches to head, return err as DE is full
-func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) error {
+func (k Keeper) HandleSetDEs(ctx sdk.Context, address string, des []types.DE) error {
 	deQueue := k.GetDEQueue(ctx, address)
 
 	for _, de := range des {
@@ -130,7 +130,7 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 // PollDE retrieves and removes the DE object at the head of the DEQueue for a given address,
 // then increments the head index in the DEQueue.
 // Returns an error if the DE object could not be retrieved.
-func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
+func (k Keeper) PollDE(ctx sdk.Context, address string) (types.DE, error) {
 	deQueue := k.GetDEQueue(ctx, address)
 	de, err := k.GetDE(ctx, address, deQueue.Head)
 	if err != nil {
@@ -154,12 +154,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 	var assignedMembers types.AssignedMembers
 
 	for _, member := range members {
-		accMember, err := sdk.AccAddressFromBech32(member.Address)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
-		}
-
-		de, err := k.PollDE(ctx, accMember)
+		de, err := k.PollDE(ctx, member.Address)
 		if err != nil {
 			return nil, err
 		}
@@ -181,12 +176,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]types.Member, error) {
 	var filtered []types.Member
 	for _, member := range members {
-		acc, err := sdk.AccAddressFromBech32(member.Address)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
-		}
-
-		count := k.GetDECount(ctx, sdk.AccAddress(acc))
+		count := k.GetDECount(ctx, member.Address)
 		if count > 0 {
 			filtered = append(filtered, member)
 		}
