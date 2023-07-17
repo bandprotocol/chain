@@ -352,3 +352,32 @@ func (m MsgSubmitSignature) ValidateBasic() error {
 
 	return nil
 }
+
+var _ sdk.Msg = &MsgActivate{}
+
+// Route Implements Msg.
+func (m MsgActivate) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgActivate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgActivate.
+func (m MsgActivate) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgActivate) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Member)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	return nil
+}

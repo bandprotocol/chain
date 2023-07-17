@@ -123,6 +123,8 @@ message Member {
   bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 4;
+  // is_active is a boolean indicating active status of member.
+  bool is_active = 5;
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

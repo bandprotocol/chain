@@ -44,6 +44,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		})
 	}
 
@@ -544,11 +545,6 @@ func (k Keeper) SubmitSignature(
 		return nil, err
 	}
 
-	// Check expired block
-	if ctx.BlockHeader().Height >= signing.CreatedHeight+k.GetParams(ctx).SigningPeriod {
-		return nil, sdkerrors.Wrap(types.ErrSigningExpired, "signing is expired")
-	}
-
 	// Get member
 	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
 	if err != nil {
@@ -685,6 +681,29 @@ func (k Keeper) SubmitSignature(
 	)
 
 	return &types.MsgSubmitSignatureResponse{}, nil
+}
+
+func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	for _, gid := range msg.GroupIDs {
+		member, err := k.GetMemberByAddress(ctx, tss.GroupID(gid), msg.Member)
+		if err != nil {
+			return nil, err
+		}
+
+		err = k.SetActive(ctx, tss.GroupID(gid), member.MemberID)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeActivate,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
+			sdk.NewAttribute(types.AttributeKeyMember, msg.Member),
+		))
+	}
+	return &types.MsgActivateResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
