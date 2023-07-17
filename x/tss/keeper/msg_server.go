@@ -87,6 +87,11 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, err
 	}
 
+	// Check group expired
+	if group.Status == types.GROUP_STATUS_EXPIRED {
+		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
+	}
+
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
@@ -202,6 +207,11 @@ func (k Keeper) SubmitDKGRound2(
 		return nil, err
 	}
 
+	// Check group expired
+	if group.Status == types.GROUP_STATUS_EXPIRED {
+		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
+	}
+
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
@@ -293,6 +303,11 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check group expired
+	if group.Status == types.GROUP_STATUS_EXPIRED {
+		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
 	}
 
 	// Check round status
@@ -414,6 +429,11 @@ func (k Keeper) Confirm(
 		return nil, err
 	}
 
+	// Check group expired
+	if group.Status == types.GROUP_STATUS_EXPIRED {
+		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
+	}
+
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
@@ -479,9 +499,6 @@ func (k Keeper) Confirm(
 			// Update group status
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
-
-			// Delete all dkg interim data
-			k.DeleteAllDKGInterimData(ctx, groupID)
 
 			// Emit event round 3 success
 			ctx.EventManager().EmitEvent(
@@ -751,9 +768,6 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
 	group.Status = types.GROUP_STATUS_FALLEN
 	k.SetGroup(ctx, group)
-
-	// Delete all dkg interim data
-	k.DeleteAllDKGInterimData(ctx, group.GroupID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

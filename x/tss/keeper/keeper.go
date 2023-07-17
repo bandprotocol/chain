@@ -278,11 +278,15 @@ func (k Keeper) ProcessExpiredGroups(ctx sdk.Context) {
 			break
 		}
 
+		// Check group is not active
+		if group.Status != types.GROUP_STATUS_ACTIVE {
+			// Update group status
+			group.Status = types.GROUP_STATUS_EXPIRED
+			k.SetGroup(ctx, group)
+		}
+
 		// Cleanup all interim data associated with the group
 		k.DeleteAllDKGInterimData(ctx, currentGroupID)
-
-		// Remove the group from the store
-		k.DeleteGroup(ctx, currentGroupID)
 
 		// Set the last expired group ID to the current group ID
 		k.SetLastExpiredGroupID(ctx, currentGroupID)
