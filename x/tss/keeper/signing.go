@@ -75,6 +75,13 @@ func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
+// DeleteAssignedMembers deletes the assigned members for a given signing ID from the store.
+func (k Keeper) DeleteAssignedMembers(ctx sdk.Context, signingID tss.SigningID) {
+	signing := k.MustGetSigning(ctx, signingID)
+	signing.AssignedMembers = nil
+	k.SetSigning(ctx, signing)
+}
+
 // GetPendingSigns retrieves the pending signing objects associated with the given account address.
 func (k Keeper) GetPendingSigns(ctx sdk.Context, address sdk.AccAddress) []types.Signing {
 	// Get the ID of the last expired signing
@@ -143,7 +150,18 @@ func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 	return bz, nil
 }
 
-// DeletePartialSig delete the partial sign data of a sign from the store.
+// DeletePartialSigs delete all partial signatures data of a signing from the store.
+func (k Keeper) DeletePartialSigs(ctx sdk.Context, signingID tss.SigningID) {
+	iterator := k.GetPartialSigIterator(ctx, signingID)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
+}
+
+// DeletePartialSig delete a partial signature of a signing from the store.
 func (k Keeper) DeletePartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.PartialSigMemberStoreKey(signingID, memberID))
 }
@@ -296,7 +314,6 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		GroupID:         groupID,
 		Message:         msg,
 		GroupPubNonce:   groupPubNonce,
-		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
 		Signature:       nil,
 		Status:          types.SIGNING_STATUS_WAITING,
@@ -365,14 +382,24 @@ func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
 			// If the partial signature is not found, deactivate the member
 			if !found {
 				member := k.MustGetMember(ctx, signing.GroupID, mid)
-				member.IsActive = false
-				k.SetMember(ctx, signing.GroupID, member)
+				accAddress := sdk.MustAccAddressFromBech32(member.Address)
+				err := k.SetInActive(ctx, accAddress, signing.GroupID)
+				if err != nil {
+					// TODO: remove this error
+					panic(err)
+				}
 			}
 		}
 
 		// Set the signing status to expired
 		signing.Status = types.SIGNING_STATUS_EXPIRED
 		k.SetSigning(ctx, signing)
+
+		// Remove assigned members from the signing
+		k.DeleteAssignedMembers(ctx, signing.SigningID)
+
+		// Remove all partial signatures from the store
+		k.DeletePartialSigs(ctx, signing.SigningID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)

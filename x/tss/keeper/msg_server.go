@@ -44,7 +44,22 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
-			IsActive:    true,
+		})
+
+		// TODO: move to do after group is active
+		address, err := sdk.AccAddressFromBech32(m)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
+		}
+
+		k.SetStatus(ctx, address, types.Status{
+			MemberID: tss.MemberID(i + 1),
+			GroupID:  groupID,
+			IsActive: true,
+			Since:    ctx.BlockTime(),
 		})
 	}
 
@@ -677,11 +692,6 @@ func (k Keeper) SubmitSignature(
 		signing.Status = types.SIGNING_STATUS_SUCCESS
 		k.SetSigning(ctx, signing)
 
-		// Delete interims data
-		for _, am := range signing.AssignedMembers {
-			k.DeletePartialSig(ctx, req.SigningID, am.MemberID)
-		}
-
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeSignSuccess,
@@ -712,12 +722,12 @@ func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	for _, gid := range msg.GroupIDs {
-		member, err := k.GetMemberByAddress(ctx, tss.GroupID(gid), msg.Member)
+		address, err := sdk.AccAddressFromBech32(msg.Address)
 		if err != nil {
 			return nil, err
 		}
 
-		err = k.SetActive(ctx, tss.GroupID(gid), member.MemberID)
+		err = k.SetActive(ctx, address, tss.GroupID(gid))
 		if err != nil {
 			return nil, err
 		}
@@ -725,9 +735,10 @@ func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			types.EventTypeActivate,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
-			sdk.NewAttribute(types.AttributeKeyMember, msg.Member),
+			sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
 		))
 	}
+
 	return &types.MsgActivateResponse{}, nil
 }
 

@@ -584,7 +584,6 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
-					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
 				})
 
@@ -685,6 +684,34 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
 			s.Require().NotNil(signing.Signature)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestActivateReq() {
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Iterate through test cases from testutil
+	for _, tc := range testutil.TestCases {
+		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			for _, m := range tc.Group.Members {
+				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
+					Address:  sdk.AccAddress(m.PubKey()).String(),
+					GroupIDs: []uint64{uint64(tc.Group.ID)},
+				})
+				s.Require().NoError(err)
+			}
+		})
+
+		s.Run(fmt.Sprintf("failed %s", tc.Name), func() {
+			for _, m := range tc.Group.Members {
+				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
+					Address:  sdk.AccAddress(m.PubKey()).String(),
+					GroupIDs: []uint64{10000},
+				})
+				s.Require().Error(err)
+			}
 		})
 	}
 }

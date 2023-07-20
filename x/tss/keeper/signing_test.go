@@ -59,7 +59,6 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -93,7 +92,6 @@ func (s *KeeperTestSuite) TestAddSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -129,7 +127,6 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -363,10 +360,21 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	accAddress := sdk.MustAccAddressFromBech32(addressStr)
 
+	// Set member
 	k.SetMember(ctx, groupID, types.Member{
 		MemberID: memberID,
+		Address:  addressStr,
+	})
+
+	// Set status
+	k.SetStatus(ctx, accAddress, types.Status{
+		MemberID: memberID,
+		GroupID:  groupID,
 		IsActive: true,
+		Since:    ctx.BlockTime(),
 	})
 
 	// Create signing
@@ -391,9 +399,13 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	gotSigning, err := k.GetSigning(ctx, signingID)
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
-	gotMember, err := k.GetMember(ctx, groupID, memberID)
+	s.Require().Nil(gotSigning.AssignedMembers)
+	gotStatus, err := k.GetStatus(ctx, accAddress, groupID)
 	s.Require().NoError(err)
-	s.Require().False(gotMember.IsActive)
+	s.Require().False(gotStatus.IsActive)
+	s.Require().False(gotStatus.IsActive)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
+	gotPZs := k.GetPartialSigs(ctx, signingID)
+	s.Require().Empty(gotPZs)
 }
