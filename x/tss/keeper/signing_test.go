@@ -298,7 +298,7 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	}
 
 	// Check if the returned signatures with keys are equal to the ones we set
-	s.Require().ElementsMatch(expected, got)
+	s.Require().Equal(expected, got)
 }
 
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {

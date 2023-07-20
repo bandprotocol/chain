@@ -169,8 +169,7 @@ func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
 }
 
 func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
-	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return sdk.AccAddress(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
+	return sdk.AccAddress(key[1 : len(key)-uint64Len]), sdk.BigEndianToUint64(key[len(key)-uint64Len:])
 }
 
 func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
@@ -178,7 +177,6 @@ func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
 }
 
 func AddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
-	kv.AssertKeyLength(key, 1+AddrLen)
 	return sdk.AccAddress(key[1:])
 }
 
@@ -204,8 +202,7 @@ func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
 }
 
 func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
-	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return sdk.BigEndianToUint64(key[1+AddrLen:])
+	return sdk.BigEndianToUint64(key[len(key)-uint64Len:])
 }
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
