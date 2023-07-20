@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -298,6 +299,7 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
 		Signature:       nil,
+		Status:          types.SIGNING_STATUS_WAITING,
 	}
 
 	// Add signing
@@ -354,8 +356,23 @@ func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
 			break
 		}
 
-		// Remove the signing from the store
-		k.DeleteSigning(ctx, signing.SigningID)
+		mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+		pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
+		for _, mid := range mids {
+			// Check if the member's partial signature is found in the list of partial signatures.
+			found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
+
+			// If the partial signature is not found, deactivate the member
+			if !found {
+				member := k.MustGetMember(ctx, signing.GroupID, mid)
+				member.IsActive = false
+				k.SetMember(ctx, signing.GroupID, member)
+			}
+		}
+
+		// Set the signing status to expired
+		signing.Status = types.SIGNING_STATUS_EXPIRED
+		k.SetSigning(ctx, signing)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)

@@ -199,6 +199,15 @@ func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 	return member, nil
 }
 
+// MustGetMember returns the member for the given groupID and memberID. Panics error if not exists.
+func (k Keeper) MustGetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) types.Member {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		panic(err)
+	}
+	return member
+}
+
 // GetMembersIterator gets an iterator over all members of a group.
 func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))

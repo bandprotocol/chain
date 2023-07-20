@@ -673,6 +673,8 @@ func (k Keeper) SubmitSignature(
 
 		// Set signing with signature
 		signing.Signature = sig
+		// Set signing status
+		signing.Status = types.SIGNING_STATUS_SUCCESS
 		k.SetSigning(ctx, signing)
 
 		// Delete interims data

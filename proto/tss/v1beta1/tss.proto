@@ -85,8 +85,10 @@ message Signing {
   bytes commitment = 6;
   // signature is the group's signature on the message.
   bytes signature = 7 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+  // status represents the current stage of the signing in the signing process.
+  SigningStatus status = 8;
   // created_height is the block height when the signing was created.
-  int64 created_height = 8;
+  int64 created_height = 9;
 }
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.
@@ -110,6 +112,20 @@ message AssignedMember {
 message PendingSignings {
   // signing_ids is a list of identifiers for the signing processes.
   repeated uint64 signing_ids = 1;
+}
+
+// SigningStatus is an enumeration of the possible statuses of a singing.
+enum SigningStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // SIGNING_STATUS_UNSPECIFIED is the status of a signing that has not been specified.
+  SIGNING_STATUS_UNSPECIFIED = 0;
+  // SIGNING_STATUS_WAITING is the status of a signing that is waiting to be signed in the protocol.
+  SIGNING_STATUS_WAITING = 1;
+  // SIGNING_STATUS_SUCCESS is the status of a signing that has success in the protocol.
+  SIGNING_STATUS_SUCCESS = 2;
+  // SIGNING_STATUS_EXPIRED is the status of a signing that has expired in the protocol.
+  SIGNING_STATUS_EXPIRED = 3;
 }
 
 // Member is a type representing a member of the group.

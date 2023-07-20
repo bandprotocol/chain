@@ -362,9 +362,23 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
 
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+
+	k.SetMember(ctx, groupID, types.Member{
+		MemberID: memberID,
+		IsActive: true,
+	})
 
 	// Create signing
-	signingID := k.AddSigning(ctx, types.Signing{})
+	signingID := k.AddSigning(ctx, types.Signing{
+		GroupID: 1,
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID: memberID,
+			},
+		},
+		Status: types.SIGNING_STATUS_WAITING,
+	})
 
 	// Set the current block height
 	blockHeight := int64(101)
@@ -373,7 +387,13 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	// Process expired signings
 	k.ProcessExpiredSignings(ctx)
 
-	// Assert that the last expired group ID is updated correctly
-	lastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
-	s.Require().Equal(signingID, lastExpiredSigningID)
+	// Assert that the last expired signing is updated correctly
+	gotSigning, err := k.GetSigning(ctx, signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
+	gotMember, err := k.GetMember(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().False(gotMember.IsActive)
+	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
+	s.Require().Equal(signingID, gotLastExpiredSigningID)
 }
