@@ -1,17 +1,18 @@
-package round3
+package group
 
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/event"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/cylinder/client"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // Round3 is a worker responsible for round3 in the DKG process of TSS module
@@ -24,9 +25,9 @@ type Round3 struct {
 
 var _ cylinder.Worker = &Round3{}
 
-// New creates a new instance of the Round3 worker.
+// NewRound3 creates a new instance of the Round3 worker.
 // It initializes the necessary components and returns the created Round3 instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Round3, error) {
+func NewRound3(ctx *cylinder.Context) (*Round3, error) {
 	cli, err := client.New(ctx.Config, ctx.Keyring)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func New(ctx *cylinder.Context) (*Round3, error) {
 // It returns an error if the subscription fails.
 func (r *Round3) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
-		"tm.event = 'Tx' AND %s.%s EXISTS",
+		"tm.event = 'NewBlock' AND %s.%s EXISTS",
 		types.EventTypeRound2Success,
 		types.AttributeKeyGroupID,
 	)
@@ -51,23 +52,34 @@ func (r *Round3) subscribe() (err error) {
 	return
 }
 
-// handleTxResult handles the result of a transaction.
-// It extracts the relevant message logs from the transaction result and processes the events.
-func (r *Round3) handleTxResult(txResult abci.TxResult) {
-	msgLogs, err := event.GetMessageLogs(txResult)
+// handleABCIEvents handles the end block events.
+func (r *Round3) handleABCIEvents(abciEvents []abci.Event) {
+	events := sdk.StringifyEvents(abciEvents)
+	for _, ev := range events {
+		if ev.Type == types.EventTypeRound2Success {
+			event, err := ParseEvent(sdk.StringEvents{ev}, types.EventTypeRound2Success)
+			if err != nil {
+				r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
+				return
+			}
+
+			go r.handleGroup(event.GroupID)
+		}
+	}
+}
+
+// handlePendingGroups processes the pending groups.
+func (r *Round3) handlePendingGroups() {
+	res, err := r.client.QueryPendingGroups(r.context.Config.Granter)
 	if err != nil {
-		r.logger.Error("Failed to get message logs: %s", err)
+		r.logger.Error(":cold_sweat: Failed to get pending groups: %s", err)
 		return
 	}
 
-	for _, log := range msgLogs {
-		event, err := ParseEvent(log)
-		if err != nil {
-			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
-			return
-		}
+	r.handlePendingGroups()
 
-		go r.handleGroup(event.GroupID)
+	for _, gid := range res.PendingGroups {
+		go r.handleGroup(tss.GroupID(gid))
 	}
 }
 
@@ -79,6 +91,10 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err)
+		return
+	}
+
+	if groupRes.Group.Status != types.GROUP_STATUS_ROUND_3 {
 		return
 	}
 
@@ -156,7 +172,7 @@ func (r *Round3) Start() {
 	}
 
 	for ev := range r.eventCh {
-		go r.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
+		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultEndBlock.Events)
 	}
 }
 

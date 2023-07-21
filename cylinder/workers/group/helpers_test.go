@@ -1,15 +1,16 @@
-package round3
+package group
 
 import (
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/cylinder/store"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetOwnPrivKey(t *testing.T) {

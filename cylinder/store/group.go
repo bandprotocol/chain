@@ -1,6 +1,8 @@
 package store
 
-import "github.com/bandprotocol/chain/v2/pkg/tss"
+import (
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+)
 
 // Group represents a TSS group.
 type Group struct {

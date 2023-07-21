@@ -3,9 +3,10 @@ package store
 import (
 	"encoding/json"
 
+	dbm "github.com/tendermint/tm-db"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	dbm "github.com/tendermint/tm-db"
 )
 
 // Store represents a data store for storing data information for Cylinder process

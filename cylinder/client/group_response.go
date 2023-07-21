@@ -57,13 +57,23 @@ func (gr *GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.Member
 	return r2Sender.EncryptedSecretShares[slot], nil
 }
 
-// IsMember returns boolean to show if the address is the member in the group.
-func (gr *GroupResponse) IsMember(address string) bool {
+// GetMemberID returns member's id of the address in the group.
+func (gr *GroupResponse) GetMemberID(address string) (tss.MemberID, error) {
 	for _, member := range gr.Members {
 		if member.Address == address {
-			return true
+			return member.MemberID, nil
 		}
 	}
 
-	return false
+	return 0, fmt.Errorf("%s is not the member", address)
+}
+
+// IsMember returns boolean to show if the address is the member in the group.
+func (gr *GroupResponse) IsMember(address string) bool {
+	_, err := gr.GetMemberID(address)
+	if err != nil {
+		return false
+	}
+
+	return true
 }

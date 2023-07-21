@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/cylinder/workers/signing"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -15,15 +16,15 @@ import (
 func TestParseEvent(t *testing.T) {
 	tests := []struct {
 		name     string
-		log      sdk.ABCIMessageLog
+		events   sdk.StringEvents
 		address  string
 		expEvent *signing.Event
 		expError string
 	}{
 		{
 			"success",
-			sdk.NewABCIMessageLog(0, "", sdk.Events{
-				sdk.NewEvent(
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
 					types.EventTypeRequestSign,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
@@ -41,7 +42,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
 					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
-				),
+				)),
 			}),
 			"member 2",
 			&signing.Event{
@@ -60,15 +61,15 @@ func TestParseEvent(t *testing.T) {
 		},
 		{
 			"no event",
-			sdk.NewABCIMessageLog(0, "", sdk.Events{}),
+			sdk.StringifyEvents([]abci.Event{}),
 			"bandb",
 			nil,
 			"Cannot find event with type",
 		},
 		{
 			"invalid member",
-			sdk.NewABCIMessageLog(0, "", sdk.Events{
-				sdk.NewEvent(
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
 					types.EventTypeRequestSign,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
@@ -86,7 +87,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
 					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
-				),
+				)),
 			}),
 			"member 3",
 			nil,
@@ -96,7 +97,7 @@ func TestParseEvent(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			event, err := signing.ParseEvent(test.log, test.address)
+			event, err := signing.ParseEvent(test.events, test.address)
 			assert.Equal(t, test.expEvent, event)
 			if test.expError != "" {
 				assert.ErrorContains(t, err, test.expError)

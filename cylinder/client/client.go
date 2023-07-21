@@ -5,11 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -23,6 +18,12 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+
+	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Client struct {
@@ -128,6 +129,21 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 	return NewGroupResponse(gr), nil
 }
 
+// QuerySigning queries the signing information with the given signing ID.
+// It returns the signing response or an error.
+func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	sr, err := queryClient.Signing(context.Background(), &types.QuerySigningRequest{
+		Id: uint64(signingID),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return NewSigningResponse(sr), nil
+}
+
 // QueryDE queries the DE information with the given address.
 // It returns the de response or an error.
 func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DEResponse, error) {
@@ -146,6 +162,21 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 	}
 
 	return NewDEResponse(der), nil
+}
+
+// QueryPendingGroups queries the all pending groups with the given address.
+// It returns the QueryPendingSignsResponse or an error.
+func (c *Client) QueryPendingGroups(address string) (*types.QueryPendingGroupsResponse, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	res, err := queryClient.PendingGroups(context.Background(), &types.QueryPendingGroupsRequest{
+		Address: address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // QueryPendingSignings queries the all pending signings with the given address.

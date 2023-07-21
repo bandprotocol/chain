@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetRound1Info(t *testing.T) {

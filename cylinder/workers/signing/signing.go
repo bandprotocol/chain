@@ -3,15 +3,16 @@ package signing
 import (
 	"fmt"
 
+	abci "github.com/tendermint/tendermint/abci/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
+
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/pkg/event"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // Signing is a worker responsible for the signing process of the TSS module.
@@ -62,65 +63,75 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log, s.context.Config.Granter)
+		event, err := ParseEvent(log.Events, s.context.Config.Granter)
 		if err != nil {
 			s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
 		go s.handleSigning(
-			event.GroupID,
 			event.SigningID,
-			event.MemberIDs,
-			event.Data,
-			event.BindingFactor,
-			event.GroupPubNonce,
-			event.PubDE,
 		)
 	}
 }
 
 // handleSigning processes an incoming signing request.
-func (s *Signing) handleSigning(
-	gid tss.GroupID,
-	sid tss.SigningID,
-	mids []tss.MemberID,
-	data []byte,
-	bindingFactor tss.Scalar,
-	groupPubNonce tss.Point,
-	pubDE types.DE,
-) {
-	logger := s.logger.With("gid", gid).With("sid", sid)
+func (s *Signing) handleSigning(sid tss.SigningID) {
+	logger := s.logger.With("sid", sid)
 
 	// Log
 	logger.Info(":delivery_truck: Processing incoming signing request")
 
+	// Query signing detail
+	signingRes, err := s.client.QuerySigning(sid)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to query signing information: %s", err)
+		return
+	}
+
+	signing := signingRes.Signing
+	assignedMember, err := signingRes.GetAssignedMember(s.context.Config.Granter)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to get assigned member: %s", err)
+		return
+	}
+
 	// Set group data
-	group, err := s.context.Store.GetGroup(gid)
+	group, err := s.context.Store.GetGroup(signing.GroupID)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 		return
 	}
 
 	// Get private keys of DE
-	privDE, err := s.context.Store.GetDE(pubDE)
+	privDE, err := s.context.Store.GetDE(types.DE{
+		PubD: assignedMember.PubD,
+		PubE: assignedMember.PubE,
+	})
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to get private DE from store: %s", err)
 		return
 	}
 
 	// Compute own private nonce
-	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, bindingFactor)
+	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, assignedMember.BindingFactor)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to compute own private nonce: %s", err)
 		return
 	}
 
 	// Compute lagrange
-	lagrange := tss.ComputeLagrangeCoefficient(group.MemberID, mids)
+	lagrange := tss.ComputeLagrangeCoefficient(group.MemberID, signingRes.GetMemberIDs())
 
 	// Sign the signing
-	sig, err := tss.SignSigning(groupPubNonce, group.PubKey, data, lagrange, privNonce, group.PrivKey)
+	sig, err := tss.SignSigning(
+		signing.GroupPubNonce,
+		group.PubKey,
+		signing.Message,
+		lagrange,
+		privNonce,
+		group.PrivKey,
+	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to sign signing: %s", err)
 		return
@@ -144,29 +155,7 @@ func (s *Signing) handlePendingSignings() {
 	}
 
 	for _, signing := range res.PendingSignings {
-		var mids []tss.MemberID
-		var pubDE types.DE
-		var bindingFactor tss.Scalar
-		for _, member := range signing.AssignedMembers {
-			mids = append(mids, member.MemberID)
-			if member.Member == s.context.Config.Granter {
-				bindingFactor = member.BindingFactor
-				pubDE = types.DE{
-					PubD: member.PubD,
-					PubE: member.PubE,
-				}
-			}
-		}
-
-		go s.handleSigning(
-			signing.GroupID,
-			signing.SigningID,
-			mids,
-			signing.Message,
-			bindingFactor,
-			signing.GroupPubNonce,
-			pubDE,
-		)
+		go s.handleSigning(signing.SigningID)
 	}
 }
 

@@ -4,14 +4,15 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	abci "github.com/tendermint/tendermint/abci/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
+
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/pkg/event"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // DE is a worker responsible for generating own nonce (DE) of signing process
@@ -72,7 +73,7 @@ func (de *DE) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseSubmitSignEvent(log)
+		event, err := ParseSubmitSignEvent(log.Events)
 		if err != nil {
 			de.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return

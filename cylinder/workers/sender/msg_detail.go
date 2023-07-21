@@ -3,8 +3,9 @@ package sender
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // GetMsgDetail represents the detail string of a message for logging.

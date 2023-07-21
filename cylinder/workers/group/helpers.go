@@ -1,4 +1,4 @@
-package round3
+package group
 
 import (
 	"github.com/bandprotocol/chain/v2/cylinder/client"

@@ -1,7 +1,11 @@
-package round1
+package group
 
 import (
 	"fmt"
+
+	abci "github.com/tendermint/tendermint/abci/types"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
@@ -10,9 +14,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // Round1 is a worker responsible for round1 in the DKG process of TSS module
@@ -25,9 +26,9 @@ type Round1 struct {
 
 var _ cylinder.Worker = &Round1{}
 
-// New creates a new instance of the Round1 worker.
+// NewRound1 creates a new instance of the Round1 worker.
 // It initializes the necessary components and returns the created Round1 instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Round1, error) {
+func NewRound1(ctx *cylinder.Context) (*Round1, error) {
 	// create http client
 	cli, err := client.New(ctx.Config, ctx.Keyring)
 	if err != nil {
@@ -64,23 +65,55 @@ func (r *Round1) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log, r.context.Config.Granter)
+		event, err := ParseEvent(log.Events, types.EventTypeCreateGroup)
 		if err != nil {
 			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
-		go r.handleGroup(event.GroupID, event.MemberID, event.Threshold, event.DKGContext)
+		go r.handleGroup(event.GroupID)
+	}
+}
+
+// handlePendingGroups processes the pending groups.
+func (r *Round1) handlePendingGroups() {
+	res, err := r.client.QueryPendingGroups(r.context.Config.Granter)
+	if err != nil {
+		r.logger.Error(":cold_sweat: Failed to get pending groups: %s", err)
+		return
+	}
+
+	for _, gid := range res.PendingGroups {
+		go r.handleGroup(tss.GroupID(gid))
 	}
 }
 
 // handleGroup processes an incoming group.
-func (r *Round1) handleGroup(gid tss.GroupID, mid tss.MemberID, threshold uint64, dkgContext []byte) {
+func (r *Round1) handleGroup(gid tss.GroupID) {
 	logger := r.logger.With("gid", gid)
+
+	// Query group detail
+	groupRes, err := r.client.QueryGroup(gid)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to query group information: %s", err)
+		return
+	}
+
+	if groupRes.Group.Status != types.GROUP_STATUS_ROUND_1 {
+		return
+	}
+
+	// Check if the user is member in the group
+	mid, err := groupRes.GetMemberID(r.context.Config.Granter)
+	if err != nil {
+		return
+	}
+
+	// Log
 	logger.Info(":delivery_truck: Processing incoming group")
 
 	// Generate round1 data
-	data, err := tss.GenerateRound1Info(mid, threshold, dkgContext)
+	data, err := tss.GenerateRound1Info(mid, groupRes.Group.Threshold, groupRes.DKGContext)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err)
 		return
@@ -121,6 +154,8 @@ func (r *Round1) Start() {
 		r.context.ErrCh <- err
 		return
 	}
+
+	r.handlePendingGroups()
 
 	for ev := range r.eventCh {
 		go r.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
