@@ -144,13 +144,13 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	memberID := tss.MemberID(1)
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 
 	signing := types.Signing{
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				Member:   address,
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),

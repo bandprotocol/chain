@@ -29,6 +29,11 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/de_list/{address}";
   }
 
+  // PendingGroups queries all pending groups for this address.
+  rpc PendingGroups(QueryPendingGroupsRequest) returns (QueryPendingGroupsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/pending_groups/{address}";
+  }
+
   // PendingSignings queries all pending signs for this address.
   rpc PendingSignings(QueryPendingSigningsRequest) returns (QueryPendingSigningsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_signings/{address}";
@@ -110,6 +115,18 @@ message QueryDEResponse {
   repeated DE des = 1 [(gogoproto.customname) = "DEs", (gogoproto.nullable) = false];
   // pagination defines an pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryPendingGroupsRequest is the request type for the Query/PendingGroups RPC method.
+message QueryPendingGroupsRequest {
+  // address is the address for the request.
+  string address = 1;
+}
+
+// QueryPendingGroupsResponse is the response type for the Query/PendingGroups RPC method.
+message QueryPendingGroupsResponse {
+  // pending_groups is a list of pending groups.
+  repeated uint64 pending_groups = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.

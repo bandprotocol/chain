@@ -450,7 +450,49 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryPendingSigns() {
+func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
+	ctx, q := s.ctx, s.querier
+
+	var req types.QueryPendingGroupsRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryPendingGroupsResponse, err error)
+	}{
+		{
+			"success",
+			func() {
+				req = types.QueryPendingGroupsRequest{
+					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			true,
+			func(res *types.QueryPendingGroupsResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.PendingGroups, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.PendingGroups(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 	ctx, q := s.ctx, s.querier
 
 	var req types.QueryPendingSigningsRequest
