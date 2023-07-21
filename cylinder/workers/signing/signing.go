@@ -90,10 +90,6 @@ func (s *Signing) handleSigning(
 	groupPubNonce tss.Point,
 	pubDE types.DE,
 ) {
-	if !s.context.Config.IsAllowedGroup(gid) {
-		return
-	}
-
 	logger := s.logger.With("gid", gid).With("sid", sid)
 
 	// Log

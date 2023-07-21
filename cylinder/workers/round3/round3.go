@@ -73,10 +73,6 @@ func (r *Round3) handleTxResult(txResult abci.TxResult) {
 
 // handleGroup processes an incoming group.
 func (r *Round3) handleGroup(gid tss.GroupID) {
-	if !r.context.Config.IsAllowedGroup(gid) {
-		return
-	}
-
 	logger := r.logger.With("gid", gid)
 
 	// Query group detail

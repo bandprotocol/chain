@@ -11,7 +11,6 @@ type Config struct {
 	ChainID          string        `mapstructure:"chain-id"`          // ChainID of the target chain
 	NodeURI          string        `mapstructure:"node"`              // Remote RPC URI of BandChain node to connect to
 	Granter          string        `mapstructure:"granter"`           // The granter address
-	GroupIDs         []uint64      `mapstructure:"group-ids"`         // The list of group ids that are allowed to interact
 	GasPrices        string        `mapstructure:"gas-prices"`        // Gas prices of the transaction
 	LogLevel         string        `mapstructure:"log-level"`         // Log level of the logger
 	MaxMessages      uint64        `mapstructure:"max-messages"`      // The maximum number of messages in a transaction
@@ -22,14 +21,4 @@ type Config struct {
 	GasAdjustStart   float64       `mapstructure:"gas-adjust-start"`  // The start value of gas adjustment
 	GasAdjustStep    float64       `mapstructure:"gas-adjust-step"`   // The increment step of gad adjustment
 	RandomSecret     tss.Scalar    `mapstructure:"random-secret"`     // The secret value that is used for random D,E
-}
-
-func (c *Config) IsAllowedGroup(groupID tss.GroupID) bool {
-	for _, gid := range c.GroupIDs {
-		if tss.GroupID(gid) == groupID {
-			return true
-		}
-	}
-
-	return false
 }
