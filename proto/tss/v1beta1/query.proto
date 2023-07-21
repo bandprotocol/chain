@@ -29,6 +29,11 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/de_list/{address}";
   }
 
+  // PendingGroups queries all pending groups for this address.
+  rpc PendingGroups(QueryPendingGroupsRequest) returns (QueryPendingGroupsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/pending_groups/{address}";
+  }
+
   // PendingSignings queries all pending signs for this address.
   rpc PendingSignings(QueryPendingSigningsRequest) returns (QueryPendingSigningsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_signings/{address}";
@@ -59,14 +64,16 @@ message QueryGroupResponse {
   bytes dkg_context = 2 [(gogoproto.customname) = "DKGContext"];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
+  // members is the list of members in the group.
+  repeated Status statuses = 4 [(gogoproto.nullable) = false];
   // round1_infos is the list of Round 1 information.
-  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
+  repeated Round1Info round1_infos = 5 [(gogoproto.nullable) = false];
   // round2_infos is the list of Round 2 information.
-  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
+  repeated Round2Info round2_infos = 6 [(gogoproto.nullable) = false];
   // complaints_with_status is the list of complaints with status.
-  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
+  repeated ComplaintsWithStatus complaints_with_status = 7 [(gogoproto.nullable) = false];
   // confirms is the list of confirms.
-  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
+  repeated Confirm confirms = 8 [(gogoproto.nullable) = false];
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
@@ -108,6 +115,18 @@ message QueryDEResponse {
   repeated DE des = 1 [(gogoproto.customname) = "DEs", (gogoproto.nullable) = false];
   // pagination defines an pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryPendingGroupsRequest is the request type for the Query/PendingGroups RPC method.
+message QueryPendingGroupsRequest {
+  // address is the address for the request.
+  string address = 1;
+}
+
+// QueryPendingGroupsResponse is the response type for the Query/PendingGroups RPC method.
+message QueryPendingGroupsResponse {
+  // pending_groups is a list of pending groups.
+  repeated uint64 pending_groups = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.

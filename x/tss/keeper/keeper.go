@@ -199,6 +199,15 @@ func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.Mem
 	return member, nil
 }
 
+// MustGetMember returns the member for the given groupID and memberID. Panics error if not exists.
+func (k Keeper) MustGetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) types.Member {
+	member, err := k.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		panic(err)
+	}
+	return member
+}
+
 // GetMembersIterator gets an iterator over all members of a group.
 func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
@@ -218,6 +227,15 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 		return nil, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
 	}
 	return members, nil
+}
+
+// MustGetMembers retrieves all members of a group from the store. Panics error if not exists.
+func (k Keeper) MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member {
+	members, err := k.GetMembers(ctx, groupID)
+	if err != nil {
+		panic(err)
+	}
+	return members
 }
 
 // GetActiveMembers retrieves all active members of a group from the store.
@@ -270,8 +288,8 @@ func (k Keeper) GetLastExpiredGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(bz))
 }
 
-// ProcessExpiredGroups cleans up expired groups and removes them from the store.
-func (k Keeper) ProcessExpiredGroups(ctx sdk.Context) {
+// HandleExpiredGroups cleans up expired groups and removes them from the store.
+func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 	// Get the current group ID to start processing from
 	currentGroupID := k.GetLastExpiredGroupID(ctx) + 1
 
@@ -346,9 +364,108 @@ func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress, groupID tss.G
 	return status, nil
 }
 
+// MustGetStatus returns the status for the given accAddress and groupID. Panics error if not exists.
+func (k Keeper) MustGetStatus(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) types.Status {
+	status, err := k.GetStatus(ctx, address, groupID)
+	if err != nil {
+		panic(err)
+	}
+	return status
+}
+
 // DeleteStatus removes the status of the address of the group
 func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.StatusGroupStoreKey(address, groupID))
+}
+
+// AddPendingProcessGroups adds a new pending process group to the store.
+func (k Keeper) AddPendingProcessGroups(ctx sdk.Context, pg types.PendingProcessGroup) {
+	pgs := k.GetPendingProcessGroups(ctx)
+	pgs = append(pgs, pg)
+	k.SetPendingProcessGroups(ctx, types.PendingProcessGroups{
+		PendingProcessGroups: pgs,
+	})
+}
+
+// SetPendingProcessGroups sets the given pending process groups in the store.
+func (k Keeper) SetPendingProcessGroups(ctx sdk.Context, pgs types.PendingProcessGroups) {
+	ctx.KVStore(k.storeKey).Set(types.PendingProcessGroupsStoreKey, k.cdc.MustMarshal(&pgs))
+}
+
+// GetPendingProcessGroups retrieves the list of pending process groups from the store.
+// It returns an empty list if the key does not exist in the store.
+func (k Keeper) GetPendingProcessGroups(ctx sdk.Context) []types.PendingProcessGroup {
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingProcessGroupsStoreKey)
+	if len(bz) == 0 {
+		// Return an empty list if the key does not exist in the store.
+		return []types.PendingProcessGroup{}
+	}
+	pgs := types.PendingProcessGroups{}
+	k.cdc.MustUnmarshal(bz, &pgs)
+	return pgs.PendingProcessGroups
+}
+
+// HandleProcessGroup handles the pending process group based on its status.
+// It updates the group status and emits appropriate events.
+func (k Keeper) HandleProcessGroup(ctx sdk.Context, pg types.PendingProcessGroup) {
+	group := k.MustGetGroup(ctx, pg.GroupID)
+	switch pg.Status {
+	case types.GROUP_STATUS_ROUND_1:
+		group.Status = types.GROUP_STATUS_ROUND_2
+		group.PubKey = k.GetAccumulatedCommit(ctx, pg.GroupID, 0)
+		k.SetGroup(ctx, group)
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound1Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", pg.GroupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
+	case types.GROUP_STATUS_ROUND_2:
+		group.Status = types.GROUP_STATUS_ROUND_3
+		k.SetGroup(ctx, group)
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound2Success,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", pg.GroupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
+	case types.GROUP_STATUS_FALLEN:
+		group.Status = types.GROUP_STATUS_FALLEN
+		k.SetGroup(ctx, group)
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRound3Failed,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+			),
+		)
+	case types.GROUP_STATUS_ROUND_3:
+		// Get members to check malicious
+		members := k.MustGetMembers(ctx, group.GroupID)
+		if !types.Members(members).HaveMalicious() {
+			group.Status = types.GROUP_STATUS_ACTIVE
+			k.SetGroup(ctx, group)
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound3Success,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", pg.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+				),
+			)
+		} else {
+			group.Status = types.GROUP_STATUS_FALLEN
+			k.SetGroup(ctx, group)
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound3Failed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+				),
+			)
+		}
+	}
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

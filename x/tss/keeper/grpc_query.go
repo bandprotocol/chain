@@ -34,20 +34,27 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		return nil, err
 	}
 
-	// If group is in active/fallen, return group and member info
-	// since all other infomations have been deleted
-	if group.Status == types.GROUP_STATUS_ACTIVE || group.Status == types.GROUP_STATUS_FALLEN {
-		return &types.QueryGroupResponse{
-			Group:   group,
-			Members: members,
-		}, nil
+	var statuses []types.Status
+	for _, m := range members {
+		address, err := sdk.AccAddressFromBech32(m.Address)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
+		}
+
+		// Ignore error as status can be null if the group is not active
+		status, err := k.GetStatus(ctx, address, groupID)
+		if err != nil {
+			continue
+		}
+
+		statuses = append(statuses, status)
 	}
 
-	// If group is not active, get additional data
-	dkgContext, err := k.GetDKGContext(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
+	// Ignore error as dkgContext can be deleted
+	dkgContext, _ := k.GetDKGContext(ctx, groupID)
 
 	// Get round infos, complaints, and confirms
 	round1Infos := k.GetRound1Infos(ctx, groupID)
@@ -60,6 +67,7 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 		Group:                group,
 		DKGContext:           dkgContext,
 		Members:              members,
+		Statuses:             statuses,
 		Round1Infos:          round1Infos,
 		Round2Infos:          round2Infos,
 		ComplaintsWithStatus: complaints,
@@ -134,6 +142,73 @@ func (k Querier) DE(goCtx context.Context, req *types.QueryDERequest) (*types.Qu
 	}, nil
 }
 
+// PendingGroups function handles the request to get pending groups of a given address.
+func (k Querier) PendingGroups(
+	goCtx context.Context,
+	req *types.QueryPendingGroupsRequest,
+) (*types.QueryPendingGroupsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get the ID of the last expired group
+	lastExpired := k.GetLastExpiredGroupID(ctx)
+
+	// Get the total group count
+	groupCount := k.GetGroupCount(ctx)
+
+	var pendingGroups []uint64
+	for gid := lastExpired + 1; uint64(gid) <= groupCount; gid++ {
+		// Retrieve the group object
+		group := k.MustGetGroup(ctx, gid)
+
+		// Check if address is the member
+		member, err := k.GetMemberByAddress(ctx, gid, req.Address)
+		if err != nil {
+			continue
+		}
+
+		isSubmitted := true
+
+		// Check submit for round 1
+		if group.Status == types.GROUP_STATUS_ROUND_1 {
+			if _, err := k.GetRound1Info(ctx, gid, member.MemberID); err != nil {
+				isSubmitted = false
+			}
+		}
+
+		// Check submit for round 2
+		if group.Status == types.GROUP_STATUS_ROUND_2 {
+			if _, err := k.GetRound2Info(ctx, gid, member.MemberID); err != nil {
+				isSubmitted = false
+			}
+		}
+
+		// Check submit for round 3 (confirm and complain)
+		if group.Status == types.GROUP_STATUS_ROUND_3 {
+			confirmed := true
+			if _, err := k.GetConfirm(ctx, gid, member.MemberID); err != nil {
+				confirmed = false
+			}
+
+			complained := true
+			if _, err := k.GetComplaintsWithStatus(ctx, gid, member.MemberID); err != nil {
+				complained = false
+			}
+
+			if !confirmed && !complained {
+				isSubmitted = false
+			}
+		}
+
+		if !isSubmitted {
+			pendingGroups = append(pendingGroups, uint64(gid))
+		}
+	}
+
+	return &types.QueryPendingGroupsResponse{
+		PendingGroups: pendingGroups,
+	}, nil
+}
+
 // PendingSignings function handles the request to get pending signs of a given address.
 func (k Querier) PendingSignings(
 	goCtx context.Context,
@@ -141,14 +216,8 @@ func (k Querier) PendingSignings(
 ) (*types.QueryPendingSigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Convert the address from Bech32 format to AccAddress format
-	accAddress, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
-	}
-
 	// Get pending signs.
-	pendingSigns := k.GetPendingSigns(ctx, accAddress)
+	pendingSigns := k.GetPendingSigns(ctx, req.Address)
 
 	return &types.QueryPendingSigningsResponse{
 		PendingSignings: pendingSigns,

@@ -40,6 +40,9 @@ var (
 	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
 	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
 
+	// PendingProcessGroupsStoreKey is the key for storing pending process groups.
+	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
+
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
 
@@ -169,8 +172,7 @@ func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
 }
 
 func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
-	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return sdk.AccAddress(key[1 : 1+AddrLen]), sdk.BigEndianToUint64(key[1+AddrLen:])
+	return sdk.AccAddress(key[1 : len(key)-uint64Len]), sdk.BigEndianToUint64(key[len(key)-uint64Len:])
 }
 
 func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
@@ -178,7 +180,6 @@ func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
 }
 
 func AddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
-	kv.AssertKeyLength(key, 1+AddrLen)
 	return sdk.AccAddress(key[1:])
 }
 
@@ -204,8 +205,7 @@ func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
 }
 
 func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
-	kv.AssertKeyLength(key, 1+AddrLen+uint64Len)
-	return sdk.BigEndianToUint64(key[1+AddrLen:])
+	return sdk.BigEndianToUint64(key[len(key)-uint64Len:])
 }
 
 func StatusStoreKey(address sdk.AccAddress) []byte {

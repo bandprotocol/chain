@@ -14,6 +14,5 @@ func GetMsgGrants() []string {
 }
 
 const (
-	AddrLen   = 20
 	uint64Len = 8
 )

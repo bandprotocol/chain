@@ -3,10 +3,12 @@ package keeper_test
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type TestCase struct {
@@ -156,7 +158,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 }
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
 
@@ -178,6 +180,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 				})
 				s.Require().NoError(err)
 			}
+
+			// Execute the EndBlocker to process groups
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
 			// Verify group status, expiration, and public key after submitting Round 1
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -282,7 +287,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 }
 
 func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	// Setup group as round 2
 	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
@@ -303,6 +308,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 				s.Require().NoError(err)
 			}
 
+			// Execute the EndBlocker to process groups
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+
 			// Verify group status and expiration after submitting Round 2
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
@@ -316,7 +324,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 }
 
 func (s *KeeperTestSuite) TestSuccessComplainReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 	complaintID := tss.MemberID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
@@ -377,6 +385,9 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 			})
 			s.Require().NoError(err)
 
+			// Execute the EndBlocker to process groups
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+
 			// Check the group's status and expiration time after complain
 			got, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
@@ -386,7 +397,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 }
 
 func (s *KeeperTestSuite) TestSuccessConfirmReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
 
@@ -403,6 +414,9 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 				})
 				s.Require().NoError(err)
 			}
+
+			// Execute the EndBlocker to process groups
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
 			// Check the group's status and expiration time after confirmation
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -584,7 +598,6 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
-					Commitment:      tc1.Signings[0].Commitment,
 					Signature:       nil,
 				})
 

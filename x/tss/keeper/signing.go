@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"golang.org/x/exp/slices"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -74,8 +75,15 @@ func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
+// DeleteAssignedMembers deletes the assigned members for a given signing ID from the store.
+func (k Keeper) DeleteAssignedMembers(ctx sdk.Context, signingID tss.SigningID) {
+	signing := k.MustGetSigning(ctx, signingID)
+	signing.AssignedMembers = nil
+	k.SetSigning(ctx, signing)
+}
+
 // GetPendingSigns retrieves the pending signing objects associated with the given account address.
-func (k Keeper) GetPendingSigns(ctx sdk.Context, address sdk.AccAddress) []types.Signing {
+func (k Keeper) GetPendingSigns(ctx sdk.Context, address string) []types.Signing {
 	// Get the ID of the last expired signing
 	lastExpired := k.GetLastExpiredSigningID(ctx)
 
@@ -83,16 +91,20 @@ func (k Keeper) GetPendingSigns(ctx sdk.Context, address sdk.AccAddress) []types
 	signingCount := k.GetSigningCount(ctx)
 
 	var pendingSigns []types.Signing
-	for id := lastExpired + 1; uint64(id) <= signingCount; id++ {
+	for sid := lastExpired + 1; uint64(sid) <= signingCount; sid++ {
 		// Retrieve the signing object
-		signing := k.MustGetSigning(ctx, id)
+		signing := k.MustGetSigning(ctx, sid)
+		if signing.Signature != nil {
+			continue
+		}
 
-		// Iterate over the assigned members in the signing object
+		// Check if address is assigned for signing
 		for _, am := range signing.AssignedMembers {
-			// Check if the member's address matches the given account address
-			if am.Member == address.String() {
-				// Add the signing to the pendingSigns slice
-				pendingSigns = append(pendingSigns, signing)
+			if am.Member == address {
+				// Add the signing to the pendingSigns if there is no partial sig of the member yet.
+				if _, err := k.GetPartialSig(ctx, sid, am.MemberID); err != nil {
+					pendingSigns = append(pendingSigns, signing)
+				}
 			}
 		}
 	}
@@ -142,7 +154,18 @@ func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 	return bz, nil
 }
 
-// DeletePartialSig delete the partial sign data of a sign from the store.
+// DeletePartialSigs delete all partial signatures data of a signing from the store.
+func (k Keeper) DeletePartialSigs(ctx sdk.Context, signingID tss.SigningID) {
+	iterator := k.GetPartialSigIterator(ctx, signingID)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
+}
+
+// DeletePartialSig delete a partial signature of a signing from the store.
 func (k Keeper) DeletePartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.PartialSigMemberStoreKey(signingID, memberID))
 }
@@ -295,9 +318,9 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		GroupID:         groupID,
 		Message:         msg,
 		GroupPubNonce:   groupPubNonce,
-		Commitment:      commitment,
 		AssignedMembers: assignedMembers,
 		Signature:       nil,
+		Status:          types.SIGNING_STATUS_WAITING,
 	}
 
 	// Add signing
@@ -336,8 +359,8 @@ func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(sdk.BigEndianToUint64(bz))
 }
 
-// ProcessExpiredSignings cleans up expired signings and removes them from the store.
-func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
+// HandleExpiredSignings cleans up expired signings and removes them from the store.
+func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 	// Get the current signing ID to start processing from
 	currentSigningID := k.GetLastExpiredSigningID(ctx) + 1
 
@@ -354,8 +377,35 @@ func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
 			break
 		}
 
-		// Remove the signing from the store
-		k.DeleteSigning(ctx, signing.SigningID)
+		mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+		pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
+
+		// Iterate through each member ID in the assigned members list.
+		for _, mid := range mids {
+			// Check if the member's partial signature is found in the list of partial signatures.
+			found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
+
+			// If the partial signature is not found, deactivate the member
+			if !found {
+				member := k.MustGetMember(ctx, signing.GroupID, mid)
+				accAddress := sdk.MustAccAddressFromBech32(member.Address)
+				err := k.SetInActive(ctx, accAddress, signing.GroupID)
+				if err != nil {
+					// TODO: remove this error
+					panic(err)
+				}
+			}
+		}
+
+		// Set the signing status to expired
+		signing.Status = types.SIGNING_STATUS_EXPIRED
+		k.SetSigning(ctx, signing)
+
+		// Remove assigned members from the signing
+		k.DeleteAssignedMembers(ctx, signing.SigningID)
+
+		// Remove all partial signatures from the store
+		k.DeletePartialSigs(ctx, signing.SigningID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)

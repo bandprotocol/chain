@@ -59,7 +59,6 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -93,7 +92,6 @@ func (s *KeeperTestSuite) TestAddSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -129,7 +127,6 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 		},
 		Message:       []byte("data"),
 		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
-		Commitment:    []byte("commitment"),
 		Signature:     nil,
 	}
 
@@ -147,13 +144,13 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	memberID := tss.MemberID(1)
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 
 	signing := types.Signing{
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Member:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				Member:   address,
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
@@ -301,7 +298,7 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 	}
 
 	// Check if the returned signatures with keys are equal to the ones we set
-	s.Require().ElementsMatch(expected, got)
+	s.Require().Equal(expected, got)
 }
 
 func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
@@ -362,18 +359,53 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
 
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	accAddress := sdk.MustAccAddressFromBech32(addressStr)
+
+	// Set member
+	k.SetMember(ctx, groupID, types.Member{
+		MemberID: memberID,
+		Address:  addressStr,
+	})
+
+	// Set status
+	k.SetStatus(ctx, accAddress, types.Status{
+		MemberID: memberID,
+		GroupID:  groupID,
+		IsActive: true,
+		Since:    ctx.BlockTime(),
+	})
 
 	// Create signing
-	signingID := k.AddSigning(ctx, types.Signing{})
+	signingID := k.AddSigning(ctx, types.Signing{
+		GroupID: 1,
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID: memberID,
+			},
+		},
+		Status: types.SIGNING_STATUS_WAITING,
+	})
 
 	// Set the current block height
 	blockHeight := int64(101)
 	ctx = ctx.WithBlockHeight(blockHeight)
 
-	// Process expired signings
-	k.ProcessExpiredSignings(ctx)
+	// Handle expired signings
+	k.HandleExpiredSignings(ctx)
 
-	// Assert that the last expired group ID is updated correctly
-	lastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
-	s.Require().Equal(signingID, lastExpiredSigningID)
+	// Assert that the last expired signing is updated correctly
+	gotSigning, err := k.GetSigning(ctx, signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
+	s.Require().Nil(gotSigning.AssignedMembers)
+	gotStatus, err := k.GetStatus(ctx, accAddress, groupID)
+	s.Require().NoError(err)
+	s.Require().False(gotStatus.IsActive)
+	s.Require().False(gotStatus.IsActive)
+	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
+	s.Require().Equal(signingID, gotLastExpiredSigningID)
+	gotPZs := k.GetPartialSigs(ctx, signingID)
+	s.Require().Empty(gotPZs)
 }
