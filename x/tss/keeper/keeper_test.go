@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -68,7 +69,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 func (s *KeeperTestSuite) setupRound1() {
 	s.setupCreateGroup()
 
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
 		tcGroup := tc.Group
 		for _, m := range tcGroup.Members {
@@ -87,12 +88,15 @@ func (s *KeeperTestSuite) setupRound1() {
 			s.Require().NoError(err)
 		}
 	}
+
+	// Execute the EndBlocker to process groups
+	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 }
 
 func (s *KeeperTestSuite) setupRound2() {
 	s.setupRound1()
 
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
 		tcGroup := tc.Group
 		for _, m := range tcGroup.Members {
@@ -108,12 +112,15 @@ func (s *KeeperTestSuite) setupRound2() {
 			s.Require().NoError(err)
 		}
 	}
+
+	// Execute the EndBlocker to process groups
+	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 }
 
 func (s *KeeperTestSuite) setupConfirm() {
 	s.setupRound2()
 
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
 		tcGroup := tc.Group
 		for _, m := range tcGroup.Members {
@@ -127,6 +134,9 @@ func (s *KeeperTestSuite) setupConfirm() {
 			s.Require().NoError(err)
 		}
 	}
+
+	// Execute the EndBlocker to process groups
+	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 }
 
 func (s *KeeperTestSuite) setupDE() {
@@ -381,8 +391,8 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 	blockHeight := int64(101)
 	ctx = ctx.WithBlockHeight(blockHeight)
 
-	// Process expired groups
-	k.ProcessExpiredGroups(ctx)
+	// Handle expired groups
+	k.HandleExpiredGroups(ctx)
 
 	// Assert that the last expired group ID is updated correctly
 	lastExpiredGroupID := k.GetLastExpiredGroupID(ctx)

@@ -189,16 +189,11 @@ func (k Keeper) SubmitDKGRound1(
 
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.GROUP_STATUS_ROUND_2
-		group.PubKey = k.GetAccumulatedCommit(ctx, groupID, 0)
-		k.SetGroup(ctx, group)
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound1Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
+		// Add the pending process group to the list of pending process groups to be processed at the endblock.
+		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
+			GroupID: groupID,
+			Status:  types.GROUP_STATUS_ROUND_1,
+		})
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
@@ -292,15 +287,11 @@ func (k Keeper) SubmitDKGRound2(
 
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
-		group.Status = types.GROUP_STATUS_ROUND_3
-		k.SetGroup(ctx, group)
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound2Success,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
+		// Add the pending process group to the list of pending process groups to be processed at the endblock.
+		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
+			GroupID: groupID,
+			Status:  types.GROUP_STATUS_ROUND_2,
+		})
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
@@ -420,7 +411,11 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount == group.Size_ {
-		k.handleFallenGroup(ctx, group)
+		// Add the pending process group to the list of pending process groups to be processed at the endblock.
+		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
+			GroupID: groupID,
+			Status:  types.GROUP_STATUS_FALLEN,
+		})
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -504,29 +499,11 @@ func (k Keeper) Confirm(
 
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount+1 == group.Size_ {
-		// Get members to check malicious
-		members, err := k.GetMembers(ctx, groupID)
-		if err != nil {
-			return nil, err
-		}
-
-		if !types.Members(members).HaveMalicious() {
-			// Update group status
-			group.Status = types.GROUP_STATUS_ACTIVE
-			k.SetGroup(ctx, group)
-
-			// Emit event round 3 success
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeRound3Success,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-				),
-			)
-		} else {
-			// Handle fallen group if someone in this group is malicious.
-			k.handleFallenGroup(ctx, group)
-		}
+		// Add the pending process group to the list of pending process groups to be processed at the endblock.
+		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
+			GroupID: groupID,
+			Status:  types.GROUP_STATUS_ROUND_3,
+		})
 	}
 
 	return &types.MsgConfirmResponse{}, nil
@@ -762,19 +739,4 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 		)
 	}
 	return nil
-}
-
-// handleFallenGroup updates the status of a group to "FALLEN" and triggers an event of the failure of the 3rd round in the given context.
-// A group may be marked as "FALLEN" when one or more members are found to be malicious during the group operation.
-func (k Keeper) handleFallenGroup(ctx sdk.Context, group types.Group) {
-	group.Status = types.GROUP_STATUS_FALLEN
-	k.SetGroup(ctx, group)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeRound3Failed,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
-			sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-		),
-	)
 }

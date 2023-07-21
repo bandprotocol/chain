@@ -355,8 +355,8 @@ func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(sdk.BigEndianToUint64(bz))
 }
 
-// ProcessExpiredSignings cleans up expired signings and removes them from the store.
-func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
+// HandleExpiredSignings cleans up expired signings and removes them from the store.
+func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 	// Get the current signing ID to start processing from
 	currentSigningID := k.GetLastExpiredSigningID(ctx) + 1
 
@@ -375,6 +375,8 @@ func (k Keeper) ProcessExpiredSignings(ctx sdk.Context) {
 
 		mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
 		pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
+
+		// Iterate through each member ID in the assigned members list.
 		for _, mid := range mids {
 			// Check if the member's partial signature is found in the list of partial signatures.
 			found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })

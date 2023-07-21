@@ -392,8 +392,8 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	blockHeight := int64(101)
 	ctx = ctx.WithBlockHeight(blockHeight)
 
-	// Process expired signings
-	k.ProcessExpiredSignings(ctx)
+	// Handle expired signings
+	k.HandleExpiredSignings(ctx)
 
 	// Assert that the last expired signing is updated correctly
 	gotSigning, err := k.GetSigning(ctx, signingID)

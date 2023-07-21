@@ -124,5 +124,11 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // BeginBlock processes ABCI begin block message for this tss module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {}
 
+// EndBlock processes ABCI end block message for this tss module (SDK AppModule interface).
+func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+	handleEndBlock(ctx, am.keeper)
+	return []abci.ValidatorUpdate{}
+}
+
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return 1 }

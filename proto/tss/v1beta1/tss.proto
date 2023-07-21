@@ -225,6 +225,21 @@ message ComplaintsWithStatus {
   repeated ComplaintWithStatus complaints_with_status = 2 [(gogoproto.nullable) = false];
 }
 
+// PendingProcessGroup represents a group that is pending in the DKG process.
+message PendingProcessGroup {
+  // group_id is the unique identifier of the group.
+  uint64 group_id = 1
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // status represents the current stage of the group in the DKG process.
+  GroupStatus status = 2;
+}
+
+// PendingProcessGroups is a collection of PendingProcessGroup messages.
+message PendingProcessGroups {
+  // pending_process_groups is the list of pending_process_group.
+  repeated PendingProcessGroup pending_process_groups = 1 [(gogoproto.nullable) = false];
+}
+
 // PartialSignature contains information about a member's partial signature.
 message PartialSignature {
   // member_id is the identifier of the member providing the partial signature.
