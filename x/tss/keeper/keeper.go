@@ -445,22 +445,22 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, pg types.PendingProcessGroup
 		// Get members to check malicious
 		members := k.MustGetMembers(ctx, group.GroupID)
 		if !types.Members(members).HaveMalicious() {
-			group.Status = types.GROUP_STATUS_FALLEN
-			k.SetGroup(ctx, group)
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeRound3Failed,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
-					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-				),
-			)
-		} else {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", pg.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
+				),
+			)
+		} else {
+			group.Status = types.GROUP_STATUS_FALLEN
+			k.SetGroup(ctx, group)
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeRound3Failed,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
 					sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 				),
 			)
