@@ -399,6 +399,68 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 	s.Require().Equal(groupID, lastExpiredGroupID)
 }
 
+func (s *KeeperTestSuite) TestGetSetPendingProcessGroups() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create pending process group
+	pendingProcessGroup := types.PendingProcessGroup{
+		GroupID: 1,
+		Status:  types.GROUP_STATUS_ACTIVE,
+	}
+
+	// Set the pending process group in the store
+	k.SetPendingProcessGroups(ctx, types.PendingProcessGroups{
+		PendingProcessGroups: []types.PendingProcessGroup{pendingProcessGroup},
+	})
+
+	got := k.GetPendingProcessGroups(ctx)
+
+	// Check if the retrieved pending process groups match the original sample
+	s.Require().Len(got, 1)
+	s.Require().Equal(pendingProcessGroup, got[0])
+}
+
+func (s *KeeperTestSuite) TestHandleProcessGroup() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	pg := types.PendingProcessGroup{GroupID: groupID, Status: types.GROUP_STATUS_ROUND_1}
+	member := types.Member{
+		MemberID:    memberID,
+		IsMalicious: false,
+	}
+	k.SetGroup(ctx, types.Group{
+		GroupID: groupID,
+	})
+	k.SetMember(ctx, groupID, member)
+
+	k.HandleProcessGroup(ctx, pg)
+	group := k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(types.GROUP_STATUS_ROUND_2, group.Status)
+
+	pg.Status = types.GROUP_STATUS_ROUND_2
+	k.HandleProcessGroup(ctx, pg)
+	group = k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(types.GROUP_STATUS_ROUND_3, group.Status)
+
+	pg.Status = types.GROUP_STATUS_FALLEN
+	k.HandleProcessGroup(ctx, pg)
+	group = k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
+	pg.Status = types.GROUP_STATUS_ROUND_3
+
+	pg.Status = types.GROUP_STATUS_ROUND_3
+	k.HandleProcessGroup(ctx, pg)
+	group = k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(types.GROUP_STATUS_ACTIVE, group.Status)
+
+	// if member is malicious
+	member.IsMalicious = true
+	k.SetMember(ctx, groupID, member)
+	k.HandleProcessGroup(ctx, pg)
+	group = k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

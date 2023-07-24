@@ -43,6 +43,9 @@ var (
 	// PendingProcessGroupsStoreKey is the key for storing pending process groups.
 	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
 
+	// PendingSigningsStoreKey is the key for storing pending process signings.
+	PendingSigningsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessSignings")...)
+
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
 

@@ -357,6 +357,29 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
 	s.Require().Equal(signingID, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetPendingSignings() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create signingIDs
+	signingIDs := []tss.SigningID{1, 2}
+
+	// Set the pending process signings in the store
+	k.SetPendingSignings(ctx, types.PendingProcessSignings{
+		SigningIDs: signingIDs,
+	})
+
+	// Retrieve the pending process signings from the store
+	got := k.GetPendingSignings(ctx)
+
+	// Check if the retrieved signing IDs match the original sample
+	s.Require().Len(got, len(signingIDs))
+
+	// Check each individual signing ID from the retrieved list against the original sample
+	for i, sid := range signingIDs {
+		s.Require().Equal(signingIDs[i], sid)
+	}
+}
+
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)

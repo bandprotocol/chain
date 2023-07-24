@@ -124,6 +124,8 @@ enum SigningStatus {
   SIGNING_STATUS_SUCCESS = 2;
   // SIGNING_STATUS_EXPIRED is the status of a signing that has expired in the protocol.
   SIGNING_STATUS_EXPIRED = 3;
+  // SIGNING_STATUS_FALLEN is the status of a signing that has fallen out of the protocol.
+  SIGNING_STATUS_FALLEN = 4;
 }
 
 // Member is a type representing a member of the group.
@@ -234,10 +236,19 @@ message PendingProcessGroup {
   GroupStatus status = 2;
 }
 
-// PendingProcessGroups is a collection of PendingProcessGroup messages.
+// PendingProcessGroups is a list of groups that are waiting to be processed.
 message PendingProcessGroups {
   // pending_process_groups is the list of pending_process_group.
   repeated PendingProcessGroup pending_process_groups = 1 [(gogoproto.nullable) = false];
+}
+
+// PendingProcessSignigns is a list of signings that are waiting to be processed.
+message PendingProcessSignings {
+  // signing_id is a list of signing IDs.
+  repeated uint64 signing_ids = 1 [
+    (gogoproto.customname) = "SigningIDs",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
 }
 
 // PartialSignature contains information about a member's partial signature.

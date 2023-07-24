@@ -627,7 +627,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 }
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -693,6 +693,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				})
 				s.Require().NoError(err)
 			}
+
+			// Execute the EndBlocker to process signings
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))

@@ -126,7 +126,7 @@ message QueryPendingGroupsRequest {
 // QueryPendingGroupsResponse is the response type for the Query/PendingGroups RPC method.
 message QueryPendingGroupsResponse {
   // pending_groups is a list of pending groups.
-  repeated uint64 pending_groups = 1 [(gogoproto.nullable) = false];
+  repeated uint64 pending_groups = 1;
 }
 
 // QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.

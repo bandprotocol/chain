@@ -651,32 +651,7 @@ func (k Keeper) SubmitSignature(
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
 	if sigCount == group.Threshold {
-		pzs := k.GetPartialSigs(ctx, req.SigningID)
-
-		sig, err := tss.CombineSignatures(pzs...)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrCombineSigsFailed, err.Error())
-		}
-
-		err = tss.VerifyGroupSigningSig(group.PubKey, signing.Message, sig)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrVerifyGroupSigningSigFailed, err.Error())
-		}
-
-		// Set signing with signature
-		signing.Signature = sig
-		// Set signing status
-		signing.Status = types.SIGNING_STATUS_SUCCESS
-		k.SetSigning(ctx, signing)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeSignSuccess,
-				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
-			),
-		)
+		k.AddPendingProcessSignings(ctx, req.SigningID)
 	}
 
 	ctx.EventManager().EmitEvent(
