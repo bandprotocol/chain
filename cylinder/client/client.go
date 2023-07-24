@@ -135,7 +135,7 @@ func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error)
 	queryClient := types.NewQueryClient(c.context)
 
 	sr, err := queryClient.Signing(context.Background(), &types.QuerySigningRequest{
-		Id: uint64(signingID),
+		SigningId: uint64(signingID),
 	})
 	if err != nil {
 		return nil, err
