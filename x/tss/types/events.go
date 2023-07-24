@@ -14,6 +14,7 @@ const (
 	EventTypeRequestSign     = "request_sign"
 	EventTypeSignSuccess     = "sign_success"
 	EventTypeSubmitSign      = "submit_sign"
+	EventTypeSigningFailed   = "signing_failed"
 	EventTypeActivate        = "activate"
 
 	AttributeKeyGroupID       = "group_id"
@@ -33,6 +34,7 @@ const (
 	AttributeKeyGroupPubKey   = "group_pub_key"
 	AttributeKeyOwnPubKeySig  = "own_pub_key_sig"
 	AttributeKeySigningID     = "signing_id"
+	AttributeKeyReason        = "reason"
 	AttributeKeyMessage       = "message"
 	AttributeKeyGroupPubNonce = "group_pub_nonce"
 	AttributeKeyPubNonce      = "pub_nonce"

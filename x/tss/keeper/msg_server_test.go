@@ -627,7 +627,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 }
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -694,6 +694,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				s.Require().NoError(err)
 			}
 
+			// Execute the EndBlocker to process signings
+			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
@@ -711,20 +714,9 @@ func (s *KeeperTestSuite) TestActivateReq() {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-					Address:  sdk.AccAddress(m.PubKey()).String(),
-					GroupIDs: []uint64{uint64(tc.Group.ID)},
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
-			}
-		})
-
-		s.Run(fmt.Sprintf("failed %s", tc.Name), func() {
-			for _, m := range tc.Group.Members {
-				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-					Address:  sdk.AccAddress(m.PubKey()).String(),
-					GroupIDs: []uint64{10000},
-				})
-				s.Require().Error(err)
 			}
 		})
 	}

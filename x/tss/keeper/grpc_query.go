@@ -3,12 +3,15 @@ package keeper
 import (
 	"context"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Querier struct {
@@ -36,20 +39,8 @@ func (k Querier) Group(goCtx context.Context, req *types.QueryGroupRequest) (*ty
 
 	var statuses []types.Status
 	for _, m := range members {
-		address, err := sdk.AccAddressFromBech32(m.Address)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
-		}
-
-		// Ignore error as status can be null if the group is not active
-		status, err := k.GetStatus(ctx, address, groupID)
-		if err != nil {
-			continue
-		}
-
+		address := sdk.MustAccAddressFromBech32(m.Address)
+		status := k.GetStatus(ctx, address)
 		statuses = append(statuses, status)
 	}
 
@@ -216,11 +207,16 @@ func (k Querier) PendingSignings(
 ) (*types.QueryPendingSigningsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, err.Error())
+	}
+
 	// Get pending signs.
-	pendingSigns := k.GetPendingSigns(ctx, req.Address)
+	pendingSignings := k.GetPendingSignings(ctx, address)
 
 	return &types.QueryPendingSigningsResponse{
-		PendingSignings: pendingSigns,
+		PendingSignings: pendingSignings,
 	}, nil
 }
 
@@ -230,7 +226,7 @@ func (k Querier) Signing(
 	req *types.QuerySigningRequest,
 ) (*types.QuerySigningResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	signingID := tss.SigningID(req.Id)
+	signingID := tss.SigningID(req.SigningId)
 
 	// Get signing and partial sigs using signingID
 	signing, err := k.GetSigning(ctx, signingID)
@@ -247,22 +243,62 @@ func (k Querier) Signing(
 }
 
 // Statuses function handles the request to get statuses of a given ID.
-func (k Querier) Statuses(
+func (k Querier) Status(
 	goCtx context.Context,
-	req *types.QueryStatusesRequest,
-) (*types.QueryStatusesResponse, error) {
+	req *types.QueryStatusRequest,
+) (*types.QueryStatusResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
-	accAddress, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
 	}
 
 	// Get all statuses of the address
-	statuses := k.GetStatuses(ctx, accAddress)
+	status := k.GetStatus(ctx, address)
+
+	return &types.QueryStatusResponse{
+		Status: status,
+	}, nil
+}
+
+// Statuses function handles the request to get statuses of a given ID.
+func (k Querier) Statuses(
+	goCtx context.Context,
+	req *types.QueryStatusesRequest,
+) (*types.QueryStatusesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	statusStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.StatusStoreKeyPrefix)
+
+	filteredStatuses, pageRes, err := query.GenericFilteredPaginate(
+		k.cdc,
+		statusStore,
+		req.Pagination,
+		func(key []byte, s *types.Status) (*types.Status, error) {
+			matchStatus := true
+
+			// Check if status is valids
+			if types.ValidMemberStatus(req.Status) {
+				matchStatus = s.Status == req.Status
+			}
+
+			if matchStatus {
+				return s, nil
+			}
+
+			return nil, nil
+		},
+		func() *types.Status {
+			return &types.Status{}
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
 	return &types.QueryStatusesResponse{
-		Statuses: statuses,
+		Statuses:   filteredStatuses,
+		Pagination: pageRes,
 	}, nil
 }

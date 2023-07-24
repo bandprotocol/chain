@@ -43,6 +43,9 @@ var (
 	// PendingProcessGroupsStoreKey is the key for storing pending process groups.
 	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
 
+	// PendingSigningsStoreKey is the key for storing pending process signings.
+	PendingSigningsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessSignings")...)
+
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
 
@@ -210,8 +213,4 @@ func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
 	return append(StatusStoreKeyPrefix, address...)
-}
-
-func StatusGroupStoreKey(address sdk.AccAddress, groupID tss.GroupID) []byte {
-	return append(StatusStoreKey(address), sdk.Uint64ToBigEndian(uint64(groupID))...)
 }

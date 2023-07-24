@@ -22,3 +22,14 @@ func DuplicateInArray(arr []string) bool {
 	}
 	return false
 }
+
+// ValidMemberStatus returns true if the member status is valid and false
+// otherwise.
+func ValidMemberStatus(status MemberStatus) bool {
+	if status == MEMBER_STATUS_ACTIVE ||
+		status == MEMBER_STATUS_INACTIVE ||
+		status == MEMBER_STATUS_JAIL {
+		return true
+	}
+	return false
+}

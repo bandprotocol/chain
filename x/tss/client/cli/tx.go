@@ -552,11 +552,11 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 // GetTxCmdActivate creates a CLI command for CLI command for Msg/Activate.
 func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activate [group_ids]",
+		Use:   "activate",
 		Args:  cobra.ExactArgs(3),
 		Short: "active status of the member in groups",
 		Example: fmt.Sprintf(
-			`%s tx tss activate [group_ids]`,
+			`%s tx tss activate`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -565,21 +565,8 @@ func GetTxCmdActivate() *cobra.Command {
 				return err
 			}
 
-			gidStrs := strings.Split(args[0], ",")
-
-			var gids []uint64
-			for _, gidStr := range gidStrs {
-				gid, err := strconv.ParseUint(gidStr, 10, 64)
-				if err != nil {
-					return err
-				}
-
-				gids = append(gids, gid)
-			}
-
 			msg := &types.MsgActivate{
-				GroupIDs: gids,
-				Address:  clientCtx.GetFromAddress().String(),
+				Address: clientCtx.GetFromAddress().String(),
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
