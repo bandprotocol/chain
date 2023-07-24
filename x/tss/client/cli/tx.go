@@ -553,7 +553,7 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "activate",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(0),
 		Short: "active status of the member in groups",
 		Example: fmt.Sprintf(
 			`%s tx tss activate`,
