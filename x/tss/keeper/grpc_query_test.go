@@ -22,6 +22,11 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
+
+	for _, m := range members {
+		k.SetActive(ctx, sdk.MustAccAddressFromBech32(m))
+	}
+
 	round1Info1 := types.Round1Info{
 		MemberID: memberID1,
 		CoefficientCommits: []tss.Point{
@@ -189,27 +194,27 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					Statuses: []types.Status{
 						{
 							Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Status:  types.MEMBER_STATUS_ACTIVE,
 							Since:   ctx.BlockTime(),
 						},
 						{
 							Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Status:  types.MEMBER_STATUS_ACTIVE,
 							Since:   ctx.BlockTime(),
 						},
 						{
 							Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Status:  types.MEMBER_STATUS_ACTIVE,
 							Since:   ctx.BlockTime(),
 						},
 						{
 							Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
-							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Status:  types.MEMBER_STATUS_ACTIVE,
 							Since:   ctx.BlockTime(),
 						},
 						{
 							Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Status:  types.MEMBER_STATUS_ACTIVE,
 							Since:   ctx.BlockTime(),
 						},
 					},

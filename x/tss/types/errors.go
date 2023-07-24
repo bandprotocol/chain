@@ -64,4 +64,5 @@ var (
 	ErrSigningExpired    = sdkerrors.Register(ModuleName, 41, "signing expired")
 	ErrTooSoonToActivate = sdkerrors.Register(ModuleName, 42, "too soon to activate")
 	ErrStatusNotFound    = sdkerrors.Register(ModuleName, 43, "status not found")
+	ErrStatusIsNotActive = sdkerrors.Register(ModuleName, 44, "status is not active")
 )
