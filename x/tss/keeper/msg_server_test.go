@@ -20,15 +20,23 @@ type TestCase struct {
 func (s *KeeperTestSuite) TestCreateGroupReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
+	members := []string{
+		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+	}
+
+	for _, m := range members {
+		msgSrvr.Activate(ctx, &types.MsgActivate{
+			Address: m,
+		})
+	}
+
 	s.Run("create group", func() {
 		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members: []string{
-				"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-				"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-				"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-				"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-				"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-			},
+			Members:   members,
 			Threshold: 3,
 			Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 		})

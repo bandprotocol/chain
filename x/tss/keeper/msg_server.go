@@ -38,6 +38,19 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 
 	// Set members
 	for i, m := range req.Members {
+		address, err := sdk.AccAddressFromBech32(m)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(
+				types.ErrInvalidAccAddressFormat,
+				"invalid account address: %s", err,
+			)
+		}
+
+		status := k.GetStatus(ctx, address)
+		if status.Status != types.MEMBER_STATUS_ACTIVE {
+			return nil, types.ErrStatusIsNotActive
+		}
+
 		// ID start from 1
 		k.SetMember(ctx, groupID, types.Member{
 			MemberID:    tss.MemberID(i + 1),
