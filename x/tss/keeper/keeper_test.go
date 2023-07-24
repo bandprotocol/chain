@@ -50,7 +50,14 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		// Initialize members
 		var members []string
 		for _, m := range tc.Group.Members {
-			members = append(members, sdk.AccAddress(m.PubKey()).String())
+			address := sdk.AccAddress(m.PubKey())
+			members = append(members, address.String())
+
+			s.app.TSSKeeper.SetStatus(ctx, types.Status{
+				Address: address.String(),
+				Status:  types.MEMBER_STATUS_ACTIVE,
+				Since:   ctx.BlockTime(),
+			})
 		}
 
 		// Create group

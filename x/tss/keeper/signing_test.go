@@ -144,13 +144,14 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	memberID := tss.MemberID(1)
-	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	address := sdk.MustAccAddressFromBech32(addressStr)
 
 	signing := types.Signing{
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Member:   address,
+				Member:   addressStr,
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
@@ -162,13 +163,10 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSigns(ctx, address)
-
-	// Update signing id
-	signing.SigningID = signingID
+	got := k.GetPendingSignings(ctx, address)
 
 	// Check if the returned signings are equal to the ones we set
-	s.Require().Equal(signing, got[0])
+	s.Require().Equal(uint64(signingID), got[0])
 }
 
 func (s *KeeperTestSuite) TestSetGetSigCount() {
@@ -357,19 +355,19 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {
 	s.Require().Equal(signingID, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetPendingSignings() {
+func (s *KeeperTestSuite) TestGetSetPendingProcessSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
 	// Create signingIDs
 	signingIDs := []tss.SigningID{1, 2}
 
 	// Set the pending process signings in the store
-	k.SetPendingSignings(ctx, types.PendingProcessSignings{
+	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{
 		SigningIDs: signingIDs,
 	})
 
 	// Retrieve the pending process signings from the store
-	got := k.GetPendingSignings(ctx)
+	got := k.GetPendingProcessSignings(ctx)
 
 	// Check if the retrieved signing IDs match the original sample
 	s.Require().Len(got, len(signingIDs))
@@ -393,11 +391,10 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	})
 
 	// Set status
-	k.SetStatus(ctx, accAddress, types.Status{
-		MemberID: memberID,
-		GroupID:  groupID,
-		IsActive: true,
-		Since:    ctx.BlockTime(),
+	k.SetStatus(ctx, types.Status{
+		Address: addressStr,
+		Status:  types.MEMBER_STATUS_ACTIVE,
+		Since:   ctx.BlockTime(),
 	})
 
 	// Create signing
@@ -423,10 +420,8 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-	gotStatus, err := k.GetStatus(ctx, accAddress, groupID)
-	s.Require().NoError(err)
-	s.Require().False(gotStatus.IsActive)
-	s.Require().False(gotStatus.IsActive)
+	gotStatus := k.GetStatus(ctx, accAddress)
+	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 	gotPZs := k.GetPartialSigs(ctx, signingID)

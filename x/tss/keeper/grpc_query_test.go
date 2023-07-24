@@ -188,34 +188,29 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					},
 					Statuses: []types.Status{
 						{
-							GroupID:  1,
-							MemberID: 1,
-							IsActive: true,
-							Since:    ctx.BlockTime(),
+							Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Since:   ctx.BlockTime(),
 						},
 						{
-							GroupID:  1,
-							MemberID: 2,
-							IsActive: true,
-							Since:    ctx.BlockTime(),
+							Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Since:   ctx.BlockTime(),
 						},
 						{
-							GroupID:  1,
-							MemberID: 3,
-							IsActive: true,
-							Since:    ctx.BlockTime(),
+							Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Since:   ctx.BlockTime(),
 						},
 						{
-							GroupID:  1,
-							MemberID: 4,
-							IsActive: true,
-							Since:    ctx.BlockTime(),
+							Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
+							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Since:   ctx.BlockTime(),
 						},
 						{
-							GroupID:  1,
-							MemberID: 5,
-							IsActive: true,
-							Since:    ctx.BlockTime(),
+							Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+							Status:  types.MEMBER_STATUS_UNSPECIFIED,
+							Since:   ctx.BlockTime(),
 						},
 					},
 					Round1Infos: []types.Round1Info{
@@ -573,7 +568,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			"invalid signing id",
 			func() {
 				req = types.QuerySigningRequest{
-					Id: 999,
+					SigningId: 999,
 				}
 			},
 			false,
@@ -586,7 +581,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			"success",
 			func() {
 				req = types.QuerySigningRequest{
-					Id: 1,
+					SigningId: 1,
 				}
 			},
 			true,
@@ -628,9 +623,7 @@ func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
 		{
 			"success",
 			func() {
-				req = types.QueryStatusesRequest{
-					Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				}
+				req = types.QueryStatusesRequest{}
 			},
 			true,
 			func(res *types.QueryStatusesResponse, err error) {

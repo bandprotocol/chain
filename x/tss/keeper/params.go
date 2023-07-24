@@ -15,6 +15,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.CreatingPeriod(ctx),
 		k.SigningPeriod(ctx),
 		k.InactivePenaltyDuration(ctx),
+		k.JailPenaltyDuration(ctx),
 	)
 }
 
@@ -50,5 +51,11 @@ func (k Keeper) SigningPeriod(ctx sdk.Context) (res int64) {
 // InactivePenaltyDuration returns the current InactivePenaltyDuration from the global param store
 func (k Keeper) InactivePenaltyDuration(ctx sdk.Context) (res time.Duration) {
 	k.paramSpace.Get(ctx, types.KeyInactivePenaltyDuration, &res)
+	return
+}
+
+// JailPenaltyDuration returns the current JailPenaltyDuration from the global param store
+func (k Keeper) JailPenaltyDuration(ctx sdk.Context) (res time.Duration) {
+	k.paramSpace.Get(ctx, types.KeyJailPenaltyDuration, &res)
 	return
 }

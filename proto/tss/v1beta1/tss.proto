@@ -141,20 +141,29 @@ message Member {
   bool is_malicious = 4;
 }
 
+// MemberStatus is an enumeration of the possible statuses of a member.
+enum MemberStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // MEMBER_STATUS_UNSPECIFIED is unknon status.
+  MEMBER_STATUS_UNSPECIFIED = 0;
+  // MEMBER_STATUS_ACTIVE is the active status.
+  MEMBER_STATUS_ACTIVE = 1;
+  // MEMBER_STATUS_INACTIVE is the inactive status.
+  MEMBER_STATUS_INACTIVE = 2;
+  // MEMBER_STATUS_JAIL is the status when member is jailed.
+  MEMBER_STATUS_JAIL = 3;
+}
+
 // Status maintains whether a member is an active member.
 message Status {
   option (gogoproto.equal) = true;
-  // group_id is the unique identifier of a group.
-  uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // member_id is the unique identifier of a member.
-  uint64 member_id = 2
-      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
-  // is_active is a boolean indicating active status of member.
-  // The member will be deactivated when they are unable to send signature before the signing expired.
-  bool is_active = 3;
-  // Since is a block timestamp when validator has been activated/deactivated
-  google.protobuf.Timestamp since = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  // address is the address of the member.
+  string address = 1;
+  // status represents the current status of the member
+  MemberStatus status = 2;
+  // Since is a block timestamp when a member has been activated/deactivated/jailed
+  google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

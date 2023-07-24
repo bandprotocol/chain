@@ -12,7 +12,8 @@ const (
 	DefaultMaxDESize                             = uint64(100)
 	DefaultCreatingPeriod                        = int64(100)
 	DefaultSigningPeriod                         = int64(100)
-	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10
+	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
+	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 	KeyCreatingPeriod          = []byte("CreatingPeriod")
 	KeySigningPeriod           = []byte("SigningPeriod")
 	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
+	KeyJailPenaltyDuration     = []byte("JailPenaltyDuration")
 )
 
 // ParamKeyTable the param key table for launch module
@@ -35,6 +37,7 @@ func NewParams(
 	creatingPeriod int64,
 	signingPeriod int64,
 	inactivePenaltyDuration time.Duration,
+	jailPenaltyDuration time.Duration,
 ) Params {
 	return Params{
 		MaxGroupSize:            maxGroupSize,
@@ -42,6 +45,7 @@ func NewParams(
 		CreatingPeriod:          creatingPeriod,
 		SigningPeriod:           signingPeriod,
 		InactivePenaltyDuration: inactivePenaltyDuration,
+		JailPenaltyDuration:     jailPenaltyDuration,
 	}
 }
 
@@ -53,6 +57,7 @@ func DefaultParams() Params {
 		CreatingPeriod:          DefaultCreatingPeriod,
 		SigningPeriod:           DefaultSigningPeriod,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
+		JailPenaltyDuration:     DefaultJailPenaltyDuration,
 	}
 }
 
@@ -76,6 +81,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			KeyInactivePenaltyDuration,
 			&p.InactivePenaltyDuration,
 			validateTimeDuration("inactive penalty duration"),
+		),
+		paramtypes.NewParamSetPair(
+			KeyJailPenaltyDuration,
+			&p.JailPenaltyDuration,
+			validateTimeDuration("jail penalty duration"),
 		),
 	}
 }

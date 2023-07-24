@@ -3,47 +3,63 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // SetActive sets the member status to active
-func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
-	status, err := k.GetStatus(ctx, address, groupID)
-	if err != nil {
-		return err
-	}
+func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
+	status := k.GetStatus(ctx, address)
 
-	if status.IsActive {
+	if status.Status == types.MEMBER_STATUS_ACTIVE {
 		return nil
+	} else if status.Status == types.MEMBER_STATUS_INACTIVE {
+		penaltyDuration := k.InactivePenaltyDuration(ctx)
+		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
+			return types.ErrTooSoonToActivate
+		}
+	} else if status.Status == types.MEMBER_STATUS_JAIL {
+		penaltyDuration := k.JailPenaltyDuration(ctx)
+		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
+			return types.ErrTooSoonToActivate
+		}
 	}
 
-	penaltyDuration := k.InactivePenaltyDuration(ctx)
-	if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
-		return types.ErrTooSoonToActivate
-	}
-
-	status.IsActive = true
+	status.Status = types.MEMBER_STATUS_ACTIVE
+	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, address, status)
+	k.SetStatus(ctx, status)
 
 	return nil
 }
 
 // SetInActive sets the member status to inactive
-func (k Keeper) SetInActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
-	status, err := k.GetStatus(ctx, address, groupID)
-	if err != nil {
-		return err
+func (k Keeper) SetInActive(ctx sdk.Context, address sdk.AccAddress) {
+	status := k.GetStatus(ctx, address)
+
+	if status.Status == types.MEMBER_STATUS_INACTIVE {
+		return
 	}
 
-	if !status.IsActive {
-		return nil
-	}
-
-	status.IsActive = false
+	status.Status = types.MEMBER_STATUS_INACTIVE
+	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, address, status)
+	k.SetStatus(ctx, status)
 
-	return nil
+	return
+}
+
+// SetJail sets the member status to jail
+func (k Keeper) SetJail(ctx sdk.Context, address sdk.AccAddress) {
+	status := k.GetStatus(ctx, address)
+
+	if status.Status == types.MEMBER_STATUS_JAIL {
+		return
+	}
+
+	status.Status = types.MEMBER_STATUS_JAIL
+	status.Address = address.String()
+	status.Since = ctx.BlockTime()
+	k.SetStatus(ctx, status)
+
+	return
 }

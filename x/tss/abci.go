@@ -10,7 +10,7 @@ import (
 // handleEndBlock handles tasks at the end of a block.
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Get the list of pending process Signings.
-	sids := k.GetPendingSignings(ctx)
+	sids := k.GetPendingProcessSignings(ctx)
 	for _, sid := range sids {
 		// Handle the processing for the current pending process signing.
 		k.HandleProcessSigning(ctx, sid)

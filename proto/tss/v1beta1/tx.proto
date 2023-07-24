@@ -140,10 +140,8 @@ message MsgSubmitSignatureResponse {}
 
 // MsgActivate is a message used to activate the status of the group's member.
 message MsgActivate {
-  // group_ids is the list of groups.
-  repeated uint64 group_ids = 1 [(gogoproto.customname) = "GroupIDs"];
   // member is the signer of this signing message, who must be a member of the group.
-  string address = 2;
+  string address = 1;
 }
 
 message MsgActivateResponse {}

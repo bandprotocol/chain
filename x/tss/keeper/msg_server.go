@@ -45,22 +45,6 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 			PubKey:      nil,
 			IsMalicious: false,
 		})
-
-		// TODO: move to do after group is active
-		address, err := sdk.AccAddressFromBech32(m)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
-		}
-
-		k.SetStatus(ctx, address, types.Status{
-			MemberID: tss.MemberID(i + 1),
-			GroupID:  groupID,
-			IsActive: true,
-			Since:    ctx.BlockTime(),
-		})
 	}
 
 	// Use LastCommitHash and groupID to hash to dkgContext
@@ -673,23 +657,20 @@ func (k Keeper) SubmitSignature(
 func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	for _, gid := range msg.GroupIDs {
-		address, err := sdk.AccAddressFromBech32(msg.Address)
-		if err != nil {
-			return nil, err
-		}
-
-		err = k.SetActive(ctx, address, tss.GroupID(gid))
-		if err != nil {
-			return nil, err
-		}
-
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeActivate,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
-			sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
-		))
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
 	}
+
+	err = k.SetActive(ctx, address)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActivate,
+		sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
+	))
 
 	return &types.MsgActivateResponse{}, nil
 }

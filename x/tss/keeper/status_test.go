@@ -11,17 +11,10 @@ func (s *KeeperTestSuite) TestSetInActive() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
-	// Success case
-	err := k.SetInActive(ctx, address, 1)
-	s.Require().NoError(err)
+	k.SetInActive(ctx, address)
 
-	status, err := k.GetStatus(ctx, address, 1)
-	s.Require().NoError(err)
-	s.Require().Equal(false, status.IsActive)
-
-	// Failed case - no member
-	err = k.SetInActive(ctx, address, 300)
-	s.Require().Error(err)
+	status := k.GetStatus(ctx, address)
+	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
@@ -30,21 +23,19 @@ func (s *KeeperTestSuite) TestSetActive() {
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case
-	err := k.SetActive(ctx, address, 1)
+	err := k.SetActive(ctx, address)
 	s.Require().NoError(err)
 
-	status, err := k.GetStatus(ctx, address, 1)
-	s.Require().NoError(err)
-	s.Require().Equal(true, status.IsActive)
+	status := k.GetStatus(ctx, address)
+	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
 
 	// Failed case - penalty
-	err = k.SetInActive(ctx, address, 1)
-	s.Require().NoError(err)
+	k.SetInActive(ctx, address)
 
-	err = k.SetActive(ctx, address, 1)
+	err = k.SetActive(ctx, address)
 	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
 
 	// Failed case - no member
-	err = k.SetActive(ctx, address, 300)
+	err = k.SetActive(ctx, address)
 	s.Require().Error(err)
 }

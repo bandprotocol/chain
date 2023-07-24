@@ -41,11 +41,16 @@ service Query {
 
   // Signing queries signing details.
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
-    option (google.api.http).get = "/tss/v1beta1/signings/{id}";
+    option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
 
-  // Statuses queries all statuses of the address.
+  // Statuses queries all statuses.
   rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
+    option (google.api.http).get = "/tss/v1beta1/statuses";
+  }
+
+  // Status queries the status of the address.
+  rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
     option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
   }
 }
@@ -137,14 +142,14 @@ message QueryPendingSigningsRequest {
 
 // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
 message QueryPendingSigningsResponse {
-  // pending_signings is a list of signing requests that are pending.
-  repeated Signing pending_signings = 1 [(gogoproto.nullable) = false];
+  // pending_signings is a list of pending signings.
+  repeated uint64 pending_signings = 1;
 }
 
 // QuerySigningRequest is the request type for the Query/Signing RPC method.
 message QuerySigningRequest {
   // id is the ID of the signing request.
-  uint64 id = 1;
+  uint64 signing_id = 1;
 }
 
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
@@ -157,12 +162,27 @@ message QuerySigningResponse {
 
 // QueryStatusesRequest is the request type for the Query/Statuses RPC method.
 message QueryStatusesRequest {
-  // address is the member address.
-  string address = 1;
+  MemberStatus status = 1;
+  // pagination defines pagination settings for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryStatusesResponse is the response type for the Query/Statuses RPC method.
 message QueryStatusesResponse {
   // statuses is the statuses request.
-  repeated Status statuses = 1 [(gogoproto.nullable) = false];
+  repeated Status statuses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryStatusRequest is the request type for the Query/Status RPC method.
+message QueryStatusRequest {
+  // address is the member address.
+  string address = 1;
+}
+
+// QueryStatusResponse is the response type for the Query/Status RPC method.
+message QueryStatusResponse {
+  // status is the status request.
+  Status status = 1 [(gogoproto.nullable) = false];
 }
