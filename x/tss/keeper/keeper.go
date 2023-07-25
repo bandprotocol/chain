@@ -8,6 +8,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -21,6 +22,8 @@ type Keeper struct {
 	paramSpace        paramtypes.Subspace
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
+	authKeeper        types.AccountKeeper
+	bankKeeper        types.BankKeeper
 }
 
 func NewKeeper(
@@ -29,7 +32,14 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
+	authKeeper types.AccountKeeper,
+	bankKeeper types.BankKeeper,
 ) Keeper {
+	// ensure TSS module account is set
+	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
@@ -41,7 +51,14 @@ func NewKeeper(
 		paramSpace:        paramSpace,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
+		authKeeper:        authKeeper,
+		bankKeeper:        bankKeeper,
 	}
+}
+
+// GetTSSAccount returns the TSS ModuleAccount
+func (k Keeper) GetTSSAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // SetGroupCount sets the number of group count to the given value.

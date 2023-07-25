@@ -187,7 +187,8 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		// Request sign by tss module
 		var sid tss.SigningID
 		if req.GroupID != tss.GroupID(0) {
-			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata)
+			// TODO: Use real fee payer and limit
+			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata, nil, sdk.NewCoins())
 			if err != nil {
 				ctx.EventManager().EmitEvent(sdk.NewEvent(
 					types.EventTypeHandleRequestSignFail,

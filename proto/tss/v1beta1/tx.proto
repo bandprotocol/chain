@@ -4,6 +4,7 @@ package tss.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 import "tss/v1beta1/tss.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
@@ -35,8 +36,11 @@ message MsgCreateGroup {
   repeated string members = 1;
   // threshold is a minimum number of members required to produce a signature.
   uint64 threshold = 2;
+  // fee is the tokens that will be paid per signing.
+  repeated cosmos.base.v1beta1.Coin fee = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // sender is the signer of this message.
-  string sender = 3;
+  string sender = 4;
 }
 
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.
@@ -114,8 +118,11 @@ message MsgRequestSignature {
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // message is the data that needs to be signed.
   bytes message = 2;
+  // feeLimit is the maximum tokens that will be paid for this request.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // sender is the requester of the signing process.
-  string sender = 3;
+  string sender = 4;
 }
 
 message MsgRequestSignatureResponse {}
