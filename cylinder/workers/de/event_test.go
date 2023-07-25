@@ -23,7 +23,7 @@ func TestParseSubmitSignEvent(t *testing.T) {
 			"success",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeSubmitSign,
+					types.EventTypeSubmitSignature,
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
@@ -51,7 +51,7 @@ func TestParseSubmitSignEvent(t *testing.T) {
 			"invalid value",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeSubmitSign,
+					types.EventTypeSubmitSignature,
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),

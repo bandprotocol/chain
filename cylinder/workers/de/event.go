@@ -15,12 +15,12 @@ type Event struct {
 // ParseSubmitSignEvent parses the submit_sign event from the given events.
 // It extracts the public D and E from the log and returns the parsed Event or an error if parsing fails.
 func ParseSubmitSignEvent(events sdk.StringEvents) (*Event, error) {
-	pubD, err := event.GetEventValueBytes(events, types.EventTypeSubmitSign, types.AttributeKeyPubD)
+	pubD, err := event.GetEventValueBytes(events, types.EventTypeSubmitSignature, types.AttributeKeyPubD)
 	if err != nil {
 		return nil, err
 	}
 
-	pubE, err := event.GetEventValueBytes(events, types.EventTypeSubmitSign, types.AttributeKeyPubE)
+	pubE, err := event.GetEventValueBytes(events, types.EventTypeSubmitSignature, types.AttributeKeyPubE)
 	if err != nil {
 		return nil, err
 	}
