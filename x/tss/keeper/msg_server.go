@@ -33,6 +33,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 		Size_:     groupSize,
 		Threshold: req.Threshold,
 		PubKey:    nil,
+		Fee:       req.Fee,
 		Status:    types.GROUP_STATUS_ROUND_1,
 	})
 
@@ -536,8 +537,13 @@ func (k Keeper) RequestSignature(
 ) (*types.MsgRequestSignatureResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
+	if err != nil {
+		return nil, err
+	}
+
 	// Handle request sign
-	_, err := k.HandleRequestSign(ctx, req.GroupID, req.Message)
+	_, err = k.HandleRequestSign(ctx, req.GroupID, req.Message, feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -576,6 +582,13 @@ func (k Keeper) SubmitSignature(
 		)
 	}
 
+	// Check signing is still waiting for signature
+	if signing.Status != types.SIGNING_STATUS_WAITING {
+		return nil, sdkerrors.Wrapf(
+			types.ErrSigningAlreadySuccess, "signing ID: %d is not in waiting state", req.SigningID,
+		)
+	}
+
 	// Check member is already signed
 	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
 	if err == nil {
@@ -584,13 +597,6 @@ func (k Keeper) SubmitSignature(
 			"member ID: %d is already signed on signing ID: %d",
 			req.MemberID,
 			req.SigningID,
-		)
-	}
-
-	// Check signing already have signature
-	if signing.Signature != nil {
-		return nil, sdkerrors.Wrapf(
-			types.ErrSigningAlreadySuccess, "signing ID: %d is already have signature", req.SigningID,
 		)
 	}
 
@@ -653,7 +659,7 @@ func (k Keeper) SubmitSignature(
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeSubmitSign,
+			types.EventTypeSubmitSignature,
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),

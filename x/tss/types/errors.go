@@ -65,4 +65,5 @@ var (
 	ErrTooSoonToActivate = sdkerrors.Register(ModuleName, 42, "too soon to activate")
 	ErrStatusNotFound    = sdkerrors.Register(ModuleName, 43, "status not found")
 	ErrStatusIsNotActive = sdkerrors.Register(ModuleName, 44, "status is not active")
+	ErrNotEnoughFee      = sdkerrors.Register(ModuleName, 45, "not enough fee")
 )
