@@ -494,8 +494,11 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 
 	for _, am := range signing.AssignedMembers {
 		address := sdk.MustAccAddressFromBech32(am.Member)
-		// TODO: handle error properly (Must not error)
-		_ = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
+		// Error is not possible
+		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -528,8 +531,12 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 func (k Keeper) refundFee(ctx sdk.Context, signing types.Signing) {
 	if !signing.Fee.IsZero() {
 		address := sdk.MustAccAddressFromBech32(signing.Requester)
-		// TODO: handle it properly (Must not error)
 		feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-		_ = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+
+		// Error is not possible
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
