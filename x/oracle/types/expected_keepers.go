@@ -87,6 +87,12 @@ type RollingseedKeeper interface {
 
 // TSSKeeper defines the expected tss keeper.
 type TSSKeeper interface {
-	HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error)
+	HandleRequestSign(
+		ctx sdk.Context,
+		groupID tss.GroupID,
+		msg []byte,
+		feePayer sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (tss.SigningID, error)
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
 }

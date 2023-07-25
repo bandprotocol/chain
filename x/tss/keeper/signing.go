@@ -246,7 +246,13 @@ func (k Keeper) GetRandomAssigningParticipants(
 
 // HandleRequestSign initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []byte) (tss.SigningID, error) {
+func (k Keeper) HandleRequestSign(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	msg []byte,
+	feePayer sdk.AccAddress,
+	feeLimit sdk.Coins,
+) (tss.SigningID, error) {
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
@@ -256,6 +262,29 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
 		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// If found any coins that exceed limit then return error
+	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
+	for _, fc := range feeCoins {
+		limitAmt := feeLimit.AmountOf(fc.Denom)
+		if fc.Amount.GT(limitAmt) {
+			return 0, sdkerrors.Wrapf(
+				types.ErrNotEnoughFee,
+				"require: %s, limit: %s%s",
+				fc.String(),
+				limitAmt.String(),
+				fc.Denom,
+			)
+		}
+	}
+
+	// Send coin to module account
+	if !group.Fee.IsZero() {
+		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	// Get active members
@@ -322,6 +351,8 @@ func (k Keeper) HandleRequestSign(ctx sdk.Context, groupID tss.GroupID, msg []by
 		GroupPubNonce:   groupPubNonce,
 		AssignedMembers: assignedMembers,
 		Signature:       nil,
+		Fee:             group.Fee,
+		Requester:       feePayer.String(),
 		Status:          types.SIGNING_STATUS_WAITING,
 	}
 
@@ -406,36 +437,37 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 			break
 		}
 
-		mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
-		pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
-
-		// Iterate through each member ID in the assigned members list.
-		for _, mid := range mids {
-			// Check if the member's partial signature is found in the list of partial signatures.
-			found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
-
-			// If the partial signature is not found, deactivate the member
-			if !found {
-				member := k.MustGetMember(ctx, signing.GroupID, mid)
-				accAddress := sdk.MustAccAddressFromBech32(member.Address)
-				k.SetInActive(ctx, accAddress)
-			}
-		}
-
 		// Set the signing status to expired
-		if signing.Status != types.SIGNING_STATUS_FALLEN {
+		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
+			k.refundFee(ctx, signing)
+
+			mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+			pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
+			// Iterate through each member ID in the assigned members list.
+			for _, mid := range mids {
+				// Check if the member's partial signature is found in the list of partial signatures.
+				found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
+
+				// If the partial signature is not found, deactivate the member
+				if !found {
+					member := k.MustGetMember(ctx, signing.GroupID, mid)
+					accAddress := sdk.MustAccAddressFromBech32(member.Address)
+					k.SetInActive(ctx, accAddress)
+				}
+			}
+
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
-
-			// Remove assigned members from the signing
-			k.DeleteAssignedMembers(ctx, signing.SigningID)
-
-			// Remove all partial signatures from the store
-			k.DeletePartialSigs(ctx, signing.SigningID)
-
-			// Set the last expired signing ID to the current signing ID
-			k.SetLastExpiredSigningID(ctx, currentSigningID)
 		}
+
+		// Remove assigned members from the signing
+		k.DeleteAssignedMembers(ctx, signing.SigningID)
+
+		// Remove all partial signatures from the store
+		k.DeletePartialSigs(ctx, signing.SigningID)
+
+		// Set the last expired signing ID to the current signing ID
+		k.SetLastExpiredSigningID(ctx, currentSigningID)
 	}
 }
 
@@ -460,9 +492,18 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing.Status = types.SIGNING_STATUS_SUCCESS
 	k.SetSigning(ctx, signing)
 
+	for _, am := range signing.AssignedMembers {
+		address := sdk.MustAccAddressFromBech32(am.Member)
+		// Error is not possible
+		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeSignSuccess,
+			types.EventTypeSigningSuccess,
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
@@ -475,6 +516,8 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	signing.Status = types.SIGNING_STATUS_FALLEN
 	k.SetSigning(ctx, signing)
 
+	k.refundFee(ctx, signing)
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSigningFailed,
@@ -483,4 +526,17 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
 	)
+}
+
+func (k Keeper) refundFee(ctx sdk.Context, signing types.Signing) {
+	if !signing.Fee.IsZero() {
+		address := sdk.MustAccAddressFromBech32(signing.Requester)
+		feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
+
+		// Error is not possible
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

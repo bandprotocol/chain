@@ -395,7 +395,7 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 	groupID := k.CreateNewGroup(ctx, types.Group{})
 
 	// Set the current block height
-	blockHeight := int64(101)
+	blockHeight := int64(30001)
 	ctx = ctx.WithBlockHeight(blockHeight)
 
 	// Handle expired groups

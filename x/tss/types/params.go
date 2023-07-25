@@ -10,7 +10,7 @@ import (
 const (
 	DefaultMaxGroupSize                          = uint64(20)
 	DefaultMaxDESize                             = uint64(100)
-	DefaultCreatingPeriod                        = int64(100)
+	DefaultCreatingPeriod                        = int64(30000)
 	DefaultSigningPeriod                         = int64(100)
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days

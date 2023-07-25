@@ -20,6 +20,7 @@ import (
 
 const (
 	flagExpiration = "expiration"
+	flagFeeLimit   = "fee-limit"
 )
 
 // GetTxCmdTxCmd returns a root CLI command handler for all x/tss transaction commands.
@@ -151,8 +152,8 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 // GetTxCmdCreateGroup creates a CLI command for CLI command for Msg/CreateGroup.
 func GetTxCmdCreateGroup() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-group [member1,member2,...] [threshold]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "create-group [member1,member2,...] [threshold] [fee]",
+		Args:  cobra.ExactArgs(3),
 		Short: "Make a new group for tss module",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Make a new group for signing tx in tss module.
@@ -174,9 +175,15 @@ $ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43j
 				return err
 			}
 
+			fee, err := sdk.ParseCoinsNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
 			msg := &types.MsgCreateGroup{
 				Members:   members,
 				Threshold: threshold,
+				Fee:       fee,
 				Sender:    clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
@@ -489,16 +496,29 @@ func GetTxCmdRequest() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgRequestSignature{
-				GroupID: tss.GroupID(groupID),
-				Message: data,
-				Sender:  clientCtx.GetFromAddress().String(),
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
 			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgRequestSignature{
+				GroupID:  tss.GroupID(groupID),
+				Message:  data,
+				FeeLimit: feeLimit,
+				Sender:   clientCtx.GetFromAddress().String(),
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
 
 	return cmd
 }

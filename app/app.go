@@ -180,6 +180,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		tsstypes.ModuleName:            nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -455,6 +456,8 @@ func NewBandApp(
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
 	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 

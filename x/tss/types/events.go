@@ -12,8 +12,8 @@ const (
 	EventTypeRound3Success   = "round3_success"
 	EventTypeRound3Failed    = "round3_failed"
 	EventTypeRequestSign     = "request_sign"
-	EventTypeSignSuccess     = "sign_success"
-	EventTypeSubmitSign      = "submit_sign"
+	EventTypeSigningSuccess  = "signing_success"
+	EventTypeSubmitSignature = "submit_signature"
 	EventTypeSigningFailed   = "signing_failed"
 	EventTypeActivate        = "activate"
 
