@@ -10,10 +10,10 @@ import (
 // handleEndBlock handles tasks at the end of a block.
 func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	// Get the list of pending process groups.
-	pgs := k.GetPendingProcessGroups(ctx)
-	for _, pg := range pgs {
+	gids := k.GetPendingProcessGroups(ctx)
+	for _, gid := range gids {
 		// Handle the processing for the current pending process group.
-		k.HandleProcessGroup(ctx, pg)
+		k.HandleProcessGroup(ctx, gid)
 	}
 
 	// After processing all pending process groups, set the list of pending process groups to an empty list.

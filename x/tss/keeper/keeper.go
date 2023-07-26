@@ -317,7 +317,7 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		}
 
 		// Check group is not active
-		if group.Status != types.GROUP_STATUS_ACTIVE {
+		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)
