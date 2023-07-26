@@ -2,6 +2,7 @@ package tss
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -136,8 +137,32 @@ func HashBindingFactor(mid MemberID, data []byte, commitment []byte) (Scalar, er
 
 // H8(m)
 // HashChallenge computes a hash to generate challenge of signing a signature and returns it as a scalar.
-func HashChallenge(groupPubNonce Point, rawGroupPubKey Point, data []byte) (Scalar, error) {
-	scalar, err := NewScalar(Hash([]byte(ContextString), []byte("challenge"), groupPubNonce, rawGroupPubKey, data))
+func HashChallenge(groupPubNonce, rawGroupPubKey Point, data []byte) (Scalar, error) {
+	r, err := secp256k1.ParsePubKey(groupPubNonce)
+	if err != nil {
+		return nil, NewError(ErrParseError, err.Error())
+	}
+
+	y, err := secp256k1.ParsePubKey(rawGroupPubKey)
+	if err != nil {
+		return nil, NewError(ErrParseError, err.Error())
+	}
+
+	parity := uint8(rawGroupPubKey[0])
+	if parity != 2 && parity != 3 {
+		return nil, NewError(ErrInvalidPubkeyFormat, "hash challenge")
+	}
+
+	scalar, err := NewScalar(Hash(
+		[]byte(ContextString),
+		[]byte{0},
+		[]byte("challenge"),
+		[]byte{0},
+		Hash(r.X().Bytes(), r.Y().Bytes())[12:],
+		[]byte{parity + 25},
+		y.X().Bytes(),
+		Hash(data),
+	))
 	if err != nil {
 		return nil, NewError(ErrNotInOrder, "hash challenge")
 	}
