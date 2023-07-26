@@ -83,11 +83,13 @@ func (suite *TSSTestSuite) TestHashBindingFactor() {
 
 func (suite *TSSTestSuite) TestHashChallenge() {
 	// Hash
-	hash, err := tss.HashChallenge([]byte("groupPubNonce"), []byte("rawGroupPubKey"), []byte("data"))
+	r, _ := hex.DecodeString("028438d0c62660fa061c49e65b5f5b613a7334776f2486c4e58e2b52e36ea6a783")
+	y, _ := hex.DecodeString("026f544da336a6f74af8f3dea80226ccab1cae265362ebee7546530797e3d565d2")
+	hash, err := tss.HashChallenge(r, y, []byte("data"))
 
 	// Ensure the hash matches the expected value.
 	suite.Require().Nil(err)
-	suite.Require().Equal("9ba0aae4530a4878a6950434e41114aa5a1319c1dc5e14cc9a55a29935fa20c6", hex.EncodeToString(hash))
+	suite.Require().Equal("8381f0fe6ea8135c3f71866adb24b64639069ac0556603f7a9f80ab4fceef76a", hex.EncodeToString(hash))
 }
 
 func (suite *TSSTestSuite) TestHashNonce() {

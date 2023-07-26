@@ -22,6 +22,7 @@ var (
 	ErrValidSecretShare      = ErrorKind("valid secret share")
 	ErrInvalidSignature      = ErrorKind("invalid signature")
 	ErrNotInOrder            = ErrorKind("not in group order")
+	ErrInvalidPubkeyFormat   = ErrorKind("invalid pubkey format")
 	ErrRandomError           = ErrorKind("random error")
 )
 
