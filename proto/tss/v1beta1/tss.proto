@@ -245,19 +245,11 @@ message ComplaintsWithStatus {
   repeated ComplaintWithStatus complaints_with_status = 2 [(gogoproto.nullable) = false];
 }
 
-// PendingProcessGroup represents a group that is pending in the DKG process.
-message PendingProcessGroup {
-  // group_id is the unique identifier of the group.
-  uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // status represents the current stage of the group in the DKG process.
-  GroupStatus status = 2;
-}
-
 // PendingProcessGroups is a list of groups that are waiting to be processed.
 message PendingProcessGroups {
-  // pending_process_groups is the list of pending_process_group.
-  repeated PendingProcessGroup pending_process_groups = 1 [(gogoproto.nullable) = false];
+  // signing_id is a list of group IDs.
+  repeated uint64 group_ids = 1
+      [(gogoproto.customname) = "GroupIDs", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
 }
 
 // PendingProcessSignigns is a list of signings that are waiting to be processed.

@@ -100,11 +100,6 @@ func (k Keeper) SubmitDKGRound1(
 		return nil, err
 	}
 
-	// Check group expired
-	if group.Status == types.GROUP_STATUS_EXPIRED {
-		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
-	}
-
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
 		return nil, sdkerrors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
@@ -188,10 +183,7 @@ func (k Keeper) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
-			GroupID: groupID,
-			Status:  types.GROUP_STATUS_ROUND_1,
-		})
+		k.AddPendingProcessGroups(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
@@ -213,11 +205,6 @@ func (k Keeper) SubmitDKGRound2(
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
-	}
-
-	// Check group expired
-	if group.Status == types.GROUP_STATUS_EXPIRED {
-		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
 	}
 
 	// Check round status
@@ -286,10 +273,7 @@ func (k Keeper) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
-			GroupID: groupID,
-			Status:  types.GROUP_STATUS_ROUND_2,
-		})
+		k.AddPendingProcessGroups(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
@@ -307,11 +291,6 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
-	}
-
-	// Check group expired
-	if group.Status == types.GROUP_STATUS_EXPIRED {
-		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
 	}
 
 	// Check round status
@@ -410,10 +389,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
-			GroupID: groupID,
-			Status:  types.GROUP_STATUS_FALLEN,
-		})
+		k.AddPendingProcessGroups(ctx, groupID)
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -435,11 +411,6 @@ func (k Keeper) Confirm(
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
-	}
-
-	// Check group expired
-	if group.Status == types.GROUP_STATUS_EXPIRED {
-		return nil, sdkerrors.Wrap(types.ErrGroupExpired, "group is already expired")
 	}
 
 	// Check round status
@@ -498,10 +469,7 @@ func (k Keeper) Confirm(
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount+1 == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, types.PendingProcessGroup{
-			GroupID: groupID,
-			Status:  types.GROUP_STATUS_ROUND_3,
-		})
+		k.AddPendingProcessGroups(ctx, groupID)
 	}
 
 	return &types.MsgConfirmResponse{}, nil
