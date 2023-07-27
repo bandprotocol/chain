@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
@@ -19,10 +20,10 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app     *testapp.TestingApp
-	ctx     sdk.Context
-	querier keeper.Querier
-	msgSrvr types.MsgServer
+	app         *testapp.TestingApp
+	ctx         sdk.Context
+	queryClient types.QueryClient
+	msgSrvr     types.MsgServer
 }
 
 var (
@@ -36,10 +37,13 @@ func (s *KeeperTestSuite) SetupTest() {
 	app, ctx, _ := testapp.CreateTestInput(false)
 	s.app = app
 	s.ctx = ctx
-	s.querier = keeper.Querier{
-		app.TSSKeeper,
-	}
-	s.msgSrvr = app.TSSKeeper
+
+	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.TSSKeeper))
+	queryClient := types.NewQueryClient(queryHelper)
+
+	s.queryClient = queryClient
+	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSKeeper)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
@@ -217,7 +221,7 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 		s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
 	}
 
-	isGrantee := k.IsGrantee(ctx, granter, grantee)
+	isGrantee := k.CheckIsGrantee(ctx, granter, grantee)
 	s.Require().True(isGrantee)
 }
 

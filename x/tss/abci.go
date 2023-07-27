@@ -8,7 +8,7 @@ import (
 )
 
 // handleEndBlock handles tasks at the end of a block.
-func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
+func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// Get the list of pending process groups.
 	gids := k.GetPendingProcessGroups(ctx)
 	for _, gid := range gids {

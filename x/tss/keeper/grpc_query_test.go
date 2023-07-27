@@ -12,7 +12,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
+	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.queryClient, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -256,7 +256,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryMembers() {
-	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
+	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	members := []types.Member{
 		{
 			MemberID:    1,
@@ -323,7 +323,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
-	ctx, q, authzKeeper := s.ctx, s.querier, s.app.AuthzKeeper
+	ctx, q, authzKeeper := s.ctx, s.queryClient, s.app.AuthzKeeper
 	expTime := time.Unix(0, 0)
 
 	// Init grantee address
@@ -409,7 +409,7 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryDE() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryDERequest
 	testCases := []struct {
@@ -451,7 +451,7 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingGroupsRequest
 	testCases := []struct {
@@ -493,7 +493,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingSigningsRequest
 	testCases := []struct {
@@ -535,7 +535,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
-	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
+	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
 	signing := types.Signing{
 		SigningID: signingID,
@@ -616,7 +616,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryStatusesRequest
 	testCases := []struct {

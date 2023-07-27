@@ -8,7 +8,7 @@ import (
 )
 
 // InitGenesis performs genesis initialization for the tss module.
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	k.SetParams(ctx, data.Params)
 	k.SetGroupCount(ctx, data.GroupCount)
 	k.SetSigningCount(ctx, data.SigningCount)
@@ -24,7 +24,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:          k.GetParams(ctx),
 		GroupCount:      k.GetGroupCount(ctx),

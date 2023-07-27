@@ -13,12 +13,25 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-var _ types.MsgServer = Keeper{}
+type msgServer struct {
+	*Keeper
+}
+
+// NewMsgServerImpl returns an implementation of the MsgServer interface
+// for the provided Keeper.
+func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
+	return &msgServer{Keeper: keeper}
+}
+
+var _ types.MsgServer = msgServer{}
 
 // CreateGroup initializes a new group. It validates the group size, creates a new group,
 // sets group members, hashes groupID and LastCommitHash to form the DKGContext, and emits
 // an event for group creation.
-func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*types.MsgCreateGroupResponse, error) {
+func (k msgServer) CreateGroup(
+	goCtx context.Context,
+	req *types.MsgCreateGroup,
+) (*types.MsgCreateGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Validate group size
@@ -86,7 +99,7 @@ func (k Keeper) CreateGroup(goCtx context.Context, req *types.MsgCreateGroup) (*
 // signature, and A0 signature for a group's round 1. If all checks pass, it updates the
 // accumulated commits, stores the Round1Info, emits an event, and if necessary, updates the
 // group status to round 2.
-func (k Keeper) SubmitDKGRound1(
+func (k msgServer) SubmitDKGRound1(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound1,
 ) (*types.MsgSubmitDKGRound1Response, error) {
@@ -193,7 +206,7 @@ func (k Keeper) SubmitDKGRound1(
 // It verifies the member, checks the length of encrypted secret shares, computes and stores the member's own public key,
 // sets the round 2 info, and emits appropriate events. If all members have submitted round 2 info,
 // it updates the group status to round 3.
-func (k Keeper) SubmitDKGRound2(
+func (k msgServer) SubmitDKGRound2(
 	goCtx context.Context,
 	req *types.MsgSubmitDKGRound2,
 ) (*types.MsgSubmitDKGRound2Response, error) {
@@ -282,7 +295,7 @@ func (k Keeper) SubmitDKGRound2(
 // Complain checks the group status, member, and whether the member has already confirmed or complained.
 // It then verifies complaints, marks malicious members, updates the group's status if necessary,
 // and finally emits appropriate events.
-func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
+func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*types.MsgComplainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := req.GroupID
 	memberID := req.Complaints[0].Complainant
@@ -399,7 +412,7 @@ func (k Keeper) Complain(goCtx context.Context, req *types.MsgComplain) (*types.
 // checks the count of confirmed and complained, and handles any malicious members. If all members have
 // confirmed or complained, it updates the group's status if necessary, deletes all interim data, and emits
 // appropriate events.
-func (k Keeper) Confirm(
+func (k msgServer) Confirm(
 	goCtx context.Context,
 	req *types.MsgConfirm,
 ) (*types.MsgConfirmResponse, error) {
@@ -477,7 +490,7 @@ func (k Keeper) Confirm(
 
 // SubmitDEs receives a member's request containing Distributed Key Generation (DKG) shares (DEs).
 // It converts the member's address from Bech32 to AccAddress format and then delegates the task of setting the DEs to the HandleSetDEs function.
-func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*types.MsgSubmitDEsResponse, error) {
+func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*types.MsgSubmitDEsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
@@ -499,7 +512,7 @@ func (k Keeper) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*type
 
 // RequestSign initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) RequestSignature(
+func (k msgServer) RequestSignature(
 	goCtx context.Context,
 	req *types.MsgRequestSignature,
 ) (*types.MsgRequestSignatureResponse, error) {
@@ -522,7 +535,7 @@ func (k Keeper) RequestSignature(
 // SubmitSignature verifies that the member and signing process are valid, and that the member hasn't already signed.
 // It checks the correctness of the signature and if the threshold is met, it combines all partial signatures into a group signature.
 // It then updates the signing record, deletes all interim data, and emits appropriate events.
-func (k Keeper) SubmitSignature(
+func (k msgServer) SubmitSignature(
 	goCtx context.Context,
 	req *types.MsgSubmitSignature,
 ) (*types.MsgSubmitSignatureResponse, error) {
@@ -641,7 +654,7 @@ func (k Keeper) SubmitSignature(
 	return &types.MsgSubmitSignatureResponse{}, nil
 }
 
-func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
+func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
@@ -664,7 +677,7 @@ func (k Keeper) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
 // If either a confirm or a complain message from the member is found, an error is returned.
-func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+func (k msgServer) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {
 		return sdkerrors.Wrapf(
