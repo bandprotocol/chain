@@ -42,11 +42,12 @@ func (k msgServer) CreateGroup(
 	}
 
 	// Create new group
+	fee := req.Fee.Sort()
 	groupID := k.CreateNewGroup(ctx, types.Group{
 		Size_:     groupSize,
 		Threshold: req.Threshold,
 		PubKey:    nil,
-		Fee:       req.Fee,
+		Fee:       fee,
 		Status:    types.GROUP_STATUS_ROUND_1,
 	})
 

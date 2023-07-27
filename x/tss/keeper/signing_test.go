@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -426,4 +428,101 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 	gotPZs := k.GetPartialSigs(ctx, signingID)
 	s.Require().Empty(gotPZs)
+}
+
+func (s *KeeperTestSuite) TestRefundFee() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	accAddress := sdk.MustAccAddressFromBech32(addressStr)
+
+	testCases := []struct {
+		name     string
+		signing  types.Signing
+		expCoins sdk.Coins
+	}{
+		{
+			"10uband with 2 members",
+			types.Signing{
+				GroupID:   1,
+				SigningID: 1,
+				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+				Requester: addressStr,
+				AssignedMembers: []types.AssignedMember{
+					{
+						MemberID: 1,
+					},
+					{
+						MemberID: 2,
+					},
+				},
+			},
+			sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+		},
+		{
+			"10uband,15token with 2 members",
+			types.Signing{
+				GroupID:   1,
+				SigningID: 1,
+				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
+				Requester: addressStr,
+				AssignedMembers: []types.AssignedMember{
+					{
+						MemberID: 1,
+					},
+					{
+						MemberID: 2,
+					},
+				},
+			},
+			sdk.NewCoins(sdk.NewInt64Coin("uband", 20), sdk.NewInt64Coin("token", 30)),
+		},
+		{
+			"0uband with 2 members",
+			types.Signing{
+				GroupID:   1,
+				SigningID: 2,
+				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+				Requester: addressStr,
+				AssignedMembers: []types.AssignedMember{
+					{
+						MemberID: 1,
+					},
+					{
+						MemberID: 2,
+					},
+				},
+			},
+			nil,
+		},
+		{
+			"10uband with 0 member",
+			types.Signing{
+				GroupID:         1,
+				SigningID:       3,
+				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+				Requester:       addressStr,
+				AssignedMembers: []types.AssignedMember{},
+			},
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("%s", tc.name), func() {
+			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, accAddress)
+			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
+
+			// Refund fee
+			k.RefundFee(ctx, tc.signing)
+
+			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, accAddress)
+			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
+
+			gain := balancesAfter.Sub(balancesBefore...)
+			s.Require().Equal(tc.expCoins, gain)
+
+			lose := balancesModuleBefore.Sub(balancesModuleAfter...)
+			s.Require().Equal(tc.expCoins, lose)
+		})
+	}
 }
