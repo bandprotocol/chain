@@ -5,6 +5,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -146,14 +147,12 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 func (s *KeeperTestSuite) TestGetPendingSigns() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	memberID := tss.MemberID(1)
-	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
-	address := sdk.MustAccAddressFromBech32(addressStr)
 
 	signing := types.Signing{
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Member:   addressStr,
+				Member:   testapp.Alice.Address.String(),
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
@@ -165,7 +164,7 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSignings(ctx, address)
+	got := k.GetPendingSignings(ctx, testapp.Alice.Address)
 
 	// Check if the returned signings are equal to the ones we set
 	s.Require().Equal(uint64(signingID), got[0])
@@ -383,18 +382,16 @@ func (s *KeeperTestSuite) TestGetSetPendingProcessSignings() {
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
-	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
-	accAddress := sdk.MustAccAddressFromBech32(addressStr)
 
 	// Set member
 	k.SetMember(ctx, groupID, types.Member{
 		MemberID: memberID,
-		Address:  addressStr,
+		Address:  testapp.Alice.Address.String(),
 	})
 
 	// Set status
 	k.SetStatus(ctx, types.Status{
-		Address: addressStr,
+		Address: testapp.Alice.Address.String(),
 		Status:  types.MEMBER_STATUS_ACTIVE,
 		Since:   ctx.BlockTime(),
 	})
@@ -422,7 +419,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-	gotStatus := k.GetStatus(ctx, accAddress)
+	gotStatus := k.GetStatus(ctx, testapp.Alice.Address)
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
@@ -432,8 +429,6 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 
 func (s *KeeperTestSuite) TestRefundFee() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	addressStr := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
-	accAddress := sdk.MustAccAddressFromBech32(addressStr)
 
 	testCases := []struct {
 		name     string
@@ -446,7 +441,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 				GroupID:   1,
 				SigningID: 1,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-				Requester: addressStr,
+				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
 					{
 						MemberID: 1,
@@ -464,7 +459,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 				GroupID:   1,
 				SigningID: 1,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
-				Requester: addressStr,
+				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
 					{
 						MemberID: 1,
@@ -482,7 +477,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 				GroupID:   1,
 				SigningID: 2,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester: addressStr,
+				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
 					{
 						MemberID: 1,
@@ -500,7 +495,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 				GroupID:         1,
 				SigningID:       3,
 				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester:       addressStr,
+				Requester:       testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{},
 			},
 			nil,
@@ -509,13 +504,13 @@ func (s *KeeperTestSuite) TestRefundFee() {
 
 	for _, tc := range testCases {
 		s.Run(fmt.Sprintf("%s", tc.name), func() {
-			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, accAddress)
+			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
 
 			// Refund fee
 			k.RefundFee(ctx, tc.signing)
 
-			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, accAddress)
+			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
 
 			gain := balancesAfter.Sub(balancesBefore...)

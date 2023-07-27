@@ -24,6 +24,7 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
+	requester   sdk.AccAddress
 }
 
 var (
@@ -68,7 +69,8 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Sender:    sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+			Sender:    testapp.Alice.Address.String(),
 		})
 		s.Require().NoError(err)
 
