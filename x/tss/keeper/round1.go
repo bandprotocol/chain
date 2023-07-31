@@ -7,12 +7,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// AddRound1Info adds round 1 information for a member of a group.
+// AddRound1Info method adds the round1Info of a member in the store and increments the count of round1Info.
 func (k Keeper) AddRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
-	// Add count
 	k.AddRound1InfoCount(ctx, groupID)
-	ctx.KVStore(k.storeKey).
-		Set(types.Round1InfoMemberStoreKey(groupID, round1Info.MemberID), k.cdc.MustMarshal(&round1Info))
+	k.SetRound1Info(ctx, groupID, round1Info)
 }
 
 // SetRound1Info sets round 1 info for a member of a group.

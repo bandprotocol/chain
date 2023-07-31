@@ -20,6 +20,7 @@ func (s *KeeperTestSuite) TestGetSetRound1Info() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
+	// Set round 1 info
 	k.SetRound1Info(ctx, groupID, round1Info)
 
 	got, err := k.GetRound1Info(ctx, groupID, memberID)
@@ -42,6 +43,7 @@ func (s *KeeperTestSuite) TestAddRound1Info() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
+	// Add round 1 info
 	k.AddRound1Info(ctx, groupID, round1Info)
 
 	gotR1, err := k.GetRound1Info(ctx, groupID, memberID)

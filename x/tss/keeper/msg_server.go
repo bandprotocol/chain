@@ -271,8 +271,8 @@ func (k msgServer) SubmitDKGRound2(
 	member.PubKey = ownPubKey
 	k.SetMember(ctx, groupID, member)
 
-	// Set round 2 info
-	k.SetRound2Info(ctx, groupID, req.Round2Info)
+	// Add round 2 info
+	k.AddRound2Info(ctx, groupID, req.Round2Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				})
 
 				// Set round 2 info
-				k.SetRound2Info(ctx, tc.Group.ID, types.Round2Info{
+				k.AddRound2Info(ctx, tc.Group.ID, types.Round2Info{
 					MemberID:              m.ID,
 					EncryptedSecretShares: m.EncSecretShares,
 				})
@@ -58,7 +58,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 
 			// Set fake encrypted secret shares
 			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
-			k.SetRound2Info(ctx, tc.Group.ID, respondentRound2)
+			k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 			// Success case - wrong encrypted secret share
 			err = k.HandleVerifyComplaint(ctx, tc.Group.ID, types.Complaint{
@@ -413,7 +413,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		}
 
 		k.AddRound1Info(ctx, groupID, round1Info)
-		k.SetRound2Info(ctx, groupID, round2Info)
+		k.AddRound2Info(ctx, groupID, round2Info)
 		k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
 		k.SetConfirm(ctx, groupID, confirm)
 	}

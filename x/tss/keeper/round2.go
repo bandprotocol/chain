@@ -7,15 +7,22 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// AddRound2Info method adds the round2Info of a member in the store and increments the count of round2Info.
+func (k Keeper) AddRound2Info(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	round2Info types.Round2Info,
+) {
+	k.AddRound2InfoCount(ctx, groupID)
+	k.SetRound2Info(ctx, groupID, round2Info)
+}
+
 // SetRound2Info method sets the round2Info of a member in the store and increments the count of round2Info.
 func (k Keeper) SetRound2Info(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	round2Info types.Round2Info,
 ) {
-	// Add count
-	k.AddRound2InfoCount(ctx, groupID)
-
 	ctx.KVStore(k.storeKey).
 		Set(types.Round2InfoMemberStoreKey(groupID, round2Info.MemberID), k.cdc.MustMarshal(&round2Info))
 }

@@ -110,9 +110,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.AddRound1Info(ctx, groupID, round1Info1)
 	k.AddRound1Info(ctx, groupID, round1Info2)
 
-	// Set round 2 infos
-	k.SetRound2Info(ctx, groupID, round2Info1)
-	k.SetRound2Info(ctx, groupID, round2Info2)
+	// Add round 2 infos
+	k.AddRound2Info(ctx, groupID, round2Info1)
+	k.AddRound2Info(ctx, groupID, round2Info2)
 
 	// Set complains
 	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus1)

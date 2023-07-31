@@ -254,8 +254,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 		{
 			"round 2 already submit",
 			func() {
-				// Set round 2 info
-				k.SetRound2Info(ctx, tc1Group.ID, types.Round2Info{
+				// Add round 2 info
+				k.AddRound2Info(ctx, tc1Group.ID, types.Round2Info{
 					MemberID:              tc1Group.Members[0].ID,
 					EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 				})
@@ -368,7 +368,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 
 				// Set fake encrypted secret shares
 				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
-				k.SetRound2Info(ctx, tc.Group.ID, respondentRound2)
+				k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 				sig, keySym, err := tss.SignComplaint(
 					m.OneTimePubKey(),
