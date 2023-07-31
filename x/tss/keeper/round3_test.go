@@ -22,8 +22,8 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 					IsMalicious: false,
 				})
 
-				// Set round 1 info
-				k.SetRound1Info(ctx, tc.Group.ID, types.Round1Info{
+				// Add round 1 info
+				k.AddRound1Info(ctx, tc.Group.ID, types.Round1Info{
 					MemberID:           m.ID,
 					CoefficientCommits: m.CoefficientCommits,
 					OneTimePubKey:      m.OneTimePubKey(),
@@ -412,7 +412,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 			OwnPubKeySig: []byte("own_pub_key_sig"),
 		}
 
-		k.SetRound1Info(ctx, groupID, round1Info)
+		k.AddRound1Info(ctx, groupID, round1Info)
 		k.SetRound2Info(ctx, groupID, round2Info)
 		k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
 		k.SetConfirm(ctx, groupID, confirm)

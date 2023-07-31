@@ -106,9 +106,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Sender:    members[0],
 	})
 
-	// Set round 1 infos
-	k.SetRound1Info(ctx, groupID, round1Info1)
-	k.SetRound1Info(ctx, groupID, round1Info2)
+	// Add round 1 infos
+	k.AddRound1Info(ctx, groupID, round1Info1)
+	k.AddRound1Info(ctx, groupID, round1Info2)
 
 	// Set round 2 infos
 	k.SetRound2Info(ctx, groupID, round2Info1)

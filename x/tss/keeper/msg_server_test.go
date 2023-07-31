@@ -95,8 +95,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 		{
 			"round 1 already commit",
 			func() {
-				// Set round 1 info
-				k.SetRound1Info(ctx, tc1Group.ID, types.Round1Info{
+				// Add round 1 info
+				k.AddRound1Info(ctx, tc1Group.ID, types.Round1Info{
 					MemberID:           tc1Group.Members[0].ID,
 					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),

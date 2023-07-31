@@ -178,8 +178,8 @@ func (k msgServer) SubmitDKGRound1(
 		return nil, sdkerrors.Wrap(types.ErrAddCommit, err.Error())
 	}
 
-	// Set round 1 info
-	k.SetRound1Info(ctx, groupID, req.Round1Info)
+	// Add round 1 info
+	k.AddRound1Info(ctx, groupID, req.Round1Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

@@ -7,15 +7,21 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// SetRound1Info function sets round 1 info for a member of a group.
-func (k Keeper) SetRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
+// AddRound1Info adds round 1 information for a member of a group.
+func (k Keeper) AddRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
 	// Add count
 	k.AddRound1InfoCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.Round1InfoMemberStoreKey(groupID, round1Info.MemberID), k.cdc.MustMarshal(&round1Info))
 }
 
-// GetRound1Info function retrieves round 1 info of a member from the store.
+// SetRound1Info sets round 1 info for a member of a group.
+func (k Keeper) SetRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
+	ctx.KVStore(k.storeKey).
+		Set(types.Round1InfoMemberStoreKey(groupID, round1Info.MemberID), k.cdc.MustMarshal(&round1Info))
+}
+
+// GetRound1Info retrieves round 1 info of a member from the store.
 func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Info, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoMemberStoreKey(groupID, memberID))
 	if bz == nil {
@@ -31,7 +37,7 @@ func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return r1, nil
 }
 
-// GetRound1InfoIterator function gets an iterator over all round 1 info of a group.
+// GetRound1InfoIterator gets an iterator over all round 1 info of a group.
 func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1InfoStoreKey(groupID))
 }
@@ -87,22 +93,22 @@ func (k Keeper) DeleteRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1InfoCountStoreKey(groupID))
 }
 
-// GetAccumulatedCommitIterator function gets an iterator over all accumulated commits of a group.
+// GetAccumulatedCommitIterator gets an iterator over all accumulated commits of a group.
 func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitStoreKey(groupID))
 }
 
-// SetAccumulatedCommit function sets accumulated commit for a index of a group.
+// SetAccumulatedCommit sets accumulated commit for a index of a group.
 func (k Keeper) SetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64, commit tss.Point) {
 	ctx.KVStore(k.storeKey).Set(types.AccumulatedCommitIndexStoreKey(groupID, index), commit)
 }
 
-// GetAccumulatedCommit function retrieves accumulated commit of a index of the group from the store.
+// GetAccumulatedCommit retrieves accumulated commit of a index of the group from the store.
 func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index uint64) tss.Point {
 	return ctx.KVStore(k.storeKey).Get(types.AccumulatedCommitIndexStoreKey(groupID, index))
 }
 
-// GetAllAccumulatedCommits function retrieves all accumulated commits of a group from the store.
+// GetAllAccumulatedCommits retrieves all accumulated commits of a group from the store.
 func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) tss.Points {
 	var commits tss.Points
 	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)
@@ -129,7 +135,7 @@ func (k Keeper) DeleteAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-// AddCommits function adds each coefficient commit into the accumulated commit of its index.
+// AddCommits adds each coefficient commit into the accumulated commit of its index.
 func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Points) error {
 	// Add count
 	for i, commit := range commits {
