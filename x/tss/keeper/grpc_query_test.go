@@ -556,8 +556,8 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	}
 	sig := []byte("signatures")
 
-	// Set partial signature
-	k.SetPartialSig(ctx, signingID, memberID, []byte("signatures"))
+	// Add partial signature
+	k.AddPartialSig(ctx, signingID, memberID, []byte("signatures"))
 
 	// Add signing
 	k.AddSigning(ctx, signing)

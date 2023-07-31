@@ -136,9 +136,14 @@ func (k Keeper) DeleteSigCount(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigCountStoreKey(signingID))
 }
 
+// AddPartialSig adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
+func (k Keeper) AddPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+	k.AddSigCount(ctx, signingID)
+	k.SetPartialSig(ctx, signingID, memberID, sig)
+}
+
 // SetPartialSig sets the partial signature for a specific signing ID and member ID.
 func (k Keeper) SetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
-	k.AddSigCount(ctx, signingID)
 	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
 }
 

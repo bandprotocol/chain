@@ -230,6 +230,23 @@ func (s *KeeperTestSuite) TestGetSetPartialSig() {
 	s.Require().Equal(sig, gotSig)
 }
 
+func (s *KeeperTestSuite) TestAddPartialSig() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	signingID := tss.SigningID(1)
+	memberID := tss.MemberID(1)
+	sig := tss.Signature("sample-signature")
+
+	// Add PartialSignature
+	k.AddPartialSig(ctx, signingID, memberID, sig)
+
+	// Get and check PartialSignature
+	gotSig, err := k.GetPartialSig(ctx, signingID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(sig, gotSig)
+	gotCount := k.GetSigCount(ctx, signingID)
+	s.Require().Equal(uint64(1), gotCount)
+}
+
 func (s *KeeperTestSuite) TestDeletePartialSig() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
@@ -257,9 +274,9 @@ func (s *KeeperTestSuite) TestGetPartialSigs() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Set PartialSigs
+	// Add PartialSigs
 	for i, memberID := range memberIDs {
-		k.SetPartialSig(ctx, signingID, memberID, sigs[i])
+		k.AddPartialSig(ctx, signingID, memberID, sigs[i])
 	}
 
 	// Get all PartialSigs
@@ -279,9 +296,9 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Set PartialSigs
+	// Add PartialSigs
 	for i, memberID := range memberIDs {
-		k.SetPartialSig(ctx, signingID, memberID, sigs[i])
+		k.AddPartialSig(ctx, signingID, memberID, sigs[i])
 	}
 
 	// Get all PartialSigs with keys

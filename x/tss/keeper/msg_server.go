@@ -631,8 +631,8 @@ func (k msgServer) SubmitSignature(
 		return nil, sdkerrors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
 	}
 
-	// Set partial signature
-	k.SetPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
+	// Add partial signature
+	k.AddPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
 	if sigCount == group.Threshold {
