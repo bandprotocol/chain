@@ -79,6 +79,8 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		nil,
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 	suite.requestId = oracleKeeper.AddRequest(suite.ctx, req)
 

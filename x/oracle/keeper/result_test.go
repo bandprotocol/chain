@@ -37,7 +37,7 @@ func TestSaveResultOK(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200))
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.SaveResult(ctx, 42, 0, types.RESOLVE_STATUS_SUCCESS, BasicResult)
+	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
 	expect := types.NewResult(
 		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
 		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
@@ -51,16 +51,18 @@ func TestResolveSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveSuccess(ctx, 42, 0, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 42, &BasicSigningResult, BasicResult, 1234)
 	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
+		sdk.NewAttribute(types.AttributeKeySigningID, "1"),
+		sdk.NewAttribute(types.AttributeKeySigningErrCodespace, ""),
+		sdk.NewAttribute(types.AttributeKeySigningErrCode, "0"),
 	)}, ctx.EventManager().Events())
 }
 

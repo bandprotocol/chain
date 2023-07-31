@@ -11,7 +11,6 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -53,24 +52,36 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 func (k Keeper) ResolveSuccess(
 	ctx sdk.Context,
 	id types.RequestID,
-	sid tss.SigningID,
+	signingResult *types.SigningResult,
 	result []byte,
 	gasUsed uint64,
 ) {
-	k.SaveResult(ctx, id, sid, types.RESOLVE_STATUS_SUCCESS, result)
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
+
+	events := sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", sid)),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
-	))
+	)
+
+	if signingResult != nil {
+		k.SetSigningResult(ctx, id, *signingResult)
+
+		events = events.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
+			sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
+			sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
+		)
+	}
+
+	ctx.EventManager().EmitEvent(events)
 }
 
 // ResolveFailure resolves the given request as failure with the given reason.
 func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, reason string) {
-	k.SaveResult(ctx, id, 0, types.RESOLVE_STATUS_FAILURE, []byte{})
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_FAILURE, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -81,7 +92,7 @@ func (k Keeper) ResolveFailure(ctx sdk.Context, id types.RequestID, reason strin
 
 // ResolveExpired resolves the given request as expired.
 func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
-	k.SaveResult(ctx, id, 0, types.RESOLVE_STATUS_EXPIRED, []byte{})
+	k.SaveResult(ctx, id, types.RESOLVE_STATUS_EXPIRED, []byte{})
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
@@ -91,7 +102,7 @@ func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
 
 // SaveResult saves the result packets for the request with the given resolve status and result.
 func (k Keeper) SaveResult(
-	ctx sdk.Context, id types.RequestID, sid tss.SigningID, status types.ResolveStatus, result []byte,
+	ctx sdk.Context, id types.RequestID, status types.ResolveStatus, result []byte,
 ) {
 	r := k.MustGetRequest(ctx, id)
 	reportCount := k.GetReportCount(ctx, id)
@@ -108,11 +119,6 @@ func (k Keeper) SaveResult(
 		status,                             // ResolveStatus
 		result,                             // Result
 	))
-
-	// If a signing ID not zero, set the signing ID.
-	if sid != 0 {
-		k.SetSigningID(ctx, id, sid)
-	}
 
 	if r.IBCChannel != nil {
 		sourceChannel := r.IBCChannel.ChannelId

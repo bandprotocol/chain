@@ -10,16 +10,20 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-func TestGetSetRequestToSigningMap(t *testing.T) {
+func TestGetSetSigningResult(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	rid := types.RequestID(123)
-	sid := tss.SigningID(456)
+	signingResult := types.SigningResult{
+		SigningID:      tss.SigningID(456),
+		ErrorCodespace: "",
+		ErrorCode:      0,
+	}
 
-	// Set the signing ID by request ID
-	k.SetSigningID(ctx, rid, sid)
+	// Set the signing result by request ID
+	k.SetSigningResult(ctx, rid, signingResult)
 
-	// Get the signing ID associated with the request ID
-	gotSid, err := k.GetSigningID(ctx, rid)
+	// Get the signing result associated with the request ID
+	got, err := k.GetSigningResult(ctx, rid)
 	require.NoError(t, err)
-	require.Equal(t, sid, gotSid)
+	require.Equal(t, signingResult, got)
 }

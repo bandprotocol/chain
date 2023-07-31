@@ -109,18 +109,21 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	result := k.MustGetResult(ctx, rid)
 
 	// Check if there is a signing ID associated with the request
-	sid, err := k.GetSigningID(ctx, rid)
-	if err == nil {
-		signing := k.MustGetSigning(ctx, sid)
-		return &types.QueryRequestResponse{
-			Request: &request,
-			Reports: reports,
-			Result:  &result,
-			Signing: &signing,
-		}, nil
+	// Note: ignore error because it's possible to not have signing result.
+	var signingResult *types.SigningResult
+	sResult, err := k.GetSigningResult(ctx, rid)
+	if err != nil {
+		signingResult = nil
+	} else {
+		signingResult = &sResult
 	}
 
-	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result, Signing: nil}, nil
+	return &types.QueryRequestResponse{
+		Request: &request,
+		Reports: reports,
+		Result:  &result,
+		Signing: signingResult,
+	}, nil
 }
 
 func (k Querier) PendingRequests(
