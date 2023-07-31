@@ -391,8 +391,8 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 		}
 	}
 
-	// Set complain with status
-	k.SetComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
+	// Add complain with status
+	k.AddComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
 		MemberID:             memberID,
 		ComplaintsWithStatus: complaintsWithStatus,
 	})

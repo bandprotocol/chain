@@ -126,6 +126,35 @@ func (s *KeeperTestSuite) TestGetSetComplaintsWithStatus() {
 	s.Require().Equal(complaintWithStatus, got)
 }
 
+func (s *KeeperTestSuite) TestAddComplaintsWithStatus() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	complaintWithStatus := types.ComplaintsWithStatus{
+		MemberID: memberID,
+		ComplaintsWithStatus: []types.ComplaintWithStatus{
+			{
+				Complaint: types.Complaint{
+					Complainant: 1,
+					Respondent:  2,
+					KeySym:      []byte("key_sym"),
+					Signature:   []byte("signature"),
+				},
+				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
+			},
+		},
+	}
+
+	// Add complaints with status
+	k.AddComplaintsWithStatus(ctx, groupID, complaintWithStatus)
+
+	gotComplaintsWithStatus, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(complaintWithStatus, gotComplaintsWithStatus)
+	gotCount := k.GetConfirmComplainCount(ctx, groupID)
+	s.Require().Equal(uint64(1), gotCount)
+}
+
 func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
@@ -145,8 +174,8 @@ func (s *KeeperTestSuite) TestDeleteComplainsWithStatus() {
 		},
 	}
 
-	// Set complaints with status
-	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
+	// Add complaints with status
+	k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus)
 	// Delete complaints with status
 	k.DeleteComplainsWithStatus(ctx, groupID, memberID)
 
@@ -173,8 +202,8 @@ func (s *KeeperTestSuite) TestDeleteAllComplainsWithStatus() {
 		},
 	}
 
-	// Set complaints with status
-	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
+	// Add complaints with status
+	k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus)
 	// Delete complaints with status
 	k.DeleteAllComplainsWithStatus(ctx, groupID)
 
@@ -217,8 +246,8 @@ func (s *KeeperTestSuite) TestGetAllComplainsWithStatus() {
 	}
 
 	// Set complaints with status
-	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus1)
-	k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus2)
+	k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus1)
+	k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus2)
 
 	got := k.GetAllComplainsWithStatus(ctx, groupID)
 	s.Require().Equal([]types.ComplaintsWithStatus{complainWithStatus1, complainWithStatus2}, got)
@@ -414,7 +443,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 
 		k.AddRound1Info(ctx, groupID, round1Info)
 		k.AddRound2Info(ctx, groupID, round2Info)
-		k.SetComplaintsWithStatus(ctx, groupID, complainWithStatus)
+		k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus)
 		k.SetConfirm(ctx, groupID, confirm)
 	}
 
