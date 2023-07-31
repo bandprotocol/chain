@@ -463,8 +463,8 @@ func (k msgServer) Confirm(
 	// Get confirm complain count
 	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
 
-	// Set confirm
-	k.SetConfirm(ctx, groupID, types.Confirm{
+	// Add confirm
+	k.AddConfirm(ctx, groupID, types.Confirm{
 		MemberID:     memberID,
 		OwnPubKeySig: req.OwnPubKeySig,
 	})

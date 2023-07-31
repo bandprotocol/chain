@@ -268,6 +268,23 @@ func (s *KeeperTestSuite) TestGetSetConfirm() {
 	got, err := k.GetConfirm(ctx, groupID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(confirm, got)
+}
+
+func (s *KeeperTestSuite) TestAddConfirm() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	confirm := types.Confirm{
+		MemberID:     memberID,
+		OwnPubKeySig: []byte("own_pub_key_sig"),
+	}
+
+	// Add confirm
+	k.AddConfirm(ctx, groupID, confirm)
+
+	got, err := k.GetConfirm(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(confirm, got)
 
 	// Get confirm or complain count
 	count := k.GetConfirmComplainCount(ctx, groupID)
@@ -326,9 +343,9 @@ func (s *KeeperTestSuite) TestGetConfirms() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	// Set confirm
-	k.SetConfirm(ctx, groupID, confirm1)
-	k.SetConfirm(ctx, groupID, confirm2)
+	// Add confirm
+	k.AddConfirm(ctx, groupID, confirm1)
+	k.AddConfirm(ctx, groupID, confirm2)
 
 	got := k.GetConfirms(ctx, groupID)
 	s.Require().Equal([]types.Confirm{confirm1, confirm2}, got)
@@ -444,7 +461,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		k.AddRound1Info(ctx, groupID, round1Info)
 		k.AddRound2Info(ctx, groupID, round2Info)
 		k.AddComplaintsWithStatus(ctx, groupID, complainWithStatus)
-		k.SetConfirm(ctx, groupID, confirm)
+		k.AddConfirm(ctx, groupID, confirm)
 	}
 
 	for i := uint64(0); i < groupThreshold; i++ {

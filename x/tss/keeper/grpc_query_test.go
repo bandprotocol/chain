@@ -118,9 +118,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.AddComplaintsWithStatus(ctx, groupID, complaintWithStatus1)
 	k.AddComplaintsWithStatus(ctx, groupID, complaintWithStatus2)
 
-	// Set confirms
-	k.SetConfirm(ctx, groupID, confirm1)
-	k.SetConfirm(ctx, groupID, confirm2)
+	// Add confirms
+	k.AddConfirm(ctx, groupID, confirm1)
+	k.AddConfirm(ctx, groupID, confirm2)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {

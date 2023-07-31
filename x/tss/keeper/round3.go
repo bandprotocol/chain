@@ -107,7 +107,6 @@ func (k Keeper) AddComplaintsWithStatus(
 	groupID tss.GroupID,
 	complaintsWithStatus types.ComplaintsWithStatus,
 ) {
-	// Add confirm complaint count
 	k.AddConfirmComplaintCount(ctx, groupID)
 	k.SetComplaintsWithStatus(ctx, groupID, complaintsWithStatus)
 }
@@ -176,14 +175,22 @@ func (k Keeper) DeleteAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupI
 	}
 }
 
+// AddConfirm adds the confirm of a member in the store and increments the confirm and complain count.
+func (k Keeper) AddConfirm(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	confirm types.Confirm,
+) {
+	k.AddConfirmComplaintCount(ctx, groupID)
+	k.SetConfirm(ctx, groupID, confirm)
+}
+
 // SetConfirm sets the confirm for a specific groupID and memberID in the store.
 func (k Keeper) SetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	confirm types.Confirm,
 ) {
-	// add confirm complaint count
-	k.AddConfirmComplaintCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.ConfirmMemberStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
 }
