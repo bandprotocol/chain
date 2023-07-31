@@ -15,12 +15,16 @@ var (
 	pk1               = secp256k1.GenPrivKey().PubKey()
 	pk2               = secp256k1.GenPrivKey().PubKey()
 	pk3               = secp256k1.GenPrivKey().PubKey()
+	pk4               = secp256k1.GenPrivKey().PubKey()
 	addr1             = pk1.Address()
 	addr2             = pk2.Address()
 	addr3             = pk3.Address()
+	addr4             = pk4.Address()
 	validatorAddress1 = sdk.ValAddress(addr1)
 	validatorAddress2 = sdk.ValAddress(addr2)
 	validatorAddress3 = sdk.ValAddress(addr3)
+	address4          = sdk.AccAddress(addr4)
+	coins1            = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 )
 
 func mockExecEnv() *ExecuteEnv {
@@ -43,6 +47,8 @@ func mockExecEnv() *ExecuteEnv {
 		nil,
 		nil,
 		0,
+		address4.String(),
+		coins1,
 	)
 	rawReport1 := NewRawReport(1, 0, []byte("DATA1"))
 	rawReport2 := NewRawReport(2, 1, []byte("DATA2"))
@@ -73,6 +79,8 @@ func mockFreshPrepareEnv() *PrepareEnv {
 		nil,
 		nil,
 		0,
+		address4.String(),
+		coins1,
 	)
 	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3, 1024)
 	return env

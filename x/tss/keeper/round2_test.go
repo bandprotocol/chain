@@ -9,7 +9,7 @@ func (s *KeeperTestSuite) TestGetSetRound2Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
-	Round2Info := types.Round2Info{
+	round2Info := types.Round2Info{
 		MemberID: memberID,
 		EncryptedSecretShares: tss.Scalars{
 			[]byte("e_12"),
@@ -19,11 +19,34 @@ func (s *KeeperTestSuite) TestGetSetRound2Info() {
 	}
 
 	// Set round 2 info
-	k.SetRound2Info(ctx, groupID, Round2Info)
+	k.SetRound2Info(ctx, groupID, round2Info)
 
 	got, err := k.GetRound2Info(ctx, groupID, memberID)
 	s.Require().NoError(err)
-	s.Require().Equal(Round2Info, got)
+	s.Require().Equal(round2Info, got)
+}
+
+func (s *KeeperTestSuite) TestAddRound2Info() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	round2Info := types.Round2Info{
+		MemberID: memberID,
+		EncryptedSecretShares: tss.Scalars{
+			[]byte("e_12"),
+			[]byte("e_13"),
+			[]byte("e_14"),
+		},
+	}
+
+	// Add round 2 info
+	k.AddRound2Info(ctx, groupID, round2Info)
+
+	gotR2, err := k.GetRound2Info(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(round2Info, gotR2)
+	gotR2Count := k.GetRound2InfoCount(ctx, groupID)
+	s.Require().Equal(uint64(1), gotR2Count)
 }
 
 func (s *KeeperTestSuite) TestDeleteRound2Info() {
@@ -94,9 +117,9 @@ func (s *KeeperTestSuite) TestGetRound2Infos() {
 		},
 	}
 
-	// Set round 2 info
-	k.SetRound2Info(ctx, groupID, round2InfoMember1)
-	k.SetRound2Info(ctx, groupID, round2InfoMember2)
+	// Add round 2 info
+	k.AddRound2Info(ctx, groupID, round2InfoMember1)
+	k.AddRound2Info(ctx, groupID, round2InfoMember2)
 
 	got := k.GetRound2Infos(ctx, groupID)
 	s.Require().Equal([]types.Round2Info{round2InfoMember1, round2InfoMember2}, got)

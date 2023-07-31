@@ -20,11 +20,37 @@ func (s *KeeperTestSuite) TestGetSetRound1Info() {
 		OneTimeSig:    []byte("OneTimeSigSimple"),
 	}
 
+	// Set round 1 info
 	k.SetRound1Info(ctx, groupID, round1Info)
 
 	got, err := k.GetRound1Info(ctx, groupID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(round1Info, got)
+}
+
+func (s *KeeperTestSuite) TestAddRound1Info() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+	round1Info := types.Round1Info{
+		MemberID: memberID,
+		CoefficientCommits: tss.Points{
+			[]byte("point1"),
+			[]byte("point2"),
+		},
+		OneTimePubKey: []byte("OneTimePubKeySimple"),
+		A0Sig:         []byte("A0SigSimple"),
+		OneTimeSig:    []byte("OneTimeSigSimple"),
+	}
+
+	// Add round 1 info
+	k.AddRound1Info(ctx, groupID, round1Info)
+
+	gotR1, err := k.GetRound1Info(ctx, groupID, memberID)
+	s.Require().NoError(err)
+	s.Require().Equal(round1Info, gotR1)
+	gotR1Count := k.GetRound1InfoCount(ctx, groupID)
+	s.Require().Equal(uint64(1), gotR1Count)
 }
 
 func (s *KeeperTestSuite) TestDeleteRound1Info() {
@@ -108,8 +134,8 @@ func (s *KeeperTestSuite) TestGetRound1Infos() {
 	}
 
 	// Set round 1 infos
-	k.SetRound1Info(ctx, groupID, round1InfoMember1)
-	k.SetRound1Info(ctx, groupID, round1InfoMember2)
+	k.AddRound1Info(ctx, groupID, round1InfoMember1)
+	k.AddRound1Info(ctx, groupID, round1InfoMember2)
 
 	got := k.GetRound1Infos(ctx, groupID)
 

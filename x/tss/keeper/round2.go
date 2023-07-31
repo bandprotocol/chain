@@ -7,20 +7,27 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// SetRound2Info method sets the round2Info of a member in the store and increments the count of round2Info.
+// AddRound2Info adds the round2Info of a member in the store and increments the count of round2Info.
+func (k Keeper) AddRound2Info(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	round2Info types.Round2Info,
+) {
+	k.AddRound2InfoCount(ctx, groupID)
+	k.SetRound2Info(ctx, groupID, round2Info)
+}
+
+// SetRound2Info sets the round2Info of a member in the store and increments the count of round2Info.
 func (k Keeper) SetRound2Info(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	round2Info types.Round2Info,
 ) {
-	// Add count
-	k.AddRound2InfoCount(ctx, groupID)
-
 	ctx.KVStore(k.storeKey).
 		Set(types.Round2InfoMemberStoreKey(groupID, round2Info.MemberID), k.cdc.MustMarshal(&round2Info))
 }
 
-// GetRound2Info method retrieves the round2Info of a member from the store.
+// GetRound2Info retrieves the round2Info of a member from the store.
 func (k Keeper) GetRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Info, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2InfoMemberStoreKey(groupID, memberID))
 	if bz == nil {
@@ -36,7 +43,7 @@ func (k Keeper) GetRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return r2, nil
 }
 
-// DeleteRound2Info method deletes the round2Info of a member from the store.
+// DeleteRound2Info deletes the round2Info of a member from the store.
 func (k Keeper) DeleteRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round2InfoMemberStoreKey(groupID, memberID))
 }
@@ -52,18 +59,18 @@ func (k Keeper) DeleteRound2Infos(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-// SetRound2InfoCount method sets the count of round2Info in the store.
+// SetRound2InfoCount sets the count of round2Info in the store.
 func (k Keeper) SetRound2InfoCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round2InfoCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound2InfoCount method retrieves the count of round2Info from the store.
+// GetRound2InfoCount retrieves the count of round2Info from the store.
 func (k Keeper) GetRound2InfoCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2InfoCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound2InfoCount method increments the count of round2Info in the store.
+// AddRound2InfoCount increments the count of round2Info in the store.
 func (k Keeper) AddRound2InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound2InfoCount(ctx, groupID)
 	k.SetRound2InfoCount(ctx, groupID, count+1)
@@ -74,12 +81,12 @@ func (k Keeper) DeleteRound2InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round2InfoCountStoreKey(groupID))
 }
 
-// Getround2InfoIterator function gets an iterator over all round 2 info of a group.
+// Getround2InfoIterator gets an iterator over all round 2 info of a group.
 func (k Keeper) GetRound2InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2InfoStoreKey(groupID))
 }
 
-// GetRound2Infos method retrieves all round2Info for a given group from the store.
+// GetRound2Infos retrieves all round2Info for a given group from the store.
 func (k Keeper) GetRound2Infos(ctx sdk.Context, groupID tss.GroupID) []types.Round2Info {
 	var round2Infos []types.Round2Info
 	iterator := k.GetRound2InfoIterator(ctx, groupID)

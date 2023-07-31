@@ -101,14 +101,22 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	return nil
 }
 
+// AddComplaintsWithStatus adds the complaints with status of a member in the store and increments the confirm and complain count.
+func (k Keeper) AddComplaintsWithStatus(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	complaintsWithStatus types.ComplaintsWithStatus,
+) {
+	k.AddConfirmComplaintCount(ctx, groupID)
+	k.SetComplaintsWithStatus(ctx, groupID, complaintsWithStatus)
+}
+
 // SetComplaintsWithStatus sets the complaints with status for a specific groupID and memberID in the store.
 func (k Keeper) SetComplaintsWithStatus(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	complaintsWithStatus types.ComplaintsWithStatus,
 ) {
-	// Add confirm complaint count
-	k.AddConfirmComplaintCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.ComplainsWithStatusMemberStoreKey(groupID, complaintsWithStatus.MemberID), k.cdc.MustMarshal(&complaintsWithStatus))
 }
@@ -133,12 +141,12 @@ func (k Keeper) GetComplaintsWithStatus(
 	return c, nil
 }
 
-// GetComplainsWithStatusIterator function gets an iterator over all complaints with status data of a group.
+// GetComplainsWithStatusIterator gets an iterator over all complaints with status data of a group.
 func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ComplainsWithStatusStoreKey(groupID))
 }
 
-// GetAllComplainsWithStatus method retrieves all complaints with status for a given group from the store.
+// GetAllComplainsWithStatus retrieves all complaints with status for a given group from the store.
 func (k Keeper) GetAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) []types.ComplaintsWithStatus {
 	var cs []types.ComplaintsWithStatus
 	iterator := k.GetComplainsWithStatusIterator(ctx, groupID)
@@ -151,7 +159,7 @@ func (k Keeper) GetAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) 
 	return cs
 }
 
-// DeleteComplainsWithStatus method deletes the complaint with status of a member from the store.
+// DeleteComplainsWithStatus deletes the complaint with status of a member from the store.
 func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
 }
@@ -167,14 +175,22 @@ func (k Keeper) DeleteAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupI
 	}
 }
 
+// AddConfirm adds the confirm of a member in the store and increments the confirm and complain count.
+func (k Keeper) AddConfirm(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	confirm types.Confirm,
+) {
+	k.AddConfirmComplaintCount(ctx, groupID)
+	k.SetConfirm(ctx, groupID, confirm)
+}
+
 // SetConfirm sets the confirm for a specific groupID and memberID in the store.
 func (k Keeper) SetConfirm(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	confirm types.Confirm,
 ) {
-	// add confirm complaint count
-	k.AddConfirmComplaintCount(ctx, groupID)
 	ctx.KVStore(k.storeKey).
 		Set(types.ConfirmMemberStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
 }
@@ -199,12 +215,12 @@ func (k Keeper) GetConfirm(
 	return c, nil
 }
 
-// GetConfirmIterator function gets an iterator over all confirm data of a group.
+// GetConfirmIterator gets an iterator over all confirm data of a group.
 func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmStoreKey(groupID))
 }
 
-// GetConfirms method retrieves all confirm for a given group from the store.
+// GetConfirms retrieves all confirm for a given group from the store.
 func (k Keeper) GetConfirms(ctx sdk.Context, groupID tss.GroupID) []types.Confirm {
 	var cs []types.Confirm
 	iterator := k.GetConfirmIterator(ctx, groupID)
@@ -217,7 +233,7 @@ func (k Keeper) GetConfirms(ctx sdk.Context, groupID tss.GroupID) []types.Confir
 	return cs
 }
 
-// DeleteConfirm method deletes the confirm of a member from the store.
+// DeleteConfirm deletes the confirm of a member from the store.
 func (k Keeper) DeleteConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.ConfirmMemberStoreKey(groupID, memberID))
 }
@@ -244,7 +260,7 @@ func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) ui
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddConfirmComplaintCount method increments the count of confirm and complaint in the store.
+// AddConfirmComplaintCount increments the count of confirm and complaint in the store.
 func (k Keeper) AddConfirmComplaintCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetConfirmComplainCount(ctx, groupID)
 	k.SetConfirmComplainCount(ctx, groupID, count+1)

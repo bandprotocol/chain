@@ -49,6 +49,8 @@ func NewRequest(
 	rawRequests []RawRequest,
 	ibcChannel *IBCChannel,
 	executeGas uint64,
+	requester string,
+	feeLimit sdk.Coins,
 ) Request {
 	requestedVals := make([]string, len(requestedValidators))
 	if requestedValidators != nil {
@@ -70,5 +72,7 @@ func NewRequest(
 		RawRequests:         rawRequests,
 		IBCChannel:          ibcChannel,
 		ExecuteGas:          executeGas,
+		Requester:           requester,
+		FeeLimit:            feeLimit,
 	}
 }

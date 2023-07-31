@@ -12,7 +12,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.querier, s.app.TSSKeeper
+	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.queryClient, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -106,21 +106,21 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		Sender:    members[0],
 	})
 
-	// Set round 1 infos
-	k.SetRound1Info(ctx, groupID, round1Info1)
-	k.SetRound1Info(ctx, groupID, round1Info2)
+	// Add round 1 infos
+	k.AddRound1Info(ctx, groupID, round1Info1)
+	k.AddRound1Info(ctx, groupID, round1Info2)
 
-	// Set round 2 infos
-	k.SetRound2Info(ctx, groupID, round2Info1)
-	k.SetRound2Info(ctx, groupID, round2Info2)
+	// Add round 2 infos
+	k.AddRound2Info(ctx, groupID, round2Info1)
+	k.AddRound2Info(ctx, groupID, round2Info2)
 
-	// Set complains
-	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus1)
-	k.SetComplaintsWithStatus(ctx, groupID, complaintWithStatus2)
+	// Add complains
+	k.AddComplaintsWithStatus(ctx, groupID, complaintWithStatus1)
+	k.AddComplaintsWithStatus(ctx, groupID, complaintWithStatus2)
 
-	// Set confirms
-	k.SetConfirm(ctx, groupID, confirm1)
-	k.SetConfirm(ctx, groupID, confirm2)
+	// Add confirms
+	k.AddConfirm(ctx, groupID, confirm1)
+	k.AddConfirm(ctx, groupID, confirm2)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -256,7 +256,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryMembers() {
-	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
+	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	members := []types.Member{
 		{
 			MemberID:    1,
@@ -323,7 +323,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
-	ctx, q, authzKeeper := s.ctx, s.querier, s.app.AuthzKeeper
+	ctx, q, authzKeeper := s.ctx, s.queryClient, s.app.AuthzKeeper
 	expTime := time.Unix(0, 0)
 
 	// Init grantee address
@@ -409,7 +409,7 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryDE() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryDERequest
 	testCases := []struct {
@@ -451,7 +451,7 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingGroupsRequest
 	testCases := []struct {
@@ -493,7 +493,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingSigningsRequest
 	testCases := []struct {
@@ -535,7 +535,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
-	ctx, q, k := s.ctx, s.querier, s.app.TSSKeeper
+	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
 	signing := types.Signing{
 		SigningID: signingID,
@@ -556,8 +556,8 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	}
 	sig := []byte("signatures")
 
-	// Set partial signature
-	k.SetPartialSig(ctx, signingID, memberID, []byte("signatures"))
+	// Add partial signature
+	k.AddPartialSig(ctx, signingID, memberID, []byte("signatures"))
 
 	// Add signing
 	k.AddSigning(ctx, signing)
@@ -616,7 +616,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
-	ctx, q := s.ctx, s.querier
+	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryStatusesRequest
 	testCases := []struct {

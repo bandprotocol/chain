@@ -434,6 +434,8 @@ func TestRequestDataSuccess(t *testing.T) {
 		},
 		nil,
 		uint64(testapp.TestDefaultExecuteGas),
+		testapp.FeePayer.Address.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 94000000)),
 	), k.MustGetRequest(ctx, 1))
 	event := abci.Event{
 		Type: authtypes.EventTypeCoinSpent,
@@ -656,6 +658,8 @@ func TestReportSuccess(t *testing.T) {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
@@ -685,7 +689,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, 0, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, nil, []byte("RESOLVE_RESULT!"), 1234)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
@@ -725,6 +729,8 @@ func TestReportFail(t *testing.T) {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}

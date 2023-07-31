@@ -750,6 +750,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
@@ -805,6 +807,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
@@ -860,6 +864,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}

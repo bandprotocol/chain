@@ -151,6 +151,8 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 97000000)),
 	), k.MustGetRequest(ctx, 1))
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(
@@ -711,6 +713,8 @@ func TestResolveRequestSuccess(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -730,7 +734,6 @@ func TestResolveRequestSuccess(t *testing.T) {
 		sdk.Events{
 			sdk.NewEvent(types.EventTypeResolve,
 				sdk.NewAttribute(types.AttributeKeyID, "42"),
-				sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
 				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
@@ -753,6 +756,8 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -781,7 +786,6 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		sdk.NewEvent(
 			types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(
 				types.AttributeKeyResult,
@@ -801,6 +805,8 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -829,6 +835,8 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -856,7 +864,6 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(types.EventTypeResolve,
 			sdk.NewAttribute(types.AttributeKeyID, "42"),
-			sdk.NewAttribute(types.AttributeKeySigningID, "0"), // no require sign by tss module
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
@@ -873,6 +880,8 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 1,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -902,6 +911,8 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -931,6 +942,8 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.ResolveRequest(ctx, 42)
 

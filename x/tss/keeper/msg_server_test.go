@@ -8,13 +8,15 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type TestCase struct {
-	Msg      string
-	Malleate func()
-	PostTest func()
+	Msg         string
+	Malleate    func()
+	PostTest    func()
+	ExpectedErr error
 }
 
 func (s *KeeperTestSuite) TestCreateGroupReq() {
@@ -23,7 +25,6 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
@@ -38,7 +39,8 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: 3,
-			Sender:    "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+			Sender:    testapp.Alice.Address.String(),
 		})
 		s.Require().NoError(err)
 	})
@@ -70,6 +72,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 				}
 			},
 			func() {},
+			types.ErrGroupNotFound,
 		},
 		{
 			"member not found",
@@ -87,12 +90,13 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 				}
 			},
 			func() {},
+			types.ErrMemberNotFound,
 		},
 		{
 			"round 1 already commit",
 			func() {
-				// Set round 1 info
-				k.SetRound1Info(ctx, tc1Group.ID, types.Round1Info{
+				// Add round 1 info
+				k.AddRound1Info(ctx, tc1Group.ID, types.Round1Info{
 					MemberID:           tc1Group.Members[0].ID,
 					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
@@ -115,6 +119,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 			func() {
 				k.DeleteRound1Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
+			types.ErrAlreadySubmit,
 		},
 		{
 			"wrong one time sign",
@@ -132,6 +137,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 				}
 			},
 			func() {},
+			types.ErrVerifyOneTimeSigFailed,
 		},
 		{
 			"wrong a0 sig",
@@ -149,6 +155,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 				}
 			},
 			func() {},
+			types.ErrVerifyA0SigFailed,
 		},
 	}
 
@@ -158,7 +165,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitDKGRound1(ctx, &req)
-			s.Require().Error(err)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
 
 			tc.PostTest()
 		})
@@ -227,9 +234,10 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 				}
 			},
 			func() {},
+			types.ErrGroupNotFound,
 		},
 		{
-			"member not authorized",
+			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: tc1Group.ID,
@@ -241,12 +249,13 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 				}
 			},
 			func() {},
+			types.ErrMemberNotFound,
 		},
 		{
 			"round 2 already submit",
 			func() {
-				// Set round 2 info
-				k.SetRound2Info(ctx, tc1Group.ID, types.Round2Info{
+				// Add round 2 info
+				k.AddRound2Info(ctx, tc1Group.ID, types.Round2Info{
 					MemberID:              tc1Group.Members[0].ID,
 					EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 				})
@@ -263,6 +272,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 			func() {
 				k.DeleteRound2Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
+			types.ErrAlreadySubmit,
 		},
 		{
 			"number of encrypted secret shares is not correct",
@@ -278,6 +288,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 				}
 			},
 			func() {},
+			types.ErrEncryptedSecretSharesNotCorrectLength,
 		},
 	}
 
@@ -287,7 +298,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitDKGRound2(ctx, &req)
-			s.Require().Error(err)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
 
 			tc.PostTest()
 		})
@@ -357,7 +368,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 
 				// Set fake encrypted secret shares
 				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
-				k.SetRound2Info(ctx, tc.Group.ID, respondentRound2)
+				k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 				sig, keySym, err := tss.SignComplaint(
 					m.OneTimePubKey(),
@@ -459,6 +470,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 			},
 			func() {},
+			types.ErrDEQueueFull,
 		},
 	}
 
@@ -467,7 +479,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitDEs(ctx, &req)
-			s.Require().Error(err)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
 
 			tc.PostTest()
 		})
@@ -503,7 +515,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedRequestSignReq() {
+func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -516,11 +528,14 @@ func (s *KeeperTestSuite) TestFailedRequestSignReq() {
 			"failure with invalid groupID",
 			func() {
 				req = types.MsgRequestSignature{
-					GroupID: tss.GroupID(999), // non-existent groupID
-					Message: []byte("data"),
+					GroupID:  tss.GroupID(999), // non-existent groupID
+					Message:  []byte("data"),
+					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					Sender:   testapp.FeePayer.Address.String(),
 				}
 			},
 			func() {},
+			types.ErrGroupNotFound,
 		},
 		{
 			"failure with inactive group",
@@ -530,15 +545,32 @@ func (s *KeeperTestSuite) TestFailedRequestSignReq() {
 					Size_:     5,
 					Threshold: 3,
 					PubKey:    nil,
+					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					Status:    types.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)
 				req = types.MsgRequestSignature{
-					GroupID: tss.GroupID(2), // inactive groupID
-					Message: []byte("data"),
+					GroupID:  tss.GroupID(2), // inactive groupID
+					Message:  []byte("data"),
+					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					Sender:   testapp.FeePayer.Address.String(),
 				}
 			},
 			func() {},
+			types.ErrGroupIsNotActive,
+		},
+		{
+			"failure with not enough fee",
+			func() {
+				req = types.MsgRequestSignature{
+					GroupID:  tss.GroupID(1), // inactive groupID
+					Message:  []byte("data"),
+					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					Sender:   testapp.FeePayer.Address.String(),
+				}
+			},
+			func() {},
+			types.ErrNotEnoughFee,
 		},
 	}
 
@@ -546,15 +578,31 @@ func (s *KeeperTestSuite) TestFailedRequestSignReq() {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
 
+			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
+				ctx,
+				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+			)
+
 			_, err := msgSrvr.RequestSignature(ctx, &req)
-			s.Require().Error(err)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
+
+			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
+				ctx,
+				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+			)
+
+			// Check if the balances of payer and module account doesn't change
+			s.Require().Equal(balancesAfter, balancesBefore)
+			s.Require().Equal(balancesModuleAfter, balancesModuleBefore)
 
 			tc.PostTest()
 		})
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
+func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -563,13 +611,31 @@ func (s *KeeperTestSuite) TestSuccessRequestSignReq() {
 	for _, tc := range testutil.TestCases {
 		// Request signature for each member in the group
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			for _, m := range tc.Group.Members {
+			for _, signing := range tc.Signings {
+				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
+					ctx,
+					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+				)
+
 				_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-					GroupID: tc.Group.ID,
-					Message: tc.Signings[0].Data,
-					Sender:  sdk.AccAddress(m.PubKey()).String(),
+					GroupID:  tc.Group.ID,
+					Message:  signing.Data,
+					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					Sender:   testapp.FeePayer.Address.String(),
 				})
 				s.Require().NoError(err)
+
+				// Fee should be paid after requesting signature
+				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
+					ctx,
+					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+				)
+
+				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))
+				s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
+				s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 			}
 		})
 	}
@@ -596,6 +662,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 				}
 			},
 			func() {},
+			types.ErrSigningNotFound,
 		},
 		{
 			"failure with invalid memberID",
@@ -619,6 +686,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			func() {
 				k.DeleteSigning(ctx, tc1.Signings[0].ID)
 			},
+			types.ErrMemberNotFound,
 		},
 	}
 
@@ -627,7 +695,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitSignature(ctx, &req)
-			s.Require().Error(err)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
 
 			tc.PostTest()
 		})
@@ -644,9 +712,10 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Request signature for the first member in the group
 			_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-				GroupID: tc.Group.ID,
-				Message: []byte("msg"),
-				Sender:  sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+				GroupID:  tc.Group.ID,
+				Message:  []byte("msg"),
+				FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+				Sender:   testapp.FeePayer.Address.String(),
 			})
 			s.Require().NoError(err)
 
@@ -659,6 +728,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			s.Require().NoError(err)
 
 			// Process signing for each assigned member
+			var balancesBefores []sdk.Coins
 			for _, am := range signing.AssignedMembers {
 				// Compute Lagrange coefficient
 				var lgc tss.Scalar
@@ -700,10 +770,24 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 					Member:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
+
+				balancesBefores = append(balancesBefores, s.app.BankKeeper.GetAllBalances(
+					ctx,
+					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
+				))
 			}
 
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+
+			// Each assigned member should receive fee for the signature
+			for i, am := range signing.AssignedMembers {
+				balancesAfter := s.app.BankKeeper.GetAllBalances(
+					ctx,
+					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
+				)
+				s.Require().Equal(signing.Fee, balancesAfter.Sub(balancesBefores[i]...))
+			}
 
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))

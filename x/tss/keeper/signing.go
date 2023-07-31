@@ -136,9 +136,14 @@ func (k Keeper) DeleteSigCount(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigCountStoreKey(signingID))
 }
 
+// AddPartialSig adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
+func (k Keeper) AddPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+	k.AddSigCount(ctx, signingID)
+	k.SetPartialSig(ctx, signingID, memberID, sig)
+}
+
 // SetPartialSig sets the partial signature for a specific signing ID and member ID.
 func (k Keeper) SetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
-	k.AddSigCount(ctx, signingID)
 	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
 }
 
@@ -264,29 +269,6 @@ func (k Keeper) HandleRequestSign(
 		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
-	// If found any coins that exceed limit then return error
-	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
-	for _, fc := range feeCoins {
-		limitAmt := feeLimit.AmountOf(fc.Denom)
-		if fc.Amount.GT(limitAmt) {
-			return 0, sdkerrors.Wrapf(
-				types.ErrNotEnoughFee,
-				"require: %s, limit: %s%s",
-				fc.String(),
-				limitAmt.String(),
-				fc.Denom,
-			)
-		}
-	}
-
-	// Send coin to module account
-	if !group.Fee.IsZero() {
-		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
-		if err != nil {
-			return 0, err
-		}
-	}
-
 	// Get active members
 	members, err := k.GetActiveMembers(ctx, groupID)
 	if err != nil {
@@ -354,6 +336,29 @@ func (k Keeper) HandleRequestSign(
 		Fee:             group.Fee,
 		Requester:       feePayer.String(),
 		Status:          types.SIGNING_STATUS_WAITING,
+	}
+
+	// If found any coins that exceed limit then return error
+	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
+	for _, fc := range feeCoins {
+		limitAmt := feeLimit.AmountOf(fc.Denom)
+		if fc.Amount.GT(limitAmt) {
+			return 0, sdkerrors.Wrapf(
+				types.ErrNotEnoughFee,
+				"require: %s, limit: %s%s",
+				fc.String(),
+				limitAmt.String(),
+				fc.Denom,
+			)
+		}
+	}
+
+	// Send coin to module account
+	if !group.Fee.IsZero() {
+		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	// Add signing
@@ -439,7 +444,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 		// Set the signing status to expired
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			k.refundFee(ctx, signing)
+			k.RefundFee(ctx, signing)
 
 			mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
 			pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
@@ -516,7 +521,7 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	signing.Status = types.SIGNING_STATUS_FALLEN
 	k.SetSigning(ctx, signing)
 
-	k.refundFee(ctx, signing)
+	k.RefundFee(ctx, signing)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -528,11 +533,10 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	)
 }
 
-func (k Keeper) refundFee(ctx sdk.Context, signing types.Signing) {
+func (k Keeper) RefundFee(ctx sdk.Context, signing types.Signing) {
 	if !signing.Fee.IsZero() {
 		address := sdk.MustAccAddressFromBech32(signing.Requester)
 		feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-
 		// Error is not possible
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
 		if err != nil {

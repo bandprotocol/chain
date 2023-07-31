@@ -459,7 +459,7 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 	)
-	tssModule := tss.NewAppModule(app.TSSKeeper)
+	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

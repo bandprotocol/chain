@@ -36,7 +36,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		testapp.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
@@ -60,10 +59,12 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		testapp.Validators[0].Address.String(),
+		nil,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
-	require.NoError(t, err)
+	require.Nil(t, err)
 	require.Equal(t, expectRequest, request)
 
 	reportMsg1 := types.NewMsgReportData(
@@ -121,7 +122,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			Type: types.EventTypeResolve,
 			Attributes: []abci.EventAttribute{
 				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-				{Key: []byte(types.AttributeKeySigningID), Value: parseEventAttribute(0)},
 				{
 					Key:   []byte(types.AttributeKeyResolveStatus),
 					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
@@ -185,6 +185,8 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		testapp.Validators[0].Address.String(),
+		nil,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))

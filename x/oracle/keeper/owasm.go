@@ -92,8 +92,19 @@ func (k Keeper) PrepareRequest(
 
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
-		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), r.GetGroupID(), nil, ibcChannel, r.GetExecuteGas(),
+		r.GetOracleScriptID(),
+		r.GetCalldata(),
+		validators,
+		r.GetMinCount(),
+		ctx.BlockHeight(),
+		ctx.BlockTime(),
+		r.GetClientID(),
+		r.GetGroupID(),
+		nil,
+		ibcChannel,
+		r.GetExecuteGas(),
+		feePayer.String(),
+		r.GetFeeLimit(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
@@ -123,11 +134,13 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	totalFees, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests)
+	totalFees, err := k.CollectFee(ctx, feePayer, req.FeeLimit, askCount, req.RawRequests)
 	if err != nil {
 		return 0, err
 	}
+
 	// We now have everything we need to the request, so let's add it to the store.
+	req.FeeLimit = req.FeeLimit.Sub(totalFees...)
 	id := k.AddRequest(ctx, req)
 
 	// Emit an event describing a data request and asked validators.
@@ -185,21 +198,31 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
 		// Request sign by tss module
-		var sid tss.SigningID
+		var signingResult *types.SigningResult
+
 		if req.GroupID != tss.GroupID(0) {
-			// TODO: Use real fee payer and limit
-			sid, err = k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata, nil, sdk.NewCoins())
+			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata, sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
 			if err != nil {
+				codespace, code, _ := sdkerrors.ABCIInfo(err, false)
+				signingResult = &types.SigningResult{
+					ErrorCodespace: codespace,
+					ErrorCode:      uint64(code),
+				}
+
 				ctx.EventManager().EmitEvent(sdk.NewEvent(
 					types.EventTypeHandleRequestSignFail,
 					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
 					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
 					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 				))
+			} else {
+				signingResult = &types.SigningResult{
+					SigningID: sid,
+				}
 			}
 		}
 
-		k.ResolveSuccess(ctx, reqID, sid, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, signingResult, env.Retdata, output.GasUsed)
 	}
 }
 

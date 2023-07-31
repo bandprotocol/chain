@@ -109,6 +109,11 @@ message Request {
   IBCChannel ibc_channel = 10 [(gogoproto.customname) = "IBCChannel"];
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 11;
+  // request is the address of requester
+  string requester = 12;
+  // fee_limit is the fee left for paying fee in this request.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 13
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 // Report is the data structure for storing reports in the storage.
@@ -244,6 +249,20 @@ message Result {
   ResolveStatus resolve_status = 10;
   // Result is the final aggregated value only available if status if OK.
   bytes result = 11;
+}
+
+// SigningResult encodes a result of signing of request
+message SigningResult {
+  option (gogoproto.equal) = true;
+  // signing_id is the id of the signing
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // error_codespace is the codespace of the error
+  string error_codespace = 2;
+  // error_code is the code in the codespace of the error
+  uint64 error_code = 3;
 }
 
 // ValidatorStatus maintains whether a validator is an active oracle provider.

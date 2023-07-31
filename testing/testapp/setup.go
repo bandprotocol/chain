@@ -77,6 +77,7 @@ var (
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	Coins100000000token = sdk.NewCoins(sdk.NewInt64Coin("token", 100000000))
 	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
 	Port1               = "port-1"
 	Port2               = "port-2"
@@ -335,6 +336,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
+		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins: Coins100000000uband},
+		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins: Coins100000000token},
 	}
 	totalSupply := sdk.NewCoins()
 	for idx := 0; idx < len(balances)-len(validators); idx++ {

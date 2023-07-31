@@ -210,6 +210,8 @@ func InitOwasmTestEnv(
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
 		1, time.Now(), "", 0, nil, nil, ExecuteGasLimit,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 
 	return owasmVM, compiledCode, req

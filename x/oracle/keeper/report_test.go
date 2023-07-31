@@ -19,6 +19,8 @@ func defaultRequest() types.Request {
 			types.NewRawRequest(42, 1, BasicCalldata),
 			types.NewRawRequest(43, 2, BasicCalldata),
 		}, nil, 0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 }
 
