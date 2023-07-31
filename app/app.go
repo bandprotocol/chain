@@ -429,6 +429,17 @@ func NewBandApp(
 	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(appCodec, keys[rollingseedtypes.StoreKey])
 	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
 
+	app.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		app.AuthzKeeper,
+		app.RollingseedKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+	)
+	tssModule := tss.NewAppModule(&app.TSSKeeper)
+
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
@@ -449,17 +460,6 @@ func NewBandApp(
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
-
-	app.TSSKeeper = tsskeeper.NewKeeper(
-		appCodec,
-		keys[tsstypes.StoreKey],
-		app.GetSubspace(tsstypes.ModuleName),
-		app.AuthzKeeper,
-		app.RollingseedKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-	)
-	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
