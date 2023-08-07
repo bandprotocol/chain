@@ -11,6 +11,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
+func (s *KeeperTestSuite) TestGRPCQueryCounts() {
+	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
+
+	res, err := q.Counts(ctx, &types.QueryCountsRequest{})
+	s.Require().Nil(err)
+	s.Require().Equal(k.GetGroupCount(ctx), res.GroupCount)
+	s.Require().Equal(k.GetSigningCount(ctx), res.SigningCount)
+}
+
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.queryClient, s.app.TSSKeeper
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)

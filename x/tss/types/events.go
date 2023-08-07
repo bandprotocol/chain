@@ -24,6 +24,7 @@ const (
 	AttributeKeyThreshold     = "threshold"
 	AttributeKeyPubKey        = "pub_key"
 	AttributeKeyStatus        = "status"
+	AttributeKeyFee           = "fee"
 	AttributeKeyDKGContext    = "dkg_context"
 	AttributeKeyRound1Info    = "round1_info"
 	AttributeKeyRound2Info    = "round2_info"
