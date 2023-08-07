@@ -27,7 +27,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdIsGrantee(),
 		GetQueryCmdDE(),
 		GetQueryCmdPendingSignings(),
-		GetQueryCmdSignings(),
+		GetQueryCmdSigning(),
 	)
 
 	return cmd
@@ -222,11 +222,11 @@ func GetQueryCmdPendingSignings() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdSignings creates a CLI command for Query/Signings.
-func GetQueryCmdSignings() *cobra.Command {
+// GetQueryCmdSigning creates a CLI command for Query/Signing.
+func GetQueryCmdSigning() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signings [id]",
-		Short: "Query signings by signing ID",
+		Use:   "signing [id]",
+		Short: "Query a signing by signing ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
