@@ -3,6 +3,7 @@ package signing
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -44,7 +45,7 @@ func New(ctx *cylinder.Context) (*Signing, error) {
 // It returns an error if the subscription fails.
 func (s *Signing) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
-		"tm.event = 'Tx' AND %s.%s = '%s'",
+		"%s.%s = '%s'",
 		types.EventTypeRequestSign,
 		types.AttributeKeyMember,
 		s.context.Config.Granter,
@@ -63,15 +64,29 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log.Events, s.context.Config.Granter)
+		event, err := ParseEvent(log.Events)
 		if err != nil {
 			s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
-		go s.handleSigning(
-			event.SigningID,
-		)
+		go s.handleSigning(event.SigningID)
+	}
+}
+
+// handleABCIEvents handles the end block events.
+func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
+	events := sdk.StringifyEvents(abciEvents)
+	for _, ev := range events {
+		if ev.Type == types.EventTypeRequestSign {
+			event, err := ParseEvent(sdk.StringEvents{ev})
+			if err != nil {
+				s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
+				return
+			}
+
+			go s.handleSigning(event.SigningID)
+		}
 	}
 }
 
@@ -173,7 +188,12 @@ func (s *Signing) Start() {
 	s.handlePendingSignings()
 
 	for ev := range s.eventCh {
-		go s.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
+		switch data := ev.Data.(type) {
+		case tmtypes.EventDataTx:
+			go s.handleTxResult(data.TxResult)
+		case tmtypes.EventDataNewBlock:
+			go s.handleABCIEvents(data.ResultEndBlock.Events)
+		}
 	}
 }
 
