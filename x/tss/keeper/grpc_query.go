@@ -22,6 +22,15 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 	return queryServer{k: k}
 }
 
+// Counts queries the number of data sources, oracle scripts, and requests.
+func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return &types.QueryCountsResponse{
+		GroupCount:   q.k.GetGroupCount(ctx),
+		SigningCount: q.k.GetSigningCount(ctx),
+	}, nil
+}
+
 // Group function handles the request to fetch information about a group.
 func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)

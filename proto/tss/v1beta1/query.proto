@@ -9,6 +9,11 @@ import "tss/v1beta1/tss.proto";
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
 service Query {
+  // Counts queries the number of existing groups and signing.
+  rpc Counts(QueryCountsRequest) returns (QueryCountsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/counts";
+  }
+
   // Group queries group details
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
@@ -53,6 +58,17 @@ service Query {
   rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
     option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
   }
+}
+
+// QueryCountsRequest is request type for the Query/Count RPC method.
+message QueryCountsRequest {}
+
+// QueryCountsResponse is response type for the Query/Count RPC method.
+message QueryCountsResponse {
+  // group_count is total number of group available on the chain
+  uint64 group_count = 1;
+  // signing_count is total number of signing request submitted to the chain
+  uint64 signing_count = 2;
 }
 
 // QueryGroupRequest is the request type for the Query/Group RPC method

@@ -84,6 +84,7 @@ func (k msgServer) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
 		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", req.Threshold)),
+		sdk.NewAttribute(types.AttributeKeyFee, fee.String()),
 		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
 		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
