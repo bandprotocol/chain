@@ -27,13 +27,28 @@ func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status.Status = types.MEMBER_STATUS_ACTIVE
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
+	status.LastActive = status.Since
 	k.SetStatus(ctx, status)
 
 	return nil
 }
 
-// SetInActive sets the member status to inactive
-func (k Keeper) SetInActive(ctx sdk.Context, address sdk.AccAddress) {
+// SetLastActive sets last active of the member
+func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
+	status := k.GetStatus(ctx, address)
+
+	if status.Status != types.MEMBER_STATUS_ACTIVE {
+		return types.ErrInvalidStatus
+	}
+
+	status.LastActive = ctx.BlockTime()
+	k.SetStatus(ctx, status)
+
+	return nil
+}
+
+// SetInactive sets the member status to inactive
+func (k Keeper) SetInactive(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
 	if status.Status == types.MEMBER_STATUS_INACTIVE {

@@ -167,7 +167,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		if err != nil {
 			// If failed to poll DE, deactivate the member.
 			accAddress := sdk.MustAccAddressFromBech32(member.Address)
-			k.SetInActive(ctx, accAddress)
+			k.SetInactive(ctx, accAddress)
 
 			return nil, err
 		}

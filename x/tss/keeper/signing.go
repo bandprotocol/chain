@@ -457,7 +457,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 				if !found {
 					member := k.MustGetMember(ctx, signing.GroupID, mid)
 					accAddress := sdk.MustAccAddressFromBech32(member.Address)
-					k.SetInActive(ctx, accAddress)
+					k.SetInactive(ctx, accAddress)
 				}
 			}
 
