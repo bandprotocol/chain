@@ -164,6 +164,21 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 	return NewDEResponse(der), nil
 }
 
+// QueryStatus queries the status information of the given address.
+// It returns the de response or an error.
+func (c *Client) QueryStatus(address string) (*types.Status, error) {
+	queryClient := types.NewQueryClient(c.context)
+
+	res, err := queryClient.Status(context.Background(), &types.QueryStatusRequest{
+		Address: address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Status, nil
+}
+
 // QueryPendingGroups queries the all pending groups with the given address.
 // It returns the QueryPendingSignsResponse or an error.
 func (c *Client) QueryPendingGroups(address string) (*types.QueryPendingGroupsResponse, error) {

@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/active"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
@@ -23,6 +24,7 @@ const (
 	flagGasAdjustStart   = "gas-adjust-start"
 	flagGasAdjustStep    = "gas-adjust-step"
 	flagRandomSecret     = "random-secret"
+	flagActivePeriod     = "active-period"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -34,6 +36,11 @@ func runCmd(ctx *Context) *cobra.Command {
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
+			if err != nil {
+				return err
+			}
+
+			active, err := active.New(c)
 			if err != nil {
 				return err
 			}
@@ -58,7 +65,7 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			workers := cylinder.Workers{group, de, signing, sender}
+			workers := cylinder.Workers{active, group, de, signing, sender}
 
 			return cylinder.Run(c, workers)
 		},
@@ -77,6 +84,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
+	cmd.Flags().String(flagActivePeriod, "12h", "The time period that cylinder will send active status to chain")
 
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
@@ -91,6 +99,7 @@ func runCmd(ctx *Context) *cobra.Command {
 	viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
 	viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
 	viper.BindPFlag(flagRandomSecret, cmd.Flags().Lookup(flagRandomSecret))
+	viper.BindPFlag(flagActivePeriod, cmd.Flags().Lookup(flagActivePeriod))
 
 	return cmd
 }

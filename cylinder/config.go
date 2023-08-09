@@ -21,4 +21,5 @@ type Config struct {
 	GasAdjustStart   float64       `mapstructure:"gas-adjust-start"`  // The start value of gas adjustment
 	GasAdjustStep    float64       `mapstructure:"gas-adjust-step"`   // The increment step of gad adjustment
 	RandomSecret     tss.Scalar    `mapstructure:"random-secret"`     // The secret value that is used for random D,E
+	ActivePeriod     time.Duration `mapstructure:"active-period"`     // The time period that cylinder will send active status to chain
 }
