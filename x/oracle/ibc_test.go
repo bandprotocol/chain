@@ -6,8 +6,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
@@ -41,6 +41,7 @@ func (suite *OracleTestSuite) SetupTest() {
 	suite.coordinator.Setup(suite.path)
 }
 
+// 0.47 TODO: check if this function is working, maybe return sequence number instead
 func (suite *OracleTestSuite) sendOracleRequestPacket(
 	path *ibctesting.Path,
 	seq uint64,
@@ -57,7 +58,7 @@ func (suite *OracleTestSuite) sendOracleRequestPacket(
 		timeoutHeight,
 		0,
 	)
-	err := path.EndpointA.SendPacket(packet)
+	_, err := path.EndpointA.SendPacket(timeoutHeight, 0, oracleRequestPacket.GetBytes())
 	suite.Require().NoError(err)
 	return packet
 }

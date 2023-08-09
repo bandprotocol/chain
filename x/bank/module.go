@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/bank/exported"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -28,14 +29,23 @@ type AppModule struct {
 
 	keeper        bankkeeper.Keeper
 	accountKeeper types.AccountKeeper
+
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Codec, keeper bankkeeper.Keeper, accountKeeper types.AccountKeeper) AppModule {
+func NewAppModule(
+	cdc codec.Codec,
+	keeper bankkeeper.Keeper,
+	accountKeeper types.AccountKeeper,
+	ss exported.Subspace,
+) AppModule {
 	return AppModule{
-		AppModule:     bank.NewAppModule(cdc, keeper, accountKeeper),
-		keeper:        keeper,
-		accountKeeper: accountKeeper,
+		AppModule:      bank.NewAppModule(cdc, keeper, accountKeeper, ss),
+		keeper:         keeper,
+		accountKeeper:  accountKeeper,
+		legacySubspace: ss,
 	}
 }
 
@@ -44,7 +54,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), bankkeeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 
-	m := bankkeeper.NewMigrator(am.keeper.(keeper.WrappedBankKeeper).Keeper.(bankkeeper.BaseKeeper))
+	m := bankkeeper.NewMigrator(am.keeper.(keeper.WrappedBankKeeper).Keeper.(bankkeeper.BaseKeeper), am.legacySubspace)
 	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
 		panic(fmt.Sprintf("failed to migrate x/bank from version 1 to 2: %v", err))
 	}

@@ -5,11 +5,12 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	ibcante "github.com/cosmos/ibc-go/v5/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
@@ -19,7 +20,8 @@ type HandlerOptions struct {
 	OracleKeeper      *oraclekeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
 	GlobalFeeSubspace paramtypes.Subspace
-	StakingSubspace   paramtypes.Subspace
+	StakingSubspace   paramtypes.Subspace // 0.47 TODO: delete this line
+	StakingKeeper     *stakingkeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -48,14 +50,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		if options.GlobalFeeSubspace.Name() == "" {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "globalfee param store is required for AnteHandler")
 		}
-		if options.StakingSubspace.Name() == "" {
-			return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "staking param store is required for AnteHandler")
-		}
 
 		feeChecker := feechecker.NewFeeChecker(
 			options.OracleKeeper,
 			options.GlobalFeeSubspace,
-			options.StakingSubspace,
+			options.StakingKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}

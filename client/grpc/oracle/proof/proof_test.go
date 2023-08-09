@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
 func hexToBytes(hexstr string) []byte {

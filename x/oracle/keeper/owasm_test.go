@@ -335,7 +335,7 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 		testapp.Alice.Address,
 	)
 	_, err := k.PrepareRequest(ctx, m, testapp.Alice.Address, nil)
-	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds")
+	require.EqualError(t, err, "spendable balance  is smaller than 1000000uband: insufficient funds")
 }
 
 func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
@@ -1059,7 +1059,7 @@ func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
 	require.Nil(t, coins)
 	// MAX is 100m but have only 1m in account
 	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
-	require.EqualError(t, err, "0uband is smaller than 2000000uband: insufficient funds")
+	require.EqualError(t, err, "spendable balance  is smaller than 2000000uband: insufficient funds")
 }
 
 func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -15,7 +16,6 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"

@@ -5,6 +5,10 @@ import (
 	"io"
 	"os"
 
+	dbm "github.com/cometbft/cometbft-db"
+	tmcfg "github.com/cometbft/cometbft/config"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -17,15 +21,10 @@ import (
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-	tmcfg "github.com/tendermint/tendermint/config"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/app/params"
@@ -46,7 +45,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(band.DefaultNodeHome).
 		WithViper("BAND")
 
@@ -84,17 +82,12 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, band.DefaultNodeHome),
-		genutilcli.GenTxCmd(
-			band.ModuleBasics,
-			encodingConfig.TxConfig,
-			banktypes.GenesisBalancesIterator{},
-			band.DefaultNodeHome,
+		// 0.47 TODO: check validity of this function
+		genesisCommand(
+			encodingConfig,
+			AddGenesisDataSourceCmd(band.DefaultNodeHome),
+			AddGenesisOracleScriptCmd(band.DefaultNodeHome),
 		),
-		genutilcli.ValidateGenesisCmd(band.ModuleBasics),
-		AddGenesisAccountCmd(band.DefaultNodeHome),
-		AddGenesisDataSourceCmd(band.DefaultNodeHome),
-		AddGenesisOracleScriptCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
@@ -114,9 +107,20 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		keys.Commands(band.DefaultNodeHome),
 	)
 }
+
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
+}
+
+// genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter
+func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
+	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, band.ModuleBasics, band.DefaultNodeHome)
+
+	for _, subCmd := range cmds {
+		cmd.AddCommand(subCmd)
+	}
+	return cmd
 }
 
 func queryCommand() *cobra.Command {
@@ -203,9 +207,10 @@ func (ac appCreator) newApp(
 	return bandApp
 }
 
+// 0.47 TODO: check if we need to update this function
 func (ac appCreator) appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
-	appOpts servertypes.AppOptions) (servertypes.ExportedApp, error) {
+	appOpts servertypes.AppOptions, modulesToExport []string) (servertypes.ExportedApp, error) {
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")

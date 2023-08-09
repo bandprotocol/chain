@@ -29,12 +29,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
-	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransafertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v5/modules/core"
-	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	icagenesistypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/genesis/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibctransafertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
@@ -59,7 +60,7 @@ func NewDefaultGenesisState() GenesisState {
 	govGenesis := govv1.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
-	icaGenesis := icatypes.DefaultGenesis()
+	icaGenesis := icagenesistypes.DefaultGenesis()
 	globalfeeGenesis := globalfeetypes.DefaultGenesisState()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
@@ -69,7 +70,7 @@ func NewDefaultGenesisState() GenesisState {
 	distrGenesis.Params.BonusProposerReward = sdk.NewDecWithPrec(12, 2) // 12%
 	mintGenesis.Params.BlocksPerYear = 10519200                         // target 3-second block time
 	mintGenesis.Params.MintDenom = denom
-	govGenesis.DepositParams.MinDeposit = sdk.NewCoins(
+	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),
 	)
 	crisisGenesis.ConstantFee = sdk.NewCoin(denom, sdk.TokensFromConsensusPower(10000, sdk.DefaultPowerReduction))
@@ -99,7 +100,7 @@ func NewDefaultGenesisState() GenesisState {
 		govtypes.ModuleName:          cdc.MustMarshalJSON(govGenesis),
 		crisistypes.ModuleName:       cdc.MustMarshalJSON(crisisGenesis),
 		slashingtypes.ModuleName:     cdc.MustMarshalJSON(slashingGenesis),
-		ibchost.ModuleName:           ibc.AppModuleBasic{}.DefaultGenesis(cdc),
+		ibcexported.ModuleName:       ibc.AppModuleBasic{}.DefaultGenesis(cdc),
 		upgradetypes.ModuleName:      upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
 		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),

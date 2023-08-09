@@ -29,13 +29,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	owasm "github.com/bandprotocol/go-owasm/api"
@@ -89,8 +89,8 @@ const (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-var DefaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
+var DefaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   -1,
 	},
@@ -115,7 +115,7 @@ func (app *TestingApp) GetBaseApp() *baseapp.BaseApp {
 }
 
 // GetStakingKeeper implements the TestingApp interface.
-func (app *TestingApp) GetStakingKeeper() stakingkeeper.Keeper {
+func (app *TestingApp) GetStakingKeeper() *stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
 
@@ -249,6 +249,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			EmptyAppOptions{},
 			100,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+			baseapp.SetChainID(chainID),
 		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
@@ -357,6 +358,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		balances,
 		totalSupply,
 		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
 	)
 	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
@@ -369,6 +371,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	if err != nil {
 		panic(err)
 	}
+
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
 		ChainId:         chainID,
@@ -391,7 +394,7 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	return app, ctx, app.OracleKeeper
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
+func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, bandapp.GenesisState, string) {
 	dir, err := os.MkdirTemp("", "bandibc")
 	if err != nil {
 		panic(err)
@@ -427,6 +430,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			EmptyAppOptions{},
 			0,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+			baseapp.SetChainID(chainID),
 		),
 	}
 	if withGenesis {
@@ -437,7 +441,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 
 // SetupWithEmptyStore setup a TestingApp instance with empty DB
 func SetupWithEmptyStore() *TestingApp {
-	app, _, _ := setup(false, 0)
+	app, _, _ := setup(false, 0, "BANDCHAIN")
 	return app
 }
 
@@ -449,9 +453,10 @@ func SetupWithGenesisValSet(
 	t *testing.T,
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
+	chainID string,
 	balances ...banktypes.Balance,
 ) *TestingApp {
-	app, genesisState, dir := setup(true, 5)
+	app, genesisState, dir := setup(true, 5, chainID)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -510,6 +515,7 @@ func SetupWithGenesisValSet(
 		balances,
 		totalSupply,
 		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
 	)
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
@@ -525,6 +531,7 @@ func SetupWithGenesisValSet(
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -534,6 +541,7 @@ func SetupWithGenesisValSet(
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            chainID,
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
