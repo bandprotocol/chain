@@ -171,8 +171,10 @@ message Status {
   string address = 1;
   // status represents the current status of the member
   MemberStatus status = 2;
-  // Since is a block timestamp when a member has been activated/deactivated/jailed
+  // since is a block timestamp when a member has been activated/deactivated/jailed
   google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  // last_active is a latest block timestamp when a member is active
+  google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

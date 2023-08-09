@@ -12,6 +12,7 @@ const (
 	DefaultMaxDESize                             = uint64(100)
 	DefaultCreatingPeriod                        = int64(30000)
 	DefaultSigningPeriod                         = int64(100)
+	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
 )
@@ -21,6 +22,7 @@ var (
 	KeyMaxDESize               = []byte("MaxDESize")
 	KeyCreatingPeriod          = []byte("CreatingPeriod")
 	KeySigningPeriod           = []byte("SigningPeriod")
+	KeyActiveDuration          = []byte("ActiveDuration")
 	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
 	KeyJailPenaltyDuration     = []byte("JailPenaltyDuration")
 )
@@ -36,6 +38,7 @@ func NewParams(
 	maxDESize uint64,
 	creatingPeriod int64,
 	signingPeriod int64,
+	activeDuration time.Duration,
 	inactivePenaltyDuration time.Duration,
 	jailPenaltyDuration time.Duration,
 ) Params {
@@ -44,6 +47,7 @@ func NewParams(
 		MaxDESize:               maxDESize,
 		CreatingPeriod:          creatingPeriod,
 		SigningPeriod:           signingPeriod,
+		ActiveDuration:          activeDuration,
 		InactivePenaltyDuration: inactivePenaltyDuration,
 		JailPenaltyDuration:     jailPenaltyDuration,
 	}
@@ -56,6 +60,7 @@ func DefaultParams() Params {
 		MaxDESize:               DefaultMaxDESize,
 		CreatingPeriod:          DefaultCreatingPeriod,
 		SigningPeriod:           DefaultSigningPeriod,
+		ActiveDuration:          DefaultActiveDuration,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
 		JailPenaltyDuration:     DefaultJailPenaltyDuration,
 	}
@@ -77,6 +82,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			validateInt64("creating period", true),
 		),
 		paramtypes.NewParamSetPair(KeySigningPeriod, &p.SigningPeriod, validateInt64("signing period", true)),
+		paramtypes.NewParamSetPair(
+			KeyActiveDuration,
+			&p.ActiveDuration,
+			validateTimeDuration("active duration"),
+		),
 		paramtypes.NewParamSetPair(
 			KeyInactivePenaltyDuration,
 			&p.InactivePenaltyDuration,

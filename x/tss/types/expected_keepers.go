@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
@@ -56,4 +57,14 @@ type BankKeeper interface {
 		recipientModule string,
 		amt sdk.Coins,
 	) error
+}
+
+// StakingKeeper defines the expected staking keeper.
+type StakingKeeper interface {
+	MaxValidators(ctx sdk.Context) (res uint32)
+	ValidatorByConsAddr(sdk.Context, sdk.ConsAddress) stakingtypes.ValidatorI
+	IterateBondedValidatorsByPower(
+		ctx sdk.Context,
+		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
+	)
 }

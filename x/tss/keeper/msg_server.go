@@ -677,6 +677,27 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	return &types.MsgActivateResponse{}, nil
 }
 
+func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.MsgActiveResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.SetLastActive(ctx, address)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActive,
+		sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
+	))
+
+	return &types.MsgActiveResponse{}, nil
+}
+
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
 // If either a confirm or a complain message from the member is found, an error is returned.
 func (k msgServer) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {

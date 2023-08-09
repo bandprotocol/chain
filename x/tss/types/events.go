@@ -16,6 +16,7 @@ const (
 	EventTypeSubmitSignature = "submit_signature"
 	EventTypeSigningFailed   = "signing_failed"
 	EventTypeActivate        = "activate"
+	EventTypeActive          = "active"
 
 	AttributeKeyGroupID       = "group_id"
 	AttributeKeyMemberID      = "member_id"

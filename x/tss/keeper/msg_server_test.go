@@ -813,3 +813,20 @@ func (s *KeeperTestSuite) TestActivateReq() {
 		})
 	}
 }
+
+func (s *KeeperTestSuite) TestActiveReq() {
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Iterate through test cases from testutil
+	for _, tc := range testutil.TestCases {
+		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			for _, m := range tc.Group.Members {
+				_, err := msgSrvr.Active(ctx, &types.MsgActive{
+					Address: sdk.AccAddress(m.PubKey()).String(),
+				})
+				s.Require().NoError(err)
+			}
+		})
+	}
+}
