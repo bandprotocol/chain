@@ -14,6 +14,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.MaxDESize(ctx),
 		k.CreatingPeriod(ctx),
 		k.SigningPeriod(ctx),
+		k.ActiveDuration(ctx),
 		k.InactivePenaltyDuration(ctx),
 		k.JailPenaltyDuration(ctx),
 	)
@@ -45,6 +46,12 @@ func (k Keeper) CreatingPeriod(ctx sdk.Context) (res int64) {
 // SigningPeriod returns the current SigningPeriod from the global param store
 func (k Keeper) SigningPeriod(ctx sdk.Context) (res int64) {
 	k.paramSpace.Get(ctx, types.KeySigningPeriod, &res)
+	return
+}
+
+// ActiveDuration returns the current ActiveDuration from the global param store
+func (k Keeper) ActiveDuration(ctx sdk.Context) (res time.Duration) {
+	k.paramSpace.Get(ctx, types.KeyActiveDuration, &res)
 	return
 }
 

@@ -381,3 +381,19 @@ func (m MsgActivate) ValidateBasic() error {
 
 	return nil
 }
+
+// GetSigners returns the expected signers for a MsgActive.
+func (m MsgActive) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgActive) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Address)
+	if err != nil {
+		return sdkerrors.Wrap(err, "member")
+	}
+
+	return nil
+}

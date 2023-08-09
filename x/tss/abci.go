@@ -35,4 +35,7 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 
 	// Handles cleanup and actions that are required for signings that have expired.
 	k.HandleExpiredSignings(ctx)
+
+	// Handles marking validator as inactive if the validator is not active recently.
+	k.HandleInactiveValidators(ctx)
 }
