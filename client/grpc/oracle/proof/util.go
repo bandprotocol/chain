@@ -8,7 +8,7 @@ import (
 	"time"
 
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
-	gogotypes "github.com/gogo/protobuf/types"
+	gogotypes "github.com/cosmos/gogoproto/types"
 )
 
 // Copied from https://github.com/cometbft/cometbft/blob/master/types/encoding_helper.go
