@@ -4,6 +4,7 @@ package tss.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v2/x/tss/types";
 option (gogoproto.equal_all) = true;
@@ -268,4 +269,12 @@ message PartialSignature {
       [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
   // signature is the partial signature provided by this member.
   bytes signature = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+}
+
+// DefaultReqeustSignature defines a standard request signature.
+message DefaultRequestSignature {
+  option (cosmos_proto.implements_interface) = "Content";
+
+  // message is the data that needs to be signed.
+  bytes message = 2;
 }

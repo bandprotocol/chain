@@ -3,8 +3,11 @@ package types
 import (
 	"fmt"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	proto "github.com/gogo/protobuf/proto"
 )
 
 var _ sdk.Msg = &MsgCreateGroup{}
@@ -290,7 +293,31 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 	return nil
 }
 
-var _ sdk.Msg = &MsgRequestSignature{}
+var (
+	_ sdk.Msg                       = &MsgRequestSignature{}
+	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
+)
+
+// NewMsgRequestSignature creates a new MsgRequestSignature.
+//
+//nolint:interfacer
+func NewMsgRequestSignature(
+	gid tss.GroupID,
+	content Content,
+	feeLimit sdk.Coins,
+	sender sdk.AccAddress,
+) (*MsgRequestSignature, error) {
+	m := &MsgRequestSignature{
+		GroupID:  gid,
+		FeeLimit: feeLimit,
+		Sender:   sender.String(),
+	}
+	err := m.SetContent(content)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
 
 // Route Implements Msg.
 func (m MsgRequestSignature) Route() string { return sdk.MsgTypeURL(&m) }
@@ -301,6 +328,14 @@ func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
 // GetSignBytes Implements Msg.
 func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+func (m *MsgRequestSignature) GetContent() Content {
+	content, ok := m.Content.GetCachedValue().(Content)
+	if !ok {
+		return nil
+	}
+	return content
 }
 
 // GetSigners returns the expected signers for a MsgRequestSignature.
@@ -317,6 +352,25 @@ func (m MsgRequestSignature) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+func (m *MsgRequestSignature) SetContent(content Content) error {
+	msg, ok := content.(proto.Message)
+	if !ok {
+		return fmt.Errorf("can't proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return err
+	}
+	m.Content = any
+	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var content Content
+	return unpacker.UnpackAny(m.Content, &content)
 }
 
 var _ sdk.Msg = &MsgSubmitSignature{}

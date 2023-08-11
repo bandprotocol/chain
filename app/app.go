@@ -113,6 +113,7 @@ import (
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	"github.com/bandprotocol/chain/v2/x/oracle"
+	oracleclient "github.com/bandprotocol/chain/v2/x/oracle/client"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/x/rollingseed"
@@ -167,7 +168,7 @@ var (
 		vesting.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
-		tss.AppModuleBasic{},
+		tss.NewAppModuleBasic(oracleclient.RequestSignatureHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -429,6 +430,8 @@ func NewBandApp(
 	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(appCodec, keys[rollingseedtypes.StoreKey])
 	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
 
+	// register the request signature types
+	tssRouter := tsstypes.NewRouter()
 	app.TSSKeeper = tsskeeper.NewKeeper(
 		appCodec,
 		keys[tsstypes.StoreKey],
@@ -437,6 +440,7 @@ func NewBandApp(
 		app.RollingseedKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
+		tssRouter,
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
@@ -460,6 +464,15 @@ func NewBandApp(
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
+
+	// Add TSS route
+	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewDefaultRequestSignatureHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewRequestSignatureByRequestIDHandler(app.OracleKeeper))
+
+	// It is vital to seal the request signature router here as to not allow
+	// further handlers to be registered after the keeper is created since this
+	// could create invalid or non-deterministic behavior.
+	tssRouter.Seal()
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

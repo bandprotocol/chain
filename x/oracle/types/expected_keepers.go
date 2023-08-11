@@ -90,7 +90,7 @@ type TSSKeeper interface {
 	HandleRequestSign(
 		ctx sdk.Context,
 		groupID tss.GroupID,
-		msg []byte,
+		content tsstypes.Content,
 		feePayer sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (tss.SigningID, error)

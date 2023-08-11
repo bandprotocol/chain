@@ -373,3 +373,11 @@ message PriceResult {
   // been resolved
   int64 resolve_time = 5;
 }
+
+// RequestSignatureByRequestID defines a rquest id to request TSS signature from the oracle result.
+message RequestSignatureByRequestID {
+  option (gogoproto.goproto_getters) = false;
+
+  // RequestID is BandChain's unique identifier for this oracle request.
+  uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
+}

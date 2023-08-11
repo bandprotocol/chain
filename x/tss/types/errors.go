@@ -60,10 +60,16 @@ var (
 		39,
 		"failed to verify group signing signature",
 	)
-	ErrDEQueueFull       = sdkerrors.Register(ModuleName, 40, "DE queue is full")
-	ErrSigningExpired    = sdkerrors.Register(ModuleName, 41, "signing expired")
-	ErrTooSoonToActivate = sdkerrors.Register(ModuleName, 42, "too soon to activate")
-	ErrStatusNotFound    = sdkerrors.Register(ModuleName, 43, "status not found")
-	ErrStatusIsNotActive = sdkerrors.Register(ModuleName, 44, "status is not active")
-	ErrNotEnoughFee      = sdkerrors.Register(ModuleName, 45, "not enough fee")
+	ErrDEQueueFull                     = sdkerrors.Register(ModuleName, 40, "DE queue is full")
+	ErrSigningExpired                  = sdkerrors.Register(ModuleName, 41, "signing expired")
+	ErrTooSoonToActivate               = sdkerrors.Register(ModuleName, 42, "too soon to activate")
+	ErrStatusNotFound                  = sdkerrors.Register(ModuleName, 43, "status not found")
+	ErrStatusIsNotActive               = sdkerrors.Register(ModuleName, 44, "status is not active")
+	ErrNotEnoughFee                    = sdkerrors.Register(ModuleName, 45, "not enough fee")
+	ErrInvalidRequestSignatureContent  = sdkerrors.Register(ModuleName, 46, "invalid request signature content")
+	ErrNoRequestSignatureHandlerExists = sdkerrors.Register(
+		ModuleName,
+		47,
+		"no handler exists for request signature type",
+	)
 )

@@ -254,10 +254,14 @@ func (k Keeper) GetRandomAssigningParticipants(
 func (k Keeper) HandleRequestSign(
 	ctx sdk.Context,
 	groupID tss.GroupID,
-	msg []byte,
+	content types.Content,
 	feePayer sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (tss.SigningID, error) {
+	if !k.router.HasRoute(content.RequestSignatureRoute()) {
+		return 0, sdkerrors.Wrap(types.ErrNoRequestSignatureHandlerExists, content.RequestSignatureRoute())
+	}
+
 	// Get group
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
@@ -267,6 +271,12 @@ func (k Keeper) HandleRequestSign(
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
 		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	handler := k.router.GetRoute(content.RequestSignatureRoute())
+	msg, err := handler(ctx, content)
+	if err != nil {
+		return 0, sdkerrors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
 	}
 
 	// Get active members

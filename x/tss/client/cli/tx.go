@@ -496,6 +496,8 @@ func GetTxCmdRequest() *cobra.Command {
 				return err
 			}
 
+			content := types.NewDefaultRequestSignature(data)
+
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {
 				return err
@@ -506,11 +508,14 @@ func GetTxCmdRequest() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgRequestSignature{
-				GroupID:  tss.GroupID(groupID),
-				Message:  data,
-				FeeLimit: feeLimit,
-				Sender:   clientCtx.GetFromAddress().String(),
+			msg, err := types.NewMsgRequestSignature(
+				tss.GroupID(groupID),
+				content,
+				feeLimit,
+				clientCtx.GetFromAddress(),
+			)
+			if err != nil {
+				return err
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)

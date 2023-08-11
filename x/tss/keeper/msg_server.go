@@ -525,7 +525,7 @@ func (k msgServer) RequestSignature(
 	}
 
 	// Handle request sign
-	_, err = k.HandleRequestSign(ctx, req.GroupID, req.Message, feePayer, req.FeeLimit)
+	_, err = k.HandleRequestSign(ctx, req.GroupID, req.GetContent(), feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}
