@@ -84,6 +84,7 @@ func (k msgServer) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
 		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", req.Threshold)),
+		sdk.NewAttribute(types.AttributeKeyFee, fee.String()),
 		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
 		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
@@ -674,6 +675,27 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	))
 
 	return &types.MsgActivateResponse{}, nil
+}
+
+func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.MsgActiveResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.SetLastActive(ctx, address)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActive,
+		sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
+	))
+
+	return &types.MsgActiveResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.

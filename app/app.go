@@ -441,6 +441,7 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		tssRouter,
+		app.StakingKeeper,
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 

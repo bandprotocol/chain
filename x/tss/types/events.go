@@ -16,6 +16,7 @@ const (
 	EventTypeSubmitSignature = "submit_signature"
 	EventTypeSigningFailed   = "signing_failed"
 	EventTypeActivate        = "activate"
+	EventTypeActive          = "active"
 
 	AttributeKeyGroupID       = "group_id"
 	AttributeKeyMemberID      = "member_id"
@@ -24,6 +25,7 @@ const (
 	AttributeKeyThreshold     = "threshold"
 	AttributeKeyPubKey        = "pub_key"
 	AttributeKeyStatus        = "status"
+	AttributeKeyFee           = "fee"
 	AttributeKeyDKGContext    = "dkg_context"
 	AttributeKeyRound1Info    = "round1_info"
 	AttributeKeyRound2Info    = "round2_info"

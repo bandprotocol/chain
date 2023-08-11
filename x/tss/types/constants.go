@@ -10,6 +10,7 @@ func GetMsgGrants() []string {
 		sdk.MsgTypeURL(&MsgConfirm{}),
 		sdk.MsgTypeURL(&MsgSubmitDEs{}),
 		sdk.MsgTypeURL(&MsgSubmitSignature{}),
+		sdk.MsgTypeURL(&MsgActive{}),
 	}
 }
 

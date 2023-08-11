@@ -29,6 +29,8 @@ service Msg {
   rpc SubmitSignature(MsgSubmitSignature) returns (MsgSubmitSignatureResponse);
   // Activate activates the status of the group's member.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
+  // Active marks last active of the mebmer.
+  rpc Active(MsgActive) returns (MsgActiveResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -150,8 +152,16 @@ message MsgSubmitSignatureResponse {}
 
 // MsgActivate is a message used to activate the status of the group's member.
 message MsgActivate {
-  // member is the signer of this signing message, who must be a member of the group.
+  // member is the signer of this message, who must be a member of the group.
   string address = 1;
 }
 
 message MsgActivateResponse {}
+
+// MsgActive is a message used to show if the member is still active.
+message MsgActive {
+  // member is the signer of this message, who must be a member of the group.
+  string address = 1;
+}
+
+message MsgActiveResponse {}

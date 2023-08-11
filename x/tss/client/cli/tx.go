@@ -579,7 +579,7 @@ func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "activate",
 		Args:  cobra.ExactArgs(0),
-		Short: "active status of the member in groups",
+		Short: "activate the status of the address",
 		Example: fmt.Sprintf(
 			`%s tx tss activate`,
 			version.AppName,
@@ -591,6 +591,35 @@ func GetTxCmdActivate() *cobra.Command {
 			}
 
 			msg := &types.MsgActivate{
+				Address: clientCtx.GetFromAddress().String(),
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdActive creates a CLI command for CLI command for Msg/Active.
+func GetTxCmdActive() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "active",
+		Args:  cobra.ExactArgs(0),
+		Short: "update active status of the address",
+		Example: fmt.Sprintf(
+			`%s tx tss active`,
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgActive{
 				Address: clientCtx.GetFromAddress().String(),
 			}
 

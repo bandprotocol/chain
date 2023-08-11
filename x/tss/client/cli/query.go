@@ -21,13 +21,42 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		GetQueryCmdCounts(),
 		GetQueryCmdGroup(),
 		GetQueryCmdMembers(),
 		GetQueryCmdIsGrantee(),
 		GetQueryCmdDE(),
-		GetCmdPendingSignings(),
-		GetCmdSignings(),
+		GetQueryCmdPendingSignings(),
+		GetQueryCmdSigning(),
 	)
+
+	return cmd
+}
+
+// GetQueryCmdCounts implements the query counts command.
+func GetQueryCmdCounts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "counts",
+		Short: "Get current number of groups and signings on Bandchain",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Counts(cmd.Context(), &types.QueryCountsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -163,8 +192,8 @@ func GetQueryCmdDE() *cobra.Command {
 	return cmd
 }
 
-// GetCmdPendingSignings creates a CLI command for Query/PendingSignings.
-func GetCmdPendingSignings() *cobra.Command {
+// GetQueryCmdPendingSignings creates a CLI command for Query/PendingSignings.
+func GetQueryCmdPendingSignings() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pending-signings [address]",
 		Short: "Query all pending signing for this address",
@@ -193,11 +222,11 @@ func GetCmdPendingSignings() *cobra.Command {
 	return cmd
 }
 
-// GetCmdSignings creates a CLI command for Query/Signings.
-func GetCmdSignings() *cobra.Command {
+// GetQueryCmdSigning creates a CLI command for Query/Signing.
+func GetQueryCmdSigning() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signings [id]",
-		Short: "Query signings by signing ID",
+		Use:   "signing [id]",
+		Short: "Query a signing by signing ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
