@@ -7,6 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
+	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
+	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
+
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -17,6 +20,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
+	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -107,7 +112,6 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	"github.com/bandprotocol/chain/v2/app/keepers"
-	bandappparams "github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/app/upgrades"
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
@@ -183,7 +187,7 @@ var (
 )
 
 var (
-	_ App                     = (*BandApp)(nil)
+	_ runtime.AppI            = (*BandApp)(nil)
 	_ servertypes.Application = (*BandApp)(nil)
 )
 
@@ -205,6 +209,9 @@ type BandApp struct {
 
 	// Module manager.
 	mm *module.Manager
+
+	// simulation manager
+	sm *module.SimulationManager
 
 	// the configurator
 	configurator module.Configurator
@@ -235,9 +242,11 @@ func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
 // NewBandApp returns a reference to an initialized BandApp.
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
+	homePath string, invCheckPeriod uint, appOpts servertypes.AppOptions,
 	owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
+	encodingConfig := MakeEncodingConfig()
+
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -669,6 +678,23 @@ func NewBandApp(
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.mm.RegisterServices(app.configurator)
 
+	autocliv1.RegisterQueryServer(
+		app.GRPCQueryRouter(),
+		runtimeservices.NewAutoCLIQueryService(app.mm.Modules),
+	)
+
+	reflectionSvc, err := runtimeservices.NewReflectionService()
+	if err != nil {
+		panic(err)
+	}
+	reflectionv1.RegisterReflectionServiceServer(app.GRPCQueryRouter(), reflectionSvc)
+
+	// create the simulation manager and define the order of the modules for deterministic simulations
+	overrideModules := map[string]module.AppModuleSimulation{}
+	app.sm = module.NewSimulationManagerFromAppModules(app.mm.Modules, overrideModules)
+
+	app.sm.RegisterStoreDecoders()
+
 	// Initialize stores.
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
@@ -825,6 +851,11 @@ func (app *BandApp) GetMemKey(storeKey string) *storetypes.MemoryStoreKey {
 func (app *BandApp) GetSubspace(moduleName string) paramstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *BandApp) SimulationManager() *module.SimulationManager {
+	return app.sm
 }
 
 // RegisterAPIRoutes registers all application module routes with the provided

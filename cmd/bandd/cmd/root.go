@@ -94,10 +94,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		config.Cmd(),
 	)
 
-	ac := appCreator{
-		encCfg: encodingConfig,
-	}
-	server.AddCommands(rootCmd, band.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	server.AddCommands(rootCmd, band.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
@@ -176,12 +173,8 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
-type appCreator struct {
-	encCfg params.EncodingConfig
-}
-
 // newApp is an AppCreator
-func (ac appCreator) newApp(
+func newApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -198,7 +191,6 @@ func (ac appCreator) newApp(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg,
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 		baseappOptions...,
@@ -207,8 +199,8 @@ func (ac appCreator) newApp(
 	return bandApp
 }
 
-// 0.47 TODO: check if we need to update this function
-func (ac appCreator) appExport(
+// 0.47 TODO: check if function is working
+func appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions, modulesToExport []string) (servertypes.ExportedApp, error) {
 	homePath, ok := appOpts.Get(flags.FlagHome).(string)
@@ -229,7 +221,6 @@ func (ac appCreator) appExport(
 		map[int64]bool{},
 		homePath,
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg,
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 	)
@@ -240,5 +231,5 @@ func (ac appCreator) appExport(
 		}
 	}
 
-	return bandApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+	return bandApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }

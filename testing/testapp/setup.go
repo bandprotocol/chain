@@ -219,7 +219,6 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	// db := dbm.NewMemDB()
 	db, _ := dbm.NewGoLevelDB("db", dir)
-	encCdc := bandapp.MakeEncodingConfig()
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
@@ -245,7 +244,6 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			map[int64]bool{},
 			dir,
 			0,
-			encCdc,
 			EmptyAppOptions{},
 			100,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
@@ -400,7 +398,6 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 		panic(err)
 	}
 	db := dbm.NewMemDB()
-	encCdc := bandapp.MakeEncodingConfig()
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
@@ -426,7 +423,6 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 			map[int64]bool{},
 			dir,
 			0,
-			encCdc,
 			EmptyAppOptions{},
 			0,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
