@@ -12,12 +12,15 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -220,6 +223,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// db := dbm.NewMemDB()
 	db, _ := dbm.NewGoLevelDB("db", dir)
 
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = dir
+	appOptions[server.FlagInvCheckPeriod] = 0
+
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	if err != nil {
@@ -242,9 +249,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			nil,
 			true,
 			map[int64]bool{},
-			dir,
-			0,
-			EmptyAppOptions{},
+			appOptions,
 			100,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 			baseapp.SetChainID(chainID),
@@ -399,6 +404,10 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 	}
 	db := dbm.NewMemDB()
 
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = dir
+	appOptions[server.FlagInvCheckPeriod] = 0
+
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	if err != nil {
@@ -421,9 +430,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 			nil,
 			true,
 			map[int64]bool{},
-			dir,
-			0,
-			EmptyAppOptions{},
+			appOptions,
 			0,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 			baseapp.SetChainID(chainID),

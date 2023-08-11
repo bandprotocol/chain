@@ -189,8 +189,6 @@ func newApp(
 
 	bandApp := band.NewBandApp(
 		logger, db, traceStore, true, skipUpgradeHeights,
-		cast.ToString(appOpts.Get(flags.FlagHome)),
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 		baseappOptions...,
@@ -219,8 +217,6 @@ func appExport(
 		traceStore,
 		loadLatest,
 		map[int64]bool{},
-		homePath,
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
 	)
