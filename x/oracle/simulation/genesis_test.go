@@ -40,7 +40,7 @@ func TestRandomizedGenState(t *testing.T) {
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &oracleGenesis)
 
 	require.Equal(t, uint64(18), oracleGenesis.Params.MaxRawRequestCount)
-	require.Equal(t, uint64(12), oracleGenesis.Params.MaxAskCount)
+	require.Equal(t, uint64(26), oracleGenesis.Params.MaxAskCount)
 	require.Equal(t, uint64(700), oracleGenesis.Params.MaxCalldataSize)
 	require.Equal(t, uint64(294), oracleGenesis.Params.MaxReportDataSize)
 	require.Equal(t, uint64(791), oracleGenesis.Params.ExpirationBlockCount)

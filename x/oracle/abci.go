@@ -14,7 +14,7 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keep
 	hash := req.GetHash()
 	if len(hash) > 0 {
 		rollingSeed := k.GetRollingSeed(ctx)
-		k.SetRollingSeed(ctx, append(rollingSeed[1:], req.GetHash()[0]))
+		k.SetRollingSeed(ctx, append(rollingSeed[1:], hash[0]))
 	}
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())

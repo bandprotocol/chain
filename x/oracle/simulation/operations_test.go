@@ -45,7 +45,6 @@ func (suite *SimTestSuite) SetupTest() {
 			},
 		},
 	)
-
 }
 
 // TestWeightedOperations tests the weights of the operations.
