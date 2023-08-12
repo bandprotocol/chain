@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -227,8 +226,6 @@ func SimulateMsgReportData(
 		for i := uint64(1); i <= rCount; i++ {
 			req, _ := keeper.GetRequest(ctx, types.RequestID(i))
 
-			fmt.Printf("req %+v\n", req)
-
 			for _, val := range req.RequestedValidators {
 				valAddr, _ := sdk.ValAddressFromBech32(val)
 				acc, ok := simtypes.FindAccount(accs, sdk.AccAddress(valAddr))
@@ -246,7 +243,6 @@ func SimulateMsgReportData(
 		}
 
 		if rid == 0 {
-			fmt.Printf("as")
 			return simtypes.NoOpMsg(
 				types.ModuleName,
 				types.MsgReportData{}.Type(),
