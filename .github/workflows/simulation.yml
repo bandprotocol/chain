@@ -14,13 +14,13 @@ jobs:
         run: |
           wget https://github.com/WebAssembly/wabt/releases/download/1.0.17/wabt-1.0.17-ubuntu.tar.gz
           tar -zxf wabt-1.0.17-ubuntu.tar.gz
-          sudo cp wabt-1.0.17/bin/wat2wasm /usr/local/bin
+          sudo cp wabt-1.0.17/bin/wat2wasm ~/go/bin
       - name: Install runsim
         run: go install github.com/cosmos/tools/cmd/runsim@v1.0.0
       - uses: actions/cache@v3
         with:
           path: ~/go/bin
-          key: ${{ runner.os }}-go-runsim-binary
+          key: ${{ runner.os }}-go-binary
 
   test-sim-import-export:
     runs-on: ubuntu-latest
@@ -35,7 +35,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/bin
-          key: ${{ runner.os }}-go-runsim-binary
+          key: ${{ runner.os }}-go-binary
       - name: test-sim-import-export
         run: |
           make test-sim-import-export
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/bin
-          key: ${{ runner.os }}-go-runsim-binary
+          key: ${{ runner.os }}-go-binary
       - name: test-sim-after-import
         run: |
           make test-sim-after-import
@@ -71,7 +71,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/bin
-          key: ${{ runner.os }}-go-runsim-binary
+          key: ${{ runner.os }}-go-binary
       - name: test-sim-multi-seed-short
         run: |
           make test-sim-multi-seed-short
@@ -89,7 +89,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/go/bin
-          key: ${{ runner.os }}-go-runsim-binary
+          key: ${{ runner.os }}-go-binary
       - name: test-sim-deterministic
         run: |
           make test-sim-deterministic
