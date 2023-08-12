@@ -44,6 +44,7 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -193,11 +194,11 @@ func getGenesisOracleScripts(homePath string) []types.OracleScript {
 	fc := filecache.New(dir)
 	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
 	wasms := [][]byte{
-		Wasm1, Wasm2, Wasm3, Wasm4, Wasm56(10), Wasm56(10000000), Wasm78(10), Wasm78(2000), Wasm9,
+		testdata.Wasm1, testdata.Wasm2, testdata.Wasm3, testdata.Wasm4, testdata.Wasm56(10), testdata.Wasm56(10000000), testdata.Wasm78(10), testdata.Wasm78(2000), testdata.Wasm9,
 	}
 	for idx := 0; idx < len(wasms); idx++ {
 		idxStr := fmt.Sprintf("%d", idx+1)
-		hash := fc.AddFile(compile(wasms[idx]))
+		hash := fc.AddFile(testdata.Compile(wasms[idx]))
 		OracleScripts = append(OracleScripts, types.NewOracleScript(
 			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
 		))

@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // A bad Owasm script with the following specification:
 //
