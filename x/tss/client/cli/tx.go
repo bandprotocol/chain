@@ -20,6 +20,7 @@ import (
 
 const (
 	flagExpiration = "expiration"
+	flagGroupID    = "group-id"
 	flagFeeLimit   = "fee-limit"
 )
 
@@ -493,17 +494,21 @@ func GetTxCmdRequestSignature() *cobra.Command {
 		Use:   "request-signature",
 		Short: "request sign of the message from the group",
 	}
+
+	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
+	cmd.PersistentFlags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
+
 	return cmd
 }
 
 // GetTxCmdTextRequestSignature creates a CLI command for CLI command for Msg/TextRequestSignature.
 func GetTxCmdTextRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "text [group_id] [message]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "text [message]",
+		Args:  cobra.ExactArgs(1),
 		Short: "request sign of the message from the group",
 		Example: fmt.Sprintf(
-			`%s tx tss request-signature [group_id] [message]`,
+			`%s tx tss request-signature text [message] --group-id 1 --fee-limit 10uband`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -512,12 +517,12 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
 
-			data, err := hex.DecodeString(args[1])
+			data, err := hex.DecodeString(args[0])
 			if err != nil {
 				return err
 			}
@@ -535,7 +540,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgRequestSignature(
-				tss.GroupID(groupID),
+				tss.GroupID(gid),
 				content,
 				feeLimit,
 				clientCtx.GetFromAddress(),
@@ -547,8 +552,6 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
-	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
 
 	return cmd
 }

@@ -16,7 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSign", nil)
 	cdc.RegisterConcrete(&MsgSubmitSignature{}, "tss/SubmitSignature", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "tss/Activate", nil)
-	cdc.RegisterConcrete(&DefaultRequestSignature{}, "tss/DefaultRequestSignature", nil)
+	cdc.RegisterConcrete(&TextRequestSignature{}, "tss/TextRequestSignature", nil)
 	cdc.RegisterConcrete(&MsgActive{}, "tss/Active", nil)
 }
 
@@ -36,7 +36,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"tss.v1beta1.Content",
 		(*Content)(nil),
-		&DefaultRequestSignature{},
+		&TextRequestSignature{},
 	)
 }
 

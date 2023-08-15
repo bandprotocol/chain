@@ -13,20 +13,20 @@ const (
 )
 
 // Implements Content Interface
-var _ Content = &DefaultRequestSignature{}
+var _ Content = &TextRequestSignature{}
 
-func NewDefaultRequestSignature(msg []byte) *DefaultRequestSignature {
-	return &DefaultRequestSignature{Message: msg}
+func NewDefaultRequestSignature(msg []byte) *TextRequestSignature {
+	return &TextRequestSignature{Message: msg}
 }
 
 // RequestSignatureRoute returns the request router key
-func (rs *DefaultRequestSignature) RequestSignatureRoute() string { return RouterKey }
+func (rs *TextRequestSignature) RequestSignatureRoute() string { return RouterKey }
 
 // RequestSignatureType is "default"
-func (rs *DefaultRequestSignature) RequestSignatureType() string { return RequestSignatureTypeDefault }
+func (rs *TextRequestSignature) RequestSignatureType() string { return RequestSignatureTypeDefault }
 
 // ValidateBasic validates the content's title and description of the request signature
-func (rs *DefaultRequestSignature) ValidateBasic() error { return nil }
+func (rs *TextRequestSignature) ValidateBasic() error { return nil }
 
 var validRequestSignatureTypes = map[string]struct{}{
 	RequestSignatureTypeDefault: {},
@@ -43,13 +43,13 @@ func RegisterRequestSignatureType(ty string) {
 }
 
 // NewRequestSignatureHandler implements the Handler interface for tss module-based
-// request signatures (ie. DefaultRequestSignature ). Since these are
+// request signatures (ie. TextRequestSignature ). Since these are
 // merely signaling mechanisms at the moment and do not affect state, it
 // performs a no-op.
 func NewRequestSignatureHandler() Handler {
 	return func(ctx sdk.Context, content Content) ([]byte, error) {
 		switch c := content.(type) {
-		case *DefaultRequestSignature:
+		case *TextRequestSignature:
 			return c.Message, nil
 
 		default:

@@ -38,8 +38,8 @@ const (
 	flagExpiration    = "expiration"
 )
 
-// NewTxCmd returns the transaction commands for this module
-func NewTxCmd() *cobra.Command {
+// GetTxCmd returns the transaction commands for this module
+func GetTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "oracle transaction subcommands",
@@ -690,13 +690,13 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oracle-result [group-id] [request-id]",
+		Use:   "oracle-result [request-id]",
 		Short: "Request TSS signature from request id",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -707,12 +707,12 @@ $ %s tx tss request-signature oracle-result 1 1 --fee-limit 10uband
 				return err
 			}
 
-			gid, err := strconv.ParseUint(args[0], 10, 64)
+			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
 
-			rid, err := strconv.ParseUint(args[1], 10, 64)
+			rid, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -738,8 +738,6 @@ $ %s tx tss request-signature oracle-result 1 1 --fee-limit 10uband
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
-	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid to tss group provider")
 
 	return cmd
 }

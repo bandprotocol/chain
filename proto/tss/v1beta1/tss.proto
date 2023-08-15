@@ -273,8 +273,8 @@ message PartialSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
 }
 
-// DefaultReqeustSignature defines a standard request signature.
-message DefaultRequestSignature {
+// TextRequestSignature defines a standard request signature.
+message TextRequestSignature {
   option (cosmos_proto.implements_interface) = "Content";
 
   // message is the data that needs to be signed.
