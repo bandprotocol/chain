@@ -13,7 +13,7 @@ import (
 func NewRequestSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
-		case *types.RequestSignatureByRequestID:
+		case *types.OracleResultRequestSignature:
 			return handleRequestSignatureByRequestID(ctx, k, c)
 
 		default:
@@ -29,7 +29,7 @@ func NewRequestSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 func handleRequestSignatureByRequestID(
 	ctx sdk.Context,
 	k keeper.Keeper,
-	rs *types.RequestSignatureByRequestID,
+	rs *types.OracleResultRequestSignature,
 ) ([]byte, error) {
 	r, err := k.GetResult(ctx, rs.RequestID)
 	if err != nil {

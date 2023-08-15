@@ -9,13 +9,13 @@ import (
 
 // request signature types
 const (
-	RequestSignatureTypeDefault string = "default"
+	RequestSignatureTypeText string = "text"
 )
 
 // Implements Content Interface
 var _ Content = &TextRequestSignature{}
 
-func NewDefaultRequestSignature(msg []byte) *TextRequestSignature {
+func NewTextRequestSignature(msg []byte) *TextRequestSignature {
 	return &TextRequestSignature{Message: msg}
 }
 
@@ -23,13 +23,13 @@ func NewDefaultRequestSignature(msg []byte) *TextRequestSignature {
 func (rs *TextRequestSignature) RequestSignatureRoute() string { return RouterKey }
 
 // RequestSignatureType is "default"
-func (rs *TextRequestSignature) RequestSignatureType() string { return RequestSignatureTypeDefault }
+func (rs *TextRequestSignature) RequestSignatureType() string { return RequestSignatureTypeText }
 
 // ValidateBasic validates the content's title and description of the request signature
 func (rs *TextRequestSignature) ValidateBasic() error { return nil }
 
 var validRequestSignatureTypes = map[string]struct{}{
-	RequestSignatureTypeDefault: {},
+	RequestSignatureTypeText: {},
 }
 
 // RegisterRequestSignatureType registers a request signature type. It will panic if the type is

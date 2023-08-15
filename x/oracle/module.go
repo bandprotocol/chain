@@ -67,7 +67,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 
 // GetTxCmd returns cobra CLI command to send txs for this module (SDK AppModuleBasic interface).
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
+	return cli.NewTxCmd()
 }
 
 // GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).

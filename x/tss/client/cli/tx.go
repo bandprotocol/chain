@@ -24,8 +24,8 @@ const (
 	flagFeeLimit   = "fee-limit"
 )
 
-// NewTxCmd returns a root CLI command handler for all x/tss transaction commands.
-func NewTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
+// GetTxCmd returns a root CLI command handler for all x/tss transaction commands.
+func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "TSS transactions subcommands",
@@ -488,11 +488,11 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdRequestSignature creates a CLI command for CLI command for Msg/TxCmdRequestSignature.
+// GetTxCmdRequestSignature creates a CLI command for CLI command for Msg/RequestSignature.
 func GetTxCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-signature",
-		Short: "request sign of the message from the group",
+		Short: "request signature from the group",
 	}
 
 	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
@@ -506,10 +506,10 @@ func GetTxCmdRequestSignature() *cobra.Command {
 
 // GetTxCmdTextRequestSignature creates a CLI command for CLI command for Msg/TextRequestSignature.
 func GetTxCmdTextRequestSignature() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "text [message]",
 		Args:  cobra.ExactArgs(1),
-		Short: "request sign of the message from the group",
+		Short: "request signature of the message from the group",
 		Example: fmt.Sprintf(
 			`%s tx tss request-signature text [message] --group-id 1 --fee-limit 10uband`,
 			version.AppName,
@@ -530,7 +530,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 				return err
 			}
 
-			content := types.NewDefaultRequestSignature(data)
+			content := types.NewTextRequestSignature(data)
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {
@@ -555,8 +555,6 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
-	return cmd
 }
 
 // GetTxCmdSubmitSignature creates a CLI command for CLI command for Msg/SubmitSignature.

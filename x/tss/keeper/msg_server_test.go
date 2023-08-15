@@ -530,7 +530,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(999), // non-existent groupID
-					types.NewDefaultRequestSignature([]byte("msg")),
+					types.NewTextRequestSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -553,7 +553,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				k.SetGroup(ctx, inactiveGroup)
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(2), // inactive groupID
-					types.NewDefaultRequestSignature([]byte("msg")),
+					types.NewTextRequestSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -567,7 +567,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(1),
-					types.NewDefaultRequestSignature([]byte("msg")),
+					types.NewTextRequestSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					testapp.FeePayer.Address,
 				)
@@ -623,7 +623,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 
 				msg, err := types.NewMsgRequestSignature(
 					tc.Group.ID,
-					types.NewDefaultRequestSignature(signing.Data),
+					types.NewTextRequestSignature(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -719,7 +719,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Request signature for the first member in the group
 			msg, err := types.NewMsgRequestSignature(
 				tc.Group.ID,
-				types.NewDefaultRequestSignature([]byte("msg")),
+				types.NewTextRequestSignature([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				testapp.FeePayer.Address,
 			)

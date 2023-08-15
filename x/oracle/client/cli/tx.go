@@ -38,8 +38,8 @@ const (
 	flagExpiration    = "expiration"
 )
 
-// GetTxCmd returns the transaction commands for this module
-func GetTxCmd() *cobra.Command {
+// NewTxCmd returns the transaction commands for this module
+func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "oracle transaction subcommands",
@@ -689,7 +689,7 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "oracle-result [request-id]",
 		Short: "Request TSS signature from request id",
 		Args:  cobra.ExactArgs(1),
@@ -728,7 +728,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewRequestSignatureByRequestID(types.RequestID(rid))
+			content := types.NewRequestSignature(types.RequestID(rid))
 
 			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
 			if err != nil {
@@ -738,6 +738,4 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
-	return cmd
 }

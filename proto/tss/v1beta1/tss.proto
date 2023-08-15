@@ -278,5 +278,5 @@ message TextRequestSignature {
   option (cosmos_proto.implements_interface) = "Content";
 
   // message is the data that needs to be signed.
-  bytes message = 2;
+  bytes message = 1;
 }

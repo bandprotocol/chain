@@ -60,7 +60,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	requestSignatureHandlers := getRequestSignatureCLIHandlers(a.requestSignatureHandlers)
 
-	return cli.NewTxCmd(requestSignatureHandlers)
+	return cli.GetTxCmd(requestSignatureHandlers)
 }
 
 func getRequestSignatureCLIHandlers(handlers []tssclient.RequestSignatureHandler) []*cobra.Command {

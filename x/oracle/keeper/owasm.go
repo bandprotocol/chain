@@ -201,7 +201,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		var signingResult *types.SigningResult
 
 		if req.GroupID != tss.GroupID(0) {
-			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, tsstypes.NewDefaultRequestSignature(env.Retdata), sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
+			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, tsstypes.NewTextRequestSignature(env.Retdata), sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
 			if err != nil {
 				codespace, code, _ := sdkerrors.ABCIInfo(err, false)
 				signingResult = &types.SigningResult{
