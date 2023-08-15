@@ -23,14 +23,30 @@ const (
 	flagFeeLimit   = "fee-limit"
 )
 
-// GetTxCmdTxCmd returns a root CLI command handler for all x/tss transaction commands.
-func GetTxCmd() *cobra.Command {
+// NewTxCmd returns a root CLI command handler for all x/tss transaction commands.
+func NewTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "TSS transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
+	}
+
+	// Create the command for requesting a signature.
+	cmdRequestSignature := GetTxCmdRequestSignature()
+
+	// Create the command for requesting a signature using text input.
+	cmdTextRequestSignature := GetTxCmdTextRequestSignature()
+
+	// Add the text signature command as a subcommand.
+	flags.AddTxFlagsToCmd(cmdTextRequestSignature)
+	cmdRequestSignature.AddCommand(cmdTextRequestSignature)
+
+	// Loop through and add the provided request signature commands as subcommands.
+	for _, cmd := range requestSignatureCmds {
+		flags.AddTxFlagsToCmd(cmd)
+		cmdRequestSignature.AddCommand(cmd)
 	}
 
 	txCmd.AddCommand(
@@ -42,9 +58,10 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdComplain(),
 		GetTxCmdConfirm(),
 		GetTxCmdSubmitDEs(),
-		GetTxCmdRequest(),
 		GetTxCmdSubmitSignature(),
 		GetTxCmdActivate(),
+
+		cmdRequestSignature,
 	)
 
 	return txCmd
@@ -470,14 +487,23 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdRequest creates a CLI command for CLI command for Msg/RequestSignature.
-func GetTxCmdRequest() *cobra.Command {
+// GetTxCmdRequestSignature creates a CLI command for CLI command for Msg/TxCmdRequestSignature.
+func GetTxCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request [group_id] [message]",
+		Use:   "request-signature",
+		Short: "request sign of the message from the group",
+	}
+	return cmd
+}
+
+// GetTxCmdTextRequestSignature creates a CLI command for CLI command for Msg/TextRequestSignature.
+func GetTxCmdTextRequestSignature() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "text [group_id] [message]",
 		Args:  cobra.ExactArgs(2),
 		Short: "request sign of the message from the group",
 		Example: fmt.Sprintf(
-			`%s tx tss request [group_id] [message]`,
+			`%s tx tss request-signature [group_id] [message]`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -522,7 +548,6 @@ func GetTxCmdRequest() *cobra.Command {
 		},
 	}
 
-	flags.AddTxFlagsToCmd(cmd)
 	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
 
 	return cmd

@@ -58,11 +58,17 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the tss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	txCmd := cli.GetTxCmd()
-	for _, requestSignatureHandler := range a.requestSignatureHandlers {
-		txCmd.AddCommand(requestSignatureHandler.CLIHandler())
+	requestSignatureHandlers := getRequestSignatureCLIHandlers(a.requestSignatureHandlers)
+
+	return cli.NewTxCmd(requestSignatureHandlers)
+}
+
+func getRequestSignatureCLIHandlers(handlers []tssclient.RequestSignatureHandler) []*cobra.Command {
+	requestSignatureHandlers := make([]*cobra.Command, 0, len(handlers))
+	for _, requestSignatureHandler := range handlers {
+		requestSignatureHandlers = append(requestSignatureHandlers, requestSignatureHandler.CLIHandler())
 	}
-	return txCmd
+	return requestSignatureHandlers
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.

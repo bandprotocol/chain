@@ -36,8 +36,8 @@ func NewKeeper(
 	rollingseedKeeper types.RollingseedKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
-	rtr types.Router,
 	stakingKeeper types.StakingKeeper,
+	rtr types.Router,
 ) Keeper {
 	// ensure TSS module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -57,8 +57,8 @@ func NewKeeper(
 		rollingseedKeeper: rollingseedKeeper,
 		authKeeper:        authKeeper,
 		bankKeeper:        bankKeeper,
-		router:            rtr,
 		stakingKeeper:     stakingKeeper,
+		router:            rtr,
 	}
 }
 

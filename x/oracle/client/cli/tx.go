@@ -690,13 +690,13 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request-signature [group-id] [request-id]",
+		Use:   "oracle-result [group-id] [request-id]",
 		Short: "Request TSS signature from request id",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx oracle request-signature 1 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -740,6 +740,6 @@ $ %s tx oracle request-signature 1 1 --fee-limit 10uband
 	}
 
 	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid to tss group provider")
-	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }

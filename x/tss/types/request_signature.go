@@ -42,11 +42,11 @@ func RegisterRequestSignatureType(ty string) {
 	validRequestSignatureTypes[ty] = struct{}{}
 }
 
-// NewDefaultRequestSignatureHandler implements the Handler interface for tss module-based
+// NewRequestSignatureHandler implements the Handler interface for tss module-based
 // request signatures (ie. DefaultRequestSignature ). Since these are
 // merely signaling mechanisms at the moment and do not affect state, it
 // performs a no-op.
-func NewDefaultRequestSignatureHandler() Handler {
+func NewRequestSignatureHandler() Handler {
 	return func(ctx sdk.Context, content Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *DefaultRequestSignature:

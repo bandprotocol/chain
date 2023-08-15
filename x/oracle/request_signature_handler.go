@@ -9,8 +9,8 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// NewRequestSignatureByRequestIDHandler creates a new TSS Handler for requesting the signature
-func NewRequestSignatureByRequestIDHandler(k keeper.Keeper) tsstypes.Handler {
+// NewRequestSignatureHandler creates a new TSS Handler for requesting the signature
+func NewRequestSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.RequestSignatureByRequestID:

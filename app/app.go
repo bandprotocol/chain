@@ -440,8 +440,8 @@ func NewBandApp(
 		app.RollingseedKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
-		tssRouter,
 		app.StakingKeeper,
+		tssRouter,
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
@@ -467,8 +467,8 @@ func NewBandApp(
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
-	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewDefaultRequestSignatureHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewRequestSignatureByRequestIDHandler(app.OracleKeeper))
+	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRequestSignatureHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewRequestSignatureHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
