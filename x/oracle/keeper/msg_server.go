@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/gzip"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -44,7 +45,7 @@ func (k msgServer) RequestData(
 func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (*types.MsgReportDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	maxReportDataSize := int(k.MaxReportDataSize(ctx))
+	maxReportDataSize := int(k.GetParams(ctx).MaxReportDataSize)
 	for _, r := range msg.RawReports {
 		if len(r.Data) > maxReportDataSize {
 			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), maxReportDataSize)
@@ -288,4 +289,25 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
 	))
 	return &types.MsgActivateResponse{}, nil
+}
+
+func (ms msgServer) UpdateParams(
+	goCtx context.Context,
+	req *types.MsgUpdateParams,
+) (*types.MsgUpdateParamsResponse, error) {
+	if ms.authority != req.Authority {
+		return nil, sdkerrors.Wrapf(
+			govtypes.ErrInvalidSigner,
+			"invalid authority; expected %s, got %s",
+			ms.authority,
+			req.Authority,
+		)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := ms.SetParams(ctx, req.Params); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateParamsResponse{}, nil
 }

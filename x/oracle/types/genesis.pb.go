@@ -25,7 +25,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the oracle module's genesis state.
 type GenesisState struct {
-	// Params defines all the paramaters of the module.
+	// Params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// DataSources are data sources to be installed during genesis phase.
 	DataSources []DataSource `protobuf:"bytes,2,rep,name=data_sources,json=dataSources,proto3" json:"data_sources"`

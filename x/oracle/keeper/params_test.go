@@ -26,17 +26,6 @@ func TestGetSetParams(t *testing.T) {
 	}
 	k.SetParams(ctx, expectedParams)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
-	require.Equal(t, expectedParams.MaxRawRequestCount, k.MaxRawRequestCount(ctx))
-	require.Equal(t, expectedParams.MaxCalldataSize, k.MaxCalldataSize(ctx))
-	require.Equal(t, expectedParams.MaxReportDataSize, k.MaxReportDataSize(ctx))
-	require.Equal(t, expectedParams.MaxAskCount, k.MaxAskCount(ctx))
-	require.Equal(t, expectedParams.ExpirationBlockCount, k.ExpirationBlockCount(ctx))
-	require.Equal(t, expectedParams.BaseOwasmGas, k.BaseOwasmGas(ctx))
-	require.Equal(t, expectedParams.PerValidatorRequestGas, k.PerValidatorRequestGas(ctx))
-	require.Equal(t, expectedParams.SamplingTryCount, k.SamplingTryCount(ctx))
-	require.Equal(t, expectedParams.OracleRewardPercentage, k.OracleRewardPercentage(ctx))
-	require.Equal(t, expectedParams.InactivePenaltyDuration, k.InactivePenaltyDuration(ctx))
-	require.Equal(t, expectedParams.IBCRequestEnabled, k.IBCRequestEnabled(ctx))
 	expectedParams = types.Params{
 		MaxRawRequestCount:      2,
 		MaxAskCount:             20,
@@ -52,15 +41,4 @@ func TestGetSetParams(t *testing.T) {
 	}
 	k.SetParams(ctx, expectedParams)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
-	require.Equal(t, expectedParams.MaxRawRequestCount, k.MaxRawRequestCount(ctx))
-	require.Equal(t, expectedParams.MaxCalldataSize, k.MaxCalldataSize(ctx))
-	require.Equal(t, expectedParams.MaxReportDataSize, k.MaxReportDataSize(ctx))
-	require.Equal(t, expectedParams.MaxAskCount, k.MaxAskCount(ctx))
-	require.Equal(t, expectedParams.ExpirationBlockCount, k.ExpirationBlockCount(ctx))
-	require.Equal(t, expectedParams.BaseOwasmGas, k.BaseOwasmGas(ctx))
-	require.Equal(t, expectedParams.PerValidatorRequestGas, k.PerValidatorRequestGas(ctx))
-	require.Equal(t, expectedParams.SamplingTryCount, k.SamplingTryCount(ctx))
-	require.Equal(t, expectedParams.OracleRewardPercentage, k.OracleRewardPercentage(ctx))
-	require.Equal(t, expectedParams.InactivePenaltyDuration, k.InactivePenaltyDuration(ctx))
-	require.Equal(t, expectedParams.IBCRequestEnabled, k.IBCRequestEnabled(ctx))
 }

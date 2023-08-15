@@ -17,9 +17,13 @@ import (
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
+	"github.com/bandprotocol/chain/v2/x/oracle/exported"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
+
+// ConsensusVersion defines the current x/oracle module consensus version.
+const ConsensusVersion = 2
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -79,12 +83,16 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 	keeper keeper.Keeper
+
+	// legacySubspace is used solely for migration of x/params managed parameters
+	legacySubspace exported.Subspace
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper) AppModule {
+func NewAppModule(k keeper.Keeper, ss exported.Subspace) AppModule {
 	return AppModule{
-		keeper: k,
+		keeper:         k,
+		legacySubspace: ss,
 	}
 }
 
@@ -113,6 +121,12 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: am.keeper})
+
+	m := keeper.NewMigrator(am.keeper, am.legacySubspace)
+
+	if err := cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2); err != nil {
+		panic(fmt.Sprintf("failed to migrate x/%s from version 1 to 2: %v", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs genesis initialization for the oracle module.
@@ -130,7 +144,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
 // BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {

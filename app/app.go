@@ -458,7 +458,7 @@ func NewBandApp(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	govConfig := govtypes.DefaultConfig()
-	app.GovKeeper = govkeeper.NewKeeper(
+	govKeeper := govkeeper.NewKeeper(
 		appCodec,
 		keys[govtypes.StoreKey],
 		app.AccountKeeper,
@@ -471,7 +471,13 @@ func NewBandApp(
 	)
 
 	// Set legacy router for backwards compatibility with gov v1beta1
-	app.GovKeeper.SetLegacyRouter(govRouter)
+	govKeeper.SetLegacyRouter(govRouter)
+
+	app.GovKeeper = *govKeeper.SetHooks(
+		govtypes.NewMultiGovHooks(
+		// register the governance hooks
+		),
+	)
 
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
@@ -498,7 +504,6 @@ func NewBandApp(
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
-		app.GetSubspace(oracletypes.ModuleName),
 		filepath.Join(homePath, "files"),
 		authtypes.FeeCollectorName,
 		app.AccountKeeper,
@@ -510,8 +515,10 @@ func NewBandApp(
 		&app.IBCKeeper.PortKeeper,
 		scopedOracleKeeper,
 		owasmVM,
+		// 0.47 TODO: change to tech council address
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	oracleModule := oracle.NewAppModule(app.OracleKeeper)
+	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -559,7 +566,7 @@ func NewBandApp(
 		),
 		gov.NewAppModule(
 			appCodec,
-			app.GovKeeper,
+			&app.GovKeeper,
 			app.AccountKeeper,
 			app.BankKeeper,
 			app.GetSubspace(govtypes.ModuleName),

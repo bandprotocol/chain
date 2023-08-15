@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v2"
-
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // nolint
@@ -25,30 +23,6 @@ const (
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
 	DefaultIBCRequestEnabled       = true
 )
-
-// nolint
-var (
-	// Each value below is the key to store the respective oracle module parameter. See comments
-	// in types.proto for explanation for each parameter.
-	KeyMaxRawRequestCount      = []byte("MaxRawRequestCount")
-	KeyMaxAskCount             = []byte("MaxAskCount")
-	KeyMaxCalldataSize         = []byte("MaxCalldataSize")
-	KeyMaxReportDataSize       = []byte("MaxReportDataSize")
-	KeyExpirationBlockCount    = []byte("ExpirationBlockCount")
-	KeyBaseOwasmGas            = []byte("BaseOwasmGas")
-	KeyPerValidatorRequestGas  = []byte("PerValidatorRequestGas")
-	KeySamplingTryCount        = []byte("SamplingTryCount")
-	KeyOracleRewardPercentage  = []byte("OracleRewardPercentage")
-	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
-	KeyIBCRequestEnabled       = []byte("IBCRequestEnabled")
-)
-
-var _ paramtypes.ParamSet = (*Params)(nil)
-
-// ParamKeyTable for oracle module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 // NewParams creates a new parameter configuration for the oracle module
 func NewParams(
@@ -71,51 +45,6 @@ func NewParams(
 	}
 }
 
-// ParamSetPairs implements the paramtypes.ParamSet interface for Params.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(
-			KeyMaxRawRequestCount,
-			&p.MaxRawRequestCount,
-			validateUint64("max data source count", true),
-		),
-		paramtypes.NewParamSetPair(KeyMaxAskCount, &p.MaxAskCount, validateUint64("max ask count", true)),
-		paramtypes.NewParamSetPair(KeyMaxCalldataSize, &p.MaxCalldataSize, validateUint64("max calldata size", true)),
-		paramtypes.NewParamSetPair(
-			KeyMaxReportDataSize,
-			&p.MaxReportDataSize,
-			validateUint64("max report data size", true),
-		),
-		paramtypes.NewParamSetPair(
-			KeyExpirationBlockCount,
-			&p.ExpirationBlockCount,
-			validateUint64("expiration block count", true),
-		),
-		paramtypes.NewParamSetPair(KeyBaseOwasmGas, &p.BaseOwasmGas, validateUint64("base request gas", false)),
-		paramtypes.NewParamSetPair(
-			KeyPerValidatorRequestGas,
-			&p.PerValidatorRequestGas,
-			validateUint64("per validator request gas", false),
-		),
-		paramtypes.NewParamSetPair(
-			KeySamplingTryCount,
-			&p.SamplingTryCount,
-			validateUint64("sampling try count", true),
-		),
-		paramtypes.NewParamSetPair(
-			KeyOracleRewardPercentage,
-			&p.OracleRewardPercentage,
-			validateUint64("oracle reward percentage", false),
-		),
-		paramtypes.NewParamSetPair(
-			KeyInactivePenaltyDuration,
-			&p.InactivePenaltyDuration,
-			validateUint64("inactive penalty duration", false),
-		),
-		paramtypes.NewParamSetPair(KeyIBCRequestEnabled, &p.IBCRequestEnabled, validateBool()),
-	}
-}
-
 // DefaultParams defines the default parameters.
 func DefaultParams() Params {
 	return NewParams(
@@ -131,6 +60,45 @@ func DefaultParams() Params {
 		DefaultInactivePenaltyDuration,
 		DefaultIBCRequestEnabled,
 	)
+}
+
+// Validate does the sanity check on the params.
+func (p Params) Validate() error {
+	if err := validateUint64("max data source count", true)(p.MaxRawRequestCount); err != nil {
+		return err
+	}
+	if err := validateUint64("max ask count", true)(p.MaxAskCount); err != nil {
+		return err
+	}
+	if err := validateUint64("max calldata size", true)(p.MaxCalldataSize); err != nil {
+		return err
+	}
+	if err := validateUint64("max report data size", true)(p.MaxReportDataSize); err != nil {
+		return err
+	}
+	if err := validateUint64("expiration block count", true)(p.ExpirationBlockCount); err != nil {
+		return err
+	}
+	if err := validateUint64("base request gas", false)(p.BaseOwasmGas); err != nil {
+		return err
+	}
+	if err := validateUint64("per validator request gas", false)(p.PerValidatorRequestGas); err != nil {
+		return err
+	}
+	if err := validateUint64("sampling try count", true)(p.SamplingTryCount); err != nil {
+		return err
+	}
+	if err := validateUint64("oracle reward percentage", false)(p.OracleRewardPercentage); err != nil {
+		return err
+	}
+	if err := validateUint64("inactive penalty duration", false)(p.InactivePenaltyDuration); err != nil {
+		return err
+	}
+	if err := validateBool()(p.IBCRequestEnabled); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // String returns a human readable string representation of the parameters.
