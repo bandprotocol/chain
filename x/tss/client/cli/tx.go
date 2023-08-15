@@ -498,6 +498,9 @@ func GetTxCmdRequestSignature() *cobra.Command {
 	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
 	cmd.PersistentFlags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
 
+	cmd.MarkPersistentFlagRequired(flagGroupID)
+	cmd.MarkPersistentFlagRequired(flagFeeLimit)
+
 	return cmd
 }
 
