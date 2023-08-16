@@ -442,6 +442,7 @@ func NewBandApp(
 		app.BankKeeper,
 		app.StakingKeeper,
 		tssRouter,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 

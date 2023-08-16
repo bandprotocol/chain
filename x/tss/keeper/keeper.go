@@ -26,6 +26,7 @@ type Keeper struct {
 	bankKeeper        types.BankKeeper
 	router            types.Router
 	stakingKeeper     types.StakingKeeper
+	authority         string
 }
 
 func NewKeeper(
@@ -38,6 +39,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
 	rtr types.Router,
+	authority string,
 ) Keeper {
 	// ensure TSS module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -59,6 +61,7 @@ func NewKeeper(
 		bankKeeper:        bankKeeper,
 		stakingKeeper:     stakingKeeper,
 		router:            rtr,
+		authority:         authority,
 	}
 }
 

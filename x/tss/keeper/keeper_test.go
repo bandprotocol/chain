@@ -6,7 +6,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -25,6 +27,7 @@ type KeeperTestSuite struct {
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
 	requester   sdk.AccAddress
+	authority   sdk.AccAddress
 }
 
 var (
@@ -45,6 +48,7 @@ func (s *KeeperTestSuite) SetupTest() {
 
 	s.queryClient = queryClient
 	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSKeeper)
+	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
@@ -70,7 +74,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-			Sender:    testapp.Alice.Address.String(),
+			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
 
