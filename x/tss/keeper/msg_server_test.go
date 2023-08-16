@@ -40,7 +40,7 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 			Members:   members,
 			Threshold: 3,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-			Sender:    testapp.Alice.Address.String(),
+			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
 	})

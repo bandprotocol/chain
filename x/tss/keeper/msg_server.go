@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -32,6 +33,10 @@ func (k msgServer) CreateGroup(
 	goCtx context.Context,
 	req *types.MsgCreateGroup,
 ) (*types.MsgCreateGroupResponse, error) {
+	if k.authority != req.Authority {
+		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Validate group size

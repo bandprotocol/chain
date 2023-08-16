@@ -112,7 +112,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
-		Sender:    members[0],
+		Authority: s.authority.String(),
 	})
 
 	// Add round 1 infos
