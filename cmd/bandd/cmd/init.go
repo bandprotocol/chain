@@ -176,8 +176,6 @@ func InitCmd(customAppState map[string]json.RawMessage, defaultNodeHome string) 
 
 			genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
 			genDoc.ConsensusParams.Block.MaxGas = 50000000  // 50M gas
-			// 0.47 TODO: it is removed https://github.com/cometbft/cometbft/blob/1e0cf136d395db94728883355a136e4e34e693db/CHANGELOG.md?plain=1#L144
-			// genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 			genDoc.ConsensusParams.Validator.PubKeyTypes = []string{types.ABCIPubKeyTypeSecp256k1}
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
 				return err

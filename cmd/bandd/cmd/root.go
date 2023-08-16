@@ -14,7 +14,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
+	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/client/snapshot"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -82,7 +84,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	rootCmd.AddCommand(
 		InitCmd(band.NewDefaultGenesisState(), band.DefaultNodeHome),
-		// 0.47 TODO: check validity of this function
 		genesisCommand(
 			encodingConfig,
 			AddGenesisDataSourceCmd(band.DefaultNodeHome),
@@ -92,6 +93,9 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		// testnetCmd(band.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
+		pruning.Cmd(newApp, band.DefaultNodeHome),
+		// support oracle file folder
+		snapshot.Cmd(newApp),
 	)
 
 	server.AddCommands(rootCmd, band.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
@@ -197,7 +201,6 @@ func newApp(
 	return bandApp
 }
 
-// 0.47 TODO: check if function is working
 func appExport(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions, modulesToExport []string) (servertypes.ExportedApp, error) {

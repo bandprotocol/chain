@@ -20,7 +20,6 @@ type HandlerOptions struct {
 	OracleKeeper      *oraclekeeper.Keeper
 	IBCKeeper         *ibckeeper.Keeper
 	GlobalFeeSubspace paramtypes.Subspace
-	StakingSubspace   paramtypes.Subspace // 0.47 TODO: delete this line
 	StakingKeeper     *stakingkeeper.Keeper
 }
 

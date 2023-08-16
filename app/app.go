@@ -346,8 +346,7 @@ func NewBandApp(
 			appCodec,
 			keys[banktypes.StoreKey],
 			app.AccountKeeper,
-			// 0.47 TODO: add blocked address
-			make(map[string]bool),
+			BlockedAddresses(),
 			// 0.47 TODO: change to tech council address
 			authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		),
@@ -554,7 +553,6 @@ func NewBandApp(
 		),
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bandbank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
-		// 0.47 TODO: check capability.NewAppModule sealKeeper argument
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
 		crisis.NewAppModule(app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		feegrantmodule.NewAppModule(
@@ -736,7 +734,6 @@ func NewBandApp(
 			OracleKeeper:      &app.OracleKeeper,
 			IBCKeeper:         app.IBCKeeper,
 			GlobalFeeSubspace: app.GetSubspace(globalfee.ModuleName),
-			StakingSubspace:   app.GetSubspace(stakingtypes.ModuleName), // 0.47 TODO: delete this line
 			StakingKeeper:     app.StakingKeeper,
 		},
 	)
@@ -937,6 +934,19 @@ func GetMaccPerms() map[string][]string {
 		modAccPerms[k] = v
 	}
 	return modAccPerms
+}
+
+// BlockedAddresses returns all the app's blocked account addresses.
+func BlockedAddresses() map[string]bool {
+	modAccAddrs := make(map[string]bool)
+	for acc := range GetMaccPerms() {
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+	}
+
+	// allow the following addresses to receive funds
+	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+
+	return modAccAddrs
 }
 
 // initParamsKeeper init params keeper and its subspaces
