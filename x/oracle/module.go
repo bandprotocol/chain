@@ -101,22 +101,6 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 	// TODO
 }
 
-// 0.47 TODO: delete these functions
-// // Deprecated: Route returns the message routing key for the bank module.
-// func (am AppModule) Route() sdk.Route {
-// 	return sdk.Route{}
-// }
-
-// // QuerierRoute returns the oracle module's querier route name.
-// func (AppModule) QuerierRoute() string {
-// 	return types.QuerierRoute
-// }
-
-// // LegacyQuerierHandler implements the AppModule interface
-// func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
-// 	return nil
-// }
-
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
