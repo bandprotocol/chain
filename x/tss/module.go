@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 	"github.com/bandprotocol/chain/v2/x/tss/client/cli"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -24,7 +25,16 @@ var (
 )
 
 // AppModuleBasic defines the basic application module used by the tss module.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	requestSignatureHandlers []tssclient.RequestSignatureHandler
+}
+
+// NewAppModuleBasic creates a new AppModuleBasic object
+func NewAppModuleBasic(requestSignatureHandlers ...tssclient.RequestSignatureHandler) AppModuleBasic {
+	return AppModuleBasic{
+		requestSignatureHandlers: requestSignatureHandlers,
+	}
+}
 
 // Name returns the tss module's name.
 func (AppModuleBasic) Name() string {
@@ -47,8 +57,18 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 }
 
 // GetTxCmd returns the transaction commands for the tss module.
-func (b AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
+func (a AppModuleBasic) GetTxCmd() *cobra.Command {
+	requestSignatureHandlers := getRequestSignatureCLIHandlers(a.requestSignatureHandlers)
+
+	return cli.GetTxCmd(requestSignatureHandlers)
+}
+
+func getRequestSignatureCLIHandlers(handlers []tssclient.RequestSignatureHandler) []*cobra.Command {
+	requestSignatureHandlers := make([]*cobra.Command, 0, len(handlers))
+	for _, requestSignatureHandler := range handlers {
+		requestSignatureHandlers = append(requestSignatureHandlers, requestSignatureHandler.CLIHandler())
+	}
+	return requestSignatureHandlers
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.

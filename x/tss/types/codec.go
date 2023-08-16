@@ -16,6 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSign", nil)
 	cdc.RegisterConcrete(&MsgSubmitSignature{}, "tss/SubmitSignature", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "tss/Activate", nil)
+	cdc.RegisterConcrete(&TextRequestSignature{}, "tss/TextRequestSignature", nil)
 	cdc.RegisterConcrete(&MsgActive{}, "tss/Active", nil)
 }
 
@@ -32,6 +33,21 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgActivate{},
 		&MsgActive{},
 	)
+	registry.RegisterInterface(
+		"tss.v1beta1.Content",
+		(*Content)(nil),
+		&TextRequestSignature{},
+	)
+}
+
+// RegisterRequestSignatureTypeCodec registers an external request signature content type defined
+// in another module for the internal ModuleCdc. This allows the MsgRequestSignature
+// to be correctly Amino encoded and decoded.
+//
+// NOTE: This should only be used for applications that are still using a concrete
+// Amino codec for serialization.
+func RegisterRequestSignatureTypeCodec(o interface{}, name string) {
+	amino.RegisterConcrete(o, name, nil)
 }
 
 var (

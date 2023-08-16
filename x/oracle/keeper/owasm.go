@@ -10,8 +10,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // 1 cosmos gas is equal to 20000000 owasm gas
@@ -201,7 +201,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 		var signingResult *types.SigningResult
 
 		if req.GroupID != tss.GroupID(0) {
-			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, env.Retdata, sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
+			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, tsstypes.NewTextRequestSignature(env.Retdata), sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
 			if err != nil {
 				codespace, code, _ := sdkerrors.ABCIInfo(err, false)
 				signingResult = &types.SigningResult{

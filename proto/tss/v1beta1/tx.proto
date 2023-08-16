@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 import "tss/v1beta1/tss.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
@@ -115,11 +116,13 @@ message MsgSubmitDEsResponse {}
 
 // MsgRequestSignature is a request message used for initiating the signing process.
 message MsgRequestSignature {
+  option (gogoproto.goproto_getters) = false;
+
   // group_id is the unique identifier of the group.
   uint64 group_id = 1
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // message is the data that needs to be signed.
-  bytes message = 2;
+  // content defines an interface that a request signature type must implement.
+  google.protobuf.Any content = 2 [(cosmos_proto.accepts_interface) = "Content"];
   // feeLimit is the maximum tokens that will be paid for this request.
   repeated cosmos.base.v1beta1.Coin fee_limit = 3
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
