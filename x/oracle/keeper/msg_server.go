@@ -293,21 +293,26 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 
 func (ms msgServer) UpdateParams(
 	goCtx context.Context,
-	req *types.MsgUpdateParams,
+	msg *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
-	if ms.authority != req.Authority {
+	if ms.authority != msg.Authority {
 		return nil, sdkerrors.Wrapf(
 			govtypes.ErrInvalidSigner,
 			"invalid authority; expected %s, got %s",
 			ms.authority,
-			req.Authority,
+			msg.Authority,
 		)
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := ms.SetParams(ctx, req.Params); err != nil {
+	if err := ms.SetParams(ctx, msg.Params); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeUpdateParams,
+		sdk.NewAttribute(types.AttributeKeyParams, msg.Params.String()),
+	))
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }

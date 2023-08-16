@@ -64,7 +64,7 @@ func DefaultParams() Params {
 
 // Validate does the sanity check on the params.
 func (p Params) Validate() error {
-	if err := validateUint64("max data source count", true)(p.MaxRawRequestCount); err != nil {
+	if err := validateUint64("max raw request count", true)(p.MaxRawRequestCount); err != nil {
 		return err
 	}
 	if err := validateUint64("max ask count", true)(p.MaxAskCount); err != nil {
