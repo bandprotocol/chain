@@ -1,7 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 export WALLET_NAME=validator
-export CHAIN_ID="bandchain"
 
 BASEDIR=$(dirname "$0")
 
