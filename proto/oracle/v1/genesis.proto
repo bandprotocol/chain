@@ -8,7 +8,7 @@ import "oracle/v1/oracle.proto";
 
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {
-  // Params defines all the paramaters of the module.
+  // Params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
   // DataSources are data sources to be installed during genesis phase.
   repeated DataSource data_sources = 2 [(gogoproto.nullable) = false];

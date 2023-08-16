@@ -823,3 +823,95 @@ func TestActivateFail(t *testing.T) {
 	_, err = oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 }
+
+func TestUpdateParamsSuccess(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event := abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      2,
+		MaxAskCount:             20,
+		MaxCalldataSize:         512,
+		MaxReportDataSize:       256,
+		ExpirationBlockCount:    40,
+		BaseOwasmGas:            0,
+		PerValidatorRequestGas:  0,
+		SamplingTryCount:        5,
+		OracleRewardPercentage:  0,
+		InactivePenaltyDuration: 0,
+		IBCRequestEnabled:       false,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event = abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+}
+
+func TestUpdateParamsFail(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams("foo", expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "invalid authority")
+	require.Nil(t, res)
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      0,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "max raw request count must be positive")
+	require.Nil(t, res)
+}

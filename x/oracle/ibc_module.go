@@ -195,7 +195,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	var data types.OracleRequestPacketData
-	if !im.keeper.IBCRequestEnabled(ctx) {
+	if !im.keeper.GetParams(ctx).IBCRequestEnabled {
 		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled)
 	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return channeltypes.NewErrorAcknowledgement(errors.New("cannot unmarshal oracle request packet data"))
