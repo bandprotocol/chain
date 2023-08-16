@@ -8,7 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.
+// handleBeginBlock handles the logic at the beginning of a block.
 func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())

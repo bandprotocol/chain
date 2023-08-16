@@ -20,17 +20,34 @@ import (
 
 const (
 	flagExpiration = "expiration"
+	flagGroupID    = "group-id"
 	flagFeeLimit   = "fee-limit"
 )
 
-// GetTxCmdTxCmd returns a root CLI command handler for all x/tss transaction commands.
-func GetTxCmd() *cobra.Command {
+// GetTxCmd returns a root CLI command handler for all x/tss transaction commands.
+func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "TSS transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
+	}
+
+	// Create the command for requesting a signature.
+	cmdRequestSignature := GetTxCmdRequestSignature()
+
+	// Create the command for requesting a signature using text input.
+	cmdTextRequestSignature := GetTxCmdTextRequestSignature()
+
+	// Add the text signature command as a subcommand.
+	flags.AddTxFlagsToCmd(cmdTextRequestSignature)
+	cmdRequestSignature.AddCommand(cmdTextRequestSignature)
+
+	// Loop through and add the provided request signature commands as subcommands.
+	for _, cmd := range requestSignatureCmds {
+		flags.AddTxFlagsToCmd(cmd)
+		cmdRequestSignature.AddCommand(cmd)
 	}
 
 	txCmd.AddCommand(
@@ -42,9 +59,10 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdComplain(),
 		GetTxCmdConfirm(),
 		GetTxCmdSubmitDEs(),
-		GetTxCmdRequest(),
 		GetTxCmdSubmitSignature(),
 		GetTxCmdActivate(),
+
+		cmdRequestSignature,
 	)
 
 	return txCmd
@@ -470,14 +488,30 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdRequest creates a CLI command for CLI command for Msg/RequestSignature.
-func GetTxCmdRequest() *cobra.Command {
+// GetTxCmdRequestSignature creates a CLI command for CLI command for Msg/RequestSignature.
+func GetTxCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "request [group_id] [message]",
-		Args:  cobra.ExactArgs(2),
-		Short: "request sign of the message from the group",
+		Use:   "request-signature",
+		Short: "request signature from the group",
+	}
+
+	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
+	cmd.PersistentFlags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
+
+	cmd.MarkPersistentFlagRequired(flagGroupID)
+	cmd.MarkPersistentFlagRequired(flagFeeLimit)
+
+	return cmd
+}
+
+// GetTxCmdTextRequestSignature creates a CLI command for CLI command for Msg/TextRequestSignature.
+func GetTxCmdTextRequestSignature() *cobra.Command {
+	return &cobra.Command{
+		Use:   "text [message]",
+		Args:  cobra.ExactArgs(1),
+		Short: "request signature of the message from the group",
 		Example: fmt.Sprintf(
-			`%s tx tss request [group_id] [message]`,
+			`%s tx tss request-signature text [message] --group-id 1 --fee-limit 10uband`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -486,15 +520,17 @@ func GetTxCmdRequest() *cobra.Command {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
 
-			data, err := hex.DecodeString(args[1])
+			data, err := hex.DecodeString(args[0])
 			if err != nil {
 				return err
 			}
+
+			content := types.NewTextRequestSignature(data)
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {
@@ -506,21 +542,19 @@ func GetTxCmdRequest() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgRequestSignature{
-				GroupID:  tss.GroupID(groupID),
-				Message:  data,
-				FeeLimit: feeLimit,
-				Sender:   clientCtx.GetFromAddress().String(),
+			msg, err := types.NewMsgRequestSignature(
+				tss.GroupID(gid),
+				content,
+				feeLimit,
+				clientCtx.GetFromAddress(),
+			)
+			if err != nil {
+				return err
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-
-	flags.AddTxFlagsToCmd(cmd)
-	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
-
-	return cmd
 }
 
 // GetTxCmdSubmitSignature creates a CLI command for CLI command for Msg/SubmitSignature.

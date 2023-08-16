@@ -520,19 +520,21 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
-	var req types.MsgRequestSignature
+	var req *types.MsgRequestSignature
+	var err error
 
 	// Add failed case
 	tcs := []TestCase{
 		{
 			"failure with invalid groupID",
 			func() {
-				req = types.MsgRequestSignature{
-					GroupID:  tss.GroupID(999), // non-existent groupID
-					Message:  []byte("data"),
-					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					Sender:   testapp.FeePayer.Address.String(),
-				}
+				req, err = types.NewMsgRequestSignature(
+					tss.GroupID(999), // non-existent groupID
+					types.NewTextRequestSignature([]byte("msg")),
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					testapp.FeePayer.Address,
+				)
+				s.Require().NoError(err)
 			},
 			func() {},
 			types.ErrGroupNotFound,
@@ -549,12 +551,13 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 					Status:    types.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)
-				req = types.MsgRequestSignature{
-					GroupID:  tss.GroupID(2), // inactive groupID
-					Message:  []byte("data"),
-					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					Sender:   testapp.FeePayer.Address.String(),
-				}
+				req, err = types.NewMsgRequestSignature(
+					tss.GroupID(2), // inactive groupID
+					types.NewTextRequestSignature([]byte("msg")),
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					testapp.FeePayer.Address,
+				)
+				s.Require().NoError(err)
 			},
 			func() {},
 			types.ErrGroupIsNotActive,
@@ -562,12 +565,12 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 		{
 			"failure with not enough fee",
 			func() {
-				req = types.MsgRequestSignature{
-					GroupID:  tss.GroupID(1), // inactive groupID
-					Message:  []byte("data"),
-					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Sender:   testapp.FeePayer.Address.String(),
-				}
+				req, err = types.NewMsgRequestSignature(
+					tss.GroupID(1),
+					types.NewTextRequestSignature([]byte("msg")),
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					testapp.FeePayer.Address,
+				)
 			},
 			func() {},
 			types.ErrNotEnoughFee,
@@ -584,7 +587,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
 			)
 
-			_, err := msgSrvr.RequestSignature(ctx, &req)
+			_, err := msgSrvr.RequestSignature(ctx, req)
 			s.Require().ErrorIs(tc.ExpectedErr, err)
 
 			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
@@ -618,12 +621,15 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
 				)
 
-				_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-					GroupID:  tc.Group.ID,
-					Message:  signing.Data,
-					FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					Sender:   testapp.FeePayer.Address.String(),
-				})
+				msg, err := types.NewMsgRequestSignature(
+					tc.Group.ID,
+					types.NewTextRequestSignature(signing.Data),
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+					testapp.FeePayer.Address,
+				)
+				s.Require().NoError(err)
+
+				_, err = msgSrvr.RequestSignature(ctx, msg)
 				s.Require().NoError(err)
 
 				// Fee should be paid after requesting signature
@@ -711,12 +717,14 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Request signature for the first member in the group
-			_, err := msgSrvr.RequestSignature(ctx, &types.MsgRequestSignature{
-				GroupID:  tc.Group.ID,
-				Message:  []byte("msg"),
-				FeeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-				Sender:   testapp.FeePayer.Address.String(),
-			})
+			msg, err := types.NewMsgRequestSignature(
+				tc.Group.ID,
+				types.NewTextRequestSignature([]byte("msg")),
+				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+				testapp.FeePayer.Address,
+			)
+			s.Require().NoError(err)
+			_, err = msgSrvr.RequestSignature(ctx, msg)
 			s.Require().NoError(err)
 
 			// Get the signing information
