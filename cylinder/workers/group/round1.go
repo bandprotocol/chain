@@ -156,7 +156,6 @@ func (r *Round1) Start() {
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultEndBlock.Events)
 	}
-
 }
 
 // Stop stops the Round1 worker.
