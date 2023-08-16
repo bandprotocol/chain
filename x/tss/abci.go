@@ -10,7 +10,7 @@ import (
 
 // handleBeginBlock handles the logic at the beginning of a block.
 func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
-	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
+	// Reward a portion of block rewards (inflation + tx fee) to active tss validators.
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
 }
 

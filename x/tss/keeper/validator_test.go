@@ -59,7 +59,7 @@ func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	feeCollector := SetupFeeCollector(app, ctx, app.TSSKeeper)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
-	// No active oracle validators so nothing should happen.
+	// No active tss validators so nothing should happen.
 	k.AllocateTokens(ctx, defaultVotes())
 
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)
