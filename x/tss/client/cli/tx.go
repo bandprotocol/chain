@@ -53,7 +53,6 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
-		GetTxCmdCreateGroup(),
 		GetTxCmdSubmitDKGRound1(),
 		GetTxCmdSubmitDKGRound2(),
 		GetTxCmdComplain(),
@@ -159,52 +158,6 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 				msgs = append(msgs, rMsgs...)
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdCreateGroup creates a CLI command for CLI command for Msg/CreateGroup.
-func GetTxCmdCreateGroup() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "create-group [member1,member2,...] [threshold] [fee]",
-		Args:  cobra.ExactArgs(3),
-		Short: "Make a new group for tss module",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Make a new group for signing tx in tss module.
-Example:
-$ %s tx tss create-group band15mxunzureevrg646khnunhrl6nxvrj3eree5tz,band1p2t43jx3rz84y4z05xk8dcjjhzzeqnfrt9ua9v,band18f55l8hf4l7zvy8tx28n4r4nksz79p6lp4z305 2 --from mykey
-`,
-				version.AppName),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			members := strings.Split(args[0], ",")
-
-			threshold, err := strconv.ParseUint(args[1], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			fee, err := sdk.ParseCoinsNormalized(args[2])
-			if err != nil {
-				return err
-			}
-
-			msg := &types.MsgCreateGroup{
-				Members:   members,
-				Threshold: threshold,
-				Fee:       fee,
-				Sender:    clientCtx.GetFromAddress().String(),
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 

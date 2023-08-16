@@ -42,8 +42,8 @@ message MsgCreateGroup {
   // fee is the tokens that will be paid per signing.
   repeated cosmos.base.v1beta1.Coin fee = 3
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // sender is the signer of this message.
-  string sender = 4;
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 4;
 }
 
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.
