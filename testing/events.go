@@ -1,4 +1,3 @@
-// 0.47 TODO: consider copy an entire file
 package ibctesting
 
 import (

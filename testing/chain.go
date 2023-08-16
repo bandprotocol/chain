@@ -1,4 +1,4 @@
-// 0.47 TODO: consider copy an entire file
+// 0.47 TODO: consider importing directly from ibc instead of forking
 package ibctesting
 
 import (

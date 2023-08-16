@@ -81,7 +81,6 @@ func (k Keeper) ResolveExpired(ctx sdk.Context, id types.RequestID) {
 }
 
 // SaveResult saves the result packets for the request with the given resolve status and result.
-// 0.47 TODO: check validity of this function
 func (k Keeper) SaveResult(
 	ctx sdk.Context, id types.RequestID, status types.ResolveStatus, result []byte,
 ) {
@@ -118,8 +117,6 @@ func (k Keeper) SaveResult(
 			r.ClientID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
 		)
 
-		// 0.47 TODO: check validity of send packet
-		// 0.47 TODO: check if we want sequence number
 		if _, err := k.channelKeeper.SendPacket(
 			ctx,
 			channelCap,

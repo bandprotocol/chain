@@ -138,6 +138,5 @@ func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error
 }
 
 func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
-	// 0.47 TODO: test bond denom is not nil
 	return fc.StakingKeeper.BondDenom(ctx)
 }

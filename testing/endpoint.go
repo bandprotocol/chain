@@ -136,7 +136,6 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	// ensure counterparty has committed state
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
-	// 0.47 TODO: check ibc
 	var (
 		header *ibctmtypes.Header
 	)
@@ -380,7 +379,6 @@ func (endpoint *Endpoint) ChanCloseInit() error {
 // The counterparty client is updated so proofs can be sent to the counterparty chain.
 // The packet sequence generated for the packet to be sent is returned. An error
 // is returned if one occurs.
-// 0.47 TODO: consider copy an entire file
 func (endpoint *Endpoint) SendPacket(
 	timeoutHeight clienttypes.Height,
 	timeoutTimestamp uint64,

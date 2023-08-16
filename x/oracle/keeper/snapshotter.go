@@ -80,7 +80,6 @@ func (os *OracleSnapshotter) PruneSnapshotHeight(height int64) {
 func (os *OracleSnapshotter) SetSnapshotInterval(snapshotInterval uint64) {
 }
 
-// 0.47 TODO: check validity of this function
 func (os *OracleSnapshotter) RestoreExtension(
 	height uint64, format uint32, payloadReader snapshot.ExtensionPayloadReader,
 ) error {
@@ -90,7 +89,6 @@ func (os *OracleSnapshotter) RestoreExtension(
 	return snapshot.ErrUnknownFormat
 }
 
-// 0.47 TODO: check validity of this function
 func (os *OracleSnapshotter) processAllItems(
 	height uint64,
 	payloadReader snapshot.ExtensionPayloadReader,

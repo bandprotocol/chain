@@ -1,3 +1,4 @@
+// 0.47 TODO: write this test file by importing testing directly from ibc
 package oracle_test
 
 import (
@@ -41,7 +42,6 @@ func (suite *OracleTestSuite) SetupTest() {
 	suite.coordinator.Setup(suite.path)
 }
 
-// 0.47 TODO: check if this function is working, maybe return sequence number instead
 func (suite *OracleTestSuite) sendOracleRequestPacket(
 	path *ibctesting.Path,
 	seq uint64,
