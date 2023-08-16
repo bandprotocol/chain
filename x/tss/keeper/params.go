@@ -17,6 +17,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.ActiveDuration(ctx),
 		k.InactivePenaltyDuration(ctx),
 		k.JailPenaltyDuration(ctx),
+		k.RewardPercentage(ctx),
 	)
 }
 
@@ -64,5 +65,12 @@ func (k Keeper) InactivePenaltyDuration(ctx sdk.Context) (res time.Duration) {
 // JailPenaltyDuration returns the current JailPenaltyDuration from the global param store
 func (k Keeper) JailPenaltyDuration(ctx sdk.Context) (res time.Duration) {
 	k.paramSpace.Get(ctx, types.KeyJailPenaltyDuration, &res)
+	return
+}
+
+// RewardPercentage - reward ratio used when allocating reward
+// for active validators. calculate after deducted from oracle
+func (k Keeper) RewardPercentage(ctx sdk.Context) (res uint64) {
+	k.paramSpace.Get(ctx, types.KeyRewardPercentage, &res)
 	return
 }

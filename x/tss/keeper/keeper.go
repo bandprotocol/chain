@@ -17,26 +17,32 @@ import (
 )
 
 type Keeper struct {
-	cdc               codec.BinaryCodec
-	storeKey          storetypes.StoreKey
-	paramSpace        paramtypes.Subspace
+	cdc              codec.BinaryCodec
+	storeKey         storetypes.StoreKey
+	paramSpace       paramtypes.Subspace
+	feeCollectorName string
+
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
 	authKeeper        types.AccountKeeper
 	bankKeeper        types.BankKeeper
-	router            types.Router
 	stakingKeeper     types.StakingKeeper
+	distrKeeper       types.DistrKeeper
+
+	router types.Router
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
+	feeCollectorName string,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
+	distrKeeper types.DistrKeeper,
 	rtr types.Router,
 ) Keeper {
 	// ensure TSS module account is set
@@ -53,11 +59,13 @@ func NewKeeper(
 		cdc:               cdc,
 		storeKey:          storeKey,
 		paramSpace:        paramSpace,
+		feeCollectorName:  feeCollectorName,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
 		authKeeper:        authKeeper,
 		bankKeeper:        bankKeeper,
 		stakingKeeper:     stakingKeeper,
+		distrKeeper:       distrKeeper,
 		router:            rtr,
 	}
 }

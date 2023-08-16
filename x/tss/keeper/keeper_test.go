@@ -35,7 +35,7 @@ var (
 )
 
 func (s *KeeperTestSuite) SetupTest() {
-	app, ctx, _ := testapp.CreateTestInput(false)
+	app, ctx, _ := testapp.CreateTestInput(true)
 	s.app = app
 	s.ctx = ctx
 

@@ -15,6 +15,7 @@ const (
 	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
+	DefaultRewardPercentage                      = uint64(50)
 )
 
 var (
@@ -25,6 +26,7 @@ var (
 	KeyActiveDuration          = []byte("ActiveDuration")
 	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
 	KeyJailPenaltyDuration     = []byte("JailPenaltyDuration")
+	KeyRewardPercentage        = []byte("RewardPercentage")
 )
 
 // ParamKeyTable the param key table for launch module
@@ -41,6 +43,7 @@ func NewParams(
 	activeDuration time.Duration,
 	inactivePenaltyDuration time.Duration,
 	jailPenaltyDuration time.Duration,
+	rewardPercentage uint64,
 ) Params {
 	return Params{
 		MaxGroupSize:            maxGroupSize,
@@ -50,6 +53,7 @@ func NewParams(
 		ActiveDuration:          activeDuration,
 		InactivePenaltyDuration: inactivePenaltyDuration,
 		JailPenaltyDuration:     jailPenaltyDuration,
+		RewardPercentage:        rewardPercentage,
 	}
 }
 
@@ -63,6 +67,7 @@ func DefaultParams() Params {
 		ActiveDuration:          DefaultActiveDuration,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
 		JailPenaltyDuration:     DefaultJailPenaltyDuration,
+		RewardPercentage:        DefaultRewardPercentage,
 	}
 }
 
@@ -96,6 +101,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			KeyJailPenaltyDuration,
 			&p.JailPenaltyDuration,
 			validateTimeDuration("jail penalty duration"),
+		),
+		paramtypes.NewParamSetPair(
+			KeyRewardPercentage,
+			&p.RewardPercentage,
+			validateUint64("reward percentage", false),
 		),
 	}
 }

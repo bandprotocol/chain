@@ -390,9 +390,14 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
+		// active oracle status
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		// active tss status
+		app.TSSKeeper.SetActive(ctx, Validators[0].Address)
+		app.TSSKeeper.SetActive(ctx, Validators[1].Address)
+		app.TSSKeeper.SetActive(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }
