@@ -3,6 +3,7 @@ package group
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -10,7 +11,6 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/cylinder/store"
-	"github.com/bandprotocol/chain/v2/pkg/event"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -46,7 +46,7 @@ func NewRound1(ctx *cylinder.Context) (*Round1, error) {
 // It returns an error if the subscription fails.
 func (r *Round1) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
-		"tm.event = 'Tx' AND %s.%s = '%s'",
+		"tm.event = 'NewBlock' AND %s.%s = '%s'",
 		types.EventTypeCreateGroup,
 		types.AttributeKeyMember,
 		r.context.Config.Granter,
@@ -55,23 +55,19 @@ func (r *Round1) subscribe() (err error) {
 	return
 }
 
-// handleTxResult handles the result of a transaction.
-// It extracts the relevant message logs from the transaction result and processes the events.
-func (r *Round1) handleTxResult(txResult abci.TxResult) {
-	msgLogs, err := event.GetMessageLogs(txResult)
-	if err != nil {
-		r.logger.Error("Failed to get message logs: %s", err)
-		return
-	}
+// handleABCIEvents handles the end block events.
+func (r *Round1) handleABCIEvents(abciEvents []abci.Event) {
+	events := sdk.StringifyEvents(abciEvents)
+	for _, ev := range events {
+		if ev.Type == types.EventTypeCreateGroup {
+			event, err := ParseEvent(sdk.StringEvents{ev}, types.EventTypeCreateGroup)
+			if err != nil {
+				r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
+				return
+			}
 
-	for _, log := range msgLogs {
-		event, err := ParseEvent(log.Events, types.EventTypeCreateGroup)
-		if err != nil {
-			r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
-			return
+			go r.handleGroup(event.GroupID)
 		}
-
-		go r.handleGroup(event.GroupID)
 	}
 }
 
@@ -145,7 +141,7 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 }
 
 // Start starts the Round1 worker.
-// It subscribes to the events, and continuously processes incoming events by calling handleTxResult.
+// It subscribes to the events, and continuously processes incoming events by calling handleABCIEvents.
 func (r *Round1) Start() {
 	r.logger.Info("start")
 
@@ -158,8 +154,9 @@ func (r *Round1) Start() {
 	r.handlePendingGroups()
 
 	for ev := range r.eventCh {
-		go r.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
+		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultEndBlock.Events)
 	}
+
 }
 
 // Stop stops the Round1 worker.

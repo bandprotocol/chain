@@ -76,8 +76,6 @@ func (r *Round3) handlePendingGroups() {
 		return
 	}
 
-	r.handlePendingGroups()
-
 	for _, gid := range res.PendingGroups {
 		go r.handleGroup(tss.GroupID(gid))
 	}
@@ -170,6 +168,8 @@ func (r *Round3) Start() {
 		r.context.ErrCh <- err
 		return
 	}
+
+	r.handlePendingGroups()
 
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultEndBlock.Events)
