@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 
+	httpclient "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	httpclient "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func runCmd(c *Context) *cobra.Command {

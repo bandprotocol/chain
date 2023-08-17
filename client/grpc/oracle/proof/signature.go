@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	"github.com/cometbft/cometbft/libs/protoio"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/cometbft/cometbft/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/libs/protoio"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"github.com/tendermint/tendermint/types"
 )
 
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.

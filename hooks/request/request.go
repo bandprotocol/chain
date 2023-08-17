@@ -15,7 +15,7 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"

@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	"github.com/tendermint/tendermint/libs/log"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
@@ -30,7 +29,6 @@ type Keeper struct {
 	cdc              codec.BinaryCodec
 	fileCache        filecache.Cache
 	feeCollectorName string
-	paramstore       paramtypes.Subspace
 	owasmVM          *owasm.Vm
 
 	authKeeper    types.AccountKeeper
@@ -41,13 +39,16 @@ type Keeper struct {
 	channelKeeper types.ChannelKeeper
 	portKeeper    types.PortKeeper
 	scopedKeeper  capabilitykeeper.ScopedKeeper
+
+	// the address capable of executing a MsgUpdateParams message. Typically, this
+	// should be the x/gov module account.
+	authority string
 }
 
 // NewKeeper creates a new oracle Keeper instance.
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
-	ps paramtypes.Subspace,
 	fileDir string,
 	feeCollectorName string,
 	authKeeper types.AccountKeeper,
@@ -59,16 +60,13 @@ func NewKeeper(
 	portKeeper types.PortKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
+	authority string,
 ) Keeper {
-	if !ps.HasKeyTable() {
-		ps = ps.WithKeyTable(types.ParamKeyTable())
-	}
 	return Keeper{
 		storeKey:         key,
 		cdc:              cdc,
 		fileCache:        filecache.New(fileDir),
 		feeCollectorName: feeCollectorName,
-		paramstore:       ps,
 		owasmVM:          owasmVM,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
@@ -78,7 +76,13 @@ func NewKeeper(
 		channelKeeper:    channelKeeper,
 		portKeeper:       portKeeper,
 		scopedKeeper:     scopeKeeper,
+		authority:        authority,
 	}
+}
+
+// GetAuthority returns the x/oracle module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 // Logger returns a module-specific logger.

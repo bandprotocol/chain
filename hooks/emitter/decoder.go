@@ -13,10 +13,10 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -419,9 +419,9 @@ func DecodeMsgBeginRedelegate(msg *stakingtypes.MsgBeginRedelegate, detail commo
 }
 
 func DecodeMsgUpdateClient(msg *clienttypes.MsgUpdateClient, detail common.JsDict) {
-	header, _ := clienttypes.UnpackHeader(msg.Header)
+	cm, _ := clienttypes.UnpackClientMessage(msg.ClientMessage)
 	detail["client_id"] = msg.ClientId
-	detail["header"] = header
+	detail["header"] = cm
 	detail["signer"] = msg.Signer
 }
 
@@ -437,7 +437,7 @@ func DecodeMsgUpgradeClient(msg *clienttypes.MsgUpgradeClient, detail common.JsD
 }
 
 func DecodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail common.JsDict) {
-	misbehaviour, _ := clienttypes.UnpackMisbehaviour(msg.Misbehaviour)
+	misbehaviour, _ := clienttypes.UnpackClientMessage(msg.Misbehaviour)
 	detail["client_id"] = msg.ClientId
 	detail["misbehaviour"] = misbehaviour
 	detail["signer"] = msg.Signer

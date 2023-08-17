@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -13,7 +14,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/client/cli"
 	"github.com/bandprotocol/chain/v2/x/globalfee/types"
@@ -104,18 +104,6 @@ func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) jso
 }
 
 func (a AppModule) RegisterInvariants(registry sdk.InvariantRegistry) {
-}
-
-func (a AppModule) Route() sdk.Route {
-	return sdk.Route{}
-}
-
-func (a AppModule) QuerierRoute() string {
-	return types.QuerierRoute
-}
-
-func (a AppModule) LegacyQuerierHandler(amino *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {

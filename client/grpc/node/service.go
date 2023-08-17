@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/crypto"
-	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"

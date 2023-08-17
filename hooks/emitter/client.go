@@ -3,11 +3,11 @@ package emitter
 import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
-	solomachinetypes "github.com/cosmos/ibc-go/v5/modules/light-clients/06-solomachine/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	solomachinetypes "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 )
 
 func getChainId(clientState exported.ClientState) string {

@@ -8,36 +8,33 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	"github.com/bandprotocol/chain/v2/x/globalfee/types"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 type FeeChecker struct {
-	OracleKeeper    *oraclekeeper.Keeper
-	GlobalMinFee    globalfee.ParamSource
-	StakingSubspace paramtypes.Subspace
+	OracleKeeper  *oraclekeeper.Keeper
+	GlobalMinFee  globalfee.ParamSource
+	StakingKeeper *stakingkeeper.Keeper
 }
 
 func NewFeeChecker(
 	oracleKeeper *oraclekeeper.Keeper,
-	globalfeeSubspace, stakingSubspace paramtypes.Subspace,
+	globalfeeSubspace paramtypes.Subspace,
+	stakingKeeper *stakingkeeper.Keeper,
 ) FeeChecker {
 	if !globalfeeSubspace.HasKeyTable() {
 		panic("global fee paramspace was not set up via module")
 	}
 
-	if !stakingSubspace.HasKeyTable() {
-		panic("staking paramspace was not set up via module")
-	}
-
 	return FeeChecker{
-		OracleKeeper:    oracleKeeper,
-		GlobalMinFee:    globalfeeSubspace,
-		StakingSubspace: stakingSubspace,
+		OracleKeeper:  oracleKeeper,
+		GlobalMinFee:  globalfeeSubspace,
+		StakingKeeper: stakingKeeper,
 	}
 }
 
@@ -141,10 +138,5 @@ func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error
 }
 
 func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
-	var bondDenom string
-	if fc.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
-		fc.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
-	}
-
-	return bondDenom
+	return fc.StakingKeeper.BondDenom(ctx)
 }

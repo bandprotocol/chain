@@ -1,3 +1,4 @@
+// 0.47 TODO: consider importing directly from ibc instead of forking
 package ibctesting
 
 import (
@@ -6,6 +7,12 @@ import (
 	"testing"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmprotoversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	tmtypes "github.com/cometbft/cometbft/types"
+	tmversion "github.com/cometbft/cometbft/version"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -16,21 +23,16 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
+	stakingtestutil "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
-	ibctmtypes "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
-	"github.com/cosmos/ibc-go/v5/testing/mock"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
+	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	"github.com/cosmos/ibc-go/v7/testing/mock"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmprotoversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	tmtypes "github.com/tendermint/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/version"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -110,7 +112,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 	valSet := tmtypes.NewValidatorSet(validators)
 
-	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, balances...)
+	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, chainID, balances...)
 	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
 	for _, v := range vals {
 		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
@@ -163,7 +165,7 @@ func (chain *TestChain) QueryProof(key []byte) ([]byte, clienttypes.Height) {
 // for the query and the height at which the proof will succeed on a tendermint verifier.
 func (chain *TestChain) QueryProofAtHeight(key []byte, height int64) ([]byte, clienttypes.Height) {
 	res := chain.App.Query(abci.RequestQuery{
-		Path:   fmt.Sprintf("store/%s/key", host.StoreKey),
+		Path:   fmt.Sprintf("store/%s/key", ibcexported.StoreKey),
 		Height: height - 1,
 		Data:   key,
 		Prove:  true,
@@ -213,7 +215,7 @@ func (chain *TestChain) QueryConsensusStateProof(clientID string) ([]byte, clien
 	clientState := chain.GetClientState(clientID)
 
 	consensusHeight := clientState.GetLatestHeight().(clienttypes.Height)
-	consensusKey := host.FullConsensusStateKey(clientID, consensusHeight)
+	consensusKey := ibchost.FullConsensusStateKey(clientID, consensusHeight)
 	proofConsensus, _ := chain.QueryProof(consensusKey)
 
 	return proofConsensus, consensusHeight
@@ -345,7 +347,7 @@ func (chain *TestChain) GetValsAtHeight(height int64) (*tmtypes.ValidatorSet, bo
 
 	valSet := stakingtypes.Validators(histInfo.Valset)
 
-	tmValidators, err := teststaking.ToTmValidators(valSet, sdk.DefaultPowerReduction)
+	tmValidators, err := stakingtestutil.ToTmValidators(valSet, sdk.DefaultPowerReduction)
 	if err != nil {
 		panic(err)
 	}
@@ -550,14 +552,14 @@ func CreateSortedSignerArray(altPrivVal, suitePrivVal tmtypes.PrivValidator,
 // Other applications must bind to the port in InitGenesis or modify this code.
 func (chain *TestChain) CreatePortCapability(scopedKeeper capabilitykeeper.ScopedKeeper, portID string) {
 	// check if the portId is already binded, if not bind it
-	_, ok := chain.App.GetScopedIBCKeeper().GetCapability(chain.GetContext(), host.PortPath(portID))
+	_, ok := chain.App.GetScopedIBCKeeper().GetCapability(chain.GetContext(), ibchost.PortPath(portID))
 	if !ok {
 		// create capability using the IBC capability keeper
-		cap, err := chain.App.GetScopedIBCKeeper().NewCapability(chain.GetContext(), host.PortPath(portID))
+		cap, err := chain.App.GetScopedIBCKeeper().NewCapability(chain.GetContext(), ibchost.PortPath(portID))
 		require.NoError(chain.t, err)
 
 		// claim capability using the scopedKeeper
-		err = scopedKeeper.ClaimCapability(chain.GetContext(), cap, host.PortPath(portID))
+		err = scopedKeeper.ClaimCapability(chain.GetContext(), cap, ibchost.PortPath(portID))
 		require.NoError(chain.t, err)
 	}
 
@@ -569,7 +571,7 @@ func (chain *TestChain) CreatePortCapability(scopedKeeper capabilitykeeper.Scope
 // GetPortCapability returns the port capability for the given portID. The capability must
 // exist, otherwise testing will fail.
 func (chain *TestChain) GetPortCapability(portID string) *capabilitytypes.Capability {
-	cap, ok := chain.App.GetScopedIBCKeeper().GetCapability(chain.GetContext(), host.PortPath(portID))
+	cap, ok := chain.App.GetScopedIBCKeeper().GetCapability(chain.GetContext(), ibchost.PortPath(portID))
 	require.True(chain.t, ok)
 
 	return cap
@@ -579,7 +581,7 @@ func (chain *TestChain) GetPortCapability(portID string) *capabilitytypes.Capabi
 // if it does not already exist. This function will fail testing on any resulting error. The
 // scoped keeper passed in will claim the new capability.
 func (chain *TestChain) CreateChannelCapability(scopedKeeper capabilitykeeper.ScopedKeeper, portID, channelID string) {
-	capName := host.ChannelCapabilityPath(portID, channelID)
+	capName := ibchost.ChannelCapabilityPath(portID, channelID)
 	// check if the portId is already binded, if not bind it
 	_, ok := chain.App.GetScopedIBCKeeper().GetCapability(chain.GetContext(), capName)
 	if !ok {
@@ -598,7 +600,7 @@ func (chain *TestChain) CreateChannelCapability(scopedKeeper capabilitykeeper.Sc
 // The capability must exist, otherwise testing will fail.
 func (chain *TestChain) GetChannelCapability(portID, channelID string) *capabilitytypes.Capability {
 	cap, ok := chain.App.GetScopedIBCKeeper().
-		GetCapability(chain.GetContext(), host.ChannelCapabilityPath(portID, channelID))
+		GetCapability(chain.GetContext(), ibchost.ChannelCapabilityPath(portID, channelID))
 	require.True(chain.t, ok)
 
 	return cap

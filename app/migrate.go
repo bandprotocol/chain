@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 const (
@@ -26,7 +26,6 @@ func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
 
 	genDoc.ConsensusParams.Block.MaxBytes = 3000000 // 3M bytes
 	genDoc.ConsensusParams.Block.MaxGas = 50000000  // 50M gas
-	genDoc.ConsensusParams.Block.TimeIotaMs = 1000  // 1 second
 
 	if err := genDoc.ValidateAndComplete(); err != nil {
 		return nil, err

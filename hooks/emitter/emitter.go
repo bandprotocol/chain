@@ -6,6 +6,9 @@ import (
 	"strings"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -21,14 +24,11 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v5/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v5/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v5/modules/core/04-channel/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v7/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v7/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -53,7 +53,7 @@ type Hook struct {
 
 	accountKeeper authkeeper.AccountKeeper
 	bankKeeper    bankkeeper.Keeper
-	stakingKeeper stakingkeeper.Keeper
+	stakingKeeper *stakingkeeper.Keeper
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
@@ -73,7 +73,7 @@ func NewHook(
 	encodingConfig params.EncodingConfig,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,

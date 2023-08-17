@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/syndtr/goleveldb/leveldb"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"

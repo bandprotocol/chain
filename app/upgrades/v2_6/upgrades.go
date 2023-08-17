@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
