@@ -436,11 +436,13 @@ func NewBandApp(
 		appCodec,
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
+		authtypes.FeeCollectorName,
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
+		app.DistrKeeper,
 		tssRouter,
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
