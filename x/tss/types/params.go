@@ -15,7 +15,11 @@ const (
 	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
-	DefaultRewardPercentage                      = uint64(50)
+	// compute the TSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
+	// the TSS reward will be determined from the remaining 60%.
+	DefaultRewardPercentage = uint64(
+		50,
+	)
 )
 
 var (
