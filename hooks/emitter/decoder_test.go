@@ -117,7 +117,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	sendMsg, _ := authz.NewMsgGrant(
 		GranterAddress,
 		GranteeAddress,
-		banktypes.NewSendAuthorization(spendLimit),
+		banktypes.NewSendAuthorization(spendLimit, []sdk.AccAddress{}),
 		&expiration,
 	)
 
@@ -312,8 +312,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg, _ := clienttypes.NewMsgCreateClient(tendermintClient, consensus, SenderAddress.String())
 	emitter.DecodeMsgCreateClient(msg, detail)
@@ -345,11 +343,13 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 		testapp.Coins1000000uband,
 		SenderAddress.String(),
 		"metadata",
+		"title",
+		"summary",
 	)
 	emitter.DecodeMsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejhyqqqqqqqqqqqqqqqqqqqrhevnq\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejhyqqqqqqqqqqqqqqqqqqqrhevnq\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"summary\":\"summary\",\"title\":\"title\"}",
 	)
 }
 
@@ -492,8 +492,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
 		newClientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	upgradedConsState := &ibctmtypes.ConsensusState{
 		NextValidatorsHash: []byte("nextValsHash"),
@@ -595,8 +593,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenTry(
 		path.EndpointA.ClientID,
@@ -632,8 +628,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenAck(
 		path.EndpointA.ConnectionID,

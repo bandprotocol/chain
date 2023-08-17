@@ -99,7 +99,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	// broadcast to a Tendermint node
-	res, err := clientCtx.BroadcastTxCommit(txBytes)
+	res, err := clientCtx.BroadcastTxSync(txBytes)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

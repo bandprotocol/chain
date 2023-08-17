@@ -321,6 +321,8 @@ func DecodeMsgSubmitProposal(msg *govv1.MsgSubmitProposal, detail common.JsDict)
 	detail["initial_deposit"] = msg.GetInitialDeposit()
 	detail["proposer"] = msg.GetProposer()
 	detail["metadata"] = msg.Metadata
+	detail["title"] = msg.Title
+	detail["summary"] = msg.Summary
 
 	msgs, _ := msg.GetMsgs()
 	messages := make([]common.JsDict, len(msgs))
