@@ -39,12 +39,12 @@ echo "audit silver absorb involve more aspect girl report open gather excite mir
     | bandd keys add relayer --recover --keyring-backend test
 
 # add accounts to genesis
-bandd add-genesis-account validator1 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator2 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator3 10000000000000uband --keyring-backend test
-bandd add-genesis-account validator4 10000000000000uband --keyring-backend test
-bandd add-genesis-account requester 100000000000000uband --keyring-backend test
-bandd add-genesis-account relayer 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account validator2 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account validator3 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account validator4 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account requester 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -54,7 +54,7 @@ cp -r ~/.band/files docker-config/
 sed 's/node-validator/🙎‍♀️Alice \& Co./g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
 # register initial validators
-bandd gentx validator1 100000000uband \
+bandd genesis gentx validator1 100000000uband \
     --chain-id bandchain \
     --node-id 11392b605378063b1c505c0ab123f04bd710d7d7 \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A/V/OZek6B2PMh6XEJJ+IsLm0w+22PdJqeSgevs7O3kJ"}' \
@@ -66,7 +66,7 @@ bandd gentx validator1 100000000uband \
 # modify moniker
 sed 's/node-validator/Bobby.fish 🐡/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator2 100000000uband \
+bandd genesis gentx validator2 100000000uband \
     --chain-id bandchain \
     --node-id 0851086afcd835d5a6fb0ffbf96fcdf74fec742e \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AnJK4pz+t0lwUdCe39joIjUsTINht1dkdkW3jIzHTOiF"}' \
@@ -78,7 +78,7 @@ bandd gentx validator2 100000000uband \
 # modify moniker
 sed 's/node-validator/Carol/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator3 100000000uband \
+bandd genesis gentx validator3 100000000uband \
     --chain-id bandchain \
     --node-id 7b58b086dd915a79836eb8bfa956aeb9488d13b0 \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A6VP+qhMjy95h4Lei5YqhHhOKISHp0eBOghXJDpg4roz"}' \
@@ -90,7 +90,7 @@ bandd gentx validator3 100000000uband \
 # modify moniker
 sed 's/node-validator/Eve 🦹🏿‍♂️the evil with a really long moniker name/g' ~/.band/config/config.toml.temp > ~/.band/config/config.toml
 
-bandd gentx validator4 100000000uband \
+bandd genesis gentx validator4 100000000uband \
     --chain-id bandchain \
     --node-id 63808bd64f2ec19acb2a494c8ce8467c595f6fba \
     --pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"A9A3CPFh0Vg/SeQmCkKysI07oYbXgDojzDrNEvB02ddv"}' \
@@ -103,7 +103,7 @@ bandd gentx validator4 100000000uband \
 rm -rf ~/.band/config/config.toml.temp
 
 # collect genesis transactions
-bandd collect-gentxs
+bandd genesis collect-gentxs
 
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
@@ -122,10 +122,10 @@ do
     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
     # activate validator
-    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for activation transaction success
-    sleep 2
+    sleep 4
 
     for i in $(eval echo {1..1})
     do
@@ -134,16 +134,16 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
-    sleep 2
+    sleep 4
 
     # add reporter to bandchain
-    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
+    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for addding reporter transaction success
-    sleep 2
+    sleep 4
 
     docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
@@ -161,10 +161,10 @@ do
     faucet keys add worker$i
 
     # send band tokens to worker
-    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b block
+    echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for addding reporter transaction success
-    sleep 2
+    sleep 4
 done
 
 docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
