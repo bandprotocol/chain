@@ -21,9 +21,9 @@ bandd genesis add-genesis-account validator 10000000000000uband --keyring-backen
 bandd genesis add-genesis-account requester 10000000000000uband --keyring-backend test
 
 ## add tss accounts to genesis
-bandd add-genesis-account tss1 10000000000000uband --keyring-backend test
-bandd add-genesis-account tss2 10000000000000uband --keyring-backend test
-bandd add-genesis-account tss3 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account tss1 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account tss2 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account tss3 10000000000000uband --keyring-backend test
 
 # register initial validators
 bandd genesis gentx validator 100000000uband \
