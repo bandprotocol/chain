@@ -4,30 +4,29 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/types"
 )
 
 func TestDefaultGenesis(t *testing.T) {
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := moduletestutil.MakeTestEncodingConfig()
 	gotJSON := AppModuleBasic{}.DefaultGenesis(encCfg.Codec)
 	assert.JSONEq(t, `{"params":{"minimum_gas_prices":[]}}`, string(gotJSON))
 }
 
 func TestValidateGenesis(t *testing.T) {
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := moduletestutil.MakeTestEncodingConfig()
 	specs := map[string]struct {
 		src    string
 		expErr bool
@@ -110,10 +109,10 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 }
 
-func setupTestStore(t *testing.T) (sdk.Context, simappparams.EncodingConfig, paramstypes.Subspace) {
+func setupTestStore(t *testing.T) (sdk.Context, moduletestutil.TestEncodingConfig, paramstypes.Subspace) {
 	db := dbm.NewMemDB()
 	ms := store.NewCommitMultiStore(db)
-	encCfg := simapp.MakeTestEncodingConfig()
+	encCfg := moduletestutil.MakeTestEncodingConfig()
 	keyParams := sdk.NewKVStoreKey(paramstypes.StoreKey)
 	tkeyParams := sdk.NewTransientStoreKey(paramstypes.TStoreKey)
 	ms.MountStoreWithDB(keyParams, storetypes.StoreTypeIAVL, db)

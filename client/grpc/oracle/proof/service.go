@@ -8,11 +8,11 @@ import (
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	gogogrpc "github.com/gogo/protobuf/grpc"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 )
 
 // RegisterProofService registers the node gRPC service on the provided gRPC router.

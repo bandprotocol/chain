@@ -5,9 +5,9 @@ package types
 
 import (
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
-	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	io "io"
 	math "math"
@@ -511,7 +511,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x40
 	}
-	n2, err2 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.JailPenaltyDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.JailPenaltyDuration):])
+	n2, err2 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.JailPenaltyDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.JailPenaltyDuration):])
 	if err2 != nil {
 		return 0, err2
 	}
@@ -519,7 +519,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i = encodeVarintGenesis(dAtA, i, uint64(n2))
 	i--
 	dAtA[i] = 0x3a
-	n3, err3 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.InactivePenaltyDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.InactivePenaltyDuration):])
+	n3, err3 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.InactivePenaltyDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.InactivePenaltyDuration):])
 	if err3 != nil {
 		return 0, err3
 	}
@@ -527,7 +527,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i = encodeVarintGenesis(dAtA, i, uint64(n3))
 	i--
 	dAtA[i] = 0x32
-	n4, err4 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.ActiveDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.ActiveDuration):])
+	n4, err4 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.ActiveDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.ActiveDuration):])
 	if err4 != nil {
 		return 0, err4
 	}
@@ -711,11 +711,11 @@ func (m *Params) Size() (n int) {
 	if m.SigningPeriod != 0 {
 		n += 1 + sovGenesis(uint64(m.SigningPeriod))
 	}
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.ActiveDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.ActiveDuration)
 	n += 1 + l + sovGenesis(uint64(l))
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.InactivePenaltyDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.InactivePenaltyDuration)
 	n += 1 + l + sovGenesis(uint64(l))
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.JailPenaltyDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.JailPenaltyDuration)
 	n += 1 + l + sovGenesis(uint64(l))
 	if m.RewardPercentage != 0 {
 		n += 1 + sovGenesis(uint64(m.RewardPercentage))
@@ -1123,7 +1123,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.ActiveDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.ActiveDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1156,7 +1156,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.InactivePenaltyDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.InactivePenaltyDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1189,7 +1189,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.JailPenaltyDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.JailPenaltyDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

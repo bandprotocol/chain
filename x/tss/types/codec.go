@@ -13,7 +13,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgComplain{}, "tss/Complaint", nil)
 	cdc.RegisterConcrete(&MsgConfirm{}, "tss/Confirm", nil)
 	cdc.RegisterConcrete(&MsgSubmitDEs{}, "tss/SubmitDEs", nil)
-	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSign", nil)
+	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSignature", nil)
 	cdc.RegisterConcrete(&MsgSubmitSignature{}, "tss/SubmitSignature", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "tss/Activate", nil)
 	cdc.RegisterConcrete(&TextRequestSignature{}, "tss/TextRequestSignature", nil)

@@ -504,7 +504,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 					},
 				},
 			},
-			nil,
+			sdk.NewCoins(),
 		},
 		{
 			"10uband with 0 member",
@@ -515,7 +515,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 				Requester:       testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{},
 			},
-			nil,
+			sdk.NewCoins(),
 		},
 	}
 

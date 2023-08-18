@@ -1,8 +1,8 @@
 package tss
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"

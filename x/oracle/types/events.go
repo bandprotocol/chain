@@ -15,6 +15,7 @@ const (
 	EventTypeRemoveReporter        = "remove_reporter"
 	EventTypeResolve               = "resolve"
 	EventTypeSendPacketFail        = "send_packet_fail"
+	EventTypeUpdateParams          = "update_params"
 	EventTypeHandleRequestSignFail = "handle_request_sign_fail"
 
 	AttributeKeyID                  = "id"
@@ -36,6 +37,7 @@ const (
 	AttributeKeyFee                 = "fee"
 	AttributeKeyResult              = "result"
 	AttributeKeyReason              = "reason"
+	AttributeKeyParams              = "params"
 	AttributeKeySigningErrCodespace = "signing_error_codespace"
 	AttributeKeySigningErrCode      = "signing_error_code"
 )

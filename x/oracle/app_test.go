@@ -5,18 +5,14 @@ import (
 	"testing"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
-
-func parseEventAttribute(attr interface{}) []byte {
-	return []byte(fmt.Sprint(attr))
-}
 
 func TestSuccessRequestOracleData(t *testing.T) {
 	app, ctx, k := testapp.CreateTestInput(true)
@@ -117,20 +113,13 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		types.RESOLVE_STATUS_SUCCESS,
 		[]byte("beeb"),
 	)
-	expectEvents = []abci.Event{
-		{
-			Type: types.EventTypeResolve,
-			Attributes: []abci.EventAttribute{
-				{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-				{
-					Key:   []byte(types.AttributeKeyResolveStatus),
-					Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
-				},
-				{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-				{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
-			},
-		},
-	}
+	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
+		{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
+		{Key: types.AttributeKeyResolveStatus, Value: fmt.Sprint(uint32(resPacket.ResolveStatus))},
+		{Key: types.AttributeKeyResult, Value: "62656562"},
+		{Key: types.AttributeKeyGasUsed, Value: "2485000000"},
+	}}}
+
 	require.Equal(t, expectEvents, result.GetEvents())
 
 	ids = k.GetPendingResolveList(ctx)
@@ -207,34 +196,34 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
+			{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
 			{
-				Key:   []byte(types.AttributeKeyResolveStatus),
-				Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
+				Key:   types.AttributeKeyResolveStatus,
+				Value: fmt.Sprint(uint32(resPacket.ResolveStatus)),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[2].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(testapp.Validators[2].ValAddress.String()),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[0].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(testapp.Validators[0].ValAddress.String()),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[1].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(testapp.Validators[1].ValAddress.String()),
 			},
 		},
 	}}
