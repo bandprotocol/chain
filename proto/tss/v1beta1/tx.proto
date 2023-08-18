@@ -1,13 +1,15 @@
 syntax = "proto3";
 package tss.v1beta1;
 
-import "gogoproto/gogo.proto";
-import "google/protobuf/any.proto";
-import "tss/v1beta1/tss.proto";
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/msg/v1/msg.proto";
-import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
+import "tss/v1beta1/tss.proto";
+import "tss/v1beta1/genesis.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 
@@ -42,6 +44,12 @@ service Msg {
 
   // Active marks last active of the mebmer.
   rpc Active(MsgActive) returns (MsgActiveResponse);
+
+  // UpdateParams defines a governance operation for updating the x/mint module
+  // parameters.
+  //
+  // Since: cosmos-sdk 0.47
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
@@ -215,3 +223,24 @@ message MsgActive {
 
 // MsgActiveResponse is response data for MsgActive message
 message MsgActiveResponse {}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params defines the x/council parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParamsResponse {}

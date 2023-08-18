@@ -1,76 +1,31 @@
 package keeper
 
 import (
-	"time"
-
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// GetParams get all parameters as types.Params from the global param store
-func (k Keeper) GetParams(ctx sdk.Context) types.Params {
-	return types.NewParams(
-		k.MaxGroupSize(ctx),
-		k.MaxDESize(ctx),
-		k.CreatingPeriod(ctx),
-		k.SigningPeriod(ctx),
-		k.ActiveDuration(ctx),
-		k.InactivePenaltyDuration(ctx),
-		k.JailPenaltyDuration(ctx),
-		k.RewardPercentage(ctx),
-	)
+// GetParams returns the current x/council module parameters.
+func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamsKeyPrefix)
+	if bz == nil {
+		return p
+	}
+
+	k.cdc.MustUnmarshal(bz, &p)
+	return p
 }
 
-// SetParams set the params to the global param store
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramSpace.SetParamSet(ctx, &params)
-}
+// SetParams sets the x/tss module parameters.
+func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
 
-// MaxGroupSize returns the current MaxGroupSize from the global param store
-func (k Keeper) MaxGroupSize(ctx sdk.Context) (res uint64) {
-	k.paramSpace.Get(ctx, types.KeyMaxGroupSize, &res)
-	return
-}
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&p)
+	store.Set(types.ParamsKeyPrefix, bz)
 
-// MaxDESize returns the current MaxDESize from the global param store
-func (k Keeper) MaxDESize(ctx sdk.Context) (res uint64) {
-	k.paramSpace.Get(ctx, types.KeyMaxDESize, &res)
-	return
-}
-
-// CreatingPeriod returns the current CreatingPeriod from the global param store
-func (k Keeper) CreatingPeriod(ctx sdk.Context) (res int64) {
-	k.paramSpace.Get(ctx, types.KeyCreatingPeriod, &res)
-	return
-}
-
-// SigningPeriod returns the current SigningPeriod from the global param store
-func (k Keeper) SigningPeriod(ctx sdk.Context) (res int64) {
-	k.paramSpace.Get(ctx, types.KeySigningPeriod, &res)
-	return
-}
-
-// ActiveDuration returns the current ActiveDuration from the global param store
-func (k Keeper) ActiveDuration(ctx sdk.Context) (res time.Duration) {
-	k.paramSpace.Get(ctx, types.KeyActiveDuration, &res)
-	return
-}
-
-// InactivePenaltyDuration returns the current InactivePenaltyDuration from the global param store
-func (k Keeper) InactivePenaltyDuration(ctx sdk.Context) (res time.Duration) {
-	k.paramSpace.Get(ctx, types.KeyInactivePenaltyDuration, &res)
-	return
-}
-
-// JailPenaltyDuration returns the current JailPenaltyDuration from the global param store
-func (k Keeper) JailPenaltyDuration(ctx sdk.Context) (res time.Duration) {
-	k.paramSpace.Get(ctx, types.KeyJailPenaltyDuration, &res)
-	return
-}
-
-// RewardPercentage - reward ratio used when allocating reward
-// for active validators. calculate after deducted from oracle
-func (k Keeper) RewardPercentage(ctx sdk.Context) (res uint64) {
-	k.paramSpace.Get(ctx, types.KeyRewardPercentage, &res)
-	return
+	return nil
 }
