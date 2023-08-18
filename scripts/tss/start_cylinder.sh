@@ -48,7 +48,10 @@ cylinder config random-secret "$(openssl rand -hex 32)" --home $HOME_PATH
 # setup random-secret to cylinder config
 cylinder config active-period "12h" --home $HOME_PATH
 
-bandd tx tss activate --from $KEY --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain -b block -y
+bandd tx tss activate --from $KEY --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain -b sync -y
+
+# wait for activiting status transaction success
+sleep 4
 
 for i in $(eval echo {1..2})
 do
@@ -57,15 +60,15 @@ do
 done
 
 # send band tokens to grantees
-bandd tx multi-send 1000000uband $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --from $KEY -b block -y
+bandd tx multi-send 1000000uband $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --from $KEY -b sync -y
 
 # wait for sending band tokens transaction success
-sleep 2
+sleep 4
 
-bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b block -y 
+bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b sync -y 
 
 # wait for adding gratees transaction success
-sleep 2
+sleep 4
 
 # run cylinder
 cylinder run --home $HOME_PATH
