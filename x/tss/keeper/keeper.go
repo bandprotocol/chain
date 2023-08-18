@@ -29,7 +29,8 @@ type Keeper struct {
 	stakingKeeper     types.StakingKeeper
 	distrKeeper       types.DistrKeeper
 
-	router types.Router
+	router    types.Router
+	authority string
 }
 
 func NewKeeper(
@@ -44,6 +45,7 @@ func NewKeeper(
 	stakingKeeper types.StakingKeeper,
 	distrKeeper types.DistrKeeper,
 	rtr types.Router,
+	authority string,
 ) Keeper {
 	// ensure TSS module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -67,6 +69,7 @@ func NewKeeper(
 		stakingKeeper:     stakingKeeper,
 		distrKeeper:       distrKeeper,
 		router:            rtr,
+		authority:         authority,
 	}
 }
 

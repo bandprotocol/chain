@@ -37,7 +37,7 @@ service Msg {
 
 // MsgCreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
-  option (cosmos.msg.v1.signer) = "sender";
+  option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "tss/CreateGroup";
 
   // members is a list of members in this group.
@@ -47,8 +47,8 @@ message MsgCreateGroup {
   // fee is the tokens that will be paid per signing.
   repeated cosmos.base.v1beta1.Coin fee = 3
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // sender is the signer of this message.
-  string sender = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.

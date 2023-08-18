@@ -25,7 +25,7 @@ func (m MsgCreateGroup) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgCreateGroup.
 func (m MsgCreateGroup) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -47,11 +47,11 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	}
 
 	// Validate sender address
-	_, err := sdk.AccAddressFromBech32(m.Sender)
+	_, err := sdk.AccAddressFromBech32(m.Authority)
 	if err != nil {
 		return sdkerrors.Wrap(
 			err,
-			fmt.Sprintf("sender: %s", m.Sender),
+			fmt.Sprintf("sender: %s", m.Authority),
 		)
 	}
 

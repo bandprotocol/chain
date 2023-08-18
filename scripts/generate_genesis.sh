@@ -34,3 +34,6 @@ sed -i -e \
 sed -i -e \
   '/\[mempool\]/,+10 s/version = .*/version = \"v1\"/' \
   ~/.band/config/config.toml
+
+# update voting period to be 60s for testing
+cat <<< $(jq '.app_state.gov.voting_params.voting_period = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
