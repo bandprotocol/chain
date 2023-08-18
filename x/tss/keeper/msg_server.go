@@ -41,7 +41,7 @@ func (k msgServer) CreateGroup(
 
 	// Validate group size
 	groupSize := uint64(len(req.Members))
-	maxGroupSize := k.MaxGroupSize(ctx)
+	maxGroupSize := k.GetParams(ctx).MaxGroupSize
 	if groupSize > maxGroupSize {
 		return nil, sdkerrors.Wrap(types.ErrGroupSizeTooLarge, fmt.Sprintf("group size exceeds %d", maxGroupSize))
 	}
@@ -701,6 +701,27 @@ func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.M
 	))
 
 	return &types.MsgActiveResponse{}, nil
+}
+
+func (k Keeper) UpdateParams(
+	goCtx context.Context,
+	req *types.MsgUpdateParams,
+) (*types.MsgUpdateParamsResponse, error) {
+	if k.authority != req.Authority {
+		return nil, sdkerrors.Wrapf(
+			govtypes.ErrInvalidSigner,
+			"invalid authority; expected %s, got %s",
+			k.authority,
+			req.Authority,
+		)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SetParams(ctx, req.Params); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUpdateParamsResponse{}, nil
 }
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.

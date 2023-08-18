@@ -486,6 +486,64 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
 }
 
+func (s *KeeperTestSuite) TestParams() {
+	k := s.app.TSSKeeper
+
+	testCases := []struct {
+		name         string
+		input        types.Params
+		expectErr    bool
+		expectErrStr string
+	}{
+		{
+			name: "set invalid params",
+			input: types.Params{
+				MaxGroupSize:            0,
+				MaxDESize:               0,
+				CreatingPeriod:          1,
+				SigningPeriod:           1,
+				ActiveDuration:          time.Duration(0),
+				InactivePenaltyDuration: time.Duration(0),
+				JailPenaltyDuration:     time.Duration(0),
+				RewardPercentage:        0,
+			},
+			expectErr:    true,
+			expectErrStr: "must be positive:",
+		},
+		{
+			name: "set full valid params",
+			input: types.Params{
+				MaxGroupSize:            types.DefaultMaxGroupSize,
+				MaxDESize:               types.DefaultMaxDESize,
+				CreatingPeriod:          types.DefaultCreatingPeriod,
+				SigningPeriod:           types.DefaultSigningPeriod,
+				ActiveDuration:          types.DefaultActiveDuration,
+				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+				RewardPercentage:        types.DefaultRewardPercentage,
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			expected := k.GetParams(s.ctx)
+			err := k.SetParams(s.ctx, tc.input)
+			if tc.expectErr {
+				s.Require().Error(err)
+				s.Require().ErrorContains(err, tc.expectErrStr)
+			} else {
+				expected = tc.input
+				s.Require().NoError(err)
+			}
+
+			p := k.GetParams(s.ctx)
+			s.Require().Equal(expected, p)
+		})
+	}
+}
+
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }

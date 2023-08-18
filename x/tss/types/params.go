@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 	"time"
-
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 const (
@@ -17,26 +15,8 @@ const (
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
 	// compute the TSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
 	// the TSS reward will be determined from the remaining 60%.
-	DefaultRewardPercentage = uint64(
-		50,
-	)
+	DefaultRewardPercentage = uint64(50)
 )
-
-var (
-	KeyMaxGroupSize            = []byte("MaxGroupSize")
-	KeyMaxDESize               = []byte("MaxDESize")
-	KeyCreatingPeriod          = []byte("CreatingPeriod")
-	KeySigningPeriod           = []byte("SigningPeriod")
-	KeyActiveDuration          = []byte("ActiveDuration")
-	KeyInactivePenaltyDuration = []byte("InactivePenaltyDuration")
-	KeyJailPenaltyDuration     = []byte("JailPenaltyDuration")
-	KeyRewardPercentage        = []byte("RewardPercentage")
-)
-
-// ParamKeyTable the param key table for launch module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
 
 // NewParams creates a new Params instance
 func NewParams(
@@ -77,41 +57,39 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	return nil
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyMaxGroupSize, &p.MaxGroupSize, validateUint64("max group size", true)),
-		paramtypes.NewParamSetPair(KeyMaxDESize, &p.MaxDESize, validateUint64("max DE size", true)),
-		paramtypes.NewParamSetPair(
-			KeyCreatingPeriod,
-			&p.CreatingPeriod,
-			validateInt64("creating period", true),
-		),
-		paramtypes.NewParamSetPair(KeySigningPeriod, &p.SigningPeriod, validateInt64("signing period", true)),
-		paramtypes.NewParamSetPair(
-			KeyActiveDuration,
-			&p.ActiveDuration,
-			validateTimeDuration("active duration"),
-		),
-		paramtypes.NewParamSetPair(
-			KeyInactivePenaltyDuration,
-			&p.InactivePenaltyDuration,
-			validateTimeDuration("inactive penalty duration"),
-		),
-		paramtypes.NewParamSetPair(
-			KeyJailPenaltyDuration,
-			&p.JailPenaltyDuration,
-			validateTimeDuration("jail penalty duration"),
-		),
-		paramtypes.NewParamSetPair(
-			KeyRewardPercentage,
-			&p.RewardPercentage,
-			validateUint64("reward percentage", false),
-		),
+	if err := validateUint64("max group size", true)(p.MaxGroupSize); err != nil {
+		return err
 	}
+
+	if err := validateUint64("max DE size", true)(p.MaxDESize); err != nil {
+		return err
+	}
+
+	if err := validateInt64("creating period", true)(p.CreatingPeriod); err != nil {
+		return err
+	}
+
+	if err := validateInt64("signing period", true)(p.SigningPeriod); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("active duration")(p.ActiveDuration); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("inactive penalty duration")(p.InactivePenaltyDuration); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("jail penalty duration")(p.JailPenaltyDuration); err != nil {
+		return err
+	}
+
+	if err := validateUint64("reward percentage", false)(p.RewardPercentage); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateUint64(name string, positiveOnly bool) func(interface{}) error {
