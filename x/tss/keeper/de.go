@@ -49,7 +49,7 @@ func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
 	if deQueue.Head <= deQueue.Tail {
 		return deQueue.Tail - deQueue.Head
 	}
-	return k.MaxDESize(ctx) - (deQueue.Head - deQueue.Tail)
+	return k.GetParams(ctx).MaxDESize - (deQueue.Head - deQueue.Tail)
 }
 
 // SetDE sets a DE object in the context's KVStore for a given address and index.
@@ -104,7 +104,7 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 
 // NextQueueValue returns next value of head/tail for DE queue
 func (k Keeper) NextQueueValue(ctx sdk.Context, val uint64) uint64 {
-	nextVal := (val + 1) % k.MaxDESize(ctx)
+	nextVal := (val + 1) % k.GetParams(ctx).MaxDESize
 	return nextVal
 }
 
@@ -118,7 +118,7 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
 
 		if deQueue.Tail == deQueue.Head {
-			return sdkerrors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.MaxDESize(ctx)))
+			return sdkerrors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
 		}
 	}
 
