@@ -310,6 +310,7 @@ func (m *MsgSubmitDKGRound2) GetMember() string {
 	return ""
 }
 
+// MsgSubmitDKGRound2Response is response data for MsgSubmitDKGRound2 message
 type MsgSubmitDKGRound2Response struct {
 }
 
@@ -346,6 +347,7 @@ func (m *MsgSubmitDKGRound2Response) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitDKGRound2Response proto.InternalMessageInfo
 
+// MsgComplain is a message used to complain malicious actor in the group.
 type MsgComplain struct {
 	// group_id is ID of the group.
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
@@ -409,6 +411,7 @@ func (m *MsgComplain) GetMember() string {
 	return ""
 }
 
+// MsgComplainResponse is response data for MsgComplain message
 type MsgComplainResponse struct {
 }
 
@@ -445,6 +448,7 @@ func (m *MsgComplainResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgComplainResponse proto.InternalMessageInfo
 
+// MsgConfirm is a message used to confirm own public key.
 type MsgConfirm struct {
 	// group_id is ID of the group.
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
@@ -518,6 +522,7 @@ func (m *MsgConfirm) GetMember() string {
 	return ""
 }
 
+// MsgConfirmResponse is response data for MsgConfirm message
 type MsgConfirmResponse struct {
 }
 
@@ -609,6 +614,7 @@ func (m *MsgSubmitDEs) GetMember() string {
 	return ""
 }
 
+// MsgSubmitDEsResponse is response data for MsgSubmitDEs message
 type MsgSubmitDEsResponse struct {
 }
 
@@ -690,6 +696,7 @@ func (m *MsgRequestSignature) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRequestSignature proto.InternalMessageInfo
 
+// MsgRequestSignatureResponse is response data for MsgRequestSignature message
 type MsgRequestSignatureResponse struct {
 }
 
@@ -799,6 +806,7 @@ func (m *MsgSubmitSignature) GetMember() string {
 	return ""
 }
 
+// MsgSubmitSignatureResponse is response data for MsgSubmitSignature message
 type MsgSubmitSignatureResponse struct {
 }
 
@@ -881,6 +889,7 @@ func (m *MsgActivate) GetAddress() string {
 	return ""
 }
 
+// MsgActivateResponse is response data for MsgActivate message
 type MsgActivateResponse struct {
 }
 
@@ -963,6 +972,7 @@ func (m *MsgActive) GetAddress() string {
 	return ""
 }
 
+// MsgActiveResponse is response data for MsgActive message
 type MsgActiveResponse struct {
 }
 
