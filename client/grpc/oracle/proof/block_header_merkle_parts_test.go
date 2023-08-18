@@ -3,10 +3,10 @@ package proof
 import (
 	"testing"
 
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/types"
 	"github.com/stretchr/testify/require"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/types"
 )
 
 /*

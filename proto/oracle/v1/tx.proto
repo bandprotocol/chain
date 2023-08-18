@@ -9,6 +9,10 @@ import "google/protobuf/any.proto";
 import "oracle/v1/oracle.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
+
 // Msg defines the oracle Msg service.
 service Msg {
   // RequestData defines a method for submitting a new request.
@@ -31,10 +35,19 @@ service Msg {
 
   // Activate defines a method for applying to be an oracle validator.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
+
+  // UpdateParams defines a governance operation for updating the x/oracle module
+  // parameters.
+  //
+  // Since: cosmos-sdk 0.47
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgRequestData is a message for sending a data oracle request.
 message MsgRequestData {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "oracle/Request";
+
   option (gogoproto.equal) = true;
   // OracleScriptID is the identifier of the oracle script to be called.
   uint64 oracle_script_id = 1 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
@@ -59,7 +72,7 @@ message MsgRequestData {
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 9;
   // Sender is an account address of message sender.
-  string sender = 10;
+  string sender = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgRequestDataResponse is response data for MsgRequestData message
@@ -67,6 +80,9 @@ message MsgRequestDataResponse {}
 
 // MsgReportData is a message for reporting to a data request by a validator.
 message MsgReportData {
+  option (cosmos.msg.v1.signer) = "validator";
+  option (amino.name)           = "oracle/Report";
+
   option (gogoproto.equal) = true;
   // RequestID is the identifier of the request to be reported to.
   uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
@@ -74,7 +90,7 @@ message MsgReportData {
   // identified by external ID
   repeated RawReport raw_reports = 2 [(gogoproto.nullable) = false];
   // Validator is the address of the validator that owns this report.
-  string validator = 3;
+  string validator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgReportDataResponse is response data for MsgReportData message
@@ -82,6 +98,9 @@ message MsgReportDataResponse {}
 
 // MsgCreateDataSource is a message for creating a new data source.
 message MsgCreateDataSource {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "oracle/CreateDataSource";
+
   option (gogoproto.equal) = true;
   // Name is the name of this data source used for display (optional).
   string name = 1;
@@ -96,12 +115,12 @@ message MsgCreateDataSource {
   repeated cosmos.base.v1beta1.Coin fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // Treasury is the account address who receive data source fee from requester.
-  string treasury = 5;
+  string treasury = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Owner is the account address who is allowed to make further changes to the
   // data source.
-  string owner = 6;
+  string owner = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Sender is the signer of this message.
-  string sender = 7;
+  string sender = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateDataSourceResponse is response data for MsgCreateDataSource message
@@ -109,6 +128,9 @@ message MsgCreateDataSourceResponse {}
 
 // MsgEditDataSource is a message for editing an existing data source.
 message MsgEditDataSource {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "oracle/EditDataSource";
+
   option (gogoproto.equal) = true;
   // DataSourceID is the unique identifier of the data source to be edited.
   uint64 data_source_id = 1 [(gogoproto.customname) = "DataSourceID", (gogoproto.casttype) = "DataSourceID"];
@@ -125,13 +147,13 @@ message MsgEditDataSource {
   repeated cosmos.base.v1beta1.Coin fee = 5
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // Treasury is the address who receive data source fee from requester.
-  string treasury = 6;
+  string treasury = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Owner is the address who is allowed to make further changes to the data
   // source.
-  string owner = 7;
+  string owner = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Sender is the signer of this message. Must be the current data source's
   // owner.
-  string sender = 8;
+  string sender = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgEditDataSourceResponse is response data for MsgEditDataSource message
@@ -139,6 +161,9 @@ message MsgEditDataSourceResponse {}
 
 // MsgCreateOracleScript is a message for creating an oracle script.
 message MsgCreateOracleScript {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "oracle/CreateOracleScript";
+
   option (gogoproto.equal) = true;
   // Name is the name of this oracle script used for display (optional).
   string name = 1;
@@ -153,9 +178,9 @@ message MsgCreateOracleScript {
   bytes code = 5;
   // Owner is the address who is allowed to make further changes to the oracle
   // script.
-  string owner = 6;
+  string owner = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Sender is the signer of this message.
-  string sender = 7;
+  string sender = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateOracleScriptResponse is response data for MsgCreateOracleScript
@@ -164,6 +189,9 @@ message MsgCreateOracleScriptResponse {}
 
 // MsgEditOracleScript is a message for editing an existing oracle script.
 message MsgEditOracleScript {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "oracle/EditOracleScript";
+
   option (gogoproto.equal) = true;
   // OracleScriptID is the unique identifier of the oracle script to be edited.
   uint64 oracle_script_id = 1 [(gogoproto.customname) = "OracleScriptID", (gogoproto.casttype) = "OracleScriptID"];
@@ -180,10 +208,10 @@ message MsgEditOracleScript {
   bytes code = 6;
   // Owner is an account address who is allowed to make further changes to the
   // oracle script.
-  string owner = 7;
+  string owner = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // Sender is an account address who sign this message. Must be the current
   // oracle script's owner.
-  string sender = 8;
+  string sender = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgEditOracleScriptResponse is response data for MsgEditOracleScript message
@@ -193,11 +221,36 @@ message MsgEditOracleScriptResponse {}
 // oracle provider. However, the activation can be revoked once the validator
 // is unable to provide data to fulfill requests
 message MsgActivate {
+  option (cosmos.msg.v1.signer) = "validator";
+  option (amino.name)           = "oracle/Activate";
+
   option (gogoproto.equal) = true;
   // Validator is the validator address who sign this message and request to be
   // activated.
-  string validator = 1;
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgActivateResponse is response data for MsgActivate message
 message MsgActivateResponse {}
+
+// MsgUpdateParams is the Msg/UpdateParams request type.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "oracle/UpdateParams";
+
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // params defines the x/oracle parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+//
+// Since: cosmos-sdk 0.47
+message MsgUpdateParamsResponse {}

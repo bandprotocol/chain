@@ -19,6 +19,7 @@ const (
 	TypeMsgActivate           = "activate"
 	TypeMsgAddReporter        = "add_reporter"
 	TypeMsgRemoveReporter     = "remove_reporter"
+	TypeMsgUpdateParams       = "update_params"
 )
 
 var (
@@ -29,6 +30,7 @@ var (
 	_ sdk.Msg = &MsgCreateOracleScript{}
 	_ sdk.Msg = &MsgEditOracleScript{}
 	_ sdk.Msg = &MsgActivate{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // NewMsgRequestData creates a new MsgRequestData instance.
@@ -494,3 +496,41 @@ func (msg MsgActivate) GetSigners() []sdk.AccAddress {
 func (msg MsgActivate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
 }
+
+// NewMsgActivate creates a new MsgActivate instance
+func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
+	return &MsgUpdateParams{
+		Authority: authority,
+		Params:    params,
+	}
+}
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(m.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (m *MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return sdkerrors.Wrap(err, "invalid authority address")
+	}
+
+	if err := m.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Route returns the route of MsgUpdateParams - "oracle" (sdk.Msg interface).
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type returns the message type of MsgUpdateParams (sdk.Msg interface).
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }

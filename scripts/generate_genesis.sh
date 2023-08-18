@@ -17,8 +17,8 @@ echo "measure fence mail fluid olive cute empower fossil ahead manage snow marbl
 
 
 # add accounts to genesis
-bandd add-genesis-account validator 10000000000000uband --keyring-backend test
-bandd add-genesis-account requester 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account validator 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account requester 10000000000000uband --keyring-backend test
 
 ## add tss accounts to genesis
 bandd add-genesis-account tss1 10000000000000uband --keyring-backend test
@@ -26,12 +26,12 @@ bandd add-genesis-account tss2 10000000000000uband --keyring-backend test
 bandd add-genesis-account tss3 10000000000000uband --keyring-backend test
 
 # register initial validators
-bandd gentx validator 100000000uband \
+bandd genesis gentx validator 100000000uband \
     --chain-id bandchain \
     --keyring-backend test
 
 # collect genesis transactions
-bandd collect-gentxs
+bandd genesis collect-gentxs
 
 sed -i -e \
     "s/^minimum-gas-prices *=.*/minimum-gas-prices = \"0.0025uband\"/" \

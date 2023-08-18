@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -11,7 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 	"github.com/bandprotocol/chain/v2/x/tss/client/cli"
@@ -104,17 +104,6 @@ func NewAppModule(k *keeper.Keeper) AppModule {
 // Name returns the tss module's name.
 func (am AppModule) Name() string {
 	return am.AppModuleBasic.Name()
-}
-
-// Deprecated: Route returns the message routing key for the tss module.
-func (am AppModule) Route() sdk.Route { return sdk.Route{} }
-
-// QuerierRoute returns the route we respond to for abci queries
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
-
-// LegacyQuerierHandler returns the tss module sdk.Querier.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 // RegisterServices registers a GRPC query service to respond to the

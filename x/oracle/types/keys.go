@@ -52,8 +52,10 @@ var (
 	OracleScriptStoreKeyPrefix = []byte{0x04}
 	// ValidatorStatusKeyPrefix is the prefix for validator status store.
 	ValidatorStatusKeyPrefix = []byte{0x05}
+	// ParamsKeyPrefix is the prefix for the parameters of the module.
+	ParamsKeyPrefix = []byte{0x06}
 	// SigningResultStoreKeyPrefix is the prefix for signing ID store.
-	SigningResultStoreKeyPrefix = []byte{0x06}
+	SigningResultStoreKeyPrefix = []byte{0x07}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 

@@ -21,6 +21,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgEditOracleScript{}, "oracle/EditOracleScript", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "oracle/Activate", nil)
 	cdc.RegisterConcrete(&OracleResultRequestSignature{}, "oracle/OracleResultRequestSignature", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/UpdateParams", nil)
 }
 
 // RegisterInterfaces register the oracle module interfaces to protobuf Any.
@@ -33,6 +34,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCreateOracleScript{},
 		&MsgEditOracleScript{},
 		&MsgActivate{},
+		&MsgUpdateParams{},
 	)
 
 	registry.RegisterImplementations(

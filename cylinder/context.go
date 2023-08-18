@@ -5,9 +5,9 @@ import (
 
 	"github.com/bandprotocol/chain/v2/cylinder/store"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 )
 

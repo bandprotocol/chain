@@ -4,13 +4,13 @@ import (
 	"testing"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -38,7 +38,7 @@ var (
 )
 
 func (s *KeeperTestSuite) SetupTest() {
-	app, ctx, _ := testapp.CreateTestInput(false)
+	app, ctx, _ := testapp.CreateTestInput(true)
 	s.app = app
 	s.ctx = ctx
 

@@ -4,40 +4,46 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Keeper struct {
-	cdc               codec.BinaryCodec
-	storeKey          storetypes.StoreKey
-	paramSpace        paramtypes.Subspace
+	cdc              codec.BinaryCodec
+	storeKey         storetypes.StoreKey
+	paramSpace       paramtypes.Subspace
+	feeCollectorName string
+
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
 	authKeeper        types.AccountKeeper
 	bankKeeper        types.BankKeeper
-	router            types.Router
 	stakingKeeper     types.StakingKeeper
-	authority         string
+	distrKeeper       types.DistrKeeper
+
+	router    types.Router
+	authority string
 }
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
+	feeCollectorName string,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
+	distrKeeper types.DistrKeeper,
 	rtr types.Router,
 	authority string,
 ) Keeper {
@@ -55,11 +61,13 @@ func NewKeeper(
 		cdc:               cdc,
 		storeKey:          storeKey,
 		paramSpace:        paramSpace,
+		feeCollectorName:  feeCollectorName,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
 		authKeeper:        authKeeper,
 		bankKeeper:        bankKeeper,
 		stakingKeeper:     stakingKeeper,
+		distrKeeper:       distrKeeper,
 		router:            rtr,
 		authority:         authority,
 	}

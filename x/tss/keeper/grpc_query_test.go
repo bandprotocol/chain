@@ -643,7 +643,7 @@ func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
 			func(res *types.QueryStatusesResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().NotNil(res)
-				s.Require().Len(res.Statuses, 0)
+				s.Require().Len(res.Statuses, 3)
 			},
 		},
 	}

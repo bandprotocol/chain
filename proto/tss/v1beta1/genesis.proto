@@ -40,6 +40,9 @@ message Params {
   google.protobuf.Duration inactive_penalty_duration = 6 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // jail_penalty_duration is the duration where a member cannot activate back after jail.
   google.protobuf.Duration jail_penalty_duration = 7 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // RewardPercentage is the percentage of block rewards allocated to active TSS validators after being allocate to
+  // oracle rewards.
+  uint64 reward_percentage = 8 [(gogoproto.customname) = "RewardPercentage"];
 }
 
 // DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.

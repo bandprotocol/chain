@@ -2,12 +2,12 @@ package upgrades
 
 import (
 	"github.com/bandprotocol/chain/v2/app/keepers"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal
@@ -28,7 +28,7 @@ type Upgrade struct {
 // BaseAppParamManager defines an interrace that BaseApp is expected to fullfil
 // that allows upgrade handlers to modify BaseApp parameters.
 type AppManager interface {
-	GetConsensusParams(ctx sdk.Context) *abci.ConsensusParams
-	StoreConsensusParams(ctx sdk.Context, cp *abci.ConsensusParams)
+	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams
+	StoreConsensusParams(ctx sdk.Context, cp *tmproto.ConsensusParams)
 	GetSubspace(moduleName string) paramstypes.Subspace
 }
