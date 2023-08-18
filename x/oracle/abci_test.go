@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"testing"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 )
@@ -94,7 +94,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// If there are no validators active, Calling begin block should be no-op.
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -105,7 +105,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	k.Activate(ctx, testapp.Validators[1].ValAddress)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -135,7 +135,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -169,7 +169,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	k.MissReport(ctx, testapp.Validators[1].ValAddress, testapp.ParseTime(100))
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -255,7 +255,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	k.Activate(ctx, testapp.Validators[0].ValAddress)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(t, sdk.Coins{}, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	require.Equal(
@@ -270,12 +270,12 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	)
 	require.Equal(
 		t,
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(43015, 3)}},
+		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(44590, 3)}},
 		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress).Rewards,
 	)
 	require.Equal(
 		t,
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(5985, 3)}},
+		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(4410, 3)}},
 		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
 	)
 }

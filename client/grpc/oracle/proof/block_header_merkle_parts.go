@@ -1,9 +1,9 @@
 package proof
 
 import (
+	"github.com/cometbft/cometbft/crypto/merkle"
+	"github.com/cometbft/cometbft/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tendermint/tendermint/crypto/merkle"
-	"github.com/tendermint/tendermint/types"
 )
 
 // BlockHeaderMerklePartsEthereum is an Ethereum version of BlockHeaderMerkleParts for solidity ABI-encoding.
@@ -33,7 +33,7 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
 func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
-	// based on https://github.com/tendermint/tendermint/blob/master/types/block.go#L448
+	// based on https://github.com/cometbft/cometbft/blob/master/types/block.go#L448
 	hbz, err := block.Version.Marshal()
 	if err != nil {
 		panic(err)
