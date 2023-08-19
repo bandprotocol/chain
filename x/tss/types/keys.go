@@ -22,6 +22,11 @@ const (
 )
 
 var (
+	NormalMsgPrefix       = []byte("01")
+	ReplaceGroupMsgPrefix = []byte("02")
+)
+
+var (
 	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
 	RollingSeedSizeInBytes = 32
 
@@ -48,6 +53,9 @@ var (
 
 	// PendingSigningsStoreKey is the key for storing pending process signings.
 	PendingSigningsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessSignings")...)
+
+	// PendingReplaceGroupsStoreKey is the key for storing pending replace groups.
+	PendingReplaceGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingReplaceGroups")...)
 
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}

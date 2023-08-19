@@ -380,8 +380,8 @@ func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
 }
 
-// AddPendingProcessGroups adds a new pending process group to the store.
-func (k Keeper) AddPendingProcessGroups(ctx sdk.Context, groupID tss.GroupID) {
+// AddPendingProcessGroup adds a new pending process group to the store.
+func (k Keeper) AddPendingProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 	pgs := k.GetPendingProcessGroups(ctx)
 	pgs = append(pgs, groupID)
 	k.SetPendingProcessGroups(ctx, types.PendingProcessGroups{
@@ -468,6 +468,60 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			)
 		}
 	}
+}
+
+// AddPendingReplaceGroup adds a new pending replace group to the store.
+func (k Keeper) AddPendingReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup) {
+	pgs := k.GetPendingReplaceGroups(ctx)
+	pgs = append(pgs, pg)
+	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{
+		PendingReplaceGroups: pgs,
+	})
+}
+
+// SetPendingReplaceGroups sets the given pending replace groups in the store.
+func (k Keeper) SetPendingReplaceGroups(ctx sdk.Context, pgs types.PendingReplaceGroups) {
+	ctx.KVStore(k.storeKey).Set(types.PendingProcessGroupsStoreKey, k.cdc.MustMarshal(&pgs))
+}
+
+// GetPendingReplaceGroups retrieves the list of pending replace groups from the store.
+// It returns an empty list if the key does not exist in the store.
+func (k Keeper) GetPendingReplaceGroups(ctx sdk.Context) []types.PendingReplaceGroup {
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingReplaceGroupsStoreKey)
+	if len(bz) == 0 {
+		// Return an empty list if the key does not exist in the store.
+		return []types.PendingReplaceGroup{}
+	}
+	pgs := types.PendingReplaceGroups{}
+	k.cdc.MustUnmarshal(bz, &pgs)
+	return pgs.PendingReplaceGroups
+}
+
+// HandleProcessGroup handles the pending process group based on its status.
+// It updates the group status and emits appropriate events.
+func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup) {
+	// Retrieve information about signing.
+	signing := k.MustGetSigning(ctx, pg.SigningID)
+
+	// If the signing process is unsuccessful, do noting.
+	if signing.Status != types.SIGNING_STATUS_SUCCESS {
+		return
+	}
+
+	// Retrieve information about group.
+	fromGroup := k.MustGetGroup(ctx, pg.FromGroupID)
+	toGroup := k.MustGetGroup(ctx, pg.ToGroupID)
+
+	// Replace group data
+	tempGroup := fromGroup
+	tempGroup.GroupID = toGroup.GroupID
+	tempGroup.CreatedHeight = toGroup.CreatedHeight
+
+	// Set group with new data
+	k.SetGroup(ctx, tempGroup)
+
+	// Delete the group intended for replacement.
+	k.DeleteGroup(ctx, fromGroup.GroupID)
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

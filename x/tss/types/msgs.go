@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -60,6 +61,45 @@ func (m MsgCreateGroup) ValidateBasic() error {
 		return sdkerrors.Wrap(
 			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
 			"threshold",
+		)
+	}
+
+	return nil
+}
+
+var _ sdk.Msg = &MsgReplaceGroup{}
+
+// NewData creates msg data for request tss signature.
+func (m MsgReplaceGroup) NewData(msgType []byte, pubKey []byte, t time.Time) []byte {
+	data := append(msgType, pubKey...)
+	data = append(data, sdk.FormatTimeBytes(t)...)
+	return data
+}
+
+// Route Implements Msg.
+func (m MsgReplaceGroup) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgReplaceGroup) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgCreateGroup.
+func (m MsgReplaceGroup) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgReplaceGroup) ValidateBasic() error {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Authority)
+	if err != nil {
+		return sdkerrors.Wrap(
+			err,
+			fmt.Sprintf("sender: %s", m.Authority),
 		)
 	}
 

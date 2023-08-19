@@ -343,31 +343,37 @@ func (k Keeper) HandleRequestSign(
 		GroupPubNonce:   groupPubNonce,
 		AssignedMembers: assignedMembers,
 		Signature:       nil,
-		Fee:             group.Fee,
+		Fee:             sdk.NewCoins(),
 		Requester:       feePayer.String(),
 		Status:          types.SIGNING_STATUS_WAITING,
 	}
 
-	// If found any coins that exceed limit then return error
-	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
-	for _, fc := range feeCoins {
-		limitAmt := feeLimit.AmountOf(fc.Denom)
-		if fc.Amount.GT(limitAmt) {
-			return 0, sdkerrors.Wrapf(
-				types.ErrNotEnoughFee,
-				"require: %s, limit: %s%s",
-				fc.String(),
-				limitAmt.String(),
-				fc.Denom,
-			)
-		}
-	}
+	// Collect fees if the function is not invoked by an authority
+	if feePayer.String() != k.authority {
+		// set group fee
+		signing.Fee = group.Fee
 
-	// Send coin to module account
-	if !group.Fee.IsZero() {
-		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
-		if err != nil {
-			return 0, err
+		// If found any coins that exceed limit then return error
+		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
+		for _, fc := range feeCoins {
+			limitAmt := feeLimit.AmountOf(fc.Denom)
+			if fc.Amount.GT(limitAmt) {
+				return 0, sdkerrors.Wrapf(
+					types.ErrNotEnoughFee,
+					"require: %s, limit: %s%s",
+					fc.String(),
+					limitAmt.String(),
+					fc.Denom,
+				)
+			}
+		}
+
+		// Send coin to module account
+		if !group.Fee.IsZero() {
+			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
+			if err != nil {
+				return 0, err
+			}
 		}
 	}
 
@@ -407,8 +413,8 @@ func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(sdk.BigEndianToUint64(bz))
 }
 
-// AddPendingProcessSignings adds a new pending process signing to the store.
-func (k Keeper) AddPendingProcessSignings(ctx sdk.Context, signingID tss.SigningID) {
+// AddPendingProcessSigning adds a new pending process signing to the store.
+func (k Keeper) AddPendingProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	pss := k.GetPendingProcessSignings(ctx)
 	pss = append(pss, signingID)
 	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{
