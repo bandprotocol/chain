@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -833,6 +834,73 @@ func (s *KeeperTestSuite) TestActiveReq() {
 				_, err := msgSrvr.Active(ctx, &types.MsgActive{
 					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
+				s.Require().NoError(err)
+			}
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestUpdateParams() {
+	k, msgSrvr := s.app.TSSKeeper, s.msgSrvr
+
+	testCases := []struct {
+		name         string
+		request      *types.MsgUpdateParams
+		expectErr    bool
+		expectErrStr string
+	}{
+		{
+			name: "set invalid authority",
+			request: &types.MsgUpdateParams{
+				Authority: "foo",
+			},
+			expectErr:    true,
+			expectErrStr: "invalid authority;",
+		},
+		{
+			name: "set invalid params",
+			request: &types.MsgUpdateParams{
+				Authority: k.GetAuthority(),
+				Params: types.Params{
+					MaxGroupSize:            0,
+					MaxDESize:               0,
+					CreatingPeriod:          -1,
+					SigningPeriod:           -1,
+					ActiveDuration:          time.Duration(0),
+					InactivePenaltyDuration: time.Duration(0),
+					JailPenaltyDuration:     time.Duration(0),
+					RewardPercentage:        0,
+				},
+			},
+			expectErr:    true,
+			expectErrStr: "must be positive:",
+		},
+		{
+			name: "set full valid params",
+			request: &types.MsgUpdateParams{
+				Authority: k.GetAuthority(),
+				Params: types.Params{
+					MaxGroupSize:            types.DefaultMaxGroupSize,
+					MaxDESize:               types.DefaultMaxDESize,
+					CreatingPeriod:          types.DefaultCreatingPeriod,
+					SigningPeriod:           types.DefaultSigningPeriod,
+					ActiveDuration:          types.DefaultActiveDuration,
+					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+					RewardPercentage:        types.DefaultRewardPercentage,
+				},
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			_, err := msgSrvr.UpdateParams(s.ctx, tc.request)
+			if tc.expectErr {
+				s.Require().Error(err)
+				s.Require().ErrorContains(err, tc.expectErrStr)
+			} else {
 				s.Require().NoError(err)
 			}
 		})

@@ -107,6 +107,9 @@ var (
 
 	// StatusStoreKeyPrefix is the prefix for status store.
 	StatusStoreKeyPrefix = []byte{0x17}
+
+	// ParamsKeyPrefix is a prefix for keys that store TSS's parameters
+	ParamsKeyPrefix = []byte{0x18}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {

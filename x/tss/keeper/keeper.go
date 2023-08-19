@@ -52,11 +52,6 @@ func NewKeeper(
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
-	// set KeyTable if it has not already been set
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
-	}
-
 	return Keeper{
 		cdc:               cdc,
 		storeKey:          storeKey,
@@ -71,6 +66,11 @@ func NewKeeper(
 		router:            rtr,
 		authority:         authority,
 	}
+}
+
+// GetAuthority returns the x/tss module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 // GetTSSAccount returns the TSS ModuleAccount
@@ -321,7 +321,7 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 	lastGroupID := tss.GroupID(k.GetGroupCount(ctx))
 
 	// Get the group signature creating period
-	creatingPeriod := k.CreatingPeriod(ctx)
+	creatingPeriod := k.GetParams(ctx).CreatingPeriod
 
 	// Process each group starting from currentGroupID
 	for ; currentGroupID <= lastGroupID; currentGroupID++ {

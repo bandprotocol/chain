@@ -454,7 +454,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		signing := k.MustGetSigning(ctx, currentSigningID)
 
 		// Check if the signing is still within the expiration period
-		if signing.CreatedHeight+k.SigningPeriod(ctx) > ctx.BlockHeight() {
+		if signing.CreatedHeight+k.GetParams(ctx).SigningPeriod > ctx.BlockHeight() {
 			break
 		}
 

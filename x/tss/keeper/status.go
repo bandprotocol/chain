@@ -23,7 +23,7 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 			status := k.GetStatus(ctx, address)
 
 			if status.Status == types.MEMBER_STATUS_ACTIVE &&
-				ctx.BlockTime().After(status.LastActive.Add(k.ActiveDuration(ctx))) {
+				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
 				k.SetInactive(ctx, address)
 			}
 
@@ -39,12 +39,12 @@ func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 	if status.Status == types.MEMBER_STATUS_ACTIVE {
 		return nil
 	} else if status.Status == types.MEMBER_STATUS_INACTIVE {
-		penaltyDuration := k.InactivePenaltyDuration(ctx)
+		penaltyDuration := k.GetParams(ctx).InactivePenaltyDuration
 		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
 			return types.ErrTooSoonToActivate
 		}
 	} else if status.Status == types.MEMBER_STATUS_JAIL {
-		penaltyDuration := k.JailPenaltyDuration(ctx)
+		penaltyDuration := k.GetParams(ctx).JailPenaltyDuration
 		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
 			return types.ErrTooSoonToActivate
 		}
