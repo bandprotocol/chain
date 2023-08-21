@@ -6,6 +6,8 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -45,6 +47,115 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 		})
 		s.Require().NoError(err)
 	})
+}
+
+func (s *KeeperTestSuite) TestFailedReplaceGroup() {
+	// Set up the test context and message server.
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Create an authority address.
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+
+	// Define fromGroupID and toGroupID.
+	fromGroupID := tss.GroupID(2)
+	toGroupID := tss.GroupID(1)
+
+	// Create a replace group message.
+	var req types.MsgReplaceGroup
+
+	// Set up the test by creating an active group.
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	group := k.MustGetGroup(ctx, fromGroupID)
+
+	// Define test cases.
+	tcs := []TestCase{
+		{
+			"failure due to incorrect authority",
+			func() {
+				req = types.MsgReplaceGroup{
+					Authority:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					FromGroupID: fromGroupID,
+					ToGroupID:   toGroupID,
+					ExecTime:    time.Time{},
+				}
+			},
+			func() {
+			},
+			govtypes.ErrInvalidSigner,
+		},
+		{
+			"failure due to group is not active",
+			func() {
+				req = types.MsgReplaceGroup{
+					Authority:   authority.String(),
+					FromGroupID: fromGroupID,
+					ToGroupID:   toGroupID,
+					ExecTime:    time.Time{},
+				}
+				group.Status = types.GROUP_STATUS_FALLEN
+				k.SetGroup(ctx, group)
+			},
+			func() {
+				group.Status = types.GROUP_STATUS_ACTIVE
+				k.SetGroup(ctx, group)
+			},
+			types.ErrGroupIsNotActive,
+		},
+	}
+
+	// Loop through each test case.
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			// Modify the request based on the test case.
+			tc.Malleate()
+
+			// Execute the ReplaceGroup method and check for expected errors.
+			_, err := msgSrvr.ReplaceGroup(ctx, &req)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
+
+			// Perform post-test actions.
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Create an authority address.
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+
+	// Define fromGroupID and toGroupID.
+	fromGroupID := tss.GroupID(2)
+	toGroupID := tss.GroupID(1)
+
+	// Define the expected pending replace group.
+	expected := types.PendingReplaceGroup{
+		SigningID:   1,
+		FromGroupID: fromGroupID,
+		ToGroupID:   toGroupID,
+		ExecTime:    time.Time{},
+	}
+
+	// Set up the test by creating an active group.
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Create the replace group message.
+	msg := types.MsgReplaceGroup{
+		FromGroupID: fromGroupID,
+		ToGroupID:   toGroupID,
+		ExecTime:    time.Time{},
+		Authority:   authority.String(),
+	}
+
+	// Execute the ReplaceGroup method.
+	_, err := msgSrvr.ReplaceGroup(ctx, &msg)
+	s.Require().NoError(err)
+
+	// Check if the pending replace group matches the expected result.
+	got := k.GetPendingReplaceGroups(ctx)
+	s.Require().Len(got, 1)
+	s.Require().Equal(expected, got[0])
 }
 
 func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
