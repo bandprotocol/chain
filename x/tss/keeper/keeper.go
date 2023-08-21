@@ -481,7 +481,7 @@ func (k Keeper) AddPendingReplaceGroup(ctx sdk.Context, pg types.PendingReplaceG
 
 // SetPendingReplaceGroups sets the given pending replace groups in the store.
 func (k Keeper) SetPendingReplaceGroups(ctx sdk.Context, pgs types.PendingReplaceGroups) {
-	ctx.KVStore(k.storeKey).Set(types.PendingProcessGroupsStoreKey, k.cdc.MustMarshal(&pgs))
+	ctx.KVStore(k.storeKey).Set(types.PendingReplaceGroupsStoreKey, k.cdc.MustMarshal(&pgs))
 }
 
 // GetPendingReplaceGroups retrieves the list of pending replace groups from the store.
