@@ -138,12 +138,11 @@ func (k msgServer) ReplaceGroup(
 	data := req.NewData(types.ReplaceGroupMsgPrefix, fromGroup.PubKey, req.ExecTime)
 
 	// Request signature
-	sid, err := k.HandleRequestSign(
+	sid, err := k.HandleReplaceGroupRequestSign(
 		ctx,
 		req.ToGroupID,
 		types.NewTextRequestSignature(data),
 		address,
-		sdk.NewCoins(),
 	)
 	if err != nil {
 		return nil, err

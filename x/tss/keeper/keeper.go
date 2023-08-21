@@ -519,9 +519,6 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup
 
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
-
-	// Delete the group intended for replacement.
-	k.DeleteGroup(ctx, fromGroup.GroupID)
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

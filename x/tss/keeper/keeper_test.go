@@ -494,7 +494,7 @@ func (s *KeeperTestSuite) TestGetSetPendingReplaceGroups() {
 		SigningID:   1,
 		FromGroupID: 2,
 		ToGroupID:   1,
-		ExecTime:    time.Time{},
+		ExecTime:    time.Now().UTC(),
 	}
 	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{
 		PendingReplaceGroups: []types.PendingReplaceGroup{pg},
@@ -546,7 +546,7 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		SigningID:   signingID,
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Time{},
+		ExecTime:    time.Now().UTC(),
 	}
 
 	// Call HandleReplaceGroup to process the pending replace group
@@ -563,11 +563,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	s.Require().Equal(initialFromGroup.PubKey, updatedGroup.PubKey)
 	s.Require().Equal(initialFromGroup.Status, updatedGroup.Status)
 	s.Require().Equal(initialFromGroup.Fee, updatedGroup.Fee)
-
-	// Verify that the fromGroup was deleted
-	_, err := k.GetGroup(ctx, fromGroupID)
-	s.Require().Error(err)
-	s.Require().ErrorContains(err, "failed to get group")
 }
 
 func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
@@ -609,7 +604,7 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		SigningID:   signingID,
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Time{},
+		ExecTime:    time.Now().UTC(),
 	}
 
 	// Call HandleReplaceGroup to process the pending replace group
@@ -618,10 +613,6 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 	// Verify that the fromGroup is not replaced by the toGroup's
 	updatedGroup := k.MustGetGroup(ctx, toGroupID)
 	s.Require().Equal(initialToGroup, updatedGroup)
-
-	// Verify that the fromGroup is not deleted
-	_, err := k.GetGroup(ctx, fromGroupID)
-	s.Require().NoError(err)
 }
 
 func (s *KeeperTestSuite) TestParams() {

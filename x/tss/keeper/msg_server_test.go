@@ -76,7 +76,7 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 					Authority:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 					FromGroupID: fromGroupID,
 					ToGroupID:   toGroupID,
-					ExecTime:    time.Time{},
+					ExecTime:    time.Now().UTC(),
 				}
 			},
 			func() {
@@ -90,7 +90,7 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 					Authority:   authority.String(),
 					FromGroupID: fromGroupID,
 					ToGroupID:   toGroupID,
-					ExecTime:    time.Time{},
+					ExecTime:    time.Now().UTC(),
 				}
 				group.Status = types.GROUP_STATUS_FALLEN
 				k.SetGroup(ctx, group)
@@ -129,12 +129,14 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	fromGroupID := tss.GroupID(2)
 	toGroupID := tss.GroupID(1)
 
+	now := time.Now().UTC()
+
 	// Define the expected pending replace group.
 	expected := types.PendingReplaceGroup{
 		SigningID:   1,
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Time{},
+		ExecTime:    now,
 	}
 
 	// Set up the test by creating an active group.
@@ -144,7 +146,7 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	msg := types.MsgReplaceGroup{
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Time{},
+		ExecTime:    now,
 		Authority:   authority.String(),
 	}
 

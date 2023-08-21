@@ -58,14 +58,14 @@ func TestReplaceGroups(t *testing.T) {
 		SigningID:   signingID,
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().Add(time.Duration(-5) * time.Minute),
+		ExecTime:    time.Now().UTC().Add(time.Duration(-5) * time.Minute),
 	}
 	// Create a pending replace group with an execution time set 5 minutes after
 	pendingReplaceGroup2 := types.PendingReplaceGroup{
 		SigningID:   signingID,
 		FromGroupID: fromGroupID,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().Add(time.Duration(5) * time.Minute),
+		ExecTime:    time.Now().UTC().Add(time.Duration(5) * time.Minute),
 	}
 
 	k.AddPendingReplaceGroup(ctx, pendingReplaceGroup1)
