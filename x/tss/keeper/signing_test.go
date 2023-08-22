@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -421,10 +420,9 @@ func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
 
 	// Define the fee payer's address.
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	testTime := time.Now().UTC()
 
 	// execute HandleReplaceGroupRequestSign
-	signingID, err := k.HandleReplaceGroupRequestSign(ctx, groupID, testTime, feePayer)
+	signingID, err := k.HandleReplaceGroupRequestSign(ctx, groupID, feePayer)
 	s.Require().NoError(err)
 
 	// verify that a new signing is created

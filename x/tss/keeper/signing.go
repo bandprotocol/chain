@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sort"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -430,7 +429,6 @@ func (k Keeper) HandleRequestSign(
 func (k Keeper) HandleReplaceGroupRequestSign(
 	ctx sdk.Context,
 	groupID tss.GroupID,
-	t time.Time,
 	feePayer sdk.AccAddress,
 ) (tss.SigningID, error) {
 	// Get group
@@ -445,7 +443,7 @@ func (k Keeper) HandleReplaceGroupRequestSign(
 	}
 
 	// Wrap the message data as replace group msg.
-	msg := types.WrapMsgDataReplaceGroup(group.PubKey, t)
+	msg := types.WrapMsgDataReplaceGroup(group.PubKey)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)

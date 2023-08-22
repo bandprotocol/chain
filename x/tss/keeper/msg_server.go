@@ -138,7 +138,6 @@ func (k msgServer) ReplaceGroup(
 	sid, err := k.HandleReplaceGroupRequestSign(
 		ctx,
 		req.ToGroupID,
-		req.ExecTime.UTC(),
 		address,
 	)
 	if err != nil {

@@ -22,8 +22,8 @@ const (
 )
 
 var (
-	NormalMsgPrefix       = []byte("01")
-	ReplaceGroupMsgPrefix = []byte("02")
+	NormalMsgPrefix       = []byte("00")
+	ReplaceGroupMsgPrefix = []byte("01")
 )
 
 var (
