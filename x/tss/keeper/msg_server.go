@@ -134,14 +134,11 @@ func (k msgServer) ReplaceGroup(
 		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
-	// Create new replace group data
-	data := req.NewData(types.ReplaceGroupMsgPrefix, fromGroup.PubKey, req.ExecTime)
-
 	// Request signature
 	sid, err := k.HandleReplaceGroupRequestSign(
 		ctx,
 		req.ToGroupID,
-		types.NewTextRequestSignature(data),
+		req.ExecTime,
 		address,
 	)
 	if err != nil {

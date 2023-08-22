@@ -2,7 +2,9 @@ package types
 
 import (
 	fmt "fmt"
+	"time"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -60,4 +62,16 @@ func NewRequestSignatureHandler() Handler {
 			)
 		}
 	}
+}
+
+// WrapMsgDataNormal appends the normal message prefix to the given message bytes.
+func WrapMsgDataNormal(msg []byte) []byte {
+	return append(NormalMsgPrefix, msg...)
+}
+
+// WrapMsgDataReplaceGroup constructs a message by appending the replace group message prefix,
+// the public key, and the formatted time to the message bytes.
+func WrapMsgDataReplaceGroup(pubKey tss.Point, t time.Time) []byte {
+	msg := append(ReplaceGroupMsgPrefix, pubKey...)
+	return append(msg, sdk.FormatTimeBytes(t)...)
 }

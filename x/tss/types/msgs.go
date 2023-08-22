@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -68,13 +67,6 @@ func (m MsgCreateGroup) ValidateBasic() error {
 }
 
 var _ sdk.Msg = &MsgReplaceGroup{}
-
-// NewData creates msg data for request tss signature.
-func (m MsgReplaceGroup) NewData(msgType []byte, pubKey []byte, t time.Time) []byte {
-	data := append(msgType, pubKey...)
-	data = append(data, sdk.FormatTimeBytes(t)...)
-	return data
-}
 
 // Route Implements Msg.
 func (m MsgReplaceGroup) Route() string { return sdk.MsgTypeURL(&m) }
