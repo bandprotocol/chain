@@ -194,6 +194,16 @@ func (p Point) Validate() error {
 	return nil
 }
 
+// Address returns an ethereum address of the point
+func (p Point) Address() ([]byte, error) {
+	pubKey, err := p.publicKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return Hash(pubKey.X().Bytes(), pubKey.Y().Bytes())[12:], nil
+}
+
 // publicKey converts a Point back to a secp256k1.PublicKey.
 func (p Point) publicKey() (*secp256k1.PublicKey, error) {
 	pubKey, err := secp256k1.ParsePubKey(p)
