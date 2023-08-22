@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
@@ -357,6 +358,80 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	// Test that it returns an error if t > size
 	_, err = k.GetRandomAssigningParticipants(ctx, signingID, members, uint64(len(members)+1))
 	s.Require().Error(err)
+}
+
+func (s *KeeperTestSuite) TestHandleAssignedMembers() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	group := k.MustGetGroup(ctx, 1)
+
+	// Execute HandleAssignedMembers
+	msg := []byte("test message") // or any other sample message data
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
+	s.Require().NoError(err)
+
+	// Assert that assigned members have the expected properties
+	for _, member := range assignedMembers {
+		// Check if binding factor is computed and valid
+		s.Require().NotNil(member.BindingFactor)
+
+		// Check if public nonce is computed and valid
+		s.Require().NotNil(member.PubNonce)
+	}
+}
+
+func (s *KeeperTestSuite) TestHandleRequestSign() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Set the group fee to zero
+	group := k.MustGetGroup(ctx, groupID)
+	group.Fee = sdk.NewCoins()
+	k.SetGroup(ctx, group)
+
+	// Define the fee payer's address.
+	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	// Set the fee limit to zero.
+	feeLimit := sdk.NewCoins()
+
+	// Create a new content for the request signature
+	content := types.NewTextRequestSignature([]byte("example"))
+
+	// execute HandleRequestSign
+	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)
+	s.Require().NoError(err)
+
+	// verify that a new signing is created
+	signing, err := k.GetSigning(ctx, signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(groupID, signing.GroupID)
+	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
+}
+
+func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	groupID := tss.GroupID(1)
+
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Define the fee payer's address.
+	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	testTime := time.Now().UTC()
+
+	// execute HandleReplaceGroupRequestSign
+	signingID, err := k.HandleReplaceGroupRequestSign(ctx, groupID, testTime, feePayer)
+	s.Require().NoError(err)
+
+	// verify that a new signing is created
+	signing, err := k.GetSigning(ctx, signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(groupID, signing.GroupID)
+	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
 }
 
 func (s *KeeperTestSuite) TestGetSetLastExpiredSigningID() {

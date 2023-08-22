@@ -250,6 +250,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 	return selected, nil
 }
 
+// HandleAssignedMembers handles the assignment of members for a group signature process.
 func (k Keeper) HandleAssignedMembers(
 	ctx sdk.Context,
 	group types.Group,
@@ -317,7 +318,7 @@ func (k Keeper) HandleAssignedMembers(
 	return assignedMembers, nil
 }
 
-// HandleNormalRequestSign initiates the signing process by requesting signatures from assigned members.
+// HandleRequestSign initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
 func (k Keeper) HandleRequestSign(
 	ctx sdk.Context,
@@ -425,6 +426,7 @@ func (k Keeper) HandleRequestSign(
 	return signingID, nil
 }
 
+// HandleReplaceGroupRequestSign handles the signing request for a group replacement.
 func (k Keeper) HandleReplaceGroupRequestSign(
 	ctx sdk.Context,
 	groupID tss.GroupID,
