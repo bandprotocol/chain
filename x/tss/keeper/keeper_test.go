@@ -486,6 +486,135 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
 }
 
+func (s *KeeperTestSuite) TestGetSetPendingReplaceGroups() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Set the pending replace groups in the store
+	pg := types.PendingReplaceGroup{
+		SigningID:   1,
+		FromGroupID: 2,
+		ToGroupID:   1,
+		ExecTime:    time.Now().UTC(),
+	}
+	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{
+		PendingReplaceGroups: []types.PendingReplaceGroup{pg},
+	})
+
+	got := k.GetPendingReplaceGroups(ctx)
+
+	// Check if the retrieved pending replace groups match the original sample
+	s.Require().Len(got, 1)
+	s.Require().Equal(pg, got[0])
+}
+
+func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	signingID := tss.SigningID(1)
+	fromGroupID := tss.GroupID(1)
+	toGroupID := tss.GroupID(2)
+
+	// Set up initial state for testing
+	initialFromGroup := types.Group{
+		GroupID:       fromGroupID,
+		Size_:         7,
+		Threshold:     4,
+		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
+		Status:        types.GROUP_STATUS_ACTIVE,
+		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
+		CreatedHeight: 2,
+	}
+	initialToGroup := types.Group{
+		GroupID:       toGroupID,
+		Size_:         5,
+		Threshold:     3,
+		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
+		Status:        types.GROUP_STATUS_ACTIVE,
+		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+		CreatedHeight: 1,
+	}
+	initialSigning := types.Signing{
+		SigningID: signingID,
+		Status:    types.SIGNING_STATUS_SUCCESS,
+		// ... other fields ...
+	}
+	k.SetGroup(ctx, initialFromGroup)
+	k.SetGroup(ctx, initialToGroup)
+	k.SetSigning(ctx, initialSigning)
+
+	// Create a pending replace group
+	pendingReplaceGroup := types.PendingReplaceGroup{
+		SigningID:   signingID,
+		FromGroupID: fromGroupID,
+		ToGroupID:   toGroupID,
+		ExecTime:    time.Now().UTC(),
+	}
+
+	// Call HandleReplaceGroup to process the pending replace group
+	k.HandleReplaceGroup(ctx, pendingReplaceGroup)
+
+	// Verify that the fromGroup was replaced with the toGroup's data
+	updatedGroup := k.MustGetGroup(ctx, toGroupID)
+	// Verify unchanged data
+	s.Require().Equal(toGroupID, updatedGroup.GroupID)
+	s.Require().Equal(initialToGroup.CreatedHeight, updatedGroup.CreatedHeight)
+	// Verify changed data
+	s.Require().Equal(initialFromGroup.Size_, updatedGroup.Size_)
+	s.Require().Equal(initialFromGroup.Threshold, updatedGroup.Threshold)
+	s.Require().Equal(initialFromGroup.PubKey, updatedGroup.PubKey)
+	s.Require().Equal(initialFromGroup.Status, updatedGroup.Status)
+	s.Require().Equal(initialFromGroup.Fee, updatedGroup.Fee)
+}
+
+func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	signingID := tss.SigningID(1)
+	fromGroupID := tss.GroupID(1)
+	toGroupID := tss.GroupID(2)
+
+	// Set up initial state for testing
+	initialFromGroup := types.Group{
+		GroupID:       fromGroupID,
+		Size_:         7,
+		Threshold:     4,
+		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
+		Status:        types.GROUP_STATUS_ACTIVE,
+		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
+		CreatedHeight: 2,
+	}
+	initialToGroup := types.Group{
+		GroupID:       toGroupID,
+		Size_:         5,
+		Threshold:     3,
+		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
+		Status:        types.GROUP_STATUS_ACTIVE,
+		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+		CreatedHeight: 1,
+	}
+	initialSigning := types.Signing{
+		SigningID: signingID,
+		Status:    types.SIGNING_STATUS_FALLEN,
+		// ... other fields ...
+	}
+	k.SetGroup(ctx, initialFromGroup)
+	k.SetGroup(ctx, initialToGroup)
+	k.SetSigning(ctx, initialSigning)
+
+	// Create a pending replace group
+	pendingReplaceGroup := types.PendingReplaceGroup{
+		SigningID:   signingID,
+		FromGroupID: fromGroupID,
+		ToGroupID:   toGroupID,
+		ExecTime:    time.Now().UTC(),
+	}
+
+	// Call HandleReplaceGroup to process the pending replace group
+	k.HandleReplaceGroup(ctx, pendingReplaceGroup)
+
+	// Verify that the fromGroup is not replaced by the toGroup's
+	updatedGroup := k.MustGetGroup(ctx, toGroupID)
+	s.Require().Equal(initialToGroup, updatedGroup)
+}
+
 func (s *KeeperTestSuite) TestParams() {
 	k := s.app.TSSKeeper
 

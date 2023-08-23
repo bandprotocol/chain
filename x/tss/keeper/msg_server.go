@@ -102,6 +102,60 @@ func (k msgServer) CreateGroup(
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
+// ReplaceGroup handles the replacement of a group with another group. It verifies the authority,
+// retrieves necessary context, creates a new replace group data, requests a signature,
+// and adds the pending replace group for execution.
+func (k msgServer) ReplaceGroup(
+	goCtx context.Context,
+	req *types.MsgReplaceGroup,
+) (*types.MsgReplaceGroupResponse, error) {
+	if k.authority != req.Authority {
+		return nil, sdkerrors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Authority)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
+	// Get from group
+	fromGroup, err := k.GetGroup(ctx, req.FromGroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check group status
+	if fromGroup.Status != types.GROUP_STATUS_ACTIVE {
+		return nil, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Request signature
+	sid, err := k.HandleReplaceGroupRequestSign(
+		ctx,
+		req.ToGroupID,
+		address,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the pending replace of Group 1 with Group 2 during the execution process, which
+	// will process at the end block.
+	k.AddPendingReplaceGroup(ctx, types.PendingReplaceGroup{
+		SigningID:   sid,
+		FromGroupID: req.FromGroupID,
+		ToGroupID:   req.ToGroupID,
+		ExecTime:    req.ExecTime,
+	})
+
+	return &types.MsgReplaceGroupResponse{}, nil
+}
+
 // SubmitDKGRound1 validates the group status, member, coefficients commit length, one-time
 // signature, and A0 signature for a group's round 1. If all checks pass, it updates the
 // accumulated commits, stores the Round1Info, emits an event, and if necessary, updates the
@@ -203,7 +257,7 @@ func (k msgServer) SubmitDKGRound1(
 	count := k.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, groupID)
+		k.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
@@ -293,7 +347,7 @@ func (k msgServer) SubmitDKGRound2(
 	count := k.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, groupID)
+		k.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
@@ -409,7 +463,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, groupID)
+		k.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -489,7 +543,7 @@ func (k msgServer) Confirm(
 	// Handle fallen group if everyone sends confirm or complain already
 	if confirmComplainCount+1 == group.Size_ {
 		// Add the pending process group to the list of pending process groups to be processed at the endblock.
-		k.AddPendingProcessGroups(ctx, groupID)
+		k.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgConfirmResponse{}, nil
@@ -642,7 +696,7 @@ func (k msgServer) SubmitSignature(
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
 	if sigCount == group.Threshold {
-		k.AddPendingProcessSignings(ctx, req.SigningID)
+		k.AddPendingProcessSigning(ctx, req.SigningID)
 	}
 
 	ctx.EventManager().EmitEvent(

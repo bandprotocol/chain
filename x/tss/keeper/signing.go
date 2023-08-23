@@ -249,6 +249,74 @@ func (k Keeper) GetRandomAssigningParticipants(
 	return selected, nil
 }
 
+// HandleAssignedMembers handles the assignment of members for a group signature process.
+func (k Keeper) HandleAssignedMembers(
+	ctx sdk.Context,
+	group types.Group,
+	msg []byte,
+) (types.AssignedMembers, error) {
+	// Check group status
+	if group.Status != types.GROUP_STATUS_ACTIVE {
+		return types.AssignedMembers{}, sdkerrors.Wrap(
+			types.ErrGroupIsNotActive,
+			"group status is not active",
+		)
+	}
+
+	// Get active members
+	members, err := k.GetActiveMembers(ctx, group.GroupID)
+	if err != nil {
+		return types.AssignedMembers{}, err
+	}
+
+	// Random assigning participants
+	selectedMembers, err := k.GetRandomAssigningParticipants(
+		ctx,
+		k.GetSigningCount(ctx)+1,
+		members,
+		group.Threshold,
+	)
+	if err != nil {
+		return types.AssignedMembers{}, err
+	}
+
+	// Handle assigned members by polling DE and retrieve assigned members information.
+	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
+	if err != nil {
+		return types.AssignedMembers{}, err
+	}
+
+	// Compute commitment from mids, public D and public E
+	commitment, err := tss.ComputeCommitment(
+		types.Members(selectedMembers).GetIDs(),
+		assignedMembers.PubDs(),
+		assignedMembers.PubEs(),
+	)
+	if err != nil {
+		return types.AssignedMembers{}, err
+	}
+
+	// Compute binding factor and public nonce of each assigned member
+	for i, member := range assignedMembers {
+		// Compute binding factor
+		assignedMembers[i].BindingFactor, err = tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
+		if err != nil {
+			return types.AssignedMembers{}, err
+		}
+		// Compute own public nonce
+		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
+			member.PubD,
+			member.PubE,
+			assignedMembers[i].BindingFactor,
+		)
+		if err != nil {
+			return types.AssignedMembers{}, err
+		}
+	}
+
+	return assignedMembers, nil
+}
+
 // HandleRequestSign initiates the signing process by requesting signatures from assigned members.
 // It assigns participants randomly, computes necessary values, and emits appropriate events.
 func (k Keeper) HandleRequestSign(
@@ -268,66 +336,27 @@ func (k Keeper) HandleRequestSign(
 		return 0, err
 	}
 
-	// Check group status
+	// Verify if the group status is active.
 	if group.Status != types.GROUP_STATUS_ACTIVE {
 		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
+	// Retrieve the appropriate handler for the request signature route.
 	handler := k.router.GetRoute(content.RequestSignatureRoute())
+
+	// Execute the handler to process the content.
 	msg, err := handler(ctx, content)
 	if err != nil {
 		return 0, sdkerrors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
 	}
 
-	// Get active members
-	members, err := k.GetActiveMembers(ctx, groupID)
+	// Wrap the message data as normal msg.
+	msg = types.WrapMsgDataNormal(msg)
+
+	// Handle assigned members within the context of the group.
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
 	if err != nil {
 		return 0, err
-	}
-
-	// Random assigning participants
-	selectedMembers, err := k.GetRandomAssigningParticipants(
-		ctx,
-		k.GetSigningCount(ctx)+1,
-		members,
-		group.Threshold,
-	)
-	if err != nil {
-		return 0, err
-	}
-
-	// Handle assigned members by polling DE and retrieve assigned members information.
-	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
-	if err != nil {
-		return 0, err
-	}
-
-	// Compute commitment from mids, public D and public E
-	commitment, err := tss.ComputeCommitment(
-		types.Members(selectedMembers).GetIDs(),
-		assignedMembers.PubDs(),
-		assignedMembers.PubEs(),
-	)
-	if err != nil {
-		return 0, err
-	}
-
-	// Compute binding factor and public nonce of each assigned member
-	for i, member := range assignedMembers {
-		// Compute binding factor
-		assignedMembers[i].BindingFactor, err = tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
-		if err != nil {
-			return 0, err
-		}
-		// Compute own public nonce
-		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
-			member.PubD,
-			member.PubE,
-			assignedMembers[i].BindingFactor,
-		)
-		if err != nil {
-			return 0, err
-		}
 	}
 
 	// Compute group public nonce for this signing
@@ -337,16 +366,16 @@ func (k Keeper) HandleRequestSign(
 	}
 
 	// Create signing struct
-	signing := types.Signing{
-		GroupID:         groupID,
-		Message:         msg,
-		GroupPubNonce:   groupPubNonce,
-		AssignedMembers: assignedMembers,
-		Signature:       nil,
-		Fee:             group.Fee,
-		Requester:       feePayer.String(),
-		Status:          types.SIGNING_STATUS_WAITING,
-	}
+	signing := types.NewSigning(
+		groupID,
+		assignedMembers,
+		msg,
+		groupPubNonce,
+		nil,
+		group.Fee,
+		types.SIGNING_STATUS_WAITING,
+		feePayer.String(),
+	)
 
 	// If found any coins that exceed limit then return error
 	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
@@ -361,15 +390,84 @@ func (k Keeper) HandleRequestSign(
 				fc.Denom,
 			)
 		}
-	}
 
-	// Send coin to module account
-	if !group.Fee.IsZero() {
-		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
-		if err != nil {
-			return 0, err
+		// Send coin to module account
+		if !group.Fee.IsZero() {
+			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
+			if err != nil {
+				return 0, err
+			}
 		}
 	}
+
+	// Add signing
+	signingID := k.AddSigning(ctx, signing)
+
+	event := sdk.NewEvent(
+		types.EventTypeRequestSign,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
+		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
+	)
+	for _, am := range assignedMembers {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Member)),
+			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
+			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return signingID, nil
+}
+
+// HandleReplaceGroupRequestSign handles the signing request for a group replacement.
+func (k Keeper) HandleReplaceGroupRequestSign(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	feePayer sdk.AccAddress,
+) (tss.SigningID, error) {
+	// Get group
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return 0, err
+	}
+
+	// Verify if the group status is active.
+	if group.Status != types.GROUP_STATUS_ACTIVE {
+		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Wrap the message data as replace group msg.
+	msg := types.WrapMsgDataReplaceGroup(group.PubKey)
+
+	// Handle assigned members within the context of the group.
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
+	if err != nil {
+		return 0, err
+	}
+
+	// Compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create signing struct
+	signing := types.NewSigning(
+		groupID,
+		assignedMembers,
+		msg,
+		groupPubNonce,
+		nil,
+		sdk.NewCoins(),
+		types.SIGNING_STATUS_WAITING,
+		feePayer.String(),
+	)
 
 	// Add signing
 	signingID := k.AddSigning(ctx, signing)
@@ -407,8 +505,8 @@ func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(sdk.BigEndianToUint64(bz))
 }
 
-// AddPendingProcessSignings adds a new pending process signing to the store.
-func (k Keeper) AddPendingProcessSignings(ctx sdk.Context, signingID tss.SigningID) {
+// AddPendingProcessSigning adds a new pending process signing to the store.
+func (k Keeper) AddPendingProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	pss := k.GetPendingProcessSignings(ctx)
 	pss = append(pss, signingID)
 	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{

@@ -1,12 +1,13 @@
 syntax = "proto3";
 package tss.v1beta1;
 
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/msg/v1/msg.proto";
-import "gogoproto/gogo.proto";
-import "google/protobuf/any.proto";
 
 import "tss/v1beta1/tss.proto";
 import "tss/v1beta1/genesis.proto";
@@ -17,6 +18,9 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
+
+  // ReplaceGroup replaces the group with another group.
+  rpc ReplaceGroup(MsgReplaceGroup) returns (MsgReplaceGroupResponse);
 
   // SubmitDKGRound1 submits dkg for computing round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
@@ -70,6 +74,28 @@ message MsgCreateGroup {
 
 // MsgCreateGroupResponse is the Msg/CreateGroup response type.
 message MsgCreateGroupResponse {}
+
+// MsgReplaceGroup is the Msg/ReplaceGroup request type.
+message MsgReplaceGroup {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "tss/ReplaceGroup";
+
+  // from_group_id is the ID of the group that want to replace, and subsequently remove this group.
+  uint64 from_group_id = 1 [
+    (gogoproto.customname) = "FromGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // to_group_id is the ID of the group that will take the place of another group.
+  uint64 to_group_id = 2
+      [(gogoproto.customname) = "ToGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // exec_time is the time that will be substituted in place of the group.
+  google.protobuf.Timestamp exec_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgReplaceGroupResponse is the Msg/ReplaceGroup response type.
+message MsgReplaceGroupResponse {}
 
 // MsgSubmitDKGRound1 is the Msg/SubmitDKGRound1 request type.
 message MsgSubmitDKGRound1 {

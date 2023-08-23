@@ -8,6 +8,7 @@ import (
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateGroup{}, "tss/CreateGroup", nil)
+	cdc.RegisterConcrete(&MsgReplaceGroup{}, "tss/ReplaceGroup", nil)
 	cdc.RegisterConcrete(&MsgSubmitDKGRound1{}, "tss/SubmitDKGRound1", nil)
 	cdc.RegisterConcrete(&MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2", nil)
 	cdc.RegisterConcrete(&MsgComplain{}, "tss/Complaint", nil)
@@ -24,6 +25,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateGroup{},
+		&MsgReplaceGroup{},
 		&MsgSubmitDKGRound1{},
 		&MsgSubmitDKGRound2{},
 		&MsgComplain{},
