@@ -264,6 +264,31 @@ message PendingProcessSignings {
   ];
 }
 
+// PendingReplaceGroup represents a group replacement operation.
+message PendingReplaceGroup {
+  // signing_id is the unique identifier of the signing process.
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // from_group_id is the ID of the group that want to replace, and subsequently remove this group.
+  uint64 from_group_id = 2 [
+    (gogoproto.customname) = "FromGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // to_group_id is the ID of the group that will take the place of another group.
+  uint64 to_group_id = 3
+      [(gogoproto.customname) = "ToGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // exec_time is the time that will be substituted in place of the group.
+  google.protobuf.Timestamp exec_time = 4 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+}
+
+// PendingReplaceGroups is a list of groups that are waiting to be replaced.
+message PendingReplaceGroups {
+  // pending_replace_groups is a list of pending replace group.
+  repeated PendingReplaceGroup pending_replace_groups = 1 [(gogoproto.nullable) = false];
+}
+
 // PartialSignature contains information about a member's partial signature.
 message PartialSignature {
   // member_id is the identifier of the member providing the partial signature.
