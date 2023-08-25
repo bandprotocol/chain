@@ -313,7 +313,6 @@ func NewBandApp(
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
 		appCodec,
 		keys[consensusparamtypes.StoreKey],
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	bApp.SetParamStore(&app.ConsensusParamsKeeper)
@@ -337,7 +336,6 @@ func NewBandApp(
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 		Bech32MainPrefix,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
@@ -347,7 +345,6 @@ func NewBandApp(
 			keys[banktypes.StoreKey],
 			app.AccountKeeper,
 			BlockedAddresses(),
-			// 0.47 TODO: change to tech council address
 			authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		),
 		app.AccountKeeper,
@@ -357,7 +354,6 @@ func NewBandApp(
 		keys[stakingtypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.MintKeeper = mintkeeper.NewKeeper(
@@ -367,7 +363,6 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.DistrKeeper = distrkeeper.NewKeeper(
@@ -377,7 +372,6 @@ func NewBandApp(
 		app.BankKeeper,
 		app.StakingKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	// DistrKeeper must be set afterward due to the circular reference between banker-staking-distr.
@@ -387,7 +381,6 @@ func NewBandApp(
 		legacyAmino,
 		keys[slashingtypes.StoreKey],
 		app.StakingKeeper,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -398,7 +391,6 @@ func NewBandApp(
 		invCheckPeriod,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -411,7 +403,6 @@ func NewBandApp(
 		appCodec,
 		homePath,
 		app.BaseApp,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -465,7 +456,6 @@ func NewBandApp(
 		app.StakingKeeper,
 		app.MsgServiceRouter(),
 		govConfig,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -514,7 +504,6 @@ func NewBandApp(
 		&app.IBCKeeper.PortKeeper,
 		scopedOracleKeeper,
 		owasmVM,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
