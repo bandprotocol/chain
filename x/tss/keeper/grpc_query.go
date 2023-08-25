@@ -234,6 +234,21 @@ func (q queryServer) PendingSignings(
 	}, nil
 }
 
+// PendingReplacements function handles the request to get pending replacing groups.
+func (q queryServer) PendingReplacements(
+	goCtx context.Context,
+	req *types.QueryPendingReplacementsRequest,
+) (*types.QueryPendingReplacementsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get pending replace groups
+	pendingReplaceGroups := q.k.GetPendingReplaceGroups(ctx)
+
+	return &types.QueryPendingReplacementsResponse{
+		PendingReplaceGroups: pendingReplaceGroups,
+	}, nil
+}
+
 // Signing function handles the request to get signing of a given ID.
 func (q queryServer) Signing(
 	goCtx context.Context,
@@ -250,8 +265,22 @@ func (q queryServer) Signing(
 
 	pzs := q.k.GetPartialSigsWithKey(ctx, signingID)
 
+	var evmSignature *types.EVMSignature
+	if signing.Signature != nil {
+		address, err := signing.Signature.R().Address()
+		if err != nil {
+			return nil, err
+		}
+
+		evmSignature = &types.EVMSignature{
+			Address:   address,
+			Signature: signing.Signature.S(),
+		}
+	}
+
 	return &types.QuerySigningResponse{
 		Signing:                   signing,
+		EVMSignature:              evmSignature,
 		ReceivedPartialSignatures: pzs,
 	}, nil
 }
