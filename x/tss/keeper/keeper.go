@@ -497,8 +497,7 @@ func (k Keeper) GetPendingReplaceGroups(ctx sdk.Context) []types.PendingReplaceG
 	return pgs.PendingReplaceGroups
 }
 
-// HandleProcessGroup handles the pending process group based on its status.
-// It updates the group status and emits appropriate events.
+// HandleReplaceGroup updates the group information after a successful signing process.
 func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup) {
 	// Retrieve information about signing.
 	signing := k.MustGetSigning(ctx, pg.SigningID)
