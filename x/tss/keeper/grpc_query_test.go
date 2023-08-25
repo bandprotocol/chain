@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -543,6 +544,46 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 	}
 }
 
+func (s *KeeperTestSuite) TestGRPCQueryPendingReplacements() {
+	ctx, q := s.ctx, s.queryClient
+
+	var req types.QueryPendingReplacementsRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		postTest func(res *types.QueryPendingReplacementsResponse, err error)
+	}{
+		{
+			"success",
+			func() {
+				req = types.QueryPendingReplacementsRequest{}
+			},
+			true,
+			func(res *types.QueryPendingReplacementsResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.PendingReplaceGroups, 0)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+
+			res, err := q.PendingReplacements(ctx, &req)
+			if tc.expPass {
+				s.Require().NoError(err)
+			} else {
+				s.Require().Error(err)
+			}
+
+			tc.postTest(res, err)
+		})
+	}
+}
+
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
@@ -561,7 +602,9 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 		},
 		Message:       []byte("message"),
 		GroupPubNonce: []byte("group_pub_nonce"),
-		Signature:     []byte("signature"),
+		Signature: testutil.HexDecode(
+			"02d447778a1a2cd2a55ceb47d6bd3f01587d079d6ddadbfff5d6956ca9b7ca0e317074433c8adbfb338cd69a343fc1155ce60d4f5e276975ba8bdb8ae8f803ea23",
+		),
 	}
 	sig := []byte("signatures")
 

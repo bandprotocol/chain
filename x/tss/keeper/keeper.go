@@ -515,6 +515,10 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup
 	tempGroup := fromGroup
 	tempGroup.GroupID = toGroup.GroupID
 	tempGroup.CreatedHeight = toGroup.CreatedHeight
+	tempGroup.LastReplacedGroup = &types.ReplacedGroup{
+		OldPubKey: toGroup.PubKey,
+		SigningID: pg.SigningID,
+	}
 
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
