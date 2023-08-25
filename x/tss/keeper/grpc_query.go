@@ -234,17 +234,17 @@ func (q queryServer) PendingSignings(
 	}, nil
 }
 
-// PendingReplacings function handles the request to get pending replacing groups.
-func (q queryServer) PendingReplacings(
+// PendingReplacements function handles the request to get pending replacing groups.
+func (q queryServer) PendingReplacements(
 	goCtx context.Context,
-	req *types.QueryPendingReplacingsRequest,
-) (*types.QueryPendingReplacingsResponse, error) {
+	req *types.QueryPendingReplacementsRequest,
+) (*types.QueryPendingReplacementsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get pending replace groups
 	pendingReplaceGroups := q.k.GetPendingReplaceGroups(ctx)
 
-	return &types.QueryPendingReplacingsResponse{
+	return &types.QueryPendingReplacementsResponse{
 		PendingReplaceGroups: pendingReplaceGroups,
 	}, nil
 }

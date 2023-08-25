@@ -45,8 +45,8 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/pending_signings/{address}";
   }
 
-  // PendingReplacings queries all pending replacing groups.
-  rpc PendingReplacings(QueryPendingReplacingsRequest) returns (QueryPendingReplacingsResponse) {
+  // PendingReplacements queries all pending replacing groups.
+  rpc PendingReplacements(QueryPendingReplacementsRequest) returns (QueryPendingReplacementsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_replacings";
   }
 
@@ -168,11 +168,11 @@ message QueryPendingSigningsResponse {
   repeated uint64 pending_signings = 1;
 }
 
-// QueryPendingReplacingsRequest is the request type for the Query/PendingReplacings RPC method.
-message QueryPendingReplacingsRequest {}
+// QueryPendingReplacementsRequest is the request type for the Query/PendingReplacements RPC method.
+message QueryPendingReplacementsRequest {}
 
-// QueryPendingReplacingsResponse is the response type for the Query/PendingReplacings RPC method.
-message QueryPendingReplacingsResponse {
+// QueryPendingReplacementsResponse is the response type for the Query/PendingReplacements RPC method.
+message QueryPendingReplacementsResponse {
   // pending_replacings is a list of pending replacing groups.
   repeated PendingReplaceGroup pending_replace_groups = 1 [(gogoproto.nullable) = false];
 }

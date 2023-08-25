@@ -544,23 +544,23 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryPendingReplacings() {
+func (s *KeeperTestSuite) TestGRPCQueryPendingReplacements() {
 	ctx, q := s.ctx, s.queryClient
 
-	var req types.QueryPendingReplacingsRequest
+	var req types.QueryPendingReplacementsRequest
 	testCases := []struct {
 		msg      string
 		malleate func()
 		expPass  bool
-		postTest func(res *types.QueryPendingReplacingsResponse, err error)
+		postTest func(res *types.QueryPendingReplacementsResponse, err error)
 	}{
 		{
 			"success",
 			func() {
-				req = types.QueryPendingReplacingsRequest{}
+				req = types.QueryPendingReplacementsRequest{}
 			},
 			true,
-			func(res *types.QueryPendingReplacingsResponse, err error) {
+			func(res *types.QueryPendingReplacementsResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().NotNil(res)
 				s.Require().Len(res.PendingReplaceGroups, 0)
@@ -572,7 +572,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingReplacings() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			res, err := q.PendingReplacings(ctx, &req)
+			res, err := q.PendingReplacements(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
