@@ -115,7 +115,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 	}
 }
 
-func BenchmarkBlockHandleProcessSigning(b *testing.B) {
+func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 	for name, tc := range RequestSignCases {
 		for _, blen := range tc.byteLength {
 			b.Run(fmt.Sprintf(
