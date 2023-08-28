@@ -1,8 +1,8 @@
 package keeper
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -37,7 +37,7 @@ func (k Keeper) HandleVerifyComplaint(
 
 	// Return error if the slot exceeds length of shares
 	if int(complainantIndex) >= len(round2Respondent.EncryptedSecretShares) {
-		return sdkerrors.Wrapf(
+		return errors.Wrapf(
 			types.ErrComplainFailed,
 			"No encrypted secret share from MemberID(%d) to MemberID(%d)",
 			complaint.Respondent,
@@ -56,7 +56,7 @@ func (k Keeper) HandleVerifyComplaint(
 		round1Respondent.CoefficientCommits,
 	)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return errors.Wrapf(
 			types.ErrComplainFailed,
 			"failed to complaint member: %d with groupID: %d; %s",
 			complaint.Respondent,
@@ -90,7 +90,7 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	// Verify own public key sig
 	err = tss.VerifyOwnPubKeySig(memberID, dkgContext, ownPubKeySig, member.PubKey)
 	if err != nil {
-		return sdkerrors.Wrapf(
+		return errors.Wrapf(
 			types.ErrConfirmFailed,
 			"failed to verify own public key with memberID: %d; %s",
 			memberID,
@@ -129,7 +129,7 @@ func (k Keeper) GetComplaintsWithStatus(
 ) (types.ComplaintsWithStatus, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.ComplaintsWithStatus{}, sdkerrors.Wrapf(
+		return types.ComplaintsWithStatus{}, errors.Wrapf(
 			types.ErrComplainsWithStatusNotFound,
 			"failed to get complaints with status with groupID %d memberID %d",
 			groupID,
@@ -203,7 +203,7 @@ func (k Keeper) GetConfirm(
 ) (types.Confirm, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Confirm{}, sdkerrors.Wrapf(
+		return types.Confirm{}, errors.Wrapf(
 			types.ErrConfirmNotFound,
 			"failed to get confirm with groupID %d memberID %d",
 			groupID,

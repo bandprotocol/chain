@@ -13,6 +13,7 @@ const (
 	EventTypeRound3Failed    = "round3_failed"
 	EventTypeRequestSign     = "request_sign"
 	EventTypeSigningSuccess  = "signing_success"
+	EventTypeReplaceSuccess  = "replace_success"
 	EventTypeSubmitSignature = "submit_signature"
 	EventTypeSigningFailed   = "signing_failed"
 	EventTypeActivate        = "activate"
@@ -43,4 +44,6 @@ const (
 	AttributeKeyBindingFactor = "binding_factor"
 	AttributeKeyPubD          = "pub_d"
 	AttributeKeyPubE          = "pub_e"
+	AttributeKeyFromGroupID   = "from_group_id"
+	AttributeKeyToGroupID     = "to_group_id"
 )

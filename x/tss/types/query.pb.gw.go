@@ -1115,7 +1115,7 @@ var (
 
 	pattern_Query_PendingSignings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"tss", "v1beta1", "pending_signings", "address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_PendingReplacements_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"tss", "v1beta1", "pending_replacings"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_PendingReplacements_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"tss", "v1beta1", "pending_replacements"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_Signing_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"tss", "v1beta1", "signings", "signing_id"}, "", runtime.AssumeColonVerbOpt(false)))
 

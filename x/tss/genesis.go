@@ -16,10 +16,12 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetGroup(ctx, group)
 	}
 	for _, deq := range data.DEQueuesGenesis {
-		k.SetDEQueue(ctx, deq.Address, *deq.DEQueue)
+		address := sdk.MustAccAddressFromBech32(deq.Address)
+		k.SetDEQueue(ctx, address, *deq.DEQueue)
 	}
 	for _, de := range data.DEsGenesis {
-		k.SetDE(ctx, de.Address, de.Index, *de.DE)
+		address := sdk.MustAccAddressFromBech32(de.Address)
+		k.SetDE(ctx, address, de.Index, *de.DE)
 	}
 }
 

@@ -3,6 +3,7 @@ package types
 import (
 	fmt "fmt"
 
+	"cosmossdk.io/errors"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -54,7 +55,7 @@ func NewRequestSignatureHandler() Handler {
 			return c.Message, nil
 
 		default:
-			return nil, sdkerrors.Wrapf(
+			return nil, errors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature message type: %s",
 				c.RequestSignatureType(),
