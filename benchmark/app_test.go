@@ -275,7 +275,7 @@ func (ba *BenchmarkApp) GetPendingSignTxs(
 	for _, m := range members {
 		addr := sdk.AccAddress(m.PubKey)
 
-		sids := k.GetPendingSignings(ctx, ba.Sender.Address)
+		sids := k.GetPendingSigningsByPubKey(ctx, m.PubKey)
 
 		ownPrivkey := FindPrivateKey(tcs, gid, addr)
 		require.NotNil(ba.TB, ownPrivkey)

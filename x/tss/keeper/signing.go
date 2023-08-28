@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"sort"
@@ -103,6 +104,40 @@ func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []ui
 		// Check if address is assigned for signing
 		for _, am := range signing.AssignedMembers {
 			if am.Member == address.String() {
+				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
+				if _, err := k.GetPartialSig(ctx, sid, am.MemberID); err != nil {
+					pendingSignings = append(pendingSignings, uint64(signing.SigningID))
+				}
+			}
+		}
+	}
+
+	return pendingSignings
+}
+
+// GetPendingSigningsByPubKey retrieves the pending signing objects associated with the given tss public key.
+func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []uint64 {
+	// Get the ID of the last expired signing
+	lastExpired := k.GetLastExpiredSigningID(ctx)
+
+	// Get the total signing count
+	signingCount := k.GetSigningCount(ctx)
+
+	var pendingSignings []uint64
+	for sid := lastExpired + 1; uint64(sid) <= signingCount; sid++ {
+		// Retrieve the signing object
+		signing := k.MustGetSigning(ctx, sid)
+
+		// Ignore if it's successful already
+		if signing.Status == types.SIGNING_STATUS_SUCCESS {
+			continue
+		}
+
+		// Check if address is assigned for signing
+		for _, am := range signing.AssignedMembers {
+			m := k.MustGetMember(ctx, signing.GroupID, am.MemberID)
+
+			if bytes.Equal(m.PubKey, pubKey) {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
 				if _, err := k.GetPartialSig(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.SigningID))

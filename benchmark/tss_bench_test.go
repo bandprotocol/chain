@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -114,7 +115,6 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 	}
 }
 
-// TODO:
 func BenchmarkBlockHandleProcessSigning(b *testing.B) {
 	for name, tc := range RequestSignCases {
 		for _, blen := range tc.byteLength {
@@ -123,7 +123,35 @@ func BenchmarkBlockHandleProcessSigning(b *testing.B) {
 				name,
 				blen,
 			), func(b *testing.B) {
+				ba := InitializeBenchmarkApp(b, -1)
 
+				ba.SetupGroup()
+
+				b.ResetTimer()
+				b.StopTimer()
+
+				msg := MockByte(blen)
+
+				// deliver MsgSubmitSignature to the block
+				for i := 0; i < b.N; i++ {
+					ba.CallBeginBlock()
+
+					// generate tx
+					ba.RequestSignature(ba.Sender, ba.Gid, tsstypes.NewTextRequestSignature(msg), tc.feeLimit)
+
+					// everyone submit signature
+					txs := ba.GetPendingSignTxs(ba.Gid, testutil.TestCases)
+					for _, tx := range txs {
+						_, _, err := ba.CallDeliver(tx)
+						require.NoError(b, err)
+					}
+					ba.AddDEs(ba.Gid)
+
+					b.StartTimer()
+					ba.CallEndBlock()
+					ba.Commit()
+					b.StopTimer()
+				}
 			})
 		}
 	}
