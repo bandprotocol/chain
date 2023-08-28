@@ -22,8 +22,8 @@ const (
 )
 
 var (
-	NormalMsgPrefix       = []byte("00")
-	ReplaceGroupMsgPrefix = []byte("01")
+	NormalMsgPrefix       = []byte{0x00}
+	ReplaceGroupMsgPrefix = []byte{0x01}
 )
 
 var (
@@ -41,6 +41,9 @@ var (
 
 	// SigningCountStoreKey is the key that keeps the total signing count.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
+
+	// ReplacementCountStoreKey is the key that keeps the total replacement count.
+	ReplacementCountStoreKey = append(GlobalStoreKeyPrefix, []byte("ReplacementCount")...)
 
 	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
 	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
@@ -85,31 +88,31 @@ var (
 	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.
-	ConfirmComplainCountStoreKeyPrefix = []byte{0x10}
+	ConfirmComplainCountStoreKeyPrefix = []byte{0x0a}
 
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
-	ConfirmStoreKeyPrefix = []byte{0x11}
+	ConfirmStoreKeyPrefix = []byte{0x0b}
 
 	// DEStoreKeyPrefix is the key for keeps pre-commit DE.
-	DEStoreKeyPrefix = []byte{0x12}
+	DEStoreKeyPrefix = []byte{0x0c}
 
 	// DEQueueStoreKeyPrefix is the key for keeps first and last index of the DEQueue.
-	DEQueueStoreKeyPrefix = []byte{0x13}
+	DEQueueStoreKeyPrefix = []byte{0x0d}
 
 	// SigningStoreKeyPrefix is the key for keeps signing data.
-	SigningStoreKeyPrefix = []byte{0x14}
+	SigningStoreKeyPrefix = []byte{0x0e}
 
 	// SigCountStoreKeyPrefix is the key for keeps signature count data.
-	SigCountStoreKeyPrefix = []byte{0x15}
+	SigCountStoreKeyPrefix = []byte{0x0f}
 
 	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
-	PartialSigStoreKeyPrefix = []byte{0x16}
+	PartialSigStoreKeyPrefix = []byte{0x10}
 
 	// StatusStoreKeyPrefix is the prefix for status store.
-	StatusStoreKeyPrefix = []byte{0x17}
+	StatusStoreKeyPrefix = []byte{0x11}
 
 	// ParamsKeyPrefix is a prefix for keys that store TSS's parameters
-	ParamsKeyPrefix = []byte{0x18}
+	ParamsKeyPrefix = []byte{0x12}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {

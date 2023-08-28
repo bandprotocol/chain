@@ -47,7 +47,7 @@ service Query {
 
   // PendingReplacements queries all pending replacing groups.
   rpc PendingReplacements(QueryPendingReplacementsRequest) returns (QueryPendingReplacementsResponse) {
-    option (google.api.http).get = "/tss/v1beta1/pending_replacings";
+    option (google.api.http).get = "/tss/v1beta1/pending_replacements";
   }
 
   // Signing queries signing details.
@@ -88,7 +88,10 @@ message QueryGroupResponse {
   // group defines the group object containing group information.
   Group group = 1 [(gogoproto.nullable) = false];
   // dkg_context defines the DKG context data.
-  bytes dkg_context = 2 [(gogoproto.customname) = "DKGContext"];
+  bytes dkg_context = 2 [
+    (gogoproto.customname) = "DKGContext",
+    (gogoproto.casttype)   = "github.com/cometbft/cometbft/libs/bytes.HexBytes"
+  ];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
   // members is the list of members in the group.

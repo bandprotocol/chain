@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -66,7 +65,7 @@ func TestParseComplaints(t *testing.T) {
 
 	// 2. Test with a valid file
 	// Write a valid JSON to a temp file
-	tempFile, err := ioutil.TempFile("", "complaints")
+	tempFile, err := os.CreateTemp("", "complaints")
 
 	require.NoError(t, err)
 	defer os.Remove(tempFile.Name())
@@ -76,8 +75,8 @@ func TestParseComplaints(t *testing.T) {
 			{
 				"complainant": 1,
 				"respondent": 2,
-				"key_sym": "A12yoSWiMwC+8k5XiD9UdQOrJZipntB9ZdSCtOof+O0m",
-				"signature": "Aj1c3dvb5QNZAjHpqAljSM8n2TcUAh/q75GzwJVTcjujxdE324C0ZCgl5IxCVFDxRzHnzTwjl6u0sscOZacLBi4="
+				"key_sym": "035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26",
+				"signature": "023d5cdddbdbe503590231e9a8096348cf27d93714021feaef91b3c09553723ba3c5d137db80b4642825e48c425450f14731e7cd3c2397abb4b2c70e65a70b062e"
 			}
 		]
 	}`
@@ -102,7 +101,7 @@ func TestParseComplaints(t *testing.T) {
 	require.Nil(t, complaints)
 
 	// 4. Test with an invalid JSON file
-	invalidFile, err := ioutil.TempFile("", "invalid-complaints")
+	invalidFile, err := os.CreateTemp("", "invalid-complaints")
 	require.NoError(t, err)
 	defer os.Remove(invalidFile.Name())
 
