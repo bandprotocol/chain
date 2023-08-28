@@ -44,6 +44,11 @@ func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 	return group, err
 }
 
+// DeleteGroup deletes the group information by the given groupID.
+func (s *Store) DeleteGroup(groupID tss.GroupID) error {
+	return s.DB.DeleteSync(GroupStoreKey(groupID))
+}
+
 // SetDE stores the private (d, E) by the given public (D, E).
 func (s *Store) SetDE(pubDE types.DE, privDE DE) error {
 	bytes, err := json.Marshal(privDE)
@@ -67,7 +72,7 @@ func (s *Store) GetDE(pubDE types.DE) (DE, error) {
 	return de, err
 }
 
-// RemoveDE deletes the private (d, E) by the given public (D, E)
-func (s *Store) RemoveDE(pubDE types.DE) error {
+// DeleteDE deletes the private (d, E) by the given public (D, E)
+func (s *Store) DeleteDE(pubDE types.DE) error {
 	return s.DB.DeleteSync(DEStoreKey(pubDE))
 }

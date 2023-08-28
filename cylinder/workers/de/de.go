@@ -79,18 +79,18 @@ func (de *DE) handleTxResult(txResult abci.TxResult) {
 			return
 		}
 
-		go de.removeDE(event.PubDE)
+		go de.deleteDE(event.PubDE)
 	}
 }
 
-// removeDE removes the specific DE.
-func (de *DE) removeDE(pubDE types.DE) {
+// deleteDE deletes the specific DE.
+func (de *DE) deleteDE(pubDE types.DE) {
 	// Log
 	logger := de.logger.With("D", hex.EncodeToString(pubDE.PubD), "E", hex.EncodeToString(pubDE.PubE))
 	logger.Info(":delivery_truck: Removing DE")
 
 	// Remove DE from storage
-	err := de.context.Store.RemoveDE(pubDE)
+	err := de.context.Store.DeleteDE(pubDE)
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to remove DE: %s", err)
 		return
