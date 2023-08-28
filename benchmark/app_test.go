@@ -221,16 +221,15 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 func (ba *BenchmarkApp) SetupGroup() {
 	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
 
+	// force address to owner
+	owner := ba.Sender.Address.String()
+
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
 		tcGroup := tc.Group
 
 		// Initialize members
 		for i, m := range tc.Group.Members {
-			// force address to owner
-			owner := ba.Sender.Address.String()
-
-			// mock Address
 			k.SetMember(ctx, tcGroup.ID, tsstypes.Member{
 				MemberID:    tss.MemberID(i + 1),
 				Address:     owner,
