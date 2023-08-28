@@ -280,7 +280,6 @@ func (ba *BenchmarkApp) GetPendingSignTxs(
 		ownPrivkey := FindPrivateKey(tcs, gid, addr)
 		require.NotNil(ba.TB, ownPrivkey)
 
-		sequence := ba.Sender.Seq
 		for _, sid := range sids {
 			signing := k.MustGetSigning(ctx, tss.SigningID(sid))
 
@@ -294,12 +293,12 @@ func (ba *BenchmarkApp) GetPendingSignTxs(
 				math.MaxInt64,
 				"",
 				[]uint64{ba.Sender.Num},
-				[]uint64{sequence},
+				[]uint64{ba.Sender.Seq},
 				ba.Sender.PrivKey,
 			)
 			require.NoError(ba.TB, err)
 
-			sequence += 1
+			ba.Sender.Seq += 1
 
 			txs = append(txs, tx)
 		}
