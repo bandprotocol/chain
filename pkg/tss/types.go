@@ -1,9 +1,11 @@
 package tss
 
 import (
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
@@ -66,6 +68,50 @@ func NewScalarFromModNScalar(scalar *secp256k1.ModNScalar) Scalar {
 // NewScalarFromPrivateKey parses a secp256k1.PrivateKey into a Scalar.
 func NewScalarFromPrivateKey(privKey *secp256k1.PrivateKey) Scalar {
 	return privKey.Serialize()
+}
+
+// Marshal needed for protobuf compatibility
+func (s Scalar) Marshal() ([]byte, error) {
+	return s, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (s *Scalar) Unmarshal(data []byte) error {
+	*s = data
+	return nil
+}
+
+// MarshalJSON converts the Scalar to its JSON representation.
+func (s Scalar) MarshalJSON() ([]byte, error) {
+	str := strings.ToUpper(hex.EncodeToString(s))
+	jbz := make([]byte, len(str)+2)
+	jbz[0] = '"'
+	copy(jbz[1:], str)
+	jbz[len(jbz)-1] = '"'
+	return jbz, nil
+}
+
+// UnmarshalJSON parses a JSON string into a Scalar.
+func (s *Scalar) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid hex string: %s", data)
+	}
+	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
+	if err != nil {
+		return err
+	}
+	*s = bz2
+	return nil
+}
+
+// Bytes returns the underlying byte slice of the Scalar.
+func (s Scalar) Bytes() []byte {
+	return s
+}
+
+// String returns the hexadecimal representation of the Scalar in uppercase.
+func (s Scalar) String() string {
+	return strings.ToUpper(hex.EncodeToString(s))
 }
 
 // Validate returns an error if the scalar value is invalid.
@@ -185,6 +231,50 @@ func NewPointFromPublicKey(pubKey *secp256k1.PublicKey) Point {
 	return Point(bytes)
 }
 
+// Marshal needed for protobuf compatibility
+func (p Point) Marshal() ([]byte, error) {
+	return p, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (p *Point) Unmarshal(data []byte) error {
+	*p = data
+	return nil
+}
+
+// MarshalJSON converts the Point to its JSON representation.
+func (p Point) MarshalJSON() ([]byte, error) {
+	str := strings.ToUpper(hex.EncodeToString(p))
+	jbz := make([]byte, len(str)+2)
+	jbz[0] = '"'
+	copy(jbz[1:], str)
+	jbz[len(jbz)-1] = '"'
+	return jbz, nil
+}
+
+// UnmarshalJSON parses a JSON string into a Point.
+func (p *Point) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid hex string: %s", data)
+	}
+	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
+	if err != nil {
+		return err
+	}
+	*p = bz2
+	return nil
+}
+
+// Bytes returns the underlying byte slice of the Point.
+func (p Point) Bytes() []byte {
+	return p
+}
+
+// String returns the hexadecimal representation of the Point in uppercase.
+func (p Point) String() string {
+	return strings.ToUpper(hex.EncodeToString(p))
+}
+
 // Validate returns an error if the value is invalid.
 func (p Point) Validate() error {
 	if _, err := p.publicKey(); err != nil {
@@ -280,6 +370,50 @@ func NewSignatureFromType(sig *schnorr.Signature) Signature {
 	return sig.Serialize()
 }
 
+// Marshal needed for protobuf compatibility
+func (s Signature) Marshal() ([]byte, error) {
+	return s, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (s *Signature) Unmarshal(data []byte) error {
+	*s = data
+	return nil
+}
+
+// MarshalJSON converts the Signature to its JSON representation.
+func (s Signature) MarshalJSON() ([]byte, error) {
+	str := strings.ToUpper(hex.EncodeToString(s))
+	jbz := make([]byte, len(str)+2)
+	jbz[0] = '"'
+	copy(jbz[1:], str)
+	jbz[len(jbz)-1] = '"'
+	return jbz, nil
+}
+
+// UnmarshalJSON parses a JSON string into a Signature.
+func (s *Signature) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid hex string: %s", data)
+	}
+	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
+	if err != nil {
+		return err
+	}
+	*s = bz2
+	return nil
+}
+
+// Bytes returns the underlying byte slice of the Signature.
+func (s Signature) Bytes() []byte {
+	return s
+}
+
+// String returns the hexadecimal representation of the Signature in uppercase.
+func (s Signature) String() string {
+	return strings.ToUpper(hex.EncodeToString(s))
+}
+
 // Validate returns an error if the value is invalid.
 func (s Signature) Validate() error {
 	if _, err := s.signature(); err != nil {
@@ -353,6 +487,50 @@ func NewComplaintSignatureFromComponents(rawA1 Point, rawA2 Point, rawZ Scalar) 
 // NewComplaintSignatureFromType parses a schnorr.ComplaintSignature into a ComplaintSignature.
 func NewComplaintSignatureFromType(sig *schnorr.ComplaintSignature) ComplaintSignature {
 	return sig.Serialize()
+}
+
+// Marshal needed for protobuf compatibility
+func (cs ComplaintSignature) Marshal() ([]byte, error) {
+	return cs, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (cs *ComplaintSignature) Unmarshal(data []byte) error {
+	*cs = data
+	return nil
+}
+
+// MarshalJSON converts the ComplaintSignature to its JSON representation.
+func (cs ComplaintSignature) MarshalJSON() ([]byte, error) {
+	str := strings.ToUpper(hex.EncodeToString(cs))
+	jbz := make([]byte, len(str)+2)
+	jbz[0] = '"'
+	copy(jbz[1:], str)
+	jbz[len(jbz)-1] = '"'
+	return jbz, nil
+}
+
+// UnmarshalJSON parses a JSON string into a ComplaintSignature.
+func (cs *ComplaintSignature) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid hex string: %s", data)
+	}
+	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
+	if err != nil {
+		return err
+	}
+	*cs = bz2
+	return nil
+}
+
+// Bytes returns the underlying byte slice of the ComplaintSignature.
+func (cs ComplaintSignature) Bytes() []byte {
+	return cs
+}
+
+// String returns the hexadecimal representation of the ComplaintSignature in uppercase.
+func (cs ComplaintSignature) String() string {
+	return strings.ToUpper(hex.EncodeToString(cs))
 }
 
 // Validate returns an error if the value is invalid.

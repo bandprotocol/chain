@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
@@ -127,7 +127,7 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
-		return types.Group{}, sdkerrors.Wrapf(types.ErrGroupNotFound, "failed to get group with groupID: %d", groupID)
+		return types.Group{}, errors.Wrapf(types.ErrGroupNotFound, "failed to get group with groupID: %d", groupID)
 	}
 
 	group := types.Group{}
@@ -181,7 +181,7 @@ func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext [
 func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
-		return nil, sdkerrors.Wrapf(types.ErrDKGContextNotFound, "failed to get dkg-context with groupID: %d", groupID)
+		return nil, errors.Wrapf(types.ErrDKGContextNotFound, "failed to get dkg-context with groupID: %d", groupID)
 	}
 	return bz, nil
 }
@@ -194,6 +194,13 @@ func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
 // SetMember sets a member of a group in the store.
 func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Member) {
 	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
+}
+
+// SetMembers sets members of a group in the store.
+func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types.Member) {
+	for _, member := range members {
+		k.SetMember(ctx, groupID, member)
+	}
 }
 
 // GetMemberByAddress function retrieves a member of a group from the store by using address.
@@ -209,9 +216,9 @@ func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address
 		}
 	}
 
-	return types.Member{}, sdkerrors.Wrapf(
+	return types.Member{}, errors.Wrapf(
 		types.ErrMemberNotFound,
-		"failed to get member with groupID: %d and address: ",
+		"failed to get member with groupID: %d and address: %s",
 		groupID,
 		address,
 	)
@@ -221,7 +228,7 @@ func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
-		return types.Member{}, sdkerrors.Wrapf(
+		return types.Member{}, errors.Wrapf(
 			types.ErrMemberNotFound,
 			"failed to get member with groupID: %d and memberID: %d",
 			groupID,
@@ -259,7 +266,7 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 		members = append(members, member)
 	}
 	if len(members) == 0 {
-		return nil, sdkerrors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
+		return nil, errors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
 	}
 	return members, nil
 }
@@ -296,7 +303,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 	}
 
 	if len(filteredMembers) == 0 {
-		return nil, sdkerrors.Wrapf(types.ErrNoActiveMember, "no active member in groupID: %d", groupID)
+		return nil, errors.Wrapf(types.ErrNoActiveMember, "no active member in groupID: %d", groupID)
 	}
 	return filteredMembers, nil
 }
@@ -515,9 +522,29 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup
 	tempGroup := fromGroup
 	tempGroup.GroupID = toGroup.GroupID
 	tempGroup.CreatedHeight = toGroup.CreatedHeight
+	tempGroup.LastReplacedGroup = &types.ReplacedGroup{
+		OldPubKey: toGroup.PubKey,
+		SigningID: pg.SigningID,
+	}
 
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
+
+	// Set members with new data
+	members, err := k.GetMembers(ctx, pg.FromGroupID)
+	if err != nil {
+		return
+	}
+	k.SetMembers(ctx, pg.ToGroupID, members)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplaceSuccess,
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", pg.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyFromGroupID, fmt.Sprintf("%d", pg.FromGroupID)),
+			sdk.NewAttribute(types.AttributeKeyToGroupID, fmt.Sprintf("%d", pg.ToGroupID)),
+		),
+	)
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {

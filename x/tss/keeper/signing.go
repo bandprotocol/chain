@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sort"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"golang.org/x/exp/slices"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
@@ -41,7 +41,7 @@ func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
 func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(signingID))
 	if bz == nil {
-		return types.Signing{}, sdkerrors.Wrapf(
+		return types.Signing{}, errors.Wrapf(
 			types.ErrSigningNotFound,
 			"failed to get Signing with ID: %d",
 			signingID,
@@ -186,7 +186,7 @@ func (k Keeper) SetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
 	if bz == nil {
-		return nil, sdkerrors.Wrapf(
+		return nil, errors.Wrapf(
 			types.ErrPartialSigNotFound,
 			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,
@@ -252,7 +252,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 ) ([]types.Member, error) {
 	members_size := uint64(len(members))
 	if t > members_size {
-		return nil, sdkerrors.Wrapf(types.ErrUnexpectedThreshold, "t must less than or equal to size")
+		return nil, errors.Wrapf(types.ErrUnexpectedThreshold, "t must less than or equal to size")
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
@@ -262,7 +262,7 @@ func (k Keeper) GetRandomAssigningParticipants(
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
+		return nil, errors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}
 
 	var selected []types.Member
@@ -292,7 +292,7 @@ func (k Keeper) HandleAssignedMembers(
 ) (types.AssignedMembers, error) {
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return types.AssignedMembers{}, sdkerrors.Wrap(
+		return types.AssignedMembers{}, errors.Wrap(
 			types.ErrGroupIsNotActive,
 			"group status is not active",
 		)
@@ -362,7 +362,7 @@ func (k Keeper) HandleRequestSign(
 	feeLimit sdk.Coins,
 ) (tss.SigningID, error) {
 	if !k.router.HasRoute(content.RequestSignatureRoute()) {
-		return 0, sdkerrors.Wrap(types.ErrNoRequestSignatureHandlerExists, content.RequestSignatureRoute())
+		return 0, errors.Wrap(types.ErrNoRequestSignatureHandlerExists, content.RequestSignatureRoute())
 	}
 
 	// Get group
@@ -373,7 +373,7 @@ func (k Keeper) HandleRequestSign(
 
 	// Verify if the group status is active.
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
@@ -382,7 +382,7 @@ func (k Keeper) HandleRequestSign(
 	// Execute the handler to process the content.
 	msg, err := handler(ctx, content)
 	if err != nil {
-		return 0, sdkerrors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
+		return 0, errors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
 	}
 
 	// Wrap the message data as normal msg.
@@ -417,7 +417,7 @@ func (k Keeper) HandleRequestSign(
 	for _, fc := range feeCoins {
 		limitAmt := feeLimit.AmountOf(fc.Denom)
 		if fc.Amount.GT(limitAmt) {
-			return 0, sdkerrors.Wrapf(
+			return 0, errors.Wrapf(
 				types.ErrNotEnoughFee,
 				"require: %s, limit: %s%s",
 				fc.String(),
@@ -463,6 +463,7 @@ func (k Keeper) HandleRequestSign(
 // HandleReplaceGroupRequestSign handles the signing request for a group replacement.
 func (k Keeper) HandleReplaceGroupRequestSign(
 	ctx sdk.Context,
+	pubKey tss.Point,
 	groupID tss.GroupID,
 	feePayer sdk.AccAddress,
 ) (tss.SigningID, error) {
@@ -474,11 +475,11 @@ func (k Keeper) HandleReplaceGroupRequestSign(
 
 	// Verify if the group status is active.
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, sdkerrors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
 	// Wrap the message data as replace group msg.
-	msg := types.WrapMsgDataReplaceGroup(group.PubKey)
+	msg := types.WrapMsgDataReplaceGroup(pubKey)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)

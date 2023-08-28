@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -35,7 +35,7 @@ func (k Keeper) GetDEQueuesGenesis(ctx sdk.Context) []types.DEQueueGenesis {
 		var deQueue types.DEQueue
 		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
 		deQueues = append(deQueues, types.DEQueueGenesis{
-			Address: types.AddressFromDEQueueStoreKey(iterator.Key()),
+			Address: types.AddressFromDEQueueStoreKey(iterator.Key()).String(),
 			DEQueue: &deQueue,
 		})
 	}
@@ -62,7 +62,7 @@ func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de 
 func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
 	if bz == nil {
-		return types.DE{}, sdkerrors.Wrapf(
+		return types.DE{}, errors.Wrapf(
 			types.ErrDENotFound,
 			"failed to get DE with address %s index %d",
 			address,
@@ -94,7 +94,7 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 		k.cdc.MustUnmarshal(iterator.Value(), &de)
 		address, index := types.AddressAndIndexFromDEStoreKey(iterator.Key())
 		des = append(des, types.DEGenesis{
-			Address: address,
+			Address: address.String(),
 			Index:   index,
 			DE:      &de,
 		})
@@ -118,7 +118,7 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
 
 		if deQueue.Tail == deQueue.Head {
-			return sdkerrors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
+			return errors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
 		}
 	}
 
@@ -157,7 +157,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(
+			return nil, errors.Wrapf(
 				types.ErrInvalidAccAddressFormat,
 				"invalid account address: %s", err,
 			)
@@ -192,7 +192,7 @@ func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(
+			return nil, errors.Wrapf(
 				types.ErrInvalidAccAddressFormat,
 				"invalid account address: %s", err,
 			)

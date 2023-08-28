@@ -1,10 +1,10 @@
 package keeper
 
 import (
+	"cosmossdk.io/errors"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 // AddRound2Info adds the round2Info of a member in the store and increments the count of round2Info.
@@ -31,7 +31,7 @@ func (k Keeper) SetRound2Info(
 func (k Keeper) GetRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Info, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round2InfoMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round2Info{}, sdkerrors.Wrapf(
+		return types.Round2Info{}, errors.Wrapf(
 			types.ErrRound2InfoNotFound,
 			"failed to get round2Info with groupID: %d, memberID: %d",
 			groupID,
