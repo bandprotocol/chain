@@ -222,7 +222,7 @@ func (m *MsgReplaceGroup) GetAuthority() string {
 	return ""
 }
 
-// MsgReplaceGroupResponse is the Msg/ReplUpdateGroupFeeaceGroup response type.
+// MsgReplaceGroupResponse is the Msg/MsgReplaceGroupResponse response type.
 type MsgReplaceGroupResponse struct {
 }
 
