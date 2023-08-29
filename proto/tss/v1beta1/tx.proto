@@ -22,6 +22,9 @@ service Msg {
   // ReplaceGroup replaces the group with another group.
   rpc ReplaceGroup(MsgReplaceGroup) returns (MsgReplaceGroupResponse);
 
+  // UpdateGroupFee updates the group fee.
+  rpc UpdateGroupFee(MsgUpdateGroupFee) returns (MsgUpdateGroupFeeResponse);
+
   // SubmitDKGRound1 submits dkg for computing round 1.
   rpc SubmitDKGRound1(MsgSubmitDKGRound1) returns (MsgSubmitDKGRound1Response);
 
@@ -94,8 +97,26 @@ message MsgReplaceGroup {
   string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgReplaceGroupResponse is the Msg/ReplaceGroup response type.
+// MsgReplaceGroupResponse is the Msg/ReplUpdateGroupFeeaceGroup response type.
 message MsgReplaceGroupResponse {}
+
+// MsgUpdateGroupFee is the Msg/UpdateGroupFee request type.
+message MsgUpdateGroupFee {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "tss/ReplaceGroup";
+
+  // group_id is the ID of the group that want to update.
+  uint64 group_id = 1
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // fee is the tokens that will be paid per signing.
+  repeated cosmos.base.v1beta1.Coin fee = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgUpdateGroupFeeResponse is the Msg/UpdateGroupFee response type.
+message MsgUpdateGroupFeeResponse {}
 
 // MsgSubmitDKGRound1 is the Msg/SubmitDKGRound1 request type.
 message MsgSubmitDKGRound1 {
