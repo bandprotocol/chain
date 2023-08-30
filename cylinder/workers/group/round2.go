@@ -105,8 +105,8 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	// Log
 	logger.Info(":delivery_truck: Processing incoming group")
 
-	// Get group data
-	group, err := r.context.Store.GetGroup(gid)
+	// Get dkg data of the group
+	dkg, err := r.context.Store.GetDKG(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 		return
@@ -120,10 +120,10 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 
 	// Compute encrypted secret shares
 	encSecretShares, err := tss.ComputeEncryptedSecretShares(
-		group.MemberID,
-		group.OneTimePrivKey,
+		dkg.MemberID,
+		dkg.OneTimePrivKey,
 		oneTimePubKeys,
-		group.Coefficients,
+		dkg.Coefficients,
 	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err)
@@ -134,7 +134,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	msg := &types.MsgSubmitDKGRound2{
 		GroupID: gid,
 		Round2Info: types.Round2Info{
-			MemberID:              group.MemberID,
+			MemberID:              dkg.MemberID,
 			EncryptedSecretShares: encSecretShares,
 		},
 		Member: r.context.Config.Granter,

@@ -9,13 +9,13 @@ import (
 
 // getOwnPrivKey calculates the own private key for the group member.
 // It returns the own private key, a slice of complaints (if any), and an error, if any.
-func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scalar, []types.Complaint, error) {
+func getOwnPrivKey(dkg store.DKG, groupRes *client.GroupResponse) (tss.Scalar, []types.Complaint, error) {
 	var secretShares tss.Scalars
 	var complaints []types.Complaint
 	for senderID := uint64(1); senderID <= groupRes.Group.Size_; senderID++ {
 		// Calculate your own secret value
-		if senderID == uint64(group.MemberID) {
-			secretShare, err := tss.ComputeSecretShare(group.Coefficients, group.MemberID)
+		if senderID == uint64(dkg.MemberID) {
+			secretShare, err := tss.ComputeSecretShare(dkg.Coefficients, dkg.MemberID)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -24,9 +24,9 @@ func getOwnPrivKey(group store.Group, groupRes *client.GroupResponse) (tss.Scala
 		}
 
 		secretShare, complaint, err := getSecretShare(
-			group.MemberID,
+			dkg.MemberID,
 			tss.MemberID(senderID),
-			group.OneTimePrivKey,
+			dkg.OneTimePrivKey,
 			groupRes,
 		)
 		if err != nil {

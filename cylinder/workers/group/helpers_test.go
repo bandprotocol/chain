@@ -16,19 +16,19 @@ import (
 func TestGetOwnPrivKey(t *testing.T) {
 	tests := []struct {
 		name          string
-		modify        func(*store.Group, *client.GroupResponse, tss.MemberID)
+		modify        func(*store.DKG, *client.GroupResponse, tss.MemberID)
 		expPrivKey    bool
 		expComplaints bool
 		expErr        bool
 	}{
 		{
 			"success - private key",
-			func(group *store.Group, groupRes *client.GroupResponse, mid tss.MemberID) {},
+			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {},
 			true, false, false,
 		},
 		{
 			"success - complaint",
-			func(group *store.Group, groupRes *client.GroupResponse, mid tss.MemberID) {
+			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID != mid {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(r2Info.MemberID, mid)] = testutil.HexDecode(
@@ -45,10 +45,10 @@ func TestGetOwnPrivKey(t *testing.T) {
 		for _, tc := range testutil.TestCases {
 			for _, member := range tc.Group.Members {
 				t.Run(fmt.Sprintf("%s, Test: %s, Member: %d", test.name, tc.Name, member.ID), func(t *testing.T) {
-					group, groupRes := getTestData(tc, member)
-					test.modify(&group, &groupRes, member.ID)
+					dkg, groupRes := getTestData(tc, member)
+					test.modify(&dkg, &groupRes, member.ID)
 
-					privKey, complaints, err := getOwnPrivKey(group, &groupRes)
+					privKey, complaints, err := getOwnPrivKey(dkg, &groupRes)
 
 					if test.expPrivKey {
 						assert.Equal(t, member.PrivKey, privKey)
@@ -101,19 +101,19 @@ func TestGetOwnPrivKey(t *testing.T) {
 func TestGetSecretShare(t *testing.T) {
 	tests := []struct {
 		name           string
-		modify         func(*store.Group, *client.GroupResponse, tss.MemberID, tss.MemberID)
+		modify         func(*store.DKG, *client.GroupResponse, tss.MemberID, tss.MemberID)
 		expSecretShare bool
 		expComplaint   bool
 		expErr         bool
 	}{
 		{
 			"success - secret share",
-			func(group *store.Group, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {},
+			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {},
 			true, false, false,
 		},
 		{
 			"success - complaint",
-			func(group *store.Group, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {
+			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID == j {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(j, i)] = testutil.HexDecode(
@@ -143,13 +143,13 @@ func TestGetSecretShare(t *testing.T) {
 							sender,
 						),
 						func(t *testing.T) {
-							group, groupRes := getTestData(tc, receiver)
-							test.modify(&group, &groupRes, receiver.ID, sender.ID)
+							dkg, groupRes := getTestData(tc, receiver)
+							test.modify(&dkg, &groupRes, receiver.ID, sender.ID)
 
 							secretShare, complaint, err := getSecretShare(
 								receiver.ID,
 								sender.ID,
-								group.OneTimePrivKey,
+								dkg.OneTimePrivKey,
 								&groupRes,
 							)
 
@@ -203,10 +203,10 @@ func TestGetSecretShare(t *testing.T) {
 	}
 }
 
-func getTestData(testCase testutil.TestCase, member testutil.Member) (store.Group, client.GroupResponse) {
+func getTestData(testCase testutil.TestCase, member testutil.Member) (store.DKG, client.GroupResponse) {
 	tc := testutil.CopyTestCase(testCase)
 
-	group := store.Group{
+	dkg := store.DKG{
 		MemberID:       member.ID,
 		OneTimePrivKey: member.OneTimePrivKey,
 		Coefficients:   member.Coefficients,
@@ -237,5 +237,5 @@ func getTestData(testCase testutil.TestCase, member testutil.Member) (store.Grou
 		groupRes.Round2Infos = append(groupRes.Round2Infos, r2Info)
 	}
 
-	return group, groupRes
+	return dkg, groupRes
 }

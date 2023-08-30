@@ -9,7 +9,6 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder/workers/active"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/replacer"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/signing"
 )
@@ -46,11 +45,6 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			replacer, err := replacer.New(c)
-			if err != nil {
-				return err
-			}
-
 			group, err := group.New(c)
 			if err != nil {
 				return err
@@ -71,7 +65,7 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			workers := cylinder.Workers{active, replacer, group, de, signing, sender}
+			workers := cylinder.Workers{active, group, de, signing, sender}
 
 			return cylinder.Run(c, workers)
 		},

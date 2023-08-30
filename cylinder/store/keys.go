@@ -13,15 +13,22 @@ var (
 	// DECountStoreKey is the key that keeps the total DE count.
 	DECountStoreKey = append(GlobalStoreKeyPrefix, []byte("DECount")...)
 
+	// DKGStoreKeyPrefix is the prefix for DKG store.
+	DKGStoreKeyPrefix = []byte{0x01}
 	// GroupStoreKeyPrefix is the prefix for group store.
-	GroupStoreKeyPrefix = []byte{0x01}
+	GroupStoreKeyPrefix = []byte{0x02}
 	// DEStoreKeyPrefix is the prefix for DE store.
-	DEStoreKeyPrefix = []byte{0x02}
+	DEStoreKeyPrefix = []byte{0x03}
 )
 
+// DKGStoreKey returns the key to retrieve all data for a group.
+func DKGStoreKey(groupID tss.GroupID) []byte {
+	return append(DKGStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+}
+
 // GroupStoreKey returns the key to retrieve all data for a group.
-func GroupStoreKey(groupID tss.GroupID) []byte {
-	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+func GroupStoreKey(pubKey tss.Point) []byte {
+	return append(GroupStoreKeyPrefix, pubKey...)
 }
 
 // DEStoreKey returns the key to retrieve private (d, e) by public (D, E).

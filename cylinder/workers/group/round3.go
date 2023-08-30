@@ -10,6 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
+	"github.com/bandprotocol/chain/v2/cylinder/store"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -104,45 +105,58 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Log
 	logger.Info(":delivery_truck: Processing incoming group")
 
-	// Set group data
-	group, err := r.context.Store.GetGroup(gid)
+	group, err := r.context.Store.GetGroup(groupRes.Group.PubKey)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
-		return
-	}
-
-	// Get own private key
-	ownPrivKey, complaints, err := getOwnPrivKey(group, groupRes)
-	if err != nil {
-		logger.Error(":cold_sweat: Failed to get own private key or complaints: %s", err)
-		return
-	}
-
-	// If there is any complaint, send MsgComplain
-	if len(complaints) > 0 {
-		// Send message complaints
-		r.context.MsgCh <- &types.MsgComplain{
-			GroupID:    gid,
-			Complaints: complaints,
-			Member:     r.context.Config.Granter,
+		// Set DKG data
+		dkg, err := r.context.Store.GetDKG(gid)
+		if err != nil {
+			logger.Error(":cold_sweat: Failed to find group in store: %s", err)
+			return
 		}
-		return
+
+		// Get own private key
+		ownPrivKey, complaints, err := getOwnPrivKey(dkg, groupRes)
+		if err != nil {
+			logger.Error(":cold_sweat: Failed to get own private key or complaints: %s", err)
+			return
+		}
+
+		// If there is any complaint, send MsgComplain
+		if len(complaints) > 0 {
+			// Send message complaints
+			r.context.MsgCh <- &types.MsgComplain{
+				GroupID:    gid,
+				Complaints: complaints,
+				Member:     r.context.Config.Granter,
+			}
+			return
+		}
+
+		// Generate own private key and update it in store
+		group = store.Group{
+			MemberID: dkg.MemberID,
+			PrivKey:  ownPrivKey,
+		}
+
+		err = r.context.Store.SetGroup(groupRes.Group.PubKey, group)
+		if err != nil {
+			logger.Error(":cold_sweat: Failed to set group with error: %s", err)
+			return
+		}
+
+		err = r.context.Store.DeleteDKG(gid)
+		if err != nil {
+			logger.Error(":cold_sweat: Failed to delete DKG with error: %s", err)
+			return
+		}
 	}
-
-	// Generate own private key and update it in store
-	group.PrivKey = ownPrivKey
-	group.PubKey = groupRes.Group.PubKey
-	r.context.Store.SetGroup(gid, group)
-
-	// Get own public key
-	ownPubKey := ownPrivKey.Point()
 
 	// Sign own public key
 	ownPubKeySig, err := tss.SignOwnPubkey(
 		group.MemberID,
 		groupRes.DKGContext,
-		ownPubKey,
-		ownPrivKey,
+		group.PrivKey.Point(),
+		group.PrivKey,
 	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to sign own public key: %s", err)

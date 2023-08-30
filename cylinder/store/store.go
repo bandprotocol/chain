@@ -21,19 +21,47 @@ func NewStore(db dbm.DB) *Store {
 	}
 }
 
-// SetGroup stores the group information by the given groupID.
-func (s *Store) SetGroup(groupID tss.GroupID, group Group) error {
+// SetDKG stores the dkg information by the given group id.
+func (s *Store) SetDKG(groupID tss.GroupID, dkg DKG) error {
+	bytes, err := json.Marshal(dkg)
+	if err != nil {
+		return err
+	}
+
+	return s.DB.Set(DKGStoreKey(groupID), bytes)
+}
+
+// GetDKG retrieves the dkg information by the given group id.
+func (s *Store) GetDKG(groupID tss.GroupID) (DKG, error) {
+	bytes, err := s.DB.Get(DKGStoreKey(groupID))
+
+	var dkg DKG
+	err = json.Unmarshal(bytes, &dkg)
+	if err != nil {
+		return DKG{}, err
+	}
+
+	return dkg, err
+}
+
+// DeleteDKG deletes the dkg information by the given group id.
+func (s *Store) DeleteDKG(groupID tss.GroupID) error {
+	return s.DB.DeleteSync(DKGStoreKey(groupID))
+}
+
+// SetGroup stores the group information by the given public key.
+func (s *Store) SetGroup(pubKey tss.Point, group Group) error {
 	bytes, err := json.Marshal(group)
 	if err != nil {
 		return err
 	}
 
-	return s.DB.Set(GroupStoreKey(groupID), bytes)
+	return s.DB.Set(GroupStoreKey(pubKey), bytes)
 }
 
-// GetGroup retrieves the group information by the given groupID.
-func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
-	bytes, err := s.DB.Get(GroupStoreKey(groupID))
+// GetGroup retrieves the group information by the given public key.
+func (s *Store) GetGroup(pubKey tss.Point) (Group, error) {
+	bytes, err := s.DB.Get(GroupStoreKey(pubKey))
 
 	var group Group
 	err = json.Unmarshal(bytes, &group)
@@ -42,11 +70,6 @@ func (s *Store) GetGroup(groupID tss.GroupID) (Group, error) {
 	}
 
 	return group, err
-}
-
-// DeleteGroup deletes the group information by the given groupID.
-func (s *Store) DeleteGroup(groupID tss.GroupID) error {
-	return s.DB.DeleteSync(GroupStoreKey(groupID))
 }
 
 // SetDE stores the private (d, E) by the given public (D, E).

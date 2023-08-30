@@ -116,12 +116,16 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	}
 
 	// Set group data
-	group := store.Group{
+	dkg := store.DKG{
 		MemberID:       mid,
 		Coefficients:   data.Coefficients,
 		OneTimePrivKey: data.OneTimePrivKey,
 	}
-	r.context.Store.SetGroup(gid, group)
+	err = r.context.Store.SetDKG(gid, dkg)
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to set DKG with error: %s", err)
+		return
+	}
 
 	// Generate message
 	msg := &types.MsgSubmitDKGRound1{

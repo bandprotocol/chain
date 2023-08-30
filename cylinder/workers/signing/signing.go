@@ -112,7 +112,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Set group data
-	group, err := s.context.Store.GetGroup(signing.GroupID)
+	group, err := s.context.Store.GetGroup(signing.GroupPubKey)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 		return
@@ -141,7 +141,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	// Sign the signing
 	sig, err := tss.SignSigning(
 		signing.GroupPubNonce,
-		group.PubKey,
+		signing.GroupPubKey,
 		signing.Message,
 		lagrange,
 		privNonce,
