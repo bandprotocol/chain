@@ -368,6 +368,7 @@ func (k Keeper) HandleRequestSign(
 	// Create signing struct
 	signing := types.NewSigning(
 		groupID,
+		group.PubKey,
 		assignedMembers,
 		msg,
 		groupPubNonce,
@@ -461,6 +462,7 @@ func (k Keeper) HandleReplaceGroupRequestSign(
 	// Create signing struct
 	signing := types.NewSigning(
 		groupID,
+		group.PubKey,
 		assignedMembers,
 		msg,
 		groupPubNonce,

@@ -9,6 +9,7 @@ import (
 // NewSigning creates a new Signing instance with provided parameters.
 func NewSigning(
 	gid tss.GroupID,
+	groupPubKey tss.Point,
 	assignedMembers []AssignedMember,
 	msg []byte,
 	groupPubNonce tss.Point,
@@ -19,6 +20,7 @@ func NewSigning(
 ) Signing {
 	return Signing{
 		GroupID:         gid,
+		GroupPubKey:     groupPubKey,
 		AssignedMembers: assignedMembers,
 		Message:         msg,
 		GroupPubNonce:   groupPubNonce,
