@@ -97,7 +97,7 @@ message MsgReplaceGroup {
   string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgReplaceGroupResponse is the Msg/MsgReplaceGroupResponse response type.
+// MsgReplaceGroupResponse is the Msg/ReplaceGroup response type.
 message MsgReplaceGroupResponse {}
 
 // MsgUpdateGroupFee is the Msg/UpdateGroupFee request type.
