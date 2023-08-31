@@ -157,6 +157,32 @@ func (k msgServer) ReplaceGroup(
 	return &types.MsgReplaceGroupResponse{}, nil
 }
 
+// UpdateGroupFee updates the fee for a specific group based on the provided request.
+// It performs authorization checks, retrieves the group, updates the fee, and stores
+// the updated group information.
+func (k msgServer) UpdateGroupFee(
+	goCtx context.Context,
+	req *types.MsgUpdateGroupFee,
+) (*types.MsgUpdateGroupFeeResponse, error) {
+	if k.authority != req.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get group
+	group, err := k.GetGroup(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set new group fee
+	group.Fee = req.Fee.Sort()
+	k.SetGroup(ctx, group)
+
+	return &types.MsgUpdateGroupFeeResponse{}, nil
+}
+
 // SubmitDKGRound1 validates the group status, member, coefficients commit length, one-time
 // signature, and A0 signature for a group's round 1. If all checks pass, it updates the
 // accumulated commits, stores the Round1Info, emits an event, and if necessary, updates the
