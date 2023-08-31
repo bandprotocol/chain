@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	_, _, _, _, _, _ sdk.Msg                       = &MsgCreateGroup{}, &MsgSubmitDKGRound1{}, &MsgSubmitDKGRound2{}, &MsgComplain{}, &MsgConfirm{}, &MsgSubmitDEs{}
-	_, _, _, _, _, _ sdk.Msg                       = &MsgRequestSignature{}, &MsgSubmitSignature{}, &MsgActivate{}, &MsgActive{}, &MsgReplaceGroup{}, &MsgUpdateParams{}
-	_                types.UnpackInterfacesMessage = &MsgRequestSignature{}
+	_, _, _, _, _, _    sdk.Msg                       = &MsgCreateGroup{}, &MsgSubmitDKGRound1{}, &MsgSubmitDKGRound2{}, &MsgComplain{}, &MsgConfirm{}, &MsgSubmitDEs{}
+	_, _, _, _, _, _, _ sdk.Msg                       = &MsgRequestSignature{}, &MsgSubmitSignature{}, &MsgActivate{}, &MsgActive{}, &MsgReplaceGroup{}, &MsgUpdateParams{}, &MsgUpdateGroupFee{}
+	_                   types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
 // Route Implements Msg.
@@ -478,7 +478,37 @@ func (m MsgActive) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgActivate creates a new MsgActivate instance
+// Route Implements Msg.
+func (m MsgUpdateGroupFee) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgUpdateGroupFee) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgUpdateGroupFee) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateGroupFee.
+func (m MsgUpdateGroupFee) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgUpdateGroupFee) ValidateBasic() error {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Authority)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("sender: %s", m.Authority),
+		)
+	}
+
+	return nil
+}
+
+// NewMsgUpdateParams creates a new MsgUpdateParams instance
 func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	return &MsgUpdateParams{
 		Authority: authority,
