@@ -99,7 +99,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		debug.Cmd(),
 		config.Cmd(),
 		pruning.Cmd(newApp, band.DefaultNodeHome),
-		// support oracle file folder
 		snapshot.Cmd(newApp),
 	)
 
