@@ -368,6 +368,7 @@ func (k Keeper) HandleRequestSign(
 	// Create signing struct
 	signing := types.NewSigning(
 		groupID,
+		group.PubKey,
 		assignedMembers,
 		msg,
 		groupPubNonce,
@@ -461,6 +462,7 @@ func (k Keeper) HandleReplaceGroupRequestSign(
 	// Create signing struct
 	signing := types.NewSigning(
 		groupID,
+		group.PubKey,
 		assignedMembers,
 		msg,
 		groupPubNonce,
@@ -587,7 +589,6 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing := k.MustGetSigning(ctx, signingID)
-	group := k.MustGetGroup(ctx, signing.GroupID)
 	pzs := k.GetPartialSigs(ctx, signingID)
 
 	sig, err := tss.CombineSignatures(pzs...)
@@ -595,7 +596,7 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 		k.handleFailedSigning(ctx, signing, err.Error())
 	}
 
-	err = tss.VerifyGroupSigningSig(group.PubKey, signing.Message, sig)
+	err = tss.VerifyGroupSigningSig(signing.GroupPubKey, signing.Message, sig)
 	if err != nil {
 		k.handleFailedSigning(ctx, signing, err.Error())
 	}

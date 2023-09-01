@@ -175,6 +175,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		assignedMembers = append(assignedMembers, types.AssignedMember{
 			MemberID:      member.MemberID,
 			Member:        member.Address,
+			PubKey:        member.PubKey,
 			PubD:          de.PubD,
 			PubE:          de.PubE,
 			BindingFactor: nil,

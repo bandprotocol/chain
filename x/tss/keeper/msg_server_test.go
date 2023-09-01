@@ -160,6 +160,80 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	s.Require().Equal(expected, got[0])
 }
 
+func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
+	// Set up the test context and message server.
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+
+	// Define GroupID
+	groupID := tss.GroupID(1)
+
+	// Create a update group fee message.
+	var req types.MsgUpdateGroupFee
+
+	// Define test cases.
+	tcs := []TestCase{
+		{
+			"failure due to incorrect authority",
+			func() {
+				req = types.MsgUpdateGroupFee{
+					GroupID:   groupID,
+					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					Authority: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			func() {
+			},
+			govtypes.ErrInvalidSigner,
+		},
+	}
+
+	// Loop through each test case.
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			// Modify the request based on the test case.
+			tc.Malleate()
+
+			// Execute the UpdateGroupFee method and check for expected errors.
+			_, err := msgSrvr.UpdateGroupFee(ctx, &req)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
+
+			// Perform post-test actions.
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSuccessUpdateGroupFee() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Define GroupID
+	groupID := tss.GroupID(1)
+
+	// Create an authority address.
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+
+	// Define the group fee.
+	fee := sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+
+	// Set up the test by creating an active group.
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	// Create the update group fee message.
+	msg := types.MsgUpdateGroupFee{
+		GroupID:   groupID,
+		Fee:       fee,
+		Authority: authority.String(),
+	}
+
+	// Execute the ReplaceGroup method.
+	_, err := msgSrvr.UpdateGroupFee(ctx, &msg)
+	s.Require().NoError(err)
+
+	// Check if the pending replace group matches the expected result.
+	got := k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(fee, got.Fee)
+}
+
 func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	tc1Group := testutil.TestCases[0].Group
@@ -793,6 +867,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
+					Status:          types.SIGNING_STATUS_WAITING,
 					Signature:       nil,
 				})
 
@@ -806,7 +881,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			func() {
 				k.DeleteSigning(ctx, tc1.Signings[0].ID)
 			},
-			types.ErrMemberNotFound,
+			types.ErrMemberNotAssigned,
 		},
 	}
 
@@ -815,7 +890,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitSignature(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
+			s.Require().ErrorIs(err, tc.ExpectedErr)
 
 			tc.PostTest()
 		})

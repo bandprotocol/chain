@@ -157,6 +157,32 @@ func (k msgServer) ReplaceGroup(
 	return &types.MsgReplaceGroupResponse{}, nil
 }
 
+// UpdateGroupFee updates the fee for a specific group based on the provided request.
+// It performs authorization checks, retrieves the group, updates the fee, and stores
+// the updated group information.
+func (k msgServer) UpdateGroupFee(
+	goCtx context.Context,
+	req *types.MsgUpdateGroupFee,
+) (*types.MsgUpdateGroupFeeResponse, error) {
+	if k.authority != req.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get group
+	group, err := k.GetGroup(ctx, req.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set new group fee
+	group.Fee = req.Fee.Sort()
+	k.SetGroup(ctx, group)
+
+	return &types.MsgUpdateGroupFeeResponse{}, nil
+}
+
 // SubmitDKGRound1 validates the group status, member, coefficients commit length, one-time
 // signature, and A0 signature for a group's round 1. If all checks pass, it updates the
 // accumulated commits, stores the Round1Info, emits an event, and if necessary, updates the
@@ -609,44 +635,11 @@ func (k msgServer) SubmitSignature(
 		return nil, err
 	}
 
-	// Get member
-	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify member
-	if !member.Verify(req.Member) {
-		return nil, errors.Wrapf(
-			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not match in this group",
-			req.MemberID,
-			req.Member,
-		)
-	}
-
 	// Check signing is still waiting for signature
 	if signing.Status != types.SIGNING_STATUS_WAITING {
 		return nil, errors.Wrapf(
 			types.ErrSigningAlreadySuccess, "signing ID: %d is not in waiting state", req.SigningID,
 		)
-	}
-
-	// Check member is already signed
-	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
-	if err == nil {
-		return nil, errors.Wrapf(
-			types.ErrAlreadySigned,
-			"member ID: %d is already signed on signing ID: %d",
-			req.MemberID,
-			req.SigningID,
-		)
-	}
-
-	// Get group
-	group, err := k.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return nil, err
 	}
 
 	var found bool
@@ -655,7 +648,7 @@ func (k msgServer) SubmitSignature(
 	// Check sender not in assigned participants and verify signature R
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
-		if am.MemberID == req.MemberID {
+		if am.MemberID == req.MemberID && am.Member == req.Member {
 			// Found member in assigned members
 			found = true
 			assignedMember = am
@@ -672,7 +665,18 @@ func (k msgServer) SubmitSignature(
 	}
 	if !found {
 		return nil, errors.Wrapf(
-			types.ErrMemberNotAssigned, "member ID: %d is not in assigned participants", req.MemberID,
+			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned participants", req.MemberID,
+		)
+	}
+
+	// Check member is already signed
+	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	if err == nil {
+		return nil, errors.Wrapf(
+			types.ErrAlreadySigned,
+			"member ID: %d is already signed on signing ID: %d",
+			req.MemberID,
+			req.SigningID,
 		)
 	}
 
@@ -682,11 +686,11 @@ func (k msgServer) SubmitSignature(
 	// Verify signing signature
 	err = tss.VerifySigningSig(
 		signing.GroupPubNonce,
-		group.PubKey,
+		signing.GroupPubKey,
 		signing.Message,
 		lagrange,
 		req.Signature,
-		member.PubKey,
+		assignedMember.PubKey,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
@@ -696,7 +700,7 @@ func (k msgServer) SubmitSignature(
 	k.AddPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
-	if sigCount == group.Threshold {
+	if sigCount == uint64(len(signing.AssignedMembers)) {
 		k.AddPendingProcessSigning(ctx, req.SigningID)
 	}
 
@@ -706,7 +710,7 @@ func (k msgServer) SubmitSignature(
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, member.Address),
+			sdk.NewAttribute(types.AttributeKeyMember, assignedMember.Member),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
