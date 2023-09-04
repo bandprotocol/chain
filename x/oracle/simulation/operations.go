@@ -143,6 +143,7 @@ func SimulateMsgRequestData(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
+		// Get deployed oracle script from one of random accounts for sending request to.
 		oCount := keeper.GetOracleScriptCount(ctx)
 		oid := types.OracleScriptID(0)
 		for i := uint64(1); i <= oCount; i++ {
@@ -161,6 +162,8 @@ func SimulateMsgRequestData(
 			), nil, nil
 		}
 
+		// Check if the number of available data sources is more than 3
+		// As our test oracle script requires at least 3 data sources for getting result.
 		did := keeper.GetDataSourceCount(ctx)
 		if did < 3 {
 			return simtypes.NoOpMsg(
@@ -170,6 +173,7 @@ func SimulateMsgRequestData(
 			), nil, nil
 		}
 
+		// Find the number of active validator to define ask count value
 		maxAskCount := 0
 		sk.IterateBondedValidatorsByPower(ctx,
 			func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
@@ -187,12 +191,12 @@ func SimulateMsgRequestData(
 				"active validators are not enough",
 			), nil, nil
 		}
-
 		if maxAskCount > 10 {
 			maxAskCount = 10
 		}
 		askCount := simtypes.RandIntBetween(r, 1, maxAskCount+1)
 
+		// Generate request message from above information
 		msg := types.MsgRequestData{
 			Sender:         simAccount.Address.String(),
 			OracleScriptID: types.OracleScriptID(oid),
@@ -221,11 +225,13 @@ func SimulateMsgReportData(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var simAccount simtypes.Account
 
+		// Get available request that we will send report to
 		rCount := keeper.GetRequestCount(ctx)
 		rid := types.RequestID(0)
 		for i := uint64(1); i <= rCount; i++ {
 			req, _ := keeper.GetRequest(ctx, types.RequestID(i))
 
+			// Make sure if our account is assigned on that request and we didn't report it yet
 			for _, val := range req.RequestedValidators {
 				valAddr, _ := sdk.ValAddressFromBech32(val)
 				acc, ok := simtypes.FindAccount(accs, sdk.AccAddress(valAddr))
@@ -250,6 +256,7 @@ func SimulateMsgReportData(
 			), nil, nil
 		}
 
+		// Generate raw report that we will report
 		var rawReports []types.RawReport
 		for i := 1; i <= 3; i++ {
 			rawReports = append(rawReports, types.RawReport{
@@ -259,6 +266,7 @@ func SimulateMsgReportData(
 			})
 		}
 
+		// Generate report message
 		msg := types.MsgReportData{
 			RequestID:  types.RequestID(rid),
 			RawReports: rawReports,
@@ -283,6 +291,7 @@ func SimulateMsgCreateDataSource(
 		ownerAccount, _ := simtypes.RandomAcc(r, accs)
 		treaAccount, _ := simtypes.RandomAcc(r, accs)
 
+		// Generate create data source message
 		msg := types.MsgCreateDataSource{
 			Sender:      simAccount.Address.String(),
 			Name:        simtypes.RandStringOfLength(r, 10),
@@ -307,15 +316,18 @@ func SimulateMsgEditDataSource(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		var simAccount simtypes.Account
 		ownerAccount, _ := simtypes.RandomAcc(r, accs)
 		treaAccount, _ := simtypes.RandomAcc(r, accs)
 
+		// Get available data source that is owned by our account
 		dCount := keeper.GetDataSourceCount(ctx)
 		did := types.DataSourceID(0)
 		for i := uint64(1); i <= dCount; i++ {
 			os, _ := keeper.GetDataSource(ctx, types.DataSourceID(i))
-			_, ok := simtypes.FindAccount(accs, sdk.MustAccAddressFromBech32(os.Owner))
+			acc, ok := simtypes.FindAccount(accs, sdk.MustAccAddressFromBech32(os.Owner))
 			if ok {
+				simAccount = acc
 				did = types.DataSourceID(i)
 				break
 			}
@@ -329,16 +341,7 @@ func SimulateMsgEditDataSource(
 			), nil, nil
 		}
 
-		ds, _ := keeper.GetDataSource(ctx, types.DataSourceID(did))
-		simAccount, ok := simtypes.FindAccount(accs, sdk.MustAccAddressFromBech32(ds.Owner))
-		if !ok {
-			return simtypes.NoOpMsg(
-				types.ModuleName,
-				types.MsgEditDataSource{}.Type(),
-				"unknown owner",
-			), nil, nil
-		}
-
+		// Generate edit data source message
 		msg := types.MsgEditDataSource{
 			Sender:       simAccount.Address.String(),
 			DataSourceID: types.DataSourceID(did),
@@ -367,6 +370,7 @@ func SimulateMsgCreateOracleScript(
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 		ownerAccount, _ := simtypes.RandomAcc(r, accs)
 
+		// Generate create oracle script message
 		msg := types.MsgCreateOracleScript{
 			Sender:        simAccount.Address.String(),
 			Name:          simtypes.RandStringOfLength(r, 10),
@@ -393,6 +397,7 @@ func SimulateMsgEditOracleScript(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		var simAccount simtypes.Account
 
+		// Get available oracle script that we will edit it
 		oCount := keeper.GetOracleScriptCount(ctx)
 		oid := types.OracleScriptID(0)
 		for i := uint64(1); i <= oCount; i++ {
@@ -413,6 +418,7 @@ func SimulateMsgEditOracleScript(
 			), nil, nil
 		}
 
+		// Generate edit oracle script message
 		msg := types.MsgEditOracleScript{
 			Sender:         simAccount.Address.String(),
 			OracleScriptID: types.OracleScriptID(oid),
@@ -440,6 +446,7 @@ func SimulateMsgActivate(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
+		// Send no op message if the status of the account is already active
 		if keeper.GetValidatorStatus(ctx, sdk.ValAddress(simAccount.Address)).IsActive {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
@@ -448,6 +455,7 @@ func SimulateMsgActivate(
 			), nil, nil
 		}
 
+		// Generate activate message for the account
 		msg := types.MsgActivate{
 			Validator: sdk.ValAddress(simAccount.Address).String(),
 		}

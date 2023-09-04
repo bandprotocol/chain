@@ -88,13 +88,16 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 
 // TestSimulateMsgRequestData tests the normal scenario of a valid message of type TypeMsgRequestData
 func (suite *SimTestSuite) TestSimulateMsgRequestData() {
+	// Prepare oracle script for request
 	suite.TestSimulateMsgCreateOracleScript()
+	// Prepare data sources for request
 	for i := 1; i <= 3; i++ {
 		ds, _ := suite.app.OracleKeeper.GetDataSource(suite.ctx, types.DataSourceID(i))
 		ds.Fee = sdk.NewCoins()
 		suite.app.OracleKeeper.SetDataSource(suite.ctx, types.DataSourceID(i), ds)
 	}
 
+	// Simulate MsgRequestData
 	op := simulation.SimulateMsgRequestData(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -104,6 +107,7 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgRequestData
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -127,6 +131,7 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 
 // TestSimulateMsgReportData tests the normal scenario of a valid message of type TypeMsgReportData
 func (suite *SimTestSuite) TestSimulateMsgReportData() {
+	// Prepare request that we will simulate to send report to
 	suite.app.OracleKeeper.AddRequest(
 		suite.ctx,
 		types.NewRequest(types.OracleScriptID(1),
@@ -146,6 +151,7 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 		),
 	)
 
+	// Simulate MsgReportData
 	op := simulation.SimulateMsgReportData(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -155,6 +161,7 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgReportData
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -170,6 +177,7 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 
 // TestSimulateMsgCreateDataSource tests the normal scenario of a valid message of type TypeMsgCreateDataSource
 func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
+	// Simulate MsgCreateDataSource
 	op := simulation.SimulateMsgCreateDataSource(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -179,6 +187,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgCreateDataSource
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -200,6 +209,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
 
 // TestSimulateMsgEditDataSource tests the normal scenario of a valid message of type TypeMsgEditDataSource
 func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
+	// Prepare data source for us to edit by message
 	suite.app.OracleKeeper.SetDataSource(
 		suite.ctx,
 		1,
@@ -213,6 +223,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 		),
 	)
 
+	// Simulate MsgEditDataSource
 	op := simulation.SimulateMsgEditDataSource(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -222,6 +233,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgEditDataSource
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -244,6 +256,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 
 // TestSimulateMsgCreateOracleScript tests the normal scenario of a valid message of type TypeMsgCreateOracleScript
 func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
+	// Simulate MsgCreateOracleScript
 	op := simulation.SimulateMsgCreateOracleScript(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -253,6 +266,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgCreateOracleScript
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -276,6 +290,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
 
 // TestSimulateMsgEditOracleScript tests the normal scenario of a valid message of type TypeMsgEditOracleScript
 func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
+	// Prepare oracle script for us to edit by message
 	suite.app.OracleKeeper.SetOracleScript(
 		suite.ctx,
 		1,
@@ -289,6 +304,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 		),
 	)
 
+	// Simulate MSgEditOracleScript
 	op := simulation.SimulateMsgEditOracleScript(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -298,6 +314,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgEditOracleScript
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
@@ -322,6 +339,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 
 // TestSimulateMsgActivate tests the normal scenario of a valid message of type TypeMsgActivate
 func (suite *SimTestSuite) TestSimulateMsgActivate() {
+	// Simulate MsgActivate
 	op := simulation.SimulateMsgActivate(
 		suite.app.AccountKeeper,
 		suite.app.BankKeeper,
@@ -331,6 +349,7 @@ func (suite *SimTestSuite) TestSimulateMsgActivate() {
 	operationMsg, futureOperations, err := op(suite.r, suite.app.BaseApp, suite.ctx, suite.accs, "")
 	suite.Require().NoError(err)
 
+	// Verify the fields of the message
 	var msg types.MsgActivate
 	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
