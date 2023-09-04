@@ -353,6 +353,14 @@
           table:
             name: group_votes
             schema: public
+  array_relationships:
+    - name: group_votes
+      using:
+        foreign_key_constraint_on:
+          column: group_proposal_id
+          table:
+            name: group_votes
+            schema: public
 - table:
     name: group_votes
     schema: public

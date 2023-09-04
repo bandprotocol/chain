@@ -497,7 +497,7 @@ groups = sa.Table(
     Column("version", sa.Integer, index=True),
     Column("admin", sa.String, sa.ForeignKey("accounts.address")),
     Column("metadata", sa.String),
-    Column("total_weight", sa.String),
+    Column("total_weight", sa.BigInteger),
     Column("created_at", CustomDateTime),
 )
 
@@ -506,7 +506,7 @@ group_members = sa.Table(
     metadata,
     Column("group_id", sa.Integer, sa.ForeignKey("groups.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    Column("weight", sa.String),
+    Column("weight", sa.BigInteger),
     Column("metadata", sa.String),
     Column("added_at", CustomDateTime),
 )
@@ -550,7 +550,7 @@ group_votes = sa.Table(
     "group_votes",
     metadata,
     Column("group_proposal_id", sa.Integer, sa.ForeignKey("group_proposals.id"), primary_key=True),
-    Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("option", sa.String),
     Column("metadata", sa.String),
     Column("submit_time", CustomDateTime),
