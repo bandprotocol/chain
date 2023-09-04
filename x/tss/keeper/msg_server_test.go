@@ -122,42 +122,107 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
+	toGroupID, replacementID := tss.GroupID(1), uint64(1)
+
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	now := time.Now()
+
+	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
+		FromGroupID: 2,
+		ToGroupID:   1,
+		ExecTime:    now,
+		Authority:   s.authority.String(),
+	})
+	s.Require().NoError(err)
+
+	replacement, err := k.GetReplacement(ctx, replacementID)
+	s.Require().NoError(err)
+
+	replacementIterator := k.ReplacementQueueIterator(ctx, now)
+	s.Require().True(replacementIterator.Valid())
+
+	gotReplacementID, _ := types.SplitReplacementQueueKey(replacementIterator.Key())
+	s.Require().Equal(replacement.ID, gotReplacementID)
+
+	replacementIterator.Close()
+
+	toGroup := k.MustGetGroup(ctx, toGroupID)
+	s.Require().Equal(gotReplacementID, toGroup.LatestReplacementID)
+}
+
+func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
+	// Set up the test context and message server.
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+
+	// Define GroupID
+	groupID := tss.GroupID(1)
+
+	// Create a update group fee message.
+	var req types.MsgUpdateGroupFee
+
+	// Define test cases.
+	tcs := []TestCase{
+		{
+			"failure due to incorrect authority",
+			func() {
+				req = types.MsgUpdateGroupFee{
+					GroupID:   groupID,
+					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					Authority: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				}
+			},
+			func() {
+			},
+			govtypes.ErrInvalidSigner,
+		},
+	}
+
+	// Loop through each test case.
+	for _, tc := range tcs {
+		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
+			// Modify the request based on the test case.
+			tc.Malleate()
+
+			// Execute the UpdateGroupFee method and check for expected errors.
+			_, err := msgSrvr.UpdateGroupFee(ctx, &req)
+			s.Require().ErrorIs(tc.ExpectedErr, err)
+
+			// Perform post-test actions.
+			tc.PostTest()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestSuccessUpdateGroupFee() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	// Define GroupID
+	groupID := tss.GroupID(1)
+
 	// Create an authority address.
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	// Define fromGroupID and toGroupID.
-	fromGroupID := tss.GroupID(2)
-	toGroupID := tss.GroupID(1)
-
-	now := time.Now().UTC()
-
-	// Define the expected pending replace group.
-	expected := types.PendingReplaceGroup{
-		SigningID:   1,
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    now,
-	}
+	// Define the group fee.
+	fee := sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
 	// Set up the test by creating an active group.
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
-	// Create the replace group message.
-	msg := types.MsgReplaceGroup{
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    now,
-		Authority:   authority.String(),
+	// Create the update group fee message.
+	msg := types.MsgUpdateGroupFee{
+		GroupID:   groupID,
+		Fee:       fee,
+		Authority: authority.String(),
 	}
 
 	// Execute the ReplaceGroup method.
-	_, err := msgSrvr.ReplaceGroup(ctx, &msg)
+	_, err := msgSrvr.UpdateGroupFee(ctx, &msg)
 	s.Require().NoError(err)
 
 	// Check if the pending replace group matches the expected result.
-	got := k.GetPendingReplaceGroups(ctx)
-	s.Require().Len(got, 1)
-	s.Require().Equal(expected, got[0])
+	got := k.MustGetGroup(ctx, groupID)
+	s.Require().Equal(fee, got.Fee)
 }
 
 func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {

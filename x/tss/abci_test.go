@@ -19,11 +19,14 @@ func TestReplaceGroups(t *testing.T) {
 	k := app.TSSKeeper
 
 	// Set new block time
-	ctx = ctx.WithBlockTime(time.Now())
+	ctx = ctx.WithBlockTime(time.Now().UTC())
+
+	now := time.Now().UTC()
+	beforenow := now.Add(time.Duration(-5) * time.Minute)
 
 	signingID := tss.SigningID(1)
-	fromGroupID := tss.GroupID(1)
-	toGroupID := tss.GroupID(2)
+	fromGroupID := tss.GroupID(2)
+	toGroupID := tss.GroupID(1)
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
@@ -54,26 +57,24 @@ func TestReplaceGroups(t *testing.T) {
 	k.SetSigning(ctx, initialSigning)
 
 	// Create a pending replace group with an execution time set 5 minutes before
-	pendingReplaceGroup1 := types.PendingReplaceGroup{
+	pendingReplaceGroup := types.Replacement{
 		SigningID:   signingID,
 		FromGroupID: fromGroupID,
+		FromPubKey:  initialFromGroup.PubKey,
 		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().UTC().Add(time.Duration(-5) * time.Minute),
-	}
-	// Create a pending replace group with an execution time set 5 minutes after
-	pendingReplaceGroup2 := types.PendingReplaceGroup{
-		SigningID:   signingID,
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().UTC().Add(time.Duration(5) * time.Minute),
+		ToPubKey:    initialToGroup.PubKey,
+		ExecTime:    now.Add(time.Duration(-5) * time.Minute),
 	}
 
-	k.AddPendingReplaceGroup(ctx, pendingReplaceGroup1)
-	k.AddPendingReplaceGroup(ctx, pendingReplaceGroup2)
+	nextID := k.GetNextReplacementCount(ctx)
+	pendingReplaceGroup.ID = nextID
+	k.SetReplacement(ctx, pendingReplaceGroup)
+
+	k.InsertReplacementQueue(ctx, nextID, beforenow)
 
 	// Call end block
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: app.LastBlockHeight() + 1})
 
-	got := k.GetPendingReplaceGroups(ctx)
-	require.Len(t, got, 1)
+	got := k.MustGetGroup(ctx, toGroupID)
+	require.Equal(t, initialFromGroup.PubKey, got.PubKey)
 }
