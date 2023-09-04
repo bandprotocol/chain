@@ -499,7 +499,11 @@ func (k Keeper) GetNextReplacementCount(ctx sdk.Context) uint64 {
 func (k Keeper) GetReplacement(ctx sdk.Context, replacementID uint64) (types.Replacement, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementKey(replacementID))
 	if bz == nil {
-		return types.Replacement{}, errors.Wrapf(types.ErrReplacementNotFound, "failed to get replacement group with replacement ID: %d", replacementID)
+		return types.Replacement{}, errors.Wrapf(
+			types.ErrReplacementNotFound,
+			"failed to get replacement group with replacement ID: %d",
+			replacementID,
+		)
 	}
 
 	replacement := types.Replacement{}
@@ -523,7 +527,8 @@ func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
 
 // InsertReplacementQueue inserts a replacementID into the replacement queue at endTime
 func (k Keeper) InsertReplacementQueue(ctx sdk.Context, replacementID uint64, endTime time.Time) {
-	ctx.KVStore(k.storeKey).Set(types.ReplacementQueueKey(replacementID, endTime), sdk.Uint64ToBigEndian(replacementID))
+	ctx.KVStore(k.storeKey).
+		Set(types.ReplacementQueueKey(replacementID, endTime), sdk.Uint64ToBigEndian(replacementID))
 }
 
 // RemoveFromReplacementQueue removes a replacementID from the replacement queue.
@@ -533,7 +538,11 @@ func (keeper Keeper) RemoveFromReplacementQueue(ctx sdk.Context, replacementID u
 
 // IterateReplacementQueue iterates over the replacements in the active proposal replacement group queue.
 // and performs a callback function
-func (k Keeper) IterateReplacementQueue(ctx sdk.Context, endTime time.Time, cb func(replacement types.Replacement) (stop bool)) {
+func (k Keeper) IterateReplacementQueue(
+	ctx sdk.Context,
+	endTime time.Time,
+	cb func(replacement types.Replacement) (stop bool),
+) {
 	iterator := k.ReplacementQueueIterator(ctx, endTime)
 
 	defer iterator.Close()

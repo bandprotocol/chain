@@ -668,44 +668,11 @@ func (k msgServer) SubmitSignature(
 		return nil, err
 	}
 
-	// Get member
-	member, err := k.GetMember(ctx, signing.GroupID, req.MemberID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify member
-	if !member.Verify(req.Member) {
-		return nil, errors.Wrapf(
-			types.ErrMemberNotAuthorized,
-			"memberID %d address %s is not match in this group",
-			req.MemberID,
-			req.Member,
-		)
-	}
-
 	// Check signing is still waiting for signature
 	if signing.Status != types.SIGNING_STATUS_WAITING {
 		return nil, errors.Wrapf(
 			types.ErrSigningAlreadySuccess, "signing ID: %d is not in waiting state", req.SigningID,
 		)
-	}
-
-	// Check member is already signed
-	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
-	if err == nil {
-		return nil, errors.Wrapf(
-			types.ErrAlreadySigned,
-			"member ID: %d is already signed on signing ID: %d",
-			req.MemberID,
-			req.SigningID,
-		)
-	}
-
-	// Get group
-	group, err := k.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return nil, err
 	}
 
 	var found bool
@@ -714,7 +681,7 @@ func (k msgServer) SubmitSignature(
 	// Check sender not in assigned participants and verify signature R
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
-		if am.MemberID == req.MemberID {
+		if am.MemberID == req.MemberID && am.Member == req.Member {
 			// Found member in assigned members
 			found = true
 			assignedMember = am
@@ -731,7 +698,18 @@ func (k msgServer) SubmitSignature(
 	}
 	if !found {
 		return nil, errors.Wrapf(
-			types.ErrMemberNotAssigned, "member ID: %d is not in assigned participants", req.MemberID,
+			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned participants", req.MemberID,
+		)
+	}
+
+	// Check member is already signed
+	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	if err == nil {
+		return nil, errors.Wrapf(
+			types.ErrAlreadySigned,
+			"member ID: %d is already signed on signing ID: %d",
+			req.MemberID,
+			req.SigningID,
 		)
 	}
 
@@ -741,11 +719,11 @@ func (k msgServer) SubmitSignature(
 	// Verify signing signature
 	err = tss.VerifySigningSig(
 		signing.GroupPubNonce,
-		group.PubKey,
+		signing.GroupPubKey,
 		signing.Message,
 		lagrange,
 		req.Signature,
-		member.PubKey,
+		assignedMember.PubKey,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
@@ -755,7 +733,7 @@ func (k msgServer) SubmitSignature(
 	k.AddPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
 
 	sigCount := k.GetSigCount(ctx, req.SigningID)
-	if sigCount == group.Threshold {
+	if sigCount == uint64(len(signing.AssignedMembers)) {
 		k.AddPendingProcessSigning(ctx, req.SigningID)
 	}
 
@@ -765,7 +743,7 @@ func (k msgServer) SubmitSignature(
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, member.Address),
+			sdk.NewAttribute(types.AttributeKeyMember, assignedMember.Member),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),

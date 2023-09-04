@@ -858,6 +858,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,
 					GroupPubNonce:   tc1.Signings[0].PubNonce,
+					Status:          types.SIGNING_STATUS_WAITING,
 					Signature:       nil,
 				})
 
@@ -871,7 +872,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			func() {
 				k.DeleteSigning(ctx, tc1.Signings[0].ID)
 			},
-			types.ErrMemberNotFound,
+			types.ErrMemberNotAssigned,
 		},
 	}
 
@@ -880,7 +881,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitSignature(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
+			s.Require().ErrorIs(err, tc.ExpectedErr)
 
 			tc.PostTest()
 		})
