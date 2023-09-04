@@ -129,9 +129,33 @@ func (k msgServer) ReplaceGroup(
 		return nil, err
 	}
 
-	// Check group status
+	// Verify group status
 	if fromGroup.Status != types.GROUP_STATUS_ACTIVE {
 		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Get to group
+	toGroup, err := k.GetGroup(ctx, req.ToGroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify group status
+	if toGroup.Status != types.GROUP_STATUS_ACTIVE {
+		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Verify whether the group is not in the pending replacement process.
+	lastReplacementID := toGroup.LatestReplacementID
+	if lastReplacementID != uint64(0) {
+		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
+		if err != nil {
+			panic(err)
+		}
+
+		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
+			return nil, errors.Wrap(types.ErrRequestReplacementFailed, "the group is in the pending replacement process")
+		}
 	}
 
 	// Request signature
@@ -145,14 +169,23 @@ func (k msgServer) ReplaceGroup(
 		return nil, err
 	}
 
-	// Add the pending replace of Group 1 with Group 2 during the execution process, which
-	// will process at the end block.
-	k.AddPendingReplaceGroup(ctx, types.PendingReplaceGroup{
+	nextID := k.GetNextReplacementCount(ctx)
+	k.SetReplacement(ctx, types.Replacement{
+		ID:          nextID,
 		SigningID:   sid,
 		FromGroupID: req.FromGroupID,
+		FromPubKey:  fromGroup.PubKey,
 		ToGroupID:   req.ToGroupID,
+		ToPubKey:    toGroup.PubKey,
 		ExecTime:    req.ExecTime,
+		Status:      types.REPLACEMENT_STATUS_WAITING,
 	})
+
+	k.InsertReplacementQueue(ctx, nextID, req.ExecTime)
+
+	// Update latest replacement ID to the group
+	toGroup.LatestReplacementID = nextID
+	k.SetGroup(ctx, toGroup)
 
 	return &types.MsgReplaceGroupResponse{}, nil
 }

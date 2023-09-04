@@ -33,3 +33,14 @@ func ValidMemberStatus(status MemberStatus) bool {
 	}
 	return false
 }
+
+// ValidReplacementStatus returns true if the replacement group status is valid and false
+// otherwise.
+func ValidReplacementStatus(status ReplacementStatus) bool {
+	if status == REPLACEMENT_STATUS_WAITING ||
+		status == REPLACEMENT_STATUS_FALLEN ||
+		status == REPLACEMENT_STATUS_SUCCESS {
+		return true
+	}
+	return false
+}

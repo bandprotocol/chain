@@ -486,25 +486,77 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
 }
 
-func (s *KeeperTestSuite) TestGetSetPendingReplaceGroups() {
+func (s *KeeperTestSuite) TestGetSetReplacementCount() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+	k.SetReplacementCount(ctx, 1)
+
+	replacementCount := k.GetReplacementCount(ctx)
+	s.Require().Equal(uint64(1), replacementCount)
+}
+
+func (s *KeeperTestSuite) TestGetNextReplacementID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
-	// Set the pending replace groups in the store
-	pg := types.PendingReplaceGroup{
+	// Initial replacement count
+	k.SetReplacementCount(ctx, 1)
+
+	replacementCount1 := k.GetNextReplacementCount(ctx)
+	s.Require().Equal(2, replacementCount1)
+	replacementCount2 := k.GetNextReplacementCount(ctx)
+	s.Require().Equal(3, replacementCount2)
+}
+
+func (s *KeeperTestSuite) TestGetSetReplacement() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create a replacement
+	replacement := types.Replacement{
+		ID:          1,
 		SigningID:   1,
 		FromGroupID: 2,
 		ToGroupID:   1,
-		ExecTime:    time.Now().UTC(),
+		FromPubKey:  []byte("test_pub_key"),
+		ToPubKey:    []byte("test_pub_key"),
+		Status:      types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:    time.Now(),
 	}
-	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{
-		PendingReplaceGroups: []types.PendingReplaceGroup{pg},
+
+	// Set the replacement using SetReplacement
+	k.SetReplacement(ctx, replacement)
+
+	// Get the stored replacement using GetReplacement
+	got, err := k.GetReplacement(ctx, replacement.ID)
+	s.Require().NoError(err)
+	s.Require().Equal(replacement, got)
+}
+
+func (s *KeeperTestSuite) TestReplacementQueues() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+
+	replacementID := uint64(1)
+
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+
+	now := time.Now()
+
+	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
+		FromGroupID: 2,
+		ToGroupID:   1,
+		ExecTime:    now,
+		Authority:   s.authority.String(),
 	})
+	s.Require().NoError(err)
 
-	got := k.GetPendingReplaceGroups(ctx)
+	replacement, err := k.GetReplacement(ctx, replacementID)
+	s.Require().NoError(err)
 
-	// Check if the retrieved pending replace groups match the original sample
-	s.Require().Len(got, 1)
-	s.Require().Equal(pg, got[0])
+	replacementIterator := k.ReplacementQueueIterator(ctx, now)
+	s.Require().True(replacementIterator.Valid())
+
+	gotReplacementID, _ := types.SplitReplacementQueueKey(replacementIterator.Key())
+	s.Require().Equal(replacement.ID, gotReplacementID)
+
+	replacementIterator.Close()
 }
 
 func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
@@ -512,6 +564,7 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	signingID := tss.SigningID(1)
 	fromGroupID := tss.GroupID(1)
 	toGroupID := tss.GroupID(2)
+	replacementID := uint64(1)
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
@@ -537,26 +590,31 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		Status:    types.SIGNING_STATUS_SUCCESS,
 		// ... other fields ...
 	}
+	initialReplacement := types.Replacement{
+		ID:          replacementID,
+		SigningID:   signingID,
+		FromGroupID: initialFromGroup.GroupID,
+		FromPubKey:  initialFromGroup.PubKey,
+		ToGroupID:   initialToGroup.GroupID,
+		ToPubKey:    initialToGroup.PubKey,
+		Status:      types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:    time.Now(),
+	}
 	k.SetGroup(ctx, initialFromGroup)
 	k.SetGroup(ctx, initialToGroup)
 	k.SetSigning(ctx, initialSigning)
 
-	// Create a pending replace group
-	pendingReplaceGroup := types.PendingReplaceGroup{
-		SigningID:   signingID,
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().UTC(),
-	}
+	k.SetReplacement(ctx, types.Replacement{})
 
 	// Call HandleReplaceGroup to process the pending replace group
-	k.HandleReplaceGroup(ctx, pendingReplaceGroup)
+	k.HandleReplaceGroup(ctx, initialReplacement)
 
 	// Verify that the fromGroup was replaced with the toGroup's data
 	updatedGroup := k.MustGetGroup(ctx, toGroupID)
 	// Verify unchanged data
 	s.Require().Equal(toGroupID, updatedGroup.GroupID)
 	s.Require().Equal(initialToGroup.CreatedHeight, updatedGroup.CreatedHeight)
+	s.Require().Equal(initialToGroup.LatestReplacementID, updatedGroup.LatestReplacementID)
 	// Verify changed data
 	s.Require().Equal(initialFromGroup.Size_, updatedGroup.Size_)
 	s.Require().Equal(initialFromGroup.Threshold, updatedGroup.Threshold)
@@ -570,6 +628,7 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 	signingID := tss.SigningID(1)
 	fromGroupID := tss.GroupID(1)
 	toGroupID := tss.GroupID(2)
+	replacementID := uint64(1)
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
@@ -595,20 +654,22 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		Status:    types.SIGNING_STATUS_FALLEN,
 		// ... other fields ...
 	}
+	initialReplacement := types.Replacement{
+		ID:          replacementID,
+		SigningID:   signingID,
+		FromGroupID: initialFromGroup.GroupID,
+		FromPubKey:  initialFromGroup.PubKey,
+		ToGroupID:   initialToGroup.GroupID,
+		ToPubKey:    initialToGroup.PubKey,
+		Status:      types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:    time.Now(),
+	}
 	k.SetGroup(ctx, initialFromGroup)
 	k.SetGroup(ctx, initialToGroup)
 	k.SetSigning(ctx, initialSigning)
 
-	// Create a pending replace group
-	pendingReplaceGroup := types.PendingReplaceGroup{
-		SigningID:   signingID,
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    time.Now().UTC(),
-	}
-
 	// Call HandleReplaceGroup to process the pending replace group
-	k.HandleReplaceGroup(ctx, pendingReplaceGroup)
+	k.HandleReplaceGroup(ctx, initialReplacement)
 
 	// Verify that the fromGroup is not replaced by the toGroup's
 	updatedGroup := k.MustGetGroup(ctx, toGroupID)
