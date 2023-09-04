@@ -70,4 +70,6 @@ var (
 		47,
 		"no handler exists for request signature type",
 	)
+	ErrReplacementNotFound      = errors.Register(ModuleName, 48, "replacement group not found")
+	ErrRequestReplacementFailed = errors.Register(ModuleName, 49, "Failed to request replacement")
 )

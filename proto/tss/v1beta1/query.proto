@@ -45,11 +45,6 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/pending_signings/{address}";
   }
 
-  // PendingReplacements queries all pending replacing groups.
-  rpc PendingReplacements(QueryPendingReplacementsRequest) returns (QueryPendingReplacementsResponse) {
-    option (google.api.http).get = "/tss/v1beta1/pending_replacements";
-  }
-
   // Signing queries signing details.
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
@@ -63,6 +58,16 @@ service Query {
   // Status queries the status of the address.
   rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
     option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
+  }
+
+  // Replacements queries all replacements.
+  rpc Replacements(QueryReplacementsRequest) returns (QueryReplacementsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/replacements";
+  }
+
+  // Replacement queries replacement by ID.
+  rpc Replacement(QueryReplacementRequest) returns (QueryReplacementResponse) {
+    option (google.api.http).get = "/tss/v1beta1/replacements/{id}";
   }
 }
 
@@ -171,15 +176,6 @@ message QueryPendingSigningsResponse {
   repeated uint64 pending_signings = 1;
 }
 
-// QueryPendingReplacementsRequest is the request type for the Query/PendingReplacements RPC method.
-message QueryPendingReplacementsRequest {}
-
-// QueryPendingReplacementsResponse is the response type for the Query/PendingReplacements RPC method.
-message QueryPendingReplacementsResponse {
-  // pending_replacings is a list of pending replacing groups.
-  repeated PendingReplaceGroup pending_replace_groups = 1 [(gogoproto.nullable) = false];
-}
-
 // QuerySigningRequest is the request type for the Query/Signing RPC method.
 message QuerySigningRequest {
   // id is the ID of the signing request.
@@ -220,4 +216,32 @@ message QueryStatusRequest {
 message QueryStatusResponse {
   // status is the status request.
   Status status = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryReplacementsRequest is the request type for the Query/Replacements RPC method.
+message QueryReplacementsRequest {
+  // status is an enumeration of the possible statuses of a group replacement process.
+  ReplacementStatus status = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryReplacementsResponse is the response type for the Query/Replacements RPC method.
+message QueryReplacementsResponse {
+  // replacements is a list of replacements.
+  repeated Replacement replacements = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
+message QueryReplacementRequest {
+  // id is the unique identifier of the replacement.
+  uint64 id = 1;
+}
+
+// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
+message QueryReplacementResponse {
+  // replacement represents a group that will replaced with another group in the replacement process.
+  Replacement replacement = 1;
 }
