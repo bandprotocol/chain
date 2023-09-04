@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 
@@ -477,72 +478,133 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-// AddPendingReplaceGroup adds a new pending replace group to the store.
-func (k Keeper) AddPendingReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup) {
-	pgs := k.GetPendingReplaceGroups(ctx)
-	pgs = append(pgs, pg)
-	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{
-		PendingReplaceGroups: pgs,
-	})
+// SetReplacementCount sets the number of replacement group count to the given value.
+func (k Keeper) SetReplacementCount(ctx sdk.Context, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ReplacementCountStoreKey, sdk.Uint64ToBigEndian(count))
 }
 
-// SetPendingReplaceGroups sets the given pending replace groups in the store.
-func (k Keeper) SetPendingReplaceGroups(ctx sdk.Context, pgs types.PendingReplaceGroups) {
-	ctx.KVStore(k.storeKey).Set(types.PendingReplaceGroupsStoreKey, k.cdc.MustMarshal(&pgs))
+// GetReplacementCount returns the current number of all replacements ever existed.
+func (k Keeper) GetReplacementCount(ctx sdk.Context) uint64 {
+	return sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacementCountStoreKey))
 }
 
-// GetPendingReplaceGroups retrieves the list of pending replace groups from the store.
-// It returns an empty list if the key does not exist in the store.
-func (k Keeper) GetPendingReplaceGroups(ctx sdk.Context) []types.PendingReplaceGroup {
-	bz := ctx.KVStore(k.storeKey).Get(types.PendingReplaceGroupsStoreKey)
-	if len(bz) == 0 {
-		// Return an empty list if the key does not exist in the store.
-		return []types.PendingReplaceGroup{}
+// GetNextReplacementCount increments the replacement count and returns the current number of groups.
+func (k Keeper) GetNextReplacementCount(ctx sdk.Context) uint64 {
+	replacementNumber := k.GetReplacementCount(ctx)
+	k.SetReplacementCount(ctx, replacementNumber+1)
+	return replacementNumber + 1
+}
+
+// GetReplacement gets a replacement of store by ReplacementID.
+func (k Keeper) GetReplacement(ctx sdk.Context, replacementID uint64) (types.Replacement, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementKey(replacementID))
+	if bz == nil {
+		return types.Replacement{}, errors.Wrapf(types.ErrReplacementNotFound, "failed to get replacement group with replacement ID: %d", replacementID)
 	}
-	pgs := types.PendingReplaceGroups{}
-	k.cdc.MustUnmarshal(bz, &pgs)
-	return pgs.PendingReplaceGroups
+
+	replacement := types.Replacement{}
+	k.cdc.MustUnmarshal(bz, &replacement)
+	return replacement, nil
+}
+
+// MustGetReplacement gets a replacement of store by ReplacementID. Panics error if not exists.
+func (k Keeper) MustGetReplacement(ctx sdk.Context, replacementID uint64) types.Replacement {
+	replacement, err := k.GetReplacement(ctx, replacementID)
+	if err != nil {
+		panic(err)
+	}
+	return replacement
+}
+
+// SetReplacement sets a replacement to store.
+func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
+	ctx.KVStore(k.storeKey).Set(types.ReplacementKey(replacement.ID), k.cdc.MustMarshal(&replacement))
+}
+
+// InsertReplacementQueue inserts a replacementID into the replacement queue at endTime
+func (k Keeper) InsertReplacementQueue(ctx sdk.Context, replacementID uint64, endTime time.Time) {
+	ctx.KVStore(k.storeKey).Set(types.ReplacementQueueKey(replacementID, endTime), sdk.Uint64ToBigEndian(replacementID))
+}
+
+// RemoveFromReplacementQueue removes a replacementID from the replacement queue.
+func (keeper Keeper) RemoveFromReplacementQueue(ctx sdk.Context, replacementID uint64, endTime time.Time) {
+	ctx.KVStore(keeper.storeKey).Delete(types.ReplacementQueueKey(replacementID, endTime))
+}
+
+// IterateReplacementQueue iterates over the replacements in the active proposal replacement group queue.
+// and performs a callback function
+func (k Keeper) IterateReplacementQueue(ctx sdk.Context, endTime time.Time, cb func(replacement types.Replacement) (stop bool)) {
+	iterator := k.ReplacementQueueIterator(ctx, endTime)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		replacementID, _ := types.SplitReplacementQueueKey(iterator.Key())
+		replacement, err := k.GetReplacement(ctx, replacementID)
+		if err != nil {
+			panic(fmt.Sprintf("replacement group ID %d does not exist", replacementID))
+		}
+
+		if cb(replacement) {
+			break
+		}
+	}
+}
+
+// ReplacementQueueIterator returns an sdk.Iterator for all the replacements in the replacement group Queue that expire by endTime
+func (keeper Keeper) ReplacementQueueIterator(ctx sdk.Context, endTime time.Time) sdk.Iterator {
+	store := ctx.KVStore(keeper.storeKey)
+	return store.Iterator(types.ReplacementQueuePrefix, sdk.PrefixEndBytes(types.ReplacementQueueByTimeKey(endTime)))
 }
 
 // HandleReplaceGroup updates the group information after a successful signing process.
-func (k Keeper) HandleReplaceGroup(ctx sdk.Context, pg types.PendingReplaceGroup) {
+func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacement) {
 	// Retrieve information about signing.
-	signing := k.MustGetSigning(ctx, pg.SigningID)
+	signing := k.MustGetSigning(ctx, replacement.SigningID)
 
-	// If the signing process is unsuccessful, do noting.
+	// If the signing process is unsuccessful, update the replacement status to failed.
 	if signing.Status != types.SIGNING_STATUS_SUCCESS {
+		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
+		k.SetReplacement(ctx, replacement)
 		return
 	}
 
 	// Retrieve information about group.
-	fromGroup := k.MustGetGroup(ctx, pg.FromGroupID)
-	toGroup := k.MustGetGroup(ctx, pg.ToGroupID)
+	fromGroup := k.MustGetGroup(ctx, replacement.FromGroupID)
+	toGroup := k.MustGetGroup(ctx, replacement.ToGroupID)
+
+	// If the group's public key is changed, update the replacement status to failed.
+	if !bytes.Equal(fromGroup.PubKey, replacement.FromPubKey) || !bytes.Equal(toGroup.PubKey, replacement.ToPubKey) {
+		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
+		k.SetReplacement(ctx, replacement)
+		return
+	}
 
 	// Replace group data
 	tempGroup := fromGroup
 	tempGroup.GroupID = toGroup.GroupID
 	tempGroup.CreatedHeight = toGroup.CreatedHeight
-	tempGroup.LastReplacedGroup = &types.ReplacedGroup{
-		OldPubKey: toGroup.PubKey,
-		SigningID: pg.SigningID,
-	}
+	tempGroup.LatestReplacementID = toGroup.LatestReplacementID
 
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
 
 	// Set members with new data
-	members, err := k.GetMembers(ctx, pg.FromGroupID)
+	members, err := k.GetMembers(ctx, replacement.FromGroupID)
 	if err != nil {
 		return
 	}
-	k.SetMembers(ctx, pg.ToGroupID, members)
+	k.SetMembers(ctx, replacement.ToGroupID, members)
+
+	// Update replacement group status to success
+	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
+	k.SetReplacement(ctx, replacement)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplaceSuccess,
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", pg.SigningID)),
-			sdk.NewAttribute(types.AttributeKeyFromGroupID, fmt.Sprintf("%d", pg.FromGroupID)),
-			sdk.NewAttribute(types.AttributeKeyToGroupID, fmt.Sprintf("%d", pg.ToGroupID)),
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyFromGroupID, fmt.Sprintf("%d", replacement.FromGroupID)),
+			sdk.NewAttribute(types.AttributeKeyToGroupID, fmt.Sprintf("%d", replacement.ToGroupID)),
 		),
 	)
 }

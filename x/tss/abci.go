@@ -36,22 +36,11 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// This effectively clears the list, as the processing for all signings has been completed in this block.
 	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{})
 
-	// Get the list of pending replace groups.
-	pgs := k.GetPendingReplaceGroups(ctx)
-	// Create a slice to hold pending replace groups that are not yet processed.
-	var pgsLeft []types.PendingReplaceGroup
-	for _, prg := range pgs {
-		// Check if the execution time is in the future.
-		if ctx.BlockTime().Before(prg.ExecTime) {
-			// Keep this replace group in the pending list for future processing.
-			pgsLeft = append(pgsLeft, prg)
-			continue
-		}
-		// Handle the processing for the current pending replace group.
-		k.HandleReplaceGroup(ctx, prg)
-	}
-	// Set the list of pending replace groups to those that were not processed yet.
-	k.SetPendingReplaceGroups(ctx, types.PendingReplaceGroups{PendingReplaceGroups: pgsLeft})
+	k.IterateReplacementQueue(ctx, ctx.BlockHeader().Time, func(replacement types.Replacement) bool {
+		k.HandleReplaceGroup(ctx, replacement)
+		k.RemoveFromReplacementQueue(ctx, replacement.ID, *&replacement.ExecTime)
+		return false
+	})
 
 	// Handles cleanup and actions that are required for groups that have expired.
 	k.HandleExpiredGroups(ctx)
