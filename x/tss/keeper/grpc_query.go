@@ -235,21 +235,6 @@ func (q queryServer) PendingSignings(
 	}, nil
 }
 
-// PendingReplacements function handles the request to get pending replacing groups.
-func (q queryServer) PendingReplacements(
-	goCtx context.Context,
-	req *types.QueryPendingReplacementsRequest,
-) (*types.QueryPendingReplacementsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// Get pending replace groups
-	pendingReplaceGroups := q.k.GetPendingReplaceGroups(ctx)
-
-	return &types.QueryPendingReplacementsResponse{
-		PendingReplaceGroups: pendingReplaceGroups,
-	}, nil
-}
-
 // Signing function handles the request to get signing of a given ID.
 func (q queryServer) Signing(
 	goCtx context.Context,
@@ -345,4 +330,59 @@ func (q queryServer) Statuses(
 		Statuses:   filteredStatuses,
 		Pagination: pageRes,
 	}, nil
+}
+
+// Replacement function handles the request to get replacement of a given ID.
+func (q queryServer) Replacement(
+	goCtx context.Context,
+	req *types.QueryReplacementRequest,
+) (*types.QueryReplacementResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get replacement
+	r, err := q.k.GetReplacement(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryReplacementResponse{
+		Replacement: &r,
+	}, nil
+}
+
+// Replacements function handles the request to get replacements.
+func (q queryServer) Replacements(
+	goCtx context.Context,
+	req *types.QueryReplacementsRequest,
+) (*types.QueryReplacementsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	replacementStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.ReplacementKeyPrefix)
+
+	// Get pending replace groups
+	filteredReplacements, pageRes, err := query.GenericFilteredPaginate(
+		q.k.cdc,
+		replacementStore,
+		req.Pagination,
+		func(key []byte, rg *types.Replacement) (*types.Replacement, error) {
+			matchStatus := true
+
+			// match status (if supplied/valid)
+			if types.ValidReplacementStatus(req.Status) {
+				matchStatus = rg.Status == req.Status
+			}
+
+			if matchStatus {
+				return rg, nil
+			}
+
+			return nil, nil
+		}, func() *types.Replacement {
+			return &types.Replacement{}
+		})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryReplacementsResponse{Replacements: filteredReplacements, Pagination: pageRes}, nil
 }

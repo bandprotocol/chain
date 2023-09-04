@@ -122,42 +122,33 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
-	// Create an authority address.
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	toGroupID, replacementID := tss.GroupID(1), uint64(1)
 
-	// Define fromGroupID and toGroupID.
-	fromGroupID := tss.GroupID(2)
-	toGroupID := tss.GroupID(1)
-
-	now := time.Now().UTC()
-
-	// Define the expected pending replace group.
-	expected := types.PendingReplaceGroup{
-		SigningID:   1,
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    now,
-	}
-
-	// Set up the test by creating an active group.
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
-	// Create the replace group message.
-	msg := types.MsgReplaceGroup{
-		FromGroupID: fromGroupID,
-		ToGroupID:   toGroupID,
-		ExecTime:    now,
-		Authority:   authority.String(),
-	}
+	now := time.Now()
 
-	// Execute the ReplaceGroup method.
-	_, err := msgSrvr.ReplaceGroup(ctx, &msg)
+	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
+		FromGroupID: 2,
+		ToGroupID:   1,
+		ExecTime:    now,
+		Authority:   s.authority.String(),
+	})
 	s.Require().NoError(err)
 
-	// Check if the pending replace group matches the expected result.
-	got := k.GetPendingReplaceGroups(ctx)
-	s.Require().Len(got, 1)
-	s.Require().Equal(expected, got[0])
+	replacement, err := k.GetReplacement(ctx, replacementID)
+	s.Require().NoError(err)
+
+	replacementIterator := k.ReplacementQueueIterator(ctx, now)
+	s.Require().True(replacementIterator.Valid())
+
+	gotReplacementID, _ := types.SplitReplacementQueueKey(replacementIterator.Key())
+	s.Require().Equal(replacement.ID, gotReplacementID)
+
+	replacementIterator.Close()
+
+	toGroup := k.MustGetGroup(ctx, toGroupID)
+	s.Require().Equal(gotReplacementID, toGroup.LatestReplacementID)
 }
 
 func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {

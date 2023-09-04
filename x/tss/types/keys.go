@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
@@ -26,6 +28,8 @@ var (
 	ReplaceGroupMsgPrefix = []byte{0x01}
 )
 
+var lenTime = len(sdk.FormatTimeBytes(time.Now()))
+
 var (
 	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
 	RollingSeedSizeInBytes = 32
@@ -36,14 +40,14 @@ var (
 	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
 
+	// ReplacementCountStoreKey is the key that keeps the total replacement group count.
+	ReplacementCountStoreKey = append(GlobalStoreKeyPrefix, []byte("ReplacementCount")...)
+
 	// LastExpiredGroupIDStoreKey is the key for keeps last expired groupID.
 	LastExpiredGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredGroupID")...)
 
 	// SigningCountStoreKey is the key that keeps the total signing count.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-
-	// ReplacementCountStoreKey is the key that keeps the total replacement count.
-	ReplacementCountStoreKey = append(GlobalStoreKeyPrefix, []byte("ReplacementCount")...)
 
 	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
 	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
@@ -113,6 +117,12 @@ var (
 
 	// ParamsKeyPrefix is a prefix for keys that store TSS's parameters
 	ParamsKeyPrefix = []byte{0x12}
+
+	// ReplacementPrefix is the prefix for keeps replacement group data.
+	ReplacementKeyPrefix = []byte{0x13}
+
+	// ReplacementQueuePrefix is the prefix for keeps replacement group queue.
+	ReplacementQueuePrefix = []byte{0x14}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -230,4 +240,32 @@ func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
 	return append(StatusStoreKeyPrefix, address...)
+}
+
+func ReplacementKey(replacementID uint64) []byte {
+	return append(ReplacementKeyPrefix, sdk.Uint64ToBigEndian(replacementID)...)
+}
+
+func ReplacementQueueByTimeKey(endTime time.Time) []byte {
+	return append(ReplacementQueuePrefix, sdk.FormatTimeBytes(endTime)...)
+}
+
+func ReplacementQueueKey(replacementID uint64, endTime time.Time) []byte {
+	return append(ReplacementQueueByTimeKey(endTime), sdk.Uint64ToBigEndian(uint64(replacementID))...)
+}
+
+func SplitReplacementQueueKey(key []byte) (replacementID uint64, endTime time.Time) {
+	return splitKeyWithTime(key)
+}
+
+func splitKeyWithTime(key []byte) (replacementID uint64, endTime time.Time) {
+	kv.AssertKeyLength(key[1:], 8+lenTime)
+
+	endTime, err := sdk.ParseTimeBytes(key[1 : 1+lenTime])
+	if err != nil {
+		panic(err)
+	}
+
+	replacementID = sdk.BigEndianToUint64(key[1+lenTime:])
+	return
 }
