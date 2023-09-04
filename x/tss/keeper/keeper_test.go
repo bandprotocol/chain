@@ -501,9 +501,9 @@ func (s *KeeperTestSuite) TestGetNextReplacementID() {
 	k.SetReplacementCount(ctx, 1)
 
 	replacementCount1 := k.GetNextReplacementCount(ctx)
-	s.Require().Equal(2, replacementCount1)
+	s.Require().Equal(uint64(2), replacementCount1)
 	replacementCount2 := k.GetNextReplacementCount(ctx)
-	s.Require().Equal(3, replacementCount2)
+	s.Require().Equal(uint64(3), replacementCount2)
 }
 
 func (s *KeeperTestSuite) TestGetSetReplacement() {
@@ -518,7 +518,7 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 		FromPubKey:  []byte("test_pub_key"),
 		ToPubKey:    []byte("test_pub_key"),
 		Status:      types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:    time.Now(),
+		ExecTime:    time.Now().UTC(),
 	}
 
 	// Set the replacement using SetReplacement
