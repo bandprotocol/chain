@@ -347,6 +347,7 @@ func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
+// GetContent returns the content of MsgRequestSignature.
 func (m *MsgRequestSignature) GetContent() Content {
 	content, ok := m.Content.GetCachedValue().(Content)
 	if !ok {
@@ -371,6 +372,7 @@ func (m MsgRequestSignature) ValidateBasic() error {
 	return nil
 }
 
+// SetContent sets the content for MsgRequestSignature.
 func (m *MsgRequestSignature) SetContent(content Content) error {
 	msg, ok := content.(proto.Message)
 	if !ok {
