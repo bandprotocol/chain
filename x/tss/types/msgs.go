@@ -81,7 +81,7 @@ func (m MsgReplaceGroup) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgReplaceGroup.
 func (m MsgReplaceGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
@@ -318,8 +318,6 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 }
 
 // NewMsgRequestSignature creates a new MsgRequestSignature.
-//
-//nolint:interfacer
 func NewMsgRequestSignature(
 	gid tss.GroupID,
 	content Content,
