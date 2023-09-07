@@ -2,25 +2,27 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCreateGroup{}, "tss/CreateGroup", nil)
-	cdc.RegisterConcrete(&MsgReplaceGroup{}, "tss/ReplaceGroup", nil)
-	cdc.RegisterConcrete(&MsgUpdateGroupFee{}, "tss/UpdateGroupFee", nil)
-	cdc.RegisterConcrete(&MsgSubmitDKGRound1{}, "tss/SubmitDKGRound1", nil)
-	cdc.RegisterConcrete(&MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2", nil)
-	cdc.RegisterConcrete(&MsgComplain{}, "tss/Complaint", nil)
-	cdc.RegisterConcrete(&MsgConfirm{}, "tss/Confirm", nil)
-	cdc.RegisterConcrete(&MsgSubmitDEs{}, "tss/SubmitDEs", nil)
-	cdc.RegisterConcrete(&MsgRequestSignature{}, "tss/RequestSignature", nil)
-	cdc.RegisterConcrete(&MsgSubmitSignature{}, "tss/SubmitSignature", nil)
-	cdc.RegisterConcrete(&MsgActivate{}, "tss/Activate", nil)
 	cdc.RegisterConcrete(&TextRequestSignature{}, "tss/TextRequestSignature", nil)
-	cdc.RegisterConcrete(&MsgActive{}, "tss/Active", nil)
-	cdc.RegisterConcrete(&MsgUpdateParams{}, "tss/UpdateParams", nil)
+
+	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tss/CreateGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tss/ReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "tss/UpdateGroupFee")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound1{}, "tss/SubmitDKGRound1")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2")
+	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/Complaint")
+	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/Confirm")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/SubmitDEs")
+	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "tss/RequestSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/SubmitSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tss/Activate")
+	legacy.RegisterAminoMsg(cdc, &MsgActive{}, "tss/Active")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/UpdateParams")
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
