@@ -19,9 +19,9 @@ var (
 	)
 	ErrInvalidStatus           = errors.Register(ModuleName, 11, "invalid status")
 	ErrGroupExpired            = errors.Register(ModuleName, 12, "group expired")
-	ErrVerifyOneTimeSigFailed  = errors.Register(ModuleName, 13, "fail to verify one time sign")
-	ErrVerifyA0SigFailed       = errors.Register(ModuleName, 14, "fail to verify a0 sign")
-	ErrAddCommit               = errors.Register(ModuleName, 15, "fail to add coefficient commit")
+	ErrVerifyOneTimeSigFailed  = errors.Register(ModuleName, 13, "failed to verify one time sign")
+	ErrVerifyA0SigFailed       = errors.Register(ModuleName, 14, "failed to verify a0 sign")
+	ErrAddCommit               = errors.Register(ModuleName, 15, "failed to add coefficient commit")
 	ErrCommitsNotCorrectLength = errors.Register(
 		ModuleName,
 		16,
@@ -33,14 +33,14 @@ var (
 		18,
 		"encrypted secret shares not correct length",
 	)
-	ErrComputeOwnPubKeyFailed           = errors.Register(ModuleName, 19, "fail to compute own public key")
+	ErrComputeOwnPubKeyFailed           = errors.Register(ModuleName, 19, "failed to compute own public key")
 	ErrMemberIsAlreadyComplainOrConfirm = errors.Register(ModuleName, 20, "member is already complain or confirm")
 	ErrEncryptedSecretShareNotFound     = errors.Register(ModuleName, 21, "encrypted secret share not found")
-	ErrComplainFailed                   = errors.Register(ModuleName, 22, "complain failed")
-	ErrConfirmFailed                    = errors.Register(ModuleName, 23, "confirm failed")
+	ErrComplainFailed                   = errors.Register(ModuleName, 22, "failed to complain")
+	ErrConfirmFailed                    = errors.Register(ModuleName, 23, "failed to confirm")
 	ErrConfirmNotFound                  = errors.Register(ModuleName, 24, "confirm not found")
 	ErrComplainsWithStatusNotFound      = errors.Register(ModuleName, 25, "complaints with status not found")
-	ErrDENotFound                       = errors.Register(ModuleName, 26, "DE not found")
+	ErrDENotFound                       = errors.Register(ModuleName, 26, "de not found")
 	ErrGroupIsNotActive                 = errors.Register(ModuleName, 27, "group is not active")
 	ErrUnexpectedThreshold              = errors.Register(ModuleName, 28, "threshold value is unexpected")
 	ErrBadDrbgInitialization            = errors.Register(ModuleName, 29, "bad drbg initialization")
@@ -56,9 +56,9 @@ var (
 	ErrVerifyGroupSigningSigFailed      = errors.Register(
 		ModuleName,
 		39,
-		"failed to verify group signing signature",
+		"faileded to verify group signing signature",
 	)
-	ErrDEQueueFull                     = errors.Register(ModuleName, 40, "DE queue is full")
+	ErrDEQueueFull                     = errors.Register(ModuleName, 40, "de queue is full")
 	ErrSigningExpired                  = errors.Register(ModuleName, 41, "signing expired")
 	ErrTooSoonToActivate               = errors.Register(ModuleName, 42, "too soon to activate")
 	ErrStatusNotFound                  = errors.Register(ModuleName, 43, "status not found")
@@ -71,5 +71,5 @@ var (
 		"no handler exists for request signature type",
 	)
 	ErrReplacementNotFound      = errors.Register(ModuleName, 48, "replacement group not found")
-	ErrRequestReplacementFailed = errors.Register(ModuleName, 49, "Failed to request replacement")
+	ErrRequestReplacementFailed = errors.Register(ModuleName, 49, "failed to request replacement")
 )
