@@ -440,7 +440,7 @@ func (k Keeper) HandleRequestSign(
 	signingID := k.AddSigning(ctx, signing)
 
 	event := sdk.NewEvent(
-		types.EventTypeRequestSign,
+		types.EventTypeRequestSignature,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
@@ -462,7 +462,7 @@ func (k Keeper) HandleRequestSign(
 }
 
 // HandleReplaceGroupRequestSign handles the signing request for a group replacement.
-func (k Keeper) HandleReplaceGroupRequestSign(
+func (k Keeper) HandleReplaceGroupRequestSignature(
 	ctx sdk.Context,
 	pubKey tss.Point,
 	groupID tss.GroupID,
@@ -511,7 +511,7 @@ func (k Keeper) HandleReplaceGroupRequestSign(
 	signingID := k.AddSigning(ctx, signing)
 
 	event := sdk.NewEvent(
-		types.EventTypeRequestSign,
+		types.EventTypeRequestSignature,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),

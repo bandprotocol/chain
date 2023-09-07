@@ -159,7 +159,7 @@ func (k msgServer) ReplaceGroup(
 	}
 
 	// Request signature
-	sid, err := k.HandleReplaceGroupRequestSign(
+	sid, err := k.HandleReplaceGroupRequestSignature(
 		ctx,
 		fromGroup.PubKey,
 		req.ToGroupID,

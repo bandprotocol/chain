@@ -412,7 +412,7 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
 }
 
-func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
+func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
@@ -421,8 +421,8 @@ func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
 	// Define the fee payer's address.
 	feePayer := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
-	// execute HandleReplaceGroupRequestSign
-	signingID, err := k.HandleReplaceGroupRequestSign(ctx, []byte("new public key"), groupID, feePayer)
+	// execute HandleReplaceGroupRequestSignature
+	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
 	s.Require().NoError(err)
 
 	// verify that a new signing is created
