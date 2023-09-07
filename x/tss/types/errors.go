@@ -8,7 +8,7 @@ var (
 	ErrGroupSizeTooLarge       = errors.Register(ModuleName, 3, "group size is too large")
 	ErrGroupNotFound           = errors.Register(ModuleName, 4, "group not found")
 	ErrMemberNotFound          = errors.Register(ModuleName, 5, "member not found")
-	ErrNoActiveMember          = errors.Register(ModuleName, 6, "No active member in this group")
+	ErrNoActiveMember          = errors.Register(ModuleName, 6, "no active member in this group")
 	ErrAlreadySubmit           = errors.Register(ModuleName, 7, "member is already submit message")
 	ErrRound1InfoNotFound      = errors.Register(ModuleName, 8, "round 1 info not found")
 	ErrDKGContextNotFound      = errors.Register(ModuleName, 9, "dkg context not found")
@@ -56,7 +56,7 @@ var (
 	ErrVerifyGroupSigningSigFailed      = errors.Register(
 		ModuleName,
 		39,
-		"faileded to verify group signing signature",
+		"failed to verify group signing signature",
 	)
 	ErrDEQueueFull                     = errors.Register(ModuleName, 40, "de queue is full")
 	ErrSigningExpired                  = errors.Register(ModuleName, 41, "signing expired")
