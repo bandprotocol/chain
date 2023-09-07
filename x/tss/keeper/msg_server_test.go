@@ -1037,24 +1037,6 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			expectErrStr: "invalid authority;",
 		},
 		{
-			name: "set invalid params",
-			request: &types.MsgUpdateParams{
-				Authority: k.GetAuthority(),
-				Params: types.Params{
-					MaxGroupSize:            0,
-					MaxDESize:               0,
-					CreatingPeriod:          -1,
-					SigningPeriod:           -1,
-					ActiveDuration:          time.Duration(0),
-					InactivePenaltyDuration: time.Duration(0),
-					JailPenaltyDuration:     time.Duration(0),
-					RewardPercentage:        0,
-				},
-			},
-			expectErr:    true,
-			expectErrStr: "must be positive:",
-		},
-		{
 			name: "set full valid params",
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),

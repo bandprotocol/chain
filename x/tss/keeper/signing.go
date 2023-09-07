@@ -65,7 +65,7 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, signingID tss.SigningID) types.S
 func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
 	signingID := k.GetNextSigningID(ctx)
 	signing.SigningID = signingID
-	signing.CreatedHeight = ctx.BlockHeader().Height
+	signing.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetSigning(ctx, signing)
 
 	return signingID
@@ -584,7 +584,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		signing := k.MustGetSigning(ctx, currentSigningID)
 
 		// Check if the signing is still within the expiration period
-		if signing.CreatedHeight+k.GetParams(ctx).SigningPeriod > ctx.BlockHeight() {
+		if signing.CreatedHeight+k.GetParams(ctx).SigningPeriod > uint64(ctx.BlockHeight()) {
 			break
 		}
 

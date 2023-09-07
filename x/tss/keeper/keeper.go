@@ -118,7 +118,7 @@ func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee 
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
 	group.GroupID = groupID
-	group.CreatedHeight = ctx.BlockHeader().Height
+	group.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetGroup(ctx, group)
 
 	return groupID
@@ -337,7 +337,7 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		group := k.MustGetGroup(ctx, currentGroupID)
 
 		// Check if the group is still within the expiration period
-		if group.CreatedHeight+creatingPeriod > ctx.BlockHeight() {
+		if group.CreatedHeight+creatingPeriod > uint64(ctx.BlockHeight()) {
 			break
 		}
 

@@ -32,9 +32,9 @@ message Params {
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
   // creating_period is the number of blocks allowed to creating group signature.
-  int64 creating_period = 3;
+  uint64 creating_period = 3;
   // signing_period is the number of blocks allowed to signing.
-  int64 signing_period = 4;
+  uint64 signing_period = 4;
   // active_duration is the duration where a member can be active without interaction.
   google.protobuf.Duration active_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // inactive_penalty_duration is the duration where a member cannot activate back after inactive.

@@ -28,7 +28,7 @@ message Group {
   // latest_replacement_id is the latest replacement ID of the group.
   uint64 latest_replacement_id = 7 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
-  int64 created_height = 8;
+  uint64 created_height = 8;
 }
 
 // Replacement represents a group that will replaced with another group in the replacement process.
@@ -140,7 +140,7 @@ message Signing {
   // status represents the current stage of the signing in the signing process.
   SigningStatus status = 9;
   // created_height is the block height when the signing was created.
-  int64 created_height = 10;
+  uint64 created_height = 10;
   // request is the address of requester who paid for the TSS fee.
   string requester = 11;
 }
