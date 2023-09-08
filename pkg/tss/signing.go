@@ -130,13 +130,13 @@ func CombineSignatures(rawSigs ...Signature) (Signature, error) {
 	var allR []*secp256k1.JacobianPoint
 	var allS []*secp256k1.ModNScalar
 	for idx, rawSig := range rawSigs {
-		sig, err := rawSig.signature()
+		signature, err := rawSig.signature()
 		if err != nil {
-			return nil, NewError(err, "parse sig: index: %d", idx)
+			return nil, NewError(err, "parse signature: index: %d", idx)
 		}
 
-		allR = append(allR, &sig.R)
-		allS = append(allS, &sig.S)
+		allR = append(allR, &signature.R)
+		allS = append(allS, &signature.S)
 	}
 
 	return NewSignatureFromType(schnorr.NewSignature(sumPoints(allR...), sumScalars(allS...))), nil
@@ -167,7 +167,7 @@ func VerifySigningSig(
 	groupPubKey Point,
 	data []byte,
 	rawLagrange Scalar,
-	sig Signature,
+	signature Signature,
 	ownPubKey Point,
 ) error {
 	challenge, err := HashChallenge(groupPubNonce, groupPubKey, data)
@@ -175,19 +175,19 @@ func VerifySigningSig(
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, ownPubKey, nil, rawLagrange)
+	return Verify(signature.R(), signature.S(), challenge, ownPubKey, nil, rawLagrange)
 }
 
 // VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
 func VerifyGroupSigningSig(
 	groupPubKey Point,
 	data []byte,
-	sig Signature,
+	signature Signature,
 ) error {
-	challenge, err := HashChallenge(sig.R(), groupPubKey, data)
+	challenge, err := HashChallenge(signature.R(), groupPubKey, data)
 	if err != nil {
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, groupPubKey, nil, nil)
+	return Verify(signature.R(), signature.S(), challenge, groupPubKey, nil, nil)
 }

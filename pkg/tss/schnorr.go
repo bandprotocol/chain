@@ -17,21 +17,21 @@ func Sign(
 	nonce := rawNonce.modNScalar()
 	challenge := rawChallenge.modNScalar()
 
-	var sigR secp256k1.JacobianPoint
-	secp256k1.ScalarBaseMultNonConst(nonce, &sigR)
+	var signatureR secp256k1.JacobianPoint
+	secp256k1.ScalarBaseMultNonConst(nonce, &signatureR)
 
 	if rawLagrange != nil {
 		lagrange := rawLagrange.modNScalar()
 		challenge.Mul(lagrange)
 	}
 
-	sigS, err := schnorr.ComputeSigS(privKey, nonce, challenge)
+	signatureS, err := schnorr.ComputeSigS(privKey, nonce, challenge)
 	if err != nil {
-		return nil, NewError(err, "compute sig S")
+		return nil, NewError(err, "compute signature S")
 	}
 
-	sig := schnorr.NewSignature(&sigR, sigS)
-	return sig.Serialize(), nil
+	signature := schnorr.NewSignature(&signatureR, signatureS)
+	return signature.Serialize(), nil
 }
 
 // Verify verifies the given schnorr signature against the challenge, public key, generator point,
@@ -45,12 +45,12 @@ func Verify(
 	rawGenerator Point,
 	rawLagrange Scalar,
 ) error {
-	sigR, err := rawSigR.jacobianPoint()
+	signatureR, err := rawSigR.jacobianPoint()
 	if err != nil {
-		return NewError(err, "parse sig R")
+		return NewError(err, "parse signature R")
 	}
 
-	sigS := rawSigS.modNScalar()
+	signatureS := rawSigS.modNScalar()
 
 	pubKey, err := rawPubKey.publicKey()
 	if err != nil {
@@ -72,7 +72,7 @@ func Verify(
 		challenge.Mul(lagrange)
 	}
 
-	err = schnorr.Verify(sigR, sigS, challenge, pubKey, generator)
+	err = schnorr.Verify(signatureR, signatureS, challenge, pubKey, generator)
 	if err != nil {
 		return NewError(ErrInvalidSignature, err.Error())
 	}

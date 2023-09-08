@@ -27,7 +27,7 @@ func (suite *TSSTestSuite) TestGenerateRound1Info() {
 
 func (suite *TSSTestSuite) TestSignOneTime() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		sig, err := tss.SignOneTime(
+		signature, err := tss.SignOneTime(
 			member.ID,
 			tc.Group.DKGContext,
 			member.OneTimePubKey(),
@@ -35,7 +35,7 @@ func (suite *TSSTestSuite) TestSignOneTime() {
 		)
 		suite.Require().NoError(err)
 
-		err = tss.VerifyOneTimeSignature(member.ID, tc.Group.DKGContext, sig, member.OneTimePubKey())
+		err = tss.VerifyOneTimeSignature(member.ID, tc.Group.DKGContext, signature, member.OneTimePubKey())
 		suite.Require().NoError(err)
 	})
 }
@@ -66,7 +66,7 @@ func (suite *TSSTestSuite) TestVerifyOneTimeSignature() {
 
 func (suite *TSSTestSuite) TestSignA0() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		sig, err := tss.SignA0(
+		signature, err := tss.SignA0(
 			member.ID,
 			tc.Group.DKGContext,
 			member.A0PubKey(),
@@ -74,7 +74,7 @@ func (suite *TSSTestSuite) TestSignA0() {
 		)
 		suite.Require().NoError(err)
 
-		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, sig, member.A0PubKey())
+		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, signature, member.A0PubKey())
 		suite.Require().NoError(err)
 	})
 }

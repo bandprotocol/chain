@@ -145,15 +145,15 @@ func SignOwnPubkey(
 func VerifyOwnPubKeySig(
 	mid MemberID,
 	dkgContext []byte,
-	sig Signature,
+	signature Signature,
 	ownPub Point,
 ) error {
-	challenge, err := HashRound3OwnPubKey(sig.R(), mid, dkgContext, ownPub)
+	challenge, err := HashRound3OwnPubKey(signature.R(), mid, dkgContext, ownPub)
 	if err != nil {
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, ownPub, nil, nil)
+	return Verify(signature.R(), signature.S(), challenge, ownPub, nil, nil)
 }
 
 // SignComplaint generates a signature and related parameters for complaining against a misbehaving member.
@@ -189,12 +189,12 @@ func SignComplaint(
 		}
 	}
 
-	sig, err := Sign(oneTimePrivI, challenge, nonce, nil)
+	signature, err := Sign(oneTimePrivI, challenge, nonce, nil)
 	if err != nil {
 		return nil, nil, NewError(err, "sign")
 	}
 
-	complaintSig, err := NewComplaintSignatureFromComponents(sig.R(), nonceSym, sig.S())
+	complaintSig, err := NewComplaintSignatureFromComponents(signature.R(), nonceSym, signature.S())
 	if err != nil {
 		return nil, nil, NewError(err, "create complaint signature")
 	}

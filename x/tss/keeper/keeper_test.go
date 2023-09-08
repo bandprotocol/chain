@@ -145,7 +145,7 @@ func (s *KeeperTestSuite) setupConfirm() {
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 				GroupID:      tcGroup.ID,
 				MemberID:     m.ID,
-				OwnPubKeySig: m.PubKeySig,
+				OwnPubKeySig: m.PubKeySignature,
 				Member:       sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)

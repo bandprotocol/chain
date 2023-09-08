@@ -77,9 +77,9 @@ func (suite *TSSTestSuite) TestComputeGroupPublicNonce() {
 
 func (suite *TSSTestSuite) TestCombineSignatures() {
 	suite.RunOnSigning(suite.testCases, func(tc testutil.TestCase, signing testutil.Signing) {
-		sig, err := tss.CombineSignatures(signing.GetAllSigs()...)
+		signature, err := tss.CombineSignatures(signing.GetAllSigs()...)
 		suite.Require().NoError(err)
-		suite.Require().Equal(signing.Sig, sig)
+		suite.Require().Equal(signing.Signature, signature)
 	})
 }
 
@@ -87,7 +87,7 @@ func (suite *TSSTestSuite) TestSignSigning() {
 	suite.RunOnAssignedMember(
 		suite.testCases,
 		func(tc testutil.TestCase, signing testutil.Signing, assignedMember testutil.AssignedMember) {
-			sig, err := tss.SignSigning(
+			signature, err := tss.SignSigning(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				signing.Data,
@@ -96,7 +96,7 @@ func (suite *TSSTestSuite) TestSignSigning() {
 				tc.Group.GetMember(assignedMember.ID).PrivKey,
 			)
 			suite.Require().NoError(err)
-			suite.Require().Equal(assignedMember.Sig, sig)
+			suite.Require().Equal(assignedMember.Signature, signature)
 		})
 }
 
@@ -110,7 +110,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				tc.Group.PubKey,
 				signing.Data,
 				assignedMember.Lagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().NoError(err)
@@ -121,7 +121,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				tc.Group.PubKey,
 				signing.Data,
 				assignedMember.Lagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
@@ -132,7 +132,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				testutil.FakePubKey,
 				signing.Data,
 				assignedMember.Lagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
@@ -143,7 +143,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				tc.Group.PubKey,
 				[]byte("fake data"),
 				assignedMember.Lagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
@@ -154,7 +154,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				tc.Group.PubKey,
 				signing.Data,
 				testutil.FakeLagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
@@ -176,7 +176,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 				tc.Group.PubKey,
 				signing.Data,
 				assignedMember.Lagrange,
-				assignedMember.Sig,
+				assignedMember.Signature,
 				testutil.FakePubKey,
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
@@ -186,15 +186,15 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 func (suite *TSSTestSuite) TestVerifyGroupSigningSig() {
 	suite.RunOnSigning(suite.testCases, func(tc testutil.TestCase, signing testutil.Signing) {
 		// Success case
-		err := tss.VerifyGroupSigningSig(tc.Group.PubKey, signing.Data, signing.Sig)
+		err := tss.VerifyGroupSigningSig(tc.Group.PubKey, signing.Data, signing.Signature)
 		suite.Require().NoError(err)
 
 		// Wrong group public key case
-		err = tss.VerifyGroupSigningSig(testutil.FakePubKey, signing.Data, signing.Sig)
+		err = tss.VerifyGroupSigningSig(testutil.FakePubKey, signing.Data, signing.Signature)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong data case
-		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, []byte("fake data"), signing.Sig)
+		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, []byte("fake data"), signing.Signature)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong signature case

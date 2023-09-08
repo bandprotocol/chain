@@ -319,7 +319,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 			types.ErrVerifyOneTimeSignatureFailed,
 		},
 		{
-			"wrong a0 sig",
+			"wrong a0 signature",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
@@ -549,7 +549,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
 				k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
-				sig, keySym, err := tss.SignComplaint(
+				signature, keySym, err := tss.SignComplaint(
 					m.OneTimePubKey(),
 					respondent.OneTimePubKey(),
 					m.OneTimePrivKey,
@@ -564,7 +564,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Complainant: m.ID,
 							Respondent:  respondent.ID,
 							KeySym:      keySym,
-							Signature:   sig,
+							Signature:   signature,
 						},
 					},
 					Member: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
@@ -578,7 +578,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 				GroupID:      tc.Group.ID,
 				MemberID:     respondent.ID,
-				OwnPubKeySig: respondent.PubKeySig,
+				OwnPubKeySig: respondent.PubKeySignature,
 				Member:       sdk.AccAddress(respondent.PubKey()).String(),
 			})
 			s.Require().NoError(err)
@@ -607,7 +607,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 				_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 					GroupID:      tc.Group.ID,
 					MemberID:     m.ID,
-					OwnPubKeySig: m.PubKeySig,
+					OwnPubKeySig: m.PubKeySignature,
 					Member:       sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
@@ -842,7 +842,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 				req = types.MsgSubmitSignature{
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
-					Signature: tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Signature,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
@@ -865,7 +865,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 				req = types.MsgSubmitSignature{
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
-					Signature: tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Signature,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
@@ -940,7 +940,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				s.Require().NoError(err)
 
 				// Sign the message
-				sig, err := tss.SignSigning(
+				signature, err := tss.SignSigning(
 					signing.GroupPubNonce,
 					group.PubKey,
 					signing.Message,
@@ -954,7 +954,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				_, err = msgSrvr.SubmitSignature(ctx, &types.MsgSubmitSignature{
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
-					Signature: sig,
+					Signature: signature,
 					Member:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
