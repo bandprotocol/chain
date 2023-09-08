@@ -4,7 +4,7 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// request signature types
+// requesting signature types
 const (
 	RequestSignatureTypeOracleResult string = "OracleResult"
 )

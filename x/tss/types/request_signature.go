@@ -8,9 +8,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// request signature types
+// Requesting signature types
 const (
-	RequestSignatureTypeText string = "text"
+	RequestingSignatureTypeText string = "text"
 )
 
 // Implements Content Interface
@@ -23,21 +23,23 @@ func NewTextRequestingSignature(msg []byte) *TextRequestingSignature {
 // RequestingSignatureRoute returns the request router key
 func (rs *TextRequestingSignature) RequestingSignatureRoute() string { return RouterKey }
 
-// RequestSignatureType is "default"
-func (rs *TextRequestingSignature) RequestingSignatureType() string { return RequestSignatureTypeText }
+// RequestingSignatureType is "text"
+func (rs *TextRequestingSignature) RequestingSignatureType() string {
+	return RequestingSignatureTypeText
+}
 
 // ValidateBasic validates the content's title and description of the request signature
 func (rs *TextRequestingSignature) ValidateBasic() error { return nil }
 
 var validRequestingSignatureTypes = map[string]struct{}{
-	RequestSignatureTypeText: {},
+	RequestingSignatureTypeText: {},
 }
 
 // RegisterRequestingSignatureType registers a request signature type. It will panic if the type is
 // already registered.
 func RegisterRequestingSignatureType(ty string) {
 	if _, ok := validRequestingSignatureTypes[ty]; ok {
-		panic(fmt.Sprintf("already registered proposal type: %s", ty))
+		panic(fmt.Sprintf("already registered requesting signature type: %s", ty))
 	}
 
 	validRequestingSignatureTypes[ty] = struct{}{}
