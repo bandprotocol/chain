@@ -9,31 +9,19 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// NewRequestSignatureHandler creates a new TSS Handler for requesting the signature
-func NewRequestSignatureHandler(k keeper.Keeper) tsstypes.Handler {
+// NewRequestingSignatureHandler creates a new TSS Handler for requesting the signature
+func NewRequestingSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
-		case *types.OracleResultRequestSignature:
-			return handleRequestSignatureByRequestID(ctx, k, c)
+		case *types.OracleResultRequestingSignature:
+			return k.GetByteResult(ctx, c.RequestID)
 
 		default:
 			return nil, sdkerrors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature type: %s",
-				c.RequestSignatureType(),
+				c.RequestingSignatureType(),
 			)
 		}
 	}
-}
-
-func handleRequestSignatureByRequestID(
-	ctx sdk.Context,
-	k keeper.Keeper,
-	rs *types.OracleResultRequestSignature,
-) ([]byte, error) {
-	r, err := k.GetResult(ctx, rs.RequestID)
-	if err != nil {
-		return nil, err
-	}
-	return r.Result, nil
 }

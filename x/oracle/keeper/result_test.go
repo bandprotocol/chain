@@ -51,7 +51,7 @@ func TestResolveSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
-	k.ResolveSuccess(ctx, 42, &BasicSigningResult, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 42, 0, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234)
 	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(
@@ -60,9 +60,6 @@ func TestResolveSuccess(t *testing.T) {
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 		sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
-		sdk.NewAttribute(types.AttributeKeySigningID, "1"),
-		sdk.NewAttribute(types.AttributeKeySigningErrCodespace, ""),
-		sdk.NewAttribute(types.AttributeKeySigningErrCode, "0"),
 	)}, ctx.EventManager().Events())
 }
 

@@ -36,7 +36,7 @@ func (k Keeper) GetDEQueuesGenesis(ctx sdk.Context) []types.DEQueueGenesis {
 		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
 		deQueues = append(deQueues, types.DEQueueGenesis{
 			Address: types.AddressFromDEQueueStoreKey(iterator.Key()).String(),
-			DEQueue: &deQueue,
+			DEQueue: deQueue,
 		})
 	}
 	return deQueues
@@ -96,7 +96,7 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 		des = append(des, types.DEGenesis{
 			Address: address.String(),
 			Index:   index,
-			DE:      &de,
+			DE:      de,
 		})
 	}
 	return des

@@ -5,5 +5,5 @@ import (
 	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 )
 
-// RequestSignatureHandler is the request signature handler.
-var RequestSignatureHandler = tssclient.NewRequestSignatureHandler(cli.GetCmdRequestSignature)
+// RequestingSignatureHandler is the request signature handler.
+var RequestingSignatureHandler = tssclient.NewRequestingSignatureHandler(cli.GetCmdRequestSignature)

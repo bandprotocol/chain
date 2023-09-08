@@ -483,7 +483,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 				return err
 			}
 
-			content := types.NewTextRequestSignature(data)
+			content := types.NewTextRequestingSignature(data)
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {

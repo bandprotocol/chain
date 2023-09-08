@@ -321,8 +321,8 @@ message PartialSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
 }
 
-// TextRequestSignature defines a standard request signature.
-message TextRequestSignature {
+// TextRequestingSignature defines a standard request signature.
+message TextRequestingSignature {
   option (cosmos_proto.implements_interface) = "Content";
 
   // message is the data that needs to be signed.
@@ -335,4 +335,18 @@ message EVMSignature {
   bytes r_address = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
   // signature is the signature part for using in the contract.
   bytes signature = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+}
+
+// PrefixMsgType is an enumeration of the possible prefixes of a singing msg.
+enum PrefixMsgType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // PREFIX_UNSPECIFIED_MSG is the type of prefix that has not been specified.
+  PREFIX_UNSPECIFIED_MSG = 0;
+  // PREFIX_TEXT_MSG is the type of prefix that signs a text msg in the protocol.
+  PREFIX_TEXT_MSG = 1;
+  // PREFIX_REPLACE_GROUP_MSG is the type of prefix that signs a replace group msg in the protocol.
+  PREFIX_REPLACE_GROUP_MSG = 2;
+  // PREFIX_ORACLE_MSG is the type of prefix that signs an oracle result msg in the protocol.
+  PREFIX_ORACLE_MSG = 3;
 }

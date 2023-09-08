@@ -20,7 +20,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateOracleScript{}, "oracle/CreateOracleScript", nil)
 	cdc.RegisterConcrete(&MsgEditOracleScript{}, "oracle/EditOracleScript", nil)
 	cdc.RegisterConcrete(&MsgActivate{}, "oracle/Activate", nil)
-	cdc.RegisterConcrete(&OracleResultRequestSignature{}, "oracle/OracleResultRequestSignature", nil)
+	cdc.RegisterConcrete(&OracleResultRequestingSignature{}, "oracle/OracleResultRequestingSignature", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/UpdateParams", nil)
 }
 
@@ -39,7 +39,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 
 	registry.RegisterImplementations(
 		(*tsstypes.Content)(nil),
-		&OracleResultRequestSignature{},
+		&OracleResultRequestingSignature{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

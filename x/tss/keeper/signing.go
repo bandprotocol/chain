@@ -12,6 +12,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -59,6 +60,17 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, signingID tss.SigningID) types.S
 		panic(err)
 	}
 	return signing
+}
+
+// GetAllReplacementSigning retrieves all signing that was signed for replacing group of the store.
+func (k Keeper) GetAllReplacementSigning(ctx sdk.Context) []types.Signing {
+	var allReplacementSigning []types.Signing
+	replacements := k.GetReplacements(ctx)
+	for _, r := range replacements {
+		signing := k.MustGetSigning(ctx, r.SigningID)
+		allReplacementSigning = append(allReplacementSigning, signing)
+	}
+	return allReplacementSigning
 }
 
 // AddSigning adds the signing data to the store and returns the new signing ID.
@@ -361,8 +373,8 @@ func (k Keeper) HandleRequestSign(
 	feePayer sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (tss.SigningID, error) {
-	if !k.router.HasRoute(content.RequestSignatureRoute()) {
-		return 0, errors.Wrap(types.ErrNoRequestSignatureHandlerExists, content.RequestSignatureRoute())
+	if !k.router.HasRoute(content.RequestingSignatureRoute()) {
+		return 0, errors.Wrap(types.ErrNoRequestingSignatureHandlerExists, content.RequestingSignatureRoute())
 	}
 
 	// Get group
@@ -377,7 +389,7 @@ func (k Keeper) HandleRequestSign(
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
-	handler := k.router.GetRoute(content.RequestSignatureRoute())
+	handler := k.router.GetRoute(content.RequestingSignatureRoute())
 
 	// Execute the handler to process the content.
 	msg, err := handler(ctx, content)
@@ -385,8 +397,12 @@ func (k Keeper) HandleRequestSign(
 		return 0, errors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
 	}
 
-	// Wrap the message data as normal msg.
-	msg = types.WrapMsgDataNormal(msg)
+	// Wrap the message data.
+	if content.RequestingSignatureRoute() == oracletypes.RouterKey {
+		msg = types.WrapMsg(types.PREFIX_ORACLE_MSG, msg)
+	} else {
+		msg = types.WrapMsg(types.PREFIX_TEXT_MSG, msg)
+	}
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
@@ -480,7 +496,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	}
 
 	// Wrap the message data as replace group msg.
-	msg := types.WrapMsgDataReplaceGroup(pubKey)
+	msg := types.WrapMsg(types.PREFIX_REPLACE_GROUP_MSG, pubKey)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)

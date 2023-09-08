@@ -520,6 +520,24 @@ func (k Keeper) MustGetReplacement(ctx sdk.Context, replacementID uint64) types.
 	return replacement
 }
 
+// GetReplacementIterator gets an iterator all replacements.
+func (k Keeper) GetReplacementIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ReplacementKeyPrefix)
+}
+
+// GetReplacements retrieves all replacements of the store.
+func (k Keeper) GetReplacements(ctx sdk.Context) []types.Replacement {
+	var reps []types.Replacement
+	iterator := k.GetReplacementIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var rep types.Replacement
+		k.cdc.MustUnmarshal(iterator.Value(), &rep)
+		reps = append(reps, rep)
+	}
+	return reps
+}
+
 // SetReplacement sets a replacement to store.
 func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
 	ctx.KVStore(k.storeKey).Set(types.ReplacementKey(replacement.ID), k.cdc.MustMarshal(&replacement))

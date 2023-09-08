@@ -399,7 +399,7 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	feeLimit := sdk.NewCoins()
 
 	// Create a new content for the request signature
-	content := types.NewTextRequestSignature([]byte("example"))
+	content := types.NewTextRequestingSignature([]byte("example"))
 
 	// execute HandleRequestSign
 	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)

@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&TextRequestSignature{}, "tss/TextRequestSignature", nil)
+	cdc.RegisterConcrete(&TextRequestingSignature{}, "tss/TextRequestingSignature", nil)
 
 	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tss/CreateGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tss/ReplaceGroup")
@@ -44,7 +44,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"tss.v1beta1.Content",
 		(*Content)(nil),
-		&TextRequestSignature{},
+		&TextRequestingSignature{},
 	)
 }
 

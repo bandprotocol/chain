@@ -10,24 +10,24 @@ const (
 )
 
 func init() {
-	tsstypes.RegisterRequestSignatureType(RequestSignatureTypeOracleResult)
-	tsstypes.RegisterRequestSignatureTypeCodec(&OracleResultRequestSignature{}, "tss/OracleResultRequestSignature")
+	tsstypes.RegisterRequestingSignatureType(RequestSignatureTypeOracleResult)
+	tsstypes.RegisterRequestSignatureTypeCodec(&OracleResultRequestingSignature{}, "tss/OracleResultRequestingSignature")
 }
 
 // Implements Content Interface
-var _ tsstypes.Content = &OracleResultRequestSignature{}
+var _ tsstypes.Content = &OracleResultRequestingSignature{}
 
-func NewRequestSignature(rid RequestID) *OracleResultRequestSignature {
-	return &OracleResultRequestSignature{RequestID: rid}
+func NewRequestingSignature(rid RequestID) *OracleResultRequestingSignature {
+	return &OracleResultRequestingSignature{RequestID: rid}
 }
 
-// RequestRoute returns the request router key
-func (ors *OracleResultRequestSignature) RequestSignatureRoute() string { return RouterKey }
+// RequestingSignatureRoute returns the request router key
+func (ors *OracleResultRequestingSignature) RequestingSignatureRoute() string { return RouterKey }
 
-// RequestType is "OracleResult"
-func (ors *OracleResultRequestSignature) RequestSignatureType() string {
+// RequestingSignatureType is "OracleResult"
+func (ors *OracleResultRequestingSignature) RequestingSignatureType() string {
 	return RequestSignatureTypeOracleResult
 }
 
 // ValidateBasic validates the content's title and description of the request signature
-func (ors *OracleResultRequestSignature) ValidateBasic() error { return nil }
+func (ors *OracleResultRequestingSignature) ValidateBasic() error { return nil }
