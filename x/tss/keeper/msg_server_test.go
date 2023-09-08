@@ -244,8 +244,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -262,8 +262,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           99,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -279,8 +279,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 					MemberID:           tc1Group.Members[0].ID,
 					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-					A0Sig:              tc1Group.Members[0].A0Sig,
-					OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+					A0Signature:        tc1Group.Members[0].A0Signature,
+					OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 				})
 
 				req = types.MsgSubmitDKGRound1{
@@ -289,8 +289,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -309,14 +309,14 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         []byte("wrong one_time_sig"),
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   []byte("wrong one_time_sig"),
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
-			types.ErrVerifyOneTimeSigFailed,
+			types.ErrVerifyOneTimeSignatureFailed,
 		},
 		{
 			"wrong a0 sig",
@@ -327,14 +327,14 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              []byte("wrong a0_sig"),
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        []byte("wrong a0_sig"),
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
-			types.ErrVerifyA0SigFailed,
+			types.ErrVerifyA0SignatureFailed,
 		},
 	}
 
@@ -367,8 +367,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 						MemberID:           m.ID,
 						CoefficientCommits: m.CoefficientCommits,
 						OneTimePubKey:      m.OneTimePubKey(),
-						A0Sig:              m.A0Sig,
-						OneTimeSig:         m.OneTimeSig,
+						A0Signature:        m.A0Signature,
+						OneTimeSignature:   m.OneTimeSignature,
 					},
 					Member: sdk.AccAddress(m.PubKey()).String(),
 				})

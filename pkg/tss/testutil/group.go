@@ -6,9 +6,9 @@ type Member struct {
 	ID tss.MemberID
 
 	OneTimePrivKey     tss.Scalar
-	OneTimeSig         tss.Signature
+	OneTimeSignature   tss.Signature
 	A0PrivKey          tss.Scalar
-	A0Sig              tss.Signature
+	A0Signature        tss.Signature
 	Coefficients       tss.Scalars
 	CoefficientCommits tss.Points
 
@@ -37,9 +37,9 @@ func CopyMember(src Member) Member {
 	return Member{
 		ID:                 src.ID,
 		OneTimePrivKey:     Copy(src.OneTimePrivKey),
-		OneTimeSig:         Copy(src.OneTimeSig),
+		OneTimeSignature:   Copy(src.OneTimeSignature),
 		A0PrivKey:          Copy(src.A0PrivKey),
-		A0Sig:              Copy(src.A0Sig),
+		A0Signature:        Copy(src.A0Signature),
 		Coefficients:       CopySlice(src.Coefficients),
 		CoefficientCommits: CopySlice(src.CoefficientCommits),
 		KeySyms:            CopySlice(src.KeySyms),

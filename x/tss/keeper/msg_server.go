@@ -276,20 +276,20 @@ func (k msgServer) SubmitDKGRound1(
 	}
 
 	// Verify one time signature
-	err = tss.VerifyOneTimeSig(memberID, dkgContext, req.Round1Info.OneTimeSig, req.Round1Info.OneTimePubKey)
+	err = tss.VerifyOneTimeSignature(memberID, dkgContext, req.Round1Info.OneTimeSignature, req.Round1Info.OneTimePubKey)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrVerifyOneTimeSigFailed, err.Error())
+		return nil, errors.Wrap(types.ErrVerifyOneTimeSignatureFailed, err.Error())
 	}
 
 	// Verify A0 signature
-	err = tss.VerifyA0Sig(
+	err = tss.VerifyA0Signature(
 		memberID,
 		dkgContext,
-		req.Round1Info.A0Sig,
+		req.Round1Info.A0Signature,
 		req.Round1Info.CoefficientCommits[0],
 	)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrVerifyA0SigFailed, err.Error())
+		return nil, errors.Wrap(types.ErrVerifyA0SignatureFailed, err.Error())
 	}
 
 	// Add commits to calculate accumulated commits for each index
@@ -703,7 +703,7 @@ func (k msgServer) SubmitSignature(
 	}
 
 	// Check member is already signed
-	_, err = k.GetPartialSig(ctx, req.SigningID, req.MemberID)
+	_, err = k.GetPartialSignature(ctx, req.SigningID, req.MemberID)
 	if err == nil {
 		return nil, errors.Wrapf(
 			types.ErrAlreadySigned,
@@ -730,9 +730,9 @@ func (k msgServer) SubmitSignature(
 	}
 
 	// Add partial signature
-	k.AddPartialSig(ctx, req.SigningID, req.MemberID, req.Signature)
+	k.AddPartialSignature(ctx, req.SigningID, req.MemberID, req.Signature)
 
-	sigCount := k.GetSigCount(ctx, req.SigningID)
+	sigCount := k.GetSignatureCount(ctx, req.SigningID)
 	if sigCount == uint64(len(signing.AssignedMembers)) {
 		k.AddPendingProcessSigning(ctx, req.SigningID)
 	}

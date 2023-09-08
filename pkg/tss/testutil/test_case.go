@@ -43,11 +43,11 @@ var (
 					{
 						ID:             1,
 						OneTimePrivKey: HexDecode("0acd7f54b5d7f11148441830ecb968bb53d2485259a6b030970064724c21bb93"),
-						OneTimeSig: HexDecode(
+						OneTimeSignature: HexDecode(
 							"0263595fa982b85c54cfe7a090684b98ad1104e8547f4427df8f2cb4520aa8f7aae598dea6ea0ea26dcc76c6df602b689cf9e94268e433fe857861dffe4b7234df",
 						),
 						A0PrivKey: HexDecode("3149ffc8d1fb31890c493fdb9b85fb7fb83090527fe80df27a4f8c09c2c3de11"),
-						A0Sig: HexDecode(
+						A0Signature: HexDecode(
 							"02d679023006d616140c78cca2ddfdd79c168a56e5837abde46a60b98da3594db262174e676905efcfe4891efdcd23387c22a69e7e360a34e413335be391beacdc",
 						),
 						Coefficients: tss.Scalars{
@@ -80,11 +80,11 @@ var (
 					{
 						ID:             2,
 						OneTimePrivKey: HexDecode("5903c6a0c4063b70a4bbc2864b2f4a26ed51d75c8550c5754dda2fe0d1f0c04b"),
-						OneTimeSig: HexDecode(
+						OneTimeSignature: HexDecode(
 							"037cccd123c9eaf857e619fe0f6e5c55d213a827301f324c6496510f0ad639c7f57c328093f056f9d5b12277b53375cbe7c4ae3541d3d4f28ca9fc2ac2ddad1a6c",
 						),
 						A0PrivKey: HexDecode("c90e95106aba6b0d5808f77b5bc5ff9678a59bb2e42ebaca793f2b4ae0e635e0"),
-						A0Sig: HexDecode(
+						A0Signature: HexDecode(
 							"036a2d7e3e6c6c70502b8d187776f5e1b69b98e3a0e7ec92894f078ddf118a376920d51617c8a41587c798a5d21c9a1ede169d54eab05f489ddd334c93a87b290a",
 						),
 						Coefficients: tss.Scalars{
@@ -240,11 +240,11 @@ var (
 					{
 						ID:             1,
 						OneTimePrivKey: HexDecode("b688151a692b3742303d15a820f48df74f169e1f335c0eec32a9062485fcec11"),
-						OneTimeSig: HexDecode(
+						OneTimeSignature: HexDecode(
 							"026905d1d2af2fa42f7118b1c5d3ddf65e562485aa4bced9ef16ddb41dab4962520b1a37f255e033ecf2b499b80fe603da131f225e2c514c1facfcd60151f6ab62",
 						),
 						A0PrivKey: HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
-						A0Sig: HexDecode(
+						A0Signature: HexDecode(
 							"02cc374c42e50675c8942de9dd6644a0920f78c9bde40f9020337f42d8db918eacc5e5ab6fc039404098c2e12998ecfedb3d7fa8c5949f1409114a096ec347f957",
 						),
 						Coefficients: tss.Scalars{
@@ -275,11 +275,11 @@ var (
 					{
 						ID:             2,
 						OneTimePrivKey: HexDecode("f11005581a9438273cddb8c00cab5e137b530d30ec874593050d194a328c3152"),
-						OneTimeSig: HexDecode(
+						OneTimeSignature: HexDecode(
 							"025a6024eb03400c5bb2758170194b561ec888dc90b0f343cfb193088877d4a6e8f7b1927258296bf023b2cda5b1443fc6b902cd371f3d0484b01211eb09b5968b",
 						),
 						A0PrivKey: HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
-						A0Sig: HexDecode(
+						A0Signature: HexDecode(
 							"039a483f79423309cae3c4b05b03327c6921411579647cdc2a80a6079ec375dc0b41142f756b007b087faf736609ac670e710003264fbce2b8b2cccc0ba35609f0",
 						),
 						Coefficients: tss.Scalars{

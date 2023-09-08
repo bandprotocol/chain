@@ -97,8 +97,8 @@ func (s *KeeperTestSuite) setupRound1() {
 					MemberID:           m.ID,
 					CoefficientCommits: m.CoefficientCommits,
 					OneTimePubKey:      m.OneTimePubKey(),
-					A0Sig:              m.A0Sig,
-					OneTimeSig:         m.OneTimeSig,
+					A0Signature:        m.A0Signature,
+					OneTimeSignature:   m.OneTimeSignature,
 				},
 				Member: sdk.AccAddress(m.PubKey()).String(),
 			})

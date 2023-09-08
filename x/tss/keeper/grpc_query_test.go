@@ -44,9 +44,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			[]byte("point2"),
 			[]byte("point3"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySample"),
-		A0Sig:         []byte("A0SigSample"),
-		OneTimeSig:    []byte("OneTimeSigSample"),
+		OneTimePubKey:    []byte("OneTimePubKeySample"),
+		A0Signature:      []byte("A0SignatureSample"),
+		OneTimeSignature: []byte("OneTimeSignatureSample"),
 	}
 	round1Info2 := types.Round1Info{
 		MemberID: memberID2,
@@ -55,9 +55,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			[]byte("point2"),
 			[]byte("point3"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySample"),
-		A0Sig:         []byte("A0SigSample"),
-		OneTimeSig:    []byte("OneTimeSigSample"),
+		OneTimePubKey:    []byte("OneTimePubKeySample"),
+		A0Signature:      []byte("A0SignatureSample"),
+		OneTimeSignature: []byte("OneTimeSignatureSample"),
 	}
 	round2Info1 := types.Round2Info{
 		MemberID: memberID1,
@@ -681,7 +681,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	sig := []byte("signatures")
 
 	// Add partial signature
-	k.AddPartialSig(ctx, signingID, memberID, []byte("signatures"))
+	k.AddPartialSignature(ctx, signingID, memberID, []byte("signatures"))
 
 	// Add signing
 	k.AddSigning(ctx, signing)

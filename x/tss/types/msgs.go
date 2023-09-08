@@ -137,12 +137,12 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate a0 signature
-	if err := m.Round1Info.A0Sig.Validate(); err != nil {
+	if err := m.Round1Info.A0Signature.Validate(); err != nil {
 		return errors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	if err := m.Round1Info.OneTimeSig.Validate(); err != nil {
+	if err := m.Round1Info.OneTimeSignature.Validate(); err != nil {
 		return errors.Wrap(err, "one time sig")
 	}
 

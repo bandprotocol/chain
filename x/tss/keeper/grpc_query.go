@@ -249,7 +249,7 @@ func (q queryServer) Signing(
 		return nil, err
 	}
 
-	pzs := q.k.GetPartialSigsWithKey(ctx, signingID)
+	pzs := q.k.GetPartialSignaturesWithKey(ctx, signingID)
 
 	var evmSignature *types.EVMSignature
 	if signing.Signature != nil {

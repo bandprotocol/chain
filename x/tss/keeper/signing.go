@@ -117,7 +117,7 @@ func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []ui
 		for _, am := range signing.AssignedMembers {
 			if am.Member == address.String() {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
-				if _, err := k.GetPartialSig(ctx, sid, am.MemberID); err != nil {
+				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.SigningID))
 				}
 			}
@@ -151,7 +151,7 @@ func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []
 
 			if bytes.Equal(m.PubKey, pubKey) {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
-				if _, err := k.GetPartialSig(ctx, sid, am.MemberID); err != nil {
+				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.SigningID))
 				}
 			}
@@ -161,41 +161,41 @@ func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []
 	return pendingSignings
 }
 
-// SetSigCount sets the count of signature data for a sign in the store.
-func (k Keeper) SetSigCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
+// SetSignatureCount sets the count of signature data for a sign in the store.
+func (k Keeper) SetSignatureCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.SigCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetSigCount retrieves the count of signature data for a sign from the store.
-func (k Keeper) GetSigCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
+// GetSignatureCount retrieves the count of signature data for a sign from the store.
+func (k Keeper) GetSignatureCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigCountStoreKey(signingID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddSigCount increments the count of signature data for a sign in the store.
-func (k Keeper) AddSigCount(ctx sdk.Context, signingID tss.SigningID) {
-	count := k.GetSigCount(ctx, signingID)
-	k.SetSigCount(ctx, signingID, count+1)
+// AddSignatureCount increments the count of signature data for a sign in the store.
+func (k Keeper) AddSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
+	count := k.GetSignatureCount(ctx, signingID)
+	k.SetSignatureCount(ctx, signingID, count+1)
 }
 
-// DeleteSigCount delete the signature count data of a sign from the store.
-func (k Keeper) DeleteSigCount(ctx sdk.Context, signingID tss.SigningID) {
+// DeleteSignatureCount delete the signature count data of a sign from the store.
+func (k Keeper) DeleteSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigCountStoreKey(signingID))
 }
 
-// AddPartialSig adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
-func (k Keeper) AddPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
-	k.AddSigCount(ctx, signingID)
-	k.SetPartialSig(ctx, signingID, memberID, sig)
+// AddPartialSignature adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
+func (k Keeper) AddPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+	k.AddSignatureCount(ctx, signingID)
+	k.SetPartialSignature(ctx, signingID, memberID, sig)
 }
 
-// SetPartialSig sets the partial signature for a specific signing ID and member ID.
-func (k Keeper) SetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+// SetPartialSignature sets the partial signature for a specific signing ID and member ID.
+func (k Keeper) SetPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
 	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
 }
 
-// GetPartialSig retrieves the partial signature for a specific signing ID and member ID from the store.
-func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
+// GetPartialSignature retrieves the partial signature for a specific signing ID and member ID from the store.
+func (k Keeper) GetPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, errors.Wrapf(
@@ -208,9 +208,9 @@ func (k Keeper) GetPartialSig(ctx sdk.Context, signingID tss.SigningID, memberID
 	return bz, nil
 }
 
-// DeletePartialSigs delete all partial signatures data of a signing from the store.
-func (k Keeper) DeletePartialSigs(ctx sdk.Context, signingID tss.SigningID) {
-	iterator := k.GetPartialSigIterator(ctx, signingID)
+// DeletePartialSignaturenatures delete all partial signatures data of a signing from the store.
+func (k Keeper) DeletePartialSignaturenatures(ctx sdk.Context, signingID tss.SigningID) {
+	iterator := k.GetPartialSignatureIterator(ctx, signingID)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -219,20 +219,20 @@ func (k Keeper) DeletePartialSigs(ctx sdk.Context, signingID tss.SigningID) {
 	}
 }
 
-// DeletePartialSig delete a partial signature of a signing from the store.
-func (k Keeper) DeletePartialSig(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
+// DeletePartialSignature delete a partial signature of a signing from the store.
+func (k Keeper) DeletePartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.PartialSigMemberStoreKey(signingID, memberID))
 }
 
-// GetPartialSigIterator gets an iterator over all partial signature of the signing.
-func (k Keeper) GetPartialSigIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
+// GetPartialSignatureIterator gets an iterator over all partial signature of the signing.
+func (k Keeper) GetPartialSignatureIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialSigStoreKey(signingID))
 }
 
-// GetPartialSigs retrieves all partial signatures for a specific signing ID from the store.
-func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Signatures {
+// GetPartialSignatures retrieves all partial signatures for a specific signing ID from the store.
+func (k Keeper) GetPartialSignatures(ctx sdk.Context, signingID tss.SigningID) tss.Signatures {
 	var pzs tss.Signatures
-	iterator := k.GetPartialSigIterator(ctx, signingID)
+	iterator := k.GetPartialSignatureIterator(ctx, signingID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, iterator.Value())
@@ -240,10 +240,10 @@ func (k Keeper) GetPartialSigs(ctx sdk.Context, signingID tss.SigningID) tss.Sig
 	return pzs
 }
 
-// GetPartialSigsWithKey retrieves all partial signatures for a specific signing ID from the store along with their corresponding member IDs.
-func (k Keeper) GetPartialSigsWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSignature {
+// GetPartialSignaturesWithKey retrieves all partial signatures for a specific signing ID from the store along with their corresponding member IDs.
+func (k Keeper) GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSignature {
 	var pzs []types.PartialSignature
-	iterator := k.GetPartialSigIterator(ctx, signingID)
+	iterator := k.GetPartialSignatureIterator(ctx, signingID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, types.PartialSignature{
@@ -609,7 +609,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 			k.RefundFee(ctx, signing)
 
 			mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
-			pzs := k.GetPartialSigsWithKey(ctx, signing.SigningID)
+			pzs := k.GetPartialSignaturesWithKey(ctx, signing.SigningID)
 			// Iterate through each member ID in the assigned members list.
 			for _, mid := range mids {
 				// Check if the member's partial signature is found in the list of partial signatures.
@@ -631,7 +631,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		k.DeleteAssignedMembers(ctx, signing.SigningID)
 
 		// Remove all partial signatures from the store
-		k.DeletePartialSigs(ctx, signing.SigningID)
+		k.DeletePartialSignaturenatures(ctx, signing.SigningID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)
@@ -640,7 +640,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing := k.MustGetSigning(ctx, signingID)
-	pzs := k.GetPartialSigs(ctx, signingID)
+	pzs := k.GetPartialSignatures(ctx, signingID)
 
 	sig, err := tss.CombineSignatures(pzs...)
 	if err != nil {

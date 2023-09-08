@@ -17,12 +17,12 @@ var (
 		10,
 		"member is not authorized for this group",
 	)
-	ErrInvalidStatus           = errors.Register(ModuleName, 11, "invalid status")
-	ErrGroupExpired            = errors.Register(ModuleName, 12, "group expired")
-	ErrVerifyOneTimeSigFailed  = errors.Register(ModuleName, 13, "failed to verify one time sign")
-	ErrVerifyA0SigFailed       = errors.Register(ModuleName, 14, "failed to verify a0 sign")
-	ErrAddCommit               = errors.Register(ModuleName, 15, "failed to add coefficient commit")
-	ErrCommitsNotCorrectLength = errors.Register(
+	ErrInvalidStatus                = errors.Register(ModuleName, 11, "invalid status")
+	ErrGroupExpired                 = errors.Register(ModuleName, 12, "group expired")
+	ErrVerifyOneTimeSignatureFailed = errors.Register(ModuleName, 13, "failed to verify one time sign")
+	ErrVerifyA0SignatureFailed      = errors.Register(ModuleName, 14, "failed to verify a0 sign")
+	ErrAddCommit                    = errors.Register(ModuleName, 15, "failed to add coefficient commit")
+	ErrCommitsNotCorrectLength      = errors.Register(
 		ModuleName,
 		16,
 		"coefficients commit not correct length",

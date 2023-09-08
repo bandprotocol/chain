@@ -82,10 +82,10 @@ message Round1Info {
   repeated bytes coefficient_commits = 2 [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Points"];
   // one_time_pub_key is the one-time public key used by the member to encrypt secret shares.
   bytes one_time_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // a0_sig is the member's signature on the first coefficient of its secret polynomial.
-  bytes a0_sig = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
-  // one_time_sig is the member's signature on its one-time public key.
-  bytes one_time_sig = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+  // a0_signature is the member's signature on the first coefficient of its secret polynomial.
+  bytes a0_signature = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+  // one_time_signature is the member's signature on its one-time public key.
+  bytes one_time_signature = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
 }
 
 // Round2Info contains all necessary information for handling round 2 of the DKG process.
@@ -203,7 +203,7 @@ message Member {
 enum MemberStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // MEMBER_STATUS_UNSPECIFIED is unknon status.
+  // MEMBER_STATUS_UNSPECIFIED is unknown status.
   MEMBER_STATUS_UNSPECIFIED = 0;
   // MEMBER_STATUS_ACTIVE is the active status.
   MEMBER_STATUS_ACTIVE = 1;
