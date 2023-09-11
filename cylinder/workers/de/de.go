@@ -73,13 +73,15 @@ func (de *DE) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseSubmitSignEvent(log.Events)
+		events, err := ParseSubmitSignEvents(log.Events)
 		if err != nil {
 			de.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
-		go de.deleteDE(event.PubDE)
+		for _, event := range events {
+			go de.deleteDE(event.PubDE)
+		}
 	}
 }
 

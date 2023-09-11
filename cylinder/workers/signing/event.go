@@ -13,15 +13,20 @@ type Event struct {
 	SigningID tss.SigningID
 }
 
-// ParseEvent parses the request-sign event from the given events.
-// It extracts the signing information from the events and returns the parsed Event or an error if parsing fails.
-func ParseEvent(events sdk.StringEvents) (*Event, error) {
-	sid, err := event.GetEventValueUint64(events, types.EventTypeRequestSignature, types.AttributeKeySigningID)
+// ParseEvents parses the request-sign events from the given events.
+// It extracts the signing information from the events and returns the parsed Events or an error if parsing fails.
+func ParseEvents(events sdk.StringEvents) ([]Event, error) {
+	sids, err := event.GetEventValuesUint64(events, types.EventTypeRequestSignature, types.AttributeKeySigningID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Event{
-		SigningID: tss.SigningID(sid),
-	}, nil
+	var eves []Event
+	for _, sid := range sids {
+		eves = append(eves, Event{
+			SigningID: tss.SigningID(sid),
+		})
+	}
+
+	return eves, nil
 }

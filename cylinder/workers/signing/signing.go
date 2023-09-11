@@ -64,13 +64,15 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 	}
 
 	for _, log := range msgLogs {
-		event, err := ParseEvent(log.Events)
+		events, err := ParseEvents(log.Events)
 		if err != nil {
 			s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 			return
 		}
 
-		go s.handleSigning(event.SigningID)
+		for _, event := range events {
+			go s.handleSigning(event.SigningID)
+		}
 	}
 }
 
@@ -79,13 +81,15 @@ func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
 		if ev.Type == types.EventTypeRequestSignature {
-			event, err := ParseEvent(sdk.StringEvents{ev})
+			events, err := ParseEvents(sdk.StringEvents{ev})
 			if err != nil {
 				s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 				return
 			}
 
-			go s.handleSigning(event.SigningID)
+			for _, event := range events {
+				go s.handleSigning(event.SigningID)
+			}
 		}
 	}
 }
@@ -93,9 +97,6 @@ func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 // handleSigning processes an incoming signing request.
 func (s *Signing) handleSigning(sid tss.SigningID) {
 	logger := s.logger.With("sid", sid)
-
-	// Log
-	logger.Info(":delivery_truck: Processing incoming signing request")
 
 	// Query signing detail
 	signingRes, err := s.client.QuerySigning(sid)
@@ -107,9 +108,11 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	signing := signingRes.Signing
 	assignedMember, err := signingRes.GetAssignedMember(s.context.Config.Granter)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to get assigned member: %s", err)
 		return
 	}
+
+	// Log
+	logger.Info(":delivery_truck: Processing incoming signing request")
 
 	// Set group data
 	group, err := s.context.Store.GetGroup(signing.GroupPubKey)
