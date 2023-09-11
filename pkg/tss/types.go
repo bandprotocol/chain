@@ -344,12 +344,12 @@ type Signatures []Signature
 
 // NewSignature constructs a Signature from bytes.
 func NewSignature(bytes []byte) (Signature, error) {
-	sig := Signature(bytes)
-	if err := sig.Validate(); err != nil {
+	signature := Signature(bytes)
+	if err := signature.Validate(); err != nil {
 		return nil, NewError(err, "check valid")
 	}
 
-	return sig, nil
+	return signature, nil
 }
 
 // NewSignatureFromComponents generates a signature from Point (R) and Scalar (S).
@@ -366,8 +366,8 @@ func NewSignatureFromComponents(rawR Point, rawS Scalar) (Signature, error) {
 }
 
 // NewSignatureFromType parses a schnorr.Signature into a Signature.
-func NewSignatureFromType(sig *schnorr.Signature) Signature {
-	return sig.Serialize()
+func NewSignatureFromType(signature *schnorr.Signature) Signature {
+	return signature.Serialize()
 }
 
 // Marshal needed for protobuf compatibility
@@ -425,12 +425,12 @@ func (s Signature) Validate() error {
 
 // signature converts a Signature to a schnorr.Signature.
 func (s Signature) signature() (*schnorr.Signature, error) {
-	sig, err := schnorr.ParseSignature(s)
+	signature, err := schnorr.ParseSignature(s)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
 	}
 
-	return sig, nil
+	return signature, nil
 }
 
 // R returns the R part of the signature.
@@ -458,12 +458,12 @@ type ComplaintSignatures []ComplaintSignature
 
 // NewComplaintSignature constructs a ComplaintSignature from bytes.
 func NewComplaintSignature(bytes []byte) (ComplaintSignature, error) {
-	comSig := ComplaintSignature(bytes)
-	if err := comSig.Validate(); err != nil {
+	comSignature := ComplaintSignature(bytes)
+	if err := comSignature.Validate(); err != nil {
 		return nil, NewError(err, "invalid")
 	}
 
-	return comSig, nil
+	return comSignature, nil
 }
 
 // NewComplaintSignatureFromComponents generates a complaint signature from 2 Points (A1, A2) and Scalar (Z).
@@ -485,8 +485,8 @@ func NewComplaintSignatureFromComponents(rawA1 Point, rawA2 Point, rawZ Scalar) 
 }
 
 // NewComplaintSignatureFromType parses a schnorr.ComplaintSignature into a ComplaintSignature.
-func NewComplaintSignatureFromType(sig *schnorr.ComplaintSignature) ComplaintSignature {
-	return sig.Serialize()
+func NewComplaintSignatureFromType(signature *schnorr.ComplaintSignature) ComplaintSignature {
+	return signature.Serialize()
 }
 
 // Marshal needed for protobuf compatibility
@@ -545,12 +545,12 @@ func (cs ComplaintSignature) Validate() error {
 // complaintSignature converts a ComplaintSignature to a schnorr.ComplaintSignature.
 func (cs ComplaintSignature) complaintSignature() (*schnorr.ComplaintSignature, error) {
 	// No need to check error as the caller should validate it first.
-	sig, err := schnorr.ParseComplaintSignature(cs)
+	signature, err := schnorr.ParseComplaintSignature(cs)
 	if err != nil {
 		return nil, NewError(ErrParseError, err.Error())
 	}
 
-	return sig, nil
+	return signature, nil
 }
 
 // A1 returns the A1 part of the complaint signature.
