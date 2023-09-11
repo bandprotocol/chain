@@ -665,7 +665,7 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID:      memberID,
-				Member:        "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				Address:       "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 				PubD:          []byte("D"),
 				PubE:          []byte("E"),
 				BindingFactor: []byte("binding_factor"),

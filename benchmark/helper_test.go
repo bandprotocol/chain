@@ -150,7 +150,7 @@ func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signatur
 		SigningID: sid,
 		MemberID:  mid,
 		Signature: sig,
-		Member:    member.String(),
+		Address:   member.String(),
 	}
 
 	return []sdk.Msg{&msg}
@@ -178,18 +178,18 @@ func CreateSignature(
 ) (tss.Signature, error) {
 	// Compute Lagrange coefficient
 	var lgc tss.Scalar
-	mids := tsstypes.AssignedMembers(signing.AssignedMembers).MemberIDs()
+	mids := signing.AssignedMembers.MemberIDs()
 	if len(mids) <= 20 {
 		// Compute the Lagrange coefficient using the optimized operation
 		lgc = tss.ComputeLagrangeCoefficientOp(
 			mid,
-			tsstypes.AssignedMembers(signing.AssignedMembers).MemberIDs(),
+			signing.AssignedMembers.MemberIDs(),
 		)
 	} else {
 		// Compute the Lagrange coefficient using the default implementation
 		lgc = tss.ComputeLagrangeCoefficient(
 			mid,
-			tsstypes.AssignedMembers(signing.AssignedMembers).MemberIDs(),
+			signing.AssignedMembers.MemberIDs(),
 		)
 	}
 

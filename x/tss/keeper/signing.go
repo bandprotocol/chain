@@ -115,7 +115,7 @@ func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []ui
 
 		// Check if address is assigned for signing
 		for _, am := range signing.AssignedMembers {
-			if am.Member == address.String() {
+			if am.Address == address.String() {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
 				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.SigningID))
@@ -222,8 +222,8 @@ func (k Keeper) GetPartialSignature(
 	return bz, nil
 }
 
-// DeletePartialSignaturenatures delete all partial signatures data of a signing from the store.
-func (k Keeper) DeletePartialSignaturenatures(ctx sdk.Context, signingID tss.SigningID) {
+// DeletePartialSignatures delete all partial signatures data of a signing from the store.
+func (k Keeper) DeletePartialSignatures(ctx sdk.Context, signingID tss.SigningID) {
 	iterator := k.GetPartialSignatureIterator(ctx, signingID)
 	defer iterator.Close()
 
@@ -479,7 +479,7 @@ func (k Keeper) HandleRequestSign(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Member)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -550,7 +550,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Member)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -622,7 +622,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
 			k.RefundFee(ctx, signing)
 
-			mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+			mids := signing.AssignedMembers.MemberIDs()
 			pzs := k.GetPartialSignaturesWithKey(ctx, signing.SigningID)
 			// Iterate through each member ID in the assigned members list.
 			for _, mid := range mids {
@@ -645,7 +645,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		k.DeleteAssignedMembers(ctx, signing.SigningID)
 
 		// Remove all partial signatures from the store
-		k.DeletePartialSignaturenatures(ctx, signing.SigningID)
+		k.DeletePartialSignatures(ctx, signing.SigningID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)
@@ -673,7 +673,7 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	k.SetSigning(ctx, signing)
 
 	for _, am := range signing.AssignedMembers {
-		address := sdk.MustAccAddressFromBech32(am.Member)
+		address := sdk.MustAccAddressFromBech32(am.Address)
 		// Error is not possible
 		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
 		if err != nil {

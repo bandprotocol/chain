@@ -100,7 +100,7 @@ func (s *KeeperTestSuite) setupRound1() {
 					A0Signature:        m.A0Signature,
 					OneTimeSignature:   m.OneTimeSignature,
 				},
-				Member: sdk.AccAddress(m.PubKey()).String(),
+				Address: sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 		}
@@ -124,7 +124,7 @@ func (s *KeeperTestSuite) setupRound2() {
 					MemberID:              m.ID,
 					EncryptedSecretShares: m.EncSecretShares,
 				},
-				Member: sdk.AccAddress(m.PubKey()).String(),
+				Address: sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 		}
@@ -146,7 +146,7 @@ func (s *KeeperTestSuite) setupConfirm() {
 				GroupID:      tcGroup.ID,
 				MemberID:     m.ID,
 				OwnPubKeySig: m.PubKeySignature,
-				Member:       sdk.AccAddress(m.PubKey()).String(),
+				Address:      sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 		}
@@ -171,7 +171,7 @@ func (s *KeeperTestSuite) setupDE() {
 					{PubD: PubD, PubE: PubE},
 					{PubD: PubD, PubE: PubE},
 				},
-				Member: sdk.AccAddress(m.PubKey()).String(),
+				Address: sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 		}
