@@ -170,101 +170,101 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 	s.Require().Equal(uint64(signingID), got[0])
 }
 
-func (s *KeeperTestSuite) TestSetGetSigCount() {
+func (s *KeeperTestSuite) TestSetGetSignatureCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSigCount(ctx, signingID, initialCount)
+	k.SetSignatureCount(ctx, signingID, initialCount)
 
 	// Get and check SigCount
-	gotCount := k.GetSigCount(ctx, signingID)
+	gotCount := k.GetSignatureCount(ctx, signingID)
 	s.Require().Equal(initialCount, gotCount)
 }
 
-func (s *KeeperTestSuite) TestAddSigCount() {
+func (s *KeeperTestSuite) TestAddSignatureCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSigCount(ctx, signingID, initialCount)
+	k.SetSignatureCount(ctx, signingID, initialCount)
 
 	// Add to SigCount
-	k.AddSigCount(ctx, signingID)
+	k.AddSignatureCount(ctx, signingID)
 
 	// Get and check incremented SigCount
-	gotCount := k.GetSigCount(ctx, signingID)
+	gotCount := k.GetSignatureCount(ctx, signingID)
 	s.Require().Equal(initialCount+1, gotCount)
 }
 
-func (s *KeeperTestSuite) TestDeleteSigCount() {
+func (s *KeeperTestSuite) TestDeleteSignatureCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSigCount(ctx, signingID, initialCount)
+	k.SetSignatureCount(ctx, signingID, initialCount)
 
 	// Delete SigCount
-	k.DeleteSigCount(ctx, signingID)
+	k.DeleteSignatureCount(ctx, signingID)
 
 	// Get and check SigCount after deletion
-	gotCount := k.GetSigCount(ctx, signingID)
+	gotCount := k.GetSignatureCount(ctx, signingID)
 	s.Require().Equal(uint64(0), gotCount) // usually, Get on a non-existing key will return the zero value of the type
 }
 
-func (s *KeeperTestSuite) TestGetSetPartialSig() {
+func (s *KeeperTestSuite) TestGetSetPartialSignature() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
 	// Set PartialSignature
-	k.SetPartialSig(ctx, signingID, memberID, sig)
+	k.SetPartialSignature(ctx, signingID, memberID, sig)
 
 	// Get and check PartialSignature
-	gotSig, err := k.GetPartialSig(ctx, signingID, memberID)
+	gotSig, err := k.GetPartialSignature(ctx, signingID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(sig, gotSig)
 }
 
-func (s *KeeperTestSuite) TestAddPartialSig() {
+func (s *KeeperTestSuite) TestAddPartialSignature() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
 	// Add PartialSignature
-	k.AddPartialSig(ctx, signingID, memberID, sig)
+	k.AddPartialSignature(ctx, signingID, memberID, sig)
 
 	// Get and check PartialSignature
-	gotSig, err := k.GetPartialSig(ctx, signingID, memberID)
+	gotSig, err := k.GetPartialSignature(ctx, signingID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(sig, gotSig)
-	gotCount := k.GetSigCount(ctx, signingID)
+	gotCount := k.GetSignatureCount(ctx, signingID)
 	s.Require().Equal(uint64(1), gotCount)
 }
 
-func (s *KeeperTestSuite) TestDeletePartialSig() {
+func (s *KeeperTestSuite) TestDeletePartialSignature() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 	memberID := tss.MemberID(1)
 	sig := tss.Signature("sample-signature")
 
 	// Set PartialSignature
-	k.SetPartialSig(ctx, signingID, memberID, sig)
+	k.SetPartialSignature(ctx, signingID, memberID, sig)
 
 	// Delete PartialSignature
-	k.DeletePartialSig(ctx, signingID, memberID)
+	k.DeletePartialSignature(ctx, signingID, memberID)
 
 	// Try to get the deleted PartialSignature, expecting an error
-	_, err := k.GetPartialSig(ctx, signingID, memberID)
+	_, err := k.GetPartialSignature(ctx, signingID, memberID)
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestGetPartialSigs() {
+func (s *KeeperTestSuite) TestGetPartialSignatures() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 	memberIDs := []tss.MemberID{1, 2, 3}
@@ -276,17 +276,17 @@ func (s *KeeperTestSuite) TestGetPartialSigs() {
 
 	// Add PartialSigs
 	for i, memberID := range memberIDs {
-		k.AddPartialSig(ctx, signingID, memberID, sigs[i])
+		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
 	// Get all PartialSigs
-	got := k.GetPartialSigs(ctx, signingID)
+	got := k.GetPartialSignatures(ctx, signingID)
 
 	// Check if the returned signatures are equal to the ones we set
 	s.Require().ElementsMatch(sigs, got)
 }
 
-func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
+func (s *KeeperTestSuite) TestGetPartialSignaturesWithKey() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	signingID := tss.SigningID(1)
 	memberIDs := []tss.MemberID{1, 2, 3}
@@ -298,11 +298,11 @@ func (s *KeeperTestSuite) TestGetPartialSigsWithKey() {
 
 	// Add PartialSigs
 	for i, memberID := range memberIDs {
-		k.AddPartialSig(ctx, signingID, memberID, sigs[i])
+		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
 	// Get all PartialSigs with keys
-	got := k.GetPartialSigsWithKey(ctx, signingID)
+	got := k.GetPartialSignaturesWithKey(ctx, signingID)
 
 	// Construct expected result
 	expected := []types.PartialSignature{}
@@ -399,7 +399,7 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	feeLimit := sdk.NewCoins()
 
 	// Create a new content for the request signature
-	content := types.NewTextRequestSignature([]byte("example"))
+	content := types.NewTextRequestingSignature([]byte("example"))
 
 	// execute HandleRequestSign
 	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)
@@ -412,7 +412,7 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
 }
 
-func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
+func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
@@ -421,8 +421,8 @@ func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSign() {
 	// Define the fee payer's address.
 	feePayer := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
-	// execute HandleReplaceGroupRequestSign
-	signingID, err := k.HandleReplaceGroupRequestSign(ctx, []byte("new public key"), groupID, feePayer)
+	// execute HandleReplaceGroupRequestSignature
+	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
 	s.Require().NoError(err)
 
 	// verify that a new signing is created
@@ -513,7 +513,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
-	gotPZs := k.GetPartialSigs(ctx, signingID)
+	gotPZs := k.GetPartialSignatures(ctx, signingID)
 	s.Require().Empty(gotPZs)
 }
 

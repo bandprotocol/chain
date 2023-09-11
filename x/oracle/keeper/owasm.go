@@ -9,9 +9,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // 1 cosmos gas is equal to 20000000 owasm gas
@@ -197,32 +195,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		// Request sign by tss module
-		var signingResult *types.SigningResult
-
-		if req.GroupID != tss.GroupID(0) {
-			sid, err := k.tssKeeper.HandleRequestSign(ctx, req.GroupID, tsstypes.NewTextRequestSignature(env.Retdata), sdk.MustAccAddressFromBech32(req.Requester), req.FeeLimit)
-			if err != nil {
-				codespace, code, _ := sdkerrors.ABCIInfo(err, false)
-				signingResult = &types.SigningResult{
-					ErrorCodespace: codespace,
-					ErrorCode:      uint64(code),
-				}
-
-				ctx.EventManager().EmitEvent(sdk.NewEvent(
-					types.EventTypeHandleRequestSignFail,
-					sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", reqID)),
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.GroupID)),
-					sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-				))
-			} else {
-				signingResult = &types.SigningResult{
-					SigningID: sid,
-				}
-			}
-		}
-
-		k.ResolveSuccess(ctx, reqID, signingResult, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, req.GroupID, req.Requester, req.FeeLimit, env.Retdata, output.GasUsed)
 	}
 }
 

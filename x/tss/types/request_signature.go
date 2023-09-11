@@ -4,73 +4,63 @@ import (
 	fmt "fmt"
 
 	"cosmossdk.io/errors"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// request signature types
+// Requesting signature types
 const (
-	RequestSignatureTypeText string = "text"
+	RequestingSignatureTypeText string = "text"
 )
 
 // Implements Content Interface
-var _ Content = &TextRequestSignature{}
+var _ Content = &TextRequestingSignature{}
 
-func NewTextRequestSignature(msg []byte) *TextRequestSignature {
-	return &TextRequestSignature{Message: msg}
+func NewTextRequestingSignature(msg []byte) *TextRequestingSignature {
+	return &TextRequestingSignature{Message: msg}
 }
 
-// RequestSignatureRoute returns the request router key
-func (rs *TextRequestSignature) RequestSignatureRoute() string { return RouterKey }
+// RequestingSignatureRoute returns the request router key
+func (rs *TextRequestingSignature) RequestingSignatureRoute() string { return RouterKey }
 
-// RequestSignatureType is "default"
-func (rs *TextRequestSignature) RequestSignatureType() string { return RequestSignatureTypeText }
+// RequestingSignatureType is "text"
+func (rs *TextRequestingSignature) RequestingSignatureType() string {
+	return RequestingSignatureTypeText
+}
 
 // ValidateBasic validates the content's title and description of the request signature
-func (rs *TextRequestSignature) ValidateBasic() error { return nil }
+func (rs *TextRequestingSignature) ValidateBasic() error { return nil }
 
-var validRequestSignatureTypes = map[string]struct{}{
-	RequestSignatureTypeText: {},
+var validRequestingSignatureTypes = map[string]struct{}{
+	RequestingSignatureTypeText: {},
 }
 
-// RegisterRequestSignatureType registers a request signature type. It will panic if the type is
+// RegisterRequestingSignatureType registers a request signature type. It will panic if the type is
 // already registered.
-func RegisterRequestSignatureType(ty string) {
-	if _, ok := validRequestSignatureTypes[ty]; ok {
-		panic(fmt.Sprintf("already registered proposal type: %s", ty))
+func RegisterRequestingSignatureType(ty string) {
+	if _, ok := validRequestingSignatureTypes[ty]; ok {
+		panic(fmt.Sprintf("already registered requesting signature type: %s", ty))
 	}
 
-	validRequestSignatureTypes[ty] = struct{}{}
+	validRequestingSignatureTypes[ty] = struct{}{}
 }
 
-// NewRequestSignatureHandler implements the Handler interface for tss module-based
-// request signatures (ie. TextRequestSignature ). Since these are
+// NewRequestingSignatureHandler implements the Handler interface for tss module-based
+// request signatures (ie. TextRequestingSignature ). Since these are
 // merely signaling mechanisms at the moment and do not affect state, it
 // performs a no-op.
-func NewRequestSignatureHandler() Handler {
+func NewRequestingSignatureHandler() Handler {
 	return func(ctx sdk.Context, content Content) ([]byte, error) {
 		switch c := content.(type) {
-		case *TextRequestSignature:
+		case *TextRequestingSignature:
 			return c.Message, nil
 
 		default:
 			return nil, errors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature message type: %s",
-				c.RequestSignatureType(),
+				c.RequestingSignatureType(),
 			)
 		}
 	}
-}
-
-// WrapMsgDataNormal appends the normal message prefix to the given message bytes.
-func WrapMsgDataNormal(msg []byte) []byte {
-	return append(NormalMsgPrefix, msg...)
-}
-
-// WrapMsgDataReplaceGroup constructs a message by appending the replace group message prefix,
-// the public key, and the formatted time to the message bytes.
-func WrapMsgDataReplaceGroup(pubKey tss.Point) []byte {
-	return append(ReplaceGroupMsgPrefix, pubKey...)
 }

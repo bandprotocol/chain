@@ -7,14 +7,14 @@ import (
 // function to create the cli handler
 type CLIHandlerFn func() *cobra.Command
 
-// Type for a RequestSignatureHandler handler
-type RequestSignatureHandler struct {
+// Type for a RequestingSignatureHandler handler
+type RequestingSignatureHandler struct {
 	CLIHandler CLIHandlerFn
 }
 
-// RequestSignatureHandler creates a new RequestSignatureHandler object
-func NewRequestSignatureHandler(cliHandler CLIHandlerFn) RequestSignatureHandler {
-	return RequestSignatureHandler{
+// RequestingSignatureHandler creates a new RequestingSignatureHandler object
+func NewRequestingSignatureHandler(cliHandler CLIHandlerFn) RequestingSignatureHandler {
+	return RequestingSignatureHandler{
 		CLIHandler: cliHandler,
 	}
 }

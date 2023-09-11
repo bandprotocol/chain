@@ -8,8 +8,8 @@ import (
 const (
 	DefaultMaxGroupSize                          = uint64(20)
 	DefaultMaxDESize                             = uint64(100)
-	DefaultCreatingPeriod                        = int64(30000)
-	DefaultSigningPeriod                         = int64(100)
+	DefaultCreatingPeriod                        = uint64(30000)
+	DefaultSigningPeriod                         = uint64(100)
 	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
 	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
@@ -22,8 +22,8 @@ const (
 func NewParams(
 	maxGroupSize uint64,
 	maxDESize uint64,
-	creatingPeriod int64,
-	signingPeriod int64,
+	creatingPeriod uint64,
+	signingPeriod uint64,
 	activeDuration time.Duration,
 	inactivePenaltyDuration time.Duration,
 	jailPenaltyDuration time.Duration,
@@ -65,11 +65,11 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateInt64("creating period", true)(p.CreatingPeriod); err != nil {
+	if err := validateUint64("creating period", true)(p.CreatingPeriod); err != nil {
 		return err
 	}
 
-	if err := validateInt64("signing period", true)(p.SigningPeriod); err != nil {
+	if err := validateUint64("signing period", true)(p.SigningPeriod); err != nil {
 		return err
 	}
 

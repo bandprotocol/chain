@@ -5,8 +5,8 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 // Content defines an interface that a request signature type must implement.
 // Content can have additional fields, which will handled by a requestSignature's Handler.
 type Content interface {
-	RequestSignatureRoute() string
-	RequestSignatureType() string
+	RequestingSignatureRoute() string
+	RequestingSignatureType() string
 	ValidateBasic() error
 	String() string
 }

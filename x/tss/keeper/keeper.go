@@ -118,7 +118,7 @@ func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee 
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 	groupID := k.GetNextGroupID(ctx)
 	group.GroupID = groupID
-	group.CreatedHeight = ctx.BlockHeader().Height
+	group.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetGroup(ctx, group)
 
 	return groupID
@@ -337,7 +337,7 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		group := k.MustGetGroup(ctx, currentGroupID)
 
 		// Check if the group is still within the expiration period
-		if group.CreatedHeight+creatingPeriod > ctx.BlockHeight() {
+		if group.CreatedHeight+creatingPeriod > uint64(ctx.BlockHeight()) {
 			break
 		}
 
@@ -518,6 +518,24 @@ func (k Keeper) MustGetReplacement(ctx sdk.Context, replacementID uint64) types.
 		panic(err)
 	}
 	return replacement
+}
+
+// GetReplacementIterator gets an iterator all replacements.
+func (k Keeper) GetReplacementIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ReplacementKeyPrefix)
+}
+
+// GetReplacements retrieves all replacements of the store.
+func (k Keeper) GetReplacements(ctx sdk.Context) []types.Replacement {
+	var reps []types.Replacement
+	iterator := k.GetReplacementIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var rep types.Replacement
+		k.cdc.MustUnmarshal(iterator.Value(), &rep)
+		reps = append(reps, rep)
+	}
+	return reps
 }
 
 // SetReplacement sets a replacement to store.

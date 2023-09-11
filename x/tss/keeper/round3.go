@@ -88,7 +88,7 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	}
 
 	// Verify own public key sig
-	err = tss.VerifyOwnPubKeySig(memberID, dkgContext, ownPubKeySig, member.PubKey)
+	err = tss.VerifyOwnPubKeySignature(memberID, dkgContext, ownPubKeySig, member.PubKey)
 	if err != nil {
 		return errors.Wrapf(
 			types.ErrConfirmFailed,

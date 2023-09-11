@@ -2,9 +2,10 @@ package keeper
 
 import (
 	"cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // AddRound1Info adds the round1Info of a member in the store and increments the count of round1Info.

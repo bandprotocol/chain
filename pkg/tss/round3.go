@@ -141,19 +141,19 @@ func SignOwnPubkey(
 	return Sign(ownPriv, challenge, nonce, nil)
 }
 
-// VerifyOwnPubKeySig verifies the signature of an own public key using the given DKG context, own public key, and signature.
-func VerifyOwnPubKeySig(
+// VerifyOwnPubKeySignature verifies the signature of an own public key using the given DKG context, own public key, and signature.
+func VerifyOwnPubKeySignature(
 	mid MemberID,
 	dkgContext []byte,
-	sig Signature,
+	signature Signature,
 	ownPub Point,
 ) error {
-	challenge, err := HashRound3OwnPubKey(sig.R(), mid, dkgContext, ownPub)
+	challenge, err := HashRound3OwnPubKey(signature.R(), mid, dkgContext, ownPub)
 	if err != nil {
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, ownPub, nil, nil)
+	return Verify(signature.R(), signature.S(), challenge, ownPub, nil, nil)
 }
 
 // SignComplaint generates a signature and related parameters for complaining against a misbehaving member.
@@ -189,17 +189,17 @@ func SignComplaint(
 		}
 	}
 
-	sig, err := Sign(oneTimePrivI, challenge, nonce, nil)
+	signature, err := Sign(oneTimePrivI, challenge, nonce, nil)
 	if err != nil {
 		return nil, nil, NewError(err, "sign")
 	}
 
-	complaintSig, err := NewComplaintSignatureFromComponents(sig.R(), nonceSym, sig.S())
+	complaintSignature, err := NewComplaintSignatureFromComponents(signature.R(), nonceSym, signature.S())
 	if err != nil {
 		return nil, nil, NewError(err, "create complaint signature")
 	}
 
-	return complaintSig, keySym, nil
+	return complaintSignature, keySym, nil
 }
 
 // VerifyComplaint verifies the complaint using the complaint signature and encrypted secret share.
@@ -207,12 +207,12 @@ func VerifyComplaint(
 	oneTimePubI Point,
 	oneTimePubJ Point,
 	keySym Point,
-	complaintSig ComplaintSignature,
+	complaintSignature ComplaintSignature,
 	encSecretShare Scalar,
 	midI MemberID,
 	commits Points,
 ) error {
-	err := VerifyComplaintSig(oneTimePubI, oneTimePubJ, keySym, complaintSig)
+	err := VerifyComplaintSignature(oneTimePubI, oneTimePubJ, keySym, complaintSignature)
 	if err != nil {
 		return NewError(err, "verify complaint signature")
 	}
@@ -230,16 +230,16 @@ func VerifyComplaint(
 	return nil
 }
 
-// VerifyComplaintSig verifies the signature of a complaint using the given parameters.
-func VerifyComplaintSig(
+// VerifyComplaintSignature verifies the signature of a complaint using the given parameters.
+func VerifyComplaintSignature(
 	oneTimePubI Point,
 	oneTimePubJ Point,
 	keySym Point,
-	complaintSig ComplaintSignature,
+	complaintSignature ComplaintSignature,
 ) error {
 	challenge, err := HashRound3Complain(
-		complaintSig.A1(),
-		complaintSig.A2(),
+		complaintSignature.A1(),
+		complaintSignature.A2(),
 		oneTimePubI,
 		oneTimePubJ,
 		keySym,
@@ -248,10 +248,10 @@ func VerifyComplaintSig(
 		return err
 	}
 
-	err = Verify(complaintSig.A1(), complaintSig.Z(), challenge, oneTimePubI, nil, nil)
+	err = Verify(complaintSignature.A1(), complaintSignature.Z(), challenge, oneTimePubI, nil, nil)
 	if err != nil {
 		return NewError(err, "verify")
 	}
 
-	return Verify(complaintSig.A2(), complaintSig.Z(), challenge, keySym, Point(oneTimePubJ), nil)
+	return Verify(complaintSignature.A2(), complaintSignature.Z(), challenge, keySym, Point(oneTimePubJ), nil)
 }

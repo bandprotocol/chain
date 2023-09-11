@@ -197,12 +197,12 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 				return err
 			}
 
-			a0Sig, err := hex.DecodeString(args[3])
+			a0Signature, err := hex.DecodeString(args[3])
 			if err != nil {
 				return err
 			}
 
-			oneTimeSig, err := hex.DecodeString(args[4])
+			oneTimeSignature, err := hex.DecodeString(args[4])
 			if err != nil {
 				return err
 			}
@@ -223,8 +223,8 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 					MemberID:           tss.MemberID(memberID),
 					CoefficientCommits: coefficientCommits,
 					OneTimePubKey:      oneTimePubKey,
-					A0Sig:              a0Sig,
-					OneTimeSig:         oneTimeSig,
+					A0Signature:        a0Signature,
+					OneTimeSignature:   oneTimeSignature,
 				},
 				Member: clientCtx.GetFromAddress().String(),
 			}
@@ -483,7 +483,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 				return err
 			}
 
-			content := types.NewTextRequestSignature(data)
+			content := types.NewTextRequestingSignature(data)
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {

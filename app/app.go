@@ -178,7 +178,7 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
-		tss.NewAppModuleBasic(oracleclient.RequestSignatureHandler),
+		tss.NewAppModuleBasic(oracleclient.RequestingSignatureHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -553,8 +553,8 @@ func NewBandApp(
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
-	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRequestSignatureHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewRequestSignatureHandler(app.OracleKeeper))
+	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRequestingSignatureHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewRequestingSignatureHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this

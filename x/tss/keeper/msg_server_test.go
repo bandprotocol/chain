@@ -244,8 +244,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -262,8 +262,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           99,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -279,8 +279,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 					MemberID:           tc1Group.Members[0].ID,
 					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-					A0Sig:              tc1Group.Members[0].A0Sig,
-					OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+					A0Signature:        tc1Group.Members[0].A0Signature,
+					OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 				})
 
 				req = types.MsgSubmitDKGRound1{
@@ -289,8 +289,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
@@ -309,17 +309,17 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              tc1Group.Members[0].A0Sig,
-						OneTimeSig:         []byte("wrong one_time_sig"),
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   []byte("wrong one_time_sig"),
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
-			types.ErrVerifyOneTimeSigFailed,
+			types.ErrVerifyOneTimeSignatureFailed,
 		},
 		{
-			"wrong a0 sig",
+			"wrong a0 signature",
 			func() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: tc1Group.ID,
@@ -327,14 +327,14 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						MemberID:           tc1Group.Members[0].ID,
 						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
 						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Sig:              []byte("wrong a0_sig"),
-						OneTimeSig:         tc1Group.Members[0].OneTimeSig,
+						A0Signature:        []byte("wrong a0_sig"),
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
 					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
-			types.ErrVerifyA0SigFailed,
+			types.ErrVerifyA0SignatureFailed,
 		},
 	}
 
@@ -367,8 +367,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 						MemberID:           m.ID,
 						CoefficientCommits: m.CoefficientCommits,
 						OneTimePubKey:      m.OneTimePubKey(),
-						A0Sig:              m.A0Sig,
-						OneTimeSig:         m.OneTimeSig,
+						A0Signature:        m.A0Signature,
+						OneTimeSignature:   m.OneTimeSignature,
 					},
 					Member: sdk.AccAddress(m.PubKey()).String(),
 				})
@@ -549,7 +549,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
 				k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
-				sig, keySym, err := tss.SignComplaint(
+				signature, keySym, err := tss.SignComplaint(
 					m.OneTimePubKey(),
 					respondent.OneTimePubKey(),
 					m.OneTimePrivKey,
@@ -564,7 +564,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Complainant: m.ID,
 							Respondent:  respondent.ID,
 							KeySym:      keySym,
-							Signature:   sig,
+							Signature:   signature,
 						},
 					},
 					Member: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
@@ -578,7 +578,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 				GroupID:      tc.Group.ID,
 				MemberID:     respondent.ID,
-				OwnPubKeySig: respondent.PubKeySig,
+				OwnPubKeySig: respondent.PubKeySignature,
 				Member:       sdk.AccAddress(respondent.PubKey()).String(),
 			})
 			s.Require().NoError(err)
@@ -607,7 +607,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 				_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
 					GroupID:      tc.Group.ID,
 					MemberID:     m.ID,
-					OwnPubKeySig: m.PubKeySig,
+					OwnPubKeySig: m.PubKeySignature,
 					Member:       sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
@@ -709,7 +709,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(999), // non-existent groupID
-					types.NewTextRequestSignature([]byte("msg")),
+					types.NewTextRequestingSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -732,7 +732,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				k.SetGroup(ctx, inactiveGroup)
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(2), // inactive groupID
-					types.NewTextRequestSignature([]byte("msg")),
+					types.NewTextRequestingSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -746,7 +746,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(1),
-					types.NewTextRequestSignature([]byte("msg")),
+					types.NewTextRequestingSignature([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					testapp.FeePayer.Address,
 				)
@@ -802,7 +802,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 
 				msg, err := types.NewMsgRequestSignature(
 					tc.Group.ID,
-					types.NewTextRequestSignature(signing.Data),
+					types.NewTextRequestingSignature(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -842,7 +842,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 				req = types.MsgSubmitSignature{
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
-					Signature: tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Signature,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
@@ -865,7 +865,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 				req = types.MsgSubmitSignature{
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
-					Signature: tc1.Signings[0].Sig,
+					Signature: tc1.Signings[0].Signature,
 					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
@@ -899,7 +899,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Request signature for the first member in the group
 			msg, err := types.NewMsgRequestSignature(
 				tc.Group.ID,
-				types.NewTextRequestSignature([]byte("msg")),
+				types.NewTextRequestingSignature([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				testapp.FeePayer.Address,
 			)
@@ -940,7 +940,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				s.Require().NoError(err)
 
 				// Sign the message
-				sig, err := tss.SignSigning(
+				signature, err := tss.SignSigning(
 					signing.GroupPubNonce,
 					group.PubKey,
 					signing.Message,
@@ -954,7 +954,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				_, err = msgSrvr.SubmitSignature(ctx, &types.MsgSubmitSignature{
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
-					Signature: sig,
+					Signature: signature,
 					Member:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
@@ -1035,24 +1035,6 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			},
 			expectErr:    true,
 			expectErrStr: "invalid authority;",
-		},
-		{
-			name: "set invalid params",
-			request: &types.MsgUpdateParams{
-				Authority: k.GetAuthority(),
-				Params: types.Params{
-					MaxGroupSize:            0,
-					MaxDESize:               0,
-					CreatingPeriod:          -1,
-					SigningPeriod:           -1,
-					ActiveDuration:          time.Duration(0),
-					InactivePenaltyDuration: time.Duration(0),
-					JailPenaltyDuration:     time.Duration(0),
-					RewardPercentage:        0,
-				},
-			},
-			expectErr:    true,
-			expectErrStr: "must be positive:",
 		},
 		{
 			name: "set full valid params",

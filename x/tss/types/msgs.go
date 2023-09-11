@@ -81,7 +81,7 @@ func (m MsgReplaceGroup) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
+// GetSigners returns the expected signers for a MsgReplaceGroup.
 func (m MsgReplaceGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
@@ -137,12 +137,12 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	}
 
 	// Validate a0 signature
-	if err := m.Round1Info.A0Sig.Validate(); err != nil {
+	if err := m.Round1Info.A0Signature.Validate(); err != nil {
 		return errors.Wrap(err, "a0 sig")
 	}
 
 	// Validate one time signature
-	if err := m.Round1Info.OneTimeSig.Validate(); err != nil {
+	if err := m.Round1Info.OneTimeSignature.Validate(); err != nil {
 		return errors.Wrap(err, "one time sig")
 	}
 
@@ -318,8 +318,6 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 }
 
 // NewMsgRequestSignature creates a new MsgRequestSignature.
-//
-//nolint:interfacer
 func NewMsgRequestSignature(
 	gid tss.GroupID,
 	content Content,
@@ -349,6 +347,7 @@ func (m MsgRequestSignature) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
+// GetContent returns the content of MsgRequestSignature.
 func (m *MsgRequestSignature) GetContent() Content {
 	content, ok := m.Content.GetCachedValue().(Content)
 	if !ok {
@@ -373,6 +372,7 @@ func (m MsgRequestSignature) ValidateBasic() error {
 	return nil
 }
 
+// SetContent sets the content for MsgRequestSignature.
 func (m *MsgRequestSignature) SetContent(content Content) error {
 	msg, ok := content.(proto.Message)
 	if !ok {

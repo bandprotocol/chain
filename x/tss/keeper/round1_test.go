@@ -15,9 +15,9 @@ func (s *KeeperTestSuite) TestGetSetRound1Info() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 
 	// Set round 1 info
@@ -38,9 +38,9 @@ func (s *KeeperTestSuite) TestAddRound1Info() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 
 	// Add round 1 info
@@ -63,9 +63,9 @@ func (s *KeeperTestSuite) TestDeleteRound1Info() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 
 	k.SetRound1Info(ctx, groupID, round1Info)
@@ -90,9 +90,9 @@ func (s *KeeperTestSuite) TestDeleteRound1Infos() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 
 	k.SetRound1Info(ctx, groupID, round1Info)
@@ -118,9 +118,9 @@ func (s *KeeperTestSuite) TestGetRound1Infos() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 	round1InfoMember2 := types.Round1Info{
 		MemberID: member2,
@@ -128,9 +128,9 @@ func (s *KeeperTestSuite) TestGetRound1Infos() {
 			[]byte("point1"),
 			[]byte("point2"),
 		},
-		OneTimePubKey: []byte("OneTimePubKeySimple"),
-		A0Sig:         []byte("A0SigSimple"),
-		OneTimeSig:    []byte("OneTimeSigSimple"),
+		OneTimePubKey:    []byte("OneTimePubKeySimple"),
+		A0Signature:      []byte("A0SignatureSimple"),
+		OneTimeSignature: []byte("OneTimeSignatureSimple"),
 	}
 
 	// Set round 1 infos

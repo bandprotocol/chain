@@ -42,7 +42,7 @@ func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
 	s.Require().Equal([]types.DEQueueGenesis{
 		{
 			Address: address.String(),
-			DEQueue: &deQueue,
+			DEQueue: deQueue,
 		},
 	}, got)
 }
@@ -107,7 +107,7 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 		{
 			Address: address.String(),
 			Index:   index,
-			DE:      &de,
+			DE:      de,
 		},
 	}, got)
 }

@@ -728,7 +728,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewRequestSignature(types.RequestID(rid))
+			content := types.NewRequestingSignature(types.RequestID(rid))
 
 			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
 			if err != nil {

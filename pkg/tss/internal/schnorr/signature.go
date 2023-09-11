@@ -39,10 +39,10 @@ type Signature struct {
 
 // NewSignature instantiates a new signature given some r and s values.
 func NewSignature(r *secp256k1.JacobianPoint, s *secp256k1.ModNScalar) *Signature {
-	var sig Signature
-	sig.R.Set(r)
-	sig.S.Set(s)
-	return &sig
+	var signature Signature
+	signature.R.Set(r)
+	signature.S.Set(s)
+	return &signature
 }
 
 // Serialize returns the Schnorr signature in the more strict format.
@@ -51,16 +51,16 @@ func NewSignature(r *secp256k1.JacobianPoint, s *secp256k1.ModNScalar) *Signatur
 //
 //	bytes at 0-32  jacobian point R with z as 1, encoded by SerializeCompressed of secp256k1.PublicKey
 //	bytes at 33-64 s, encoded also as big-endian uint256
-func (sig Signature) Serialize() []byte {
+func (signature Signature) Serialize() []byte {
 	// Total length of returned signature is the length of r and s.
 	var b [SignatureSize]byte
 	// Make z = 1
-	sig.R.ToAffine()
+	signature.R.ToAffine()
 	// Copy compressed bytes of R to first 33 bytes
-	pubKey := secp256k1.NewPublicKey(&sig.R.X, &sig.R.Y).SerializeCompressed()
+	pubKey := secp256k1.NewPublicKey(&signature.R.X, &signature.R.Y).SerializeCompressed()
 	copy(b[0:33], pubKey)
 	// Copy bytes of S 32 bytes after
-	sig.S.PutBytesUnchecked(b[33:65])
+	signature.S.PutBytesUnchecked(b[33:65])
 	return b[:]
 }
 
@@ -70,9 +70,9 @@ func (sig Signature) Serialize() []byte {
 //
 // - The r component must be in the valid range for secp256k1 field elements
 // - The s component must be in the valid range for secp256k1 scalars
-func ParseSignature(sig []byte) (*Signature, error) {
+func ParseSignature(signature []byte) (*Signature, error) {
 	// The signature must be the correct length.
-	sigLen := len(sig)
+	sigLen := len(signature)
 	if sigLen < SignatureSize {
 		str := fmt.Sprintf("malformed signature: too short: %d < %d", sigLen,
 			SignatureSize)
@@ -89,7 +89,7 @@ func ParseSignature(sig []byte) (*Signature, error) {
 	// the range [0, n-1] since valid Schnorr signatures are required to be in
 	// that range per spec.
 	var r secp256k1.JacobianPoint
-	pubKey, err := secp256k1.ParsePubKey(sig[0:33])
+	pubKey, err := secp256k1.ParsePubKey(signature[0:33])
 	if err != nil {
 		str := fmt.Sprintf("invalid signature: r is not valid: %s", err.Error())
 		return nil, signatureError(ErrSigRTooBig, str)
@@ -97,7 +97,7 @@ func ParseSignature(sig []byte) (*Signature, error) {
 	pubKey.AsJacobian(&r)
 
 	var s secp256k1.ModNScalar
-	if overflow := s.SetByteSlice(sig[33:65]); overflow {
+	if overflow := s.SetByteSlice(signature[33:65]); overflow {
 		str := "invalid signature: s >= group order"
 		return nil, signatureError(ErrSigSTooBig, str)
 	}
@@ -110,7 +110,8 @@ func ParseSignature(sig []byte) (*Signature, error) {
 // if both Signatures are equivalent. A signature is equivalent to another, if
 // they both have the same scalar value for R and S.
 // Note: Both R must be affine coordinate.
-func (sig Signature) IsEqual(otherSig *Signature) bool {
-	return sig.R.X.Equals(&otherSig.R.X) && sig.R.Y.Equals(&otherSig.R.Y) && sig.R.Z.Equals(&otherSig.R.Z) &&
-		sig.S.Equals(&otherSig.S)
+func (signature Signature) IsEqual(otherSignature *Signature) bool {
+	return signature.R.X.Equals(&otherSignature.R.X) && signature.R.Y.Equals(&otherSignature.R.Y) &&
+		signature.R.Z.Equals(&otherSignature.R.Z) &&
+		signature.S.Equals(&otherSignature.S)
 }
