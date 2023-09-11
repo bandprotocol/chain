@@ -689,7 +689,7 @@ func (k msgServer) SubmitSignature(
 	// Check sender not in assigned participants and verify signature R
 	for _, am := range signing.AssignedMembers {
 		mids = append(mids, am.MemberID)
-		if am.MemberID == req.MemberID && am.Member == req.Member {
+		if am.MemberID == req.MemberID && am.Address == req.Member {
 			// Found member in assigned members
 			found = true
 			assignedMember = am
@@ -751,7 +751,7 @@ func (k msgServer) SubmitSignature(
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, assignedMember.Member),
+			sdk.NewAttribute(types.AttributeKeyMember, assignedMember.Address),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),

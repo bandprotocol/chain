@@ -115,7 +115,7 @@ func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []ui
 
 		// Check if address is assigned for signing
 		for _, am := range signing.AssignedMembers {
-			if am.Member == address.String() {
+			if am.Address == address.String() {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
 				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.SigningID))
@@ -479,7 +479,7 @@ func (k Keeper) HandleRequestSign(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Member)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -550,7 +550,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Member)),
+			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -673,7 +673,7 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	k.SetSigning(ctx, signing)
 
 	for _, am := range signing.AssignedMembers {
-		address := sdk.MustAccAddressFromBech32(am.Member)
+		address := sdk.MustAccAddressFromBech32(am.Address)
 		// Error is not possible
 		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
 		if err != nil {

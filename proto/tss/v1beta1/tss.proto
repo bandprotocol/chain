@@ -151,7 +151,7 @@ message AssignedMember {
   uint64 member_id = 1
       [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
   // member is the human-readable name of the member.
-  string member = 2;
+  string address = 2;
   // pub_key is the public part of a member.
   bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // pub_d is the public part of a member's decryption key.

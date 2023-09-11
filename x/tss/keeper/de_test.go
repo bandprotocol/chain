@@ -240,7 +240,7 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	s.Require().Equal(types.AssignedMembers{
 		{
 			MemberID:      1,
-			Member:        members[0].Address,
+			Address:       members[0].Address,
 			PubD:          des[0].PubD,
 			PubE:          des[0].PubE,
 			BindingFactor: nil,
@@ -248,7 +248,7 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		},
 		{
 			MemberID:      2,
-			Member:        members[1].Address,
+			Address:       members[1].Address,
 			PubD:          des[0].PubD,
 			PubE:          des[0].PubE,
 			BindingFactor: nil,
