@@ -4,10 +4,10 @@ package tss
 type Round1Info struct {
 	OneTimePrivKey     Scalar
 	OneTimePubKey      Point
-	OneTimeSig         Signature
+	OneTimeSignature   Signature
 	A0PrivKey          Scalar
 	A0PubKey           Point
-	A0Sig              Signature
+	A0Signature        Signature
 	Coefficients       Scalars
 	CoefficientCommits Points
 }
@@ -27,7 +27,7 @@ func GenerateRound1Info(
 	// Get one-time information.
 	oneTimePrivKey := kps[0].PrivKey
 	oneTimePubKey := kps[0].PubKey
-	oneTimeSig, err := SignOneTime(mid, dkgContext, oneTimePubKey, oneTimePrivKey)
+	oneTimeSignature, err := SignOneTime(mid, dkgContext, oneTimePubKey, oneTimePrivKey)
 	if err != nil {
 		return nil, NewError(err, "sign one time")
 	}
@@ -35,7 +35,7 @@ func GenerateRound1Info(
 	// Get a0 information.
 	a0PrivKey := kps[1].PrivKey
 	a0PubKey := kps[1].PubKey
-	a0Sig, err := SignA0(mid, dkgContext, a0PubKey, a0PrivKey)
+	a0Signature, err := SignA0(mid, dkgContext, a0PubKey, a0PrivKey)
 	if err != nil {
 		return nil, NewError(err, "sign A0")
 	}
@@ -51,10 +51,10 @@ func GenerateRound1Info(
 	return &Round1Info{
 		OneTimePrivKey:     oneTimePrivKey,
 		OneTimePubKey:      oneTimePubKey,
-		OneTimeSig:         oneTimeSig,
+		OneTimeSignature:   oneTimeSignature,
 		A0PrivKey:          a0PrivKey,
 		A0PubKey:           a0PubKey,
-		A0Sig:              a0Sig,
+		A0Signature:        a0Signature,
 		Coefficients:       coefficients,
 		CoefficientCommits: coefficientCommits,
 	}, nil
@@ -87,19 +87,19 @@ func SignA0(
 	return Sign(a0Priv, challenge, nonce, nil)
 }
 
-// VerifyA0Sig verifies the signature for the A0 in round 1.
-func VerifyA0Sig(
+// VerifyA0Signature verifies the signature for the A0 in round 1.
+func VerifyA0Signature(
 	mid MemberID,
 	dkgContext []byte,
-	sig Signature,
+	signature Signature,
 	a0Pub Point,
 ) error {
-	challenge, err := HashRound1A0(sig.R(), mid, dkgContext, a0Pub)
+	challenge, err := HashRound1A0(signature.R(), mid, dkgContext, a0Pub)
 	if err != nil {
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, a0Pub, nil, nil)
+	return Verify(signature.R(), signature.S(), challenge, a0Pub, nil, nil)
 }
 
 // SignOneTime generates a signature for the one-time in round 1.
@@ -129,17 +129,17 @@ func SignOneTime(
 	return Sign(onetimePriv, challenge, nonce, nil)
 }
 
-// VerifyOneTimeSig verifies the signature for the one-time in round 1.
-func VerifyOneTimeSig(
+// VerifyOneTimeSignature verifies the signature for the one-time in round 1.
+func VerifyOneTimeSignature(
 	mid MemberID,
 	dkgContext []byte,
-	sig Signature,
+	signature Signature,
 	oneTimePub Point,
 ) error {
-	challenge, err := HashRound1OneTime(sig.R(), mid, dkgContext, oneTimePub)
+	challenge, err := HashRound1OneTime(signature.R(), mid, dkgContext, oneTimePub)
 	if err != nil {
 		return err
 	}
 
-	return Verify(sig.R(), sig.S(), challenge, oneTimePub, nil, nil)
+	return Verify(signature.R(), signature.S(), challenge, oneTimePub, nil, nil)
 }

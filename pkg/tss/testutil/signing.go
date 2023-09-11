@@ -9,7 +9,7 @@ type AssignedMember struct {
 	BindingFactor tss.Scalar
 	PrivNonce     tss.Scalar
 	Lagrange      tss.Scalar
-	Sig           tss.Signature
+	Signature     tss.Signature
 }
 
 func (am AssignedMember) PubD() tss.Point {
@@ -32,7 +32,7 @@ func CopyAssignedMember(src AssignedMember) AssignedMember {
 		BindingFactor: Copy(src.BindingFactor),
 		PrivNonce:     Copy(src.PrivNonce),
 		Lagrange:      Copy(src.Lagrange),
-		Sig:           Copy(src.Sig),
+		Signature:     Copy(src.Signature),
 	}
 }
 
@@ -50,7 +50,7 @@ type Signing struct {
 	Data            []byte
 	Commitment      []byte
 	PubNonce        tss.Point
-	Sig             tss.Signature
+	Signature       tss.Signature
 	AssignedMembers []AssignedMember
 }
 
@@ -86,9 +86,9 @@ func (s Signing) GetAllOwnPubNonces() (res []tss.Point) {
 	return res
 }
 
-func (s Signing) GetAllSigs() (res []tss.Signature) {
+func (s Signing) GetAllSignatures() (res []tss.Signature) {
 	for _, assignedMember := range s.AssignedMembers {
-		res = append(res, assignedMember.Sig)
+		res = append(res, assignedMember.Signature)
 	}
 
 	return res
@@ -100,7 +100,7 @@ func CopySigning(src Signing) Signing {
 		Data:            Copy(src.Data),
 		Commitment:      Copy(src.Commitment),
 		PubNonce:        Copy(src.PubNonce),
-		Sig:             Copy(src.Sig),
+		Signature:       Copy(src.Signature),
 		AssignedMembers: CopyAssignedMembers(src.AssignedMembers),
 	}
 }

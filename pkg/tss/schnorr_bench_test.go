@@ -22,14 +22,14 @@ func BenchmarkVerify(b *testing.B) {
 	suite := new(TSSTestSuite)
 	suite.SetupTest()
 
-	sig, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil)
-	sigR := sig.R()
-	sigS := sig.S()
+	signature, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil)
+	signatureR := signature.R()
+	signatureS := signature.S()
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(sigR, sigS, suite.challenge, suite.pubKey, nil, nil)
+		tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, nil)
 	}
 }
 
@@ -37,8 +37,8 @@ func BenchmarkVerifyWithCustomGenerator(b *testing.B) {
 	suite := new(TSSTestSuite)
 	suite.SetupTest()
 
-	sig, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil)
-	sigS := sig.S()
+	signature, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil)
+	signatureS := signature.S()
 
 	generator := suite.pubKey
 	keySym, _ := tss.ComputeKeySym(suite.privKey, generator)
@@ -47,7 +47,7 @@ func BenchmarkVerifyWithCustomGenerator(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(tss.Point(nonceSym), sigS, suite.challenge, keySym, tss.Point(generator), nil)
+		tss.Verify(tss.Point(nonceSym), signatureS, suite.challenge, keySym, tss.Point(generator), nil)
 	}
 }
 
@@ -56,13 +56,13 @@ func BenchmarkVerifyWithCustomLagrange(b *testing.B) {
 	suite.SetupTest()
 
 	lagrange := tss.Scalar(testutil.HexDecode("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0336f8d"))
-	sig, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, lagrange)
-	sigR := sig.R()
-	sigS := sig.S()
+	signature, _ := tss.Sign(suite.privKey, suite.challenge, suite.nonce, lagrange)
+	signatureR := signature.R()
+	signatureS := signature.S()
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(sigR, sigS, suite.challenge, suite.pubKey, nil, lagrange)
+		tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, lagrange)
 	}
 }
