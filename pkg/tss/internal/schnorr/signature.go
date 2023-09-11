@@ -110,7 +110,8 @@ func ParseSignature(signature []byte) (*Signature, error) {
 // if both Signatures are equivalent. A signature is equivalent to another, if
 // they both have the same scalar value for R and S.
 // Note: Both R must be affine coordinate.
-func (signature Signature) IsEqual(otherSig *Signature) bool {
-	return signature.R.X.Equals(&otherSig.R.X) && signature.R.Y.Equals(&otherSig.R.Y) && signature.R.Z.Equals(&otherSig.R.Z) &&
-		signature.S.Equals(&otherSig.S)
+func (signature Signature) IsEqual(otherSignature *Signature) bool {
+	return signature.R.X.Equals(&otherSignature.R.X) && signature.R.Y.Equals(&otherSignature.R.Y) &&
+		signature.R.Z.Equals(&otherSignature.R.Z) &&
+		signature.S.Equals(&otherSignature.S)
 }

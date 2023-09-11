@@ -2,9 +2,9 @@ package schnorr
 
 import "github.com/decred/dcrd/dcrec/secp256k1/v4"
 
-// ComputeSigS generates a S part of schnorr signature over the secp256k1 curve
+// ComputeSignatureS generates a S part of schnorr signature over the secp256k1 curve
 // for the provided challenge using the given nonce, and private key.
-func ComputeSigS(
+func ComputeSignatureS(
 	privKey *secp256k1.PrivateKey, nonce *secp256k1.ModNScalar,
 	challenge *secp256k1.ModNScalar,
 ) (*secp256k1.ModNScalar, error) {
@@ -44,7 +44,7 @@ func ComputeSigS(
 // indicating why it failed if not successful.
 func Verify(
 	expectR *secp256k1.JacobianPoint,
-	sigS *secp256k1.ModNScalar,
+	signatureS *secp256k1.ModNScalar,
 	challenge *secp256k1.ModNScalar,
 	pubKey *secp256k1.PublicKey,
 	generator *secp256k1.JacobianPoint,
@@ -70,9 +70,9 @@ func Verify(
 	var Q, R, sG, cQ secp256k1.JacobianPoint
 	pubKey.AsJacobian(&Q)
 	if generator == nil {
-		secp256k1.ScalarBaseMultNonConst(sigS, &sG)
+		secp256k1.ScalarBaseMultNonConst(signatureS, &sG)
 	} else {
-		secp256k1.ScalarMultNonConst(sigS, generator, &sG)
+		secp256k1.ScalarMultNonConst(signatureS, generator, &sG)
 	}
 	secp256k1.ScalarMultNonConst(c.Negate(), &Q, &cQ)
 	secp256k1.AddNonConst(&sG, &cQ, &R)

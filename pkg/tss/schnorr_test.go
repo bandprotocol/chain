@@ -64,7 +64,14 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong nonce sym case
-			err = tss.Verify(tss.Point(testutil.FakePubKey), signature.S(), suite.challenge, keySym, fakeGenerator, nil)
+			err = tss.Verify(
+				tss.Point(testutil.FakePubKey),
+				signature.S(),
+				suite.challenge,
+				keySym,
+				fakeGenerator,
+				nil,
+			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 		})
 }
@@ -137,7 +144,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 		pubKey := tss.Scalar(privKey[:]).Point()
 		if err := tss.Verify(signature.R(), signature.S(), challenge, pubKey, nil, nil); err != nil {
 			suite.T().
-				Fatalf("failed to verify signature\nsig: %x\nhash: %x\n"+"private key: %x\npublic key: %x", signature, msg, privKey, pubKey)
+				Fatalf("failed to verify signature\nsignature: %x\nhash: %x\n"+"private key: %x\npublic key: %x", signature, msg, privKey, pubKey)
 		}
 
 		// Change a random bit in the data and ensure
@@ -148,7 +155,8 @@ func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 		randBit := rng.Intn(7)
 		badMsg[randByte] ^= 1 << randBit
 		if err := tss.Verify(signature.R(), signature.S(), badMsg[:], pubKey, nil, nil); err == nil {
-			suite.T().Fatalf("verified signature for bad hash\nsig: %x\nhash: %x\n"+"pubkey: %x", signature, badMsg, pubKey)
+			suite.T().
+				Fatalf("verified signature for bad hash\nsignature: %x\nhash: %x\n"+"pubkey: %x", signature, badMsg, pubKey)
 		}
 	}
 }

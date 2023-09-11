@@ -19,12 +19,12 @@ func CopyTestCase(src TestCase) TestCase {
 }
 
 var (
-	FakePrivKey = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
-	FakePubKey  = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
-	FakeSig     = HexDecode(
+	FakePrivKey   = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
+	FakePubKey    = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
+	FakeSignature = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
-	FakeComplaintSig = HexDecode(
+	FakeComplaintSignature = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
 	FakeChallenge = HexDecode("97e42d6dad095e552b6467e24f35740172233fbd0c2d078066009a85206e6e93")
@@ -71,7 +71,7 @@ var (
 						PubKeySignature: HexDecode(
 							"03ac6f6f47b3e8625d0ea1a7cea832655c95b679dadefef8ca4de2cdb66640496d48b72a3ca150c1b8a3715c501e9e92723f4262f0c8268868ad091eb22a769931",
 						),
-						ComplaintSigs: tss.ComplaintSignatures{
+						ComplaintSignatures: tss.ComplaintSignatures{
 							HexDecode(
 								"026d8cecb7d3eac4a729f0f9e50bbb690f01b20ad678409cf79376944c078b3f6c02979db8b033adc0717b669ccbff913e681659245d97b67f66133513976ca1f95070fbe5f06e141ad77c93070dd20a275c1246c1ef9ab62a4e5048b8baec8ea8a4",
 							),
@@ -108,7 +108,7 @@ var (
 						PubKeySignature: HexDecode(
 							"03c3befda42b4b28d5058842e45f46de7d4e4c79fa5cd36ea84af71514712842ac3e0b418701980d7601e31eeea9e683267ca1b35fb4abe9e877cbe041e6afbba3",
 						),
-						ComplaintSigs: tss.ComplaintSignatures{
+						ComplaintSignatures: tss.ComplaintSignatures{
 							HexDecode(
 								"02a0958e29cb00571f3ed832b146edfaf5c67bc887748cc911abc4b9375da2f0fe020760dbce0abca8daa81a14b9701368b05d5d606f02d3fc9574c28eb761d627af8bb7b85624d5e1d78db08359d124ca57322adbc80f4fbb9930f9f1ed1838668c",
 							),
@@ -266,7 +266,7 @@ var (
 						PubKeySignature: HexDecode(
 							"0398ba0bae0d08502c7112f12d153e3044779ea1c7b4be2931655c906f2e515c4b65904c694643fa9ebe18b28c0852dce2aca58712477a1631651096fefe4ef2a3",
 						),
-						ComplaintSigs: tss.ComplaintSignatures{
+						ComplaintSignatures: tss.ComplaintSignatures{
 							HexDecode(
 								"03f8d441370179701150e6c87c4e12b9549e8501b6bee9456ed20001a292f495e1034b8a8f569c8a1a3b0a25c963a85d526dafe4c01ce71a7d15db445098a21fdb7bff5bb38f970fd3d6f33161a1eec7056e3b5e9bbebc9f8b617750ce545ee0173b",
 							),
@@ -301,7 +301,7 @@ var (
 						PubKeySignature: HexDecode(
 							"02aac6b21e1e05461544f933a2c4b5bc3e37380462f855ebaf62cb3e867514a9df098c3ac9c120d7a4c1f2ce1e0cdc109da41792122440c0a2669d084d96c90441",
 						),
-						ComplaintSigs: tss.ComplaintSignatures{
+						ComplaintSignatures: tss.ComplaintSignatures{
 							HexDecode(
 								"021ab11f3eae2807ead59d5e8cc65d0841cb324de5988be2768ea38116ac130af50399487cefdecbcf378edb1533d41c2640fa35f9e8e98f862ec7108d135e243aea0f1bf8672686f3c8972de0eaeeb989558c1fd01bea58e7c6cfeaa1f143513b55",
 							),

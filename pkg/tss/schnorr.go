@@ -25,7 +25,7 @@ func Sign(
 		challenge.Mul(lagrange)
 	}
 
-	signatureS, err := schnorr.ComputeSigS(privKey, nonce, challenge)
+	signatureS, err := schnorr.ComputeSignatureS(privKey, nonce, challenge)
 	if err != nil {
 		return nil, NewError(err, "compute signature S")
 	}
@@ -38,19 +38,19 @@ func Sign(
 // and optional override signature R value.
 // It returns an error if the verification process fails.
 func Verify(
-	rawSigR Point,
-	rawSigS Scalar,
+	rawSignatureR Point,
+	rawSignatureS Scalar,
 	rawChallenge Scalar,
 	rawPubKey Point,
 	rawGenerator Point,
 	rawLagrange Scalar,
 ) error {
-	signatureR, err := rawSigR.jacobianPoint()
+	signatureR, err := rawSignatureR.jacobianPoint()
 	if err != nil {
 		return NewError(err, "parse signature R")
 	}
 
-	signatureS := rawSigS.modNScalar()
+	signatureS := rawSignatureS.modNScalar()
 
 	pubKey, err := rawPubKey.publicKey()
 	if err != nil {

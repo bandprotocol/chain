@@ -86,7 +86,7 @@ func (s Signing) GetAllOwnPubNonces() (res []tss.Point) {
 	return res
 }
 
-func (s Signing) GetAllSigs() (res []tss.Signature) {
+func (s Signing) GetAllSignatures() (res []tss.Signature) {
 	for _, assignedMember := range s.AssignedMembers {
 		res = append(res, assignedMember.Signature)
 	}

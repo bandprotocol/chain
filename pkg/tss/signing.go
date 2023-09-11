@@ -126,11 +126,11 @@ func ComputeGroupPublicNonce(rawOwnPubNonces ...Point) (Point, error) {
 }
 
 // CombineSignatures performs combining all signatures by sum up R and sum up S.
-func CombineSignatures(rawSigs ...Signature) (Signature, error) {
+func CombineSignatures(rawSignatures ...Signature) (Signature, error) {
 	var allR []*secp256k1.JacobianPoint
 	var allS []*secp256k1.ModNScalar
-	for idx, rawSig := range rawSigs {
-		signature, err := rawSig.signature()
+	for idx, rawSignature := range rawSignatures {
+		signature, err := rawSignature.signature()
 		if err != nil {
 			return nil, NewError(err, "parse signature: index: %d", idx)
 		}
@@ -162,7 +162,7 @@ func SignSigning(
 
 // VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,
 // signature, and own public key.
-func VerifySigningSig(
+func VerifySigningSignature(
 	groupPubNonce Point,
 	groupPubKey Point,
 	data []byte,
@@ -179,7 +179,7 @@ func VerifySigningSig(
 }
 
 // VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
-func VerifyGroupSigningSig(
+func VerifyGroupSigningSignature(
 	groupPubKey Point,
 	data []byte,
 	signature Signature,

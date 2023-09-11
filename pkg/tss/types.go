@@ -458,12 +458,12 @@ type ComplaintSignatures []ComplaintSignature
 
 // NewComplaintSignature constructs a ComplaintSignature from bytes.
 func NewComplaintSignature(bytes []byte) (ComplaintSignature, error) {
-	comSig := ComplaintSignature(bytes)
-	if err := comSig.Validate(); err != nil {
+	comSignature := ComplaintSignature(bytes)
+	if err := comSignature.Validate(); err != nil {
 		return nil, NewError(err, "invalid")
 	}
 
-	return comSig, nil
+	return comSignature, nil
 }
 
 // NewComplaintSignatureFromComponents generates a complaint signature from 2 Points (A1, A2) and Scalar (Z).

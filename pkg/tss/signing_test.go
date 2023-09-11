@@ -77,7 +77,7 @@ func (suite *TSSTestSuite) TestComputeGroupPublicNonce() {
 
 func (suite *TSSTestSuite) TestCombineSignatures() {
 	suite.RunOnSigning(suite.testCases, func(tc testutil.TestCase, signing testutil.Signing) {
-		signature, err := tss.CombineSignatures(signing.GetAllSigs()...)
+		signature, err := tss.CombineSignatures(signing.GetAllSignatures()...)
 		suite.Require().NoError(err)
 		suite.Require().Equal(signing.Signature, signature)
 	})
@@ -100,12 +100,12 @@ func (suite *TSSTestSuite) TestSignSigning() {
 		})
 }
 
-func (suite *TSSTestSuite) TestVerifySigningSig() {
+func (suite *TSSTestSuite) TestVerifySigningSignature() {
 	suite.RunOnAssignedMember(
 		suite.testCases,
 		func(tc testutil.TestCase, signing testutil.Signing, assignedMember testutil.AssignedMember) {
 			// Success case
-			err := tss.VerifySigningSig(
+			err := tss.VerifySigningSignature(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				signing.Data,
@@ -116,7 +116,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 			suite.Require().NoError(err)
 
 			// Wrong public nonce case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				testutil.FakePubKey,
 				tc.Group.PubKey,
 				signing.Data,
@@ -127,7 +127,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong group public key case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				signing.PubNonce,
 				testutil.FakePubKey,
 				signing.Data,
@@ -138,7 +138,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong data case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				[]byte("fake data"),
@@ -149,7 +149,7 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong lagrange case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				signing.Data,
@@ -160,18 +160,18 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong signature case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				signing.Data,
 				assignedMember.Lagrange,
-				testutil.FakeSig,
+				testutil.FakeSignature,
 				tc.Group.GetMember(assignedMember.ID).PubKey(),
 			)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong own public key case
-			err = tss.VerifySigningSig(
+			err = tss.VerifySigningSignature(
 				signing.PubNonce,
 				tc.Group.PubKey,
 				signing.Data,
@@ -183,22 +183,22 @@ func (suite *TSSTestSuite) TestVerifySigningSig() {
 		})
 }
 
-func (suite *TSSTestSuite) TestVerifyGroupSigningSig() {
+func (suite *TSSTestSuite) TestVerifyGroupSigningSignature() {
 	suite.RunOnSigning(suite.testCases, func(tc testutil.TestCase, signing testutil.Signing) {
 		// Success case
-		err := tss.VerifyGroupSigningSig(tc.Group.PubKey, signing.Data, signing.Signature)
+		err := tss.VerifyGroupSigningSignature(tc.Group.PubKey, signing.Data, signing.Signature)
 		suite.Require().NoError(err)
 
 		// Wrong group public key case
-		err = tss.VerifyGroupSigningSig(testutil.FakePubKey, signing.Data, signing.Signature)
+		err = tss.VerifyGroupSigningSignature(testutil.FakePubKey, signing.Data, signing.Signature)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong data case
-		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, []byte("fake data"), signing.Signature)
+		err = tss.VerifyGroupSigningSignature(tc.Group.PubKey, []byte("fake data"), signing.Signature)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong signature case
-		err = tss.VerifyGroupSigningSig(tc.Group.PubKey, signing.Data, testutil.FakeSig)
+		err = tss.VerifyGroupSigningSignature(tc.Group.PubKey, signing.Data, testutil.FakeSignature)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }

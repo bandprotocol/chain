@@ -16,9 +16,9 @@ type Member struct {
 	SecretShares    tss.Scalars
 	EncSecretShares tss.Scalars
 
-	PrivKey         tss.Scalar
-	PubKeySignature tss.Signature
-	ComplaintSigs   tss.ComplaintSignatures
+	PrivKey             tss.Scalar
+	PubKeySignature     tss.Signature
+	ComplaintSignatures tss.ComplaintSignatures
 }
 
 func (m Member) OneTimePubKey() tss.Point {
@@ -35,19 +35,19 @@ func (m Member) PubKey() tss.Point {
 
 func CopyMember(src Member) Member {
 	return Member{
-		ID:                 src.ID,
-		OneTimePrivKey:     Copy(src.OneTimePrivKey),
-		OneTimeSignature:   Copy(src.OneTimeSignature),
-		A0PrivKey:          Copy(src.A0PrivKey),
-		A0Signature:        Copy(src.A0Signature),
-		Coefficients:       CopySlice(src.Coefficients),
-		CoefficientCommits: CopySlice(src.CoefficientCommits),
-		KeySyms:            CopySlice(src.KeySyms),
-		SecretShares:       CopySlice(src.SecretShares),
-		EncSecretShares:    CopySlice(src.EncSecretShares),
-		PrivKey:            Copy(src.PrivKey),
-		PubKeySignature:    Copy(src.PubKeySignature),
-		ComplaintSigs:      CopySlice(src.ComplaintSigs),
+		ID:                  src.ID,
+		OneTimePrivKey:      Copy(src.OneTimePrivKey),
+		OneTimeSignature:    Copy(src.OneTimeSignature),
+		A0PrivKey:           Copy(src.A0PrivKey),
+		A0Signature:         Copy(src.A0Signature),
+		Coefficients:        CopySlice(src.Coefficients),
+		CoefficientCommits:  CopySlice(src.CoefficientCommits),
+		KeySyms:             CopySlice(src.KeySyms),
+		SecretShares:        CopySlice(src.SecretShares),
+		EncSecretShares:     CopySlice(src.EncSecretShares),
+		PrivKey:             Copy(src.PrivKey),
+		PubKeySignature:     Copy(src.PubKeySignature),
+		ComplaintSignatures: CopySlice(src.ComplaintSignatures),
 	}
 }
 
