@@ -23,7 +23,7 @@ func TestParseEvent(t *testing.T) {
 			"success",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeRequestSign,
+					types.EventTypeRequestSignature,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
 					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),

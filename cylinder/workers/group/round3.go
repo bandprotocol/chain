@@ -127,7 +127,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 			r.context.MsgCh <- &types.MsgComplain{
 				GroupID:    gid,
 				Complaints: complaints,
-				Member:     r.context.Config.Granter,
+				Address:    r.context.Config.Granter,
 			}
 			return
 		}
@@ -168,7 +168,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		GroupID:      gid,
 		MemberID:     group.MemberID,
 		OwnPubKeySig: ownPubKeySig,
-		Member:       r.context.Config.Granter,
+		Address:      r.context.Config.Granter,
 	}
 }
 

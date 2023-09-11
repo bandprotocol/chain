@@ -46,7 +46,7 @@ func New(ctx *cylinder.Context) (*Signing, error) {
 func (s *Signing) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"%s.%s = '%s'",
-		types.EventTypeRequestSign,
+		types.EventTypeRequestSignature,
 		types.AttributeKeyMember,
 		s.context.Config.Granter,
 	)
@@ -78,7 +78,7 @@ func (s *Signing) handleTxResult(txResult abci.TxResult) {
 func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
-		if ev.Type == types.EventTypeRequestSign {
+		if ev.Type == types.EventTypeRequestSignature {
 			event, err := ParseEvent(sdk.StringEvents{ev})
 			if err != nil {
 				s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
@@ -157,7 +157,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 		SigningID: sid,
 		MemberID:  group.MemberID,
 		Signature: sig,
-		Member:    s.context.Config.Granter,
+		Address:   s.context.Config.Granter,
 	}
 }
 

@@ -16,7 +16,7 @@ type Event struct {
 // ParseEvent parses the request-sign event from the given events.
 // It extracts the signing information from the events and returns the parsed Event or an error if parsing fails.
 func ParseEvent(events sdk.StringEvents) (*Event, error) {
-	sid, err := event.GetEventValueUint64(events, types.EventTypeRequestSign, types.AttributeKeySigningID)
+	sid, err := event.GetEventValueUint64(events, types.EventTypeRequestSignature, types.AttributeKeySigningID)
 	if err != nil {
 		return nil, err
 	}

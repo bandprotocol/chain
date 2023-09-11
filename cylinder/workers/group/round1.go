@@ -134,10 +134,10 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 			MemberID:           mid,
 			CoefficientCommits: data.CoefficientCommits,
 			OneTimePubKey:      data.OneTimePubKey,
-			A0Sig:              data.A0Sig,
-			OneTimeSig:         data.OneTimeSig,
+			A0Signature:        data.A0Signature,
+			OneTimeSignature:   data.OneTimeSignature,
 		},
-		Member: r.context.Config.Granter,
+		Address: r.context.Config.Granter,
 	}
 
 	// Send the message to the message channel

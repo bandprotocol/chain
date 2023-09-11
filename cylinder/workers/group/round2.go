@@ -137,7 +137,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 			MemberID:              dkg.MemberID,
 			EncryptedSecretShares: encSecretShares,
 		},
-		Member: r.context.Config.Granter,
+		Address: r.context.Config.Granter,
 	}
 
 	r.context.MsgCh <- msg

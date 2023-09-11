@@ -72,19 +72,19 @@ func TestGetAssignedMember(t *testing.T) {
 					AssignedMembers: []types.AssignedMember{
 						{
 							MemberID: 1,
-							Member:   "band member 1",
+							Address:  "band address 1",
 						},
 						{
 							MemberID: 2,
-							Member:   "band member 2",
+							Address:  "band address 2",
 						},
 					},
 				},
 			},
-			address: "band member 2",
+			address: "band address 2",
 			expectedValue: types.AssignedMember{
 				MemberID: 2,
-				Member:   "band member 2",
+				Address:  "band address 2",
 			},
 			expectedError: nil,
 		},
@@ -95,18 +95,18 @@ func TestGetAssignedMember(t *testing.T) {
 					AssignedMembers: []types.AssignedMember{
 						{
 							MemberID: 1,
-							Member:   "band member 1",
+							Address:  "band address 1",
 						},
 						{
 							MemberID: 2,
-							Member:   "band member 2",
+							Address:  "band address 2",
 						},
 					},
 				},
 			},
-			address:       "band member 3",
+			address:       "band address 3",
 			expectedValue: types.AssignedMember{},
-			expectedError: fmt.Errorf("band member 3 is not the assigned member"),
+			expectedError: fmt.Errorf("band address 3 is not the assigned member"),
 		},
 	}
 

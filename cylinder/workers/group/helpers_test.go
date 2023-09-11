@@ -67,7 +67,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 								Complainant: member.ID,
 								Respondent:  m.ID,
 								KeySym:      member.KeySyms[slot],
-								Signature:   member.ComplaintSigs[slot],
+								Signature:   member.ComplaintSignatures[slot],
 							}
 
 							assert.Equal(t, expComplaint.Complainant, complaints[slot].Complainant)
@@ -75,7 +75,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 							assert.Equal(t, expComplaint.KeySym, complaints[slot].KeySym)
 
 							// Can't compare signature as the nonce will be randomly generated
-							err := tss.VerifyComplaintSig(
+							err := tss.VerifyComplaintSignature(
 								member.OneTimePubKey(),
 								m.OneTimePubKey(),
 								expComplaint.KeySym,
@@ -171,7 +171,7 @@ func TestGetSecretShare(t *testing.T) {
 									Complainant: receiver.ID,
 									Respondent:  sender.ID,
 									KeySym:      receiver.KeySyms[slot],
-									Signature:   receiver.ComplaintSigs[slot],
+									Signature:   receiver.ComplaintSignatures[slot],
 								}
 
 								assert.Equal(t, expComplaint.Complainant, complaint.Complainant)
@@ -179,7 +179,7 @@ func TestGetSecretShare(t *testing.T) {
 								assert.Equal(t, expComplaint.KeySym, complaint.KeySym)
 
 								// Can't compare signature as the nonce will be randomly generated
-								err := tss.VerifyComplaintSig(
+								err := tss.VerifyComplaintSignature(
 									receiver.OneTimePubKey(),
 									sender.OneTimePubKey(),
 									expComplaint.KeySym,

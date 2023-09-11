@@ -46,7 +46,7 @@ func New(ctx *cylinder.Context) (*DE, error) {
 func (de *DE) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"tm.event = 'Tx' AND %s.%s = '%s'",
-		types.EventTypeRequestSign,
+		types.EventTypeRequestSignature,
 		types.AttributeKeyMember,
 		de.context.Config.Granter,
 	)
@@ -136,8 +136,8 @@ func (de *DE) updateDE() {
 
 	// Send MsgDE
 	de.context.MsgCh <- &types.MsgSubmitDEs{
-		DEs:    pubDEs,
-		Member: de.context.Config.Granter,
+		DEs:     pubDEs,
+		Address: de.context.Config.Granter,
 	}
 }
 
