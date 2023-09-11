@@ -254,8 +254,8 @@ func (ba *BenchmarkApp) SetupGroup() {
 
 		// Submit DEs for each member
 		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-			DEs:    GetDEs(),
-			Member: ba.Sender.Address.String(),
+			DEs:     GetDEs(),
+			Address: ba.Sender.Address.String(),
 		})
 		require.NoError(ba.TB, err)
 	}
@@ -346,8 +346,8 @@ func (ba *BenchmarkApp) AddDEs(
 	count := k.GetDECount(ctx, ba.Sender.Address)
 	if count < uint64(DELen) {
 		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-			DEs:    GetDEs(),
-			Member: ba.Sender.Address.String(),
+			DEs:     GetDEs(),
+			Address: ba.Sender.Address.String(),
 		})
 		require.NoError(ba.TB, err)
 	}

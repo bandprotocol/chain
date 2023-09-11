@@ -113,13 +113,13 @@ func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDKGRound1.
 func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}
@@ -162,13 +162,13 @@ func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDKGRound2.
 func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}
@@ -196,13 +196,13 @@ func (m MsgComplain) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgComplain.
 func (m MsgComplain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgComplain) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}
@@ -258,13 +258,13 @@ func (m MsgConfirm) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgConfirm.
 func (m MsgConfirm) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}
@@ -290,13 +290,13 @@ func (m MsgSubmitDEs) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDEs.
 func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}
@@ -405,13 +405,13 @@ func (m MsgSubmitSignature) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitSignature.
 func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Member)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Member)
+	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return errors.Wrap(err, "member")
 	}

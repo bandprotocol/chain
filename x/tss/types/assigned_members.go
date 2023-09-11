@@ -1,6 +1,8 @@
 package types
 
 import (
+	bytes "bytes"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
@@ -37,4 +39,25 @@ func (ams AssignedMembers) MemberIDs() (mids []tss.MemberID) {
 		mids = append(mids, am.MemberID)
 	}
 	return
+}
+
+// FindAssignedMember searches for an AssignedMember in the AssignedMembers slice
+// with a matching MemberID and address.
+func (ams AssignedMembers) FindAssignedMember(mid tss.MemberID, address string) (AssignedMember, bool) {
+	for _, am := range ams {
+		if mid == am.MemberID && address == am.Address {
+			return am, true
+		}
+	}
+	return AssignedMember{}, false
+}
+
+// VerifySignatureR checks if a given MemberID has a matching public nonce (R) in the AssignedMembers slice.
+func (ams AssignedMembers) VerifySignatureR(mid tss.MemberID, r tss.Point) bool {
+	for _, am := range ams {
+		if mid == am.MemberID {
+			return bytes.Equal(r, tss.Point(am.PubNonce))
+		}
+	}
+	return false
 }

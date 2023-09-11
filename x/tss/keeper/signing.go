@@ -222,8 +222,8 @@ func (k Keeper) GetPartialSignature(
 	return bz, nil
 }
 
-// DeletePartialSignaturenatures delete all partial signatures data of a signing from the store.
-func (k Keeper) DeletePartialSignaturenatures(ctx sdk.Context, signingID tss.SigningID) {
+// DeletePartialSignatures delete all partial signatures data of a signing from the store.
+func (k Keeper) DeletePartialSignatures(ctx sdk.Context, signingID tss.SigningID) {
 	iterator := k.GetPartialSignatureIterator(ctx, signingID)
 	defer iterator.Close()
 
@@ -622,7 +622,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
 			k.RefundFee(ctx, signing)
 
-			mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+			mids := signing.AssignedMembers.MemberIDs()
 			pzs := k.GetPartialSignaturesWithKey(ctx, signing.SigningID)
 			// Iterate through each member ID in the assigned members list.
 			for _, mid := range mids {
@@ -645,7 +645,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		k.DeleteAssignedMembers(ctx, signing.SigningID)
 
 		// Remove all partial signatures from the store
-		k.DeletePartialSignaturenatures(ctx, signing.SigningID)
+		k.DeletePartialSignatures(ctx, signing.SigningID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)

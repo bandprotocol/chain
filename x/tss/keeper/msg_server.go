@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
 	"fmt"
@@ -248,13 +247,13 @@ func (k msgServer) SubmitDKGRound1(
 		return nil, err
 	}
 
-	// Verify member
-	if !member.Verify(req.Member) {
+	// Verify address
+	if !member.Verify(req.Address) {
 		return nil, errors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
-			req.Member,
+			req.Address,
 		)
 	}
 
@@ -314,7 +313,7 @@ func (k msgServer) SubmitDKGRound1(
 			types.EventTypeSubmitDKGRound1,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
 			sdk.NewAttribute(
 				types.AttributeKeyRound1Info,
 				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Info)),
@@ -360,13 +359,13 @@ func (k msgServer) SubmitDKGRound2(
 		return nil, err
 	}
 
-	// Verify member
-	if !member.Verify(req.Member) {
+	// Verify address
+	if !member.Verify(req.Address) {
 		return nil, errors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
-			req.Member,
+			req.Address,
 		)
 	}
 
@@ -407,7 +406,7 @@ func (k msgServer) SubmitDKGRound2(
 			types.EventTypeSubmitDKGRound2,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
 			sdk.NewAttribute(types.AttributeKeyRound2Info, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Info))),
 		),
 	)
@@ -446,13 +445,13 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 		return nil, err
 	}
 
-	// Verify member
-	if !member.Verify(req.Member) {
+	// Verify address
+	if !member.Verify(req.Address) {
 		return nil, errors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
-			req.Member,
+			req.Address,
 		)
 	}
 
@@ -488,7 +487,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Address),
 				),
 			)
 		} else {
@@ -513,7 +512,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+					sdk.NewAttribute(types.AttributeKeyMember, req.Address),
 				),
 			)
 		}
@@ -566,13 +565,13 @@ func (k msgServer) Confirm(
 		return nil, err
 	}
 
-	// Verify member
-	if !member.Verify(req.Member) {
+	// Verify address
+	if !member.Verify(req.Address) {
 		return nil, errors.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
-			req.Member,
+			req.Address,
 		)
 	}
 
@@ -604,7 +603,7 @@ func (k msgServer) Confirm(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Member),
+			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
 		),
 	)
 
@@ -623,7 +622,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
-	member, err := sdk.AccAddressFromBech32(req.Member)
+	member, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, errors.Wrapf(
 			types.ErrInvalidAccAddressFormat,
@@ -683,30 +682,20 @@ func (k msgServer) SubmitSignature(
 		)
 	}
 
-	var found bool
-	var mids []tss.MemberID
-	var assignedMember types.AssignedMember
-	// Check sender not in assigned participants and verify signature R
-	for _, am := range signing.AssignedMembers {
-		mids = append(mids, am.MemberID)
-		if am.MemberID == req.MemberID && am.Address == req.Member {
-			// Found member in assigned members
-			found = true
-			assignedMember = am
-
-			// verify signature R
-			if !bytes.Equal(req.Signature.R(), tss.Point(am.PubNonce)) {
-				return nil, errors.Wrapf(
-					types.ErrPubNonceNotEqualToSigR,
-					"public nonce from member ID: %d is not equal signature r",
-					req.MemberID,
-				)
-			}
-		}
-	}
+	// Check sender not in assigned participants
+	am, found := signing.AssignedMembers.FindAssignedMember(req.MemberID, req.Address)
 	if !found {
 		return nil, errors.Wrapf(
 			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned participants", req.MemberID,
+		)
+	}
+
+	// Verify signature R
+	if !signing.AssignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
+		return nil, errors.Wrapf(
+			types.ErrPubNonceNotEqualToSigR,
+			"public nonce from member ID: %d is not equal signature r",
+			req.MemberID,
 		)
 	}
 
@@ -722,7 +711,7 @@ func (k msgServer) SubmitSignature(
 	}
 
 	// Compute lagrange coefficient
-	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
+	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedMembers.MemberIDs())
 
 	// Verify signing signature
 	err = tss.VerifySigningSignature(
@@ -731,7 +720,7 @@ func (k msgServer) SubmitSignature(
 		signing.Message,
 		lagrange,
 		req.Signature,
-		assignedMember.PubKey,
+		am.PubKey,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
@@ -751,9 +740,9 @@ func (k msgServer) SubmitSignature(
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, assignedMember.Address),
-			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(assignedMember.PubD)),
-			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(assignedMember.PubE)),
+			sdk.NewAttribute(types.AttributeKeyMember, am.Address),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
 		),
 	)

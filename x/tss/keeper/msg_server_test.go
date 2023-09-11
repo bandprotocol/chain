@@ -247,7 +247,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -265,7 +265,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -292,7 +292,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {
@@ -312,7 +312,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   []byte("wrong one_time_sig"),
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -330,7 +330,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        []byte("wrong a0_sig"),
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -370,7 +370,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 						A0Signature:        m.A0Signature,
 						OneTimeSignature:   m.OneTimeSignature,
 					},
-					Member: sdk.AccAddress(m.PubKey()).String(),
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -409,7 +409,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -424,7 +424,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              99,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -445,7 +445,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {
@@ -463,7 +463,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: inValidEncSecretShares,
 					},
-					Member: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -501,7 +501,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 						MemberID:              m.ID,
 						EncryptedSecretShares: m.EncSecretShares,
 					},
-					Member: sdk.AccAddress(m.PubKey()).String(),
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -567,7 +567,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Signature:   signature,
 						},
 					},
-					Member: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -579,7 +579,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				GroupID:      tc.Group.ID,
 				MemberID:     respondent.ID,
 				OwnPubKeySig: respondent.PubKeySignature,
-				Member:       sdk.AccAddress(respondent.PubKey()).String(),
+				Address:      sdk.AccAddress(respondent.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 
@@ -608,7 +608,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 					GroupID:      tc.Group.ID,
 					MemberID:     m.ID,
 					OwnPubKeySig: m.PubKeySignature,
-					Member:       sdk.AccAddress(m.PubKey()).String(),
+					Address:      sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -644,8 +644,8 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 
 				req = types.MsgSubmitDEs{
-					DEs:    deList,
-					Member: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+					DEs:     deList,
+					Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 				}
 			},
 			func() {},
@@ -678,8 +678,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 			for _, m := range tc.Group.Members {
 				// Submit DEs for each member in the group
 				_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
-					DEs:    []types.DE{de},
-					Member: sdk.AccAddress(m.PubKey()).String(),
+					DEs:     []types.DE{de},
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -843,7 +843,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
 					Signature: tc1.Signings[0].Signature,
-					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+					Address:   sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -866,7 +866,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
 					Signature: tc1.Signings[0].Signature,
-					Member:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+					Address:   sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {
@@ -920,18 +920,18 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			for _, am := range signing.AssignedMembers {
 				// Compute Lagrange coefficient
 				var lgc tss.Scalar
-				mids := types.AssignedMembers(signing.AssignedMembers).MemberIDs()
+				mids := signing.AssignedMembers.MemberIDs()
 				if len(mids) <= 20 {
 					// Compute the Lagrange coefficient using the optimized operation
 					lgc = tss.ComputeLagrangeCoefficientOp(
 						am.MemberID,
-						types.AssignedMembers(signing.AssignedMembers).MemberIDs(),
+						signing.AssignedMembers.MemberIDs(),
 					)
 				} else {
 					// Compute the Lagrange coefficient using the default implementation
 					lgc = tss.ComputeLagrangeCoefficient(
 						am.MemberID,
-						types.AssignedMembers(signing.AssignedMembers).MemberIDs(),
+						signing.AssignedMembers.MemberIDs(),
 					)
 				}
 
@@ -955,7 +955,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
 					Signature: signature,
-					Member:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
+					Address:   sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
 
