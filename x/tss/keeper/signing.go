@@ -184,18 +184,32 @@ func (k Keeper) DeleteSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
 }
 
 // AddPartialSignature adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
-func (k Keeper) AddPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+func (k Keeper) AddPartialSignature(
+	ctx sdk.Context,
+	signingID tss.SigningID,
+	memberID tss.MemberID,
+	sig tss.Signature,
+) {
 	k.AddSignatureCount(ctx, signingID)
 	k.SetPartialSignature(ctx, signingID, memberID, sig)
 }
 
 // SetPartialSignature sets the partial signature for a specific signing ID and member ID.
-func (k Keeper) SetPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID, sig tss.Signature) {
+func (k Keeper) SetPartialSignature(
+	ctx sdk.Context,
+	signingID tss.SigningID,
+	memberID tss.MemberID,
+	sig tss.Signature,
+) {
 	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
 }
 
 // GetPartialSignature retrieves the partial signature for a specific signing ID and member ID from the store.
-func (k Keeper) GetPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) (tss.Signature, error) {
+func (k Keeper) GetPartialSignature(
+	ctx sdk.Context,
+	signingID tss.SigningID,
+	memberID tss.MemberID,
+) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, errors.Wrapf(
@@ -647,7 +661,7 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 		k.handleFailedSigning(ctx, signing, err.Error())
 	}
 
-	err = tss.VerifyGroupSigningSig(signing.GroupPubKey, signing.Message, sig)
+	err = tss.VerifyGroupSigningSignature(signing.GroupPubKey, signing.Message, sig)
 	if err != nil {
 		k.handleFailedSigning(ctx, signing, err.Error())
 	}

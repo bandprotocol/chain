@@ -48,7 +48,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				Complainant: complainant.ID,
 				Respondent:  respondent.ID,
 				KeySym:      complainant.KeySyms[complainantSlot],
-				Signature:   complainant.ComplaintSigs[complainantSlot],
+				Signature:   complainant.ComplaintSignatures[complainantSlot],
 			})
 			s.Require().Error(err)
 
@@ -65,7 +65,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 				Complainant: complainant.ID,
 				Respondent:  respondent.ID,
 				KeySym:      complainant.KeySyms[complainantSlot],
-				Signature:   complainant.ComplaintSigs[complainantSlot],
+				Signature:   complainant.ComplaintSignatures[complainantSlot],
 			})
 			s.Require().NoError(err)
 		})

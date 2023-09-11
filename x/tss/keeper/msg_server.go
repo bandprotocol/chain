@@ -154,7 +154,10 @@ func (k msgServer) ReplaceGroup(
 		}
 
 		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
-			return nil, errors.Wrap(types.ErrRequestReplacementFailed, "the group is in the pending replacement process")
+			return nil, errors.Wrap(
+				types.ErrRequestReplacementFailed,
+				"the group is in the pending replacement process",
+			)
 		}
 	}
 
@@ -276,7 +279,12 @@ func (k msgServer) SubmitDKGRound1(
 	}
 
 	// Verify one time signature
-	err = tss.VerifyOneTimeSignature(memberID, dkgContext, req.Round1Info.OneTimeSignature, req.Round1Info.OneTimePubKey)
+	err = tss.VerifyOneTimeSignature(
+		memberID,
+		dkgContext,
+		req.Round1Info.OneTimeSignature,
+		req.Round1Info.OneTimePubKey,
+	)
 	if err != nil {
 		return nil, errors.Wrap(types.ErrVerifyOneTimeSignatureFailed, err.Error())
 	}
@@ -717,7 +725,7 @@ func (k msgServer) SubmitSignature(
 	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, mids)
 
 	// Verify signing signature
-	err = tss.VerifySigningSig(
+	err = tss.VerifySigningSignature(
 		signing.GroupPubNonce,
 		signing.GroupPubKey,
 		signing.Message,
