@@ -60,11 +60,13 @@ func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
 			return
 		}
 
-		go handlePendingRequest(c, l, types.RequestID(id))
+		go handleRequest(c, l, types.RequestID(id))
 	}
 }
 
-func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
+func handleRequest(c *Context, l *Logger, id types.RequestID) {
+	l = l.With("rid", id)
+
 	req, err := GetRequest(c, l, id)
 	if err != nil {
 		l.Error(":skull: Failed to get request with error: %s", c, err.Error())
@@ -83,7 +85,7 @@ func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
 		return
 	}
 
-	l.Info(":delivery_truck: Processing pending request")
+	l.Info(":delivery_truck: Processing request")
 
 	keyIndex := c.nextKeyIndex()
 	key := c.keys[keyIndex]
