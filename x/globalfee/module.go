@@ -87,7 +87,10 @@ type AppModule struct {
 
 // NewAppModule constructor
 func NewAppModule(keeper keeper.Keeper) *AppModule {
-	return &AppModule{keeper: keeper}
+	return &AppModule{
+		AppModuleBasic: AppModuleBasic{},
+		keeper:         keeper,
+	}
 }
 
 func (a AppModule) InitGenesis(
