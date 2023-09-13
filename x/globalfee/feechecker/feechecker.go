@@ -1,10 +1,9 @@
 package feechecker
 
 import (
-	"errors"
 	"math"
 
-	cmerrors "cosmossdk.io/errors"
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -39,7 +38,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 ) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
-		return nil, 0, cmerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+		return nil, 0, errors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
 	feeCoins := feeTx.GetFee()
@@ -77,7 +76,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		}
 
 		if !allFees.IsZero() && !feeCoins.IsAnyGTE(allFees) {
-			return nil, 0, cmerrors.Wrapf(
+			return nil, 0, errors.Wrapf(
 				sdkerrors.ErrInsufficientFee,
 				"insufficient fees; got: %s required: %s",
 				feeCoins,
@@ -126,7 +125,7 @@ func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {
 	bondDenom := fc.GetBondDenom(ctx)
 	if bondDenom == "" {
-		return nil, errors.New("empty staking bond denomination")
+		return nil, errors.Wrap(sdkerrors.ErrNotFound, "empty staking bond denomination")
 	}
 
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
