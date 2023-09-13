@@ -11,7 +11,7 @@ import (
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
-
+	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -114,8 +115,6 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
 
-	owasm "github.com/bandprotocol/go-owasm/api"
-
 	"github.com/bandprotocol/chain/v2/app/keepers"
 	"github.com/bandprotocol/chain/v2/app/upgrades"
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
@@ -128,10 +127,11 @@ import (
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
+	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 )
 
 const (
@@ -301,6 +301,7 @@ func NewBandApp(
 		icahosttypes.StoreKey,
 		group.StoreKey,
 		oracletypes.StoreKey,
+		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -602,6 +603,15 @@ func NewBandApp(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
+	app.GlobalfeeKeeper = globalfeekeeper.NewKeeper(
+		appCodec,
+		keys[globalfeetypes.StoreKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	/****  Module Options ****/
+	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
+	// we prefer to be more strict in what arguments the modules expect.
 	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -666,7 +676,7 @@ func NewBandApp(
 		transferModule,
 		icaModule,
 		oracleModule,
-		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
+		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -696,7 +706,7 @@ func NewBandApp(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -721,7 +731,7 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -752,7 +762,7 @@ func NewBandApp(
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		oracletypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)
@@ -794,10 +804,10 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			OracleKeeper:      &app.OracleKeeper,
-			IBCKeeper:         app.IBCKeeper,
-			GlobalFeeSubspace: app.GetSubspace(globalfee.ModuleName),
-			StakingKeeper:     app.StakingKeeper,
+			OracleKeeper:    &app.OracleKeeper,
+			IBCKeeper:       app.IBCKeeper,
+			StakingKeeper:   app.StakingKeeper,
+			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 		},
 	)
 	if err != nil {
@@ -1052,7 +1062,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }

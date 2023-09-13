@@ -11,22 +11,22 @@ import (
 func GetQueryCmd() *cobra.Command {
 	queryCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the global fee module",
+		Short:                      "Querying commands for the globalfee module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
 	queryCmd.AddCommand(
-		GetCmdShowMinimumGasPrices(),
+		GetQueryCmdParams(),
 	)
 	return queryCmd
 }
 
-func GetCmdShowMinimumGasPrices() *cobra.Command {
+func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "minimum-gas-prices",
-		Short:   "Show minimum gas prices",
-		Long:    "Show all minimum gas prices",
+		Use:     "params",
+		Short:   "Show params",
+		Long:    "Show parameter of globalfee module",
 		Aliases: []string{"min"},
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -36,7 +36,7 @@ func GetCmdShowMinimumGasPrices() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			res, err := queryClient.MinimumGasPrices(cmd.Context(), &types.QueryMinimumGasPricesRequest{})
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}

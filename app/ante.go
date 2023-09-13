@@ -4,23 +4,23 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
+	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	OracleKeeper      *oraclekeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	GlobalFeeSubspace paramtypes.Subspace
-	StakingKeeper     *stakingkeeper.Keeper
+	OracleKeeper    *oraclekeeper.Keeper
+	IBCKeeper       *ibckeeper.Keeper
+	StakingKeeper   *stakingkeeper.Keeper
+	GlobalfeeKeeper *globalfeekeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -39,6 +39,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for AnteHandler")
 	}
+	if options.GlobalfeeKeeper == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Globalfee keeper is required for AnteHandler")
+	}
 
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
@@ -46,13 +49,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	if options.TxFeeChecker == nil {
-		if options.GlobalFeeSubspace.Name() == "" {
-			return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "globalfee param store is required for AnteHandler")
-		}
-
 		feeChecker := feechecker.NewFeeChecker(
 			options.OracleKeeper,
-			options.GlobalFeeSubspace,
+			options.GlobalfeeKeeper,
 			options.StakingKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
