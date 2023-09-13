@@ -4,7 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
@@ -18,11 +17,10 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	OracleKeeper      *oraclekeeper.Keeper
-	IBCKeeper         *ibckeeper.Keeper
-	GlobalFeeSubspace paramtypes.Subspace
-	StakingKeeper     *stakingkeeper.Keeper
-	GlobalfeeKeeper   *globalfeekeeper.Keeper
+	OracleKeeper    *oraclekeeper.Keeper
+	IBCKeeper       *ibckeeper.Keeper
+	StakingKeeper   *stakingkeeper.Keeper
+	GlobalfeeKeeper *globalfeekeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -51,10 +49,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	if options.TxFeeChecker == nil {
-		if options.GlobalFeeSubspace.Name() == "" {
-			return nil, sdkerrors.Wrap(sdkerrors.ErrNotFound, "globalfee param store is required for AnteHandler")
-		}
-
 		feeChecker := feechecker.NewFeeChecker(
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,

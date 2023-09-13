@@ -728,11 +728,10 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			OracleKeeper:      &app.OracleKeeper,
-			IBCKeeper:         app.IBCKeeper,
-			GlobalFeeSubspace: app.GetSubspace(globalfeetypes.ModuleName),
-			StakingKeeper:     app.StakingKeeper,
-			GlobalfeeKeeper:   &app.GlobalfeeKeeper,
+			OracleKeeper:    &app.OracleKeeper,
+			IBCKeeper:       app.IBCKeeper,
+			StakingKeeper:   app.StakingKeeper,
+			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 		},
 	)
 	if err != nil {
