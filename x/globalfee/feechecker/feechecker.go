@@ -65,12 +65,14 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 
 		// Calculate all fees from all gas prices
 		gas := feeTx.GetGas()
-		allFees := make(sdk.Coins, len(allGasPrices))
-		if !minGasPrices.IsZero() {
+		var allFees sdk.Coins
+		if !allGasPrices.IsZero() {
 			glDec := sdk.NewDec(int64(gas))
-			for i, gp := range minGasPrices {
-				fee := gp.Amount.Mul(glDec)
-				allFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			for _, gp := range allGasPrices {
+				if !gp.IsZero() {
+					fee := gp.Amount.Mul(glDec)
+					allFees = append(allFees, sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt()))
+				}
 			}
 		}
 
