@@ -4,20 +4,23 @@ import (
 	"context"
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/client/cli"
+	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee/types"
 )
+
+// ConsensusVersion defines the current x/globalfee module consensus version.
+const ConsensusVersion = 1
 
 var (
 	_ module.AppModuleBasic   = AppModuleBasic{}
@@ -32,10 +35,18 @@ func (a AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
+// RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
+
+// RegisterInterfaces registers the module's interface types
+func (b AppModuleBasic) RegisterInterfaces(r codectypes.InterfaceRegistry) {
+	types.RegisterInterfaces(r)
+}
+
 func (a AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(&types.GenesisState{
-		Params: types.DefaultParams(),
-	})
+	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 func (a AppModuleBasic) ValidateGenesis(
@@ -48,13 +59,12 @@ func (a AppModuleBasic) ValidateGenesis(
 	if err != nil {
 		return err
 	}
-	if err := data.Params.ValidateBasic(); err != nil {
-		return sdkerrors.Wrap(err, "params")
-	}
-	return nil
-}
 
-func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	if err := data.Params.Validate(); err != nil {
+		return errors.Wrap(err, "params")
+	}
+
+	return nil
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -69,21 +79,18 @@ func (a AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-func (a AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
-}
-
 type AppModule struct {
 	AppModuleBasic
-	paramSpace paramstypes.Subspace
+
+	keeper keeper.Keeper
 }
 
 // NewAppModule constructor
-func NewAppModule(paramSpace paramstypes.Subspace) *AppModule {
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+func NewAppModule(keeper keeper.Keeper) *AppModule {
+	return &AppModule{
+		AppModuleBasic: AppModuleBasic{},
+		keeper:         keeper,
 	}
-
-	return &AppModule{paramSpace: paramSpace}
 }
 
 func (a AppModule) InitGenesis(
@@ -93,21 +100,22 @@ func (a AppModule) InitGenesis(
 ) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	marshaler.MustUnmarshalJSON(message, &genesisState)
-	a.paramSpace.SetParamSet(ctx, &genesisState.Params)
-	return nil
+
+	a.keeper.InitGenesis(ctx, &genesisState)
+	return []abci.ValidatorUpdate{}
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
-	var genState types.GenesisState
-	a.paramSpace.GetParamSet(ctx, &genState.Params)
-	return marshaler.MustMarshalJSON(&genState)
+	genState := a.keeper.ExportGenesis(ctx)
+	return marshaler.MustMarshalJSON(genState)
 }
 
 func (a AppModule) RegisterInvariants(registry sdk.InvariantRegistry) {
 }
 
 func (a AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterQueryServer(cfg.QueryServer(), NewGrpcQuerier(a.paramSpace))
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(a.keeper))
+	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: a.keeper})
 }
 
 func (a AppModule) BeginBlock(context sdk.Context, block abci.RequestBeginBlock) {
@@ -122,5 +130,5 @@ func (a AppModule) EndBlock(context sdk.Context, block abci.RequestEndBlock) []a
 // introduced by the module. To avoid wrong/empty versions, the initial version
 // should be set to 1.
 func (a AppModule) ConsensusVersion() uint64 {
-	return 1
+	return ConsensusVersion
 }
