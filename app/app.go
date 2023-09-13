@@ -536,11 +536,13 @@ func NewBandApp(
 			app.MintKeeper,
 			app.DistrKeeper,
 			app.GovKeeper,
+			app.GroupKeeper,
 			app.OracleKeeper,
 			app.ICAHostKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.IBCKeeper.ConnectionKeeper,
 			app.IBCKeeper.ChannelKeeper,
+			keys[group.StoreKey],
 			emitterFlag,
 			false,
 		))

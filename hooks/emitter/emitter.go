@@ -10,6 +10,7 @@ import (
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -21,6 +22,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -57,6 +59,7 @@ type Hook struct {
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
+	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
@@ -64,6 +67,8 @@ type Hook struct {
 	clientkeeper     clientkeeper.Keeper
 	connectionkeeper connectionkeeper.Keeper
 	channelkeeper    channelkeeper.Keeper
+
+	groupStoreKey storetypes.StoreKey
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
@@ -77,11 +82,13 @@ func NewHook(
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
+	groupKeeper groupkeeper.Keeper,
 	oracleKeeper keeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientkeeper clientkeeper.Keeper,
 	connectionkeeper connectionkeeper.Keeper,
 	channelkeeper channelkeeper.Keeper,
+	groupstorekey storetypes.StoreKey,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -103,11 +110,13 @@ func NewHook(
 		mintKeeper:       mintKeeper,
 		distrKeeper:      distrKeeper,
 		govKeeper:        govKeeper,
+		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientkeeper:     clientkeeper,
 		connectionkeeper: connectionkeeper,
 		channelkeeper:    channelkeeper,
+		groupStoreKey:    groupstorekey,
 		emitStartState:   emitStartState,
 	}
 }
