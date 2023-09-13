@@ -3,9 +3,10 @@ package feechecker_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 )
 
 type utilsTestSuite struct {
