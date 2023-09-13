@@ -4,14 +4,15 @@ import (
 	"errors"
 	"math"
 
+	cmerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 type FeeChecker struct {
@@ -38,7 +39,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 ) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
-		return nil, 0, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+		return nil, 0, cmerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
 	feeCoins := feeTx.GetFee()
@@ -74,7 +75,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		}
 
 		if !allFees.IsZero() && !feeCoins.IsAnyGTE(allFees) {
-			return nil, 0, sdkerrors.Wrapf(
+			return nil, 0, cmerrors.Wrapf(
 				sdkerrors.ErrInsufficientFee,
 				"insufficient fees; got: %s required: %s",
 				feeCoins,

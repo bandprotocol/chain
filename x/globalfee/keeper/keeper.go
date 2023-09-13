@@ -1,10 +1,12 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/globalfee/types"
 )
 
 type Keeper struct {
@@ -49,4 +51,9 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 
 	k.cdc.MustUnmarshal(bz, &p)
 	return p
+}
+
+// Logger returns a module-specific logger.
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }

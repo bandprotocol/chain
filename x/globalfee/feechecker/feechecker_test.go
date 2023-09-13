@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 var (

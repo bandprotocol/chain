@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -61,7 +61,7 @@ func (a AppModuleBasic) ValidateGenesis(
 	}
 
 	if err := data.Params.ValidateBasic(); err != nil {
-		return sdkerrors.Wrap(err, "params")
+		return errors.Wrap(err, "params")
 	}
 
 	return nil
