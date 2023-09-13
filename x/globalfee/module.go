@@ -60,7 +60,7 @@ func (a AppModuleBasic) ValidateGenesis(
 		return err
 	}
 
-	if err := data.Params.ValidateBasic(); err != nil {
+	if err := data.Params.Validate(); err != nil {
 		return errors.Wrap(err, "params")
 	}
 

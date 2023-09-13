@@ -18,11 +18,6 @@ func DefaultParams() Params {
 	return Params{MinimumGasPrices: sdk.DecCoins{}}
 }
 
-// ValidateBasic performs basic validation.
-func (p Params) ValidateBasic() error {
-	return validateMinimumGasPrices(p.MinimumGasPrices)
-}
-
 // this requires the fee non-negative
 func validateMinimumGasPrices(i interface{}) error {
 	v, ok := i.(sdk.DecCoins)
