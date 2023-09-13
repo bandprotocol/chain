@@ -1,9 +1,6 @@
 package v2_6
 
 import (
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -15,6 +12,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const UpgradeName = "v2_6"
@@ -23,7 +24,7 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
-		Added: []string{group.StoreKey, globalfee.ModuleName},
+		Added: []string{group.StoreKey, globalfeetypes.StoreKey},
 	},
 }
 

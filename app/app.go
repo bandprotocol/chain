@@ -121,6 +121,8 @@ import (
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
+	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracleclient "github.com/bandprotocol/chain/v2/x/oracle/client"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -269,6 +271,7 @@ func NewBandApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+	bApp.SetTxEncoder(encodingConfig.TxConfig.TxEncoder())
 
 	keys := sdk.NewKVStoreKeys(
 		authtypes.StoreKey,
@@ -293,6 +296,7 @@ func NewBandApp(
 		rollingseedtypes.StoreKey,
 		oracletypes.StoreKey,
 		tsstypes.StoreKey,
+		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -322,7 +326,6 @@ func NewBandApp(
 	app.ConsensusParamsKeeper = consensusparamkeeper.NewKeeper(
 		appCodec,
 		keys[consensusparamtypes.StoreKey],
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	bApp.SetParamStore(&app.ConsensusParamsKeeper)
@@ -346,7 +349,6 @@ func NewBandApp(
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 		Bech32MainPrefix,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
@@ -356,7 +358,6 @@ func NewBandApp(
 			keys[banktypes.StoreKey],
 			app.AccountKeeper,
 			BlockedAddresses(),
-			// 0.47 TODO: change to tech council address
 			authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		),
 		app.AccountKeeper,
@@ -366,7 +367,6 @@ func NewBandApp(
 		keys[stakingtypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.MintKeeper = mintkeeper.NewKeeper(
@@ -376,7 +376,6 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	app.DistrKeeper = distrkeeper.NewKeeper(
@@ -386,7 +385,6 @@ func NewBandApp(
 		app.BankKeeper,
 		app.StakingKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	// DistrKeeper must be set afterward due to the circular reference between banker-staking-distr.
@@ -396,7 +394,6 @@ func NewBandApp(
 		legacyAmino,
 		keys[slashingtypes.StoreKey],
 		app.StakingKeeper,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -407,7 +404,6 @@ func NewBandApp(
 		invCheckPeriod,
 		app.BankKeeper,
 		authtypes.FeeCollectorName,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -420,7 +416,6 @@ func NewBandApp(
 		appCodec,
 		homePath,
 		app.BaseApp,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -474,7 +469,6 @@ func NewBandApp(
 		app.StakingKeeper,
 		app.MsgServiceRouter(),
 		govConfig,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -546,7 +540,6 @@ func NewBandApp(
 		app.TSSKeeper,
 		scopedOracleKeeper,
 		owasmVM,
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
@@ -576,6 +569,12 @@ func NewBandApp(
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
+
+	app.GlobalfeeKeeper = globalfeekeeper.NewKeeper(
+		appCodec,
+		keys[globalfeetypes.StoreKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
 
 	/****  Module Options ****/
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -646,7 +645,7 @@ func NewBandApp(
 		rollingseedModule,
 		oracleModule,
 		tssModule,
-		globalfee.NewAppModule(app.GetSubspace(globalfee.ModuleName)),
+		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
@@ -678,7 +677,7 @@ func NewBandApp(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -705,7 +704,7 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
@@ -738,7 +737,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
-		globalfee.ModuleName,
+		globalfeetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)
@@ -780,10 +779,10 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			OracleKeeper:      &app.OracleKeeper,
-			IBCKeeper:         app.IBCKeeper,
-			GlobalFeeSubspace: app.GetSubspace(globalfee.ModuleName),
-			StakingKeeper:     app.StakingKeeper,
+			OracleKeeper:    &app.OracleKeeper,
+			IBCKeeper:       app.IBCKeeper,
+			StakingKeeper:   app.StakingKeeper,
+			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 		},
 	)
 	if err != nil {
@@ -1018,8 +1017,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(tsstypes.ModuleName)
-	paramsKeeper.Subspace(globalfee.ModuleName)
 
 	return paramsKeeper
 }
