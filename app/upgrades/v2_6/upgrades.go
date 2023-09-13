@@ -30,9 +30,12 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
-		keepers.GlobalfeeKeeper.SetParams(ctx, globalfeetypes.Params{
+		err = keepers.GlobalfeeKeeper.SetParams(ctx, globalfeetypes.Params{
 			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdk.NewDecWithPrec(25, 4))},
 		})
+		if err != nil {
+			return nil, err
+		}
 
 		return vm, nil
 	}
