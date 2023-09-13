@@ -20,7 +20,7 @@ import (
 )
 
 // ConsensusVersion defines the current x/globalfee module consensus version.
-const ConsensusVersion = 2
+const ConsensusVersion = 1
 
 var (
 	_ module.AppModuleBasic   = AppModuleBasic{}
@@ -35,10 +35,18 @@ func (a AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
+// RegisterLegacyAminoCodec registers the mint module's types on the given LegacyAmino codec.
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
+
+// RegisterInterfaces registers the module's interface types
+func (b AppModuleBasic) RegisterInterfaces(r codectypes.InterfaceRegistry) {
+	types.RegisterInterfaces(r)
+}
+
 func (a AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(&types.GenesisState{
-		Params: types.DefaultParams(),
-	})
+	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 func (a AppModuleBasic) ValidateGenesis(
@@ -51,14 +59,12 @@ func (a AppModuleBasic) ValidateGenesis(
 	if err != nil {
 		return err
 	}
+
 	if err := data.Params.ValidateBasic(); err != nil {
 		return sdkerrors.Wrap(err, "params")
 	}
-	return nil
-}
 
-func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	types.RegisterInterfaces(registry)
+	return nil
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -73,12 +79,9 @@ func (a AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-func (a AppModuleBasic) RegisterLegacyAminoCodec(amino *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(amino)
-}
-
 type AppModule struct {
 	AppModuleBasic
+
 	keeper keeper.Keeper
 }
 
@@ -94,14 +97,14 @@ func (a AppModule) InitGenesis(
 ) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	marshaler.MustUnmarshalJSON(message, &genesisState)
-	a.keeper.SetParams(ctx, genesisState.Params)
-	return nil
+
+	a.keeper.InitGenesis(ctx, &genesisState)
+	return []abci.ValidatorUpdate{}
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
-	var genState types.GenesisState
-	genState.Params = a.keeper.GetParams(ctx)
-	return marshaler.MustMarshalJSON(&genState)
+	genState := a.keeper.ExportGenesis(ctx)
+	return marshaler.MustMarshalJSON(genState)
 }
 
 func (a AppModule) RegisterInvariants(registry sdk.InvariantRegistry) {

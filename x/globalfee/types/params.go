@@ -5,6 +5,13 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// NewParams returns Params instance with the given values.
+func NewParams(minimumGasPrices sdk.DecCoins) Params {
+	return Params{
+		MinimumGasPrices: minimumGasPrices,
+	}
+}
+
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{MinimumGasPrices: sdk.DecCoins{}}
