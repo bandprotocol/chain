@@ -530,7 +530,6 @@ func NewBandApp(
 	app.GlobalfeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		keys[globalfeetypes.StoreKey],
-		// 0.47 TODO: change to tech council address
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
