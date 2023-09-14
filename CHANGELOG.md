@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- (bump) Use cosmos-sdk package v0.46.12 / ibc-go v5.2.1
+- (bump) Use cosmos-sdk package v0.47.4 / ibc-go v7.2.0
+- (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft
+- (bump) migrated from gogo/protobuf to cosmos/gogoproto
 - (chain) Remove disablefeeless flag
 - (chain) Remove old oracle ante
 - (chain) Remove legacy migrate cmd
@@ -12,6 +14,8 @@
 - (chain) Set MinimumGasPrice to 0.0025uband
 - (chain) Update proof to support newly added module
 - (chain) Migrate REST Endpoint to GRPC
+- (chain) update oracle params to support cosmos-sdk 0.47
+- (chain) Add consensus module to handle managing Tendermint consensus parameters
 
 ## [v2.5.2](https://github.com/bandprotocol/chain/releases/tag/v2.5.2)
 
