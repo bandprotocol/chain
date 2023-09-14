@@ -183,5 +183,6 @@ require (
 
 replace (
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	github.com/cosmos/ibc-go/v7 => /Users/satawatthitisupakul/Desktop/ibc-go
 	google.golang.org/grpc => google.golang.org/grpc v1.53.0
 )

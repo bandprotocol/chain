@@ -29,7 +29,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -38,6 +37,7 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
@@ -65,6 +65,7 @@ var (
 	Bob           Account
 	Carol         Account
 	Validators    []Account
+	Senders       map[string]*authtypes.BaseAccount
 	DataSources   []types.DataSource
 	OracleScripts []types.OracleScript
 	OwasmVM       *owasm.Vm
@@ -73,13 +74,13 @@ var (
 // nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
-	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
-	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
-	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
-	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
+	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("stake", 1))
+	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("stake", 10))
+	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("stake", 11))
+	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("stake", 1000000))
+	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("stake", 99999999))
+	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("stake", 100000000))
+	BadCoins            = []sdk.Coin{{Denom: "stake", Amount: sdk.NewInt(-1)}}
 	Port1               = "port-1"
 	Port2               = "port-2"
 	Channel1            = "channel-1"
@@ -118,7 +119,7 @@ func (app *TestingApp) GetBaseApp() *baseapp.BaseApp {
 }
 
 // GetStakingKeeper implements the TestingApp interface.
-func (app *TestingApp) GetStakingKeeper() *stakingkeeper.Keeper {
+func (app *TestingApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
@@ -146,8 +147,18 @@ func init() {
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
-	for i := 0; i < 3; i++ {
-		Validators = append(Validators, createArbitraryAccount(r))
+
+	Senders = make(map[string]*authtypes.BaseAccount)
+	for i := uint64(0); i < 3; i++ {
+		validator := createArbitraryAccount(r)
+		Validators = append(Validators, validator)
+
+		Senders[validator.Address.String()] = authtypes.NewBaseAccount(
+			validator.PubKey.Address().Bytes(),
+			validator.PubKey,
+			i,
+			0,
+		)
 	}
 
 	// Sorted list of validators is needed for ibctest when signing a commit block
@@ -214,7 +225,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 }
 
 // NewTestApp creates instance of our app using in test.
-func NewTestApp(chainID string, logger log.Logger) *TestingApp {
+func NewTestApp(chainID string, logger log.Logger) (*TestingApp, map[string]json.RawMessage) {
 	// Set HomeFlag to a temp folder for simulation run.
 	dir, err := os.MkdirTemp("", "bandd")
 	if err != nil {
@@ -273,6 +284,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
 	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
@@ -315,6 +327,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			stakingtypes.NewDelegation(acc[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
 		)
 	}
+
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = "uband"
@@ -382,12 +395,12 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		ConsensusParams: DefaultConsensusParams,
 		AppStateBytes:   stateBytes,
 	})
-	return app
+	return app, genesis
 }
 
 // CreateTestInput creates a new test environment for unit tests.
 func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
-	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
+	app, _ := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
@@ -636,7 +649,7 @@ func SignAndDeliver(
 	tx, err := GenTx(
 		txCfg,
 		msgs,
-		sdk.Coins{sdk.NewInt64Coin("uband", 2500)},
+		sdk.Coins{sdk.NewInt64Coin("stake", 1)},
 		DefaultGenTxGas,
 		chainID,
 		accNums,
