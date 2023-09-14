@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- (bump) Use cosmos-sdk package v0.47.4 / ibc-go v7.2.0
-- (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft
+- (bump) Use cosmos-sdk package v0.47.5 / ibc-go v7.2.1
+- (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.37.2
 - (bump) migrated from gogo/protobuf to cosmos/gogoproto
 - (chain) Remove disablefeeless flag
 - (chain) Remove old oracle ante
