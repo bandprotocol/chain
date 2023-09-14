@@ -69,7 +69,7 @@ func runImpl(c *Context, l *Logger) error {
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
 		c.pendingRequests[types.RequestID(id)] = true
-		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
+		go handleRequest(c, l, types.RequestID(id))
 	}
 
 	for {

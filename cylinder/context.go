@@ -5,10 +5,10 @@ import (
 
 	"github.com/bandprotocol/chain/v2/cylinder/store"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
+	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	dbm "github.com/tendermint/tm-db"
 )
 
 // Context holds the context information for the Cylinder process.
