@@ -113,6 +113,7 @@ import (
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	"github.com/bandprotocol/chain/v2/x/oracle"
+	bandante "github.com/bandprotocol/chain/v2/x/oracle/ante"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
@@ -233,7 +234,7 @@ func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
 func NewBandApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig bandappparams.EncodingConfig, appOpts servertypes.AppOptions,
-	owasmCacheSize uint32, baseAppOptions ...func(*baseapp.BaseApp),
+	owasmCacheSize uint32, requesters []string, baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 	appCodec := encodingConfig.Marshaler
 	legacyAmino := encodingConfig.Amino
@@ -607,6 +608,9 @@ func NewBandApp(
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
 
+	if len(requesters) > 0 {
+		anteHandler = bandante.NewWhiteListAnteHandler(anteHandler, app.OracleKeeper, requesters)
+	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 

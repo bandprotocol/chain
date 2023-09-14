@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"os"
@@ -32,7 +33,8 @@ import (
 )
 
 const (
-	flagWithOwasmCacheSize = "oracle-script-cache-size"
+	flagWithOwasmCacheSize  = "oracle-script-cache-size"
+	flagWhiteListRequesters = "whitelist-requesters"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -117,6 +119,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
+	startCmd.Flags().String(flagWhiteListRequesters, "", "Specify a whitelist of requester")
 }
 
 func queryCommand() *cobra.Command {
@@ -190,6 +193,22 @@ func (ac appCreator) newApp(
 		skipUpgradeHeights[int64(h)] = true
 	}
 
+	var requesters []string
+	whitelistFile := cast.ToString(appOpts.Get(flagWhiteListRequesters))
+	if len(whitelistFile) != 0 {
+		f, err := os.Open(whitelistFile)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			addr := scanner.Text()
+			requesters = append(requesters, addr)
+		}
+	}
+
 	bandApp := band.NewBandApp(
 		logger, db, traceStore, true, skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
@@ -197,6 +216,7 @@ func (ac appCreator) newApp(
 		ac.encCfg,
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		requesters,
 		baseappOptions...,
 	)
 
@@ -227,6 +247,7 @@ func (ac appCreator) appExport(
 		ac.encCfg,
 		appOpts,
 		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
+		nil,
 	)
 
 	if height != -1 {

@@ -248,6 +248,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			encCdc,
 			EmptyAppOptions{},
 			100,
+			nil,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 		),
 	}
@@ -426,6 +427,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			encCdc,
 			EmptyAppOptions{},
 			0,
+			nil,
 			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 		),
 	}
