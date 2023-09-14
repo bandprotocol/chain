@@ -33,7 +33,7 @@ func (bp *BlockHeaderMerkleParts) encodeToEthFormat() BlockHeaderMerklePartsEthe
 
 // GetBlockHeaderMerkleParts converts Tendermint block header struct into BlockHeaderMerkleParts for gas-optimized proof verification.
 func GetBlockHeaderMerkleParts(block *types.Header) BlockHeaderMerkleParts {
-	// based on https://github.com/cometbft/cometbft/blob/master/types/block.go#L448
+	// based on https://github.com/tendermint/tendermint/blob/master/types/block.go#L448
 	hbz, err := block.Version.Marshal()
 	if err != nil {
 		panic(err)
