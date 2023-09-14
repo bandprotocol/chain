@@ -45,102 +45,47 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 }
 
 func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
-	idStr, err := GetEventValue(log, types.EventTypeRequest, types.AttributeKeyID)
-	if err != nil {
-		l.Debug(":cold_sweat: Failed to parse request id with error: %s", err.Error())
-		return
-	}
+	idStrs := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyID)
 
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		l.Error(":cold_sweat: Failed to convert %s to integer with error: %s", c, idStr, err.Error())
-		return
-	}
-
-	l = l.With("rid", id)
-
-	// If id is in pending requests list, then skip it.
-	if c.pendingRequests[types.RequestID(id)] {
-		l.Debug(":eyes: Request is in pending list, then skip")
-		return
-	}
-
-	// Skip if not related to this validator
-	validators := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyValidator)
-	hasMe := false
-	for _, validator := range validators {
-		if validator == c.validator.String() {
-			hasMe = true
-			break
+	for _, idStr := range idStrs {
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			l.Error(":cold_sweat: Failed to convert %s to integer with error: %s", c, idStr, err.Error())
+			return
 		}
-	}
 
-	if !hasMe {
-		l.Debug(":next_track_button: Skip request not related to this validator")
-		return
-	}
+		// If id is in pending requests list, then skip it.
+		if c.pendingRequests[types.RequestID(id)] {
+			l.Debug(":eyes: Request is in pending list, then skip")
+			return
+		}
 
-	l.Info(":delivery_truck: Processing incoming request event")
-
-	reqs, err := GetRawRequests(log)
-	if err != nil {
-		l.Error(":skull: Failed to parse raw requests with error: %s", c, err.Error())
-	}
-
-	keyIndex := c.nextKeyIndex()
-	key := c.keys[keyIndex]
-
-	reports, execVersions := handleRawRequests(c, l, types.RequestID(id), reqs, key)
-
-	rawAskCount := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyAskCount)
-	if len(rawAskCount) != 1 {
-		panic("Fail to get ask count")
-	}
-	askCount := MustAtoi(rawAskCount[0])
-
-	rawMinCount := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyMinCount)
-	if len(rawMinCount) != 1 {
-		panic("Fail to get min count")
-	}
-	minCount := MustAtoi(rawMinCount[0])
-
-	rawCallData := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyCalldata)
-	if len(rawCallData) != 1 {
-		panic("Fail to get call data")
-	}
-	callData, err := hex.DecodeString(rawCallData[0])
-	if err != nil {
-		l.Error(":skull: Fail to parse call data: %s", c, err.Error())
-	}
-
-	var clientID string
-	rawClientID := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyClientID)
-	if len(rawClientID) > 0 {
-		clientID = rawClientID[0]
-	}
-
-	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
-		execVersion: execVersions,
-		keyIndex:    keyIndex,
-		feeEstimationData: FeeEstimationData{
-			askCount:    askCount,
-			minCount:    minCount,
-			callData:    callData,
-			rawRequests: reqs,
-			clientID:    clientID,
-		},
+		go handleRequest(c, l, types.RequestID(id))
 	}
 }
 
-func handlePendingRequest(c *Context, l *Logger, id types.RequestID) {
+func handleRequest(c *Context, l *Logger, id types.RequestID) {
+	l = l.With("rid", id)
+
 	req, err := GetRequest(c, l, id)
 	if err != nil {
 		l.Error(":skull: Failed to get request with error: %s", c, err.Error())
 		return
 	}
 
-	l.Info(":delivery_truck: Processing pending request")
+	hasMe := false
+	for _, val := range req.RequestedValidators {
+		if val == c.validator.String() {
+			hasMe = true
+			break
+		}
+	}
+	if !hasMe {
+		l.Debug(":next_track_button: Skip request not related to this validator")
+		return
+	}
+
+	l.Info(":delivery_truck: Processing request")
 
 	keyIndex := c.nextKeyIndex()
 	key := c.keys[keyIndex]

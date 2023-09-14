@@ -13,6 +13,11 @@
 - (chain) Update proof to support newly added module
 - (chain) Migrate REST Endpoint to GRPC
 
+## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
+
+- (bump) Use cometbft v0.34.29
+- (yoda) Get information of requests through endpoint instead of events
+  
 ## [v2.5.2](https://github.com/bandprotocol/chain/releases/tag/v2.5.2)
 
 - (bump) Use cosmos-sdk v0.45.16 / ibc-go v4.3.1 / cometbft v0.34.28
