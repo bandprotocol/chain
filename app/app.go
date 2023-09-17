@@ -779,10 +779,12 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
+			TSSKeeper:       &app.TSSKeeper,
 			IBCKeeper:       app.IBCKeeper,
-			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
+			StakingKeeper:   app.StakingKeeper,
 		},
 	)
 	if err != nil {
