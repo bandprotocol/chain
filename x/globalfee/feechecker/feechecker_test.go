@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -58,36 +58,39 @@ type FeeCheckerTestSuite struct {
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
-	app, ctx, oracleKeeper := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(suite.T(), true)
+
 	suite.ctx = ctx.WithBlockHeight(999).
 		WithIsCheckTx(true).
 		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(1, 4)}})
 
-	oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	app.OracleKeeper.GrantReporter(suite.ctx, bandtesting.Validators[0].ValAddress, bandtesting.Alice.Address)
 
 	req := types.NewRequest(
 		1,
 		BasicCalldata,
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress},
 		1,
 		1,
-		testapp.ParseTime(0),
+		bandtesting.ParseTime(0),
 		"",
 		nil,
 		nil,
 		0,
 	)
-	suite.requestId = oracleKeeper.AddRequest(suite.ctx, req)
+	suite.requestId = app.OracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
-		&oracleKeeper,
+		&app.OracleKeeper,
 		&app.GlobalfeeKeeper,
 		app.StakingKeeper,
 	)
 }
 
 func (suite *FeeCheckerTestSuite) TestValidRawReport() {
-	msgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	msgs := []sdk.Msg{
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, bandtesting.Validators[0].ValAddress),
+	}
 	stubTx := &StubTx{Msgs: msgs}
 
 	// test - check report tx
@@ -102,7 +105,7 @@ func (suite *FeeCheckerTestSuite) TestValidRawReport() {
 }
 
 func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
-	msgs := []sdk.Msg{types.NewMsgReportData(1, []types.RawReport{}, testapp.Alice.ValAddress)}
+	msgs := []sdk.Msg{types.NewMsgReportData(1, []types.RawReport{}, bandtesting.Alice.ValAddress)}
 	stubTx := &StubTx{Msgs: msgs}
 
 	// test - check report tx
@@ -116,9 +119,9 @@ func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
 
 func (suite *FeeCheckerTestSuite) TestValidReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, bandtesting.Validators[0].ValAddress),
 	}
-	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	// test - check report tx
@@ -134,9 +137,9 @@ func (suite *FeeCheckerTestSuite) TestValidReport() {
 
 func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestId, []types.RawReport{}, bandtesting.Validators[0].ValAddress),
 	}
-	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
+	authzMsg := authz.NewMsgExec(bandtesting.Bob.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
 
 	// test - check report tx
@@ -150,9 +153,9 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 
 func (suite *FeeCheckerTestSuite) TestNotValidReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, bandtesting.Validators[0].ValAddress),
 	}
-	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
 
 	// test - check report tx
@@ -171,10 +174,10 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 		1,
 		1,
 		BasicClientID,
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.FeePayer.Address,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
 	)
 	stubTx := &StubTx{
 		Msgs: []sdk.Msg{requestMsg},
@@ -201,20 +204,20 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
-	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, bandtesting.Validators[0].ValAddress)
 	requestMsg := types.NewMsgRequestData(
 		1,
 		BasicCalldata,
 		1,
 		1,
 		BasicClientID,
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.FeePayer.Address,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
 	)
 	msgs := []sdk.Msg{reportMsg, requestMsg}
-	authzMsg := authz.NewMsgExec(testapp.Alice.Address, msgs)
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
 
 	// test - check report tx
@@ -229,17 +232,17 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
-	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, bandtesting.Validators[0].ValAddress)
 	requestMsg := types.NewMsgRequestData(
 		1,
 		BasicCalldata,
 		1,
 		1,
 		BasicClientID,
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.FeePayer.Address,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
 	)
 	stubTx := &StubTx{
 		Msgs:      []sdk.Msg{reportMsg, requestMsg},

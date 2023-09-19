@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // A simple Owasm script with the following specification:
 //

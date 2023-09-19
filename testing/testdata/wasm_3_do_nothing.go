@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // A silly oracle script, primarily to test that you must make at least one raw request:
 //

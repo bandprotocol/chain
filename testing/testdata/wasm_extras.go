@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 import (
 	"crypto/sha256"
@@ -34,8 +34,8 @@ var WasmExtra1FileName string
 var WasmExtra2FileName string
 
 func init() {
-	wasm1CompiledHash := sha256.Sum256(compile(WasmExtra1))
-	wasm2CompiledHash := sha256.Sum256(compile(WasmExtra2))
+	wasm1CompiledHash := sha256.Sum256(Compile(WasmExtra1))
+	wasm2CompiledHash := sha256.Sum256(Compile(WasmExtra2))
 	WasmExtra1FileName = hex.EncodeToString(wasm1CompiledHash[:])
 	WasmExtra2FileName = hex.EncodeToString(wasm2CompiledHash[:])
 }

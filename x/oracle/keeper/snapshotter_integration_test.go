@@ -3,17 +3,19 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 )
 
 func TestSnapshotter(t *testing.T) {
 	// setup source app
-	srcApp, srcCtx, srcKeeper := testapp.CreateTestInput(true)
+	srcApp, srcCtx := bandtesting.CreateTestApp(t, true)
+	srcKeeper := srcApp.OracleKeeper
 
 	// create snapshot
 	srcApp.Commit()
@@ -24,7 +26,7 @@ func TestSnapshotter(t *testing.T) {
 	assert.NotNil(t, snapshot)
 
 	// restore snapshot
-	destApp := testapp.SetupWithEmptyStore()
+	destApp := bandtesting.SetupWithEmptyStore(t, "testing")
 	destCtx := destApp.NewUncachedContext(false, tmproto.Header{})
 	destKeeper := destApp.OracleKeeper
 	require.NoError(t, destApp.SnapshotManager().Restore(*snapshot))

@@ -1,4 +1,4 @@
-package testapp
+package testing
 
 import (
 	"encoding/json"
@@ -10,6 +10,11 @@ import (
 	"testing"
 	"time"
 
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -31,20 +36,14 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
-	dbm "github.com/cometbft/cometbft-db"
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -80,6 +79,7 @@ var (
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
 	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
+	ChainID             = "BANDCHAIN"
 	Port1               = "port-1"
 	Port2               = "port-2"
 	Channel1            = "channel-1"
@@ -89,25 +89,8 @@ var (
 const (
 	TestDefaultPrepareGas uint64 = 40000
 	TestDefaultExecuteGas uint64 = 300000
+	DefaultGenTxGas              = 1000000
 )
-
-// DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-var DefaultConsensusParams = &tmproto.ConsensusParams{
-	Block: &tmproto.BlockParams{
-		MaxBytes: 200000,
-		MaxGas:   -1,
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		// MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeSecp256k1,
-		},
-	},
-}
 
 type TestingApp struct {
 	*bandapp.BandApp
@@ -137,8 +120,25 @@ func (app *TestingApp) GetTxConfig() client.TxConfig {
 	return bandapp.MakeEncodingConfig().TxConfig
 }
 
+// DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
+var DefaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
+		MaxBytes: 200000,
+		MaxGas:   -1,
+	},
+	Evidence: &tmproto.EvidenceParams{
+		MaxAgeNumBlocks: 302400,
+		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
+		// MaxBytes:        10000,
+	},
+	Validator: &tmproto.ValidatorParams{
+		PubKeyTypes: []string{
+			tmtypes.ABCIPubKeyTypeSecp256k1,
+		},
+	},
+}
+
 func init() {
-	bandapp.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
@@ -162,65 +162,95 @@ func init() {
 	OwasmVM = owasmVM
 }
 
-func createArbitraryAccount(r *rand.Rand) Account {
-	privkeySeed := make([]byte, 12)
-	r.Read(privkeySeed)
-	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
-	return Account{
-		PrivKey:    privKey,
-		PubKey:     privKey.PubKey(),
-		Address:    sdk.AccAddress(privKey.PubKey().Address()),
-		ValAddress: sdk.ValAddress(privKey.PubKey().Address()),
+// CreateTestApp creates a new test environment for unit tests.
+func CreateTestApp(t *testing.T, autoActivate bool) (*TestingApp, sdk.Context) {
+	t.Helper()
+
+	isCheckTx := false
+	app := Setup(t, ChainID)
+
+	ctx := app.NewContext(isCheckTx, tmproto.Header{Height: app.LastBlockHeight()})
+	if autoActivate {
+		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
+	return &TestingApp{app}, ctx
 }
 
-func getGenesisDataSources(homePath string) []types.DataSource {
-	dir := filepath.Join(homePath, "files")
-	fc := filecache.New(dir)
-	DataSources = []types.DataSource{{}} // 0th index should be ignored
-	for idx := 0; idx < 5; idx++ {
-		idxStr := fmt.Sprintf("%d", idx+1)
-		hash := fc.AddFile([]byte("code" + idxStr))
-		DataSources = append(DataSources, types.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000uband, Treasury.Address,
-		))
+func Setup(t *testing.T, chainID string) *bandapp.BandApp {
+	t.Helper()
+
+	acc := []authtypes.GenesisAccount{
+		&authtypes.BaseAccount{Address: Owner.Address.String()},
+		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
+		&authtypes.BaseAccount{Address: Alice.Address.String()},
+		&authtypes.BaseAccount{Address: Bob.Address.String()},
+		&authtypes.BaseAccount{Address: Carol.Address.String()},
+		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
+		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
+		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
 	}
-	return DataSources[1:]
+
+	// Fund seed accounts and validators with 1000000uband and 100000000uband initially.
+	balances := []banktypes.Balance{
+		{
+			Address: Owner.Address.String(),
+			Coins:   Coins1000000uband,
+		},
+		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
+		{Address: Alice.Address.String(), Coins: Coins1000000uband},
+		{Address: Bob.Address.String(), Coins: Coins1000000uband},
+		{Address: Carol.Address.String(), Coins: Coins1000000uband},
+		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
+		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
+		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
+	}
+
+	app := setupWithGenesis(t, Validators, acc, chainID, balances...)
+
+	return app
 }
 
-func getGenesisOracleScripts(homePath string) []types.OracleScript {
-	dir := filepath.Join(homePath, "files")
-	fc := filecache.New(dir)
-	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
-	wasms := [][]byte{
-		Wasm1, Wasm2, Wasm3, Wasm4, Wasm56(10), Wasm56(10000000), Wasm78(10), Wasm78(2000), Wasm9,
+// SetupWithGenesisValSet initializes a new BandApp with a validator set and genesis accounts
+// that also act as delegators. For simplicity, each validator is bonded with a delegation
+// of one consensus engine unit in the default token of the JunoApp from first genesis
+// account.
+func setupWithGenesis(
+	t *testing.T,
+	valSet []Account,
+	genAccs []authtypes.GenesisAccount,
+	chainID string,
+	balances ...banktypes.Balance,
+) *bandapp.BandApp {
+	t.Helper()
+
+	app, genesisState, dir := setup(t, chainID, true)
+	genesisState = generateGenesisState(t, app, dir, genesisState, valSet, genAccs, balances...)
+
+	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+	if err != nil {
+		panic(err)
 	}
-	for idx := 0; idx < len(wasms); idx++ {
-		idxStr := fmt.Sprintf("%d", idx+1)
-		hash := fc.AddFile(compile(wasms[idx]))
-		OracleScripts = append(OracleScripts, types.NewOracleScript(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
-		))
-	}
-	return OracleScripts[1:]
+
+	// Initialize the sim blockchain. We are ready for testing!
+	app.InitChain(abci.RequestInitChain{
+		ChainId:         chainID,
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
+	})
+	return app
 }
 
-// EmptyAppOptions is a stub implementing AppOptions
-type EmptyAppOptions struct{}
+func setup(t *testing.T, chainID string, withGenesis bool) (*bandapp.BandApp, bandapp.GenesisState, string) {
+	t.Helper()
 
-// Get implements AppOptions
-func (ao EmptyAppOptions) Get(o string) interface{} {
-	return nil
-}
-
-// NewTestApp creates instance of our app using in test.
-func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	// Set HomeFlag to a temp folder for simulation run.
 	dir, err := os.MkdirTemp("", "bandd")
 	if err != nil {
 		panic(err)
 	}
-	// db := dbm.NewMemDB()
 	db, _ := dbm.NewGoLevelDB("db", dir)
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
@@ -242,209 +272,29 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		2,
 	)
 
-	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(
-			log.NewNopLogger(),
-			db,
-			nil,
-			true,
-			map[int64]bool{},
-			appOptions,
-			100,
-			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-			baseapp.SetChainID(chainID),
-		),
-	}
-	genesis := bandapp.NewDefaultGenesisState()
-	acc := []authtypes.GenesisAccount{
-		&authtypes.BaseAccount{Address: Owner.Address.String()},
-		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
-		&authtypes.BaseAccount{Address: Alice.Address.String()},
-		&authtypes.BaseAccount{Address: Bob.Address.String()},
-		&authtypes.BaseAccount{Address: Carol.Address.String()},
-		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
-		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
-		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
-	}
-	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), acc)
-	genesis[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
-
-	validators := make([]stakingtypes.Validator, 0, len(Validators))
-	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
-	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
-	// bondAmt := sdk.NewInt(1000000)
-	for idx, val := range Validators {
-		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
-		if err != nil {
-			panic(err)
-		}
-		pk, err := cryptocodec.FromTmPubKeyInterface(tmpk)
-		if err != nil {
-			panic(err)
-		}
-		pkAny, err := codectypes.NewAnyWithValue(pk)
-		if err != nil {
-			panic(err)
-		}
-		validator := stakingtypes.Validator{
-			OperatorAddress:   sdk.ValAddress(val.Address).String(),
-			ConsensusPubkey:   pkAny,
-			Jailed:            false,
-			Status:            stakingtypes.Bonded,
-			Tokens:            bamt[idx],
-			DelegatorShares:   sdk.OneDec(),
-			Description:       stakingtypes.Description{},
-			UnbondingHeight:   int64(0),
-			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
-		}
-		consAddr, err := validator.GetConsAddr()
-		validatorSigningInfo := slashingtypes.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0)
-		if err != nil {
-			panic(err)
-		}
-		validators = append(validators, validator)
-		signingInfos = append(
-			signingInfos,
-			slashingtypes.SigningInfo{Address: consAddr.String(), ValidatorSigningInfo: validatorSigningInfo},
-		)
-		delegations = append(
-			delegations,
-			stakingtypes.NewDelegation(acc[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
-		)
-	}
-	// set validators and delegations
-	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = "uband"
-	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
-	genesis[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
-
-	slashingParams := slashingtypes.DefaultParams()
-	slashingGenesis := slashingtypes.NewGenesisState(slashingParams, signingInfos, nil)
-	genesis[slashingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(slashingGenesis)
-
-	// Fund seed accounts and validators with 1000000uband and 100000000uband initially.
-	balances := []banktypes.Balance{
-		{
-			Address: Owner.Address.String(),
-			Coins:   Coins1000000uband,
-		},
-		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
-		{Address: Alice.Address.String(), Coins: Coins1000000uband},
-		{Address: Bob.Address.String(), Coins: Coins1000000uband},
-		{Address: Carol.Address.String(), Coins: Coins1000000uband},
-		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
-	}
-	totalSupply := sdk.NewCoins()
-	for idx := 0; idx < len(balances)-len(validators); idx++ {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(balances[idx].Coins...)
-	}
-	for idx := 0; idx < len(validators); idx++ {
-		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(
-			balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
-	}
-
-	// add bonded amount to bonded pool module account
-	balances = append(balances, banktypes.Balance{
-		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin("uband", sdk.NewInt(200999999))},
-	})
-
-	bankGenesis := banktypes.NewGenesisState(
-		banktypes.DefaultGenesisState().Params,
-		balances,
-		totalSupply,
-		[]banktypes.Metadata{},
-		[]banktypes.SendEnabled{},
+	app := bandapp.NewBandApp(
+		log.NewNopLogger(),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		appOptions,
+		100,
+		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+		baseapp.SetChainID(chainID),
 	)
-	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
-
-	// Add genesis data sources and oracle scripts
-	oracleGenesis := types.DefaultGenesisState()
-	oracleGenesis.DataSources = getGenesisDataSources(dir)
-	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
-	genesis[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
-	stateBytes, err := json.MarshalIndent(genesis, "", " ")
-	if err != nil {
-		panic(err)
-	}
-
-	// Initialize the sim blockchain. We are ready for testing!
-	app.InitChain(abci.RequestInitChain{
-		ChainId:         chainID,
-		Validators:      []abci.ValidatorUpdate{},
-		ConsensusParams: DefaultConsensusParams,
-		AppStateBytes:   stateBytes,
-	})
-	return app
-}
-
-// CreateTestInput creates a new test environment for unit tests.
-func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
-	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
-	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
-	if autoActivate {
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
-	}
-	return app, ctx, app.OracleKeeper
-}
-
-func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, bandapp.GenesisState, string) {
-	dir, err := os.MkdirTemp("", "bandibc")
-	if err != nil {
-		panic(err)
-	}
-	db := dbm.NewMemDB()
-
-	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = dir
-	appOptions[server.FlagInvCheckPeriod] = 0
-
-	snapshotDir := filepath.Join(dir, "data", "snapshots")
-	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-
-	snapshotOptions := snapshottypes.NewSnapshotOptions(
-		1000,
-		2,
-	)
-
-	app := &TestingApp{
-		BandApp: bandapp.NewBandApp(
-			log.NewNopLogger(),
-			db,
-			nil,
-			true,
-			map[int64]bool{},
-			appOptions,
-			0,
-			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-			baseapp.SetChainID(chainID),
-		),
-	}
 	if withGenesis {
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
-	return app, bandapp.GenesisState{}, dir
+
+	return app, bandapp.GenesisState{}, ""
 }
 
-// SetupWithEmptyStore setup a TestingApp instance with empty DB
-func SetupWithEmptyStore() *TestingApp {
-	app, _, _ := setup(false, 0, "BANDCHAIN")
+// SetupWithEmptyStore setup a instance with empty DB
+func SetupWithEmptyStore(t *testing.T, chainID string) *bandapp.BandApp {
+	t.Helper()
+
+	app, _, _ := setup(t, chainID, false)
 	return app
 }
 
@@ -459,7 +309,10 @@ func SetupWithGenesisValSet(
 	chainID string,
 	balances ...banktypes.Balance,
 ) *TestingApp {
-	app, genesisState, dir := setup(true, 5, chainID)
+	t.Helper()
+
+	app, genesisState, dir := setup(t, chainID, true)
+
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -524,8 +377,8 @@ func SetupWithGenesisValSet(
 
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := types.DefaultGenesisState()
-	oracleGenesis.DataSources = getGenesisDataSources(dir)
-	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
+	oracleGenesis.DataSources = generateDataSources(dir)
+	oracleGenesis.OracleScripts = generateOracleScripts(dir)
 	genesisState[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -551,12 +404,155 @@ func SetupWithGenesisValSet(
 		NextValidatorsHash: valSet.Hash(),
 	}, Hash: app.LastCommitID().Hash})
 
-	return app
+	return &TestingApp{app}
 }
 
-const (
-	DefaultGenTxGas = 1000000
-)
+func createArbitraryAccount(r *rand.Rand) Account {
+	privkeySeed := make([]byte, 12)
+	r.Read(privkeySeed)
+	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
+	return Account{
+		PrivKey:    privKey,
+		PubKey:     privKey.PubKey(),
+		Address:    sdk.AccAddress(privKey.PubKey().Address()),
+		ValAddress: sdk.ValAddress(privKey.PubKey().Address()),
+	}
+}
+
+func generateGenesisState(
+	t *testing.T,
+	app *bandapp.BandApp,
+	dir string,
+	genesisState bandapp.GenesisState,
+	valSet []Account,
+	genAccs []authtypes.GenesisAccount,
+	balances ...banktypes.Balance,
+) bandapp.GenesisState {
+	t.Helper()
+
+	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
+	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
+
+	validators := make([]stakingtypes.Validator, 0, len(valSet))
+	signingInfos := make([]slashingtypes.SigningInfo, 0, len(valSet))
+	delegations := make([]stakingtypes.Delegation, 0, len(valSet))
+	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	for idx, val := range valSet {
+		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
+		if err != nil {
+			panic(err)
+		}
+		pk, err := cryptocodec.FromTmPubKeyInterface(tmpk)
+		if err != nil {
+			panic(err)
+		}
+		pkAny, err := codectypes.NewAnyWithValue(pk)
+		if err != nil {
+			panic(err)
+		}
+		validator := stakingtypes.Validator{
+			OperatorAddress:   sdk.ValAddress(val.Address).String(),
+			ConsensusPubkey:   pkAny,
+			Jailed:            false,
+			Status:            stakingtypes.Bonded,
+			Tokens:            bamt[idx],
+			DelegatorShares:   sdk.OneDec(),
+			Description:       stakingtypes.Description{},
+			UnbondingHeight:   int64(0),
+			UnbondingTime:     time.Unix(0, 0).UTC(),
+			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			MinSelfDelegation: sdk.ZeroInt(),
+		}
+		consAddr, err := validator.GetConsAddr()
+		validatorSigningInfo := slashingtypes.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0)
+		if err != nil {
+			panic(err)
+		}
+		validators = append(validators, validator)
+		signingInfos = append(
+			signingInfos,
+			slashingtypes.SigningInfo{Address: consAddr.String(), ValidatorSigningInfo: validatorSigningInfo},
+		)
+		delegations = append(
+			delegations,
+			stakingtypes.NewDelegation(genAccs[4+idx].GetAddress(), val.Address.Bytes(), sdk.OneDec()),
+		)
+	}
+	// set validators and delegations
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = "uband"
+	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
+	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+
+	slashingParams := slashingtypes.DefaultParams()
+	slashingGenesis := slashingtypes.NewGenesisState(slashingParams, signingInfos, nil)
+	genesisState[slashingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(slashingGenesis)
+
+	totalSupply := sdk.NewCoins()
+	for idx := 0; idx < len(balances)-len(validators); idx++ {
+		// add genesis acc tokens and delegated tokens to total supply
+		totalSupply = totalSupply.Add(balances[idx].Coins...)
+	}
+	for idx := 0; idx < len(validators); idx++ {
+		// add genesis acc tokens and delegated tokens to total supply
+		totalSupply = totalSupply.Add(
+			balances[idx+len(balances)-len(validators)].Coins.Add(sdk.NewCoin("uband", bamt[idx]))...)
+	}
+
+	// add bonded amount to bonded pool module account
+	balances = append(balances, banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin("uband", sdk.NewInt(200999999))},
+	})
+
+	bankGenesis := banktypes.NewGenesisState(
+		banktypes.DefaultGenesisState().Params,
+		balances,
+		totalSupply,
+		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
+	)
+	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
+
+	// Add genesis data sources and oracle scripts
+	oracleGenesis := types.DefaultGenesisState()
+	oracleGenesis.DataSources = generateDataSources(dir)
+	oracleGenesis.OracleScripts = generateOracleScripts(dir)
+	genesisState[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
+
+	return genesisState
+}
+
+func generateDataSources(homePath string) []types.DataSource {
+	dir := filepath.Join(homePath, "files")
+	fc := filecache.New(dir)
+	DataSources = []types.DataSource{{}} // 0th index should be ignored
+	for idx := 0; idx < 5; idx++ {
+		idxStr := fmt.Sprintf("%d", idx+1)
+		hash := fc.AddFile([]byte("code" + idxStr))
+		DataSources = append(DataSources, types.NewDataSource(
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000uband, Treasury.Address,
+		))
+	}
+	return DataSources[1:]
+}
+
+func generateOracleScripts(homePath string) []types.OracleScript {
+	dir := filepath.Join(homePath, "files")
+	fc := filecache.New(dir)
+	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
+	wasms := [][]byte{
+		testdata.Wasm1, testdata.Wasm2, testdata.Wasm3, testdata.Wasm4, testdata.Wasm56(10), testdata.Wasm56(10000000), testdata.Wasm78(10), testdata.Wasm78(2000), testdata.Wasm9,
+	}
+	for idx := 0; idx < len(wasms); idx++ {
+		idxStr := fmt.Sprintf("%d", idx+1)
+		hash := fc.AddFile(testdata.Compile(wasms[idx]))
+		OracleScripts = append(OracleScripts, types.NewOracleScript(
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
+		))
+	}
+	return OracleScripts[1:]
+}
 
 // GenTx generates a signed mock transaction.
 func GenTx(

@@ -9,13 +9,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestSuccessRequestOracleData(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
 
 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
 	handler := oracle.NewHandler(k)
@@ -26,12 +27,11 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.Validators[0].Address,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
@@ -39,13 +39,13 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[0].ValAddress,
-			testapp.Validators[1].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[1].ValAddress,
 		},
 		2,
 		4,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"app_test",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -53,7 +53,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -66,7 +66,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[0].ValAddress,
+		bandtesting.Validators[0].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg1)
 	require.NotNil(t, res)
@@ -89,7 +89,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[1].ValAddress,
+		bandtesting.Validators[1].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg2)
 	require.NotNil(t, res)
@@ -126,7 +126,8 @@ func TestSuccessRequestOracleData(t *testing.T) {
 }
 
 func TestExpiredRequestOracleData(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
 
 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
 	handler := oracle.NewHandler(k)
@@ -137,9 +138,9 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.Validators[0].Address,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -149,13 +150,13 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[0].ValAddress,
-			testapp.Validators[1].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[1].ValAddress,
 		},
 		2,
 		4,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"app_test",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -163,7 +164,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -190,7 +191,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		Attributes: []abci.EventAttribute{
 			{
 				Key:   types.AttributeKeyValidator,
-				Value: fmt.Sprint(testapp.Validators[2].ValAddress.String()),
+				Value: fmt.Sprint(bandtesting.Validators[2].ValAddress.String()),
 			},
 		},
 	}, {
@@ -198,7 +199,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		Attributes: []abci.EventAttribute{
 			{
 				Key:   types.AttributeKeyValidator,
-				Value: fmt.Sprint(testapp.Validators[0].ValAddress.String()),
+				Value: fmt.Sprint(bandtesting.Validators[0].ValAddress.String()),
 			},
 		},
 	}, {
@@ -206,7 +207,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		Attributes: []abci.EventAttribute{
 			{
 				Key:   types.AttributeKeyValidator,
-				Value: fmt.Sprint(testapp.Validators[1].ValAddress.String()),
+				Value: fmt.Sprint(bandtesting.Validators[1].ValAddress.String()),
 			},
 		},
 	}}

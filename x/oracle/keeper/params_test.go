@@ -6,12 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestGetSetParams(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	expectedParams := types.Params{
 		MaxRawRequestCount:      1,
 		MaxAskCount:             10,
