@@ -234,10 +234,6 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 
 // GetDataSourceHash fetches data source hash by id
 func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, error) {
-	if hash, ok := c.dataSourceCache.Load(id); ok {
-		return hash.(string), nil
-	}
-
 	res, err := abciQuery(c, l, fmt.Sprintf("/store/%s/key", types.StoreKey), types.DataSourceStoreKey(id))
 	if err != nil {
 		l.Error(":skull: Failed to get data source with error: %s", c, err.Error())
@@ -247,9 +243,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 	var d types.DataSource
 	cdc.MustUnmarshal(res.Response.Value, &d)
 
-	hash, _ := c.dataSourceCache.LoadOrStore(id, d.Filename)
-
-	return hash.(string), nil
+	return d.Filename, nil
 }
 
 // GetRequest fetches request by id

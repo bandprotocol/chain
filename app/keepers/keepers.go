@@ -1,6 +1,7 @@
 package keepers
 
 import (
+	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -47,6 +48,7 @@ type AppKeepers struct {
 	GroupKeeper           groupkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+	GlobalfeeKeeper       globalfeekeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
