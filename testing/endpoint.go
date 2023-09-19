@@ -101,11 +101,6 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			UpgradePath,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
-	case exported.Solomachine:
-		// TODO
-		//		solo := NewSolomachine(chain.t, endpoint.Chain.Codec, clientID, "", 1)
-		//		clientState = solo.ClientState()
-		//		consensusState = solo.ConsensusState()
 
 	default:
 		err = fmt.Errorf("client type %s is not supported", endpoint.ClientConfig.GetClientType())

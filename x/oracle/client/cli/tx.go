@@ -307,7 +307,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			// TODO: Support do-not-modify fee
 			coinStr, err := cmd.Flags().GetString(flagFee)
 			if err != nil {
 				return err

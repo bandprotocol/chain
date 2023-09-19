@@ -96,10 +96,8 @@ func NewAppModule(k keeper.Keeper, ss exported.Subspace) AppModule {
 	}
 }
 
-// RegisterInvariants is a noop function to satisfy SDK AppModule interface.
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
-	// TODO
-}
+// RegisterInvariants is a no-op function to satisfy SDK AppModule interface.
+func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
