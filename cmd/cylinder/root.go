@@ -83,6 +83,8 @@ func NewRootCmd() *cobra.Command {
 	rootCmd.AddCommand(
 		configCmd(ctx),
 		keysCmd(ctx),
+		importCmd(ctx),
+		exportCmd(ctx),
 		runCmd(ctx),
 		version.NewVersionCommand(),
 	)

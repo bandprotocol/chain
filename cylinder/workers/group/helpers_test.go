@@ -207,6 +207,7 @@ func getTestData(testCase testutil.TestCase, member testutil.Member) (store.DKG,
 	tc := testutil.CopyTestCase(testCase)
 
 	dkg := store.DKG{
+		GroupID:        tc.Group.ID,
 		MemberID:       member.ID,
 		OneTimePrivKey: member.OneTimePrivKey,
 		Coefficients:   member.Coefficients,

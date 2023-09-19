@@ -7,13 +7,7 @@ import (
 
 // DE represents private value (D, E) used in TSS signing process.
 type DE struct {
-	PrivD tss.Scalar // Private key d
-	PrivE tss.Scalar // Private key e
-}
-
-func (de DE) PubDE() types.DE {
-	return types.DE{
-		PubD: de.PrivD.Point(),
-		PubE: de.PrivE.Point(),
-	}
+	PubDE types.DE   `json:"pub_d"`
+	PrivD tss.Scalar `json:"priv_d"` // Private key d
+	PrivE tss.Scalar `json:"priv_e"` // Private key e
 }

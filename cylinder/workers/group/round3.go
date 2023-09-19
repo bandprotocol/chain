@@ -134,11 +134,12 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 
 		// Generate own private key and update it in store
 		group = store.Group{
-			MemberID: dkg.MemberID,
-			PrivKey:  ownPrivKey,
+			GroupPubKey: groupRes.Group.PubKey,
+			MemberID:    dkg.MemberID,
+			PrivKey:     ownPrivKey,
 		}
 
-		err = r.context.Store.SetGroup(groupRes.Group.PubKey, group)
+		err = r.context.Store.SetGroup(group)
 		if err != nil {
 			logger.Error(":cold_sweat: Failed to set group with error: %s", err)
 			return

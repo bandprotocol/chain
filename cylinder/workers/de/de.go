@@ -127,10 +127,9 @@ func (de *DE) updateDE() {
 	// Store all DEs in the store
 	var pubDEs []types.DE
 	for _, privDE := range privDEs {
-		pubDE := privDE.PubDE()
-		pubDEs = append(pubDEs, pubDE)
+		pubDEs = append(pubDEs, privDE.PubDE)
 
-		if err := de.context.Store.SetDE(pubDE, privDE); err != nil {
+		if err := de.context.Store.SetDE(privDE); err != nil {
 			de.logger.Error(":cold_sweat: Failed to set new DE in the store: %s", err)
 			return
 		}
