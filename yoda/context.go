@@ -1,7 +1,6 @@
 package yoda
 
 import (
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -45,7 +44,6 @@ type Context struct {
 	freeKeys           chan int64
 	keyRoundRobinIndex int64 // Must use in conjunction with sync/atomic
 
-	dataSourceCache *sync.Map
 	pendingRequests map[types.RequestID]bool
 
 	metricsEnabled bool
