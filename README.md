@@ -35,6 +35,45 @@ Band's flexible oracle design allows developers to **query any data** including 
 
 Please refer to [this documentation](https://docs.bandchain.org/node-validators/run-node/joining-mainnet/installation) for the most up-to-date installation guide.
 
+## Building from source
+
+We recommend the following for running a BandChain Validator:
+
+- **2 or more** CPU cores
+- **8 GB** of RAM (16 GB in case on participate in mainnet upgrade)
+- At least **100GB** of disk storage
+
+**Step 1. Install Golang**
+
+Go v1.18+ or higher is required for BandChain.
+
+If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your GOPATH and GOBIN environment variables are properly set up.
+
+**Step 2. Get BandChain source code**
+
+Use `git` to retrieve BandChain from the [official repo](https://github.com/bandprotocol/chain), and checkout the master branch, which contains the latest stable release. That should install the `bandd` binary.
+
+```bash
+git clone https://github.com/bandprotocol/chain
+cd chain && git checkout v2.3.0
+make install
+```
+
+**Step 3. Verify your installation**
+
+Using `bandd version` command to verify that your `bandd` has been build successfully.
+
+```
+name: bandchain
+server_name: bandd
+version: 2.5.4
+commit: e6548bbf4793829bb8e711e5ed89ba4afc710ded
+build_tags: netgo,ledger
+go: go version go1.19.1 darwin/amd64
+build_deps:
+...
+```
+
 ## Resources
 
 - Developer
