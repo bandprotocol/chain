@@ -10,7 +10,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 

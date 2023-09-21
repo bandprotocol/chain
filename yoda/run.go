@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/yoda/executor"
 )

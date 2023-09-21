@@ -1,12 +1,12 @@
 package v2_5
 
 import (
-	"github.com/bandprotocol/chain/v2/app/keepers"
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/bandprotocol/chain/v2/app/keepers"
+	"github.com/bandprotocol/chain/v2/app/upgrades"
 )
 
 func CreateUpgradeHandler(
