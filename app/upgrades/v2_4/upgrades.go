@@ -1,9 +1,8 @@
 package v2_4
 
 import (
-	"github.com/bandprotocol/chain/v2/app/keepers"
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -18,8 +17,9 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/bandprotocol/chain/v2/app/keepers"
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func CreateUpgradeHandler(

@@ -10,12 +10,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bandprotocol/go-owasm/api"
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/go-owasm/api"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle"

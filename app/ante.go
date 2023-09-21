@@ -39,6 +39,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for AnteHandler")
 	}
+	if options.StakingKeeper == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Staking keeper is required for AnteHandler")
+	}
 	if options.GlobalfeeKeeper == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Globalfee keeper is required for AnteHandler")
 	}
