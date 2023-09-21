@@ -74,7 +74,7 @@ build_deps:
 ...
 ```
 
-## Useful scripts
+## Useful scripts for development
 
 - `scripts/generate_genesis.sh` to create/reset the default genesis file 
 - `scripts/start_bandd.sh` to start the bandd binary
