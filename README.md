@@ -74,6 +74,12 @@ build_deps:
 ...
 ```
 
+## Useful scripts
+
+- `scripts/generate_genesis.sh` to create/reset the default genesis file 
+- `scripts/start_bandd.sh` to start the bandd binary
+- `scripts/start_yoda.sh` to start yoda with reporter(s)
+
 ## Resources
 
 - Developer
