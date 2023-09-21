@@ -1,14 +1,14 @@
 package v2_6
 
 import (
-	"github.com/bandprotocol/chain/v2/app/keepers"
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/bandprotocol/chain/v2/app/keepers"
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 )
 
 func CreateUpgradeHandler(
