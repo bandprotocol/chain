@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // RegisterProofService registers the node gRPC service on the provided gRPC router.
