@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
-
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
