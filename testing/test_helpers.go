@@ -92,6 +92,24 @@ const (
 	DefaultGenTxGas              = 1000000
 )
 
+// DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
+var DefaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
+		MaxBytes: 200000,
+		MaxGas:   -1,
+	},
+	Evidence: &tmproto.EvidenceParams{
+		MaxAgeNumBlocks: 302400,
+		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
+		// MaxBytes:        10000,
+	},
+	Validator: &tmproto.ValidatorParams{
+		PubKeyTypes: []string{
+			tmtypes.ABCIPubKeyTypeSecp256k1,
+		},
+	},
+}
+
 type TestingApp struct {
 	*bandapp.BandApp
 }
@@ -118,24 +136,6 @@ func (app *TestingApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 // GetTxConfig implements the TestingApp interface.
 func (app *TestingApp) GetTxConfig() client.TxConfig {
 	return bandapp.MakeEncodingConfig().TxConfig
-}
-
-// DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-var DefaultConsensusParams = &tmproto.ConsensusParams{
-	Block: &tmproto.BlockParams{
-		MaxBytes: 200000,
-		MaxGas:   -1,
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		// MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeSecp256k1,
-		},
-	},
 }
 
 func init() {
