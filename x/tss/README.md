@@ -65,7 +65,7 @@ This module is used in the BandChain.
 
 A status in the TSS system is on the account level. An account must send a message to the chain to show if they want to be a participant in the TSS system. Once they have activated their status in the TSS module. They will have to send a health-check message to the chain every "ActiveDuration" (default is 1 day) to show if they are still active.
 
-If an account didn't send a health-check message or failed to participate in any assigned actions such as creating a group or requesting signing. They will be deactivated for a specific period depending on the action. This mechanism will help to eliminate inactive accounts from the TSS system and improve the reliability of the system.
+If an account didn't send a health-check message or failed to participate in any assigned actions such as creating a group or requesting signature. They will be deactivated for a specific period depending on the action. This mechanism will help to eliminate inactive accounts from the TSS system and improve the reliability of the system.
 
 
 ### Reward
@@ -74,7 +74,7 @@ If an account didn't send a health-check message or failed to participate in any
 
 In each block, all active accounts that are validators will receive more block rewards depending on their validating power as a reward for providing service on the TSS system.
 
-The `RewardPercentage` parameter will be the percent of block rewards that will be assigned to those validators. The default value is 50%. However, this percentage is calculated after removing rewards for the Oracle module. For example, if rewards are 100% and the Oracle module took 40%. TSS module will receive only 30% (50% of 60%) of the full block rewards.
+The `RewardPercentage` parameter will be the percent of block rewards that will be assigned to those validators. The default value is 50%. However, this percentage is calculated from the remaning rewards. For example, if somehow other module took 40% as their rewards. TSS module will receive only 30% (50% of 60%) of the full block rewards.
 
 #### Request fee
 
@@ -97,11 +97,11 @@ A signing is a request to sign some data from a user to the group. It contains a
 
 The group replacement process is used to add/remove members of the group including the rotating key. We can't directly change members of the group as the key of each member is like the part of the group's key. So, we have to create a new group and replace the new group information with the old group's ID.
 
-The process will be like this:
+Here are the step of replcement process:
 1. Create a new group through a proposal
 2. Create a group replacement proposal with replacement time
-2. After the proposal passed, the old group will be assigned to sign the `changing group` message
-3. Once it reaches replacement time, all information from the old group will be replaced by information from the new group.
+3. After the proposal passed, the old group will be assigned to sign the `changing group` message
+4. Once it reaches replacement time, all information from the old group will be replaced by information from the new group.
 
 This process allows users to have spare time to update their key before it reaches replacement time. Also, users can choose to request from old and new group IDs.
 
@@ -413,7 +413,7 @@ This event (`signing_success`) is emitted at the end block when all assigned mem
 
 ### EventTypeReplaceSuccess
 
-This event (`signing_success`) is emitted at the end block when it reaches replacement time and replacement is successful.
+This event (`replace_success`) is emitted at the end block when it reaches replacement time and replacement is successful.
 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
