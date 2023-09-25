@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -153,7 +152,6 @@ func TestAddDataSourceDataSourceMustReturnCorrectID(t *testing.T) {
 
 	// Initially we expect the data source count to be what we have on genesis state.
 	genesisCount := uint64(len(bandtesting.DataSources)) - 1
-	fmt.Println(genesisCount, k.GetDataSourceCount(ctx))
 	require.Equal(t, genesisCount, k.GetDataSourceCount(ctx))
 
 	// Every new data source we add should return a new ID.
