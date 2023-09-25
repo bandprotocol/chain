@@ -3,13 +3,14 @@ package bank
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/bank/exported"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	"github.com/bandprotocol/chain/v2/x/bank/keeper"
 )
 
 var (

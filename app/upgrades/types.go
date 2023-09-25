@@ -1,13 +1,14 @@
 package upgrades
 
 import (
-	"github.com/bandprotocol/chain/v2/app/keepers"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/bandprotocol/chain/v2/app/keepers"
 )
 
 // Upgrade defines a struct containing necessary fields that a SoftwareUpgradeProposal

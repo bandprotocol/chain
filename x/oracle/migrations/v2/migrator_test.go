@@ -3,15 +3,15 @@ package v2_test
 import (
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/exported"
 	v2 "github.com/bandprotocol/chain/v2/x/oracle/migrations/v2"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/cosmos/cosmos-sdk/testutil"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 )
 
 type mockSubspace struct {
