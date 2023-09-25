@@ -229,7 +229,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		tcGroup := tc.Group
 
 		// Initialize members
-		for i, m := range tc.Group.Members {
+		for i, m := range tcGroup.Members {
 			k.SetMember(ctx, tcGroup.ID, tsstypes.Member{
 				MemberID:    tss.MemberID(i + 1),
 				Address:     owner,
