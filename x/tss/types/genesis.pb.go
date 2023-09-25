@@ -162,7 +162,7 @@ type Params struct {
 	InactivePenaltyDuration time.Duration `protobuf:"bytes,6,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3,stdduration" json:"inactive_penalty_duration"`
 	// jail_penalty_duration is the duration where a member cannot activate back after jail.
 	JailPenaltyDuration time.Duration `protobuf:"bytes,7,opt,name=jail_penalty_duration,json=jailPenaltyDuration,proto3,stdduration" json:"jail_penalty_duration"`
-	// RewardPercentage is the percentage of block rewards allocated to active TSS validators after being allocated to
+	// reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
 	// oracle rewards.
 	RewardPercentage uint64 `protobuf:"varint,8,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
 }
