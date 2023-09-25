@@ -174,9 +174,9 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	}
 
 	// Validate encrypted secret shares
-	for _, ess := range m.Round2Info.EncryptedSecretShares {
+	for i, ess := range m.Round2Info.EncryptedSecretShares {
 		if err := ess.Validate(); err != nil {
-			return errors.Wrap(err, "encrypted secret shares")
+			return errors.Wrap(err, fmt.Sprintf("encrypted secret shares at index: %d", i))
 		}
 	}
 
