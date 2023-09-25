@@ -53,9 +53,6 @@ var (
 	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
 	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
 
-	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
-	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
-
 	// PendingProcessGroupsStoreKey is the key for storing pending process groups.
 	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
 

@@ -162,7 +162,7 @@ func SignComplaint(
 	oneTimePubJ Point,
 	oneTimePrivI Scalar,
 ) (ComplaintSignature, Point, error) {
-	keySym, err := ComputeKeySym(oneTimePrivI, oneTimePubJ)
+	keySym, err := ComputeSecretSym(oneTimePrivI, oneTimePubJ)
 	if err != nil {
 		return nil, nil, NewError(err, "compute key sym")
 	}
@@ -178,7 +178,7 @@ func SignComplaint(
 			return nil, nil, err
 		}
 
-		nonceSym, err = ComputeNonceSym(nonce, oneTimePubJ)
+		nonceSym, err = ComputeSecretSym(nonce, oneTimePubJ)
 		if err != nil {
 			return nil, nil, NewError(err, "compute nonce sym")
 		}
