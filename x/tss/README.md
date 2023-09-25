@@ -95,7 +95,7 @@ A signing is a request to sign some data from a user to the group. It contains a
 
 ### Group replacement
 
-The group replacement process is used to add/remove members of the group including the rotating key. We can't directly change members of the group as the key of each member is like the part of the group's key. So, we have to create a new group and replace the new group information with the old group's ID.
+The process of group replacement is used when we need to change who is in a group and also update the group's key. We can't just swap out individual members because their keys are linked to the group's key. To replacement the group, we have to create a new group and then update the old group's information with the new group's details.
 
 Here are the step of replcement process:
 1. Create a new group through a proposal
