@@ -30,6 +30,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		address := sdk.MustAccAddressFromBech32(deq.Address)
 		k.SetDEQueue(ctx, address, deq.DEQueue)
 	}
+
 	for _, de := range data.DEsGenesis {
 		address := sdk.MustAccAddressFromBech32(de.Address)
 		k.SetDE(ctx, address, de.Index, de.DE)
