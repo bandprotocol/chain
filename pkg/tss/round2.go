@@ -19,7 +19,7 @@ func ComputeEncryptedSecretShares(
 			continue
 		}
 
-		keySym, err := ComputeKeySym(rawPrivKey, rawPubKey)
+		keySym, err := ComputeSecretSym(rawPrivKey, rawPubKey)
 		if err != nil {
 			return nil, NewError(err, "compute key sym")
 		}

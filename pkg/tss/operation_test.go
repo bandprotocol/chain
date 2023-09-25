@@ -1,17 +1,15 @@
 package tss_test
 
 import (
-	"encoding/hex"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 )
 
-func (suite *TSSTestSuite) TestComputeKeySym() {
+func (suite *TSSTestSuite) TestComputeSecretSym() {
 	suite.RunOnPairMembers(
 		suite.testCases,
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
-			keySym, err := tss.ComputeKeySym(
+			keySym, err := tss.ComputeSecretSym(
 				memberI.OneTimePrivKey,
 				memberJ.OneTimePubKey(),
 			)
@@ -19,16 +17,6 @@ func (suite *TSSTestSuite) TestComputeKeySym() {
 			suite.Require().Equal(memberI.KeySyms[testutil.GetSlot(memberI.ID, memberJ.ID)], keySym)
 		},
 	)
-}
-
-func (suite *TSSTestSuite) TestComputeNonceSym() {
-	nonce := testutil.HexDecode("1111111111111111111111111111111111111111111111111111111111111111")
-	pubKey := testutil.HexDecode("03c820245f18671206e752122953397786af3444f3a8da8098e594a8f612d94059")
-
-	nonceSym, err := tss.ComputeNonceSym(nonce, pubKey)
-	suite.Require().NoError(err)
-	suite.Require().
-		Equal("0360bf3f69810cc3472702c1f76ec76cdbefd85b1537db870e91b382a2e6e2bf6c", hex.EncodeToString(nonceSym))
 }
 
 func (suite *TSSTestSuite) TestSumScalars() {
