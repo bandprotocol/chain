@@ -4,9 +4,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/stretchr/testify/require"
+
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func hexToBytes(hexstr string) []byte {

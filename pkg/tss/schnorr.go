@@ -13,24 +13,32 @@ func Sign(
 	rawNonce Scalar,
 	rawLagrange Scalar,
 ) (Signature, error) {
+	// Serialize input to internal types
 	privKey := rawPrivKey.privateKey()
 	nonce := rawNonce.modNScalar()
 	challenge := rawChallenge.modNScalar()
 
+	// Get signature R from nonce (R = kG)
 	var signatureR secp256k1.JacobianPoint
 	secp256k1.ScalarBaseMultNonConst(nonce, &signatureR)
 
+	// If there is lagrange value, multiply it into challenge
+	// C = CL
 	if rawLagrange != nil {
 		lagrange := rawLagrange.modNScalar()
 		challenge.Mul(lagrange)
 	}
 
+	// Compute signature S
 	signatureS, err := schnorr.ComputeSignatureS(privKey, nonce, challenge)
 	if err != nil {
 		return nil, NewError(err, "compute signature S")
 	}
 
+	// Construct signature from R and S value
 	signature := schnorr.NewSignature(&signatureR, signatureS)
+
+	// Serialize the result to external type
 	return signature.Serialize(), nil
 }
 
@@ -45,6 +53,7 @@ func Verify(
 	rawGenerator Point,
 	rawLagrange Scalar,
 ) error {
+	// Serialize input to internal types
 	signatureR, err := rawSignatureR.jacobianPoint()
 	if err != nil {
 		return NewError(err, "parse signature R")
@@ -67,11 +76,14 @@ func Verify(
 		}
 	}
 
+	// If there is lagrange value, multiply it into challenge
+	// C = CL
 	if rawLagrange != nil {
 		lagrange := rawLagrange.modNScalar()
 		challenge.Mul(lagrange)
 	}
 
+	// Verify signature
 	err = schnorr.Verify(signatureR, signatureS, challenge, pubKey, generator)
 	if err != nil {
 		return NewError(ErrInvalidSignature, err.Error())

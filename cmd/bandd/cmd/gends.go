@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 

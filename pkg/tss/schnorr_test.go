@@ -41,10 +41,10 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			signature, err := tss.Sign(memberI.OneTimePrivKey, suite.challenge, suite.nonce, nil)
 			suite.Require().NoError(err)
 
-			keySym, err := tss.ComputeKeySym(memberI.OneTimePrivKey, generator)
+			keySym, err := tss.ComputeSecretSym(memberI.OneTimePrivKey, generator)
 			suite.Require().NoError(err)
 
-			nonceSym, err := tss.ComputeNonceSym(suite.nonce, generator)
+			nonceSym, err := tss.ComputeSecretSym(suite.nonce, generator)
 			suite.Require().NoError(err)
 
 			// Success case

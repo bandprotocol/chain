@@ -12,6 +12,7 @@ func (suite *TSSTestSuite) TestGenerateRound1Info() {
 
 	data, err := tss.GenerateRound1Info(mid, threshold, dkgContext)
 	suite.Require().NoError(err)
+
 	err = tss.VerifyOneTimeSignature(mid, dkgContext, data.OneTimeSignature, data.OneTimePubKey)
 	suite.Require().NoError(err)
 

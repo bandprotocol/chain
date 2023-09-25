@@ -24,11 +24,10 @@ func GetQueryCmd() *cobra.Command {
 
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "params",
-		Short:   "Show params",
-		Long:    "Show parameter of globalfee module",
-		Aliases: []string{"min"},
-		Args:    cobra.ExactArgs(0),
+		Use:   "params",
+		Short: "Show params",
+		Long:  "Show parameter of globalfee module",
+		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
