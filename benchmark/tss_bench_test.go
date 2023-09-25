@@ -33,7 +33,7 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 			), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
 
-				ba.SetupGroup()
+				ba.SetupTSSGroup()
 
 				msg := MockByte(blen)
 
@@ -81,7 +81,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 			), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
 
-				ba.SetupGroup()
+				ba.SetupTSSGroup()
 
 				ba.CallBeginBlock()
 				b.ResetTimer()
@@ -125,7 +125,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 			), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
 
-				ba.SetupGroup()
+				ba.SetupTSSGroup()
 
 				b.ResetTimer()
 				b.StopTimer()

@@ -218,7 +218,7 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 	return msgs
 }
 
-func (ba *BenchmarkApp) SetupGroup() {
+func (ba *BenchmarkApp) SetupTSSGroup() {
 	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
 
 	// force address to owner
