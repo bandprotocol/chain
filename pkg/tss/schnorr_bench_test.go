@@ -41,8 +41,8 @@ func BenchmarkVerifyWithCustomGenerator(b *testing.B) {
 	signatureS := signature.S()
 
 	generator := suite.pubKey
-	keySym, _ := tss.ComputeKeySym(suite.privKey, generator)
-	nonceSym, _ := tss.ComputeNonceSym(suite.nonce, generator)
+	keySym, _ := tss.ComputeSecretSym(suite.privKey, generator)
+	nonceSym, _ := tss.ComputeSecretSym(suite.nonce, generator)
 
 	b.ResetTimer()
 
