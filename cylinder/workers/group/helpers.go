@@ -82,7 +82,7 @@ func getSecretShare(
 	}
 
 	// Calculate keySym
-	keySym, err := tss.ComputeKeySym(privKeyReceiver, r1Sender.OneTimePubKey)
+	keySym, err := tss.ComputeSecretSym(privKeyReceiver, r1Sender.OneTimePubKey)
 	if err != nil {
 		return nil, nil, err
 	}
