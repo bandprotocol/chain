@@ -271,7 +271,7 @@ func (q queryServer) Signing(
 	}, nil
 }
 
-// Statuses function handles the request to get statuses of a given ID.
+// Status function handles the request to get the status of a given account address.
 func (q queryServer) Status(
 	goCtx context.Context,
 	req *types.QueryStatusRequest,
@@ -292,7 +292,7 @@ func (q queryServer) Status(
 	}, nil
 }
 
-// Statuses function handles the request to get statuses of a given ID.
+// Statuses function handles the request to get filtered statuses based on criteria.
 func (q queryServer) Statuses(
 	goCtx context.Context,
 	req *types.QueryStatusesRequest,
