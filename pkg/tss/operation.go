@@ -4,34 +4,19 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// ComputeKeySym computes the key symmetry between a private key and a public key.
-// It returns the computed key symmetry as a PublicKey and an error, if any.
-func ComputeKeySym(rawPrivKeyI Scalar, rawPubKeyJ Point) (Point, error) {
-	privKeyI := rawPrivKeyI.modNScalar()
+// ComputeSecretSym computes the symmetry value between a secret value and a public key.
+// It returns the computed symmetry value as a PublicKey and an error, if any.
+func ComputeSecretSym(rawSecretKey Scalar, rawPubKeyJ Point) (Point, error) {
+	secretKey := rawSecretKey.modNScalar()
 	pubKeyJ, err := rawPubKeyJ.jacobianPoint()
 	if err != nil {
 		return nil, NewError(err, "parse publicKeyJ")
 	}
 
 	keySym := new(secp256k1.JacobianPoint)
-	secp256k1.ScalarMultNonConst(privKeyI, pubKeyJ, keySym)
+	secp256k1.ScalarMultNonConst(secretKey, pubKeyJ, keySym)
 
 	return NewPointFromJacobianPoint(keySym), nil
-}
-
-// ComputeNonceSym computes the nonce symmetry between a nonce value and a public key.
-// It returns the computed nonce symmetry as a PublicKey and an error, if any.
-func ComputeNonceSym(rawNonce Scalar, rawPubKeyJ Point) (Point, error) {
-	nonce := rawNonce.modNScalar()
-	pubKeyJ, err := rawPubKeyJ.jacobianPoint()
-	if err != nil {
-		return nil, NewError(err, "parse publicKeyJ")
-	}
-
-	nonceSym := new(secp256k1.JacobianPoint)
-	secp256k1.ScalarMultNonConst(nonce, pubKeyJ, nonceSym)
-
-	return NewPointFromJacobianPoint(nonceSym), nil
 }
 
 // SumScalars computes the sum of multiple scalars.
