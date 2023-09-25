@@ -86,6 +86,7 @@ var (
 )
 
 const (
+	ChainID               string = "BANDCHAIN"
 	TestDefaultPrepareGas uint64 = 40000
 	TestDefaultExecuteGas uint64 = 300000
 )
@@ -386,7 +387,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 
 // CreateTestInput creates a new test environment for unit tests.
 func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
-	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
+	app := NewTestApp(ChainID, log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
@@ -443,7 +444,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 
 // SetupWithEmptyStore setup a TestingApp instance with empty DB
 func SetupWithEmptyStore() *TestingApp {
-	app, _, _ := setup(false, 0, "BANDCHAIN")
+	app, _, _ := setup(false, 0, ChainID)
 	return app
 }
 
