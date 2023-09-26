@@ -80,6 +80,8 @@ message QueryCountsResponse {
   uint64 group_count = 1;
   // signing_count is total number of signing request submitted to the chain
   uint64 signing_count = 2;
+  // ReplacementCount is total number of replacement groups submitted to the chain
+  uint64 replacement_count = 3;
 }
 
 // QueryGroupRequest is the request type for the Query/Group RPC method

@@ -169,11 +169,11 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 // GetTxCmdSubmitDKGRound1 creates a CLI command for CLI command for Msg/SubmitDKGRound1.
 func GetTxCmdSubmitDKGRound1() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
+		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
-		Short: "submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sing, one_time_sign and coefficients_commit",
+		Short: "submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sign, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
-			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sing] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
+			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -214,7 +214,12 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 					return err
 				}
 
-				coefficientCommits = append(coefficientCommits, tss.Point(coefficientCommit))
+				point, err := tss.NewPoint(coefficientCommit)
+				if err != nil {
+					return err
+				}
+
+				coefficientCommits = append(coefficientCommits, point)
 			}
 
 			msg := &types.MsgSubmitDKGRound1{

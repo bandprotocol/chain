@@ -218,7 +218,7 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 	return msgs
 }
 
-func (ba *BenchmarkApp) SetupGroup() {
+func (ba *BenchmarkApp) SetupTSSGroup() {
 	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
 
 	// force address to owner
@@ -229,7 +229,7 @@ func (ba *BenchmarkApp) SetupGroup() {
 		tcGroup := tc.Group
 
 		// Initialize members
-		for i, m := range tc.Group.Members {
+		for i, m := range tcGroup.Members {
 			k.SetMember(ctx, tcGroup.ID, tsstypes.Member{
 				MemberID:    tss.MemberID(i + 1),
 				Address:     owner,

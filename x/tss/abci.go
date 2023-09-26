@@ -36,6 +36,7 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// This effectively clears the list, as the processing for all signings has been completed in this block.
 	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{})
 
+	// Fetch group replacements that have reached the execution time.
 	k.IterateReplacementQueue(ctx, ctx.BlockHeader().Time, func(replacement types.Replacement) bool {
 		k.HandleReplaceGroup(ctx, replacement)
 		k.RemoveFromReplacementQueue(ctx, replacement.ID, *&replacement.ExecTime)

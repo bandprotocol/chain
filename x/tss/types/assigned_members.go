@@ -56,7 +56,7 @@ func (ams AssignedMembers) FindAssignedMember(mid tss.MemberID, address string) 
 func (ams AssignedMembers) VerifySignatureR(mid tss.MemberID, r tss.Point) bool {
 	for _, am := range ams {
 		if mid == am.MemberID {
-			return bytes.Equal(r, tss.Point(am.PubNonce))
+			return bytes.Equal(r, am.PubNonce)
 		}
 	}
 	return false

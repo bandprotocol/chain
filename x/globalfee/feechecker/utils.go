@@ -63,5 +63,6 @@ func checkValidMsgReport(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg
 	if err != nil {
 		return err
 	}
+
 	return oracleKeeper.CheckValidReport(ctx, msg.RequestID, validator, msg.RawReports)
 }

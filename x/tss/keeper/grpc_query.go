@@ -27,8 +27,9 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryCountsResponse{
-		GroupCount:   q.k.GetGroupCount(ctx),
-		SigningCount: q.k.GetSigningCount(ctx),
+		GroupCount:       q.k.GetGroupCount(ctx),
+		SigningCount:     q.k.GetSigningCount(ctx),
+		ReplacementCount: q.k.GetReplacementCount(ctx),
 	}, nil
 }
 
@@ -271,7 +272,7 @@ func (q queryServer) Signing(
 	}, nil
 }
 
-// Statuses function handles the request to get statuses of a given ID.
+// Status function handles the request to get the status of a given account address.
 func (q queryServer) Status(
 	goCtx context.Context,
 	req *types.QueryStatusRequest,
@@ -292,7 +293,7 @@ func (q queryServer) Status(
 	}, nil
 }
 
-// Statuses function handles the request to get statuses of a given ID.
+// Statuses function handles the request to get filtered statuses based on criteria.
 func (q queryServer) Statuses(
 	goCtx context.Context,
 	req *types.QueryStatusesRequest,

@@ -3,8 +3,8 @@
         {
             "complainant": 1,
             "respondent": 2,
-            "key_sym": "A12yoSWiMwC+8k5XiD9UdQOrJZipntB9ZdSCtOof+O0m",
-            "signature": "Aj1c3dvb5QNZAjHpqAljSM8n2TcUAh/q75GzwJVTcjujxdE324C0ZCgl5IxCVFDxRzHnzTwjl6u0sscOZacLBi4="
+            "key_sym": "02075b96bb760670b253b0632d3360e5ef789638c55fe9f605e7a2bc2dffae365a",
+            "signature": "02a0958e29cb00571f3ed832b146edfaf5c67bc887748cc911abc4b9375da2f0fe020760dbce0abca8daa81a14b9701368b05d5d606f02d3fc9574c28eb761d627af8bb7b85624d5e1d78db08359d124ca57322adbc80f4fbb9930f9f1ed1838668c"
         }
     ]
 }
