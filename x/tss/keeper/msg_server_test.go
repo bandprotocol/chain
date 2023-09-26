@@ -546,7 +546,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				respondentSlot := types.FindMemberSlot(complaintID, m.ID)
 
 				// Set fake encrypted secret shares
-				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
+				respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FalsePrivKey
 				k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 				signature, keySym, err := tss.SignComplaint(
