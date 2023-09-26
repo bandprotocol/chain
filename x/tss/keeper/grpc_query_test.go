@@ -19,6 +19,7 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 	s.Require().Nil(err)
 	s.Require().Equal(k.GetGroupCount(ctx), res.GroupCount)
 	s.Require().Equal(k.GetSigningCount(ctx), res.SigningCount)
+	s.Require().Equal(k.GetReplacementCount(ctx), res.ReplacementCount)
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {

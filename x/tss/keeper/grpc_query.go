@@ -27,8 +27,9 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryCountsResponse{
-		GroupCount:   q.k.GetGroupCount(ctx),
-		SigningCount: q.k.GetSigningCount(ctx),
+		GroupCount:       q.k.GetGroupCount(ctx),
+		SigningCount:     q.k.GetSigningCount(ctx),
+		ReplacementCount: q.k.GetReplacementCount(ctx),
 	}, nil
 }
 
