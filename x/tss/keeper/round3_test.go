@@ -57,7 +57,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 			s.Require().NoError(err)
 
 			// Set fake encrypted secret shares
-			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FakePrivKey
+			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FalsePrivKey
 			k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 			// Success case - wrong encrypted secret share
