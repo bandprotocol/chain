@@ -67,15 +67,15 @@ func Verify(
 	//
 	// R = s*G - c*Q
 	c := *challenge
-	var Q, R, sG, cQ secp256k1.JacobianPoint
+	var Q, R, sG, negcQ secp256k1.JacobianPoint
 	pubKey.AsJacobian(&Q)
 	if generator == nil {
 		secp256k1.ScalarBaseMultNonConst(signatureS, &sG)
 	} else {
 		secp256k1.ScalarMultNonConst(signatureS, generator, &sG)
 	}
-	secp256k1.ScalarMultNonConst(c.Negate(), &Q, &cQ)
-	secp256k1.AddNonConst(&sG, &cQ, &R)
+	secp256k1.ScalarMultNonConst(c.Negate(), &Q, &negcQ)
+	secp256k1.AddNonConst(&sG, &negcQ, &R)
 
 	// Step 3.
 	//
