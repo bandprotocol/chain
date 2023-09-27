@@ -19,16 +19,16 @@ func CopyTestCase(src TestCase) TestCase {
 }
 
 var (
-	FakePrivKey   = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
-	FakePubKey    = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
-	FakeSignature = HexDecode(
+	FalsePrivKey   = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
+	FalsePubKey    = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
+	FalseSignature = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
-	FakeComplaintSignature = HexDecode(
+	FalseComplaintSignature = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
 	)
-	FakeChallenge = HexDecode("97e42d6dad095e552b6467e24f35740172233fbd0c2d078066009a85206e6e93")
-	FakeLagrange  = HexDecode(
+	FalseChallenge = HexDecode("97e42d6dad095e552b6467e24f35740172233fbd0c2d078066009a85206e6e93")
+	FalseLagrange  = HexDecode(
 		"0000000000000000000000000000000000000000000000000000000000000000",
 	)
 	TestCases = []TestCase{

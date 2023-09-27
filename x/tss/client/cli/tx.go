@@ -565,7 +565,7 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "activate",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		Short: "activate the status of the address",
 		Example: fmt.Sprintf(
 			`%s tx tss activate`,
@@ -594,7 +594,7 @@ func GetTxCmdActivate() *cobra.Command {
 func GetTxCmdActive() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "active",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		Short: "update active status of the address",
 		Example: fmt.Sprintf(
 			`%s tx tss active`,

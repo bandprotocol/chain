@@ -20,11 +20,11 @@ func (suite *TSSTestSuite) TestSignAndVerify() {
 		suite.Require().NoError(err)
 
 		// Wrong msg case
-		err = tss.Verify(signature.R(), signature.S(), testutil.FakeChallenge, member.OneTimePubKey(), nil, nil)
+		err = tss.Verify(signature.R(), signature.S(), testutil.FalseChallenge, member.OneTimePubKey(), nil, nil)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FakePubKey, nil, nil)
+		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FalsePubKey, nil, nil)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
@@ -35,7 +35,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
 			// Prepare
 			generator := []byte(memberJ.OneTimePubKey())
-			fakeGenerator := []byte(testutil.FakePubKey)
+			fakeGenerator := []byte(testutil.FalsePubKey)
 
 			// Sign
 			signature, err := tss.Sign(memberI.OneTimePrivKey, suite.challenge, suite.nonce, nil)
@@ -52,11 +52,11 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			suite.Require().NoError(err)
 
 			// Wrong msg case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), testutil.FakeChallenge, keySym, generator, nil)
+			err = tss.Verify(tss.Point(nonceSym), signature.S(), testutil.FalseChallenge, keySym, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), suite.challenge, testutil.FakePubKey, generator, nil)
+			err = tss.Verify(tss.Point(nonceSym), signature.S(), suite.challenge, testutil.FalsePubKey, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong generator case
@@ -65,7 +65,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 
 			// Wrong nonce sym case
 			err = tss.Verify(
-				tss.Point(testutil.FakePubKey),
+				tss.Point(testutil.FalsePubKey),
 				signature.S(),
 				suite.challenge,
 				keySym,
@@ -90,11 +90,11 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomLagrange() {
 		suite.Require().NoError(err)
 
 		// Wrong msg case
-		err = tss.Verify(signature.R(), signature.S(), testutil.FakeChallenge, member.OneTimePubKey(), nil, lagrange)
+		err = tss.Verify(signature.R(), signature.S(), testutil.FalseChallenge, member.OneTimePubKey(), nil, lagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FakePubKey, nil, lagrange)
+		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FalsePubKey, nil, lagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong lagrange case

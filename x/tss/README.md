@@ -474,19 +474,19 @@ The TSS module contains the following parameters
 
 ```protobuf
 type Params struct {
-	// max_group_size is the maximum of the member capacity of the group.
+	// MaxGroupSize is the maximum of the member capacity of the group.
 	MaxGroupSize uint64
-	// max_d_e_size is the maximum of the de capacity of the member.
+	// MaxDESize is the maximum of the de capacity of the member.
 	MaxDESize uint64
-	// creating_period is the number of blocks allowed to creating group signature.
+	// CreatingPeriod is the number of blocks allowed to creating group signature.
 	CreatingPeriod uint64
-	// signing_period is the number of blocks allowed to sign.
+	// SigningPeriod is the number of blocks allowed to sign.
 	SigningPeriod uint64
-	// active_duration is the duration where a member can be active without interaction.
+	// ActiveDuration is the duration where a member can be active without interaction.
 	ActiveDuration time.Duration
-	// inactive_penalty_duration is the duration where a member cannot activate back after inactive.
+	// InactivePenaltyDuration is the duration where a member cannot activate back after inactive.
 	InactivePenaltyDuration time.Duration
-	// jail_penalty_duration is the duration where a member cannot activate back after jail.
+	// JailPenaltyDuration is the duration where a member cannot activate back after jail.
 	JailPenaltyDuration time.Duration
 	// RewardPercentage is the percentage of block rewards allocated to active TSS validators after being allocated to oracle rewards.
 	RewardPercentage uint64

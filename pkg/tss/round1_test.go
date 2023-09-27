@@ -59,7 +59,7 @@ func (suite *TSSTestSuite) TestVerifyOneTimeSignature() {
 		// Wrong DKGContext case
 		err = tss.VerifyOneTimeSignature(
 			member.ID,
-			[]byte("fake DKGContext"),
+			[]byte("false DKGContext"),
 			member.OneTimeSignature,
 			member.OneTimePubKey(),
 		)
@@ -69,13 +69,13 @@ func (suite *TSSTestSuite) TestVerifyOneTimeSignature() {
 		err = tss.VerifyOneTimeSignature(
 			member.ID,
 			tc.Group.DKGContext,
-			testutil.FakeSignature,
+			testutil.FalseSignature,
 			member.OneTimePubKey(),
 		)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.VerifyOneTimeSignature(member.ID, tc.Group.DKGContext, member.OneTimeSignature, testutil.FakePubKey)
+		err = tss.VerifyOneTimeSignature(member.ID, tc.Group.DKGContext, member.OneTimeSignature, testutil.FalsePubKey)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
@@ -106,15 +106,15 @@ func (suite *TSSTestSuite) TestVerifyA0Signature() {
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong DKGContext case
-		err = tss.VerifyA0Signature(member.ID, []byte("fake DKGContext"), member.A0Signature, member.A0PubKey())
+		err = tss.VerifyA0Signature(member.ID, []byte("false DKGContext"), member.A0Signature, member.A0PubKey())
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong signature case
-		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, testutil.FakeSignature, member.A0PubKey())
+		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, testutil.FalseSignature, member.A0PubKey())
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 		// Wrong public key case
-		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, member.A0Signature, testutil.FakePubKey)
+		err = tss.VerifyA0Signature(member.ID, tc.Group.DKGContext, member.A0Signature, testutil.FalsePubKey)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
