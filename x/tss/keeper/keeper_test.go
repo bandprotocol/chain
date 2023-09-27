@@ -88,11 +88,10 @@ func (s *KeeperTestSuite) setupRound1() {
 
 	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		for _, m := range tcGroup.Members {
+		for _, m := range tc.Group.Members {
 			// Submit Round 1 information for each member
 			_, err := msgSrvr.SubmitDKGRound1(ctx, &types.MsgSubmitDKGRound1{
-				GroupID: tcGroup.ID,
+				GroupID: tc.Group.ID,
 				Round1Info: types.Round1Info{
 					MemberID:           m.ID,
 					CoefficientCommits: m.CoefficientCommits,
@@ -115,11 +114,10 @@ func (s *KeeperTestSuite) setupRound2() {
 
 	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		for _, m := range tcGroup.Members {
+		for _, m := range tc.Group.Members {
 			// Submit Round 2 information for each member
 			_, err := msgSrvr.SubmitDKGRound2(ctx, &types.MsgSubmitDKGRound2{
-				GroupID: tcGroup.ID,
+				GroupID: tc.Group.ID,
 				Round2Info: types.Round2Info{
 					MemberID:              m.ID,
 					EncryptedSecretShares: m.EncSecretShares,
@@ -139,11 +137,10 @@ func (s *KeeperTestSuite) setupConfirm() {
 
 	ctx, app, msgSrvr := s.ctx, s.app, s.msgSrvr
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		for _, m := range tcGroup.Members {
+		for _, m := range tc.Group.Members {
 			// Confirm the group participation for each member
 			_, err := msgSrvr.Confirm(ctx, &types.MsgConfirm{
-				GroupID:      tcGroup.ID,
+				GroupID:      tc.Group.ID,
 				MemberID:     m.ID,
 				OwnPubKeySig: m.PubKeySignature,
 				Address:      sdk.AccAddress(m.PubKey()).String(),
@@ -160,8 +157,7 @@ func (s *KeeperTestSuite) setupDE() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-		for _, m := range tcGroup.Members {
+		for _, m := range tc.Group.Members {
 			// Submit DEs for each member
 			_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
 				DEs: []types.DE{

@@ -226,11 +226,9 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
-		tcGroup := tc.Group
-
 		// Initialize members
-		for i, m := range tcGroup.Members {
-			k.SetMember(ctx, tcGroup.ID, tsstypes.Member{
+		for i, m := range tc.Group.Members {
+			k.SetMember(ctx, tc.Group.ID, tsstypes.Member{
 				MemberID:    tss.MemberID(i + 1),
 				Address:     owner,
 				PubKey:      m.PubKey(),
@@ -242,10 +240,10 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		}
 
 		k.CreateNewGroup(ctx, tsstypes.Group{
-			GroupID:       tcGroup.ID,
-			Size_:         uint64(tcGroup.GetSize()),
-			Threshold:     tcGroup.Threshold,
-			PubKey:        tcGroup.PubKey,
+			GroupID:       tc.Group.ID,
+			Size_:         uint64(tc.Group.GetSize()),
+			Threshold:     tc.Group.Threshold,
+			PubKey:        tc.Group.PubKey,
 			Status:        tsstypes.GROUP_STATUS_ACTIVE,
 			Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			CreatedHeight: 1,
