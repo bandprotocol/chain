@@ -33,7 +33,7 @@ func runCmd(ctx *Context) *cobra.Command {
 		Use:     "run",
 		Aliases: []string{"r"},
 		Short:   "Run the cylinder process",
-		Args:    cobra.ExactArgs(0),
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
 			if err != nil {

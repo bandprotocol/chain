@@ -37,7 +37,7 @@ func exportCmd(ctx *Context) *cobra.Command {
 // exportGroupsCmd returns a Cobra command for exporting groups data
 func exportGroupsCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "groups [public key 1] [public key 2] [public key 3] [...]",
+		Use:   "groups [public-key-1] [public-key-2] [public-key-3] [...]",
 		Short: "Export groups data",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -116,7 +116,7 @@ func exportGroupsCmd(ctx *Context) *cobra.Command {
 // exportDKGsCmd returns a Cobra command for exporting DKGs data
 func exportDKGsCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dkgs [group id 1] [group id 2] [group id 3] [...]",
+		Use:   "dkgs [group-id-1] [group-id-2] [group-id-3] [...]",
 		Short: "Export DKGs data",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -197,7 +197,7 @@ func exportDEsCmd(ctx *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "des",
 		Short: "Export DEs data",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// get 'output' flag
 			output, err := cmd.Flags().GetString(flagOutput)

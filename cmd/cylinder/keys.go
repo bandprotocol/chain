@@ -160,7 +160,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"l"},
 		Short:   "List all the keys in the keychain",
-		Args:    cobra.ExactArgs(0),
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {

@@ -46,11 +46,11 @@ func hexByteToScalarHookFunc() mapstructure.DecodeHookFunc {
 
 // initConfig initializes the configuration.
 func initConfig(ctx *Context, cmd *cobra.Command) error {
+	var err error
 	if err := os.MkdirAll(ctx.home, os.ModePerm); err != nil {
 		return err
 	}
 
-	var err error
 	ctx.keyring, err = keyring.New("band", keyring.BackendTest, ctx.home, nil, cdc)
 	if err != nil {
 		return err
