@@ -557,5 +557,5 @@ class Handler(object):
             self.conn.execute(
                 relayer_tx_stat_days.update()
                 .where(condition)
-                .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1)
+                .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
             )
