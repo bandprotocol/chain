@@ -30,12 +30,6 @@ func TestGetSetOracleScriptCount(t *testing.T) {
 	require.Equal(t, uint64(42), k.GetOracleScriptCount(ctx))
 }
 
-func TestGetSetRollingSeed(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-	k.SetRollingSeed(ctx, []byte("HELLO_WORLD"))
-	require.Equal(t, []byte("HELLO_WORLD"), k.GetRollingSeed(ctx))
-}
-
 func TestGetNextRequestID(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// First request id must be 1.

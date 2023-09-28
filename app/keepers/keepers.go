@@ -23,6 +23,8 @@ import (
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	rollingseedKeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 )
 
 type AppKeepers struct {
@@ -46,7 +48,9 @@ type AppKeepers struct {
 	FeegrantKeeper        feegrantkeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
+	RollingseedKeeper     rollingseedKeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	TSSKeeper             tsskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 

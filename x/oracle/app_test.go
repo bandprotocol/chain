@@ -26,12 +26,12 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
@@ -47,6 +47,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -54,10 +55,12 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		testapp.Validators[0].Address.String(),
+		nil,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
-	require.NoError(t, err)
+	require.Nil(t, err)
 	require.Equal(t, expectRequest, request)
 
 	reportMsg1 := types.NewMsgReportData(
@@ -102,8 +105,13 @@ func TestSuccessRequestOracleData(t *testing.T) {
 
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
-		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
+		expectRequest.ClientID,
+		types.RequestID(1),
+		2,
+		int64(expectRequest.RequestTime),
+		1581589795,
+		types.RESOLVE_STATUS_SUCCESS,
+		[]byte("beeb"),
 	)
 	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
 		{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
@@ -137,6 +145,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
@@ -157,6 +166,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -164,6 +174,8 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		testapp.Validators[0].Address.String(),
+		nil,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -173,8 +185,13 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
-		types.RESOLVE_STATUS_EXPIRED, []byte{},
+		expectRequest.ClientID,
+		types.RequestID(1),
+		0,
+		int64(expectRequest.RequestTime),
+		ctx.BlockTime().Unix(),
+		types.RESOLVE_STATUS_EXPIRED,
+		[]byte{},
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,

@@ -12,6 +12,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -83,4 +86,21 @@ type AuthzKeeper interface {
 	) error
 	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
 	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
+}
+
+// RollingseedKeeper defines the expected rollingseed keeper
+type RollingseedKeeper interface {
+	GetRollingSeed(ctx sdk.Context) []byte
+}
+
+// TSSKeeper defines the expected tss keeper.
+type TSSKeeper interface {
+	HandleRequestSign(
+		ctx sdk.Context,
+		groupID tss.GroupID,
+		content tsstypes.Content,
+		feePayer sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (tss.SigningID, error)
+	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
 }

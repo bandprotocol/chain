@@ -14,9 +14,11 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.2.1
-	github.com/ethereum/go-ethereum v1.10.22
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
+	github.com/ethereum/go-ethereum v1.11.5
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.3
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/gorilla/mux v1.8.0
@@ -25,7 +27,8 @@ require (
 	github.com/levigross/grequests v0.0.0-20190908174114-253788527a1a
 	github.com/lib/pq v1.10.7
 	github.com/mattn/go-sqlite3 v1.14.9
-	github.com/oasisprotocol/oasis-core/go v0.0.0-20200730171716-3be2b460b3ac
+	github.com/mitchellh/mapstructure v1.5.0
+	github.com/oasisprotocol/oasis-core/go v0.2202.7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/prometheus/client_golang v1.14.0
@@ -36,6 +39,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
+	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 	golang.org/x/time v0.3.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
 	google.golang.org/grpc v1.56.2
@@ -86,7 +90,6 @@ require (
 	github.com/creachadair/taskgroup v0.4.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
@@ -106,7 +109,6 @@ require (
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -133,6 +135,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
+	github.com/holiman/uint256 v1.2.0 // indirect
 	github.com/huandu/skiplist v1.2.0 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -164,7 +167,6 @@ require (
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
@@ -193,7 +195,6 @@ require (
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect

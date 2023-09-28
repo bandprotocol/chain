@@ -1,0 +1,18 @@
+{
+    "messages": [
+        {
+            "group_id": "1",
+            "fee": [
+                {
+                    "denom": "uband",
+                    "amount": "50"
+                }
+            ],
+            "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
+        }
+    ],
+    "metadata": "ipfs://",
+    "deposit": "1000000000uband",
+    "title": "Create group",
+    "summary": "This proposal is to create a group"
+}

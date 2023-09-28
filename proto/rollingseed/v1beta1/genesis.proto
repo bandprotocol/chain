@@ -1,0 +1,7 @@
+syntax = "proto3";
+package rollingseed.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/rollingseed/types";
+
+// GenesisState defines the rollingseed module's genesis state.
+message GenesisState {}

@@ -49,7 +49,8 @@ var (
 	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
 	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
 	ErrIBCRequestDisabled       = sdkerrors.Register(ModuleName, 45, "sending oracle request via IBC is disabled")
-	ErrReportNotFound           = sdkerrors.Register(ModuleName, 46, "report not found")
+	ErrSigningResultNotFound    = sdkerrors.Register(ModuleName, 46, "signing result not found")
+	ErrReportNotFound           = sdkerrors.Register(ModuleName, 47, "report not found")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.

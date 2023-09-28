@@ -410,6 +410,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		2,
 		"CID",
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -424,6 +425,7 @@ func TestRequestDataSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -431,6 +433,8 @@ func TestRequestDataSuccess(t *testing.T) {
 		},
 		nil,
 		uint64(testapp.TestDefaultExecuteGas),
+		testapp.FeePayer.Address.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 94000000)),
 	), k.MustGetRequest(ctx, 1))
 	event := abci.Event{
 		Type: authtypes.EventTypeCoinSpent,
@@ -482,6 +486,7 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: types.AttributeKeyCalldata, Value: "62656562"}, // "beeb" in hex
 			{Key: types.AttributeKeyAskCount, Value: "2"},
 			{Key: types.AttributeKeyMinCount, Value: "2"},
+			{Key: types.AttributeKeyGroupID, Value: "0"},
 			{Key: types.AttributeKeyGasUsed, Value: "5294700000"},
 			{Key: types.AttributeKeyTotalFees, Value: "6000000uband"},
 			{Key: types.AttributeKeyValidator, Value: testapp.Validators[2].ValAddress.String()},
@@ -538,6 +543,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -559,6 +565,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -578,6 +585,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -597,6 +605,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -616,6 +625,7 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.EmptyCoins,
+			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
@@ -640,12 +650,15 @@ func TestReportSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
@@ -675,7 +688,7 @@ func TestReportSuccess(t *testing.T) {
 	require.Equal(t, abci.Event(event), res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
-	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
+	k.ResolveSuccess(ctx, 42, 0, testapp.FeePayer.Address.String(), testapp.Coins100000000uband, []byte("RESOLVE_RESULT!"), 1234)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
@@ -708,12 +721,15 @@ func TestReportFail(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}

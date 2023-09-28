@@ -1,0 +1,71 @@
+syntax = "proto3";
+package tss.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "tss/v1beta1/tss.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
+
+// GenesisState defines the tss module's genesis state.
+message GenesisState {
+  // params defines all the paramiters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // group_count defines the number of groups.
+  uint64 group_count = 2;
+  // groups is an array containing information about each group.
+  repeated Group groups = 3 [(gogoproto.nullable) = false];
+  // signing_count defines the number of signers.
+  uint64 signing_count = 4;
+  // signings is an array containing information about each signing.
+  repeated Signing signings = 5 [(gogoproto.nullable) = false];
+  // replacement_count defines the number of replacements.
+  uint64 replacement_count = 6;
+  // replacements is an array containing information about each replacement.
+  repeated Replacement replacements = 7 [(gogoproto.nullable) = false];
+  // de_queues_genesis is an array containing the de queues of all the addressres.
+  repeated DEQueueGenesis de_queues_genesis = 8
+      [(gogoproto.customname) = "DEQueuesGenesis", (gogoproto.nullable) = false];
+  // des_genesis is an array containing the des of all the addressres.
+  repeated DEGenesis des_genesis = 9 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  // max_group_size is the maximum of the member capacity of the group.
+  uint64 max_group_size = 1;
+  // max_d_e_size is the maximum of the de capacity of the member.
+  uint64 max_d_e_size = 2;
+  // creating_period is the number of blocks allowed to creating group signature.
+  uint64 creating_period = 3;
+  // signing_period is the number of blocks allowed to sign.
+  uint64 signing_period = 4;
+  // active_duration is the duration where a member can be active without interaction.
+  google.protobuf.Duration active_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
+  google.protobuf.Duration inactive_penalty_duration = 6 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // jail_penalty_duration is the duration where a member cannot activate back after jail.
+  google.protobuf.Duration jail_penalty_duration = 7 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
+  // oracle rewards.
+  uint64 reward_percentage = 8 [(gogoproto.customname) = "RewardPercentage"];
+}
+
+// DEQueueGenesis defines an account address and de queue used in the tss module's genesis state.
+message DEQueueGenesis {
+  // address is the address of the de holder.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // de_queue defines the different de queue this balance holds.
+  DEQueue de_queue = 2 [(gogoproto.customname) = "DEQueue", (gogoproto.nullable) = false];
+}
+
+// DEGenesis defines an account address and de pair used in the tss module's genesis state.
+message DEGenesis {
+  // address is the address of the de holder.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // index is the index for store de of the address
+  uint64 index = 2;
+  // de defines the difference de this balance holds.
+  DE de = 3 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
+}
