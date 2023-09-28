@@ -480,7 +480,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	})
 
 	// Set status
-	k.SetStatus(ctx, types.Status{
+	k.SetMemberStatus(ctx, types.Status{
 		Address: testapp.Alice.Address.String(),
 		Status:  types.MEMBER_STATUS_ACTIVE,
 		Since:   ctx.BlockTime(),

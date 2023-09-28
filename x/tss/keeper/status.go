@@ -54,7 +54,7 @@ func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return nil
 }
@@ -68,7 +68,7 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	}
 
 	status.LastActive = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return nil
 }
@@ -84,7 +84,7 @@ func (k Keeper) SetInactive(ctx sdk.Context, address sdk.AccAddress) {
 	status.Status = types.MEMBER_STATUS_INACTIVE
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return
 }
@@ -100,7 +100,7 @@ func (k Keeper) SetJail(ctx sdk.Context, address sdk.AccAddress) {
 	status.Status = types.MEMBER_STATUS_JAIL
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return
 }

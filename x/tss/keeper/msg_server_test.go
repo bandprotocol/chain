@@ -467,7 +467,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 				}
 			},
 			func() {},
-			types.ErrEncryptedSecretSharesNotCorrectLength,
+			types.ErrInvalidLengthEncryptedSecretShares,
 		},
 	}
 

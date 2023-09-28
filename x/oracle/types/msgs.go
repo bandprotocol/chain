@@ -40,7 +40,7 @@ func NewMsgRequestData(
 	askCount, minCount uint64,
 	clientID string,
 	feeLimit sdk.Coins,
-	groupID tss.GroupID,
+	tssGroupID tss.GroupID,
 	prepareGas, executeGas uint64,
 	sender sdk.AccAddress,
 ) *MsgRequestData {
@@ -51,7 +51,7 @@ func NewMsgRequestData(
 		MinCount:       minCount,
 		ClientID:       clientID,
 		FeeLimit:       feeLimit,
-		GroupID:        groupID,
+		TSSGroupID:     tssGroupID,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
 		Sender:         sender.String(),

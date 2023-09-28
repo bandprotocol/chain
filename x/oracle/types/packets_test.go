@@ -24,7 +24,7 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		AskCount:       1,
 		MinCount:       1,
 		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
-		GroupID:        0, // no require sign by tss module
+		TSSGroupID:     0, // no require sign by tss module
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}

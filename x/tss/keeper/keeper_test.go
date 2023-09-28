@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			s.app.TSSKeeper.SetStatus(ctx, types.Status{
+			s.app.TSSKeeper.SetMemberStatus(ctx, types.Status{
 				Address: address.String(),
 				Status:  types.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
@@ -219,7 +219,7 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
 
 	// Save grant msgs to grantee
-	for _, m := range types.GetMsgGrants() {
+	for _, m := range types.GetGrantableMsgTypes() {
 		s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
 	}
 

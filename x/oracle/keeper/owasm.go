@@ -97,7 +97,7 @@ func (k Keeper) PrepareRequest(
 		ctx.BlockHeight(),
 		ctx.BlockTime(),
 		r.GetClientID(),
-		r.GetGroupID(),
+		r.GetTSSGroupID(),
 		nil,
 		ibcChannel,
 		r.GetExecuteGas(),

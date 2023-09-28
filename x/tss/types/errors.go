@@ -21,17 +21,17 @@ var (
 	ErrGroupExpired                 = errors.Register(ModuleName, 12, "group expired")
 	ErrVerifyOneTimeSignatureFailed = errors.Register(ModuleName, 13, "failed to verify one time sign")
 	ErrVerifyA0SignatureFailed      = errors.Register(ModuleName, 14, "failed to verify a0 sign")
-	ErrAddCommit                    = errors.Register(ModuleName, 15, "failed to add coefficient commit")
-	ErrCommitsNotCorrectLength      = errors.Register(
+	ErrAddCoefCommit                = errors.Register(ModuleName, 15, "failed to add coefficient commit")
+	ErrInvalidLengthCoefCommits     = errors.Register(
 		ModuleName,
 		16,
-		"coefficients commit not correct length",
+		"coefficients commit length is invalid",
 	)
-	ErrRound2InfoNotFound                    = errors.Register(ModuleName, 17, "round 2 info not found")
-	ErrEncryptedSecretSharesNotCorrectLength = errors.Register(
+	ErrRound2InfoNotFound                 = errors.Register(ModuleName, 17, "round 2 info not found")
+	ErrInvalidLengthEncryptedSecretShares = errors.Register(
 		ModuleName,
 		18,
-		"encrypted secret shares not correct length",
+		"encrypted secret shares length is invalid ",
 	)
 	ErrComputeOwnPubKeyFailed           = errors.Register(ModuleName, 19, "failed to compute own public key")
 	ErrMemberIsAlreadyComplainOrConfirm = errors.Register(ModuleName, 20, "member is already complain or confirm")
@@ -39,7 +39,7 @@ var (
 	ErrComplainFailed                   = errors.Register(ModuleName, 22, "failed to complain")
 	ErrConfirmFailed                    = errors.Register(ModuleName, 23, "failed to confirm")
 	ErrConfirmNotFound                  = errors.Register(ModuleName, 24, "confirm not found")
-	ErrComplainsWithStatusNotFound      = errors.Register(ModuleName, 25, "complaints with status not found")
+	ErrComplaintsWithStatusNotFound     = errors.Register(ModuleName, 25, "complaints with status not found")
 	ErrDENotFound                       = errors.Register(ModuleName, 26, "de not found")
 	ErrGroupIsNotActive                 = errors.Register(ModuleName, 27, "group is not active")
 	ErrUnexpectedThreshold              = errors.Register(ModuleName, 28, "threshold value is unexpected")
