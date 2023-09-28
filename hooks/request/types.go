@@ -241,9 +241,12 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		r.RequestHeight,
 		r.RequestTime,
 		r.ClientID,
+		0,
 		rawRequests,
 		ibcChannel,
 		r.ExecuteGas,
+		"",
+		nil,
 	)
 
 	// Oracle result for the above request
