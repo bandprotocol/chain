@@ -29,13 +29,16 @@ from .db import (
     related_data_source_oracle_scripts,
     historical_oracle_statuses,
     data_source_requests,
+    data_source_requests_per_days,
     oracle_script_requests,
+    oracle_script_requests_per_days,
     request_count_per_days,
     incoming_packets,
     outgoing_packets,
     counterparty_chains,
     connections,
     channels,
+    relayer_tx_stat_days,
 )
 
 
@@ -45,6 +48,9 @@ class Handler(object):
 
     def get_transaction_id(self, tx_hash):
         return self.conn.execute(select([transactions.c.id]).where(transactions.c.hash == tx_hash)).scalar()
+
+    def get_transaction_sender(self, id):
+        return self.conn.execute(select([transactions.c.sender]).where(transactions.c.id == id)).scalar()
 
     def get_validator_id(self, val):
         return self.conn.execute(select([validators.c.id]).where(validators.c.operator_address == val)).scalar()
@@ -63,11 +69,29 @@ class Handler(object):
             select([request_count_per_days.c.count]).where(request_count_per_days.c.date == date)
         ).scalar()
 
+    def get_oracle_script_requests_count_per_day(self, date, oracle_script_id):
+        return self.conn.execute(
+            select([oracle_script_requests_per_days.c.count]).where((oracle_script_requests_per_days.c.date == date) & (oracle_script_requests_per_days.c.oracle_script_id == oracle_script_id))
+        ).scalar()
+
+    def get_data_source_requests_count_per_day(self, date, data_source_id):
+        return self.conn.execute(
+            select([data_source_requests_per_days.c.count]).where((data_source_requests_per_days.c.date == date) & (data_source_requests_per_days.c.data_source_id == data_source_id))
+        ).scalar()
+
     def get_data_source_id(self, id):
         return self.conn.execute(select([data_sources.c.id]).where(data_sources.c.id == id)).scalar()
 
     def get_oracle_script_id(self, id):
         return self.conn.execute(select([oracle_scripts.c.id]).where(oracle_scripts.c.id == id)).scalar()
+
+    def get_ibc_received_txs(self, date, port, channel, address):
+        msg = {"date": date, "port": port, "channel": channel, "address": address}
+        condition = True
+        for col in relayer_tx_stat_days.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+
+        return self.conn.execute(select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)).scalar()
 
     def handle_new_block(self, msg):
         self.conn.execute(blocks.insert(), msg)
@@ -144,6 +168,8 @@ class Handler(object):
         del msg["tx_hash"]
         if "timestamp" in msg:
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
+            self.handle_update_oracle_script_requests_count_per_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]})
+            self.update_oracle_script_last_request(msg["oracle_script_id"], msg["timestamp"])
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
         self.increase_oracle_script_count(msg["oracle_script_id"])
@@ -166,6 +192,10 @@ class Handler(object):
 
     def handle_new_raw_request(self, msg):
         self.increase_data_source_count(msg["data_source_id"])
+        if "timestamp" in msg:
+            self.handle_update_data_source_requests_count_per_day({"date": msg["timestamp"], "data_source_id": msg["data_source_id"]})
+            self.update_data_source_last_request(msg["data_source_id"], msg["timestamp"])
+            del msg["timestamp"]
         self.handle_update_related_ds_os(
             {
                 "oracle_script_id": self.conn.execute(
@@ -391,18 +421,47 @@ class Handler(object):
                 request_count_per_days.update(condition).values(count=request_count_per_days.c.count + 1)
             )
 
+    def handle_update_oracle_script_requests_count_per_day(self, msg):
+        if self.get_oracle_script_requests_count_per_day(msg["date"], msg["oracle_script_id"]) is None:
+            msg["count"] = 1
+            self.conn.execute(oracle_script_requests_per_days.insert(), msg)
+        else:
+            condition = True
+            for col in oracle_script_requests_per_days.primary_key.columns.values():
+                condition = (col == msg[col.name]) & condition
+            self.conn.execute(
+                oracle_script_requests_per_days.update(condition).values(count=oracle_script_requests_per_days.c.count + 1)
+            )
+
+    def handle_update_data_source_requests_count_per_day(self, msg):
+        if self.get_data_source_requests_count_per_day(msg["date"], msg["data_source_id"]) is None:
+            msg["count"] = 1
+            self.conn.execute(data_source_requests_per_days.insert(), msg)
+        else:
+            condition = True
+            for col in data_source_requests_per_days.primary_key.columns.values():
+                condition = (col == msg[col.name]) & condition
+            self.conn.execute(
+                data_source_requests_per_days.update(condition).values(count=data_source_requests_per_days.c.count + 1)
+            )
+
     def handle_new_incoming_packet(self, msg):
-        self.update_last_update_channel(msg['dst_port'], msg['dst_channel'], msg['block_time'])
-        del msg["block_time"]
+        self.update_last_update_channel(msg["dst_port"], msg["dst_channel"], msg["block_time"])
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
+
+        msg["sender"] = self.get_transaction_sender(msg["tx_id"])
+        self.handle_set_relayer_tx_stat_days(msg["dst_port"], msg["dst_channel"], msg["block_time"], msg["sender"])
+        del msg["block_time"]
+        del msg["sender"]
+
         self.conn.execute(
             insert(incoming_packets).values(**msg).on_conflict_do_nothing(constraint="incoming_packets_pkey")
         )
 
     def handle_new_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        self.update_last_update_channel(msg["src_port"], msg["src_channel"], msg["block_time"])
         del msg["block_time"]
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
@@ -413,7 +472,7 @@ class Handler(object):
         )
 
     def handle_update_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        self.update_last_update_channel(msg["src_port"], msg["src_channel"], msg["block_time"])
         del msg["block_time"]
 
         condition = True
@@ -425,6 +484,20 @@ class Handler(object):
         self.conn.execute(
             oracle_script_requests.update(oracle_script_requests.c.oracle_script_id == id).values(
                 count=oracle_script_requests.c.count + 1
+            )
+        )
+
+    def update_oracle_script_last_request(self, id, timestamp):
+        self.conn.execute(
+            oracle_scripts.update(oracle_scripts.c.id == id).values(
+                last_request=timestamp
+            )
+        )
+
+    def update_data_source_last_request(self, id, timestamp):
+        self.conn.execute(
+            data_sources.update(data_sources.c.id == id).values(
+                last_request=timestamp
             )
         )
 
@@ -452,7 +525,37 @@ class Handler(object):
 
     def update_last_update_channel(self, port, channel, timestamp):
         self.conn.execute(
-            channels.update().where((channels.c.port == port) & (channels.c.channel == channel)).values(
-                last_update=timestamp
-            )
+            channels.update()
+            .where((channels.c.port == port) & (channels.c.channel == channel))
+            .values(last_update=timestamp)
         )
+
+    def handle_set_relayer_tx_stat_days(self, port, channel, timestamp, address):
+        relayer_tx_stat_day = {
+            "date": timestamp,
+            "port": port,
+            "channel": channel,
+            "address": address,
+            "last_update_at": timestamp,
+        }
+
+        if (
+            self.get_ibc_received_txs(
+                relayer_tx_stat_day["date"],
+                relayer_tx_stat_day["port"],
+                relayer_tx_stat_day["channel"],
+                relayer_tx_stat_day["address"],
+            )
+            is None
+        ):
+            relayer_tx_stat_day["ibc_received_txs"] = 1
+            self.conn.execute(relayer_tx_stat_days.insert(), relayer_tx_stat_day)
+        else:
+            condition = True
+            for col in relayer_tx_stat_days.primary_key.columns.values():
+                condition = (col == relayer_tx_stat_day[col.name]) & condition
+            self.conn.execute(
+                relayer_tx_stat_days.update()
+                .where(condition)
+                .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
+            )

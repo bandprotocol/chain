@@ -65,6 +65,7 @@ func (h *Hook) emitUpdateValidator(ctx sdk.Context, addr sdk.ValAddress) (types.
 		"delegator_shares": val.DelegatorShares.String(),
 		"current_reward":   currentReward,
 		"current_ratio":    currentRatio,
+		"jailed":           val.Jailed,
 		"last_update":      ctx.BlockTime().UnixNano(),
 	})
 	return val, true
@@ -194,7 +195,7 @@ func (h *Hook) handleMsgBeginRedelegate(
 	h.emitUpdateRedelation(src, dst, del, evMap)
 	if found {
 		detail["val_src_moniker"] = valSrc.Description.Moniker
-		detail["val_src_identity"] = valDst.Description.Identity
+		detail["val_src_identity"] = valSrc.Description.Identity
 	} else {
 		detail["val_src_moniker"] = "Removed"
 		detail["val_src_identity"] = "Removed"

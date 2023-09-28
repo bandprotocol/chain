@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -69,7 +68,7 @@ func runImpl(c *Context, l *Logger) error {
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
 		c.pendingRequests[types.RequestID(id)] = true
-		go handlePendingRequest(c, l.With("rid", id), types.RequestID(id))
+		go handleRequest(c, l, types.RequestID(id))
 	}
 
 	for {
@@ -157,7 +156,6 @@ func runCmd(c *Context) *cobra.Command {
 			c.pendingMsgs = make(chan ReportMsgWithKey)
 			c.freeKeys = make(chan int64, len(keys))
 			c.keyRoundRobinIndex = -1
-			c.dataSourceCache = new(sync.Map)
 			c.pendingRequests = make(map[types.RequestID]bool)
 			c.metricsEnabled = cfg.MetricsListenAddr != ""
 			return runImpl(c, l)
