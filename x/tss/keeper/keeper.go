@@ -98,7 +98,7 @@ func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
 
 // CheckIsGrantee checks if the granter granted permissions to the grantee.
 func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
-	for _, msg := range types.GetMsgGrants() {
+	for _, msg := range types.GetGrantableMsgTypes() {
 		cap, _ := k.authzKeeper.GetAuthorization(
 			ctx,
 			grantee,
@@ -356,8 +356,8 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 	}
 }
 
-// SetStatus sets a status of a member of the group in the store.
-func (k Keeper) SetStatus(ctx sdk.Context, status types.Status) {
+// SetMemberStatus sets a status of a member of the group in the store.
+func (k Keeper) SetMemberStatus(ctx sdk.Context, status types.Status) {
 	address := sdk.MustAccAddressFromBech32(status.Address)
 	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), k.cdc.MustMarshal(&status))
 }

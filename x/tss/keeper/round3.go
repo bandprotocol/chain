@@ -130,7 +130,7 @@ func (k Keeper) GetComplaintsWithStatus(
 	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.ComplaintsWithStatus{}, errors.Wrapf(
-			types.ErrComplainsWithStatusNotFound,
+			types.ErrComplaintsWithStatusNotFound,
 			"failed to get complaints with status with groupID %d memberID %d",
 			groupID,
 			memberID,

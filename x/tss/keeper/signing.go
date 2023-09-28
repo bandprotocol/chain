@@ -268,9 +268,9 @@ func (k Keeper) GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.Signi
 	return pzs
 }
 
-// GetRandomAssigningParticipants generates a random selection of participants for a signing process.
-// It selects 't' participants out of 'members size' participants using a deterministic random number generator (DRBG).
-func (k Keeper) GetRandomAssigningParticipants(
+// GetRandomAssignedMembers generates a random selection of assigned members for a signing process.
+// It selects 't' assigned members out of 'members size' assigned members using a deterministic random number generator (DRBG).
+func (k Keeper) GetRandomAssignedMembers(
 	ctx sdk.Context,
 	signingID uint64,
 	members []types.Member,
@@ -330,8 +330,8 @@ func (k Keeper) HandleAssignedMembers(
 		return types.AssignedMembers{}, err
 	}
 
-	// Random assigning participants
-	selectedMembers, err := k.GetRandomAssigningParticipants(
+	// Random assigning members
+	selectedMembers, err := k.GetRandomAssignedMembers(
 		ctx,
 		k.GetSigningCount(ctx)+1,
 		members,
@@ -379,7 +379,7 @@ func (k Keeper) HandleAssignedMembers(
 }
 
 // HandleRequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns participants randomly, computes necessary values, and emits appropriate events.
+// It assigns assigned members randomly, computes necessary values, and emits appropriate events.
 func (k Keeper) HandleRequestSign(
 	ctx sdk.Context,
 	groupID tss.GroupID,

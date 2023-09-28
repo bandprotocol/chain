@@ -266,8 +266,8 @@ func (k msgServer) SubmitDKGRound1(
 	// Check coefficients commit length
 	if uint64(len(req.Round1Info.CoefficientCommits)) != group.Threshold {
 		return nil, errors.Wrap(
-			types.ErrCommitsNotCorrectLength,
-			"number of coefficients commit is not correct",
+			types.ErrInvalidLengthCoefCommits,
+			"number of coefficients commit is invalid",
 		)
 	}
 
@@ -302,7 +302,7 @@ func (k msgServer) SubmitDKGRound1(
 	// Add commits to calculate accumulated commits for each index
 	err = k.AddCommits(ctx, groupID, req.Round1Info.CoefficientCommits)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrAddCommit, err.Error())
+		return nil, errors.Wrap(types.ErrAddCoefCommit, err.Error())
 	}
 
 	// Add round 1 info
@@ -378,8 +378,8 @@ func (k msgServer) SubmitDKGRound2(
 	// Check encrypted secret shares length
 	if uint64(len(req.Round2Info.EncryptedSecretShares)) != group.Size_-1 {
 		return nil, errors.Wrap(
-			types.ErrEncryptedSecretSharesNotCorrectLength,
-			"number of encrypted secret shares is not correct",
+			types.ErrInvalidLengthEncryptedSecretShares,
+			"number of encrypted secret shares is invalid",
 		)
 	}
 
@@ -639,7 +639,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 }
 
 // RequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns participants randomly, computes necessary values, and emits appropriate events.
+// It assigns members randomly, computes necessary values, and emits appropriate events.
 func (k msgServer) RequestSignature(
 	goCtx context.Context,
 	req *types.MsgRequestSignature,
@@ -682,11 +682,11 @@ func (k msgServer) SubmitSignature(
 		)
 	}
 
-	// Check sender not in assigned participants
+	// Check sender not in assigned member
 	am, found := signing.AssignedMembers.FindAssignedMember(req.MemberID, req.Address)
 	if !found {
 		return nil, errors.Wrapf(
-			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned participants", req.MemberID,
+			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned members", req.MemberID,
 		)
 	}
 

@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -35,26 +37,27 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 // SetActive sets the member status to active
 func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status := k.GetStatus(ctx, address)
-
 	if status.Status == types.MEMBER_STATUS_ACTIVE {
 		return nil
-	} else if status.Status == types.MEMBER_STATUS_INACTIVE {
-		penaltyDuration := k.GetParams(ctx).InactivePenaltyDuration
-		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
-			return types.ErrTooSoonToActivate
-		}
+	}
+
+	params := k.GetParams(ctx)
+	var penaltyDuration time.Duration
+	if status.Status == types.MEMBER_STATUS_INACTIVE {
+		penaltyDuration = params.InactivePenaltyDuration
 	} else if status.Status == types.MEMBER_STATUS_JAIL {
-		penaltyDuration := k.GetParams(ctx).JailPenaltyDuration
-		if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
-			return types.ErrTooSoonToActivate
-		}
+		penaltyDuration = params.JailPenaltyDuration
+	}
+
+	if status.Since.Add(penaltyDuration).After(ctx.BlockTime()) {
+		return types.ErrTooSoonToActivate
 	}
 
 	status.Status = types.MEMBER_STATUS_ACTIVE
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return nil
 }
@@ -68,7 +71,7 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	}
 
 	status.LastActive = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return nil
 }
@@ -84,7 +87,7 @@ func (k Keeper) SetInactive(ctx sdk.Context, address sdk.AccAddress) {
 	status.Status = types.MEMBER_STATUS_INACTIVE
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return
 }
@@ -100,7 +103,7 @@ func (k Keeper) SetJail(ctx sdk.Context, address sdk.AccAddress) {
 	status.Status = types.MEMBER_STATUS_JAIL
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 
 	return
 }

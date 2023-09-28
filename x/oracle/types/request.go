@@ -20,7 +20,7 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
-	GetGroupID() tss.GroupID
+	GetTSSGroupID() tss.GroupID
 	GetPrepareGas() uint64
 	GetExecuteGas() uint64
 	GetFeeLimit() sdk.Coins

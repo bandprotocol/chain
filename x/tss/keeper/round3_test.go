@@ -490,7 +490,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		s.Require().Empty(types.Round2Info{}, gotRound2Info)
 
 		gotComplaintWithStatus, err := k.GetComplaintsWithStatus(ctx, groupID, memberID)
-		s.Require().ErrorIs(types.ErrComplainsWithStatusNotFound, err)
+		s.Require().ErrorIs(types.ErrComplaintsWithStatusNotFound, err)
 		s.Require().Empty(types.ComplaintWithStatus{}, gotComplaintWithStatus)
 	}
 

@@ -16,7 +16,7 @@ import (
 func TestCombineGrantMsgs(t *testing.T) {
 	granter := sdk.AccAddress([]byte("granter"))
 	grantee := sdk.AccAddress([]byte("grantee"))
-	msgGrants := types.GetMsgGrants()
+	msgGrants := types.GetGrantableMsgTypes()
 	expiration := time.Now()
 
 	msgs, err := combineGrantMsgs(granter, grantee, msgGrants, &expiration)

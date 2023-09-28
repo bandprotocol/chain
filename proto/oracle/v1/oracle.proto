@@ -164,9 +164,11 @@ message OracleRequestPacketData {
   // proceed to the execution phase. Higher value means more security, at the
   // cost of liveness.
   uint64 min_count = 5;
-  // GroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 group_id = 6
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // TSSGroupID is ID of the group that assign for sign the result data on tss module.
+  uint64 tss_group_id = 6 [
+    (gogoproto.customname) = "TSSGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // FeeLimit is the maximum tokens that will be paid to all data source
   // providers.
   repeated cosmos.base.v1beta1.Coin fee_limit = 7
