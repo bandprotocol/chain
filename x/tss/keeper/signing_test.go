@@ -336,26 +336,26 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	}
 	t := uint64(1)
 
-	// Generate random participants
-	participants, err := k.GetRandomAssigningParticipants(ctx, signingID, members, t)
+	// Generate random assigned members
+	ams, err := k.GetRandomAssignedMembers(ctx, signingID, members, t)
 	s.Require().NoError(err)
 
-	// Check that the number of participants is correct
-	s.Require().Len(participants, int(t))
+	// Check that the number of assigned members is correct
+	s.Require().Len(ams, int(t))
 
-	// Check that there are no duplicate participants
-	participantSet := make(map[tss.MemberID]struct{})
-	for _, participant := range participants {
-		_, exists := participantSet[participant.MemberID]
+	// Check that there are no duplicate assigned members
+	amsSet := make(map[tss.MemberID]struct{})
+	for _, participant := range ams {
+		_, exists := amsSet[participant.MemberID]
 		s.Require().False(exists)
-		participantSet[participant.MemberID] = struct{}{}
+		amsSet[participant.MemberID] = struct{}{}
 	}
 
 	// Check that if use same block and rolling seed will got same answer
-	s.Require().Equal([]types.Member{members[1]}, participants)
+	s.Require().Equal([]types.Member{members[1]}, ams)
 
 	// Test that it returns an error if t > size
-	_, err = k.GetRandomAssigningParticipants(ctx, signingID, members, uint64(len(members)+1))
+	_, err = k.GetRandomAssignedMembers(ctx, signingID, members, uint64(len(members)+1))
 	s.Require().Error(err)
 }
 

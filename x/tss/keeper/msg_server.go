@@ -639,7 +639,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 }
 
 // RequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns participants randomly, computes necessary values, and emits appropriate events.
+// It assigns members randomly, computes necessary values, and emits appropriate events.
 func (k msgServer) RequestSignature(
 	goCtx context.Context,
 	req *types.MsgRequestSignature,
@@ -682,11 +682,11 @@ func (k msgServer) SubmitSignature(
 		)
 	}
 
-	// Check sender not in assigned participants
+	// Check sender not in assigned member
 	am, found := signing.AssignedMembers.FindAssignedMember(req.MemberID, req.Address)
 	if !found {
 		return nil, errors.Wrapf(
-			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned participants", req.MemberID,
+			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned members", req.MemberID,
 		)
 	}
 

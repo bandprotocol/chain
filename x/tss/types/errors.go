@@ -50,7 +50,7 @@ var (
 	ErrAlreadySigned                    = errors.Register(ModuleName, 33, "already signed")
 	ErrSigningAlreadySuccess            = errors.Register(ModuleName, 34, "signing already success")
 	ErrPubNonceNotEqualToSigR           = errors.Register(ModuleName, 35, "public nonce not equal to signature r")
-	ErrMemberNotAssigned                = errors.Register(ModuleName, 36, "member is not assigned participants")
+	ErrMemberNotAssigned                = errors.Register(ModuleName, 36, "member is not assigned")
 	ErrVerifySigningSigFailed           = errors.Register(ModuleName, 37, "failed to verify signing signature")
 	ErrCombineSigsFailed                = errors.Register(ModuleName, 38, "failed to combine signatures")
 	ErrVerifyGroupSigningSigFailed      = errors.Register(
