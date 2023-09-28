@@ -38,6 +38,7 @@ from .db import (
     counterparty_chains,
     connections,
     channels,
+    relayer_tx_stat_days,
 )
 
 
@@ -47,6 +48,9 @@ class Handler(object):
 
     def get_transaction_id(self, tx_hash):
         return self.conn.execute(select([transactions.c.id]).where(transactions.c.hash == tx_hash)).scalar()
+
+    def get_transaction_sender(self, id):
+        return self.conn.execute(select([transactions.c.sender]).where(transactions.c.id == id)).scalar()
 
     def get_validator_id(self, val):
         return self.conn.execute(select([validators.c.id]).where(validators.c.operator_address == val)).scalar()
@@ -80,6 +84,14 @@ class Handler(object):
 
     def get_oracle_script_id(self, id):
         return self.conn.execute(select([oracle_scripts.c.id]).where(oracle_scripts.c.id == id)).scalar()
+
+    def get_ibc_received_txs(self, date, port, channel, address):
+        msg = {"date": date, "port": port, "channel": channel, "address": address}
+        condition = True
+        for col in relayer_tx_stat_days.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+
+        return self.conn.execute(select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)).scalar()
 
     def handle_new_block(self, msg):
         self.conn.execute(blocks.insert(), msg)
@@ -434,17 +446,22 @@ class Handler(object):
             )
 
     def handle_new_incoming_packet(self, msg):
-        self.update_last_update_channel(msg['dst_port'], msg['dst_channel'], msg['block_time'])
-        del msg["block_time"]
+        self.update_last_update_channel(msg["dst_port"], msg["dst_channel"], msg["block_time"])
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
         del msg["hash"]
+
+        msg["sender"] = self.get_transaction_sender(msg["tx_id"])
+        self.handle_set_relayer_tx_stat_days(msg["dst_port"], msg["dst_channel"], msg["block_time"], msg["sender"])
+        del msg["block_time"]
+        del msg["sender"]
+
         self.conn.execute(
             insert(incoming_packets).values(**msg).on_conflict_do_nothing(constraint="incoming_packets_pkey")
         )
 
     def handle_new_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        self.update_last_update_channel(msg["src_port"], msg["src_channel"], msg["block_time"])
         del msg["block_time"]
 
         msg["tx_id"] = self.get_transaction_id(msg["hash"])
@@ -455,7 +472,7 @@ class Handler(object):
         )
 
     def handle_update_outgoing_packet(self, msg):
-        self.update_last_update_channel(msg['src_port'], msg['src_channel'], msg['block_time'])
+        self.update_last_update_channel(msg["src_port"], msg["src_channel"], msg["block_time"])
         del msg["block_time"]
 
         condition = True
@@ -508,7 +525,37 @@ class Handler(object):
 
     def update_last_update_channel(self, port, channel, timestamp):
         self.conn.execute(
-            channels.update().where((channels.c.port == port) & (channels.c.channel == channel)).values(
-                last_update=timestamp
-            )
+            channels.update()
+            .where((channels.c.port == port) & (channels.c.channel == channel))
+            .values(last_update=timestamp)
         )
+
+    def handle_set_relayer_tx_stat_days(self, port, channel, timestamp, address):
+        relayer_tx_stat_day = {
+            "date": timestamp,
+            "port": port,
+            "channel": channel,
+            "address": address,
+            "last_update_at": timestamp,
+        }
+
+        if (
+            self.get_ibc_received_txs(
+                relayer_tx_stat_day["date"],
+                relayer_tx_stat_day["port"],
+                relayer_tx_stat_day["channel"],
+                relayer_tx_stat_day["address"],
+            )
+            is None
+        ):
+            relayer_tx_stat_day["ibc_received_txs"] = 1
+            self.conn.execute(relayer_tx_stat_days.insert(), relayer_tx_stat_day)
+        else:
+            condition = True
+            for col in relayer_tx_stat_days.primary_key.columns.values():
+                condition = (col == relayer_tx_stat_day[col.name]) & condition
+            self.conn.execute(
+                relayer_tx_stat_days.update()
+                .where(condition)
+                .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
+            )

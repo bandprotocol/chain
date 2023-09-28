@@ -168,6 +168,16 @@
           remote_table:
             name: outgoing_packets
             schema: public
+    - name: relayer_tx_stat_days
+      using:
+        manual_configuration:
+          column_mapping:
+            channel: channel
+            port: port
+          insertion_order: null
+          remote_table:
+            name: relayer_tx_stat_days
+            schema: public
 - table:
     name: connections
     schema: public
@@ -495,6 +505,20 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
+- table:
+    name: relayer_tx_stat_days
+    schema: public
+  object_relationships:
+    - name: channel_by_channel_port
+      using:
+        manual_configuration:
+          column_mapping:
+            channel: channel
+            port: port
+          insertion_order: null
+          remote_table:
+            name: channels
+            schema: public
 - table:
     name: reporters
     schema: public
