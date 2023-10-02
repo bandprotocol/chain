@@ -88,23 +88,44 @@ func (app *Hook) handleMsgSubmitProposal(
 	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
 
 	// handle only MsgExecLegacyContent
-	content := proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content)
-
-	app.Write("NEW_PROPOSAL", common.JsDict{
-		"id":               proposalId,
-		"proposer":         msg.Proposer,
-		"type":             content.ProposalType(),
-		"title":            content.GetTitle(),
-		"description":      content.GetDescription(),
-		"proposal_route":   content.ProposalRoute(),
-		"status":           int(proposal.Status),
-		"submit_time":      common.TimeToNano(proposal.SubmitTime),
-		"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
-		"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
-		"voting_time":      common.TimeToNano(proposal.VotingStartTime),
-		"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
-		"content":          content,
-	})
+	subMsg := proposal.Messages[0].GetCachedValue()
+	switch subMsg := subMsg.(type) {
+	case *v1.MsgExecLegacyContent:
+		content := subMsg.Content.GetCachedValue().(v1beta1.Content)
+		app.Write("NEW_PROPOSAL", common.JsDict{
+			"id":               proposalId,
+			"proposer":         msg.Proposer,
+			"type":             content.ProposalType(),
+			"title":            content.GetTitle(),
+			"description":      content.GetDescription(),
+			"proposal_route":   content.ProposalRoute(),
+			"status":           int(proposal.Status),
+			"submit_time":      common.TimeToNano(proposal.SubmitTime),
+			"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+			"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+			"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+			"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+			"content":          content,
+		})
+	case sdk.Msg:
+		app.Write("NEW_PROPOSAL", common.JsDict{
+			"id":               proposalId,
+			"proposer":         msg.Proposer,
+			"type":             sdk.MsgTypeURL(subMsg),
+			"title":            msg.Title,
+			"description":      msg.Summary,
+			"proposal_route":   sdk.MsgTypeURL(subMsg),
+			"status":           int(proposal.Status),
+			"submit_time":      common.TimeToNano(proposal.SubmitTime),
+			"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+			"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+			"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+			"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+			"content":          subMsg,
+		})
+	default:
+		break
+	}
 
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
 	app.emitSetDeposit(ctx, txHash, proposalId, proposer)
