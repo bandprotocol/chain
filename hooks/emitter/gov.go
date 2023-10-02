@@ -87,7 +87,6 @@ func (app *Hook) handleMsgSubmitProposal(
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
 	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
 
-	// handle only MsgExecLegacyContent
 	subMsg := proposal.Messages[0].GetCachedValue()
 	switch subMsg := subMsg.(type) {
 	case *v1.MsgExecLegacyContent:
