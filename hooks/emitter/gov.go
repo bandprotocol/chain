@@ -169,8 +169,7 @@ func (h *Hook) handleMsgDeposit(
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
 
-	content := proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content)
-	detail["title"] = content.GetTitle()
+	detail["title"] = proposal.Title
 }
 
 // handleV1beta1MsgDeposit implements emitter handler for MsgDeposit v1beta1.
@@ -181,7 +180,7 @@ func (h *Hook) handleV1beta1MsgDeposit(
 	h.emitSetDeposit(ctx, txHash, msg.ProposalId, depositor)
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
+	detail["title"] = proposal.Title
 }
 
 // handleMsgVote implements emitter handler for MsgVote.
@@ -195,7 +194,7 @@ func (h *Hook) handleMsgVote(
 	}
 	h.emitSetVoteWeighted(setVoteWeighted, v1.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
+	detail["title"] = proposal.Title
 }
 
 // handleV1beta1MsgVote implements emitter handler for MsgVote v1beta1.
@@ -209,7 +208,7 @@ func (h *Hook) handleV1beta1MsgVote(
 	}
 	h.emitV1beta1SetVoteWeighted(setVoteWeighted, v1beta1.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
+	detail["title"] = proposal.Title
 }
 
 // handleMsgVoteWeighted implements emitter handler for MsgVoteWeighted.
@@ -223,7 +222,7 @@ func (h *Hook) handleMsgVoteWeighted(
 	}
 	h.emitSetVoteWeighted(setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
+	detail["title"] = proposal.Title
 }
 
 // handleV1beta1MsgVoteWeighted implements emitter handler for MsgVoteWeighted v1beta1.
@@ -237,7 +236,7 @@ func (h *Hook) handleV1beta1MsgVoteWeighted(
 	}
 	h.emitV1beta1SetVoteWeighted(setVoteWeighted, msg.Options)
 	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
-	detail["title"] = proposal.Messages[0].GetCachedValue().(*v1.MsgExecLegacyContent).Content.GetCachedValue().(v1beta1.Content).GetTitle()
+	detail["title"] = proposal.Title
 }
 
 func (h *Hook) handleEventInactiveProposal(evMap common.EvMap) {
