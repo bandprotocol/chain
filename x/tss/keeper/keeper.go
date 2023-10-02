@@ -383,6 +383,19 @@ func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) types.Status 
 	return status
 }
 
+// GetStatuses retrieves all statuses of the store.
+func (k Keeper) GetStatuses(ctx sdk.Context) []types.Status {
+	var statuses []types.Status
+	iterator := k.GetStatusesIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var status types.Status
+		k.cdc.MustUnmarshal(iterator.Value(), &status)
+		statuses = append(statuses, status)
+	}
+	return statuses
+}
+
 // DeleteStatus removes the status of the address of the group
 func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
