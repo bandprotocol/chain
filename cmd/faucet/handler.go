@@ -58,6 +58,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 
 	clientCtx := client.Context{
 		Client:            c.client,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "async",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
