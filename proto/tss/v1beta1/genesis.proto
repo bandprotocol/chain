@@ -29,6 +29,8 @@ message GenesisState {
       [(gogoproto.customname) = "DEQueuesGenesis", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the addressres.
   repeated DEGenesis des_genesis = 9 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+  // statuses is an array containing status of all addresses
+  repeated Status statuses = 10 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
