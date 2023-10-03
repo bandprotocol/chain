@@ -31,7 +31,7 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
-	flagGroupID       = "group-id"
+	flagTSSGroupID    = "tss-group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -128,11 +128,11 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
-			uint64GroupID, err := cmd.Flags().GetUint64(flagGroupID)
+			uint64TSSGroupID, err := cmd.Flags().GetUint64(flagTSSGroupID)
 			if err != nil {
 				return err
 			}
-			groupID := tss.GroupID(uint64GroupID)
+			tssGroupID := tss.GroupID(uint64TSSGroupID)
 
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
@@ -141,7 +141,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				minCount,
 				clientID,
 				feeLimit,
-				groupID,
+				tssGroupID,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
@@ -160,7 +160,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
 	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid to all data source providers")
-	cmd.Flags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
+	cmd.Flags().Uint64(flagTSSGroupID, 0, "The TSS group that is requested to sign the oracle result data")
 
 	flags.AddTxFlagsToCmd(cmd)
 
@@ -696,7 +696,7 @@ func GetCmdRequestSignature() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 --tss-group-id 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -707,7 +707,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 				return err
 			}
 
-			gid, err := cmd.Flags().GetUint64(flagGroupID)
+			gid, err := cmd.Flags().GetUint64(flagTSSGroupID)
 			if err != nil {
 				return err
 			}
