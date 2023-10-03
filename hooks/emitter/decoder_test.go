@@ -191,6 +191,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		1,
 		"cleint_id",
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		SenderAddress,
