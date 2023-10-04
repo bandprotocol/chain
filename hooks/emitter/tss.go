@@ -47,6 +47,24 @@ func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 	})
 }
 
+// handleInitTssModule implements emitter handler for initializing tss module.
+func (h *Hook) handleInitTssModule(ctx sdk.Context) {
+	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
+		h.Write("NEW_SIGNING", common.JsDict{
+			"signing_id":      signing.SigningID,
+			"group_id":        signing.GroupID,
+			"group_pub_key":   parseBytes(signing.GroupPubKey),
+			"msg":             parseBytes(signing.Message),
+			"group_pub_nonce": parseBytes(signing.GroupPubNonce),
+			"signature":       parseBytes(signing.Signature),
+			"fee":             signing.Fee.String(),
+			"status":          int(signing.Status),
+			"created_height":  signing.CreatedHeight,
+			"requester":       signing.Requester,
+		})
+	}
+}
+
 // handleEventRequestSignature implements emitter handler for RequestSignature event.
 func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
 	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeRequestSignature+"."+types.AttributeKeySigningID][0]))
