@@ -331,12 +331,13 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		MemberID:    1,
+		ID:          1,
+		GroupID:     groupID,
 		Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 		PubKey:      nil,
 		IsMalicious: false,
 	}
-	k.SetMember(ctx, groupID, member)
+	k.SetMember(ctx, member)
 
 	got, err := k.GetMember(ctx, groupID, memberID)
 	s.Require().NoError(err)
@@ -348,13 +349,15 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
-			MemberID:    1,
+			ID:          1,
+			GroupID:     groupID,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
-			MemberID:    2,
+			ID:          2,
+			GroupID:     groupID,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      nil,
 			IsMalicious: false,
@@ -363,10 +366,10 @@ func (s *KeeperTestSuite) TestGetMembers() {
 
 	// Set members
 	for _, m := range members {
-		k.SetMember(ctx, groupID, m)
+		k.SetMember(ctx, m)
 	}
 
-	got, err := k.GetMembers(ctx, groupID)
+	got, err := k.GetGroupMembers(ctx, groupID)
 	s.Require().NoError(err)
 	s.Require().Equal(members, got)
 }
@@ -432,11 +435,12 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
-		MemberID:    memberID,
+		ID:          memberID,
+		GroupID:     groupID,
 		IsMalicious: false,
 	}
 
-	k.SetMember(ctx, groupID, member)
+	k.SetMember(ctx, member)
 
 	k.SetGroup(ctx, types.Group{
 		GroupID: groupID,
@@ -476,7 +480,7 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 		Status:  types.GROUP_STATUS_ROUND_3,
 	})
 	member.IsMalicious = true
-	k.SetMember(ctx, groupID, member)
+	k.SetMember(ctx, member)
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)

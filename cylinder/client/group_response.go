@@ -61,7 +61,7 @@ func (gr *GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.Member
 func (gr *GroupResponse) GetMemberID(address string) (tss.MemberID, error) {
 	for _, member := range gr.Members {
 		if member.Address == address {
-			return member.MemberID, nil
+			return member.ID, nil
 		}
 	}
 

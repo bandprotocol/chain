@@ -71,8 +71,9 @@ func (k msgServer) CreateGroup(
 		}
 
 		// ID start from 1
-		k.SetMember(ctx, groupID, types.Member{
-			MemberID:    tss.MemberID(i + 1),
+		k.SetMember(ctx, types.Member{
+			ID:          tss.MemberID(i + 1),
+			GroupID:     groupID,
 			Address:     m,
 			PubKey:      nil,
 			IsMalicious: false,
@@ -396,7 +397,7 @@ func (k msgServer) SubmitDKGRound2(
 
 	// Update public key of the member
 	member.PubKey = ownPubKey
-	k.SetMember(ctx, groupID, member)
+	k.SetMember(ctx, member)
 
 	// Add round 2 info
 	k.AddRound2Info(ctx, groupID, req.Round2Info)

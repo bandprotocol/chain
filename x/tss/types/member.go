@@ -19,7 +19,7 @@ type Members []Member
 func (ms Members) GetIDs() []tss.MemberID {
 	var mids []tss.MemberID
 	for _, member := range ms {
-		mids = append(mids, member.MemberID)
+		mids = append(mids, member.ID)
 	}
 
 	return mids

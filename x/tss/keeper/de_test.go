@@ -207,13 +207,13 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	members := []types.Member{
 		{
-			MemberID:    1,
+			ID:          1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
-			MemberID:    2,
+			ID:          2,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      nil,
 			IsMalicious: false,

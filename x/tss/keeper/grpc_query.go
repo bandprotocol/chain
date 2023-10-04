@@ -45,7 +45,7 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 	}
 
 	// Get group members
-	members, err := q.k.GetMembers(ctx, groupID)
+	members, err := q.k.GetGroupMembers(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (q queryServer) Members(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get members using groupID
-	members, err := q.k.GetMembers(ctx, tss.GroupID(req.GroupId))
+	members, err := q.k.GetGroupMembers(ctx, tss.GroupID(req.GroupId))
 	if err != nil {
 		return nil, err
 	}
@@ -177,14 +177,14 @@ func (q queryServer) PendingGroups(
 
 		// Check submit for round 1
 		if group.Status == types.GROUP_STATUS_ROUND_1 {
-			if _, err := q.k.GetRound1Info(ctx, gid, member.MemberID); err != nil {
+			if _, err := q.k.GetRound1Info(ctx, gid, member.ID); err != nil {
 				isSubmitted = false
 			}
 		}
 
 		// Check submit for round 2
 		if group.Status == types.GROUP_STATUS_ROUND_2 {
-			if _, err := q.k.GetRound2Info(ctx, gid, member.MemberID); err != nil {
+			if _, err := q.k.GetRound2Info(ctx, gid, member.ID); err != nil {
 				isSubmitted = false
 			}
 		}
@@ -192,12 +192,12 @@ func (q queryServer) PendingGroups(
 		// Check submit for round 3 (confirm and complain)
 		if group.Status == types.GROUP_STATUS_ROUND_3 {
 			confirmed := true
-			if _, err := q.k.GetConfirm(ctx, gid, member.MemberID); err != nil {
+			if _, err := q.k.GetConfirm(ctx, gid, member.ID); err != nil {
 				confirmed = false
 			}
 
 			complained := true
-			if _, err := q.k.GetComplaintsWithStatus(ctx, gid, member.MemberID); err != nil {
+			if _, err := q.k.GetComplaintsWithStatus(ctx, gid, member.ID); err != nil {
 				complained = false
 			}
 

@@ -193,20 +193,20 @@ func (k Keeper) DeleteDKGContext(ctx sdk.Context, groupID tss.GroupID) {
 }
 
 // SetMember sets a member of a group in the store.
-func (k Keeper) SetMember(ctx sdk.Context, groupID tss.GroupID, member types.Member) {
-	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(groupID, member.MemberID), k.cdc.MustMarshal(&member))
+func (k Keeper) SetMember(ctx sdk.Context, member types.Member) {
+	ctx.KVStore(k.storeKey).Set(types.MemberOfGroupKey(member.GroupID, member.ID), k.cdc.MustMarshal(&member))
 }
 
 // SetMembers sets members of a group in the store.
-func (k Keeper) SetMembers(ctx sdk.Context, groupID tss.GroupID, members []types.Member) {
+func (k Keeper) SetMembers(ctx sdk.Context, members []types.Member) {
 	for _, member := range members {
-		k.SetMember(ctx, groupID, member)
+		k.SetMember(ctx, member)
 	}
 }
 
 // GetMemberByAddress function retrieves a member of a group from the store by using address.
 func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (types.Member, error) {
-	members, err := k.GetMembers(ctx, groupID)
+	members, err := k.GetGroupMembers(ctx, groupID)
 	if err != nil {
 		return types.Member{}, err
 	}
@@ -251,15 +251,15 @@ func (k Keeper) MustGetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return member
 }
 
-// GetMembersIterator gets an iterator over all members of a group.
-func (k Keeper) GetMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
+// GetGroupMembersIterator gets an iterator over all members of a group.
+func (k Keeper) GetGroupMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
-// GetMembers retrieves all members of a group from the store.
-func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+// GetGroupMembers retrieves all members of a group from the store.
+func (k Keeper) GetGroupMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
 	var members []types.Member
-	iterator := k.GetMembersIterator(ctx, groupID)
+	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
@@ -272,9 +272,42 @@ func (k Keeper) GetMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member
 	return members, nil
 }
 
+// GetMembers retrieves all members from store.
+func (k Keeper) GetMembers(ctx sdk.Context) []types.Member {
+	var members []types.Member
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var member types.Member
+		k.cdc.MustUnmarshal(iterator.Value(), &member)
+		members = append(members, member)
+	}
+
+	return members
+}
+
+// DeleteGroupMembers removes all members in the group
+func (k Keeper) DeleteGroupMembers(ctx sdk.Context, groupID tss.GroupID) error {
+	members, err := k.GetGroupMembers(ctx, groupID)
+	if err != nil {
+		return err
+	}
+
+	for _, member := range members {
+		k.DeleteMember(ctx, member)
+	}
+
+	return nil
+}
+
+// DeleteMember removes a member
+func (k Keeper) DeleteMember(ctx sdk.Context, member types.Member) {
+	ctx.KVStore(k.storeKey).Delete(types.MemberOfGroupKey(member.GroupID, member.ID))
+}
+
 // MustGetMembers retrieves all members of a group from the store. Panics error if not exists.
 func (k Keeper) MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member {
-	members, err := k.GetMembers(ctx, groupID)
+	members, err := k.GetGroupMembers(ctx, groupID)
 	if err != nil {
 		panic(err)
 	}
@@ -284,7 +317,7 @@ func (k Keeper) MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Mem
 // GetActiveMembers retrieves all active members of a group from the store.
 func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
 	var members []types.Member
-	iterator := k.GetMembersIterator(ctx, groupID)
+	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
@@ -591,8 +624,8 @@ func (k Keeper) IterateReplacementQueue(
 }
 
 // ReplacementQueueIterator returns an sdk.Iterator for all the replacements in the replacement group Queue that expire by endTime
-func (keeper Keeper) ReplacementQueueIterator(ctx sdk.Context, endTime time.Time) sdk.Iterator {
-	store := ctx.KVStore(keeper.storeKey)
+func (k Keeper) ReplacementQueueIterator(ctx sdk.Context, endTime time.Time) sdk.Iterator {
+	store := ctx.KVStore(k.storeKey)
 	return store.Iterator(types.ReplacementQueuePrefix, sdk.PrefixEndBytes(types.ReplacementQueueByTimeKey(endTime)))
 }
 
@@ -628,12 +661,22 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
 
-	// Set members with new data
-	members, err := k.GetMembers(ctx, replacement.FromGroupID)
+	// Delete old members
+	err := k.DeleteGroupMembers(ctx, replacement.ToGroupID)
 	if err != nil {
 		return
 	}
-	k.SetMembers(ctx, replacement.ToGroupID, members)
+
+	// Set members with new data
+	members, err := k.GetGroupMembers(ctx, replacement.FromGroupID)
+	if err != nil {
+		return
+	}
+	for idx, _ := range members {
+		members[idx].GroupID = replacement.ToGroupID
+	}
+
+	k.SetMembers(ctx, members)
 
 	// Update replacement group status to success
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
