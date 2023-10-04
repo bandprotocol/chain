@@ -240,7 +240,7 @@ signing_data = sa.Table(
     Column("group_pub_key", CustomBase64),
     Column("msg", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
-    Column("signature", CustomBase64),
+    Column("signature", CustomBase64, nullable=True),
     Column("fee", sa.String),
     Column("status", CustomTSSSigningStatus),
     Column("reason", sa.String),
