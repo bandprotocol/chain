@@ -243,7 +243,7 @@ signing_data = sa.Table(
     Column("signature", CustomBase64, nullable=True),
     Column("fee", sa.String),
     Column("status", CustomTSSSigningStatus),
-    Column("reason", sa.String),
+    Column("reason", sa.String, nullable=True),
     Column("created_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
     sa.Index("ix_group_id_group_pub_key_status", "group_id", "group_pub_key", "status"),
