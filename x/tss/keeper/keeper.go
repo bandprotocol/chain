@@ -672,7 +672,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	if err != nil {
 		return
 	}
-	for idx, _ := range members {
+	for idx := range members {
 		members[idx].GroupID = replacement.ToGroupID
 	}
 
