@@ -25,25 +25,25 @@ func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
 
 func (h *Hook) emitUpdateSigningSuccess(signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"signing_id": signing.SigningID,
-		"status":     int(signing.Status),
-		"signature":  parseBytes(signing.Signature),
+		"id":        signing.SigningID,
+		"status":    int(signing.Status),
+		"signature": parseBytes(signing.Signature),
 	})
 }
 
 func (h *Hook) emitUpdateSigningFailed(reason string, signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"signing_id": signing.SigningID,
-		"status":     int(signing.Status),
-		"reason":     reason,
+		"id":     signing.SigningID,
+		"status": int(signing.Status),
+		"reason": reason,
 	})
 }
 
 // future use
 func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"signing_id": signing.SigningID,
-		"status":     int(signing.Status),
+		"id":     signing.SigningID,
+		"status": int(signing.Status),
 	})
 }
 
