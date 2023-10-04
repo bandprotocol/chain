@@ -172,31 +172,36 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 					DKGContext: dkgContextB,
 					Members: []types.Member{
 						{
-							MemberID:    1,
+							ID:          1,
+							GroupID:     1,
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
-							MemberID:    2,
+							ID:          2,
+							GroupID:     1,
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
-							MemberID:    3,
+							ID:          3,
+							GroupID:     1,
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
-							MemberID:    4,
+							ID:          4,
+							GroupID:     1,
 							Address:     "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 							PubKey:      nil,
 							IsMalicious: false,
 						},
 						{
-							MemberID:    5,
+							ID:          5,
+							GroupID:     1,
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      nil,
 							IsMalicious: false,
@@ -270,13 +275,15 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	members := []types.Member{
 		{
-			MemberID:    1,
+			ID:          1,
+			GroupID:     1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
-			MemberID:    2,
+			ID:          2,
+			GroupID:     1,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      nil,
 			IsMalicious: false,
@@ -285,7 +292,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 
 	// Set members
 	for _, m := range members {
-		k.SetMember(ctx, tss.GroupID(1), m)
+		k.SetMember(ctx, m)
 	}
 
 	var req types.QueryMembersRequest

@@ -16,21 +16,23 @@ message GenesisState {
   uint64 group_count = 2;
   // groups is an array containing information about each group.
   repeated Group groups = 3 [(gogoproto.nullable) = false];
+  // members is an array containing information about each member of groups.
+  repeated Member members = 4 [(gogoproto.nullable) = false];
   // signing_count defines the number of signers.
-  uint64 signing_count = 4;
+  uint64 signing_count = 5;
   // signings is an array containing information about each signing.
-  repeated Signing signings = 5 [(gogoproto.nullable) = false];
+  repeated Signing signings = 6 [(gogoproto.nullable) = false];
   // replacement_count defines the number of replacements.
-  uint64 replacement_count = 6;
+  uint64 replacement_count = 7;
   // replacements is an array containing information about each replacement.
-  repeated Replacement replacements = 7 [(gogoproto.nullable) = false];
+  repeated Replacement replacements = 8 [(gogoproto.nullable) = false];
   // de_queues_genesis is an array containing the de queues of all the addressres.
-  repeated DEQueueGenesis de_queues_genesis = 8
+  repeated DEQueueGenesis de_queues_genesis = 9
       [(gogoproto.customname) = "DEQueuesGenesis", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the addressres.
-  repeated DEGenesis des_genesis = 9 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+  repeated DEGenesis des_genesis = 10 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
   // statuses is an array containing status of all addresses
-  repeated Status statuses = 10 [(gogoproto.nullable) = false];
+  repeated Status statuses = 11 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.

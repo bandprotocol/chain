@@ -15,8 +15,9 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 		s.Run(fmt.Sprintf("Case %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				// Set member
-				k.SetMember(ctx, tc.Group.ID, types.Member{
-					MemberID:    m.ID,
+				k.SetMember(ctx, types.Member{
+					ID:          m.ID,
+					GroupID:     tc.Group.ID,
 					Address:     "member_address",
 					PubKey:      m.PubKey(),
 					IsMalicious: false,
@@ -81,8 +82,9 @@ func (s *KeeperTestSuite) TestHandleVerifyOwnPubKeySig() {
 
 		for _, m := range tc.Group.Members {
 			// Set member
-			k.SetMember(ctx, tc.Group.ID, types.Member{
-				MemberID:    m.ID,
+			k.SetMember(ctx, types.Member{
+				ID:          m.ID,
+				GroupID:     tc.Group.ID,
 				Address:     "member_address",
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
@@ -389,8 +391,9 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	memberID := tss.MemberID(1)
 
 	// Set member
-	k.SetMember(ctx, groupID, types.Member{
-		MemberID:    memberID,
+	k.SetMember(ctx, types.Member{
+		ID:          memberID,
+		GroupID:     groupID,
 		Address:     "member_address",
 		PubKey:      []byte("pub_key"),
 		IsMalicious: false,
@@ -401,7 +404,7 @@ func (s *KeeperTestSuite) TestMarkMalicious() {
 	s.Require().NoError(err)
 
 	// Get members
-	members, err := k.GetMembers(ctx, groupID)
+	members, err := k.GetGroupMembers(ctx, groupID)
 	s.Require().NoError(err)
 
 	got := types.Members(members).HaveMalicious()

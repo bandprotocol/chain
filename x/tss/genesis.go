@@ -16,6 +16,10 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetGroup(ctx, group)
 	}
 
+	for _, member := range data.Members {
+		k.SetMember(ctx, member)
+	}
+
 	k.SetSigningCount(ctx, data.SigningCount)
 	for _, signing := range data.Signings {
 		k.SetSigning(ctx, signing)
@@ -47,6 +51,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Params:           k.GetParams(ctx),
 		GroupCount:       k.GetGroupCount(ctx),
 		Groups:           k.GetGroups(ctx),
+		Members:          k.GetMembers(ctx),
 		SigningCount:     k.GetSigningCount(ctx),
 		Signings:         k.GetAllReplacementSigning(ctx),
 		ReplacementCount: k.GetReplacementCount(ctx),

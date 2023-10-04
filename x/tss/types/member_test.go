@@ -54,9 +54,9 @@ func TestGetIDs(t *testing.T) {
 		{
 			name: "MultipleMembers",
 			members: types.Members{
-				{MemberID: 1},
-				{MemberID: 2},
-				{MemberID: 3},
+				{ID: 1},
+				{ID: 2},
+				{ID: 3},
 			},
 			expectedIDs: []tss.MemberID{1, 2, 3},
 		},
