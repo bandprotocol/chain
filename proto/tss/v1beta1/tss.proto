@@ -191,13 +191,16 @@ enum SigningStatus {
 message Member {
   // id is the unique identifier of a member.
   uint64 id = 1
-      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+      [(gogoproto.customname) = "ID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+  // group_id is the group id of this member.
+  uint64 group_id = 2
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // address is the address of the member.
-  string address = 2;
+  string address = 3;
   // pub_key is the public key of the member.
-  bytes pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
-  bool is_malicious = 4;
+  bool is_malicious = 5;
 }
 
 // MemberStatus is an enumeration of the possible statuses of a member.

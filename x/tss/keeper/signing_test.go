@@ -322,13 +322,15 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	signingID := uint64(1)
 	members := []types.Member{
 		{
-			MemberID:    1,
+			ID:          1,
+			GroupID:     1,
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      nil,
 			IsMalicious: false,
 		},
 		{
-			MemberID:    2,
+			ID:          2,
+			GroupID:     1,
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      nil,
 			IsMalicious: false,
@@ -345,10 +347,10 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 
 	// Check that there are no duplicate assigned members
 	amsSet := make(map[tss.MemberID]struct{})
-	for _, participant := range ams {
-		_, exists := amsSet[participant.MemberID]
+	for _, am := range ams {
+		_, exists := amsSet[am.ID]
 		s.Require().False(exists)
-		amsSet[participant.MemberID] = struct{}{}
+		amsSet[am.ID] = struct{}{}
 	}
 
 	// Check that if use same block and rolling seed will got same answer
@@ -474,9 +476,10 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 
 	// Set member
-	k.SetMember(ctx, groupID, types.Member{
-		MemberID: memberID,
-		Address:  testapp.Alice.Address.String(),
+	k.SetMember(ctx, types.Member{
+		ID:      memberID,
+		GroupID: groupID,
+		Address: testapp.Alice.Address.String(),
 	})
 
 	// Set status

@@ -305,7 +305,7 @@ func (k Keeper) GetRandomAssignedMembers(
 	}
 
 	// Sort selected members
-	sort.Slice(selected, func(i, j int) bool { return selected[i].MemberID < selected[j].MemberID })
+	sort.Slice(selected, func(i, j int) bool { return selected[i].ID < selected[j].ID })
 
 	return selected, nil
 }

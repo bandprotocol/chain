@@ -228,8 +228,9 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 	for _, tc := range testutil.TestCases {
 		// Initialize members
 		for i, m := range tc.Group.Members {
-			k.SetMember(ctx, tc.Group.ID, tsstypes.Member{
-				MemberID:    tss.MemberID(i + 1),
+			k.SetMember(ctx, tsstypes.Member{
+				ID:          tss.MemberID(i + 1),
+				GroupID:     tc.Group.ID,
 				Address:     owner,
 				PubKey:      m.PubKey(),
 				IsMalicious: false,
@@ -281,12 +282,12 @@ func (ba *BenchmarkApp) GetPendingSignTxs(
 		for _, sid := range sids {
 			signing := k.MustGetSigning(ctx, tss.SigningID(sid))
 
-			sig, err := CreateSignature(m.MemberID, signing, group.PubKey, ownPrivkey)
+			sig, err := CreateSignature(m.ID, signing, group.PubKey, ownPrivkey)
 			require.NoError(ba.TB, err)
 
 			tx, err := testapp.GenTx(
 				ba.TxConfig,
-				GenMsgSubmitSignature(tss.SigningID(sid), m.MemberID, sig, ba.Sender.Address),
+				GenMsgSubmitSignature(tss.SigningID(sid), m.ID, sig, ba.Sender.Address),
 				sdk.Coins{sdk.NewInt64Coin("uband", 1)},
 				math.MaxInt64,
 				"",
