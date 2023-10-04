@@ -11,7 +11,7 @@ import (
 
 func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
 	h.Write("NEW_SIGNING", common.JsDict{
-		"signing_id":      signing.SigningID,
+		"id":              signing.SigningID,
 		"group_id":        signing.GroupID,
 		"group_pub_key":   parseBytes(signing.GroupPubKey),
 		"msg":             parseBytes(signing.Message),
@@ -51,7 +51,7 @@ func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
 		h.Write("NEW_SIGNING", common.JsDict{
-			"signing_id":      signing.SigningID,
+			"id":              signing.SigningID,
 			"group_id":        signing.GroupID,
 			"group_pub_key":   parseBytes(signing.GroupPubKey),
 			"msg":             parseBytes(signing.Message),

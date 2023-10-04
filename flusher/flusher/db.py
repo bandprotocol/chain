@@ -215,7 +215,7 @@ requests = sa.Table(
     Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
-    Column("tss_signing_id", sa.Integer, nullable=True),
+    Column("tss_signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
     sa.Index(
@@ -235,7 +235,7 @@ requests = sa.Table(
 signing_data = sa.Table(
     "signing_data",
     metadata,
-    Column("signing_id", sa.Integer, primary_key=True),
+    Column("id", sa.Integer, primary_key=True),
     Column("group_id", sa.Integer),
     Column("group_pub_key", CustomBase64),
     Column("msg", CustomBase64),
