@@ -76,6 +76,13 @@
           table:
             name: reports
             schema: public
+    - name: signing_data
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: signing_data
+            schema: public
     - name: unbonding_delegations
       using:
         foreign_key_constraint_on:
@@ -118,6 +125,13 @@
           column: resolve_height
           table:
             name: requests
+            schema: public
+    - name: signing_data
+      using:
+        foreign_key_constraint_on:
+          column: created_height
+          table:
+            name: signing_data
             schema: public
     - name: transactions
       using:
@@ -591,6 +605,16 @@
           table:
             name: val_requests
             schema: public
+- table:
+    name: signing_data
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: block
+      using:
+        foreign_key_constraint_on: created_height
 - table:
     name: tracking
     schema: public
