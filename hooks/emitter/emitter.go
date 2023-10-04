@@ -33,10 +33,10 @@ import (
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -59,6 +59,7 @@ type Hook struct {
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	tssKeeper     tsskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	//ibc keeper
@@ -78,7 +79,8 @@ func NewHook(
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper,
+	oracleKeeper oraclekeeper.Keeper,
+	tssKeeper tsskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientkeeper clientkeeper.Keeper,
 	connectionkeeper connectionkeeper.Keeper,
@@ -105,6 +107,7 @@ func NewHook(
 		distrKeeper:      distrKeeper,
 		govKeeper:        govKeeper,
 		oracleKeeper:     oracleKeeper,
+		tssKeeper:        tssKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientkeeper:     clientkeeper,
 		connectionkeeper: connectionkeeper,

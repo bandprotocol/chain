@@ -106,7 +106,12 @@ func (app *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasUsed uint64, reason string) {
+func (h *Hook) emitUpdateResult(
+	ctx sdk.Context,
+	id types.RequestID,
+	executeGasUsed uint64,
+	reason string,
+) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
@@ -118,6 +123,28 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasU
 		"resolve_height":   ctx.BlockHeight(),
 		"reason":           reason,
 		"result":           parseBytes(result.Result),
+	})
+}
+
+func (h *Hook) emitUpdateResultTSS(
+	ctx sdk.Context,
+	id types.RequestID,
+	tssSigningID uint64,
+	executeGasUsed uint64,
+	reason string,
+) {
+	result := h.oracleKeeper.MustGetResult(ctx, id)
+
+	h.Write("UPDATE_REQUEST", common.JsDict{
+		"id":               id,
+		"execute_gas_used": executeGasUsed,
+		"request_time":     result.RequestTime,
+		"resolve_time":     result.ResolveTime,
+		"resolve_status":   result.ResolveStatus,
+		"resolve_height":   ctx.BlockHeight(),
+		"reason":           reason,
+		"result":           parseBytes(result.Result),
+		"tss_signing_id":   tssSigningID,
 	})
 }
 
@@ -141,6 +168,7 @@ func (h *Hook) handleMsgRequestData(
 		"ask_count":        msg.AskCount,
 		"min_count":        msg.MinCount,
 		"sender":           msg.Sender,
+		"tss_group_id":     msg.TSSGroupID,
 		"client_id":        msg.ClientID,
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),
@@ -232,6 +260,8 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 			executeGasUsed,
 			reasons[0],
 		)
+	} else if tssSid, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {
+		h.emitUpdateResultTSS(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), uint64(common.Atoi(tssSid[0])), executeGasUsed, "")
 	} else {
 		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), executeGasUsed, "")
 	}

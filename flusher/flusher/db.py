@@ -29,8 +29,15 @@ class VoteOption(enum.Enum):
     NoWithVeto = 4
 
 
-class CustomResolveStatus(sa.types.TypeDecorator):
+class TSSSigningStatus(enum.Enum):
+    nil = 0
+    waiting = 1
+    success = 2
+    expired = 3
+    failed = 4
 
+
+class CustomResolveStatus(sa.types.TypeDecorator):
     impl = sa.Enum(ResolveStatus)
 
     def process_bind_param(self, value, dialect):
@@ -38,19 +45,25 @@ class CustomResolveStatus(sa.types.TypeDecorator):
 
 
 class CustomProposalStatus(sa.types.TypeDecorator):
-
     impl = sa.Enum(ProposalStatus)
 
     def process_bind_param(self, value, dialect):
         return ProposalStatus(value)
 
 
+# unused
 class CustomVoteOption(sa.types.TypeDecorator):
-
     impl = sa.Enum(VoteOption)
 
     def process_bind_param(self, value, dialect):
         return VoteOption(value)
+
+
+class CustomTSSSigningStatus(sa.types.TypeDecorator):
+    impl = sa.Enum(TSSSigningStatus)
+
+    def process_bind_param(self, value, dialect):
+        return TSSSigningStatus(value)
 
 
 class CustomDateTime(sa.types.TypeDecorator):
@@ -60,6 +73,7 @@ class CustomDateTime(sa.types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         return datetime.fromtimestamp(value / 1e9) if value != None else None
+
 
 class CustomBase64(sa.types.TypeDecorator):
     """Custom LargeBinary type that accepts base64-encoded string."""
@@ -193,6 +207,7 @@ requests = sa.Table(
     Column("execute_gas", sa.Integer),
     Column("execute_gas_used", sa.Integer, default=0),
     Column("sender", sa.String, nullable=True),
+    Column("tss_group_id", sa.Integer, default=0),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True, index=True),
     Column("resolve_status", CustomResolveStatus),
@@ -200,10 +215,38 @@ requests = sa.Table(
     Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
+    Column("tss_signing_id", sa.Integer, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
-    sa.Index("ix_requests_oracle_script_id_id", "oracle_script_id", "id", postgresql_include=['transaction_id', 'min_count', 'ask_count', 'resolve_status', 'request_time']),
-    sa.Index("ix_requests_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
+    sa.Index(
+        "ix_requests_oracle_script_id_id",
+        "oracle_script_id",
+        "id",
+        postgresql_include=["transaction_id", "min_count", "ask_count", "resolve_status", "request_time"],
+    ),
+    sa.Index(
+        "ix_requests_oracle_script_id_resolve_status_request_time",
+        "oracle_script_id",
+        "resolve_status",
+        "request_time",
+    ),
+)
+
+signing_data = sa.Table(
+    "signing_data",
+    metadata,
+    Column("signing_id", sa.Integer, primary_key=True),
+    Column("group_id", sa.Integer),
+    Column("group_pub_key", CustomBase64),
+    Column("msg", CustomBase64),
+    Column("group_pub_nonce", CustomBase64),
+    Column("signature", CustomBase64),
+    Column("fee", sa.String),
+    Column("status", CustomTSSSigningStatus),
+    Column("reason", sa.String),
+    Column("created_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
+    sa.Index("ix_group_id_group_pub_key_status", "group_id", "group_pub_key", "status"),
 )
 
 raw_requests = sa.Table(

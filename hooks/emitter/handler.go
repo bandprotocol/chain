@@ -18,6 +18,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func parseEvents(events sdk.StringEvents) common.EvMap {
@@ -145,6 +146,12 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	case tsstypes.EventTypeRequestSignature:
+		h.handleEventRequestSignature(ctx, evMap)
+	case tsstypes.EventTypeSigningSuccess:
+		h.handleEventSigningSuccess(ctx, evMap)
+	case tsstypes.EventTypeSigningFailed:
+		h.handleEventSigningFailed(ctx, evMap)
 	default:
 		break
 	}

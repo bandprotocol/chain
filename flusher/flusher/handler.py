@@ -39,6 +39,7 @@ from .db import (
     connections,
     channels,
     relayer_tx_stat_days,
+    signing_data,
 )
 
 
@@ -71,12 +72,18 @@ class Handler(object):
 
     def get_oracle_script_requests_count_per_day(self, date, oracle_script_id):
         return self.conn.execute(
-            select([oracle_script_requests_per_days.c.count]).where((oracle_script_requests_per_days.c.date == date) & (oracle_script_requests_per_days.c.oracle_script_id == oracle_script_id))
+            select([oracle_script_requests_per_days.c.count]).where(
+                (oracle_script_requests_per_days.c.date == date)
+                & (oracle_script_requests_per_days.c.oracle_script_id == oracle_script_id)
+            )
         ).scalar()
 
     def get_data_source_requests_count_per_day(self, date, data_source_id):
         return self.conn.execute(
-            select([data_source_requests_per_days.c.count]).where((data_source_requests_per_days.c.date == date) & (data_source_requests_per_days.c.data_source_id == data_source_id))
+            select([data_source_requests_per_days.c.count]).where(
+                (data_source_requests_per_days.c.date == date)
+                & (data_source_requests_per_days.c.data_source_id == data_source_id)
+            )
         ).scalar()
 
     def get_data_source_id(self, id):
@@ -168,7 +175,9 @@ class Handler(object):
         del msg["tx_hash"]
         if "timestamp" in msg:
             self.handle_set_request_count_per_day({"date": msg["timestamp"]})
-            self.handle_update_oracle_script_requests_count_per_day({"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]})
+            self.handle_update_oracle_script_requests_count_per_day(
+                {"date": msg["timestamp"], "oracle_script_id": msg["oracle_script_id"]}
+            )
             self.update_oracle_script_last_request(msg["oracle_script_id"], msg["timestamp"])
             del msg["timestamp"]
         self.conn.execute(requests.insert(), msg)
@@ -193,7 +202,9 @@ class Handler(object):
     def handle_new_raw_request(self, msg):
         self.increase_data_source_count(msg["data_source_id"])
         if "timestamp" in msg:
-            self.handle_update_data_source_requests_count_per_day({"date": msg["timestamp"], "data_source_id": msg["data_source_id"]})
+            self.handle_update_data_source_requests_count_per_day(
+                {"date": msg["timestamp"], "data_source_id": msg["data_source_id"]}
+            )
             self.update_data_source_last_request(msg["data_source_id"], msg["timestamp"])
             del msg["timestamp"]
         self.handle_update_related_ds_os(
@@ -430,7 +441,9 @@ class Handler(object):
             for col in oracle_script_requests_per_days.primary_key.columns.values():
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(
-                oracle_script_requests_per_days.update(condition).values(count=oracle_script_requests_per_days.c.count + 1)
+                oracle_script_requests_per_days.update(condition).values(
+                    count=oracle_script_requests_per_days.c.count + 1
+                )
             )
 
     def handle_update_data_source_requests_count_per_day(self, msg):
@@ -488,18 +501,10 @@ class Handler(object):
         )
 
     def update_oracle_script_last_request(self, id, timestamp):
-        self.conn.execute(
-            oracle_scripts.update(oracle_scripts.c.id == id).values(
-                last_request=timestamp
-            )
-        )
+        self.conn.execute(oracle_scripts.update(oracle_scripts.c.id == id).values(last_request=timestamp))
 
     def update_data_source_last_request(self, id, timestamp):
-        self.conn.execute(
-            data_sources.update(data_sources.c.id == id).values(
-                last_request=timestamp
-            )
-        )
+        self.conn.execute(data_sources.update(data_sources.c.id == id).values(last_request=timestamp))
 
     def handle_new_historical_bonded_token_on_validator(self, msg):
         self.conn.execute(
@@ -559,3 +564,14 @@ class Handler(object):
                 .where(condition)
                 .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
             )
+
+    def handle_new_signing(self, msg):
+        msg["account_id"] = self.get_account_id(msg["requester"])
+        del msg["requester"]
+        self.conn.execute(signing_data.insert(), msg)
+
+    def handle_update_signing(self, msg):
+        condition = True
+        for col in signing_data.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(signing_data.update().where(condition).values(**msg))
