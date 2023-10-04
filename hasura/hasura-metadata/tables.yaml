@@ -580,6 +580,9 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
+    - name: signing_datum
+      using:
+        foreign_key_constraint_on: tss_signing_id
     - name: transaction
       using:
         foreign_key_constraint_on: transaction_id
@@ -615,6 +618,14 @@
     - name: block
       using:
         foreign_key_constraint_on: created_height
+  array_relationships:
+    - name: requests
+      using:
+        foreign_key_constraint_on:
+          column: tss_signing_id
+          table:
+            name: requests
+            schema: public
 - table:
     name: tracking
     schema: public
