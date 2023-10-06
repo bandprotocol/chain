@@ -116,11 +116,9 @@ message DEQueue {
 
 // Signing contains all necessary information for handling a signing request.
 message Signing {
-  // signing_id is the unique identifier of the signing process.
-  uint64 signing_id = 1 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
+  // id is the unique identifier of the signing.
+  uint64 id = 1
+      [(gogoproto.customname) = "ID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"];
   // group_id is the unique identifier of the group.
   uint64 group_id = 2
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
@@ -142,7 +140,7 @@ message Signing {
   SigningStatus status = 9;
   // created_height is the block height when the signing was created.
   uint64 created_height = 10;
-  // request is the address of requester who paid for the TSS fee.
+  // requester is the address of requester who paid for the TSS fee.
   string requester = 11;
 }
 

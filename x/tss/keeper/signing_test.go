@@ -49,8 +49,8 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	signing := types.Signing{
-		SigningID: signingID,
-		GroupID:   groupID,
+		ID:      signingID,
+		GroupID: groupID,
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: member1,
@@ -106,7 +106,7 @@ func (s *KeeperTestSuite) TestAddSigning() {
 
 	// Assert no error and equality
 	s.Require().NoError(err)
-	s.Require().Equal(signingID, got.SigningID)
+	s.Require().Equal(signingID, got.ID)
 }
 
 func (s *KeeperTestSuite) TestDeleteSigning() {
@@ -117,8 +117,8 @@ func (s *KeeperTestSuite) TestDeleteSigning() {
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	signing := types.Signing{
-		SigningID: signingID,
-		GroupID:   groupID,
+		ID:      signingID,
+		GroupID: groupID,
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: member1,
@@ -531,8 +531,8 @@ func (s *KeeperTestSuite) TestRefundFee() {
 		{
 			"10uband with 2 members",
 			types.Signing{
+				ID:        1,
 				GroupID:   1,
-				SigningID: 1,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
@@ -549,8 +549,8 @@ func (s *KeeperTestSuite) TestRefundFee() {
 		{
 			"10uband,15token with 2 members",
 			types.Signing{
+				ID:        1,
 				GroupID:   1,
-				SigningID: 1,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
@@ -567,8 +567,8 @@ func (s *KeeperTestSuite) TestRefundFee() {
 		{
 			"0uband with 2 members",
 			types.Signing{
+				ID:        2,
 				GroupID:   1,
-				SigningID: 2,
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
@@ -585,8 +585,8 @@ func (s *KeeperTestSuite) TestRefundFee() {
 		{
 			"10uband with 0 member",
 			types.Signing{
+				ID:              3,
 				GroupID:         1,
-				SigningID:       3,
 				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 				Requester:       testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{},
