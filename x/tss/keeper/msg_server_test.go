@@ -853,7 +853,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			"failure with invalid memberID",
 			func() {
 				k.SetSigning(ctx, types.Signing{
-					SigningID:       tc1.Signings[0].ID,
+					ID:              tc1.Signings[0].ID,
 					GroupID:         tc1.Group.ID,
 					AssignedMembers: []types.AssignedMember{},
 					Message:         tc1.Signings[0].Data,

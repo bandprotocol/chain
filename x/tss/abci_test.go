@@ -48,8 +48,8 @@ func TestReplaceGroups(t *testing.T) {
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{
-		SigningID: signingID,
-		Status:    types.SIGNING_STATUS_SUCCESS,
+		ID:     signingID,
+		Status: types.SIGNING_STATUS_SUCCESS,
 		// ... other fields ...
 	}
 	k.SetGroup(ctx, initialFromGroup)
