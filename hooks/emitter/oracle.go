@@ -129,22 +129,26 @@ func (h *Hook) emitUpdateResult(
 func (h *Hook) emitUpdateResultTSS(
 	ctx sdk.Context,
 	id types.RequestID,
-	tssSigningID uint64,
 	executeGasUsed uint64,
 	reason string,
+	tssSigningID uint64,
+	tssSigningErrorCodespace string,
+	tssSigningErrorCode uint64,
 ) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
-		"id":               id,
-		"execute_gas_used": executeGasUsed,
-		"request_time":     result.RequestTime,
-		"resolve_time":     result.ResolveTime,
-		"resolve_status":   result.ResolveStatus,
-		"resolve_height":   ctx.BlockHeight(),
-		"reason":           reason,
-		"result":           parseBytes(result.Result),
-		"tss_signing_id":   tssSigningID,
+		"id":                          id,
+		"execute_gas_used":            executeGasUsed,
+		"request_time":                result.RequestTime,
+		"resolve_time":                result.ResolveTime,
+		"resolve_status":              result.ResolveStatus,
+		"resolve_height":              ctx.BlockHeight(),
+		"reason":                      reason,
+		"result":                      parseBytes(result.Result),
+		"tss_signing_id":              tssSigningID,
+		"tss_signing_error_codespace": tssSigningErrorCodespace,
+		"tss_signing_error_code":      tssSigningErrorCode,
 	})
 }
 
@@ -253,17 +257,36 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
 	}
 
+	rid := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
 		h.emitUpdateResult(
 			ctx,
-			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
+			rid,
 			executeGasUsed,
 			reasons[0],
 		)
+	} else if tssErrCodespace, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCodespace]; ok {
+		h.emitUpdateResultTSS(
+			ctx,
+			rid,
+			executeGasUsed,
+			"",
+			0,
+			tssErrCodespace[0],
+			uint64(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCode][0])),
+		)
 	} else if tssSid, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {
-		h.emitUpdateResultTSS(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), uint64(common.Atoi(tssSid[0])), executeGasUsed, "")
+		h.emitUpdateResultTSS(
+			ctx,
+			rid,
+			executeGasUsed,
+			"",
+			uint64(common.Atoi(tssSid[0])),
+			"",
+			0,
+		)
 	} else {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), executeGasUsed, "")
+		h.emitUpdateResult(ctx, rid, executeGasUsed, "")
 	}
 }
 

@@ -216,6 +216,8 @@ requests = sa.Table(
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column("tss_signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), nullable=True),
+    Column("tss_signing_error_codespace", sa.String, nullable=True),
+    Column("tss_signing_error_code", sa.Integer, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
     sa.Index(
