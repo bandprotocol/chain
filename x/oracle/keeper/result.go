@@ -80,7 +80,13 @@ func (k Keeper) ResolveSuccess(
 	if gid != tss.GroupID(0) {
 		// Request sign by tss module
 		var signingResult *types.SigningResult
-		sid, err := k.tssKeeper.HandleRequestSign(ctx, gid, types.NewRequestingSignature(id), sdk.MustAccAddressFromBech32(requester), feeLimit)
+		sid, err := k.tssKeeper.HandleRequestSign(
+			ctx,
+			gid,
+			types.NewRequestingSignature(id),
+			sdk.MustAccAddressFromBech32(requester),
+			feeLimit,
+		)
 		if err != nil {
 			codespace, code, _ := sdkerrors.ABCIInfo(err, false)
 			signingResult = &types.SigningResult{
@@ -94,19 +100,23 @@ func (k Keeper) ResolveSuccess(
 				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
+
+			events = events.AppendAttributes(
+				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
+				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
+			)
+
 		} else {
 			signingResult = &types.SigningResult{
 				SigningID: sid,
 			}
+
+			events = events.AppendAttributes(
+				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
+			)
 		}
 
 		k.SetSigningResult(ctx, id, *signingResult)
-
-		events = events.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
-			sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
-			sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
-		)
 	}
 
 	ctx.EventManager().EmitEvent(events)
