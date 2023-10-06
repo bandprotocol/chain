@@ -188,8 +188,9 @@ class Handler(object):
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
             del msg["tx_hash"]
 
-        if msg["tss_signing_id"] == 0:
-            del msg["tss_signing_id"]
+        if "tss_signing_id" in msg:
+            if msg["tss_signing_id"] == 0:
+                del msg["tss_signing_id"]
 
         condition = True
         for col in requests.primary_key.columns.values():
