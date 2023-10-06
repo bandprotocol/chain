@@ -216,6 +216,8 @@ func (k msgServer) UpdateGroupFee(
 	group.Fee = req.Fee.Sort()
 	k.SetGroup(ctx, group)
 
+	// TODO: add event
+
 	return &types.MsgUpdateGroupFeeResponse{}, nil
 }
 

@@ -39,7 +39,15 @@ from .db import (
     connections,
     channels,
     relayer_tx_stat_days,
+)
+
+from .tss_db import (
     signing_data,
+    groups,
+    tss_accounts,
+    members,
+    assigned_members,
+    replacements,
 )
 
 
@@ -64,6 +72,11 @@ class Handler(object):
             self.conn.execute(accounts.insert(), {"address": address, "balance": "0uband"})
             return self.conn.execute(select([accounts.c.id]).where(accounts.c.address == address)).scalar()
         return id
+
+    def have_tss_account(self, account_id):
+        return (
+            self.conn.execute(select([tss_accounts.c.id]).where(tss_accounts.c.id == account_id)).scalar() is not None
+        )
 
     def get_request_count(self, date):
         return self.conn.execute(
@@ -575,3 +588,25 @@ class Handler(object):
         for col in signing_data.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
         self.conn.execute(signing_data.update().where(condition).values(**msg))
+
+    def handle_set_tss_account_status(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        if not self.have_tss_account(msg["account_id"]):
+            self.conn.execute(tss_accounts.insert(), msg)
+        else:
+            condition = True
+            for col in tss_accounts.primary_key.columns.values():
+                condition = (col == msg[col.name]) & condition
+            self.conn.execute(tss_accounts.update().where(condition).values(**msg))
+
+    def handle_set_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+        self.conn.execute(members.insert(), msg)
+
+    def handle_set_group(self, msg):
+        if msg["latest_replacement_id"] == 0:
+            msg["latest_replacement_id"] = None
+        self.conn.execute(groups.insert(), msg)

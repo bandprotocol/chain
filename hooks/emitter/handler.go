@@ -152,6 +152,16 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningSuccess(ctx, evMap)
 	case tsstypes.EventTypeSigningFailed:
 		h.handleEventSigningFailed(ctx, evMap)
+	case tsstypes.EventTypeActivate:
+		h.handleEventActivateTSSAccount(ctx, evMap)
+	case tsstypes.EventTypeCreateGroup,
+		tsstypes.EventTypeRound2Success,
+		tsstypes.EventTypeComplainSuccess,
+		tsstypes.EventTypeComplainFailed,
+		tsstypes.EventTypeRound3Success,
+		// TODO: event UpdateGroupFee
+		tsstypes.EventTypeReplaceSuccess:
+		h.handleEventSetGroup(ctx, evMap)
 	default:
 		break
 	}

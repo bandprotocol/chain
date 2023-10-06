@@ -47,6 +47,39 @@ func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 	})
 }
 
+func (h *Hook) emitSetTSSAccountStatus(status tsstypes.Status) {
+	h.Write("SET_TSS_ACCOUNT_STATUS", common.JsDict{
+		"address":     status.Address,
+		"status":      int(status.Status),
+		"since":       status.Since.Unix(),
+		"last_active": status.LastActive.Unix(),
+	})
+}
+
+func (h *Hook) emitSetGroup(group tsstypes.Group, dkgContext []byte) {
+	h.Write("SET_GROUP", common.JsDict{
+		"id":                    group.GroupID,
+		"size":                  group.Size_,
+		"threshold":             group.Threshold,
+		"dkg_context":           parseBytes(dkgContext),
+		"pub_key":               parseBytes(group.PubKey),
+		"status":                int(group.Status),
+		"fee":                   group.Fee.String(),
+		"latest_replacement_id": group.LatestReplacementID,
+		"created_height":        group.CreatedHeight,
+	})
+}
+
+func (h *Hook) emitSetMember(member tsstypes.Member) {
+	h.Write("Set_MEMBER", common.JsDict{
+		"id":           member.ID,
+		"group_id":     member.GroupID,
+		"address":      member.Address,
+		"pub_key":      parseBytes(member.PubKey),
+		"is_malicious": member.IsMalicious,
+	})
+}
+
 // handleInitTssModule implements emitter handler for initializing tss module.
 func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
@@ -69,6 +102,8 @@ func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
 	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeRequestSignature+"."+types.AttributeKeySigningID][0]))
 	signing := h.tssKeeper.MustGetSigning(ctx, id)
+
+	// TODO: emit assigned member
 
 	h.emitNewSigning(signing)
 }
@@ -96,5 +131,30 @@ func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 			"failed with on reason",
 			signing,
 		)
+	}
+}
+
+// handleEventActivateTSSAccount implements emitter handler for tss account activate event.
+func (h *Hook) handleEventActivateTSSAccount(ctx sdk.Context, evMap common.EvMap) {
+	address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActivate+"."+tsstypes.AttributeKeyMember][0])
+	status := h.tssKeeper.GetStatus(ctx, address)
+
+	h.emitSetTSSAccountStatus(status)
+}
+
+// handleEventSetGroup implements emitter handler for events related to groups.
+func (h *Hook) handleEventSetGroup(ctx sdk.Context, evMap common.EvMap) {
+	gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeCreateGroup+"."+tsstypes.AttributeKeyGroupID][0]))
+	group := h.tssKeeper.MustGetGroup(ctx, gid)
+	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
+	if err != nil {
+		panic(err)
+	}
+
+	h.emitSetGroup(group, dkgContext)
+
+	members := h.tssKeeper.MustGetMembers(ctx, gid)
+	for _, m := range members {
+		h.emitSetMember(m)
 	}
 }

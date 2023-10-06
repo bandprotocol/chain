@@ -29,14 +29,6 @@ class VoteOption(enum.Enum):
     NoWithVeto = 4
 
 
-class TSSSigningStatus(enum.Enum):
-    nil = 0
-    waiting = 1
-    success = 2
-    expired = 3
-    failed = 4
-
-
 class CustomResolveStatus(sa.types.TypeDecorator):
     impl = sa.Enum(ResolveStatus)
 
@@ -57,13 +49,6 @@ class CustomVoteOption(sa.types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         return VoteOption(value)
-
-
-class CustomTSSSigningStatus(sa.types.TypeDecorator):
-    impl = sa.Enum(TSSSigningStatus)
-
-    def process_bind_param(self, value, dialect):
-        return TSSSigningStatus(value)
 
 
 class CustomDateTime(sa.types.TypeDecorator):
@@ -230,23 +215,6 @@ requests = sa.Table(
         "resolve_status",
         "request_time",
     ),
-)
-
-signing_data = sa.Table(
-    "signing_data",
-    metadata,
-    Column("id", sa.Integer, primary_key=True),
-    Column("group_id", sa.Integer),
-    Column("group_pub_key", CustomBase64),
-    Column("msg", CustomBase64),
-    Column("group_pub_nonce", CustomBase64),
-    Column("signature", CustomBase64, nullable=True),
-    Column("fee", sa.String),
-    Column("status", CustomTSSSigningStatus),
-    Column("reason", sa.String, nullable=True),
-    Column("created_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
-    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
-    sa.Index("ix_group_id_group_pub_key_status", "group_id", "group_pub_key", "status"),
 )
 
 raw_requests = sa.Table(
