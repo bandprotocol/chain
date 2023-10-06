@@ -105,7 +105,6 @@ func (k Keeper) ResolveSuccess(
 				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
 				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
 			)
-
 		} else {
 			signingResult = &types.SigningResult{
 				SigningID: sid,
