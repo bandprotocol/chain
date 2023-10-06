@@ -11,7 +11,7 @@ import (
 
 func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
 	h.Write("NEW_SIGNING", common.JsDict{
-		"id":              signing.SigningID,
+		"id":              signing.ID,
 		"group_id":        signing.GroupID,
 		"group_pub_key":   parseBytes(signing.GroupPubKey),
 		"msg":             parseBytes(signing.Message),
@@ -25,7 +25,7 @@ func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
 
 func (h *Hook) emitUpdateSigningSuccess(signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"id":        signing.SigningID,
+		"id":        signing.ID,
 		"status":    int(signing.Status),
 		"signature": parseBytes(signing.Signature),
 	})
@@ -33,7 +33,7 @@ func (h *Hook) emitUpdateSigningSuccess(signing tsstypes.Signing) {
 
 func (h *Hook) emitUpdateSigningFailed(reason string, signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"id":     signing.SigningID,
+		"id":     signing.ID,
 		"status": int(signing.Status),
 		"reason": reason,
 	})
@@ -42,7 +42,7 @@ func (h *Hook) emitUpdateSigningFailed(reason string, signing tsstypes.Signing) 
 // future use
 func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
-		"id":     signing.SigningID,
+		"id":     signing.ID,
 		"status": int(signing.Status),
 	})
 }
@@ -51,7 +51,7 @@ func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
 func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
 		h.Write("NEW_SIGNING", common.JsDict{
-			"id":              signing.SigningID,
+			"id":              signing.ID,
 			"group_id":        signing.GroupID,
 			"group_pub_key":   parseBytes(signing.GroupPubKey),
 			"msg":             parseBytes(signing.Message),
