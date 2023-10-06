@@ -668,8 +668,8 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
 	signing := types.Signing{
-		SigningID: signingID,
-		GroupID:   groupID,
+		ID:      signingID,
+		GroupID: groupID,
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID:      memberID,

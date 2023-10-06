@@ -586,8 +586,8 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{
-		SigningID: signingID,
-		Status:    types.SIGNING_STATUS_SUCCESS,
+		ID:     signingID,
+		Status: types.SIGNING_STATUS_SUCCESS,
 		// ... other fields ...
 	}
 	initialReplacement := types.Replacement{
@@ -650,8 +650,8 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{
-		SigningID: signingID,
-		Status:    types.SIGNING_STATUS_FALLEN,
+		ID:     signingID,
+		Status: types.SIGNING_STATUS_FALLEN,
 		// ... other fields ...
 	}
 	initialReplacement := types.Replacement{
