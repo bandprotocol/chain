@@ -4,9 +4,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"

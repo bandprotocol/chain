@@ -1,20 +1,23 @@
 package v2_6
 
 import (
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
+	"github.com/bandprotocol/chain/v2/app/upgrades"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 const UpgradeName = "v2_6"
@@ -23,7 +26,7 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
-		Added: []string{group.StoreKey, globalfee.ModuleName},
+		Added: []string{group.StoreKey, globalfeetypes.StoreKey, consensusparamtypes.StoreKey, crisistypes.StoreKey},
 	},
 }
 

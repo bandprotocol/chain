@@ -1,43 +1,34 @@
 package feechecker
 
 import (
-	"errors"
 	"math"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type FeeChecker struct {
 	OracleKeeper    *oraclekeeper.Keeper
-	GlobalMinFee    globalfee.ParamSource
-	StakingSubspace paramtypes.Subspace
+	GlobalfeeKeeper *keeper.Keeper
+	StakingKeeper   *stakingkeeper.Keeper
 }
 
 func NewFeeChecker(
 	oracleKeeper *oraclekeeper.Keeper,
-	globalfeeSubspace, stakingSubspace paramtypes.Subspace,
+	globalfeeKeeper *keeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
 ) FeeChecker {
-	if !globalfeeSubspace.HasKeyTable() {
-		panic("global fee paramspace was not set up via module")
-	}
-
-	if !stakingSubspace.HasKeyTable() {
-		panic("staking paramspace was not set up via module")
-	}
-
 	return FeeChecker{
 		OracleKeeper:    oracleKeeper,
-		GlobalMinFee:    globalfeeSubspace,
-		StakingSubspace: stakingSubspace,
+		GlobalfeeKeeper: globalfeeKeeper,
+		StakingKeeper:   stakingKeeper,
 	}
 }
 
@@ -47,7 +38,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 ) (sdk.Coins, int64, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
-		return nil, 0, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
+		return nil, 0, errors.Wrap(sdkerrors.ErrTxDecode, "Tx must be a FeeTx")
 	}
 
 	feeCoins := feeTx.GetFee()
@@ -73,17 +64,19 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 
 		// Calculate all fees from all gas prices
 		gas := feeTx.GetGas()
-		allFees := make(sdk.Coins, len(allGasPrices))
-		if !minGasPrices.IsZero() {
+		var allFees sdk.Coins
+		if !allGasPrices.IsZero() {
 			glDec := sdk.NewDec(int64(gas))
-			for i, gp := range minGasPrices {
-				fee := gp.Amount.Mul(glDec)
-				allFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+			for _, gp := range allGasPrices {
+				if !gp.IsZero() {
+					fee := gp.Amount.Mul(glDec)
+					allFees = append(allFees, sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt()))
+				}
 			}
 		}
 
 		if !allFees.IsZero() && !feeCoins.IsAnyGTE(allFees) {
-			return nil, 0, sdkerrors.Wrapf(
+			return nil, 0, errors.Wrapf(
 				sdkerrors.ErrInsufficientFee,
 				"insufficient fees; got: %s required: %s",
 				feeCoins,
@@ -120,9 +113,7 @@ func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error
 		err                error
 	)
 
-	if fc.GlobalMinFee.Has(ctx, types.ParamStoreKeyMinGasPrices) {
-		fc.GlobalMinFee.Get(ctx, types.ParamStoreKeyMinGasPrices, &globalMinGasPrices)
-	}
+	globalMinGasPrices = fc.GlobalfeeKeeper.GetParams(ctx).MinimumGasPrices
 	// global fee is empty set, set global fee to 0uband (bondDenom)
 	if len(globalMinGasPrices) == 0 {
 		globalMinGasPrices, err = fc.DefaultZeroGlobalFee(ctx)
@@ -134,17 +125,12 @@ func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {
 	bondDenom := fc.GetBondDenom(ctx)
 	if bondDenom == "" {
-		return nil, errors.New("empty staking bond denomination")
+		return nil, errors.Wrap(sdkerrors.ErrNotFound, "empty staking bond denomination")
 	}
 
 	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
 }
 
 func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
-	var bondDenom string
-	if fc.StakingSubspace.Has(ctx, stakingtypes.KeyBondDenom) {
-		fc.StakingSubspace.Get(ctx, stakingtypes.KeyBondDenom, &bondDenom)
-	}
-
-	return bondDenom
+	return fc.StakingKeeper.BondDenom(ctx)
 }

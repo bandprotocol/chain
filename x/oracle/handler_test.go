@@ -10,12 +10,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bandprotocol/go-owasm/api"
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-
-	"github.com/bandprotocol/go-owasm/api"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle"
@@ -53,7 +52,7 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: types.EventTypeCreateDataSource,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", dsCount+1)},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -120,7 +119,7 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
+		Attributes: []abci.EventAttribute{{Key: types.AttributeKeyID, Value: "1"}},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
@@ -208,7 +207,7 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: types.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", osCount+1)},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -247,7 +246,7 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: types.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", osCount+1)},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -327,7 +326,7 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 
 	event := abci.Event{
 		Type:       types.EventTypeEditOracleScript,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
+		Attributes: []abci.EventAttribute{{Key: types.AttributeKeyID, Value: "1"}},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
 }
@@ -436,8 +435,8 @@ func TestRequestDataSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: authtypes.EventTypeCoinSpent,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeySpender), Value: []byte(testapp.FeePayer.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeySpender, Value: testapp.FeePayer.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -446,8 +445,8 @@ func TestRequestDataSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: authtypes.EventTypeCoinReceived,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeyReceiver), Value: []byte(testapp.Treasury.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeyReceiver, Value: testapp.Treasury.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[1])
@@ -456,9 +455,9 @@ func TestRequestDataSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: authtypes.EventTypeTransfer,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
-			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeyRecipient, Value: testapp.Treasury.Address.String()},
+			{Key: authtypes.AttributeKeySender, Value: testapp.FeePayer.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[2])
@@ -467,7 +466,7 @@ func TestRequestDataSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: sdk.EventTypeMessage,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+			{Key: authtypes.AttributeKeySender, Value: testapp.FeePayer.Address.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[3])
@@ -477,49 +476,49 @@ func TestRequestDataSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: types.EventTypeRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyClientID), Value: []byte("CID")},
-			{Key: []byte(types.AttributeKeyOracleScriptID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
-			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("5294700000")},
-			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "1"},
+			{Key: types.AttributeKeyClientID, Value: "CID"},
+			{Key: types.AttributeKeyOracleScriptID, Value: "1"},
+			{Key: types.AttributeKeyCalldata, Value: "62656562"}, // "beeb" in hex
+			{Key: types.AttributeKeyAskCount, Value: "2"},
+			{Key: types.AttributeKeyMinCount, Value: "2"},
+			{Key: types.AttributeKeyGasUsed, Value: "5294700000"},
+			{Key: types.AttributeKeyTotalFees, Value: "6000000uband"},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[2].ValAddress.String()},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[0].ValAddress.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[12])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[1].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "1"},
+			{Key: types.AttributeKeyDataSourceHash, Value: testapp.DataSources[1].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "1"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[13])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[2].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "2"},
+			{Key: types.AttributeKeyDataSourceHash, Value: testapp.DataSources[2].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "2"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[14])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("3")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[3].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("3")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "3"},
+			{Key: types.AttributeKeyDataSourceHash, Value: testapp.DataSources[3].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "3"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[15])
@@ -657,8 +656,8 @@ func TestReportSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[0].ValAddress.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -669,8 +668,8 @@ func TestReportSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[1].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[1].ValAddress.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -682,8 +681,8 @@ func TestReportSuccess(t *testing.T) {
 	event = abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[2].ValAddress.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -798,7 +797,7 @@ func TestActivateSuccess(t *testing.T) {
 	event := abci.Event{
 		Type: types.EventTypeActivate,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyValidator, Value: testapp.Validators[0].ValAddress.String()},
 		},
 	}
 	require.Equal(t, abci.Event(event), res.Events[0])
@@ -822,4 +821,96 @@ func TestActivateFail(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(200000))
 	_, err = oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
+}
+
+func TestUpdateParamsSuccess(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event := abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      2,
+		MaxAskCount:             20,
+		MaxCalldataSize:         512,
+		MaxReportDataSize:       256,
+		ExpirationBlockCount:    40,
+		BaseOwasmGas:            0,
+		PerValidatorRequestGas:  0,
+		SamplingTryCount:        5,
+		OracleRewardPercentage:  0,
+		InactivePenaltyDuration: 0,
+		IBCRequestEnabled:       false,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event = abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, abci.Event(event), res.Events[0])
+}
+
+func TestUpdateParamsFail(t *testing.T) {
+	_, ctx, k := testapp.CreateTestInput(true)
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams("foo", expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "invalid authority")
+	require.Nil(t, res)
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      0,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "max raw request count must be positive")
+	require.Nil(t, res)
 }

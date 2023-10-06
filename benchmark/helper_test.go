@@ -8,17 +8,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
+	types "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-	types "github.com/tendermint/tendermint/abci/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/obi"
+	"github.com/bandprotocol/chain/v2/testing/testapp"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type Account struct {
@@ -214,9 +215,9 @@ func InitOwasmTestEnv(
 	return owasmVM, compiledCode, req
 }
 
-func GetConsensusParams(maxGas int64) *types.ConsensusParams {
-	return &types.ConsensusParams{
-		Block: &types.BlockParams{
+func GetConsensusParams(maxGas int64) *tmproto.ConsensusParams {
+	return &tmproto.ConsensusParams{
+		Block: &tmproto.BlockParams{
 			MaxBytes: 200000,
 			MaxGas:   maxGas,
 		},

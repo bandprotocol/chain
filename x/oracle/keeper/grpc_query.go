@@ -5,10 +5,10 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -446,7 +446,7 @@ func (k Querier) RequestVerification(
 	}
 
 	// The request should not be expired
-	if request.RequestHeight+int64(k.ExpirationBlockCount(ctx)) < ctx.BlockHeader().Height {
+	if request.RequestHeight+int64(k.GetParams(ctx).ExpirationBlockCount) < ctx.BlockHeader().Height {
 		return nil, status.Error(
 			codes.DeadlineExceeded,
 			fmt.Sprintf("Request with ID %d is already expired", req.RequestId),

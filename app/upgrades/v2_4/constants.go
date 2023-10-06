@@ -1,9 +1,10 @@
 package v2_4
 
 import (
-	"github.com/bandprotocol/chain/v2/app/upgrades"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+
+	"github.com/bandprotocol/chain/v2/app/upgrades"
 )
 
 const UpgradeName = "v2_4"

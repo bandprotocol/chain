@@ -5,14 +5,12 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
-	"github.com/bandprotocol/chain/v2/x/globalfee"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 var (
@@ -83,8 +81,8 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
 		&oracleKeeper,
-		app.GetSubspace(globalfee.ModuleName),
-		app.GetSubspace(stakingtypes.ModuleName),
+		&app.GlobalfeeKeeper,
+		app.StakingKeeper,
 	)
 }
 

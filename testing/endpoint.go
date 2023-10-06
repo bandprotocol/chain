@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v5/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v5/modules/core/23-commitment/types"
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
-	ibctmtypes "github.com/cosmos/ibc-go/v5/modules/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,8 +99,6 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			height,
 			commitmenttypes.GetSDKSpecs(),
 			UpgradePath,
-			tmConfig.AllowUpdateAfterExpiry,
-			tmConfig.AllowUpdateAfterMisbehaviour,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
 	case exported.Solomachine:
@@ -139,7 +137,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
 	var (
-		header exported.Header
+		header *ibctmtypes.Header
 	)
 
 	switch endpoint.ClientConfig.GetClientType() {
@@ -379,19 +377,38 @@ func (endpoint *Endpoint) ChanCloseInit() error {
 
 // SendPacket sends a packet through the channel keeper using the associated endpoint
 // The counterparty client is updated so proofs can be sent to the counterparty chain.
-func (endpoint *Endpoint) SendPacket(packet exported.PacketI) error {
-	channelCap := endpoint.Chain.GetChannelCapability(packet.GetSourcePort(), packet.GetSourceChannel())
+// The packet sequence generated for the packet to be sent is returned. An error
+// is returned if one occurs.
+func (endpoint *Endpoint) SendPacket(
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	data []byte,
+) (uint64, error) {
+	channelCap := endpoint.Chain.GetChannelCapability(endpoint.ChannelConfig.PortID, endpoint.ChannelID)
 
 	// no need to send message, acting as a module
-	err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.SendPacket(endpoint.Chain.GetContext(), channelCap, packet)
+	sequence, err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.SendPacket(
+		endpoint.Chain.GetContext(),
+		channelCap,
+		endpoint.ChannelConfig.PortID,
+		endpoint.ChannelID,
+		timeoutHeight,
+		timeoutTimestamp,
+		data,
+	)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// commit changes since no message was sent
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Chain)
 
-	return endpoint.Counterparty.UpdateClient()
+	err = endpoint.Counterparty.UpdateClient()
+	if err != nil {
+		return 0, err
+	}
+
+	return sequence, nil
 }
 
 // RecvPacket receives a packet on the associated endpoint.
