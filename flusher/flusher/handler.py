@@ -200,6 +200,11 @@ class Handler(object):
         if "tx_hash" in msg:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
             del msg["tx_hash"]
+
+        if "tss_signing_id" in msg:
+            if msg["tss_signing_id"] == 0:
+                del msg["tss_signing_id"]
+
         condition = True
         for col in requests.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
