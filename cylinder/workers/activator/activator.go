@@ -56,7 +56,7 @@ func (a *Activator) updateActive() {
 	a.logger.Info(":delivery_truck: Updating last active")
 
 	// Send MsgActive
-	a.context.MsgCh <- &types.MsgActive{
+	a.context.MsgCh <- &types.MsgHealthCheck{
 		Address: a.context.Config.Granter,
 	}
 }
