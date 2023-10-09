@@ -10,7 +10,7 @@ func GetGrantableMsgTypes() []string {
 		sdk.MsgTypeURL(&MsgConfirm{}),
 		sdk.MsgTypeURL(&MsgSubmitDEs{}),
 		sdk.MsgTypeURL(&MsgSubmitSignature{}),
-		sdk.MsgTypeURL(&MsgActive{}),
+		sdk.MsgTypeURL(&MsgHealthCheck{}),
 	}
 }
 
