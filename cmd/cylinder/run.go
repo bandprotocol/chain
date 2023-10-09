@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/active"
+	"github.com/bandprotocol/chain/v2/cylinder/workers/activator"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
@@ -40,7 +40,7 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			active, err := active.New(c)
+			activator, err := activator.New(c)
 			if err != nil {
 				return err
 			}
@@ -65,7 +65,7 @@ func runCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			workers := cylinder.Workers{active, group, de, signing, sender}
+			workers := cylinder.Workers{activator, group, de, signing, sender}
 
 			return cylinder.Run(c, workers)
 		},
