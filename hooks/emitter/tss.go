@@ -39,8 +39,7 @@ func (h *Hook) emitUpdateSigningFailed(reason string, signing tsstypes.Signing) 
 	})
 }
 
-// future use
-func (h *Hook) emitUpdateSigningExpired(signing tsstypes.Signing) {
+func (h *Hook) emitUpdateSigningStatus(signing tsstypes.Signing) {
 	h.Write("UPDATE_SIGNING", common.JsDict{
 		"id":     signing.ID,
 		"status": int(signing.Status),
@@ -92,8 +91,28 @@ func (h *Hook) emitNewAssignedMember(sid tss.SigningID, gid tss.GroupID, am tsst
 	})
 }
 
-// handleInitTssModule implements emitter handler for initializing tss module.
-func (h *Hook) handleInitTssModule(ctx sdk.Context) {
+func (h *Hook) emitNewReplacement(replacement tsstypes.Replacement) {
+	h.Write("NEW_REPLACEMENT", common.JsDict{
+		"id":            replacement.ID,
+		"signing_id":    replacement.SigningID,
+		"from_group_id": replacement.FromGroupID,
+		"from_pub_key":  parseBytes(replacement.FromPubKey),
+		"to_group_id":   replacement.ToGroupID,
+		"to_pub_key":    parseBytes(replacement.ToPubKey),
+		"exec_time":     replacement.ExecTime.Unix(),
+		"status":        int(replacement.Status),
+	})
+}
+
+func (h *Hook) emitUpdateReplacementStatus(ctx sdk.Context, id uint64, status tsstypes.ReplacementStatus) {
+	h.Write("UPDATE_REPLACEMENT_STATUS", common.JsDict{
+		"id":     id,
+		"status": int(status),
+	})
+}
+
+// handleInitTSSModule implements emitter handler for initializing tss module.
+func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
 	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
 		h.Write("NEW_SIGNING", common.JsDict{
 			"id":              signing.ID,
@@ -148,17 +167,23 @@ func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 	}
 }
 
-// handleEventActivateTSSAccount implements emitter handler for tss account activate event.
-func (h *Hook) handleEventActivateTSSAccount(ctx sdk.Context, evMap common.EvMap) {
-	address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActivate+"."+tsstypes.AttributeKeyMember][0])
+// handleEventExpiredSigning implements emitter handler for ExpiredSigning event.
+func (h *Hook) handleEventExpiredSigning(ctx sdk.Context, evMap common.EvMap) {
+	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeExpiredSigning+"."+types.AttributeKeySigningID][0]))
+	signing := h.tssKeeper.MustGetSigning(ctx, id)
+
+	h.emitUpdateSigningStatus(signing)
+}
+
+// handleUpdateStatusTSSAccount implements emitter handler for update tss account status.
+func (h *Hook) handleUpdateStatusTSSAccount(ctx sdk.Context, address sdk.AccAddress) {
 	status := h.tssKeeper.GetStatus(ctx, address)
 
 	h.emitSetTSSAccountStatus(status)
 }
 
-// handleEventSetGroup implements emitter handler for events related to groups.
-func (h *Hook) handleEventSetGroup(ctx sdk.Context, evMap common.EvMap) {
-	gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeCreateGroup+"."+tsstypes.AttributeKeyGroupID][0]))
+// handleSetGroup implements emitter handler events related to group.
+func (h *Hook) handleSetGroup(ctx sdk.Context, gid tss.GroupID) {
 	group := h.tssKeeper.MustGetGroup(ctx, gid)
 	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
 	if err != nil {
@@ -171,4 +196,28 @@ func (h *Hook) handleEventSetGroup(ctx sdk.Context, evMap common.EvMap) {
 	for _, m := range members {
 		h.emitSetMember(m)
 	}
+}
+
+// handleInitReplacement implements emitter handler for init replacement event.
+func (h *Hook) handleInitReplacement(ctx sdk.Context, evMap common.EvMap) {
+	rid := common.Atoi(evMap[tsstypes.EventTypeReplacement+"."+tsstypes.AttributeKeyReplacementID][0])
+	r, err := h.tssKeeper.GetReplacement(ctx, uint64(rid))
+	if err != nil {
+		panic(err)
+	}
+
+	h.emitNewReplacement(r)
+}
+
+// handleUpdateReplacementStatus implements emitter handler events related to replacements.
+func (h *Hook) handleUpdateReplacementStatus(ctx sdk.Context, rid uint64) {
+	r, err := h.tssKeeper.GetReplacement(ctx, rid)
+	if err != nil {
+		panic(err)
+	}
+	if r.Status == tsstypes.REPLACEMENT_STATUS_SUCCESS {
+		h.handleSetGroup(ctx, r.ToGroupID)
+	}
+
+	h.emitUpdateReplacementStatus(ctx, rid, r.Status)
 }

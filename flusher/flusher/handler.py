@@ -606,15 +606,24 @@ class Handler(object):
                 condition = (col == msg[col.name]) & condition
             self.conn.execute(tss_accounts.update().where(condition).values(**msg))
 
-    def handle_set_member(self, msg):
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
-        self.conn.execute(members.insert(), msg)
-
     def handle_set_group(self, msg):
         if msg["latest_replacement_id"] == 0:
             msg["latest_replacement_id"] = None
         self.conn.execute(groups.insert(), msg)
 
+    def handle_set_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+        self.conn.execute(members.insert(), msg)
+
     def handle_new_assigned_members(self, msg):
         self.conn.execute(assigned_members.insert(), msg)
+
+    def handle_new_replacement(self, msg):
+        self.conn.execute(replacements.insert(), msg)
+
+    def handle_update_replacement_status(self, msg):
+        condition = True
+        for col in signing_data.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(replacements.update().where(condition).values(**msg))

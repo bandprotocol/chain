@@ -17,6 +17,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -152,16 +153,50 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningSuccess(ctx, evMap)
 	case tsstypes.EventTypeSigningFailed:
 		h.handleEventSigningFailed(ctx, evMap)
+	case tsstypes.EventTypeExpiredSigning:
+		h.handleEventExpiredSigning(ctx, evMap)
 	case tsstypes.EventTypeActivate:
-		h.handleEventActivateTSSAccount(ctx, evMap)
-	case tsstypes.EventTypeCreateGroup,
-		tsstypes.EventTypeRound2Success,
-		tsstypes.EventTypeComplainSuccess,
-		tsstypes.EventTypeComplainFailed,
-		tsstypes.EventTypeRound3Success,
-		// TODO: event UpdateGroupFee
-		tsstypes.EventTypeReplaceSuccess:
-		h.handleEventSetGroup(ctx, evMap)
+		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActivate+"."+tsstypes.AttributeKeyAddress][0])
+		h.handleUpdateStatusTSSAccount(ctx, address)
+	case tsstypes.EventTypeActive:
+		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActive+"."+tsstypes.AttributeKeyAddress][0])
+		h.handleUpdateStatusTSSAccount(ctx, address)
+	case tsstypes.EventTypeInactive:
+		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeInactive+"."+tsstypes.AttributeKeyAddress][0])
+		h.handleUpdateStatusTSSAccount(ctx, address)
+	case tsstypes.EventTypeCreateGroup:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeCreateGroup+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeRound2Success:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound2Success+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeComplainSuccess:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainSuccess+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeComplainFailed:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainFailed+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeRound3Success:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound3Success+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeExpiredGroup:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeExpiredGroup+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeUpdateGroupFee:
+		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeUpdateGroupFee+"."+tsstypes.AttributeKeyGroupID][0]))
+		h.handleSetGroup(ctx, gid)
+	case tsstypes.EventTypeReplacement:
+		h.handleInitReplacement(ctx, evMap)
+	case tsstypes.EventTypeReplacementSuccess:
+		rid := uint64(
+			common.Atoi(evMap[tsstypes.EventTypeReplacementSuccess+"."+tsstypes.AttributeKeyReplacementID][0]),
+		)
+		h.handleUpdateReplacementStatus(ctx, rid)
+	case tsstypes.EventTypeReplacementFailed:
+		rid := uint64(
+			common.Atoi(evMap[tsstypes.EventTypeReplacementFailed+"."+tsstypes.AttributeKeyReplacementID][0]),
+		)
+		h.handleUpdateReplacementStatus(ctx, rid)
 	default:
 		break
 	}
