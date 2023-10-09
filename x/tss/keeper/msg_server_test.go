@@ -298,7 +298,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 			func() {
 				k.DeleteRound1Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
-			types.ErrAlreadySubmit,
+			types.ErrMemberAlreadySubmit,
 		},
 		{
 			"wrong one time sign",
@@ -451,7 +451,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 			func() {
 				k.DeleteRound2Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
 			},
-			types.ErrAlreadySubmit,
+			types.ErrMemberAlreadySubmit,
 		},
 		{
 			"number of encrypted secret shares is not correct",

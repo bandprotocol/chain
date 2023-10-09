@@ -379,6 +379,13 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeExpiredGroup,
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+				),
+			)
 		}
 
 		// Cleanup all interim data associated with the group
