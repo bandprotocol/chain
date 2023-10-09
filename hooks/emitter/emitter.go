@@ -226,21 +226,43 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.cdc.MustUnmarshalJSON(genesisState[govtypes.ModuleName], &govState)
 	for _, proposal := range govState.Proposals {
 		msgs, _ := proposal.GetMsgs()
-		content := msgs[0].(*govv1.MsgExecLegacyContent).Content.GetCachedValue().(govv1beta1.Content)
-		h.Write("NEW_PROPOSAL", common.JsDict{
-			"id":               proposal.Id,
-			"proposer":         nil,
-			"type":             content.ProposalType(),
-			"title":            content.GetTitle(),
-			"description":      content.GetDescription(),
-			"proposal_route":   content.ProposalRoute(),
-			"status":           int(proposal.Status),
-			"submit_time":      proposal.SubmitTime.UnixNano(),
-			"deposit_end_time": proposal.DepositEndTime.UnixNano(),
-			"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
-			"voting_time":      proposal.VotingStartTime.UnixNano(),
-			"voting_end_time":  proposal.VotingEndTime.UnixNano(),
-		})
+		switch subMsg := msgs[0].(type) {
+		case *govv1.MsgExecLegacyContent:
+			content := subMsg.Content.GetCachedValue().(govv1beta1.Content)
+			h.Write("NEW_PROPOSAL", common.JsDict{
+				"id":               proposal.Id,
+				"proposer":         nil,
+				"type":             content.ProposalType(),
+				"title":            content.GetTitle(),
+				"description":      content.GetDescription(),
+				"proposal_route":   content.ProposalRoute(),
+				"status":           int(proposal.Status),
+				"submit_time":      common.TimeToNano(proposal.SubmitTime),
+				"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+				"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+				"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+				"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+				"content":          content,
+			})
+		case sdk.Msg:
+			h.Write("NEW_PROPOSAL", common.JsDict{
+				"id":               proposal.Id,
+				"proposer":         nil,
+				"type":             sdk.MsgTypeURL(subMsg),
+				"title":            proposal.Title,
+				"description":      proposal.Summary,
+				"proposal_route":   sdk.MsgTypeURL(subMsg),
+				"status":           int(proposal.Status),
+				"submit_time":      common.TimeToNano(proposal.SubmitTime),
+				"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+				"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+				"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+				"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+				"content":          subMsg,
+			})
+		default:
+			break
+		}
 	}
 	for _, deposit := range govState.Deposits {
 		h.Write("SET_DEPOSIT", common.JsDict{

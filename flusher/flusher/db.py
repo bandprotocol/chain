@@ -555,3 +555,15 @@ group_votes = sa.Table(
     Column("metadata", sa.String),
     Column("submit_time", CustomDateTime),
 )
+
+relayer_tx_stat_days = sa.Table(
+    "relayer_tx_stat_days",
+    metadata,
+    Column("date", CustomDate, primary_key=True),
+    Column("port", sa.String, primary_key=True),
+    Column("channel", sa.String, primary_key=True),
+    Column("address", sa.String, primary_key=True),
+    Column("ibc_received_txs", sa.Integer),
+    Column("last_update_at", CustomDateTime),
+    sa.ForeignKeyConstraint(["port", "channel"], ["channels.port", "channels.channel"]),
+)
