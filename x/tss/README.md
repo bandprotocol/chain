@@ -249,7 +249,7 @@ If the account is deactivated by one of the TSS mechanisms (such as a health che
 
 ### Msg/Active
 
-This message is used by participators in the TSS system. All active TSS accounts have to regularly send `MsgActive` to the chain to show if they are still active.
+This message is used by participators in the TSS system. All active TSS accounts have to regularly send `MsgHealthCheck` to the chain to show if they are still active.
 
 The frequency of sending is determined by `ActiveDuration` parameters.
 
@@ -461,7 +461,7 @@ This event (`activate`) is emitted when an account submitted `MsgActivate` to th
 
 ### EventTypeActive
 
-This event (`active`) is emitted when an account submitted `MsgActive` to the chain
+This event (`active`) is emitted when an account submitted `MsgHealthCheck` to the chain
 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |

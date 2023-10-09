@@ -60,6 +60,7 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 		GetTxCmdSubmitDEs(),
 		GetTxCmdSubmitSignature(),
 		GetTxCmdActivate(),
+		GetTxCmdHealthCheck(),
 
 		cmdRequestSignature,
 	)
@@ -590,14 +591,14 @@ func GetTxCmdActivate() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdActive creates a CLI command for CLI command for Msg/Active.
-func GetTxCmdActive() *cobra.Command {
+// GetTxCmdHealthCheck creates a CLI command for CLI command for Msg/HealthCheck.
+func GetTxCmdHealthCheck() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "active",
+		Use:   "health-check",
 		Args:  cobra.NoArgs,
-		Short: "update active status of the address",
+		Short: "update the active status of the address to ensure that the TSS process is still running",
 		Example: fmt.Sprintf(
-			`%s tx tss active`,
+			`%s tx tss health-check`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -606,7 +607,7 @@ func GetTxCmdActive() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgActive{
+			msg := &types.MsgHealthCheck{
 				Address: clientCtx.GetFromAddress().String(),
 			}
 

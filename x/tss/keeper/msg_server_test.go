@@ -1002,7 +1002,7 @@ func (s *KeeperTestSuite) TestActivateReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestActiveReq() {
+func (s *KeeperTestSuite) TestHealthCheckReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -1010,7 +1010,7 @@ func (s *KeeperTestSuite) TestActiveReq() {
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
-				_, err := msgSrvr.Active(ctx, &types.MsgActive{
+				_, err := msgSrvr.HealthCheck(ctx, &types.MsgHealthCheck{
 					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
