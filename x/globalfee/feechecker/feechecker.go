@@ -146,8 +146,8 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
 			return false
 		}
-	case *tsstypes.MsgActive:
-		if _, err := fc.TSSMsgServer.Active(ctx, msg); err != nil {
+	case *tsstypes.MsgHealthCheck:
+		if _, err := fc.TSSMsgServer.HealthCheck(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:
