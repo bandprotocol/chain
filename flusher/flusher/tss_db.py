@@ -73,11 +73,7 @@ signing_data = sa.Table(
     "signing_data",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-<<<<<<< HEAD
-    Column("group_id", sa.Integer),
-=======
     Column("group_id", sa.Integer, sa.ForeignKey("groups.id")),
->>>>>>> extra/rest-tss-update
     Column("group_pub_key", CustomBase64),
     Column("msg", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
