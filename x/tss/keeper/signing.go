@@ -639,6 +639,13 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeExpiredSigning,
+					sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
+				),
+			)
 		}
 
 		// Remove assigned members from the signing

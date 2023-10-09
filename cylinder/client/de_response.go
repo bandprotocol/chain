@@ -13,6 +13,6 @@ func NewDEResponse(der *types.QueryDEResponse) *DEResponse {
 }
 
 // GetRemaining retrieves the remaining DE in the blockchain for the address.
-func (der *DEResponse) GetRemaining() uint64 {
+func (der DEResponse) GetRemaining() uint64 {
 	return der.Pagination.Total
 }

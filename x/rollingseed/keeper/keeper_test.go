@@ -3,9 +3,10 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 )
 
 type KeeperTestSuite struct {
