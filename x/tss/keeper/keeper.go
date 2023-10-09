@@ -645,6 +645,13 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	if signing.Status != types.SIGNING_STATUS_SUCCESS {
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeReplacementFailed,
+				sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.SigningID)),
+			),
+		)
 		return
 	}
 
@@ -656,6 +663,13 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	if !bytes.Equal(fromGroup.PubKey, replacement.FromPubKey) || !bytes.Equal(toGroup.PubKey, replacement.ToPubKey) {
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeReplacementFailed,
+				sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.SigningID)),
+			),
+		)
 		return
 	}
 
@@ -691,7 +705,8 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeReplaceSuccess,
+			types.EventTypeReplacementSuccess,
+			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyFromGroupID, fmt.Sprintf("%d", replacement.FromGroupID)),
 			sdk.NewAttribute(types.AttributeKeyToGroupID, fmt.Sprintf("%d", replacement.ToGroupID)),
