@@ -10,7 +10,7 @@ import (
 func NewSigning(
 	gid tss.GroupID,
 	groupPubKey tss.Point,
-	assignedMembers []AssignedMember,
+	assignedMembers AssignedMembers,
 	msg []byte,
 	groupPubNonce tss.Point,
 	signature tss.Signature,

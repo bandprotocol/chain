@@ -5,9 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/x/tss/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // combineGrantMsgs combines multiple grant messages into a single slice of messages.
