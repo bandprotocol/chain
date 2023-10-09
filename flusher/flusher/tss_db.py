@@ -73,7 +73,11 @@ signing_data = sa.Table(
     "signing_data",
     metadata,
     Column("id", sa.Integer, primary_key=True),
+<<<<<<< HEAD
     Column("group_id", sa.Integer),
+=======
+    Column("group_id", sa.Integer, sa.ForeignKey("groups.id")),
+>>>>>>> extra/rest-tss-update
     Column("group_pub_key", CustomBase64),
     Column("msg", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
@@ -124,8 +128,8 @@ assigned_members = sa.Table(
     "assigned_members",
     metadata,
     Column("signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), primary_key=True),
-    Column("member_id", sa.Integer, primary_key=True),
     Column("group_id", sa.Integer, primary_key=True),
+    Column("member_id", sa.Integer, primary_key=True),
     Column("pub_d", CustomBase64),
     Column("pub_e", CustomBase64),
     Column("binding_factor", CustomBase64),

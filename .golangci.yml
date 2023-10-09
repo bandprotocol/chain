@@ -4,7 +4,6 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - depguard
     - gofmt
     - goimports
     - misspell
@@ -13,4 +12,4 @@ linters:
 
 run:
   timeout: 5m
-  go: '1.19'
+  go: "1.19"
