@@ -71,12 +71,24 @@ func (h *Hook) emitSetGroup(group tsstypes.Group, dkgContext []byte) {
 }
 
 func (h *Hook) emitSetMember(member tsstypes.Member) {
-	h.Write("Set_MEMBER", common.JsDict{
+	h.Write("SET_MEMBER", common.JsDict{
 		"id":           member.ID,
 		"group_id":     member.GroupID,
 		"address":      member.Address,
 		"pub_key":      parseBytes(member.PubKey),
 		"is_malicious": member.IsMalicious,
+	})
+}
+
+func (h *Hook) emitNewAssignedMember(sid tss.SigningID, gid tss.GroupID, am tsstypes.AssignedMember) {
+	h.Write("NEW_ASSIGNED_MEMBER", common.JsDict{
+		"signing_id":     sid,
+		"member_id":      am.MemberID,
+		"group_id":       gid,
+		"pub_d":          parseBytes(am.PubD),
+		"pub_e":          parseBytes(am.PubE),
+		"binding_factor": parseBytes(am.PubKey),
+		"pub_nonce":      parseBytes(am.PubNonce),
 	})
 }
 
@@ -103,7 +115,9 @@ func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) 
 	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeRequestSignature+"."+types.AttributeKeySigningID][0]))
 	signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-	// TODO: emit assigned member
+	for _, am := range signing.AssignedMembers {
+		h.emitNewAssignedMember(signing.ID, signing.GroupID, am)
+	}
 
 	h.emitNewSigning(signing)
 }

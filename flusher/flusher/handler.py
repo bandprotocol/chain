@@ -615,3 +615,6 @@ class Handler(object):
         if msg["latest_replacement_id"] == 0:
             msg["latest_replacement_id"] = None
         self.conn.execute(groups.insert(), msg)
+
+    def handle_new_assigned_members(self, msg):
+        self.conn.execute(assigned_members.insert(), msg)
