@@ -27,6 +27,11 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 			if status.Status == types.MEMBER_STATUS_ACTIVE &&
 				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
 				k.SetInactive(ctx, address)
+
+				ctx.EventManager().EmitEvent(sdk.NewEvent(
+					types.EventTypeActivate,
+					sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+				))
 			}
 
 			return false
