@@ -158,8 +158,10 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 	case tsstypes.EventTypeActivate:
 		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActivate+"."+tsstypes.AttributeKeyAddress][0])
 		h.handleUpdateStatusTSSAccount(ctx, address)
-	case tsstypes.EventTypeActive:
-		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActive+"."+tsstypes.AttributeKeyAddress][0])
+	case tsstypes.EventTypeHealthCheck:
+		address := sdk.MustAccAddressFromBech32(
+			evMap[tsstypes.EventTypeHealthCheck+"."+tsstypes.AttributeKeyAddress][0],
+		)
 		h.handleUpdateStatusTSSAccount(ctx, address)
 	case tsstypes.EventTypeInactive:
 		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeInactive+"."+tsstypes.AttributeKeyAddress][0])
