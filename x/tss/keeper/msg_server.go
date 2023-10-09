@@ -787,7 +787,10 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	return &types.MsgActivateResponse{}, nil
 }
 
-func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.MsgActiveResponse, error) {
+func (k msgServer) HealthCheck(
+	goCtx context.Context,
+	msg *types.MsgHealthCheck,
+) (*types.MsgHealthCheckResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
@@ -801,11 +804,11 @@ func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.M
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActive,
+		types.EventTypeHealthCheck,
 		sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
 	))
 
-	return &types.MsgActiveResponse{}, nil
+	return &types.MsgHealthCheckResponse{}, nil
 }
 
 func (k Keeper) UpdateParams(

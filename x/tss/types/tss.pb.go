@@ -1404,7 +1404,7 @@ func (m *ComplaintsWithStatus) GetComplaintsWithStatus() []ComplaintWithStatus {
 
 // PendingProcessGroups is a list of groups that are waiting to be processed.
 type PendingProcessGroups struct {
-	// signing_id is a list of group IDs.
+	// group_ids is a list of group IDs.
 	GroupIDs []github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,rep,packed,name=group_ids,json=groupIds,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_ids,omitempty"`
 }
 
@@ -1450,7 +1450,7 @@ func (m *PendingProcessGroups) GetGroupIDs() []github_com_bandprotocol_chain_v2_
 
 // PendingProcessSignigns is a list of signings that are waiting to be processed.
 type PendingProcessSignings struct {
-	// signing_id is a list of signing IDs.
+	// signing_ids is a list of signing IDs.
 	SigningIDs []github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,rep,packed,name=signing_ids,json=signingIds,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_ids,omitempty"`
 }
 
