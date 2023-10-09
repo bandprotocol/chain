@@ -18,7 +18,7 @@ func NewGroupResponse(gr *types.QueryGroupResponse) *GroupResponse {
 }
 
 // GetRound1Info retrieves the Round1Commitment for the specified member ID.
-func (gr *GroupResponse) GetRound1Info(mid tss.MemberID) (types.Round1Info, error) {
+func (gr GroupResponse) GetRound1Info(mid tss.MemberID) (types.Round1Info, error) {
 	for _, info := range gr.Round1Infos {
 		if info.MemberID == mid {
 			return info, nil
@@ -29,7 +29,7 @@ func (gr *GroupResponse) GetRound1Info(mid tss.MemberID) (types.Round1Info, erro
 }
 
 // GetRound2Info retrieves the Round1Commitment for the specified member ID.
-func (gr *GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, error) {
+func (gr GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, error) {
 	for _, info := range gr.Round2Infos {
 		if info.MemberID == mid {
 			return info, nil
@@ -40,7 +40,7 @@ func (gr *GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, erro
 }
 
 // GetEncryptedSecretShare retrieves the encrypted secret share from member (Sender) to member (Receiver).
-func (gr *GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.Scalar, error) {
+func (gr GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.Scalar, error) {
 	r2Sender, err := gr.GetRound2Info(senderID)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (gr *GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.Member
 }
 
 // GetMemberID returns member's id of the address in the group.
-func (gr *GroupResponse) GetMemberID(address string) (tss.MemberID, error) {
+func (gr GroupResponse) GetMemberID(address string) (tss.MemberID, error) {
 	for _, member := range gr.Members {
 		if member.Address == address {
 			return member.ID, nil
@@ -69,7 +69,7 @@ func (gr *GroupResponse) GetMemberID(address string) (tss.MemberID, error) {
 }
 
 // IsMember returns boolean to show if the address is the member in the group.
-func (gr *GroupResponse) IsMember(address string) bool {
+func (gr GroupResponse) IsMember(address string) bool {
 	_, err := gr.GetMemberID(address)
 	if err != nil {
 		return false

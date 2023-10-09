@@ -22,12 +22,12 @@ func TestGetOwnPrivKey(t *testing.T) {
 		expErr        bool
 	}{
 		{
-			"success - private key",
+			"success - without malicious member",
 			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {},
 			true, false, false,
 		},
 		{
-			"success - complaint",
+			"success - with malicious member",
 			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID != mid {
@@ -107,12 +107,12 @@ func TestGetSecretShare(t *testing.T) {
 		expErr         bool
 	}{
 		{
-			"success - secret share",
+			"success - without malicious member",
 			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {},
 			true, false, false,
 		},
 		{
-			"success - complaint",
+			"success - with malicious member",
 			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID == j {

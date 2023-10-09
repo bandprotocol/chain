@@ -10,9 +10,6 @@ import (
 var (
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
-	// DECountStoreKey is the key that keeps the total DE count.
-	DECountStoreKey = append(GlobalStoreKeyPrefix, []byte("DECount")...)
-
 	// DKGStoreKeyPrefix is the prefix for DKG store.
 	DKGStoreKeyPrefix = []byte{0x01}
 	// GroupStoreKeyPrefix is the prefix for group store.
