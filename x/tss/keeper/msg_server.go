@@ -261,7 +261,7 @@ func (k msgServer) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Info(ctx, groupID, req.Round1Info.MemberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1")
+		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 1")
 	}
 
 	// Check coefficients commit length
@@ -373,7 +373,7 @@ func (k msgServer) SubmitDKGRound2(
 	// Check previous submit
 	_, err = k.GetRound2Info(ctx, groupID, memberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
+		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
