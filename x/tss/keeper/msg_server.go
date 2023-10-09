@@ -192,8 +192,8 @@ func (k msgServer) ReplaceGroup(
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeReplaceGroup,
-			sdk.NewAttribute(types.AttributeKeyReplaceGroupID, fmt.Sprintf("%d", nextID)),
+			types.EventTypeReplacement,
+			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", nextID)),
 		),
 	)
 
