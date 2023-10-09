@@ -1,4 +1,4 @@
-package active
+package activator
 
 import (
 	"errors"
@@ -10,32 +10,32 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// Active is a worker responsible for generating own nonce (DE) of signing process
-type Active struct {
+// Activator is a worker responsible for updating active status to the chain
+type Activator struct {
 	context *cylinder.Context
 	logger  *logger.Logger
 	client  *client.Client
 }
 
-var _ cylinder.Worker = &Active{}
+var _ cylinder.Worker = &Activator{}
 
-// New creates a new instance of the Active worker.
-// It initializes the necessary components and returns the created Active instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Active, error) {
+// New creates a new instance of the Activator worker.
+// It initializes the necessary components and returns the created Activator instance or an error if initialization fails.
+func New(ctx *cylinder.Context) (*Activator, error) {
 	cli, err := client.New(ctx.Config, ctx.Keyring)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Active{
+	return &Activator{
 		context: ctx,
-		logger:  ctx.Logger.With("worker", "Active"),
+		logger:  ctx.Logger.With("worker", "Activator"),
 		client:  cli,
 	}, nil
 }
 
 // updateActive updates last active
-func (a *Active) updateActive() {
+func (a *Activator) updateActive() {
 	// Query Active information
 	status, err := a.client.QueryStatus(a.context.Config.Granter)
 	if err != nil {
@@ -61,9 +61,9 @@ func (a *Active) updateActive() {
 	}
 }
 
-// Start starts the active worker.
+// Start starts the activator worker.
 // It subscribes to events and starts processing incoming events.
-func (a *Active) Start() {
+func (a *Activator) Start() {
 	a.logger.Info("start")
 
 	// Update one time when starting worker first time.
@@ -74,8 +74,8 @@ func (a *Active) Start() {
 	}
 }
 
-// Stop stops the Active worker.
-func (a *Active) Stop() {
+// Stop stops the Activator worker.
+func (a *Activator) Stop() {
 	a.logger.Info("stop")
 	a.client.Stop()
 }

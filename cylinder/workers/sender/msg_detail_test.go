@@ -27,7 +27,7 @@ func TestGetMsgDetails(t *testing.T) {
 			[]sdk.Msg{&types.MsgSubmitDKGRound1{
 				GroupID: 1,
 			}},
-			[]string{"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1"},
+			[]string{"Type: /tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1"},
 		},
 		{
 			"multiple messages",
@@ -50,12 +50,12 @@ func TestGetMsgDetails(t *testing.T) {
 				},
 			},
 			[]string{
-				"Type:/tss.v1beta1.MsgSubmitDKGRound1,GroupID:1",
-				"Type:/tss.v1beta1.MsgSubmitDKGRound2,GroupID:2",
-				"Type:/tss.v1beta1.MsgConfirm,GroupID:3",
-				"Type:/tss.v1beta1.MsgComplain,GroupID:4",
-				"Type:/tss.v1beta1.MsgSubmitDEs",
-				"Type:/tss.v1beta1.MsgSubmitSignature,SigningID:1",
+				"Type: /tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1",
+				"Type: /tss.v1beta1.MsgSubmitDKGRound2, GroupID: 2",
+				"Type: /tss.v1beta1.MsgConfirm, GroupID: 3",
+				"Type: /tss.v1beta1.MsgComplain, GroupID: 4",
+				"Type: /tss.v1beta1.MsgSubmitDEs",
+				"Type: /tss.v1beta1.MsgSubmitSignature, SigningID: 1",
 			},
 		},
 		{
@@ -63,7 +63,7 @@ func TestGetMsgDetails(t *testing.T) {
 			[]sdk.Msg{
 				&oracletypes.MsgRequestData{},
 			},
-			[]string{"Type:Unknown"},
+			[]string{"Type: Unknown"},
 		},
 	}
 
