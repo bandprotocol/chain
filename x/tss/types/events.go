@@ -22,7 +22,7 @@ const (
 	EventTypeReplacementFailed  = "replacement_failed"
 	EventTypeSubmitSignature    = "submit_signature"
 	EventTypeActivate           = "activate"
-	EventTypeActive             = "active"
+	EventTypeHealthCheck        = "health_check"
 	EventTypeInactive           = "inactive"
 
 	AttributeKeyGroupID       = "group_id"

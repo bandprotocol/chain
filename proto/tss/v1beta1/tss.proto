@@ -300,14 +300,14 @@ message ComplaintsWithStatus {
 
 // PendingProcessGroups is a list of groups that are waiting to be processed.
 message PendingProcessGroups {
-  // signing_id is a list of group IDs.
+  // group_ids is a list of group IDs.
   repeated uint64 group_ids = 1
       [(gogoproto.customname) = "GroupIDs", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
 }
 
 // PendingProcessSignigns is a list of signings that are waiting to be processed.
 message PendingProcessSignings {
-  // signing_id is a list of signing IDs.
+  // signing_ids is a list of signing IDs.
   repeated uint64 signing_ids = 1 [
     (gogoproto.customname) = "SigningIDs",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
