@@ -1,7 +1,7 @@
 package types
 
 import (
-	bytes "bytes"
+	"bytes"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )

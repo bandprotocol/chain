@@ -53,7 +53,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Groups:           k.GetGroups(ctx),
 		Members:          k.GetMembers(ctx),
 		SigningCount:     k.GetSigningCount(ctx),
-		Signings:         k.GetAllReplacementSigning(ctx),
+		Signings:         k.GetSignings(ctx),
 		ReplacementCount: k.GetReplacementCount(ctx),
 		Replacements:     k.GetReplacements(ctx),
 		DEQueuesGenesis:  k.GetDEQueuesGenesis(ctx),
