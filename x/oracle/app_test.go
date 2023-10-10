@@ -60,7 +60,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Equal(t, expectRequest, request)
 
 	reportMsg1 := types.NewMsgReportData(

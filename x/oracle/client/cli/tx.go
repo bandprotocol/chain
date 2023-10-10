@@ -159,7 +159,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
-	cmd.Flags().String(flagFeeLimit, "", "The maximum tokens that will be paid to all data source providers")
+	cmd.Flags().
+		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
 	cmd.Flags().Uint64(flagTSSGroupID, 0, "The TSS group that is requested to sign the oracle result data")
 
 	flags.AddTxFlagsToCmd(cmd)

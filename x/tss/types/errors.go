@@ -9,7 +9,7 @@ var (
 	ErrGroupNotFound           = errors.Register(ModuleName, 4, "group not found")
 	ErrMemberNotFound          = errors.Register(ModuleName, 5, "member not found")
 	ErrNoActiveMember          = errors.Register(ModuleName, 6, "no active member in this group")
-	ErrAlreadySubmit           = errors.Register(ModuleName, 7, "member is already submit message")
+	ErrMemberAlreadySubmit     = errors.Register(ModuleName, 7, "member is already submit message")
 	ErrRound1InfoNotFound      = errors.Register(ModuleName, 8, "round 1 info not found")
 	ErrDKGContextNotFound      = errors.Register(ModuleName, 9, "dkg context not found")
 	ErrMemberNotAuthorized     = errors.Register(

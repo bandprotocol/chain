@@ -21,7 +21,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "tss/RequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/SubmitSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tss/Activate")
-	legacy.RegisterAminoMsg(cdc, &MsgActive{}, "tss/Active")
+	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "tss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/UpdateParams")
 }
 
@@ -38,7 +38,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgRequestSignature{},
 		&MsgSubmitSignature{},
 		&MsgActivate{},
-		&MsgActive{},
+		&MsgHealthCheck{},
 		&MsgUpdateParams{},
 	)
 	registry.RegisterInterface(

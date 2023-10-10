@@ -76,6 +76,40 @@ func (s *KeeperTestSuite) TestGetSetSigning() {
 	s.Require().Equal(signing, got)
 }
 
+func (s *KeeperTestSuite) TestGetSignings() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	// Create a sample signing object
+	signingID := tss.SigningID(1)
+	groupID := tss.GroupID(1)
+	member1 := tss.MemberID(1)
+	signing := types.Signing{
+		ID:      signingID,
+		GroupID: groupID,
+		AssignedMembers: []types.AssignedMember{
+			{
+				MemberID: member1,
+				Address:  "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
+				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
+				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
+			},
+		},
+		Message:       []byte("data"),
+		GroupPubNonce: testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
+		Signature:     nil,
+	}
+
+	// Set signing
+	k.SetSigning(ctx, signing)
+
+	// Get signings
+	got := k.GetSignings(ctx)
+
+	// Assert no error and equality
+	s.Require().Equal(signing, got[0])
+}
+
 func (s *KeeperTestSuite) TestAddSigning() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 

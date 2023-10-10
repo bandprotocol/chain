@@ -3,9 +3,10 @@ package types
 import (
 	"bytes"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 // oracle message types

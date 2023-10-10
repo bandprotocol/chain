@@ -190,6 +190,13 @@ func (k msgServer) ReplaceGroup(
 	toGroup.LatestReplacementID = nextID
 	k.SetGroup(ctx, toGroup)
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplacement,
+			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", nextID)),
+		),
+	)
+
 	return &types.MsgReplaceGroupResponse{}, nil
 }
 
@@ -215,6 +222,14 @@ func (k msgServer) UpdateGroupFee(
 	// Set new group fee
 	group.Fee = req.Fee.Sort()
 	k.SetGroup(ctx, group)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdateGroupFee,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+			sdk.NewAttribute(types.AttributeKeyFee, group.Fee.String()),
+		),
+	)
 
 	return &types.MsgUpdateGroupFeeResponse{}, nil
 }
@@ -261,7 +276,7 @@ func (k msgServer) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Info(ctx, groupID, req.Round1Info.MemberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrAlreadySubmit, "this member already submit round 1")
+		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 1")
 	}
 
 	// Check coefficients commit length
@@ -373,7 +388,7 @@ func (k msgServer) SubmitDKGRound2(
 	// Check previous submit
 	_, err = k.GetRound2Info(ctx, groupID, memberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrAlreadySubmit, "this member already submit round 2")
+		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
@@ -766,13 +781,16 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeActivate,
-		sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
+		sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
 	))
 
 	return &types.MsgActivateResponse{}, nil
 }
 
-func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.MsgActiveResponse, error) {
+func (k msgServer) HealthCheck(
+	goCtx context.Context,
+	msg *types.MsgHealthCheck,
+) (*types.MsgHealthCheckResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
@@ -786,11 +804,11 @@ func (k msgServer) Active(goCtx context.Context, msg *types.MsgActive) (*types.M
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActive,
-		sdk.NewAttribute(types.AttributeKeyMember, msg.Address),
+		types.EventTypeHealthCheck,
+		sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
 	))
 
-	return &types.MsgActiveResponse{}, nil
+	return &types.MsgHealthCheckResponse{}, nil
 }
 
 func (k Keeper) UpdateParams(

@@ -4,15 +4,17 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	proto "github.com/gogo/protobuf/proto"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 var (
 	_, _, _, _, _, _    sdk.Msg                       = &MsgCreateGroup{}, &MsgSubmitDKGRound1{}, &MsgSubmitDKGRound2{}, &MsgComplain{}, &MsgConfirm{}, &MsgSubmitDEs{}
-	_, _, _, _, _, _, _ sdk.Msg                       = &MsgRequestSignature{}, &MsgSubmitSignature{}, &MsgActivate{}, &MsgActive{}, &MsgReplaceGroup{}, &MsgUpdateParams{}, &MsgUpdateGroupFee{}
+	_, _, _, _, _, _, _ sdk.Msg                       = &MsgRequestSignature{}, &MsgSubmitSignature{}, &MsgActivate{}, &MsgHealthCheck{}, &MsgReplaceGroup{}, &MsgUpdateParams{}, &MsgUpdateGroupFee{}
 	_                   types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
@@ -65,6 +67,11 @@ func (m MsgCreateGroup) ValidateBasic() error {
 			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
 			"threshold",
 		)
+	}
+
+	// Validate fee
+	if !m.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Fee.String())
 	}
 
 	return nil
@@ -452,23 +459,23 @@ func (m MsgActivate) ValidateBasic() error {
 }
 
 // Route Implements Msg.
-func (m MsgActive) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgHealthCheck) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgActive) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgActive) GetSignBytes() []byte {
+func (m MsgHealthCheck) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgActive.
-func (m MsgActive) GetSigners() []sdk.AccAddress {
+// GetSigners returns the expected signers for a MsgHealthCheck.
+func (m MsgHealthCheck) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgActive) ValidateBasic() error {
+func (m MsgHealthCheck) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
@@ -503,6 +510,11 @@ func (m MsgUpdateGroupFee) ValidateBasic() error {
 			err,
 			fmt.Sprintf("sender: %s", m.Authority),
 		)
+	}
+
+	// Validate fee
+	if !m.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Fee.String())
 	}
 
 	return nil
