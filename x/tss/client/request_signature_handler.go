@@ -12,7 +12,7 @@ type RequestingSignatureHandler struct {
 	CLIHandler CLIHandlerFn
 }
 
-// RequestingSignatureHandler creates a new RequestingSignatureHandler object
+// NewRequestingSignatureHandler creates a new RequestingSignatureHandler object
 func NewRequestingSignatureHandler(cliHandler CLIHandlerFn) RequestingSignatureHandler {
 	return RequestingSignatureHandler{
 		CLIHandler: cliHandler,
