@@ -128,38 +128,39 @@ message BlockRelayProof {
 // MultiStoreProof stores a compact of other Cosmos-SDK modules' storage hash in multistore to
 // compute (in combination with oracle store hash) Tendermint's application state hash at a given block.
 //
-//	                                           ________________[AppHash]_________________________
-//	                                          /                                                  \
-//	                      _________________[N15]_________________                             __[N16]___
-//	                     /                                        \                          /          \
-//	          _______[N12]______                          _______[N13]________             [N14]        [I]
-//	         /                  \                        /                    \           /     \
-//	    __[N8]__             __[N9]__                __[N10]__              __[N11]__    [G]   [H]
-//	   /         \          /         \            /          \            /         \
-//	  [N0]       [N1]      [N2]       [N3]       [N4]        [N5]         [N6]       [N7]
-//	/     \     /    \    /    \     /     \     /     \     /     \     /     \     /    \
+//	                                 ___________________[AppHash]_________________
+//	                                /                                             \
+//	                  ___________[N19]____________                           ____[N20]_____
+//	                 /                            \                         /              \                        
+//	          ____[N15]____                 ____[N16]______              _[N17]__          [K]
+//	         /             \               /               \            /       \   
+//	     __[N8]_        __[N9]_         _[N10]_         _[N11]_       [N12]   [N13]
+//	    /       \       /      \       /       \        /      \      /   \   /   \ 
+//    [N0]    [N1]    [N2]    [N3]   [N4]     [N5]    [N6]    [N7]   [G] [H] [I] [J]
+//	 /   \   /   \    /  \   /   \   /   \   /   \   /   \   /   \
+//  [0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [A] [B] [C] [D] [E] [F]
 //
-// [0]   [1]  [2]   [3] [4]   [5]  [6]    [7]  [8]    [9]  [A]    [B]  [C]    [D]  [E]   [F]
+// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - consensus  [5] - crisis
+// [6] - dist       [7] - evidence [8] - feegrant [9] - globalfee  [A] - gov        [B] - group
+// [C] - ibccore    [D] - icahost  [E] - mint     [F] - oracle     [G] - params     [H] - slashing
+// [I] - staking    [J] - transfer [K] - upgrade
 //
-// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - crisis   [5] - dist
-// [6] - evidence   [7] - feegrant [8] - gov      [9] - group      [A] - ibccore    [B] - icahost
-// [C] - mint       [D] - oracle   [E] - params   [F] - slashing   [G] - staking    [H] - transfer [I] - upgrade
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
-// root hash, since we only want to validate the correctness of [D] In fact, only
-// [C], [N7], [N10], [N12], and [N16] are needed in order to compute [AppHash].
+// root hash, since we only want to validate the correctness of [F] In fact, only
+// [E], [N6], [N10], [N15], and [N20] are needed in order to compute [AppHash].
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1 [
     (gogoproto.customname) = "OracleIAVLStateHash",
     (gogoproto.casttype)   = "github.com/cometbft/cometbft/libs/bytes.HexBytes"
   ];
   bytes mint_store_merkle_hash = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes params_to_slashing_stores_merkle_hash = 3
+  bytes ibc_to_icahost_stores_merkle_hash = 3
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes gov_to_icahost_stores_merkle_hash = 4
+  bytes feegrant_to_group_stores_merkle_hash = 4
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes auth_to_feegrant_stores_merkle_hash = 5
+  bytes auth_to_evidence_stores_merkle_hash = 5
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes staking_to_upgrade_stores_merkle_hash = 6
+  bytes params_to_upgrade_stores_merkle_hash = 6
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
