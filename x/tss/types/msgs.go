@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	proto "github.com/gogo/protobuf/proto"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -66,6 +67,11 @@ func (m MsgCreateGroup) ValidateBasic() error {
 			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
 			"threshold",
 		)
+	}
+
+	// Validate fee
+	if !m.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Fee.String())
 	}
 
 	return nil
@@ -504,6 +510,11 @@ func (m MsgUpdateGroupFee) ValidateBasic() error {
 			err,
 			fmt.Sprintf("sender: %s", m.Authority),
 		)
+	}
+
+	// Validate fee
+	if !m.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Fee.String())
 	}
 
 	return nil
