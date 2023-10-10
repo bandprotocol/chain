@@ -27,12 +27,12 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
                     {
                         "type": "ics23:iavl",
                         "key": "wAAAAAAAAAA=",
-                        "data": "EsMDCgjAAAAAAAAAABLpAQoVBQ1eS8RW3fDH5wAMd46Ih4w7Tw0SEhAIARIMCPLi8Z8GEMDCo+ABGgwIARgBIAEqBAAC+CUiKggBEiYCBPglIMOXtvsiuUKm461Mtf/w7SDhGVqba09R5L1VU2Y2HGeOICIsCAESBQQI5CYgGiEgubs5NRGOw8xaesuOPr7hPvlY1LNxamfQ5qwMMKn8l80iKggBEiYGDOQmIAqGoK3PW8B0zAWNvdrvKtLMf9f2nUvJ/8HUfbG+mLCDICIqCAESJgga+isgwVjErYVeGYGfWDSJS9zW6U1GPMLdybMMGp3k+lT5x+ggGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTkJiAaISCUHaTOnLkieD5s4z9auzNnWGOptSWVA3As2DTxLWzmZyIqCAESJgQI5CYg5zZMcUYFSwmSAmz9ub37BrR2v3mWJNOfELL/z1YSFJggIioIARImBgzkJiAKhqCtz1vAdMwFjb3a7yrSzH/X9p1Lyf/B1H2xvpiwgyAiKggBEiYIGvorIMFYxK2FXhmBn1g0iUvc1ulNRjzC3cmzDBqd5PpU+cfoIA=="
+                        "data": "EtsCCgjAAAAAAAAAABKyAQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSChQgOCllrsRWAEaCwgBGAEgASoDAAICIisIARIEAgQCIBohIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9IikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCAamQEKAfASBm9yYWNsZRoLCAEYASABKgMAAgIiKQgBEiUCBAIgdi5vAneYh9+6Qc3ngEMlnwHOKVsdj3MA1Y18Q0Sfv1ggIikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCA="
                     },
                     {
                         "type": "ics23:simple",
                         "key": "b3JhY2xl",
-                        "data": "CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ"
+                        "data": "CvoBCgZvcmFjbGUSIKOu1UEe8Quc2EL/1+wv12JvlreYOeYIttnz9IEULBF5GgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEB8sFioDJU8QbQ8eoWJa4ohiwrc28YRUAmyvF9anblxgAiJQgBEiEBXRVe5Pdw6aqG0QqzJ4R7u9yNwbcffW/0DrPxR6fSMMQiJwgBEgEBGiCRUnPfxybN1OikJ39IxNDtLuhkE5ECBhk0Y7pLsCJcLQ=="
                     }
                 ]
             },
@@ -46,7 +46,7 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"CvwBCgZvcmFjbGUSIIM4YL+a7OkzwrQJ6EwUJEt+FIGnboCro+OQiGZs9UAFGgkIARgBIAEqAQAiJQgBEiEBCdlpWuQ2tdx5sWp9VcTA+Y2NRuM1L8YtFLgJeZsaDxUiJwgBEgEBGiCwlrc6YwUsF2ydIB3k9PiBO3bBHhoP0IHOJtO2nDIVPyIlCAESIQFjiuPaA6L1DtVd8DXecpB+lu/MQBzkzCZ6M7j3fc3/8iIlCAESIQGDasyPrY+cK/pMuiQihLx69Ek6gZUDJ+b6v80jTKvZfiInCAESAQEaIP3tTGQiclpWi3Qerkck9TntQJo1rBxSoN6oEp1iFuNJ",
+		"CvoBCgZvcmFjbGUSIKOu1UEe8Quc2EL/1+wv12JvlreYOeYIttnz9IEULBF5GgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEB8sFioDJU8QbQ8eoWJa4ohiwrc28YRUAmyvF9anblxgAiJQgBEiEBXRVe5Pdw6aqG0QqzJ4R7u9yNwbcffW/0DrPxR6fSMMQiJwgBEgEBGiCRUnPfxybN1OikJ39IxNDtLuhkE5ECBhk0Y7pLsCJcLQ==",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -72,19 +72,19 @@ func TestGetMultiStoreProof(t *testing.T) {
 
 	apphash := innerHash(
 		innerHash(
-			m.AuthToFeegrantStoresMerkleHash,
+			m.AuthToEvidenceStoresMerkleHash,
 			innerHash(
-				m.GovToIcahostStoresMerkleHash,
+				m.FeegrantToGroupStoresMerkleHash,
 				innerHash(
+					m.IbcToIcahostStoresMerkleHash,
 					innerHash(
 						m.MintStoreMerkleHash,
 						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
 					),
-					m.ParamsToSlashingStoresMerkleHash,
 				),
 			),
 		),
-		m.StakingToUpgradeStoresMerkleHash,
+		m.ParamsToUpgradeStoresMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)
