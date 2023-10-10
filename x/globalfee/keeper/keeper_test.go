@@ -53,7 +53,7 @@ func (s *IntegrationTestSuite) TestParams() {
 	testCases := []struct {
 		name      string
 		input     types.Params
-		expectErr bool
+		expectErr string
 	}{
 		{
 			name: "set full valid params",
@@ -63,18 +63,79 @@ func (s *IntegrationTestSuite) TestParams() {
 					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
 				),
 			},
-			expectErr: false,
+			expectErr: "",
+		},
+		{
+			name: "set empty coin",
+			input: types.Params{
+				MinimumGasPrices: sdk.DecCoins(nil),
+			},
+			expectErr: "",
+		},
+		{
+			name: "set invalid denom",
+			input: types.Params{
+				MinimumGasPrices: []sdk.DecCoin{
+					{
+						Denom:  "1AAAA",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+					},
+				},
+			},
+			expectErr: "invalid denom",
+		},
+		{
+			name: "set negative value",
+			input: types.Params{
+				MinimumGasPrices: []sdk.DecCoin{
+					{
+						Denom:  "AAAA",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(-1)),
+					},
+				},
+			},
+			expectErr: "is not positive",
+		},
+		{
+			name: "set duplicated denom",
+			input: types.Params{
+				MinimumGasPrices: []sdk.DecCoin{
+					{
+						Denom:  "AAAA",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+					},
+					{
+						Denom:  "AAAA",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+					},
+				},
+			},
+			expectErr: "duplicate denomination",
+		},
+		{
+			name: "set unsorted denom",
+			input: types.Params{
+				MinimumGasPrices: []sdk.DecCoin{
+					{
+						Denom:  "BBBB",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+					},
+					{
+						Denom:  "AAAA",
+						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+					},
+				},
+			},
+			expectErr: "is not sorted",
 		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			expected := s.globalfeeKeeper.GetParams(s.ctx)
 			err := s.globalfeeKeeper.SetParams(s.ctx, tc.input)
-			if tc.expectErr {
-				s.Require().Error(err)
+			if tc.expectErr != "" {
+				s.Require().ErrorContains(err, tc.expectErr)
 			} else {
 				expected = tc.input
 				s.Require().NoError(err)
