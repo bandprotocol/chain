@@ -95,7 +95,7 @@ func (k msgServer) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
 	)
 	for _, m := range req.Members {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyMember, m))
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m))
 	}
 	ctx.EventManager().EmitEvent(event)
 
@@ -329,7 +329,7 @@ func (k msgServer) SubmitDKGRound1(
 			types.EventTypeSubmitDKGRound1,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
 			sdk.NewAttribute(
 				types.AttributeKeyRound1Info,
 				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Info)),
@@ -422,7 +422,7 @@ func (k msgServer) SubmitDKGRound2(
 			types.EventTypeSubmitDKGRound2,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
 			sdk.NewAttribute(types.AttributeKeyRound2Info, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Info))),
 		),
 	)
@@ -503,7 +503,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Address),
+					sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
 				),
 			)
 		} else {
@@ -528,7 +528,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
 					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyMember, req.Address),
+					sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
 				),
 			)
 		}
@@ -619,7 +619,7 @@ func (k msgServer) Confirm(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-			sdk.NewAttribute(types.AttributeKeyMember, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
 		),
 	)
 
@@ -756,7 +756,7 @@ func (k msgServer) SubmitSignature(
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, am.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, am.Address),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(req.Signature)),
