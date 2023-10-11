@@ -178,20 +178,10 @@ func CreateSignature(
 ) (tss.Signature, error) {
 	// Compute Lagrange coefficient
 	var lgc tss.Scalar
-	mids := signing.AssignedMembers.MemberIDs()
-	if len(mids) <= 20 {
-		// Compute the Lagrange coefficient using the optimized operation
-		lgc = tss.ComputeLagrangeCoefficientOp(
-			mid,
-			signing.AssignedMembers.MemberIDs(),
-		)
-	} else {
-		// Compute the Lagrange coefficient using the default implementation
-		lgc = tss.ComputeLagrangeCoefficient(
-			mid,
-			signing.AssignedMembers.MemberIDs(),
-		)
-	}
+	lgc = tss.ComputeLagrangeCoefficient(
+		mid,
+		signing.AssignedMembers.MemberIDs(),
+	)
 
 	for _, am := range signing.AssignedMembers {
 		if am.MemberID == mid {
