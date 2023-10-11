@@ -47,7 +47,7 @@ func (de *DE) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"tm.event = 'Tx' AND %s.%s = '%s'",
 		types.EventTypeRequestSignature,
-		types.AttributeKeyMember,
+		types.AttributeKeyAddress,
 		de.context.Config.Granter,
 	)
 	de.assignEventCh, err = de.client.Subscribe("DE", subscriptionQuery, 1000)
@@ -55,7 +55,7 @@ func (de *DE) subscribe() (err error) {
 	subscriptionQuery = fmt.Sprintf(
 		"tm.event = 'Tx' AND %s.%s = '%s'",
 		types.EventTypeSubmitSignature,
-		types.AttributeKeyMember,
+		types.AttributeKeyAddress,
 		de.context.Config.Granter,
 	)
 	de.useEventCh, err = de.client.Subscribe("DE", subscriptionQuery, 1000)
