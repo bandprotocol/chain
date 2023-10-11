@@ -51,7 +51,7 @@ This module is used in the BandChain.
   * [EventTypeSubmitSignature](#eventtypesubmitsignature)
   * [EventTypeSigningFailed](#eventtypesigningfailed)
   * [EventTypeActivate](#eventtypeactivate)
-  * [EventTypeActive](#eventtypeactive)
+  * [EventTypeHealthCheck](#eventtypehealthcheck)
 * [Parameters](#parameters)
 * [Client](#client)
   * [CLI](#cli)
@@ -285,7 +285,7 @@ This event (`submit_dkg_round1`) is emitted when a member submits round 1 inform
 | ------------- | ---------------- |
 | group_id      | {groupID}        |
 | member_id     | {groupSize}      |
-| member        | {groupThreshold} |
+| threshold     | {groupThreshold} |
 | round1_info   | {round1Info}     |
 
 
@@ -307,7 +307,7 @@ This event (`submit_dkg_round2`) is emitted when a member submits round 2 inform
 | ------------- | ---------------- |
 | group_id      | {groupID}        |
 | member_id     | {groupSize}      |
-| member        | {groupThreshold} |
+| threshold     | {groupThreshold} |
 | round2_info   | {round2Info}     |
 
 
@@ -332,7 +332,7 @@ This event (`complain_success`) is emitted when a member submits `MsgComplain` a
 | respondent_id  | {respondentID}  |
 | key_sym        | {keySym}        |
 | signature      | {signature}     |
-| member         | {memberAddress} |
+| address        | {memberAddress} |
 
 
 ### EventTypeComplainFailed
@@ -346,7 +346,7 @@ This event (`complain_failed`) is emitted when a member submits `MsgComplain` an
 | respondent_id  | {respondentID}  |
 | key_sym        | {keySym}        |
 | signature      | {signature}     |
-| member         | {memberAddress} |
+| address        | {memberAddress} |
 
 
 ### EventTypeConfirmSuccess
@@ -358,7 +358,7 @@ This event (`confirm_success`) is emitted when a member submits `MsgComfirm` and
 | group_id        | {groupID}               |
 | member_id       | {memberID}              |
 | own_pub_key_sig | {ownPublicKeySignature} |
-| member          | {memberAddress}         |
+| address         | {memberAddress}         |
 
 
 ### EventTypeRound3Success
@@ -392,7 +392,7 @@ This event (`request_signature`) is emitted when the group is requested to sign 
 | message          | {message}                      |
 | group_pub_nonce  | {groupPublicNonce}             |
 | member_id[]      | {assignedMemberIDs}            |
-| member[]         | {assignedMemberAddresses}      |
+| address[]        | {assignedMemberAddresses}      |
 | binding_factor[] | {assignedMemberBindingFactors} |
 | pub_nonce[]      | {assignedMemberPublicNonces}   |
 | pub_d[]          | {assignedMemberPublicDs}       |
@@ -432,7 +432,7 @@ This event (`submit_signature`) is emitted when an assigned member submits his o
 | signing_id    | {signingID}               |
 | group_id      | {groupID}                 |
 | member_id     | {assignedMemberID}        |
-| member        | {assignedMemberAddress}   |
+| address       | {assignedMemberAddress}   |
 | pub_d         | {assignedMemberPublicD}   |
 | pub_e         | {assignedMemberPublicE}   |
 | signature     | {assignedMemberSignature} |
@@ -456,16 +456,16 @@ This event (`activate`) is emitted when an account submitted `MsgActivate` to th
 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
-| member        | {memberAddress} |
+| address       | {memberAddress} |
 
 
-### EventTypeActive
+### EventTypeHealthCheck
 
-This event (`active`) is emitted when an account submitted `MsgHealthCheck` to the chain
+This event (`healthcheck`) is emitted when an account submitted `MsgHealthCheck` to the chain
 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
-| member        | {memberAddress} |
+| address       | {memberAddress} |
 
 
 ## Parameters
