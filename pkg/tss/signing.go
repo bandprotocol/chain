@@ -9,7 +9,7 @@ import (
 
 // ComputeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
 // Note: Currently, supports a maximum mid at 20.
-func ComputeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
+func computeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
 	if len(memberList) > 20 {
 		panic("compute lagrange coefficient optimization supports a maximum mid at 20.")
 	}
@@ -28,6 +28,11 @@ func ComputeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
 
 // ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
 func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
+	// Calculate the Lagrange coefficient with optimization if the member is less than or equal to 20.
+	if len(memberList) <= 20 {
+		return computeLagrangeCoefficientOp(mid, memberList)
+	}
+
 	var mids []int64
 	for _, member := range memberList {
 		mids = append(mids, int64(member))
