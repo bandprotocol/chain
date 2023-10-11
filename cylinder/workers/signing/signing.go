@@ -47,7 +47,7 @@ func (s *Signing) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"%s.%s = '%s'",
 		types.EventTypeRequestSignature,
-		types.AttributeKeyMember,
+		types.AttributeKeyAddress,
 		s.context.Config.Granter,
 	)
 	s.eventCh, err = s.client.Subscribe("Signing", subscriptionQuery, 1000)

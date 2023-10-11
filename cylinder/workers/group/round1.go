@@ -48,7 +48,7 @@ func (r *Round1) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"tm.event = 'NewBlock' AND %s.%s = '%s'",
 		types.EventTypeCreateGroup,
-		types.AttributeKeyMember,
+		types.AttributeKeyAddress,
 		r.context.Config.Granter,
 	)
 	r.eventCh, err = r.client.Subscribe("Round1", subscriptionQuery, 1000)
