@@ -36,18 +36,22 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
+
 	// Compute the fee allocated for tss module to distribute to active validators.
 	tssRewardRatio := sdk.NewDecWithPrec(int64(k.GetParams(ctx).RewardPercentage), 2)
 	tssRewardInt, _ := totalFee.MulDecTruncate(tssRewardRatio).TruncateDecimal()
+
 	// Transfer the tss reward portion from fee collector to distr module.
 	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distrtypes.ModuleName, tssRewardInt)
 	if err != nil {
 		panic(err)
 	}
+
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	tssReward := sdk.NewDecCoinsFromCoins(tssRewardInt...)
 	remaining := tssReward
 	rewardMultiplier := sdk.OneDec().Sub(k.distrKeeper.GetCommunityTax(ctx))
+
 	// Allocate non-community pool tokens to active validators weighted by voting power.
 	for _, each := range toReward {
 		powerFraction := sdk.NewDec(each.power).QuoTruncate(sdk.NewDec(totalPower))
@@ -55,6 +59,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
 		remaining = remaining.Sub(reward)
 	}
+
 	// Allocate the remaining coins to the community pool.
 	feePool := k.distrKeeper.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(remaining...)

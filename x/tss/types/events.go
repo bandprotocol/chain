@@ -28,7 +28,6 @@ const (
 	AttributeKeyGroupID       = "group_id"
 	AttributeKeyReplacementID = "replacement_id"
 	AttributeKeyMemberID      = "member_id"
-	AttributeKeyMember        = "member"
 	AttributeKeyAddress       = "address"
 	AttributeKeySize          = "size"
 	AttributeKeyThreshold     = "threshold"
