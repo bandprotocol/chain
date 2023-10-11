@@ -113,7 +113,7 @@ func (h *Hook) emitUpdateReplacementStatus(ctx sdk.Context, id uint64, status ts
 
 // handleInitTSSModule implements emitter handler for initializing tss module.
 func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
-	for _, signing := range h.tssKeeper.GetAllReplacementSigning(ctx) {
+	for _, signing := range h.tssKeeper.GetSignings(ctx) {
 		h.Write("NEW_SIGNING", common.JsDict{
 			"id":              signing.ID,
 			"group_id":        signing.GroupID,

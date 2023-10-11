@@ -103,7 +103,7 @@ $ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 					return err
 				}
 
-				gMsgs, err := combineGrantMsgs(granter, grantee, types.GetGrantableMsgTypes(), &expTime)
+				gMsgs, err := combineGrantMsgs(granter, grantee, types.GetTSSGrantMsgTypes(), &expTime)
 				if err != nil {
 					return err
 				}
@@ -151,7 +151,7 @@ $ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1
 					return err
 				}
 
-				rMsgs, err := combineRevokeMsgs(granter, grantee, types.GetGrantableMsgTypes())
+				rMsgs, err := combineRevokeMsgs(granter, grantee, types.GetTSSGrantMsgTypes())
 				if err != nil {
 					return err
 				}

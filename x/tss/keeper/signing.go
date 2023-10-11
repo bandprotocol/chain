@@ -62,15 +62,22 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, signingID tss.SigningID) types.S
 	return signing
 }
 
-// GetAllReplacementSigning retrieves all signing that was signed for replacing group of the store.
-func (k Keeper) GetAllReplacementSigning(ctx sdk.Context) []types.Signing {
-	var allReplacementSigning []types.Signing
-	replacements := k.GetReplacements(ctx)
-	for _, r := range replacements {
-		signing := k.MustGetSigning(ctx, r.SigningID)
-		allReplacementSigning = append(allReplacementSigning, signing)
+// GetSigningsIterator gets an iterator all group.
+func (k Keeper) GetSigningsIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningStoreKeyPrefix)
+}
+
+// GetSignings retrieves all signing of the store.
+func (k Keeper) GetSignings(ctx sdk.Context) []types.Signing {
+	var signings []types.Signing
+	iterator := k.GetSigningsIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var signing types.Signing
+		k.cdc.MustUnmarshal(iterator.Value(), &signing)
+		signings = append(signings, signing)
 	}
-	return allReplacementSigning
+	return signings
 }
 
 // AddSigning adds the signing data to the store and returns the new signing ID.
@@ -147,9 +154,7 @@ func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []
 
 		// Check if address is assigned for signing
 		for _, am := range signing.AssignedMembers {
-			m := k.MustGetMember(ctx, signing.GroupID, am.MemberID)
-
-			if bytes.Equal(m.PubKey, pubKey) {
+			if bytes.Equal(am.PubKey, pubKey) {
 				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
 				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
 					pendingSignings = append(pendingSignings, uint64(signing.ID))
@@ -479,7 +484,7 @@ func (k Keeper) HandleRequestSign(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
+			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -550,7 +555,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
+			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),

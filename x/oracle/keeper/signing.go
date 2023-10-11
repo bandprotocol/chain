@@ -4,9 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // SetSigningID sets the key-value pair of the request ID to signing ID in the store.
@@ -26,13 +24,4 @@ func (k Keeper) GetSigningResult(ctx sdk.Context, rid types.RequestID) (types.Si
 	var result types.SigningResult
 	k.cdc.MustUnmarshal(bz, &result)
 	return result, nil
-}
-
-// MustGetSigning returns the signing for the given signing ID. Panics on error.
-func (k Keeper) MustGetSigning(ctx sdk.Context, sid tss.SigningID) tsstypes.Signing {
-	signing, err := k.tssKeeper.GetSigning(ctx, sid)
-	if err != nil {
-		panic(err)
-	}
-	return signing
 }

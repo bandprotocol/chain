@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"

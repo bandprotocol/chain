@@ -38,7 +38,7 @@ func GetQueryCmd() *cobra.Command {
 func GetQueryCmdCounts() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "counts",
-		Short: "Get current number of groups and signings on Bandchain",
+		Short: "Get current number of groups and signings on BandChain",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
