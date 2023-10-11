@@ -49,6 +49,7 @@ func (h *Hook) handleGroupMsgCreateGroupPolicy(
 	decisionPolicy, _ := groupPolicyInfo.GetDecisionPolicy()
 	h.Write("NEW_GROUP_POLICY", common.JsDict{
 		"address":         policyAddress,
+		"type":            proto.MessageName(decisionPolicy),
 		"group_id":        groupPolicyInfo.GroupId,
 		"admin":           groupPolicyInfo.Admin,
 		"metadata":        groupPolicyInfo.Metadata,

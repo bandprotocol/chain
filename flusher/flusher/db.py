@@ -515,6 +515,7 @@ group_policies = sa.Table(
     "group_policies",
     metadata,
     Column("address", sa.String, primary_key=True),
+    Column("types", sa.String),
     Column("group_id", sa.Integer, sa.ForeignKey("groups.id")),
     Column("admin", sa.String, sa.ForeignKey("accounts.address")),
     Column("metadata", sa.String),
