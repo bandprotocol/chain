@@ -484,7 +484,7 @@ func (k Keeper) HandleRequestSign(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
+			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
@@ -555,7 +555,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	for _, am := range assignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyMember, fmt.Sprintf("%s", am.Address)),
+			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
 			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
 			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),

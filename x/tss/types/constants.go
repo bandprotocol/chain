@@ -2,7 +2,7 @@ package types
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
-func GetGrantableMsgTypes() []string {
+func GetTSSGrantMsgTypes() []string {
 	return []string{
 		sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
 		sdk.MsgTypeURL(&MsgSubmitDKGRound2{}),
