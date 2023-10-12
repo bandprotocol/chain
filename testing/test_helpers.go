@@ -166,21 +166,6 @@ func init() {
 func CreateTestApp(t *testing.T, autoActivate bool) (*TestingApp, sdk.Context) {
 	t.Helper()
 
-	isCheckTx := false
-	app := Setup(t, ChainID)
-
-	ctx := app.NewContext(isCheckTx, tmproto.Header{Height: app.LastBlockHeight()})
-	if autoActivate {
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
-	}
-	return &TestingApp{app}, ctx
-}
-
-func Setup(t *testing.T, chainID string) *bandapp.BandApp {
-	t.Helper()
-
 	acc := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
 		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
@@ -207,15 +192,19 @@ func Setup(t *testing.T, chainID string) *bandapp.BandApp {
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
 	}
 
-	app := setupWithGenesis(t, Validators, acc, chainID, balances...)
+	isCheckTx := false
+	app := setupWithGenesis(t, Validators, acc, ChainID, balances...)
+	ctx := app.NewContext(isCheckTx, tmproto.Header{Height: app.LastBlockHeight()})
+	if autoActivate {
+		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+	}
 
-	return app
+	return &TestingApp{app}, ctx
 }
 
-// SetupWithGenesisValSet initializes a new BandApp with a validator set and genesis accounts
-// that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit in the default token of the JunoApp from first genesis
-// account.
+// setupWithGenesis sets up a BandApp for testing with a specified genesis state.
 func setupWithGenesis(
 	t *testing.T,
 	valSet []Account,
@@ -243,6 +232,7 @@ func setupWithGenesis(
 	return app
 }
 
+// setup initializes a BandApp instance for simulation testing.
 func setup(t *testing.T, chainID string, withGenesis bool) (*bandapp.BandApp, bandapp.GenesisState, string) {
 	t.Helper()
 
@@ -290,7 +280,7 @@ func setup(t *testing.T, chainID string, withGenesis bool) (*bandapp.BandApp, ba
 	return app, bandapp.GenesisState{}, ""
 }
 
-// SetupWithEmptyStore setup a instance with empty DB
+// SetupWithEmptyStore setup a instance with empty DB.
 func SetupWithEmptyStore(t *testing.T, chainID string) *bandapp.BandApp {
 	t.Helper()
 
@@ -299,7 +289,7 @@ func SetupWithEmptyStore(t *testing.T, chainID string) *bandapp.BandApp {
 }
 
 // SetupWithGenesisValSet initializes a new TestingApp with a validator set and genesis accounts
-// that also act as delegators. For simplicity, each validator is bonded with a delegation
+// that also act as delegator. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the BandChain from first genesis
 // account. A Nop logger is set in TestingApp.
 func SetupWithGenesisValSet(
@@ -407,6 +397,7 @@ func SetupWithGenesisValSet(
 	return &TestingApp{app}
 }
 
+// createArbitraryAccount generates a random Account using a provided random number generator.
 func createArbitraryAccount(r *rand.Rand) Account {
 	privkeySeed := make([]byte, 12)
 	r.Read(privkeySeed)
@@ -419,6 +410,7 @@ func createArbitraryAccount(r *rand.Rand) Account {
 	}
 }
 
+// generateGenesisState initializes the genesis state of a BandApp for testing.
 func generateGenesisState(
 	t *testing.T,
 	app *bandapp.BandApp,
@@ -523,6 +515,7 @@ func generateGenesisState(
 	return genesisState
 }
 
+// generateDataSources generates a set of data sources for the BandApp.
 func generateDataSources(homePath string) []types.DataSource {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
@@ -537,6 +530,7 @@ func generateDataSources(homePath string) []types.DataSource {
 	return DataSources[1:]
 }
 
+// generateOracleScripts generates a set of oracle scripts for the BandApp.
 func generateOracleScripts(homePath string) []types.OracleScript {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)

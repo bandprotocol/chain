@@ -80,7 +80,6 @@ type TestChain struct {
 // Time management is handled by the Coordinator in order to ensure synchrony between chains.
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
-	// TODO: change sender
 	signers := make([]tmtypes.PrivValidator, valSize)
 	validators := make([]*tmtypes.Validator, valSize)
 	genesisAccount := make([]authtypes.GenesisAccount, valSize)
