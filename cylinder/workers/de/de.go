@@ -45,12 +45,12 @@ func New(ctx *cylinder.Context) (*DE, error) {
 // It returns an error if the subscription fails.
 func (de *DE) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
-		"tm.event = 'Tx' AND %s.%s = '%s'",
+		"%s.%s = '%s'",
 		types.EventTypeRequestSignature,
 		types.AttributeKeyAddress,
 		de.context.Config.Granter,
 	)
-	de.assignEventCh, err = de.client.Subscribe("DE", subscriptionQuery, 1000)
+	de.assignEventCh, err = de.client.Subscribe("DE-assigned", subscriptionQuery, 1000)
 
 	subscriptionQuery = fmt.Sprintf(
 		"tm.event = 'Tx' AND %s.%s = '%s'",
@@ -58,7 +58,7 @@ func (de *DE) subscribe() (err error) {
 		types.AttributeKeyAddress,
 		de.context.Config.Granter,
 	)
-	de.useEventCh, err = de.client.Subscribe("DE", subscriptionQuery, 1000)
+	de.useEventCh, err = de.client.Subscribe("DE-submitted", subscriptionQuery, 1000)
 
 	return
 }
