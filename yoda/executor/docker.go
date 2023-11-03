@@ -3,72 +3,128 @@ package executor
 import (
 	"bytes"
 	"context"
-	"io"
-	"io/ioutil"
-	"os"
+	"encoding/base64"
+	"fmt"
+	"net/url"
 	"os/exec"
-	"path/filepath"
+	"strconv"
 	"time"
 
-	"github.com/google/shlex"
-
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/levigross/grequests"
 )
 
+// Only use in testnet. No intensive testing, use at your own risk
 type DockerExec struct {
 	image   string
+	name    string
 	timeout time.Duration
+	// portLists chan string
+	port   string
+	maxTry int
 }
 
-func NewDockerExec(image string, timeout time.Duration) *DockerExec {
-	return &DockerExec{image: image, timeout: timeout}
+func NewDockerExec(image string, timeout time.Duration, maxTry int, startPort int, endPort int) *DockerExec {
+	// portLists := make(chan string, endPort-startPort+1)
+	name := "docker-runtime-executor-"
+	for i := startPort; i <= endPort; i++ {
+		port := strconv.Itoa(i)
+		StartContainer(name, port, image)
+		// portLists <- port
+	}
+
+	return &DockerExec{image: image, name: name, timeout: timeout, port: strconv.Itoa(startPort), maxTry: maxTry}
+}
+
+func StartContainer(name string, port string, image string) error {
+	err := exec.Command("docker", "restart", name+port).Run()
+	if err != nil {
+		dockerArgs := append([]string{
+			"run",
+			"--name", name + port,
+			"-p", port + ":5000",
+			"--restart=always",
+			"--memory=512m",
+			image,
+		})
+
+		cmd := exec.CommandContext(context.Background(), "docker", dockerArgs...)
+		var buf bytes.Buffer
+		cmd.Stdout = &buf
+		cmd.Stderr = &buf
+		err = cmd.Start()
+	}
+	return err
+}
+
+func (e *DockerExec) PostRequest(
+	code []byte,
+	arg string,
+	env interface{},
+	name string,
+	port string,
+) (ExecResult, error) {
+	executable := base64.StdEncoding.EncodeToString(code)
+	resp, err := grequests.Post(
+		"http://localhost:"+port,
+		&grequests.RequestOptions{
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSON: map[string]interface{}{
+				"executable": executable,
+				"calldata":   arg,
+				"timeout":    e.timeout.Milliseconds(),
+				"env":        env,
+			},
+			RequestTimeout: e.timeout,
+		},
+	)
+
+	if err != nil {
+		urlErr, ok := err.(*url.Error)
+		if !ok || !urlErr.Timeout() {
+			return ExecResult{}, err
+		}
+		// Return timeout code
+		return ExecResult{Output: []byte{}, Code: 111}, nil
+	}
+
+	if !resp.Ok {
+		return ExecResult{}, ErrRestNotOk
+	}
+
+	r := externalExecutionResponse{}
+	err = resp.JSON(&r)
+
+	if err != nil {
+		return ExecResult{}, err
+	}
+
+	// go func() {
+	// 	// StartContainer(name, port, e.image)
+	// 	err := exec.Command("docker", "restart", name+port).Run()
+	// 	for err != nil {
+	// 		err = StartContainer(name, port, e.image)
+	// 	}
+	// 	e.portLists <- port
+	// }()
+	if r.Returncode == 0 {
+		return ExecResult{Output: []byte(r.Stdout), Code: 0, Version: r.Version}, nil
+	} else {
+		return ExecResult{Output: []byte(r.Stderr), Code: r.Returncode, Version: r.Version}, nil
+	}
 }
 
 func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
-	// TODO: Handle env if we are to revive Docker
-	dir, err := ioutil.TempDir("/tmp", "executor")
-	if err != nil {
-		return ExecResult{}, err
-	}
-	defer os.RemoveAll(dir)
-	err = ioutil.WriteFile(filepath.Join(dir, "exec"), code, 0777)
-	if err != nil {
-		return ExecResult{}, err
-	}
-	name := filepath.Base(dir)
-	args, err := shlex.Split(arg)
-	if err != nil {
-		return ExecResult{}, err
-	}
-	dockerArgs := append([]string{
-		"run", "--rm",
-		"-v", dir + ":/scratch:ro",
-		"--name", name,
-		e.image,
-		"/scratch/exec",
-	}, args...)
-	ctx, cancel := context.WithTimeout(context.Background(), e.timeout)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, "docker", dockerArgs...)
-	var buf bytes.Buffer
-	cmd.Stdout = &buf
-	cmd.Stderr = &buf
-	err = cmd.Run()
-	if ctx.Err() == context.DeadlineExceeded {
-		exec.Command("docker", "kill", name).Start()
-		return ExecResult{}, ErrExecutionimeout
-	}
-	exitCode := uint32(0)
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			exitCode = uint32(exitError.ExitCode())
-		} else {
-			return ExecResult{}, err
+	// port := <-e.portLists
+	errs := []error{}
+	for i := 0; i < e.maxTry; i++ {
+		execResult, err := e.PostRequest(code, arg, env, e.name, e.port)
+		if err == nil {
+			return execResult, err
 		}
+		errs = append(errs, err)
+		time.Sleep(500 * time.Millisecond)
 	}
-	output, err := ioutil.ReadAll(io.LimitReader(&buf, int64(types.DefaultMaxReportDataSize)))
-	if err != nil {
-		return ExecResult{}, err
-	}
-	return ExecResult{Output: output, Code: exitCode}, nil
+	return ExecResult{}, fmt.Errorf(ErrReachMaxTry.Error()+", tried errors: %#q", errs)
 }
