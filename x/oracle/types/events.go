@@ -19,7 +19,7 @@ const (
 	EventTypeHandleRequestSignFail = "handle_request_sign_fail"
 
 	AttributeKeyID                  = "id"
-	AttributeKeyGroupID             = "group_id"
+	AttributeKeyTSSGroupID          = "tss_group_id"
 	AttributeKeySigningID           = "signing_id"
 	AttributeKeyDataSourceID        = "data_source_id"
 	AttributeKeyOracleScriptID      = "oracle_script_id"

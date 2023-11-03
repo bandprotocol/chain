@@ -26,6 +26,10 @@ func (suite *TSSTestSuite) TestSignAndVerify() {
 		// Wrong public key case
 		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FalsePubKey, nil, nil)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
+
+		// Wrong public key and msg case
+		err = tss.Verify(signature.R(), signature.S(), testutil.FalseChallenge, testutil.FalsePubKey, nil, nil)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
 
@@ -99,6 +103,10 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomLagrange() {
 
 		// Wrong lagrange case
 		err = tss.Verify(signature.R(), signature.S(), suite.challenge, member.OneTimePubKey(), nil, fakeLagrange)
+		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
+
+		// Wrong public key and lagrange case
+		err = tss.Verify(signature.R(), signature.S(), suite.challenge, testutil.FalsePubKey, nil, fakeLagrange)
 		suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 	})
 }
