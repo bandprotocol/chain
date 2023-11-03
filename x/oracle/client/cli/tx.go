@@ -15,7 +15,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -29,6 +31,8 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
+	flagTSSGroupID    = "tss-group-id"
+	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -125,6 +129,12 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
+			uint64TSSGroupID, err := cmd.Flags().GetUint64(flagTSSGroupID)
+			if err != nil {
+				return err
+			}
+			tssGroupID := tss.GroupID(uint64TSSGroupID)
+
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
 				calldata,
@@ -132,6 +142,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				minCount,
 				clientID,
 				feeLimit,
+				tssGroupID,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
@@ -149,7 +160,10 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().StringP(flagClientID, "m", "", "Requester can match up the request with response by clientID")
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
-	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
+	cmd.Flags().
+		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
+	cmd.Flags().Uint64(flagTSSGroupID, 0, "The TSS group that is requested to sign the oracle result data")
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -673,4 +687,57 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 	}
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
+}
+
+// GetCmdRequestSignature implements the request signature handler.
+func GetCmdRequestSignature() *cobra.Command {
+	return &cobra.Command{
+		Use:   "oracle-result [request-id]",
+		Short: "Request TSS signature from request id",
+		Args:  cobra.ExactArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Request signature from request id.
+Example:
+$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			gid, err := cmd.Flags().GetUint64(flagGroupID)
+			if err != nil {
+				return err
+			}
+
+			rid, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress()
+			content := types.NewRequestingSignature(types.RequestID(rid))
+
+			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
 }

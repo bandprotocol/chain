@@ -48,6 +48,7 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -55,6 +56,8 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 	suite.reporterPrivKey = secp256k1.GenPrivKey()
 	suite.reporterAddr = sdk.AccAddress(suite.reporterPrivKey.PubKey().Address())
@@ -588,6 +591,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -595,6 +599,8 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 	notBeAssignedReq := types.NewRequest(
 		1,
@@ -604,6 +610,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -611,6 +618,8 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 	alreadyReportAllReq := types.NewRequest(
 		1,
@@ -623,6 +632,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -630,6 +640,8 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 	assignedButReportedReq := types.NewRequest(
 		1,
@@ -642,6 +654,7 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("testdata")),
 			types.NewRawRequest(2, 2, []byte("testdata")),
@@ -649,6 +662,8 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		},
 		nil,
 		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 
 	suite.querier.Keeper.SetRequest(suite.ctx, types.RequestID(3), assignedButPendingReq)

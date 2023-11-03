@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"fmt"
 	"io/ioutil"
 	"math"
 	"strconv"
@@ -18,8 +19,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Account struct {
@@ -62,6 +66,7 @@ func GenMsgRequestData(
 		MinCount:   1,
 		ClientID:   "",
 		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+		TSSGroupID: 0,
 		PrepareGas: prepareGas,
 		ExecuteGas: executeGas,
 		Sender:     sender.Address.String(),
@@ -117,6 +122,88 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 	}
 
 	return []sdk.Msg{&msg}
+}
+
+func MockByte(n int) []byte {
+	msg := make([]byte, n)
+	for i := 0; i < n; i++ {
+		msg[i] = 'a' + byte(i%26)
+	}
+	return msg
+}
+
+func GenMsgRequestSignature(
+	sender *Account,
+	gid tss.GroupID,
+	content tsstypes.Content,
+	feeLimit sdk.Coins,
+) []sdk.Msg {
+	msg, err := tsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.Msg{msg}
+}
+
+func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signature, member sdk.AccAddress) []sdk.Msg {
+	msg := tsstypes.MsgSubmitSignature{
+		SigningID: sid,
+		MemberID:  mid,
+		Signature: sig,
+		Address:   member.String(),
+	}
+
+	return []sdk.Msg{&msg}
+}
+
+func FindPrivateKey(tcs []testutil.TestCase, gid tss.GroupID, member sdk.AccAddress) tss.Scalar {
+	for _, tc := range tcs {
+		if tc.Group.ID == gid {
+			for _, m := range tc.Group.Members {
+				a := sdk.AccAddress(m.PubKey())
+				if a.Equals(member) {
+					return m.PrivKey
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func CreateSignature(
+	mid tss.MemberID,
+	signing tsstypes.Signing,
+	groupPubKey tss.Point,
+	ownPrivKey tss.Scalar,
+) (tss.Signature, error) {
+	// Compute Lagrange coefficient
+	var lgc tss.Scalar
+	lgc, _ = tss.ComputeLagrangeCoefficient(
+		mid,
+		signing.AssignedMembers.MemberIDs(),
+	)
+
+	for _, am := range signing.AssignedMembers {
+		if am.MemberID == mid {
+			// Compute private nonce
+			pn, err := tss.ComputeOwnPrivNonce(PrivD, PrivE, am.BindingFactor)
+			if err != nil {
+				return nil, err
+			}
+			// Sign the message
+			return tss.SignSigning(
+				signing.GroupPubNonce,
+				groupPubKey,
+				signing.Message,
+				lgc,
+				pn,
+				ownPrivKey,
+			)
+		}
+	}
+
+	// Sign the message
+	return nil, fmt.Errorf("this member is not assigned members")
 }
 
 func GenSequenceOfTxs(
@@ -209,7 +296,9 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", nil, nil, ExecuteGasLimit,
+		1, time.Now(), "", 0, nil, nil, ExecuteGasLimit,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	)
 
 	return owasmVM, compiledCode, req

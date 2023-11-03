@@ -19,7 +19,7 @@ type TendermintConfig struct {
 	TrustingPeriod               time.Duration
 	UnbondingPeriod              time.Duration
 	MaxClockDrift                time.Duration
-	AllowUpdateAfterExpiry       bool
+	AllowUpdateAfterExpired      bool
 	AllowUpdateAfterMisbehaviour bool
 }
 
@@ -29,7 +29,7 @@ func NewTendermintConfig() *TendermintConfig {
 		TrustingPeriod:               TrustingPeriod,
 		UnbondingPeriod:              UnbondingPeriod,
 		MaxClockDrift:                MaxClockDrift,
-		AllowUpdateAfterExpiry:       false,
+		AllowUpdateAfterExpired:      false,
 		AllowUpdateAfterMisbehaviour: false,
 	}
 }

@@ -19,9 +19,9 @@ import (
 )
 
 func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx, k := testapp.CreateTestInput(true)
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err := k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(t, err)
 	require.Equal(
@@ -34,7 +34,7 @@ func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
 		vals,
 	)
 	// Getting 3 validators using ROLLING_SEED_A
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(t, err)
 	require.Equal(
@@ -47,7 +47,7 @@ func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
 		vals,
 	)
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(t, err)
 	require.Equal(
@@ -60,7 +60,7 @@ func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
 		vals,
 	)
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 42)
 	require.NoError(t, err)
 	require.Equal(
@@ -89,8 +89,8 @@ func TestGetRandomValidatorsTooBigSize(t *testing.T) {
 }
 
 func TestGetRandomValidatorsWithActivate(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_WITH_LONG_ENOUGH_ENTROPY"))
+	app, ctx, k := testapp.CreateTestInput(false)
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("ROLLING_SEED_WITH_LONG_ENOUGH_ENTROPY"))
 	// If no validators are active, you must not be able to get random validators
 	_, err := k.GetRandomValidators(ctx, 1, 1)
 	require.ErrorIs(t, err, types.ErrInsufficientValidators)
@@ -135,6 +135,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -144,11 +145,13 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 97000000)),
 	), k.MustGetRequest(ctx, 1))
 	require.Equal(t, sdk.Events{
 		sdk.NewEvent(
@@ -207,6 +210,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
+			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "5294700000"),
 			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, testapp.Validators[0].ValAddress.String()),
@@ -257,6 +261,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.EmptyCoins,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -270,6 +275,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -283,6 +289,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -296,6 +303,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -309,6 +317,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		BasicClientID,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)),
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
@@ -329,6 +338,7 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -346,6 +356,7 @@ func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -368,6 +379,7 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.EmptyCoins,
+		0,
 		1,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -398,6 +410,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -416,6 +429,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -434,6 +448,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -459,6 +474,7 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -488,6 +504,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -505,6 +522,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -524,6 +542,7 @@ func TestPrepareRequestEmptyCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -541,6 +560,7 @@ func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -558,6 +578,7 @@ func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -575,6 +596,7 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -588,7 +610,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.EqualError(t, err, "id: 99: data source not found")
 }
@@ -601,13 +623,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
+	}), 1, 1, BasicClientID, testapp.Coins100000000uband, 0, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -623,6 +645,7 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -637,6 +660,7 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -655,6 +679,7 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -669,6 +694,7 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		1,
 		BasicClientID,
 		testapp.Coins100000000uband,
+		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
@@ -683,9 +709,11 @@ func TestResolveRequestSuccess(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 1st Wasm - return "beeb"
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -698,14 +726,20 @@ func TestResolveRequestSuccess(t *testing.T) {
 		42, 1, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
+
 	require.Equal(t, expectResult, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
-	)}, ctx.EventManager().Events())
+	require.Equal(
+		t,
+		sdk.Events{
+			sdk.NewEvent(types.EventTypeResolve,
+				sdk.NewAttribute(types.AttributeKeyID, "42"),
+				sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+				sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
+				sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
+			),
+		},
+		ctx.EventManager().Events(),
+	)
 }
 
 func TestResolveRequestSuccessComplex(t *testing.T) {
@@ -717,10 +751,12 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -745,16 +781,18 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(
-			types.AttributeKeyResult,
-			"000000206265656264317631626565626431763262656562643276316265656264327632",
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(
+				types.AttributeKeyResult,
+				"000000206265656264317631626565626431763262656562643276316265656264327632",
+			),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "32492250000"),
 		),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "32492250000"),
-	)}, ctx.EventManager().Events())
+	}, ctx.EventManager().Events())
 }
 
 func TestResolveRequestOutOfGas(t *testing.T) {
@@ -763,9 +801,11 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 1st Wasm - return "beeb"
 		1, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -790,10 +830,12 @@ func TestResolveReadNilExternalData(t *testing.T) {
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -818,13 +860,14 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
-	require.Equal(t, sdk.Events{sdk.NewEvent(
-		types.EventTypeResolve,
-		sdk.NewAttribute(types.AttributeKeyID, "42"),
-		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
-		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
-	)}, ctx.EventManager().Events())
+	require.Equal(t, sdk.Events{
+		sdk.NewEvent(types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
+		),
+	}, ctx.EventManager().Events())
 }
 
 func TestResolveRequestNoReturnData(t *testing.T) {
@@ -833,9 +876,11 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 3rd Wasm - do nothing
 		3, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 1,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -862,9 +907,11 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 6th Wasm - out-of-gas
 		6, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, 0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		testapp.Validators[0].ValAddress, true, []types.RawReport{
@@ -891,9 +938,11 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 9th Wasm - set return data several times
 		9, BasicCalldata, []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
-		42, testapp.ParseTime(1581589790), BasicClientID, []types.RawRequest{
+		42, testapp.ParseTime(1581589790), BasicClientID, 0, []types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		}, nil, testapp.TestDefaultExecuteGas,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
 	))
 	k.ResolveRequest(ctx, 42)
 

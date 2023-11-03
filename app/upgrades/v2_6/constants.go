@@ -18,6 +18,8 @@ import (
 	"github.com/bandprotocol/chain/v2/app/upgrades"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const UpgradeName = "v2_6"
@@ -26,7 +28,14 @@ var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
 	CreateUpgradeHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
-		Added: []string{group.StoreKey, globalfeetypes.StoreKey, consensusparamtypes.StoreKey, crisistypes.StoreKey},
+		Added: []string{
+			group.StoreKey,
+			globalfeetypes.StoreKey,
+			consensusparamtypes.StoreKey,
+			crisistypes.StoreKey,
+			tsstypes.StoreKey,
+			rollingseedtypes.StoreKey,
+		},
 	},
 }
 

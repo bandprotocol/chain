@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"math"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -8,24 +9,50 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	testapp "github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type BenchmarkApp struct {
 	*testapp.TestingApp
-	Sender    *Account
-	Validator *Account
-	Oid       uint64
-	Did       uint64
-	TxConfig  client.TxConfig
-	TxEncoder sdk.TxEncoder
-	TB        testing.TB
-	Ctx       sdk.Context
-	Querier   keeper.Querier
+	Sender     *Account
+	Validator  *Account
+	Oid        uint64
+	Did        uint64
+	Gid        tss.GroupID
+	TxConfig   client.TxConfig
+	TxEncoder  sdk.TxEncoder
+	TB         testing.TB
+	Ctx        sdk.Context
+	Querier    keeper.Querier
+	TSSMsgSrvr tsstypes.MsgServer
+	authority  sdk.AccAddress
+}
+
+var (
+	PrivD = testutil.HexDecode("de6aedbe8ba688dd6d342881eb1e67c3476e825106477360148e2858a5eb565c")
+	PrivE = testutil.HexDecode("3ff4fb2beac0cee0ab230829a5ae0881310046282e79c978ca22f44897ea434a")
+	PubD  = tss.Scalar(PrivD).Point()
+	PubE  = tss.Scalar(PrivE).Point()
+
+	DELen = 30
+)
+
+func GetDEs() []tsstypes.DE {
+	var delist []tsstypes.DE
+	for i := 0; i < DELen; i++ {
+		delist = append(delist, tsstypes.DE{PubD: PubD, PubE: PubE})
+	}
+	return delist
 }
 
 func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
@@ -44,6 +71,7 @@ func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		TB: b,
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
+	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(&ba.TestingApp.TSSKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
@@ -63,6 +91,10 @@ func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
 	require.NoError(b, err)
 	ba.Oid = uint64(oid)
+
+	// set group ID
+	ba.Gid = tss.GroupID(1)
+	ba.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 
 	// create data source
 	dCode := []byte("hello")
@@ -184,4 +216,138 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 	}
 
 	return msgs
+}
+
+func (ba *BenchmarkApp) SetupTSSGroup() {
+	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
+
+	// force address to owner
+	owner := ba.Sender.Address.String()
+
+	// Create group from testutil
+	for _, tc := range testutil.TestCases {
+		// Initialize members
+		for i, m := range tc.Group.Members {
+			k.SetMember(ctx, tsstypes.Member{
+				ID:          tss.MemberID(i + 1),
+				GroupID:     tc.Group.ID,
+				Address:     owner,
+				PubKey:      m.PubKey(),
+				IsMalicious: false,
+			})
+
+			err := k.SetActive(ctx, ba.Sender.Address)
+			require.NoError(ba.TB, err)
+		}
+
+		k.CreateNewGroup(ctx, tsstypes.Group{
+			GroupID:       tc.Group.ID,
+			Size_:         uint64(tc.Group.GetSize()),
+			Threshold:     tc.Group.Threshold,
+			PubKey:        tc.Group.PubKey,
+			Status:        tsstypes.GROUP_STATUS_ACTIVE,
+			Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+			CreatedHeight: 1,
+		})
+		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
+
+		// Submit DEs for each member
+		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
+			DEs:     GetDEs(),
+			Address: ba.Sender.Address.String(),
+		})
+		require.NoError(ba.TB, err)
+	}
+}
+
+func (ba *BenchmarkApp) GetPendingSignTxs(
+	gid tss.GroupID,
+	tcs []testutil.TestCase,
+) []sdk.Tx {
+	ctx, k := ba.Ctx, ba.TSSKeeper
+
+	group := k.MustGetGroup(ctx, gid)
+
+	var txs []sdk.Tx
+	members := k.MustGetMembers(ctx, gid)
+
+	for _, m := range members {
+		addr := sdk.AccAddress(m.PubKey)
+
+		sids := k.GetPendingSigningsByPubKey(ctx, m.PubKey)
+
+		ownPrivkey := FindPrivateKey(tcs, gid, addr)
+		require.NotNil(ba.TB, ownPrivkey)
+
+		for _, sid := range sids {
+			signing := k.MustGetSigning(ctx, tss.SigningID(sid))
+
+			sig, err := CreateSignature(m.ID, signing, group.PubKey, ownPrivkey)
+			require.NoError(ba.TB, err)
+
+			tx, err := testapp.GenTx(
+				ba.TxConfig,
+				GenMsgSubmitSignature(tss.SigningID(sid), m.ID, sig, ba.Sender.Address),
+				sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+				math.MaxInt64,
+				"",
+				[]uint64{ba.Sender.Num},
+				[]uint64{ba.Sender.Seq},
+				ba.Sender.PrivKey,
+			)
+			require.NoError(ba.TB, err)
+
+			ba.Sender.Seq += 1
+
+			txs = append(txs, tx)
+		}
+	}
+	return txs
+}
+
+func (ba *BenchmarkApp) HandleGenPendingSignTxs(
+	gid tss.GroupID,
+	content tsstypes.Content,
+	feeLimit sdk.Coins,
+	tcs []testutil.TestCase,
+) []sdk.Tx {
+	txs := ba.GetPendingSignTxs(gid, tcs)
+	if len(txs) > 0 {
+		return txs
+	}
+
+	ba.RequestSignature(ba.Sender, gid, content, feeLimit)
+	ba.AddDEs(ba.Gid)
+
+	return ba.GetPendingSignTxs(gid, tcs)
+}
+
+func (ba *BenchmarkApp) RequestSignature(
+	sender *Account,
+	gid tss.GroupID,
+	content tsstypes.Content,
+	feeLimit sdk.Coins,
+) {
+	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
+
+	msg, err := tsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	require.NoError(ba.TB, err)
+
+	_, err = msgSrvr.RequestSignature(ctx, msg)
+	require.NoError(ba.TB, err)
+}
+
+func (ba *BenchmarkApp) AddDEs(
+	gid tss.GroupID,
+) {
+	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TSSKeeper
+
+	count := k.GetDECount(ctx, ba.Sender.Address)
+	if count < uint64(DELen) {
+		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
+			DEs:     GetDEs(),
+			Address: ba.Sender.Address.String(),
+		})
+		require.NoError(ba.TB, err)
+	}
 }

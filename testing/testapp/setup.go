@@ -44,6 +44,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -77,6 +78,7 @@ var (
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	Coins100000000token = sdk.NewCoins(sdk.NewInt64Coin("token", 100000000))
 	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
 	Port1               = "port-1"
 	Port2               = "port-2"
@@ -336,6 +338,10 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
+		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins: Coins100000000uband},
+		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins: Coins100000000token},
 	}
 	totalSupply := sdk.NewCoins()
 	for idx := 0; idx < len(balances)-len(validators); idx++ {
@@ -388,9 +394,14 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
+		// active oracle status
 		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		// active tss status
+		app.TSSKeeper.SetActive(ctx, Validators[0].Address)
+		app.TSSKeeper.SetActive(ctx, Validators[1].Address)
+		app.TSSKeeper.SetActive(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }
@@ -525,6 +536,10 @@ func SetupWithGenesisValSet(
 	oracleGenesis.DataSources = getGenesisDataSources(dir)
 	oracleGenesis.OracleScripts = getGenesisOracleScripts(dir)
 	genesisState[types.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
+
+	// Add tss genesis
+	tssGenesis := tsstypes.DefaultGenesisState()
+	genesisState[tsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(tssGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)

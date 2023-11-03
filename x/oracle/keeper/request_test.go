@@ -38,14 +38,50 @@ func TestHasRequest(t *testing.T) {
 	// We should not have a request ID 42 without setting it.
 	require.False(t, k.HasRequest(ctx, 42))
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
+	k.SetRequest(
+		ctx,
+		42,
+		types.NewRequest(
+			1,
+			BasicCalldata,
+			nil,
+			1,
+			1,
+			testapp.ParseTime(0),
+			"",
+			0,
+			nil,
+			nil,
+			0,
+			testapp.FeePayer.Address.String(),
+			testapp.Coins100000000uband,
+		),
+	)
 	require.True(t, k.HasRequest(ctx, 42))
 }
 
 func TestDeleteRequest(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0))
+	k.SetRequest(
+		ctx,
+		42,
+		types.NewRequest(
+			1,
+			BasicCalldata,
+			nil,
+			1,
+			1,
+			testapp.ParseTime(0),
+			"",
+			0,
+			nil,
+			nil,
+			0,
+			testapp.FeePayer.Address.String(),
+			testapp.Coins100000000uband,
+		),
+	)
 	require.True(t, k.HasRequest(ctx, 42))
 	// After we delete it, we should not find it anymore.
 	k.DeleteRequest(ctx, 42)
@@ -62,8 +98,36 @@ func TestSetterGetterRequest(t *testing.T) {
 	require.ErrorIs(t, err, types.ErrRequestNotFound)
 	require.Panics(t, func() { _ = k.MustGetRequest(ctx, 42) })
 	// Creates some basic requests.
-	req1 := types.NewRequest(1, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
-	req2 := types.NewRequest(2, BasicCalldata, nil, 1, 1, testapp.ParseTime(0), "", nil, nil, 0)
+	req1 := types.NewRequest(
+		1,
+		BasicCalldata,
+		nil,
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		0,
+		nil,
+		nil,
+		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
+	)
+	req2 := types.NewRequest(
+		2,
+		BasicCalldata,
+		nil,
+		1,
+		1,
+		testapp.ParseTime(0),
+		"",
+		0,
+		nil,
+		nil,
+		0,
+		testapp.FeePayer.Address.String(),
+		testapp.Coins100000000uband,
+	)
 	// Sets id 42 with request 1 and id 42 with request 2.
 	k.SetRequest(ctx, 42, req1)
 	k.SetRequest(ctx, 43, req2)
@@ -106,13 +170,41 @@ func TestAddDataSourceBasic(t *testing.T) {
 	// Adding the first request should return ID 1.
 	id := k.AddRequest(
 		ctx,
-		types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0),
+		types.NewRequest(
+			42,
+			BasicCalldata,
+			[]sdk.ValAddress{},
+			1,
+			1,
+			testapp.ParseTime(0),
+			"",
+			0,
+			nil,
+			nil,
+			0,
+			testapp.FeePayer.Address.String(),
+			testapp.Coins100000000uband,
+		),
 	)
 	require.Equal(t, id, types.RequestID(1))
 	// Adding another request should return ID 2.
 	id = k.AddRequest(
 		ctx,
-		types.NewRequest(42, BasicCalldata, []sdk.ValAddress{}, 1, 1, testapp.ParseTime(0), "", nil, nil, 0),
+		types.NewRequest(
+			42,
+			BasicCalldata,
+			[]sdk.ValAddress{},
+			1,
+			1,
+			testapp.ParseTime(0),
+			"",
+			0,
+			nil,
+			nil,
+			0,
+			testapp.FeePayer.Address.String(),
+			testapp.Coins100000000uband,
+		),
 	)
 	require.Equal(t, id, types.RequestID(2))
 }
@@ -163,9 +255,9 @@ func TestProcessExpiredRequests(t *testing.T) {
 	k.AddReport(ctx, 4, testapp.Validators[1].ValAddress, true, rawReports)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
-	k.ResolveSuccess(ctx, 1, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 1, 0, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
-	k.ResolveSuccess(ctx, 4, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 4, 0, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234)
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 

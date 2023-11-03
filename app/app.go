@@ -124,8 +124,15 @@ import (
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
+	oracleclient "github.com/bandprotocol/chain/v2/x/oracle/client"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/rollingseed"
+	rollingseedkeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
+	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
+	"github.com/bandprotocol/chain/v2/x/tss"
+	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -173,6 +180,7 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		tss.NewAppModuleBasic(oracleclient.RequestingSignatureHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -185,6 +193,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		tsstypes.ModuleName:            nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -284,7 +293,9 @@ func NewBandApp(
 		authzkeeper.StoreKey,
 		icahosttypes.StoreKey,
 		group.StoreKey,
+		rollingseedtypes.StoreKey,
 		oracletypes.StoreKey,
+		tsstypes.StoreKey,
 		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -492,6 +503,27 @@ func NewBandApp(
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
+	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(appCodec, keys[rollingseedtypes.StoreKey])
+	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
+
+	// register the request signature types
+	tssRouter := tsstypes.NewRouter()
+	app.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		authtypes.FeeCollectorName,
+		app.AuthzKeeper,
+		app.RollingseedKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+		tssRouter,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+	tssModule := tss.NewAppModule(&app.TSSKeeper)
+
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
@@ -504,12 +536,23 @@ func NewBandApp(
 		app.AuthzKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
+		app.RollingseedKeeper,
+		app.TSSKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
+
+	// Add TSS route
+	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRequestingSignatureHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewRequestingSignatureHandler(app.OracleKeeper))
+
+	// It is vital to seal the request signature router here as to not allow
+	// further handlers to be registered after the keeper is created since this
+	// could create invalid or non-deterministic behavior.
+	tssRouter.Seal()
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -599,7 +642,9 @@ func NewBandApp(
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
 		transferModule,
 		icaModule,
+		rollingseedModule,
 		oracleModule,
+		tssModule,
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -611,7 +656,9 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -636,7 +683,9 @@ func NewBandApp(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -685,7 +734,9 @@ func NewBandApp(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 
@@ -728,10 +779,12 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
+			TSSKeeper:       &app.TSSKeeper,
 			IBCKeeper:       app.IBCKeeper,
-			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
+			StakingKeeper:   app.StakingKeeper,
 		},
 	)
 	if err != nil {

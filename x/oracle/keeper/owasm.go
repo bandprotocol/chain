@@ -45,7 +45,11 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 		return nil, sdkerrors.Wrapf(
 			types.ErrInsufficientValidators, "%d < %d", len(valOperators), size)
 	}
-	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
+	rng, err := bandrng.NewRng(
+		k.rollingseedKepper.GetRollingSeed(ctx),
+		sdk.Uint64ToBigEndian(id),
+		[]byte(ctx.ChainID()),
+	)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
 	}
@@ -88,8 +92,19 @@ func (k Keeper) PrepareRequest(
 
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
-		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcChannel, r.GetExecuteGas(),
+		r.GetOracleScriptID(),
+		r.GetCalldata(),
+		validators,
+		r.GetMinCount(),
+		ctx.BlockHeight(),
+		ctx.BlockTime(),
+		r.GetClientID(),
+		r.GetTSSGroupID(),
+		nil,
+		ibcChannel,
+		r.GetExecuteGas(),
+		feePayer.String(),
+		r.GetFeeLimit(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
@@ -119,11 +134,13 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	totalFees, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests)
+	totalFees, err := k.CollectFee(ctx, feePayer, req.FeeLimit, askCount, req.RawRequests)
 	if err != nil {
 		return 0, err
 	}
+
 	// We now have everything we need to the request, so let's add it to the store.
+	req.FeeLimit = req.FeeLimit.Sub(totalFees...)
 	id := k.AddRequest(ctx, req)
 
 	// Emit an event describing a data request and asked validators.
@@ -135,6 +152,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(req.Calldata)),
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
+		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.TSSGroupID)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)
@@ -179,7 +197,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, req.TSSGroupID, req.Requester, req.FeeLimit, env.Retdata, output.GasUsed)
 	}
 }
 

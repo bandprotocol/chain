@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/hex"
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,13 +25,15 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		AskCount:       1,
 		MinCount:       1,
 		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
+		TSSGroupID:     0, // no require sign by tss module
 		PrepareGas:     100,
 		ExecuteGas:     100,
 	}
+	fmt.Println(string(req.GetBytes()))
 	require.Equal(
 		t,
 		[]byte(
-			`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100"}`,
+			`{"ask_count":"1","calldata":"AwAAAEJUQ2QAAAAAAAAA","client_id":"test","execute_gas":"100","fee_limit":[{"amount":"10000","denom":"uband"}],"min_count":"1","oracle_script_id":"1","prepare_gas":"100","tss_group_id":"0"}`,
 		),
 		req.GetBytes(),
 	)
@@ -46,6 +49,7 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		ResolveStatus: ResolveStatus(1),
 		Result:        mustDecodeString("4bb10e0000000000"),
 	}
+
 	require.Equal(
 		t,
 		[]byte(

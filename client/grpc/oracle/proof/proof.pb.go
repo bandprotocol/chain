@@ -884,20 +884,20 @@ func (m *BlockRelayProof) GetSignatures() []TMSignature {
 //
 //		                                 ___________________[AppHash]_________________
 //		                                /                                             \
-//		                  ___________[N19]____________                           ____[N20]_____
-//		                 /                            \                         /              \
-//		          ____[N15]____                 ____[N16]______              _[N17]__          [K]
-//		         /             \               /               \            /       \
-//		     __[N8]_        __[N9]_         _[N10]_         _[N11]_       [N12]   [N13]
-//		    /       \       /      \       /       \        /      \      /   \   /   \
-//	   [N0]    [N1]    [N2]    [N3]   [N4]     [N5]    [N6]    [N7]   [G] [H] [I] [J]
+//		                  ___________[N19]____________                           ____[N20]______
+//		                 /                            \                         /               \
+//		          ____[N15]____                 ____[N16]______              _[N17]__        _[N18]_
+//		         /             \               /               \            /       \       /       \
+//		     __[N8]_        __[N9]_         _[N10]_         _[N11]_       [N12]   [N13]   [N14]    [M]
+//		    /       \       /      \       /       \        /      \      /   \   /   \   /  \
+//	   [N0]    [N1]    [N2]    [N3]   [N4]     [N5]    [N6]    [N7]   [G] [H] [I] [J] [K] [L]
 //		 /   \   /   \    /  \   /   \   /   \   /   \   /   \   /   \
 //	 [0] [1] [2] [3] [4] [5] [6] [7] [8] [9] [A] [B] [C] [D] [E] [F]
 //
 // [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - consensus  [5] - crisis
 // [6] - dist       [7] - evidence [8] - feegrant [9] - globalfee  [A] - gov        [B] - group
-// [C] - ibccore    [D] - icahost  [E] - mint     [F] - oracle     [G] - params     [H] - slashing
-// [I] - staking    [J] - transfer [K] - upgrade
+// [C] - ibccore    [D] - icahost  [E] - mint     [F] - oracle     [G] - params     [H] - rollingseed
+// [I] - slashing   [J] - staking  [K] - transfer [L] - tss        [M] - upgrade
 //
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [F] In fact, only

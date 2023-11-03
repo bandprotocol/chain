@@ -54,6 +54,8 @@ var (
 	ValidatorStatusKeyPrefix = []byte{0x05}
 	// ParamsKeyPrefix is the prefix for the parameters of the module.
 	ParamsKeyPrefix = []byte{0x06}
+	// SigningResultStoreKeyPrefix is the prefix for signing ID store.
+	SigningResultStoreKeyPrefix = []byte{0x07}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 
@@ -84,6 +86,11 @@ func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 // ValidatorStatusStoreKey returns the key to a validator's status.
 func ValidatorStatusStoreKey(v sdk.ValAddress) []byte {
 	return append(ValidatorStatusKeyPrefix, v.Bytes()...)
+}
+
+// SigningResultStoreKey returns the key to a signing id in the store.
+func SigningResultStoreKey(requestID RequestID) []byte {
+	return append(SigningResultStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
 }
 
 // ResultStoreKey returns the key to a request result in the store.

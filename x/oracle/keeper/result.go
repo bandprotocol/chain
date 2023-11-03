@@ -10,6 +10,7 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -47,16 +48,77 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 	return result
 }
 
+// GetByteResult returns the result in byte for the given request ID
+func (k Keeper) GetByteResult(ctx sdk.Context, id types.RequestID) ([]byte, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
+	if bz == nil {
+		return nil, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
+	}
+	return bz, nil
+}
+
 // ResolveSuccess resolves the given request as success with the given result.
-func (k Keeper) ResolveSuccess(ctx sdk.Context, id types.RequestID, result []byte, gasUsed uint64) {
+func (k Keeper) ResolveSuccess(
+	ctx sdk.Context,
+	id types.RequestID,
+	gid tss.GroupID,
+	requester string,
+	feeLimit sdk.Coins,
+	result []byte,
+	gasUsed uint64,
+) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
+
+	events := sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
 		sdk.NewAttribute(types.AttributeKeyResult, hex.EncodeToString(result)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
-	))
+	)
+
+	if gid != tss.GroupID(0) {
+		// Request sign by tss module
+		var signingResult *types.SigningResult
+		sid, err := k.tssKeeper.HandleRequestSign(
+			ctx,
+			gid,
+			types.NewRequestingSignature(id),
+			sdk.MustAccAddressFromBech32(requester),
+			feeLimit,
+		)
+		if err != nil {
+			codespace, code, _ := sdkerrors.ABCIInfo(err, false)
+			signingResult = &types.SigningResult{
+				ErrorCodespace: codespace,
+				ErrorCode:      uint64(code),
+			}
+
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeHandleRequestSignFail,
+				sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
+				sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", gid)),
+				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+			))
+
+			events = events.AppendAttributes(
+				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
+				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
+			)
+		} else {
+			signingResult = &types.SigningResult{
+				SigningID: sid,
+			}
+
+			events = events.AppendAttributes(
+				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
+			)
+		}
+
+		k.SetSigningResult(ctx, id, *signingResult)
+	}
+
+	ctx.EventManager().EmitEvent(events)
 }
 
 // ResolveFailure resolves the given request as failure with the given reason.
