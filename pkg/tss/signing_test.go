@@ -9,7 +9,8 @@ func (suite *TSSTestSuite) TestComputeLagrangeCoefficient() {
 	suite.RunOnAssignedMember(
 		suite.testCases,
 		func(tc testutil.TestCase, signing testutil.Signing, assignedMember testutil.AssignedMember) {
-			value := tss.ComputeLagrangeCoefficient(assignedMember.ID, signing.GetAllIDs())
+			value, err := tss.ComputeLagrangeCoefficient(assignedMember.ID, signing.GetAllIDs())
+			suite.Require().NoError(err)
 			suite.Require().Equal(assignedMember.Lagrange, value)
 		})
 }
