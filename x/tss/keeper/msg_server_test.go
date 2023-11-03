@@ -920,10 +920,11 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			for _, am := range signing.AssignedMembers {
 				// Compute Lagrange coefficient
 				var lgc tss.Scalar
-				lgc = tss.ComputeLagrangeCoefficient(
+				lgc, err = tss.ComputeLagrangeCoefficient(
 					am.MemberID,
 					signing.AssignedMembers.MemberIDs(),
 				)
+				s.Require().NoError(err)
 
 				// Compute private nonce
 				pn, err := tss.ComputeOwnPrivNonce(PrivD, PrivE, am.BindingFactor)

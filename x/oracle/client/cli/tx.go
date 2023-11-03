@@ -32,6 +32,7 @@ const (
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
 	flagTSSGroupID    = "tss-group-id"
+	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -697,7 +698,7 @@ func GetCmdRequestSignature() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --tss-group-id 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -708,7 +709,7 @@ $ %s tx tss request-signature oracle-result 1 --tss-group-id 1 --fee-limit 10uba
 				return err
 			}
 
-			gid, err := cmd.Flags().GetUint64(flagTSSGroupID)
+			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}

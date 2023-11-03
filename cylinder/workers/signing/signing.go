@@ -139,7 +139,11 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Compute lagrange
-	lagrange := tss.ComputeLagrangeCoefficient(group.MemberID, signingRes.GetMemberIDs())
+	lagrange, err := tss.ComputeLagrangeCoefficient(group.MemberID, signingRes.GetMemberIDs())
+	if err != nil {
+		logger.Error(":cold_sweat: Failed to compute lagrange coefficient: %s", err)
+		return
+	}
 
 	// Sign the signing
 	sig, err := tss.SignSigning(

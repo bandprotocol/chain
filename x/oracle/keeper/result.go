@@ -97,7 +97,7 @@ func (k Keeper) ResolveSuccess(
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeHandleRequestSignFail,
 				sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", gid)),
+				sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", gid)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
 
