@@ -178,7 +178,7 @@ func CreateSignature(
 ) (tss.Signature, error) {
 	// Compute Lagrange coefficient
 	var lgc tss.Scalar
-	lgc = tss.ComputeLagrangeCoefficient(
+	lgc, _ = tss.ComputeLagrangeCoefficient(
 		mid,
 		signing.AssignedMembers.MemberIDs(),
 	)
