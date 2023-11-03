@@ -727,7 +727,10 @@ func (k msgServer) SubmitSignature(
 	}
 
 	// Compute lagrange coefficient
-	lagrange := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedMembers.MemberIDs())
+	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedMembers.MemberIDs())
+	if err != nil {
+		return nil, errors.Wrapf(types.ErrInvalidArgument, err.Error())
+	}
 
 	// Verify signing signature
 	err = tss.VerifySigningSignature(
