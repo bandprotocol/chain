@@ -41,6 +41,7 @@ all: install
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
 
 release: go.sum
 	env GOOS=linux GOARCH=amd64 \
