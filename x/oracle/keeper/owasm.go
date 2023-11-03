@@ -157,7 +157,7 @@ func (k Keeper) PrepareRequest(
 		sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(req.Calldata)),
 		sdk.NewAttribute(types.AttributeKeyAskCount, fmt.Sprintf("%d", askCount)),
 		sdk.NewAttribute(types.AttributeKeyMinCount, fmt.Sprintf("%d", req.MinCount)),
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", req.TSSGroupID)),
+		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", req.TSSGroupID)),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", output.GasUsed)),
 		sdk.NewAttribute(types.AttributeKeyTotalFees, totalFees.String()),
 	)

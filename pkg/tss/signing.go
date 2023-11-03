@@ -1,18 +1,46 @@
 package tss
 
 import (
+	"errors"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
 	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// ComputeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
-// Note: Currently, supports a maximum mid at 20.
-func computeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
-	if len(memberList) > 20 {
-		panic("compute lagrange coefficient optimization supports a maximum mid at 20.")
+// checkLagrangeInput checks if a given MemberID (mid) is present in the provided memberList
+// and ensures there are no duplicate values in the memberList. Also, return flag to show if input can use in optimized version
+func checkLagrangeInput(mid MemberID, memberList []MemberID) (bool, error) {
+	seen := make(map[MemberID]bool) // Use a map to track unique values
+	isInList := false
+	optimizedable := true
+	for _, id := range memberList {
+		if id > 20 {
+			optimizedable = false
+		}
+
+		if id == mid {
+			isInList = true
+		}
+
+		if _, exists := seen[id]; exists {
+			return false, errors.New("duplicate values in memberList")
+		}
+
+		seen[id] = true
 	}
+
+	if !isInList {
+		return false, errors.New("mid not found in memberList")
+	}
+
+	return optimizedable, nil
+}
+
+// ComputeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
+// Note: Currently, supports a maximum mid at 20. Caller must validate the input by themselves
+func computeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
 	var mids []int64
 	for _, member := range memberList {
 		mids = append(mids, int64(member))
@@ -27,10 +55,14 @@ func computeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
 }
 
 // ComputeLagrangeCoefficient calculates the Lagrange coefficient for a given member ID and total number of members.
-func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
-	// Calculate the Lagrange coefficient with optimization if the member is less than or equal to 20.
-	if len(memberList) <= 20 {
-		return computeLagrangeCoefficientOp(mid, memberList)
+func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) (Scalar, error) {
+	op, err := checkLagrangeInput(mid, memberList)
+	if err != nil {
+		return nil, err
+	}
+
+	if op {
+		return computeLagrangeCoefficientOp(mid, memberList), nil
 	}
 
 	var mids []int64
@@ -43,7 +75,7 @@ func ComputeLagrangeCoefficient(mid MemberID, memberList []MemberID) Scalar {
 	scalarValue := new(secp256k1.ModNScalar)
 	scalarValue.SetByteSlice(coeff)
 
-	return NewScalarFromModNScalar(scalarValue)
+	return NewScalarFromModNScalar(scalarValue), nil
 }
 
 // ComputeCommitment calculates the bytes that consists of memberID, public D, and public E.
