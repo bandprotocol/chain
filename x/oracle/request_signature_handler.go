@@ -14,7 +14,25 @@ func NewRequestingSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.OracleResultRequestingSignature:
-			return k.GetByteResult(ctx, c.RequestID)
+			result, err := k.GetResult(ctx, c.RequestID)
+			if err != nil {
+				return nil, err
+			}
+
+			switch c.EncodeType {
+			case types.ENCODE_TYPE_UNSPECIFIED, types.ENCODE_TYPE_PROTO:
+				return k.MarshalResult(ctx, result)
+			case types.ENCODE_TYPE_FULL_ABI:
+				return result.PackFullABI()
+			case types.ENCODE_TYPE_PARTIAL_ABI:
+				return result.PackPartialABI()
+			default:
+				return nil, sdkerrors.Wrapf(
+					sdkerrors.ErrUnknownRequest,
+					"unrecognized encode type: %d",
+					c.EncodeType,
+				)
+			}
 
 		default:
 			return nil, sdkerrors.Wrapf(

@@ -11,14 +11,17 @@ const (
 
 func init() {
 	tsstypes.RegisterRequestingSignatureType(RequestSignatureTypeOracleResult)
-	tsstypes.RegisterRequestSignatureTypeCodec(&OracleResultRequestingSignature{}, "tss/OracleResultRequestingSignature")
+	tsstypes.RegisterRequestSignatureTypeCodec(
+		&OracleResultRequestingSignature{},
+		"tss/OracleResultRequestingSignature",
+	)
 }
 
 // Implements Content Interface
 var _ tsstypes.Content = &OracleResultRequestingSignature{}
 
-func NewRequestingSignature(rid RequestID) *OracleResultRequestingSignature {
-	return &OracleResultRequestingSignature{RequestID: rid}
+func NewRequestingSignature(rid RequestID, encodeType EncodeType) *OracleResultRequestingSignature {
+	return &OracleResultRequestingSignature{RequestID: rid, EncodeType: encodeType}
 }
 
 // RequestingSignatureRoute returns the request router key

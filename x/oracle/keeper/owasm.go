@@ -99,10 +99,11 @@ func (k Keeper) PrepareRequest(
 		ctx.BlockHeight(),
 		ctx.BlockTime(),
 		r.GetClientID(),
-		r.GetTSSGroupID(),
 		nil,
 		ibcChannel,
 		r.GetExecuteGas(),
+		r.GetTSSGroupID(),
+		r.GetTSSEncodeType(),
 		feePayer.String(),
 		r.GetFeeLimit(),
 	)
@@ -197,7 +198,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		k.ResolveSuccess(ctx, reqID, req.TSSGroupID, req.Requester, req.FeeLimit, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, req.Requester, req.FeeLimit, env.Retdata, output.GasUsed, req.TSSGroupID, req.TSSEncodeType)
 	}
 }
 

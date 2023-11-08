@@ -410,10 +410,11 @@ func TestRequestDataSuccess(t *testing.T) {
 		2,
 		"CID",
 		testapp.Coins100000000uband,
-		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.FeePayer.Address,
+		0,
+		0,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -425,7 +426,6 @@ func TestRequestDataSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
-		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -433,6 +433,8 @@ func TestRequestDataSuccess(t *testing.T) {
 		},
 		nil,
 		uint64(testapp.TestDefaultExecuteGas),
+		0,
+		0,
 		testapp.FeePayer.Address.String(),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 94000000)),
 	), k.MustGetRequest(ctx, 1))
@@ -543,10 +545,11 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
-			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
+			0,
+			0,
 		),
 	)
 	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
@@ -565,10 +568,11 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
-			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
+			0,
+			0,
 		),
 	)
 	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
@@ -585,10 +589,11 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
-			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
+			0,
+			0,
 		),
 	)
 	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
@@ -605,10 +610,11 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.Coins100000000uband,
-			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
+			0,
+			0,
 		),
 	)
 	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
@@ -625,10 +631,11 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			"CID",
 			testapp.EmptyCoins,
-			0,
 			testapp.TestDefaultPrepareGas,
 			testapp.TestDefaultExecuteGas,
 			testapp.FeePayer.Address,
+			0,
+			0,
 		),
 	)
 	testapp.CheckErrorf(t, err, types.ErrNotEnoughFee, "require: 2000000uband, max: 0uband")
@@ -650,12 +657,13 @@ func TestReportSuccess(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
-		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
+		0,
+		0,
 		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
@@ -691,11 +699,12 @@ func TestReportSuccess(t *testing.T) {
 	k.ResolveSuccess(
 		ctx,
 		42,
-		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
 		[]byte("RESOLVE_RESULT!"),
 		1234,
+		0,
+		0,
 	)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
 	require.NoError(t, err)
@@ -729,12 +738,13 @@ func TestReportFail(t *testing.T) {
 		124,
 		testapp.ParseTime(1581589790),
 		"CID",
-		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
+		0,
+		0,
 		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,

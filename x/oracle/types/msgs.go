@@ -41,9 +41,10 @@ func NewMsgRequestData(
 	askCount, minCount uint64,
 	clientID string,
 	feeLimit sdk.Coins,
-	tssGroupID tss.GroupID,
 	prepareGas, executeGas uint64,
 	sender sdk.AccAddress,
+	tssGroupID tss.GroupID,
+	tssEncodeType EncodeType,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,
@@ -52,10 +53,11 @@ func NewMsgRequestData(
 		MinCount:       minCount,
 		ClientID:       clientID,
 		FeeLimit:       feeLimit,
-		TSSGroupID:     tssGroupID,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
 		Sender:         sender.String(),
+		TSSGroupID:     tssGroupID,
+		TSSEncodeType:  tssEncodeType,
 	}
 }
 

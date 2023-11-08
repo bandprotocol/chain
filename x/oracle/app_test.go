@@ -26,10 +26,11 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
+		0,
+		0,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -47,7 +48,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
-		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -55,6 +55,8 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		0,
+		0,
 		testapp.Validators[0].Address.String(),
 		nil,
 	)
@@ -145,10 +147,11 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		0,
 		testapp.TestDefaultPrepareGas,
 		testapp.TestDefaultExecuteGas,
 		testapp.Validators[0].Address,
+		0,
+		0,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -166,7 +169,6 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		4,
 		testapp.ParseTime(1581589790),
 		"app_test",
-		0,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
@@ -174,6 +176,8 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		},
 		nil,
 		testapp.TestDefaultExecuteGas,
+		0,
+		0,
 		testapp.Validators[0].Address.String(),
 		nil,
 	)

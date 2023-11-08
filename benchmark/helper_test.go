@@ -296,7 +296,7 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", 0, nil, nil, ExecuteGasLimit,
+		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0, 0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
 	)

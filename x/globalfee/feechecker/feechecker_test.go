@@ -89,9 +89,10 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		1,
 		testapp.ParseTime(0),
 		"",
+		nil,
+		nil,
 		0,
-		nil,
-		nil,
+		0,
 		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
@@ -329,10 +330,11 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					1,
 					BasicClientID,
 					testapp.Coins100000000uband,
-					0,
 					testapp.TestDefaultPrepareGas,
 					testapp.TestDefaultExecuteGas,
 					testapp.FeePayer.Address,
+					0,
+					0,
 				)
 
 				return &StubTx{
@@ -374,10 +376,11 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					1,
 					BasicClientID,
 					testapp.Coins100000000uband,
-					0,
 					testapp.TestDefaultPrepareGas,
 					testapp.TestDefaultExecuteGas,
 					testapp.FeePayer.Address,
+					0,
+					0,
 				)
 				msgs := []sdk.Msg{msgReportData, msgRequestData}
 				authzMsg := authz.NewMsgExec(testapp.Alice.Address, msgs)
@@ -409,10 +412,11 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					1,
 					BasicClientID,
 					testapp.Coins100000000uband,
-					0,
 					testapp.TestDefaultPrepareGas,
 					testapp.TestDefaultExecuteGas,
 					testapp.FeePayer.Address,
+					0,
+					0,
 				)
 
 				return &StubTx{
