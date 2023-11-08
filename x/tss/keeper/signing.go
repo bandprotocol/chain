@@ -330,7 +330,7 @@ func (k Keeper) HandleAssignedMembers(
 	}
 
 	// Get active members
-	members, err := k.GetActiveMembers(ctx, group.GroupID)
+	members, err := k.GetActiveMembers(ctx, group.ID)
 	if err != nil {
 		return types.AssignedMembers{}, err
 	}

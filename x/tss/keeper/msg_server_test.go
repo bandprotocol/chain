@@ -722,7 +722,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			"failure with inactive group",
 			func() {
 				inactiveGroup := types.Group{
-					GroupID:   2,
+					ID:        2,
 					Size_:     5,
 					Threshold: 3,
 					PubKey:    nil,

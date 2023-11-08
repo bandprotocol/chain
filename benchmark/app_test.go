@@ -241,7 +241,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		}
 
 		k.CreateNewGroup(ctx, tsstypes.Group{
-			GroupID:       tc.Group.ID,
+			ID:            tc.Group.ID,
 			Size_:         uint64(tc.Group.GetSize()),
 			Threshold:     tc.Group.Threshold,
 			PubKey:        tc.Group.PubKey,

@@ -226,7 +226,7 @@ func (k msgServer) UpdateGroupFee(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateGroupFee,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.ID)),
 			sdk.NewAttribute(types.AttributeKeyFee, group.Fee.String()),
 		),
 	)

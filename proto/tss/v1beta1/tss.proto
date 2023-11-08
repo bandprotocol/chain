@@ -11,9 +11,9 @@ option (gogoproto.equal_all) = true;
 
 // Group is a type representing a participant group in a Distributed Key Generation or signing process.
 message Group {
-  // group_id is the unique identifier of the group.
-  uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // id is the unique identifier of the group.
+  uint64 id = 1
+      [(gogoproto.customname) = "ID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // size is the number of members in the group.
   uint64 size = 2;
   // threshold is the minimum number of members needed to generate a valid signature.

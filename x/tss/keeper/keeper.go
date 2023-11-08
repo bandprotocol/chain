@@ -116,12 +116,11 @@ func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee 
 
 // CreateNewGroup creates a new group in the store and returns the id of the group.
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
-	groupID := k.GetNextGroupID(ctx)
-	group.GroupID = groupID
+	group.ID = k.GetNextGroupID(ctx)
 	group.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetGroup(ctx, group)
 
-	return groupID
+	return group.ID
 }
 
 // GetGroup retrieves a group from the store.
@@ -147,7 +146,7 @@ func (k Keeper) MustGetGroup(ctx sdk.Context, groupID tss.GroupID) types.Group {
 
 // SetGroup set a group in the store.
 func (k Keeper) SetGroup(ctx sdk.Context, group types.Group) {
-	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(group.GroupID), k.cdc.MustMarshal(&group))
+	ctx.KVStore(k.storeKey).Set(types.GroupStoreKey(group.ID), k.cdc.MustMarshal(&group))
 }
 
 // GetGroupsIterator gets an iterator all group.
@@ -383,7 +382,7 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeExpiredGroup,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.ID)),
 				),
 			)
 		}
@@ -506,7 +505,7 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		)
 	case types.GROUP_STATUS_ROUND_3:
 		// Get members to check malicious
-		members := k.MustGetMembers(ctx, group.GroupID)
+		members := k.MustGetMembers(ctx, group.ID)
 		if !types.Members(members).HaveMalicious() {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
@@ -675,7 +674,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 
 	// Replace group data
 	tempGroup := fromGroup
-	tempGroup.GroupID = toGroup.GroupID
+	tempGroup.ID = toGroup.ID
 	tempGroup.CreatedHeight = toGroup.CreatedHeight
 	tempGroup.LatestReplacementID = toGroup.LatestReplacementID
 
