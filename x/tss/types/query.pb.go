@@ -335,6 +335,7 @@ func (m *QueryMembersRequest) GetGroupId() uint64 {
 
 // QueryMembersResponse is the response type for the Query/Members RPC method
 type QueryMembersResponse struct {
+	// members are member list of the group
 	Members []Member `protobuf:"bytes,1,rep,name=members,proto3" json:"members"`
 }
 
@@ -380,9 +381,9 @@ func (m *QueryMembersResponse) GetMembers() []Member {
 
 // QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
 type QueryIsGranteeRequest struct {
-	// Granter is a granter address
+	// granter is a granter address
 	Granter string `protobuf:"bytes,1,opt,name=granter,proto3" json:"granter,omitempty"`
-	// Grantee is a grantee address
+	// grantee is a grantee address
 	Grantee string `protobuf:"bytes,2,opt,name=grantee,proto3" json:"grantee,omitempty"`
 }
 
@@ -435,7 +436,7 @@ func (m *QueryIsGranteeRequest) GetGrantee() string {
 
 // QueryIsGranteeResponse is response type for the Query/IsGrantee RPC method.
 type QueryIsGranteeResponse struct {
-	// IsGrantee is true if this account has been granted by granter
+	// is_grantee is true if this account has been granted by granter
 	IsGrantee bool `protobuf:"varint,1,opt,name=is_grantee,json=isGrantee,proto3" json:"is_grantee,omitempty"`
 }
 
@@ -775,7 +776,7 @@ func (m *QueryPendingSigningsResponse) GetPendingSignings() []uint64 {
 
 // QuerySigningRequest is the request type for the Query/Signing RPC method.
 type QuerySigningRequest struct {
-	// id is the ID of the signing request.
+	// signing_id is the ID of the signing request.
 	SigningId uint64 `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3" json:"signing_id,omitempty"`
 }
 
@@ -822,7 +823,8 @@ func (m *QuerySigningRequest) GetSigningId() uint64 {
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
 type QuerySigningResponse struct {
 	// signing is the signing request.
-	Signing      Signing       `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing"`
+	Signing Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing"`
+	// evm_signature is the signature in the format that can use directly in EVM.
 	EVMSignature *EVMSignature `protobuf:"bytes,2,opt,name=evm_signature,json=evmSignature,proto3" json:"evm_signature,omitempty"`
 	// received_partial_signatures is a list of received partial signatures.
 	ReceivedPartialSignatures []PartialSignature `protobuf:"bytes,3,rep,name=received_partial_signatures,json=receivedPartialSignatures,proto3" json:"received_partial_signatures"`
@@ -884,6 +886,7 @@ func (m *QuerySigningResponse) GetReceivedPartialSignatures() []PartialSignature
 
 // QueryStatusesRequest is the request type for the Query/Statuses RPC method.
 type QueryStatusesRequest struct {
+	// status define filter on statuses
 	Status MemberStatus `protobuf:"varint,1,opt,name=status,proto3,enum=tss.v1beta1.MemberStatus" json:"status,omitempty"`
 	// pagination defines pagination settings for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
