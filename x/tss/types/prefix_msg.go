@@ -6,11 +6,11 @@ import fmt "fmt"
 // with the appropriate prefix added based on the message type.
 func WrapMsg(prefixMsgType PrefixMsgType, msg []byte) []byte {
 	switch prefixMsgType {
-	case PREFIX_TEXT_MSG:
+	case PREFIX_MSG_TYPE_TEXT:
 		return wrapTextMsgNormal(msg)
-	case PREFIX_REPLACE_GROUP_MSG:
+	case PREFIX_MSG_TYPE_REPLACE_GROUP:
 		return wrapReplaceGroupMsg(msg)
-	case PREFIX_ORACLE_MSG:
+	case PREFIX_MSG_TYPE_ORACLE:
 		return wrapOracleMsg(msg)
 	default:
 		panic(fmt.Errorf("message PrefixMsgType does not support %s type", prefixMsgType))

@@ -343,12 +343,12 @@ message EVMSignature {
 enum PrefixMsgType {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // PREFIX_UNSPECIFIED_MSG is the type of prefix that has not been specified.
-  PREFIX_UNSPECIFIED_MSG = 0;
-  // PREFIX_TEXT_MSG is the type of prefix that signs a text msg in the protocol.
-  PREFIX_TEXT_MSG = 1;
-  // PREFIX_REPLACE_GROUP_MSG is the type of prefix that signs a replace group msg in the protocol.
-  PREFIX_REPLACE_GROUP_MSG = 2;
-  // PREFIX_ORACLE_MSG is the type of prefix that signs an oracle result msg in the protocol.
-  PREFIX_ORACLE_MSG = 3;
+  // PREFIX_MSG_TYPE_UNSPECIFIED is the type of prefix that has not been specified.
+  PREFIX_MSG_TYPE_UNSPECIFIED = 0;
+  // PREFIX_MSG_TYPE_TEXT is the type of prefix that signs a text msg in the protocol.
+  PREFIX_MSG_TYPE_TEXT = 1;
+  // PREFIX_MSG_TYPE_REPLACE_GROUP is the type of prefix that signs a replace group msg in the protocol.
+  PREFIX_MSG_TYPE_REPLACE_GROUP = 2;
+  // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
+  PREFIX_MSG_TYPE_ORACLE = 3;
 }

@@ -418,9 +418,9 @@ func (k Keeper) HandleRequestSign(
 
 	// Wrap the message data.
 	if content.RequestingSignatureRoute() == oracletypes.RouterKey {
-		msg = types.WrapMsg(types.PREFIX_ORACLE_MSG, msg)
+		msg = types.WrapMsg(types.PREFIX_MSG_TYPE_ORACLE, msg)
 	} else {
-		msg = types.WrapMsg(types.PREFIX_TEXT_MSG, msg)
+		msg = types.WrapMsg(types.PREFIX_MSG_TYPE_TEXT, msg)
 	}
 
 	// Handle assigned members within the context of the group.
@@ -515,7 +515,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	}
 
 	// Wrap the message data as replace group msg.
-	msg := types.WrapMsg(types.PREFIX_REPLACE_GROUP_MSG, pubKey)
+	msg := types.WrapMsg(types.PREFIX_MSG_TYPE_REPLACE_GROUP, pubKey)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
