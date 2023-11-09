@@ -10,7 +10,7 @@ func NewGenesisState(
 	signings []Signing,
 	replacementCount uint64,
 	replacements []Replacement,
-	deQueuesGenesis []DEQueueGenesis,
+	deQueues []DEQueue,
 	desGenesis []DEGenesis,
 	statuses []Status,
 ) *GenesisState {
@@ -23,7 +23,7 @@ func NewGenesisState(
 		Signings:         signings,
 		ReplacementCount: replacementCount,
 		Replacements:     replacements,
-		DEQueuesGenesis:  deQueuesGenesis,
+		DEQueues:         deQueues,
 		DEsGenesis:       desGenesis,
 		Statuses:         statuses,
 	}
@@ -40,7 +40,7 @@ func DefaultGenesisState() *GenesisState {
 		[]Signing{},
 		0,
 		[]Replacement{},
-		[]DEQueueGenesis{},
+		[]DEQueue{},
 		[]DEGenesis{},
 		[]Status{},
 	)

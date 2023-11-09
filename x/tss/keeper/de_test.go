@@ -10,40 +10,39 @@ import (
 
 func (s *KeeperTestSuite) TestGetSetDEQueue() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
+	accAddress := sdk.MustAccAddressFromBech32(address)
 	deQueue := types.DEQueue{
-		Head: 1,
-		Tail: 2,
+		Address: address,
+		Head:    1,
+		Tail:    2,
 	}
 
 	// Set de queue
-	k.SetDEQueue(ctx, address, deQueue)
+	k.SetDEQueue(ctx, deQueue)
 
 	// Get de queue
-	got := k.GetDEQueue(ctx, address)
+	got := k.GetDEQueue(ctx, accAddress)
 
 	s.Require().Equal(deQueue, got)
 }
 
 func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	deQueue := types.DEQueue{
-		Head: 1,
-		Tail: 2,
+		Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		Head:    1,
+		Tail:    2,
 	}
 
 	// Set de queue
-	k.SetDEQueue(ctx, address, deQueue)
+	k.SetDEQueue(ctx, deQueue)
 
 	// Get de queues with address
-	got := k.GetDEQueuesGenesis(ctx)
+	got := k.GetDEQueues(ctx)
 
-	s.Require().Equal([]types.DEQueueGenesis{
-		{
-			Address: address.String(),
-			DEQueue: deQueue,
-		},
+	s.Require().Equal([]types.DEQueue{
+		deQueue,
 	}, got)
 }
 
