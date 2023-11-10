@@ -546,8 +546,8 @@ func NewBandApp(
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
-	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRequestingSignatureHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewRequestingSignatureHandler(app.OracleKeeper))
+	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRoute(0x01, tsstypes.NewRequestingSignatureHandler())).
+		AddRoute(oracletypes.RouterKey, tsstypes.NewRoute(0x02, oracle.NewRequestingSignatureHandler(app.OracleKeeper)))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this

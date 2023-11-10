@@ -12,7 +12,6 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -296,13 +295,13 @@ func (k Keeper) GetRandomAssignedMembers(
 
 	var selected []types.Member
 	for i := uint64(0); i < t; i++ {
-		luckyNumber := rng.NextUint64() % members_size
+		randomNumber := rng.NextUint64() % members_size
 
 		// Get the selected member.
-		selected = append(selected, members[luckyNumber])
+		selected = append(selected, members[randomNumber])
 
 		// Remove the selected member from the list.
-		members = append(members[:luckyNumber], members[luckyNumber+1:]...)
+		members = append(members[:randomNumber], members[randomNumber+1:]...)
 
 		members_size -= 1
 	}
@@ -406,20 +405,16 @@ func (k Keeper) HandleRequestSign(
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
-	handler := k.router.GetRoute(content.RequestingSignatureRoute())
+	route := k.router.GetRoute(content.RequestingSignatureRoute())
 
 	// Execute the handler to process the content.
-	msg, err := handler(ctx, content)
+	msg, err := route.Handler(ctx, content)
 	if err != nil {
 		return 0, errors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
 	}
 
-	// Wrap the message data.
-	if content.RequestingSignatureRoute() == oracletypes.RouterKey {
-		msg = types.WrapMsg(types.PREFIX_MSG_TYPE_ORACLE, msg)
-	} else {
-		msg = types.WrapMsg(types.PREFIX_MSG_TYPE_TEXT, msg)
-	}
+	// Wrap the message data with the registered prefix.
+	msg = append([]byte{route.Prefix}, msg...)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
@@ -513,7 +508,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	}
 
 	// Wrap the message data as replace group msg.
-	msg := types.WrapMsg(types.PREFIX_MSG_TYPE_REPLACE_GROUP, pubKey)
+	msg := append([]byte{0x00}, pubKey...)
 
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
