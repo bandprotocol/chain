@@ -28,9 +28,9 @@ func (k Keeper) GetSigningCount(ctx sdk.Context) uint64 {
 
 // GetNextSigningID increments the signing count and returns the current number of signing.
 func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
-	signingNumber := k.GetSigningCount(ctx)
-	k.SetSigningCount(ctx, signingNumber+1)
-	return tss.SigningID(signingNumber + 1)
+	signingNumber := k.GetSigningCount(ctx) + 1
+	k.SetSigningCount(ctx, signingNumber)
+	return tss.SigningID(signingNumber)
 }
 
 // SetSigning sets the signing data for a given signing ID.
@@ -82,12 +82,11 @@ func (k Keeper) GetSignings(ctx sdk.Context) []types.Signing {
 
 // AddSigning adds the signing data to the store and returns the new signing ID.
 func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID {
-	signingID := k.GetNextSigningID(ctx)
-	signing.ID = signingID
+	signing.ID = k.GetNextSigningID(ctx)
 	signing.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetSigning(ctx, signing)
 
-	return signingID
+	return signing.ID
 }
 
 // DeleteSigning deletes the signing data for a given signing ID from the store.
@@ -193,10 +192,10 @@ func (k Keeper) AddPartialSignature(
 	ctx sdk.Context,
 	signingID tss.SigningID,
 	memberID tss.MemberID,
-	sig tss.Signature,
+	signature tss.Signature,
 ) {
 	k.AddSignatureCount(ctx, signingID)
-	k.SetPartialSignature(ctx, signingID, memberID, sig)
+	k.SetPartialSignature(ctx, signingID, memberID, signature)
 }
 
 // SetPartialSignature sets the partial signature for a specific signing ID and member ID.
@@ -204,9 +203,9 @@ func (k Keeper) SetPartialSignature(
 	ctx sdk.Context,
 	signingID tss.SigningID,
 	memberID tss.MemberID,
-	sig tss.Signature,
+	signature tss.Signature,
 ) {
-	ctx.KVStore(k.storeKey).Set(types.PartialSigMemberStoreKey(signingID, memberID), sig)
+	ctx.KVStore(k.storeKey).Set(types.PartialSignatureMemberStoreKey(signingID, memberID), signature)
 }
 
 // GetPartialSignature retrieves the partial signature for a specific signing ID and member ID from the store.
@@ -215,10 +214,10 @@ func (k Keeper) GetPartialSignature(
 	signingID tss.SigningID,
 	memberID tss.MemberID,
 ) (tss.Signature, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.PartialSigMemberStoreKey(signingID, memberID))
+	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureMemberStoreKey(signingID, memberID))
 	if bz == nil {
 		return nil, errors.Wrapf(
-			types.ErrPartialSigNotFound,
+			types.ErrPartialSignatureNotFound,
 			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,
 			memberID,
@@ -233,19 +232,18 @@ func (k Keeper) DeletePartialSignatures(ctx sdk.Context, signingID tss.SigningID
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		key := iterator.Key()
-		ctx.KVStore(k.storeKey).Delete(key)
+		ctx.KVStore(k.storeKey).Delete(iterator.Key())
 	}
 }
 
 // DeletePartialSignature delete a partial signature of a signing from the store.
 func (k Keeper) DeletePartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.PartialSigMemberStoreKey(signingID, memberID))
+	ctx.KVStore(k.storeKey).Delete(types.PartialSignatureMemberStoreKey(signingID, memberID))
 }
 
 // GetPartialSignatureIterator gets an iterator over all partial signature of the signing.
 func (k Keeper) GetPartialSignatureIterator(ctx sdk.Context, signingID tss.SigningID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialSigStoreKey(signingID))
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PartialSignatureStoreKey(signingID))
 }
 
 // GetPartialSignatures retrieves all partial signatures for a specific signing ID from the store.
@@ -266,7 +264,7 @@ func (k Keeper) GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.Signi
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, types.PartialSignature{
-			MemberID:  types.MemberIDFromPartialSignMemberStoreKey(iterator.Key()),
+			MemberID:  types.MemberIDFromPartialSignatureMemberStoreKey(iterator.Key()),
 			Signature: iterator.Value(),
 		})
 	}

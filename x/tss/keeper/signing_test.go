@@ -308,12 +308,12 @@ func (s *KeeperTestSuite) TestGetPartialSignatures() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Add PartialSigs
+	// Add PartialSignatures
 	for i, memberID := range memberIDs {
 		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
-	// Get all PartialSigs
+	// Get all PartialSignatures
 	got := k.GetPartialSignatures(ctx, signingID)
 
 	// Check if the returned signatures are equal to the ones we set
@@ -330,12 +330,12 @@ func (s *KeeperTestSuite) TestGetPartialSignaturesWithKey() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Add PartialSigs
+	// Add PartialSignatures
 	for i, memberID := range memberIDs {
 		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
-	// Get all PartialSigs with keys
+	// Get all PartialSignatures with keys
 	got := k.GetPartialSignaturesWithKey(ctx, signingID)
 
 	// Construct expected result
