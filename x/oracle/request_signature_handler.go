@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -27,7 +28,7 @@ func NewRequestingSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 			case types.ENCODE_TYPE_PARTIAL_ABI:
 				return result.PackPartialABI()
 			default:
-				return nil, sdkerrors.Wrapf(
+				return nil, errors.Wrapf(
 					sdkerrors.ErrUnknownRequest,
 					"unrecognized encode type: %d",
 					c.EncodeType,
@@ -35,10 +36,10 @@ func NewRequestingSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 			}
 
 		default:
-			return nil, sdkerrors.Wrapf(
+			return nil, errors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature type: %s",
-				c.RequestingSignatureType(),
+				c.Type(),
 			)
 		}
 	}

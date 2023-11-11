@@ -24,9 +24,7 @@ const (
 )
 
 var (
-	NormalMsgPrefix       = []byte{0x00}
-	ReplaceGroupMsgPrefix = []byte{0x01}
-	OracleMsgPrefix       = []byte{0x02}
+	ReplaceGroupMsgPrefix byte = 0x00
 )
 
 var lenTime = len(sdk.FormatTimeBytes(time.Now()))

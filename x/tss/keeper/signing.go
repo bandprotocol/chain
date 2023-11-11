@@ -380,8 +380,7 @@ func (k Keeper) HandleAssignedMembers(
 	return assignedMembers, nil
 }
 
-// HandleRequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns assigned members randomly, computes necessary values, and emits appropriate events.
+// HandleRequestSign process the content to get final message and request sign from member of the groups.
 func (k Keeper) HandleRequestSign(
 	ctx sdk.Context,
 	groupID tss.GroupID,
@@ -389,23 +388,12 @@ func (k Keeper) HandleRequestSign(
 	feePayer sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (tss.SigningID, error) {
-	if !k.router.HasRoute(content.RequestingSignatureRoute()) {
-		return 0, errors.Wrap(types.ErrNoRequestingSignatureHandlerExists, content.RequestingSignatureRoute())
-	}
-
-	// Get group
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return 0, err
-	}
-
-	// Verify if the group status is active.
-	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	if !k.router.HasRoute(content.Route()) {
+		return 0, errors.Wrap(types.ErrNoRequestingSignatureHandlerExists, content.Route())
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
-	route := k.router.GetRoute(content.RequestingSignatureRoute())
+	route := k.router.GetRoute(content.Route())
 
 	// Execute the handler to process the content.
 	msg, err := route.Handler(ctx, content)
@@ -416,148 +404,20 @@ func (k Keeper) HandleRequestSign(
 	// Wrap the message data with the registered prefix.
 	msg = append([]byte{route.Prefix}, msg...)
 
-	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
-	if err != nil {
-		return 0, err
-	}
-
-	// Compute group public nonce for this signing
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
-	if err != nil {
-		return 0, err
-	}
-
-	// Create signing struct
-	signing := types.NewSigning(
-		groupID,
-		group.PubKey,
-		assignedMembers,
-		msg,
-		groupPubNonce,
-		nil,
-		group.Fee,
-		types.SIGNING_STATUS_WAITING,
-		feePayer.String(),
-	)
-
-	// If found any coins that exceed limit then return error
-	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
-	for _, fc := range feeCoins {
-		limitAmt := feeLimit.AmountOf(fc.Denom)
-		if fc.Amount.GT(limitAmt) {
-			return 0, errors.Wrapf(
-				types.ErrNotEnoughFee,
-				"require: %s, limit: %s%s",
-				fc.String(),
-				limitAmt.String(),
-				fc.Denom,
-			)
-		}
-
-		// Send coin to module account
-		if !group.Fee.IsZero() {
-			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
-			if err != nil {
-				return 0, err
-			}
-		}
-	}
-
-	// Add signing
-	signingID := k.AddSigning(ctx, signing)
-
-	event := sdk.NewEvent(
-		types.EventTypeRequestSignature,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
-		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
-	)
-	for _, am := range assignedMembers {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
-			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
-			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
-			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
-			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
-
-	return signingID, nil
+	return k.handleRequestSign(ctx, groupID, msg, feePayer, feeLimit)
 }
 
-// HandleReplaceGroupRequestSign handles the signing request for a group replacement.
+// HandleReplaceGroupRequestSignature handles the signing request for a group replacement.
 func (k Keeper) HandleReplaceGroupRequestSignature(
 	ctx sdk.Context,
 	pubKey tss.Point,
 	groupID tss.GroupID,
 	feePayer sdk.AccAddress,
 ) (tss.SigningID, error) {
-	// Get group
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return 0, err
-	}
-
-	// Verify if the group status is active.
-	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
 	// Wrap the message data as replace group msg.
-	msg := append([]byte{0x00}, pubKey...)
+	msg := append([]byte{types.ReplaceGroupMsgPrefix}, pubKey...)
 
-	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
-	if err != nil {
-		return 0, err
-	}
-
-	// Compute group public nonce for this signing
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
-	if err != nil {
-		return 0, err
-	}
-
-	// Create signing struct
-	signing := types.NewSigning(
-		groupID,
-		group.PubKey,
-		assignedMembers,
-		msg,
-		groupPubNonce,
-		nil,
-		sdk.NewCoins(),
-		types.SIGNING_STATUS_WAITING,
-		feePayer.String(),
-	)
-
-	// Add signing
-	signingID := k.AddSigning(ctx, signing)
-
-	event := sdk.NewEvent(
-		types.EventTypeRequestSignature,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
-		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
-	)
-	for _, am := range assignedMembers {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
-			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
-			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
-			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
-			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
-
-	return signingID, nil
+	return k.handleRequestSign(ctx, groupID, msg, feePayer, sdk.NewCoins())
 }
 
 // SetLastExpiredSigningID sets the last expired signing ID in the store.
@@ -723,4 +583,102 @@ func (k Keeper) RefundFee(ctx sdk.Context, signing types.Signing) {
 			panic(err)
 		}
 	}
+}
+
+// handleRequestSign initiates the signing process by requesting signatures from assigned members.
+// It assigns assigned members randomly, computes necessary values, and emits appropriate events.
+func (k Keeper) handleRequestSign(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	msg []byte,
+	feePayer sdk.AccAddress,
+	feeLimit sdk.Coins,
+) (tss.SigningID, error) {
+	// Get group
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return 0, err
+	}
+
+	// Verify if the group status is active.
+	if group.Status != types.GROUP_STATUS_ACTIVE {
+		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Handle assigned members within the context of the group.
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
+	if err != nil {
+		return 0, err
+	}
+
+	// Compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create signing struct
+	signing := types.NewSigning(
+		groupID,
+		group.PubKey,
+		assignedMembers,
+		msg,
+		groupPubNonce,
+		nil,
+		sdk.NewCoins(),
+		types.SIGNING_STATUS_WAITING,
+		feePayer.String(),
+	)
+
+	// Charge fee if requester is not authority address
+	if feePayer.String() != k.authority {
+		signing.Fee = group.Fee
+
+		// If found any coins that exceed limit then return error
+		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
+		for _, fc := range feeCoins {
+			limitAmt := feeLimit.AmountOf(fc.Denom)
+			if fc.Amount.GT(limitAmt) {
+				return 0, errors.Wrapf(
+					types.ErrNotEnoughFee,
+					"require: %s, limit: %s%s",
+					fc.String(),
+					limitAmt.String(),
+					fc.Denom,
+				)
+			}
+
+			// Send coin to module account
+			if !group.Fee.IsZero() {
+				err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
+				if err != nil {
+					return 0, err
+				}
+			}
+		}
+	}
+
+	// Add signing
+	signingID := k.AddSigning(ctx, signing)
+
+	event := sdk.NewEvent(
+		types.EventTypeRequestSignature,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
+		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
+	)
+	for _, am := range assignedMembers {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
+			sdk.NewAttribute(types.AttributeKeyAddress, fmt.Sprintf("%s", am.Address)),
+			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
+			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return signingID, nil
 }

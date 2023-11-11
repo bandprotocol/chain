@@ -4,7 +4,7 @@
             "@type": "/tss.v1beta1.MsgReplaceGroup",
             "from_group_id": "2",
             "to_group_id": "1",
-            "exec_time": "2023-11-10T09:21:00+00:00",
+            "exec_time": "2023-11-11T14:13:00+00:00",
             "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
         }
     ],

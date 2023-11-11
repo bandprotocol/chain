@@ -13,7 +13,7 @@ func init() {
 	tsstypes.RegisterRequestingSignatureType(RequestSignatureTypeOracleResult)
 	tsstypes.RegisterRequestSignatureTypeCodec(
 		&OracleResultRequestingSignature{},
-		"tss/OracleResultRequestingSignature",
+		"oracle/OracleResultRequestingSignature",
 	)
 }
 
@@ -25,10 +25,10 @@ func NewRequestingSignature(rid RequestID, encodeType EncodeType) *OracleResultR
 }
 
 // RequestingSignatureRoute returns the request router key
-func (ors *OracleResultRequestingSignature) RequestingSignatureRoute() string { return RouterKey }
+func (ors *OracleResultRequestingSignature) Route() string { return RouterKey }
 
 // RequestingSignatureType is "OracleResult"
-func (ors *OracleResultRequestingSignature) RequestingSignatureType() string {
+func (ors *OracleResultRequestingSignature) Type() string {
 	return RequestSignatureTypeOracleResult
 }
 
