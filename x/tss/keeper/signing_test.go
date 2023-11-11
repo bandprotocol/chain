@@ -455,7 +455,7 @@ func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	// Define the fee payer's address.
-	feePayer := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	feePayer := sdk.MustAccAddressFromBech32(k.GetAuthority())
 
 	// execute HandleReplaceGroupRequestSignature
 	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
