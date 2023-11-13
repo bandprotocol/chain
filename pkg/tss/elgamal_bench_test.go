@@ -20,13 +20,16 @@ func BenchmarkEncrypt(b *testing.B) {
 }
 
 func BenchmarkDecrypt(b *testing.B) {
-	value := testutil.HexDecode("d47a459f272be3d22e54af5a0a45ea8318e88f2c3c767962b2b5f9ba53d9922d")
-	key := testutil.HexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26")
+	enc := tss.EncSecretShare{
+		Value: testutil.HexDecode("cb0b29556849ad4219a5bb6fd7e12ac15805c9166371bcf2c4e931eeaf502807"),
+		Nonce: testutil.HexDecode("d8e4136601557341913837f01885d307"),
+	}
+	key := testutil.HexDecode("64540a84e00ca07eb2f34bfa98caf96c8db3b09918427bca2863ee0b2d6df31f")
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Decrypt(value, key)
+		tss.Decrypt(enc, key)
 	}
 }
 

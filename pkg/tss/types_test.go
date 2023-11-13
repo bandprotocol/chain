@@ -158,3 +158,132 @@ func (suite *TSSTestSuite) TestSortingCommitmentIDEs() {
 		})
 	}
 }
+
+func (suite *TSSTestSuite) TestCloneEncSecretShares() {
+	tests := []struct {
+		name      string
+		encShares tss.EncSecretShares
+		wantErr   string
+	}{
+		{
+			"size = 0",
+			tss.EncSecretShares{},
+			"",
+		},
+		{
+			"size = 1",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("00bf89d839d9b4cbfea51435c7e49ac8696e6c1faf1715e1b343e62f90027d4b"),
+					Nonce: testutil.HexDecode("7ba8fb095282c02a43d59cd8e1a0708b"),
+				},
+			},
+			"",
+		},
+		{
+			"size = 2",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("00bf89d839d9b4cbfea51435c7e49ac8696e6c1faf1715e1b343e62f90027d4b"),
+					Nonce: testutil.HexDecode("7ba8fb095282c02a43d59cd8e1a0708b"),
+				},
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("129636d592a2a9a90c96ae19c838b85d8a67cbcb29933f7189fe3518021df5cc"),
+					Nonce: testutil.HexDecode("6760ae358e712495017c254a28c236e1"),
+				},
+			},
+			"",
+		},
+		{
+			"size = 3",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("129636d592a2a9a90c96ae19c838b85d8a67cbcb29933f7189fe3518021df5cc"),
+					Nonce: testutil.HexDecode("6760ae358e712495017c254a28c236e1"),
+				},
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("e51531c2d3458a9c439fed1838e82c27a94b17e5f9ef19a9deb47dbd4e10a18f"),
+					Nonce: testutil.HexDecode("312d3fa4380ac8be9b630a28dab9083d"),
+				},
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("d3ef4b34705961d66f2554f0007bc46942633793500be061db6076623d84bdb0"),
+					Nonce: testutil.HexDecode("a8457035649d8f85aff3632206f26a11"),
+				},
+			},
+			"",
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Clone: %s", t.name), func() {
+			suite.Require().Equal(t.encShares, t.encShares.Clone())
+		})
+	}
+}
+
+func (suite *TSSTestSuite) TestValidateEncSecretShares() {
+	tests := []struct {
+		name      string
+		encShares tss.EncSecretShares
+		wantErr   string
+	}{
+		{
+			"valid, size = 0",
+			tss.EncSecretShares{},
+			"",
+		},
+		{
+			"valid, size = 1",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("00bf89d839d9b4cbfea51435c7e49ac8696e6c1faf1715e1b343e62f90027d4b"),
+					Nonce: testutil.HexDecode("7ba8fb095282c02a43d59cd8e1a0708b"),
+				},
+			},
+			"",
+		},
+		{
+			"valid, size = 2",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("00bf89d839d9b4cbfea51435c7e49ac8696e6c1faf1715e1b343e62f90027d4b"),
+					Nonce: testutil.HexDecode("7ba8fb095282c02a43d59cd8e1a0708b"),
+				},
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("bebd586f83ed9038d8f6526e954c8e38ce70b9a4a012d4d3020edfbdd62b7796"),
+					Nonce: testutil.HexDecode("6760ae358e712495017c254a28c236e1"),
+				},
+			},
+			"",
+		},
+		{
+			"invalid because len(value) != 32",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("6760ae358e712495017c254a28c236e1"),
+					Nonce: testutil.HexDecode("6760ae358e712495017c254a28c236e1"),
+				},
+			},
+			"index 0 error: EncSecretShare: invalid size for enc value",
+		},
+		{
+			"invalid because len(nonce) != 16",
+			tss.EncSecretShares{
+				tss.EncSecretShare{
+					Value: testutil.HexDecode("bebd586f83ed9038d8f6526e954c8e38ce70b9a4a012d4d3020edfbdd62b7796"),
+					Nonce: testutil.HexDecode("bebd586f83ed9038d8f6526e954c8e38ce70b9a4a012d4d3020edfbdd62b7796"),
+				},
+			},
+			"index 0 error: EncSecretShare: invalid size for nonce",
+		},
+	}
+
+	for _, t := range tests {
+		suite.Run(fmt.Sprintf("Clone: %s", t.name), func() {
+			err := t.encShares.Validate()
+			if t.wantErr != "" {
+				suite.Require().EqualError(err, t.wantErr)
+			}
+		})
+	}
+}

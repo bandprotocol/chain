@@ -627,3 +627,60 @@ func (b CommitmentIDEList) Sort() error {
 
 	return nil
 }
+
+// EncSecretShare represents a structure for storing an encrypted secret share.
+// It contains the encrypted value `Value` and the corresponding nonce `Nonce`
+// used in the Elgamal encryption process. The `Value` field holds the encrypted
+// data, and `Nonce` is used to ensure the security and uniqueness of the encryption.
+type EncSecretShare struct {
+	Value []byte
+	Nonce []byte
+}
+
+// Clone creates a deep copy of the EncSecretShare instance.
+func (e EncSecretShare) Clone() EncSecretShare {
+	return EncSecretShare{Value: e.Value[:], Nonce: e.Nonce[:]}
+}
+
+// Validate checks the integrity and validity of the EncSecretShare instance.
+// It ensures that the encrypted value and nonce have the correct expected sizes.
+func (e EncSecretShare) Validate() error {
+	if len(e.Value) != 32 {
+		return fmt.Errorf("EncSecretShare: invalid size for enc value")
+	}
+	if len(e.Nonce) != 16 {
+		return fmt.Errorf("EncSecretShare: invalid size for nonce")
+	}
+	return nil
+}
+
+// EncSecretShares is a slice of EncSecretShare. It's used for storing multiple
+// encrypted secret shares. This type is particularly useful when dealing with
+// scenarios where multiple pieces of data need to be encrypted, such as in
+// threshold cryptography or secure multiparty computations, where each participant
+// might have their own encrypted share of a secret.
+type EncSecretShares []EncSecretShare
+
+// Clone creates a deep copy of the EncSecretShares slice.
+// It iterates through the slice, cloning each EncSecretShare to ensure
+// that modifications to the cloned slice do not affect the original EncSecretShares.
+func (es EncSecretShares) Clone() EncSecretShares {
+	copied := make([]EncSecretShare, len(es))
+	for i, e := range es {
+		copied[i] = e.Clone()
+	}
+	return copied
+}
+
+// Validate iterates through each EncSecretShare in the EncSecretShares slice,
+// performing validation checks on each EncSecretShare.
+func (es EncSecretShares) Validate() error {
+	var err error
+	for i, e := range es {
+		err = e.Validate()
+		if err != nil {
+			return NewError(err, fmt.Sprintf("index %d error", i))
+		}
+	}
+	return err
+}
