@@ -25,7 +25,9 @@ var (
 
 	partialResult, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "Calldata", Type: "bytes"},
+		{Name: "OracleScriptID", Type: "uint64"},
 		{Name: "RequestID", Type: "uint64"},
+		{Name: "MinCount", Type: "uint64"},
 		{Name: "ResolveTime", Type: "int64"},
 		{Name: "ResolveStatus", Type: "int32"},
 		{Name: "Result", Type: "bytes"},
