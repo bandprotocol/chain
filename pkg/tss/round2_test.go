@@ -17,7 +17,7 @@ func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 			member.OneTimePrivKey,
 			pubKeys,
 			member.Coefficients,
-			member.EncSecretShares[0].Nonce,
+			member.EncSecretShares[0].Nonce(),
 		)
 		suite.Require().NoError(err)
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
@@ -26,7 +26,11 @@ func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 
 func (suite *TSSTestSuite) TestEncryptSecretShares() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		encSecretShares, err := tss.EncryptSecretShares(member.SecretShares, member.KeySyms, member.EncSecretShares[0].Nonce)
+		encSecretShares, err := tss.EncryptSecretShares(
+			member.SecretShares,
+			member.KeySyms,
+			member.EncSecretShares[0].Nonce(),
+		)
 		suite.Require().NoError(err)
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
 	})

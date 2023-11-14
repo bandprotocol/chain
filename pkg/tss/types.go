@@ -632,24 +632,83 @@ func (b CommitmentIDEList) Sort() error {
 // It contains the encrypted value `Value` and the corresponding nonce `Nonce`
 // used in the Elgamal encryption process. The `Value` field holds the encrypted
 // data, and `Nonce` is used to ensure the security and uniqueness of the encryption.
-type EncSecretShare struct {
-	Value []byte
-	Nonce []byte
+type EncSecretShare []byte
+
+func NewEncSecretShare(value []byte, nonce []byte) (EncSecretShare, error) {
+	enc := EncSecretShare(append(value, nonce...))
+	if err := enc.Validate(); err != nil {
+		return nil, err
+	}
+
+	return enc, nil
+}
+
+// Value return the value part of EncSecretShare
+func (e EncSecretShare) Value() []byte {
+	return e[0:32]
+}
+
+// Value return the nonce part of EncSecretShare
+func (e EncSecretShare) Nonce() []byte {
+	return e[32:48]
 }
 
 // Clone creates a deep copy of the EncSecretShare instance.
 func (e EncSecretShare) Clone() EncSecretShare {
-	return EncSecretShare{Value: e.Value[:], Nonce: e.Nonce[:]}
+	bz := make([]byte, len(e))
+	copy(bz, e)
+	return bz
+}
+
+// Marshal needed for protobuf compatibility
+func (e EncSecretShare) Marshal() ([]byte, error) {
+	return e, nil
+}
+
+// Unmarshal needed for protobuf compatibility
+func (e *EncSecretShare) Unmarshal(data []byte) error {
+	*e = data
+	return nil
+}
+
+// MarshalJSON converts the EncSecretShare to its JSON representation.
+func (e EncSecretShare) MarshalJSON() ([]byte, error) {
+	str := strings.ToUpper(hex.EncodeToString(e))
+	jbz := make([]byte, len(str)+2)
+	jbz[0] = '"'
+	copy(jbz[1:], str)
+	jbz[len(jbz)-1] = '"'
+	return jbz, nil
+}
+
+// UnmarshalJSON parses a JSON string into a EncSecretShare.
+func (e *EncSecretShare) UnmarshalJSON(data []byte) error {
+	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
+		return fmt.Errorf("invalid hex string: %s", data)
+	}
+	bz2, err := hex.DecodeString(string(data[1 : len(data)-1]))
+	if err != nil {
+		return err
+	}
+	*e = bz2
+	return nil
+}
+
+// Bytes returns the underlying byte slice of the EncSecretShare.
+func (e EncSecretShare) Bytes() []byte {
+	return e
+}
+
+// String returns the hexadecimal representation of the EncSecretShare in uppercase.
+func (e EncSecretShare) String() string {
+	return strings.ToUpper(hex.EncodeToString(e))
 }
 
 // Validate checks the integrity and validity of the EncSecretShare instance.
 // It ensures that the encrypted value and nonce have the correct expected sizes.
 func (e EncSecretShare) Validate() error {
-	if len(e.Value) != 32 {
-		return fmt.Errorf("EncSecretShare: invalid size for enc value")
-	}
-	if len(e.Nonce) != 16 {
-		return fmt.Errorf("EncSecretShare: invalid size for nonce")
+	if len(e) != 48 {
+		return fmt.Errorf("EncSecretShare: invalid size")
 	}
 	return nil
 }

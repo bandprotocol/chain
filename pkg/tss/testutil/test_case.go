@@ -19,7 +19,10 @@ func CopyTestCase(src TestCase) TestCase {
 }
 
 var (
-	FalsePrivKey   = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
+	FalsePrivKey        = HexDecode("3b63e7ba7bcfd7ab89c329aa572e0be73681b9387aafe906cab6515c552761b1")
+	FalseEncSecretShare = HexDecode(
+		"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+	)
 	FalsePubKey    = HexDecode("0256d08999c2aae311c64396233508cde2101e234485dbda17078806aadb48b4cb")
 	FalseSignature = HexDecode(
 		"02f3ccc5cf138441e57a479856f50b6141435bdf37f57dad1ac0f3292694e96d0b189f73192795da234cdeb51c69821eeb982332da58e289ce1b9d9f8d27a3cd44",
@@ -65,10 +68,9 @@ var (
 							HexDecode("fd676b21b9f8b0b784aa2077d9260277fbe05ad4695e8e3a2531a88825c21c96"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							tss.EncSecretShare{
-								Value: HexDecode("bb8257070c0d68e56e64289bff96525f67ad1f180eba8bc55a2e66319958e2de"),
-								Nonce: HexDecode("cb234d564ddfdc4c15eccd9ce25a509d"),
-							},
+							HexDecode(
+								"bb8257070c0d68e56e64289bff96525f67ad1f180eba8bc55a2e66319958e2decb234d564ddfdc4c15eccd9ce25a509d",
+							),
 						},
 						PrivKey: HexDecode("0c2ba7a1236807693a68b6115754119336e59d8890f3295d7e460bdb3902ff58"),
 						PubKeySignature: HexDecode(
@@ -105,10 +107,9 @@ var (
 							HexDecode("f4d2f22bdd6e1648f1ef05e79cfe129574e3734f233ccba0ce40ff657d1163e6"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							tss.EncSecretShare{
-								Value: HexDecode("3ed7c20ee24a58e975650d757fa0ac01ff266dd0ddddbc41074d4f1d2ee7156d"),
-								Nonce: HexDecode("3f3d151aef2e69037c729a8c490a38bb"),
-							},
+							HexDecode(
+								"3ed7c20ee24a58e975650d757fa0ac01ff266dd0ddddbc41074d4f1d2ee7156d3f3d151aef2e69037c729a8c490a38bb",
+							),
 						},
 						PrivKey: HexDecode("1dfeba690a1a723c107f34cbb75c280ef7a3ebf26d182a39c8cfbeee9e922c00"),
 						PubKeySignature: HexDecode(
@@ -266,10 +267,9 @@ var (
 							HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							tss.EncSecretShare{
-								Value: HexDecode("fa00ec78f1dd3a82b12abebaa084251bde4879e295cab318ae9dcef42cd54c95"),
-								Nonce: HexDecode("3f3d151aef2e69037c729a8c490a38bb"),
-							},
+							HexDecode(
+								"fa00ec78f1dd3a82b12abebaa084251bde4879e295cab318ae9dcef42cd54c953f3d151aef2e69037c729a8c490a38bb",
+							),
 						},
 						PrivKey: HexDecode("97f0af1189e626c1bb22a0611c8947567b6fb5c29a543669a8e877168b806cbb"),
 						PubKeySignature: HexDecode(
@@ -304,10 +304,9 @@ var (
 							HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							tss.EncSecretShare{
-								Value: HexDecode("57e9ea849d1a4efba136a950eda2d0119b753a89a42e98b71d0de49249baa137"),
-								Nonce: HexDecode("c1e4d34f382090758f29da4c0a52173f"),
-							},
+							HexDecode(
+								"57e9ea849d1a4efba136a950eda2d0119b753a89a42e98b71d0de49249baa137c1e4d34f382090758f29da4c0a52173f",
+							),
 						},
 						PrivKey: HexDecode("97f0af1189e626c1bb22a0611c8947567b6fb5c29a543669a8e877168b806cbb"),
 						PubKeySignature: HexDecode(

@@ -40,7 +40,7 @@ func (gr GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, error
 }
 
 // GetEncryptedSecretShare retrieves the encrypted secret share from member (Sender) to member (Receiver).
-func (gr GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.Scalar, error) {
+func (gr GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.EncSecretShare, error) {
 	r2Sender, err := gr.GetRound2Info(senderID)
 	if err != nil {
 		return nil, err

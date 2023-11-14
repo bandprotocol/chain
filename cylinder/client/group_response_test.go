@@ -109,7 +109,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		queryGroupResponse *types.QueryGroupResponse
 		senderID           tss.MemberID
 		receiverID         tss.MemberID
-		expectedShare      tss.Scalar
+		expectedShare      tss.EncSecretShare
 		expectedError      error
 	}{
 		{
@@ -118,7 +118,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 				Round2Infos: []types.Round2Info{
 					{
 						MemberID:              1,
-						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
+						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
 					},
 				},
 			},
@@ -133,7 +133,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 				Round2Infos: []types.Round2Info{
 					{
 						MemberID:              1,
-						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
+						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
 					},
 				},
 			},
@@ -148,7 +148,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 				Round2Infos: []types.Round2Info{
 					{
 						MemberID:              1,
-						EncryptedSecretShares: []tss.Scalar{[]byte("share1"), []byte("share2")},
+						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
 					},
 				},
 			},

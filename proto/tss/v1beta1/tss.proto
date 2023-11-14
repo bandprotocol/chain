@@ -95,7 +95,7 @@ message Round2Info {
       [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
   // encrypted_secret_shares is a list of secret shares encrypted under the public keys of other members.
   repeated bytes encrypted_secret_shares = 2
-      [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"];
+      [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.EncSecretShares"];
 }
 
 // DE contains the public parts of a member's decryption and encryption keys.
