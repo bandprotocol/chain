@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha512"
-	"errors"
 	"fmt"
 	"io"
 
@@ -18,11 +17,6 @@ func Encrypt(value Scalar, key Point, n16g Nonce16Generator) (EncSecretShare, er
 	nonceBytes, err := n16g.RandBytes16()
 	if err != nil {
 		return EncSecretShare{}, err
-	}
-
-	// Check if the generated nonce is exactly 16 bytes
-	if len(nonceBytes) != 16 {
-		return EncSecretShare{}, fmt.Errorf("random function should return bytes16 but got bytes%d", len(nonceBytes))
 	}
 
 	// Encrypt the value using HKDF-based encryption
@@ -45,21 +39,29 @@ func Decrypt(e EncSecretShare, key Point) (Scalar, error) {
 // EncryptHKDF encrypts the given shareBytes using an AES key derived from the provided aesKey
 // and nonceBytes using the HKDF algorithm.
 func EncryptHKDF(shareBytes, aesKey, nonceBytes []byte) ([]byte, error) {
-	if len(shareBytes) != 32 || len(aesKey) != 32 || len(nonceBytes) != 16 {
-		return nil, fmt.Errorf("some input's size is invalid")
+	if len(shareBytes) != 32 {
+		return nil, fmt.Errorf("EncryptHKDF: share must be bytes32 but got bytes%d", len(shareBytes))
+	}
+
+	if len(aesKey) != 32 {
+		return nil, fmt.Errorf("EncryptHKDF: aesKey must be bytes32 but got bytes%d", len(aesKey))
+	}
+
+	if len(nonceBytes) != 16 {
+		return nil, fmt.Errorf("EncryptHKDF: nonce must be bytes16 but got bytes%d", len(nonceBytes))
 	}
 
 	// Derive the AES key using HKDF with SHA512
 	hkdfReader := hkdf.New(sha512.New, aesKey, nil, nil)
 	finalAESKey := make([]byte, 32)
 	if _, err := io.ReadFull(hkdfReader, finalAESKey); err != nil {
-		return nil, NewError(err, "failed to derive AES key")
+		return nil, NewError(err, "EncryptHKDF: failed to derive AES key")
 	}
 
 	// Create a new AES-CTR cipher object
 	blockCipher, err := aes.NewCipher(finalAESKey)
 	if err != nil {
-		return nil, NewError(err, "failed to create AES cipher")
+		return nil, NewError(err, "EncryptHKDF: failed to create AES cipher")
 	}
 
 	stream := cipher.NewCTR(blockCipher, nonceBytes)
@@ -76,25 +78,25 @@ func EncryptHKDF(shareBytes, aesKey, nonceBytes []byte) ([]byte, error) {
 func DecryptHKDF(e EncSecretShare, aesKey []byte) ([]byte, error) {
 	err := e.Validate()
 	if err != nil {
-		return nil, NewError(err, "at DecryptHKDF")
+		return nil, NewError(err, "DecryptHKDF")
 	}
 
 	// Check if the provided AES key has the correct size
 	if len(aesKey) != 32 {
-		return nil, errors.New("DecryptHKDF: aesKey's size is invalid")
+		return nil, fmt.Errorf("DecryptHKDF: aesKey must be bytes32 but got bytes%d", len(aesKey))
 	}
 
 	// Derive the AES key using HKDF with SHA512
 	hkdfReader := hkdf.New(sha512.New, aesKey, nil, nil)
 	finalAESKey := make([]byte, 32)
 	if _, err := io.ReadFull(hkdfReader, finalAESKey); err != nil {
-		return nil, NewError(err, "failed to derive AES key")
+		return nil, NewError(err, "DecryptHKDF: failed to derive AES key")
 	}
 
 	// Create a new AES-CTR cipher object
 	blockCipher, err := aes.NewCipher(finalAESKey)
 	if err != nil {
-		return nil, NewError(err, "failed to create AES cipher")
+		return nil, NewError(err, "DecryptHKDF: failed to create AES cipher")
 	}
 	stream := cipher.NewCTR(blockCipher, e.Nonce())
 
