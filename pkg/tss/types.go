@@ -743,3 +743,7 @@ func (es EncSecretShares) Validate() error {
 	}
 	return err
 }
+
+type Nonce16Generator interface {
+	RandBytes16() ([]byte, error)
+}
