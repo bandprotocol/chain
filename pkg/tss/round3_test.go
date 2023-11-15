@@ -168,10 +168,9 @@ func (suite *TSSTestSuite) TestVerifyComplaint() {
 			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
 			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
 			// Success case - wrong encrypted secret share
-			falseEncSecretShare := tss.EncSecretShare{
-				Value: testutil.HexDecode("9a4b4aff91200c9c8604fc218f67c35796d0aba5a2e277c46a01140dc4ff24b6"),
-				Nonce: testutil.HexDecode("00939f506aa1550df8a0cf08db8f00d3"),
-			}
+			falseEncSecretShare := testutil.HexDecode(
+				"9a4b4aff91200c9c8604fc218f67c35796d0aba5a2e277c46a01140dc4ff24b600939f506aa1550df8a0cf08db8f00d3",
+			)
 			err := tss.VerifyComplaint(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),

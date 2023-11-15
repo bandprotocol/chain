@@ -32,7 +32,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID != mid {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(r2Info.MemberID, mid)] = testutil.HexDecode(
-							"0000000000000000000000000000000000000000000000000000000000000000",
+							"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 						)
 					}
 				}
@@ -117,7 +117,7 @@ func TestGetSecretShare(t *testing.T) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID == j {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(j, i)] = testutil.HexDecode(
-							"0000000000000000000000000000000000000000000000000000000000000000",
+							"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 						)
 					}
 				}

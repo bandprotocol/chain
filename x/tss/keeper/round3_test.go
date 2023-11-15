@@ -58,7 +58,7 @@ func (s *KeeperTestSuite) TestHandleVerifyComplain() {
 			s.Require().NoError(err)
 
 			// Set fake encrypted secret shares
-			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FalsePrivKey
+			respondentRound2.EncryptedSecretShares[respondentSlot] = testutil.FalseEncSecretShare
 			k.AddRound2Info(ctx, tc.Group.ID, respondentRound2)
 
 			// Success case - wrong encrypted secret share
@@ -436,7 +436,7 @@ func (s *KeeperTestSuite) TestDeleteAllDKGInterimData() {
 		}
 		round2Info := types.Round2Info{
 			MemberID: memberID,
-			EncryptedSecretShares: tss.Scalars{
+			EncryptedSecretShares: tss.EncSecretShares{
 				[]byte("e_12"),
 				[]byte("e_13"),
 				[]byte("e_14"),

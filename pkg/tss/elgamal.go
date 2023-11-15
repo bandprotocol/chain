@@ -31,7 +31,7 @@ func Encrypt(value Scalar, key Point, nonces ...[]byte) (EncSecretShare, error) 
 		return EncSecretShare{}, err
 	}
 
-	return EncSecretShare{Value: encValue, Nonce: nonceBytes}, nil
+	return NewEncSecretShare(encValue, nonceBytes)
 }
 
 // Decrypt decrypts the given encrypted value using the key.
@@ -89,10 +89,10 @@ func DecryptHKDF(e EncSecretShare, aesKey []byte) ([]byte, error) {
 	if err != nil {
 		return nil, NewError(err, "failed to create AES cipher")
 	}
-	stream := cipher.NewCTR(blockCipher, e.Nonce)
+	stream := cipher.NewCTR(blockCipher, e.Nonce())
 
 	// Perform the decryption
 	decrypted := make([]byte, 32)
-	stream.XORKeyStream(decrypted, e.Value)
+	stream.XORKeyStream(decrypted, e.Value())
 	return decrypted, nil
 }

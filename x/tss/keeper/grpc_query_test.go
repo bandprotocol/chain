@@ -62,16 +62,16 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 	round2Info1 := types.Round2Info{
 		MemberID: memberID1,
-		EncryptedSecretShares: tss.Scalars{
-			[]byte("scalar1"),
-			[]byte("scalar2"),
+		EncryptedSecretShares: tss.EncSecretShares{
+			[]byte("secret1"),
+			[]byte("secret2"),
 		},
 	}
 	round2Info2 := types.Round2Info{
 		MemberID: memberID2,
-		EncryptedSecretShares: tss.Scalars{
-			[]byte("scalar1"),
-			[]byte("scalar2"),
+		EncryptedSecretShares: tss.EncSecretShares{
+			[]byte("secret1"),
+			[]byte("secret2"),
 		},
 	}
 	complaintWithStatus1 := types.ComplaintsWithStatus{
