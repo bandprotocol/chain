@@ -11,9 +11,9 @@ import (
 )
 
 // Encrypt takes a scalar value and a point key and returns an encrypted secret share.
-// It uses a Nonce16Generator to generate a nonce for the encryption process.
-func Encrypt(value Scalar, key Point, n16g Nonce16Generator) (EncSecretShare, error) {
-	// Generate a 16-byte nonce using the provided Nonce16Generator
+// It uses a INonce16Generator to generate a nonce for the encryption process.
+func Encrypt(value Scalar, key Point, n16g INonce16Generator) (EncSecretShare, error) {
+	// Generate a 16-byte nonce using the provided INonce16Generator
 	nonceBytes, err := n16g.RandBytes16()
 	if err != nil {
 		return EncSecretShare{}, err

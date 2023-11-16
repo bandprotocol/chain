@@ -10,7 +10,7 @@ func ComputeEncryptedSecretShares(
 	rawPrivKey Scalar,
 	rawPubKeys Points,
 	rawCoeffcients Scalars,
-	n16g Nonce16Generator,
+	n16g INonce16Generator,
 ) (EncSecretShares, error) {
 	// Compute the key sym for each member 1..n except mid.
 	var keySyms Points
@@ -51,7 +51,7 @@ func ComputeEncryptedSecretShares(
 func EncryptSecretShares(
 	secretShares Scalars,
 	keySyms Points,
-	n16g Nonce16Generator,
+	n16g INonce16Generator,
 ) (EncSecretShares, error) {
 	if len(secretShares) != len(keySyms) {
 		return nil, NewError(

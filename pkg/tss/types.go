@@ -1,6 +1,7 @@
 package tss
 
 import (
+	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"sort"
@@ -744,6 +745,23 @@ func (es EncSecretShares) Validate() error {
 	return err
 }
 
-type Nonce16Generator interface {
+// INonce16Generator defines an interface for generating a 16-byte nonce.
+type INonce16Generator interface {
 	RandBytes16() ([]byte, error)
+}
+
+// DefaultNonce16Generator is a struct that implements the INonce16Generator interface.
+// It provides a default mechanism to generate a slice of 16 random bytes.
+type DefaultNonce16Generator struct{}
+
+// RandBytes16 generates a 16-byte random nonce.
+// It returns a slice of 16 cryptographically secure random bytes and an error if the random byte
+// generation fails. This method satisfies the INonce16Generator interface.
+func (dng DefaultNonce16Generator) RandBytes16() ([]byte, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, NewError(err, "rand nonce bytes16")
+	}
+	return b, nil
 }
