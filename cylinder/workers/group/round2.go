@@ -124,6 +124,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 		dkg.OneTimePrivKey,
 		oneTimePubKeys,
 		dkg.Coefficients,
+		tss.DefaultNonce16Generator{},
 	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err)
