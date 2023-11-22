@@ -37,7 +37,7 @@ func (k Keeper) MarshalResult(ctx sdk.Context, result types.Result) ([]byte, err
 func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
-		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
+		return types.Result{}, types.ErrResultNotFound.Wrapf("id: %d", id)
 	}
 	var result types.Result
 	k.cdc.MustUnmarshal(bz, &result)

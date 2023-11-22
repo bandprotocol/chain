@@ -506,7 +506,7 @@ func NewBandApp(
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
-	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(appCodec, keys[rollingseedtypes.StoreKey])
+	app.RollingseedKeeper = rollingseedkeeper.NewKeeper(keys[rollingseedtypes.StoreKey])
 	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
 
 	// register the request signature types

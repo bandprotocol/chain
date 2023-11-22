@@ -58,18 +58,13 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	// Create the account if it doesn't yet exist.
 	acc := k.accountKeeper.GetModuleAccount(ctx, moduleName)
 	if acc == nil {
-		panic(sdkerrors.Wrapf(
-			sdkerrors.ErrUnknownAddress,
-			"module account %s does not exist", moduleName,
-		))
+		panic(sdkerrors.ErrUnknownAddress.Wrapf("module account %s does not exist", moduleName))
 	}
 
 	if !acc.HasPermission(authtypes.Burner) {
-		panic(sdkerrors.Wrapf(
-			sdkerrors.ErrUnauthorized,
-			"module account %s does not have permissions to burn tokens",
-			moduleName,
-		))
+		panic(
+			sdkerrors.ErrUnauthorized.Wrapf("module account %s does not have permissions to burn tokens", moduleName),
+		)
 	}
 
 	// Instead of burning coins, we send them to the community pool.

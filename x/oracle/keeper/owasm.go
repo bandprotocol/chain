@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
@@ -42,8 +41,7 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 			return false
 		})
 	if len(valOperators) < size {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInsufficientValidators, "%d < %d", len(valOperators), size)
+		return nil, types.ErrInsufficientValidators.Wrapf("%d < %d", len(valOperators), size)
 	}
 	rng, err := bandrng.NewRng(
 		k.rollingseedKepper.GetRollingSeed(ctx),
@@ -51,7 +49,7 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
 	}
 	tryCount := int(k.GetParams(ctx).SamplingTryCount)
 	chosenValIndexes := bandrng.ChooseSomeMaxWeight(rng, valPowers, size, tryCount)
@@ -126,7 +124,7 @@ func (k Keeper) PrepareRequest(
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), env)
 	if err != nil {
-		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
+		return 0, types.ErrBadWasmExecution.Wrapf(err.Error())
 	}
 
 	// Preparation complete! It's time to collect raw request ids.

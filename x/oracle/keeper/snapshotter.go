@@ -1,14 +1,14 @@
 package keeper
 
 import (
-	"errors"
+	"fmt"
 	"io"
 
+	"cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	snapshot "github.com/cosmos/cosmos-sdk/snapshots/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/pkg/gzip"
@@ -113,11 +113,11 @@ func (os *OracleSnapshotter) processAllItems(
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return sdkerrors.Wrap(err, "invalid protobuf message")
+			return errors.Wrap(err, "invalid protobuf message")
 		}
 
 		if err := restore(ctx, os.keeper, payload, foundCode); err != nil {
-			return sdkerrors.Wrap(err, "processing snapshot item")
+			return errors.Wrap(err, "processing snapshot item")
 		}
 	}
 
@@ -163,7 +163,7 @@ func restoreV1(ctx sdk.Context, k *Keeper, compressedCode []byte, foundCode map[
 		max(types.MaxExecutableSize, types.MaxWasmCodeSize, types.MaxCompiledWasmCodeSize),
 	)
 	if err != nil {
-		return sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+		return types.ErrUncompressionFailed.Wrapf(err.Error())
 	}
 
 	// check if we really need this file or not first
@@ -171,7 +171,7 @@ func restoreV1(ctx sdk.Context, k *Keeper, compressedCode []byte, foundCode map[
 	found, required := foundCode[filename]
 
 	if !required {
-		return errors.New("found unexpected code in the snapshot")
+		return fmt.Errorf("found unexpected code in the snapshot")
 	}
 
 	if !found {
@@ -187,7 +187,7 @@ func finalizeV1(ctx sdk.Context, k *Keeper, foundCode map[string]bool) error {
 	// check if there is any required code that we can't find in restore process
 	for _, found := range foundCode {
 		if !found {
-			return errors.New("some code is missing from the snapshot")
+			return fmt.Errorf("some code is missing from the snapshot")
 		}
 	}
 	return nil

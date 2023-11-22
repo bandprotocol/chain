@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -211,7 +211,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 			if err != nil {
 				return err
 			}
-			execBytes, err := ioutil.ReadFile(scriptPath)
+			execBytes, err := os.ReadFile(scriptPath)
 			if err != nil {
 				return err
 			}
@@ -314,7 +314,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			}
 			execBytes := types.DoNotModifyBytes
 			if scriptPath != types.DoNotModify {
-				execBytes, err = ioutil.ReadFile(scriptPath)
+				execBytes, err = os.ReadFile(scriptPath)
 				if err != nil {
 					return err
 				}
@@ -411,7 +411,7 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 			if err != nil {
 				return err
 			}
-			scriptCode, err := ioutil.ReadFile(scriptPath)
+			scriptCode, err := os.ReadFile(scriptPath)
 			if err != nil {
 				return err
 			}
@@ -505,7 +505,7 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 			}
 			scriptCode := types.DoNotModifyBytes
 			if scriptPath != types.DoNotModify {
-				scriptCode, err = ioutil.ReadFile(scriptPath)
+				scriptCode, err = os.ReadFile(scriptPath)
 				if err != nil {
 					return err
 				}
