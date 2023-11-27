@@ -125,6 +125,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
@@ -1046,6 +1047,7 @@ func TestCollectFeeBasicSuccess(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(3000000))
 
@@ -1078,6 +1080,7 @@ func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(12000000))
 

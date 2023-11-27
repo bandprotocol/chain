@@ -26,7 +26,6 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
-	requester   sdk.AccAddress
 	authority   sdk.AccAddress
 }
 

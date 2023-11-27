@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
@@ -85,7 +85,7 @@ func (k Keeper) ResolveSuccess(
 			feeLimit,
 		)
 		if err != nil {
-			codespace, code, _ := sdkerrors.ABCIInfo(err, false)
+			codespace, code, _ := errors.ABCIInfo(err, false)
 			signingResult = &types.SigningResult{
 				ErrorCodespace: codespace,
 				ErrorCode:      uint64(code),

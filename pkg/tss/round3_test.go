@@ -33,6 +33,7 @@ func (suite *TSSTestSuite) TestComputeOwnPrivateKey() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
 		var allSecrets []tss.Scalar
 		ownSecret, err := tss.ComputeSecretShare(member.Coefficients, member.ID)
+		suite.Require().NoError(err)
 		allSecrets = append(allSecrets, ownSecret)
 
 		for _, m := range tc.Group.Members {

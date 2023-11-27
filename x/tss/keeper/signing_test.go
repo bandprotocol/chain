@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -630,7 +628,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("%s", tc.name), func() {
+		s.Run(tc.name, func() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
 

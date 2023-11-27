@@ -42,7 +42,7 @@ func (k *WrappedBankKeeper) SetDistrKeeper(dk types.DistributionKeeper) {
 
 // Logger returns a module-specific logger.
 func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprint("x/wrappedbank"))
+	return ctx.Logger().With("module", "x/wrappedbank")
 }
 
 // BurnCoins moves the specified amount of coins from the given module name to
