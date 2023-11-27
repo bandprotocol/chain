@@ -23,8 +23,9 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	totalPower := int64(0)
 	for _, vote := range previousVotes {
 		val := k.stakingKeeper.ValidatorByConsAddr(ctx, vote.Validator.Address)
+		acc := sdk.AccAddress(val.GetOperator())
 
-		if k.GetStatus(ctx, vote.Validator.Address).Status == types.MEMBER_STATUS_ACTIVE {
+		if k.GetStatus(ctx, acc).Status == types.MEMBER_STATUS_ACTIVE {
 			toReward = append(toReward, valWithPower{val: val, power: vote.Validator.Power})
 			totalPower += vote.Validator.Power
 		}
