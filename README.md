@@ -99,7 +99,7 @@ build_deps:
 - [Official Website](https://bandprotocol.com)
 - [Telegram](https://t.me/bandprotocol)
 - [Twitter](https://twitter.com/bandprotocol)
-- [Developer Discord](https://100x.band/discord)
+- [Developer Discord](https://discord.com/invite/3t4bsY7)
 
 ## License & Contributing
 
