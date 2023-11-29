@@ -402,6 +402,13 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 
 	// Create group
 	groupID := k.CreateNewGroup(ctx, types.Group{})
+	k.SetMember(ctx, types.Member{
+		ID:          1,
+		GroupID:     groupID,
+		Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+		PubKey:      nil,
+		IsMalicious: false,
+	})
 
 	// Set the current block height
 	blockHeight := int64(30001)

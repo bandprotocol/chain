@@ -36,6 +36,15 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 		msgSrvr.Activate(ctx, &types.MsgActivate{
 			Address: m,
 		})
+		msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+			DEs: []types.DE{
+				{
+					PubD: testutil.HexDecode("dddd"),
+					PubE: testutil.HexDecode("eeee"),
+				},
+			},
+			Address: m,
+		})
 	}
 
 	s.Run("create group", func() {
