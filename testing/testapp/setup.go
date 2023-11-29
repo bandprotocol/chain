@@ -421,7 +421,6 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 		app.TSSKeeper.SetActiveStatus(ctx, Validators[0].Address)
 		app.TSSKeeper.SetActiveStatus(ctx, Validators[1].Address)
 		app.TSSKeeper.SetActiveStatus(ctx, Validators[2].Address)
-
 	}
 	return app, ctx, app.OracleKeeper
 }
