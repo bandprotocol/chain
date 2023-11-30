@@ -118,6 +118,7 @@ import (
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
+	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
@@ -139,9 +140,11 @@ const (
 	appName          = "BandApp"
 	Bech32MainPrefix = "band"
 	Bip44CoinType    = 494
+)
 
-	SignatureTSSRoutePrefix    = 0x01
-	SignatureOracleRoutePrefix = 0x02
+var (
+	SignatureTSSRoutePrefix    = tsslib.Hash([]byte("TSS"))[:4]
+	SignatureOracleRoutePrefix = tsslib.Hash([]byte("Oracle"))[:4]
 )
 
 var (

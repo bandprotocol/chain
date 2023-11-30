@@ -375,6 +375,33 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
+			members, err := k.GetGroupMembers(ctx, group.ID)
+			if err != nil {
+				// should not happen
+				panic(err)
+			}
+			for _, member := range members {
+				address := sdk.MustAccAddressFromBech32(member.Address)
+				switch group.Status {
+				case types.GROUP_STATUS_ROUND_1:
+					_, err := k.GetRound1Info(ctx, group.ID, member.ID)
+					if err != nil {
+						k.SetJailStatus(ctx, address)
+					}
+				case types.GROUP_STATUS_ROUND_2:
+					_, err := k.GetRound2Info(ctx, group.ID, member.ID)
+					if err != nil {
+						k.SetJailStatus(ctx, address)
+					}
+				case types.GROUP_STATUS_ROUND_3:
+					err := k.checkConfirmOrComplain(ctx, group.ID, member.ID)
+					if err != nil {
+						k.SetJailStatus(ctx, address)
+					}
+				default:
+				}
+			}
+
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)

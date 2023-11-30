@@ -35,7 +35,14 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 
 	for _, m := range members {
-		k.SetActive(ctx, sdk.MustAccAddressFromBech32(m))
+		address := sdk.MustAccAddressFromBech32(m)
+		k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
+		k.HandleSetDEs(ctx, address, []types.DE{
+			{
+				PubD: testutil.HexDecode("dddd"),
+				PubE: testutil.HexDecode("eeee"),
+			},
+		})
 	}
 
 	round1Info1 := types.Round1Info{
