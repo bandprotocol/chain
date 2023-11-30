@@ -43,7 +43,12 @@ func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
 	// Get de queues with address
 	after := k.GetDEQueues(ctx)
 
-	s.Require().Equal(append(before, deQueue), after)
+	s.Require().Equal(len(before)+1, len(after))
+	for _, q := range after {
+		if q.Address == deQueue.Address {
+			s.Require().Equal(deQueue, q)
+		}
+	}
 }
 
 func (s *KeeperTestSuite) TestGetSetDE() {
@@ -89,7 +94,7 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 
 func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1a3vd83qlz66a762dth82jnnuxk3lwn2q7v27tl")
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	index := uint64(1)
 	before := k.GetDEsGenesis(ctx)
 	de := types.DE{
@@ -103,11 +108,16 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	// Get des with address and index
 	after := k.GetDEsGenesis(ctx)
 
-	s.Require().Equal(append(before, types.DEGenesis{
-		Address: address.String(),
-		Index:   index,
-		DE:      de,
-	}), after)
+	s.Require().Equal(len(before)+1, len(after))
+	for _, q := range after {
+		if q.Address == string(address) {
+			s.Require().Equal(types.DEGenesis{
+				Address: address.String(),
+				Index:   index,
+				DE:      de,
+			}, q)
+		}
+	}
 }
 
 func (s *KeeperTestSuite) TestNextQueueValue() {

@@ -24,7 +24,7 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 			address := sdk.AccAddress(validator.GetOperator())
 			status := k.GetStatus(ctx, address)
 
-			if status.Status == types.MEMBER_STATUS_ACTIVE &&
+			if (status.Status == types.MEMBER_STATUS_ACTIVE || status.Status == types.MEMBER_STATUS_PAUSED) &&
 				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
 				k.SetInactiveStatus(ctx, address)
 
@@ -77,7 +77,7 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status != types.MEMBER_STATUS_ACTIVE {
+	if status.Status != types.MEMBER_STATUS_ACTIVE && status.Status != types.MEMBER_STATUS_PAUSED {
 		return types.ErrInvalidStatus
 	}
 
