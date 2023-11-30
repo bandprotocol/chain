@@ -5,9 +5,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+)
+
+var (
+	EncodeTypeProtoPrefix      = tsslib.Hash([]byte("Proto"))[:4]
+	EncodeTypeFullABIPrefix    = tsslib.Hash([]byte("FullABI"))[:4]
+	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("PartialABI"))[:4]
 )
 
 // NewRequestingSignatureHandler creates a new TSS Handler for requesting the signature
@@ -22,11 +29,26 @@ func NewRequestingSignatureHandler(k keeper.Keeper) tsstypes.Handler {
 
 			switch c.EncodeType {
 			case types.ENCODE_TYPE_UNSPECIFIED, types.ENCODE_TYPE_PROTO:
-				return k.MarshalResult(ctx, result)
+				bz, err := k.MarshalResult(ctx, result)
+				if err != nil {
+					return nil, err
+				}
+
+				return append(EncodeTypeFullABIPrefix, bz...), nil
 			case types.ENCODE_TYPE_FULL_ABI:
-				return result.PackFullABI()
+				bz, err := result.PackFullABI()
+				if err != nil {
+					return nil, err
+				}
+
+				return append(EncodeTypeProtoPrefix, bz...), nil
 			case types.ENCODE_TYPE_PARTIAL_ABI:
-				return result.PackPartialABI()
+				bz, err := result.PackPartialABI()
+				if err != nil {
+					return nil, err
+				}
+
+				return append(EncodeTypePartialABIPrefix, bz...), nil
 			default:
 				return nil, errors.Wrapf(
 					sdkerrors.ErrUnknownRequest,

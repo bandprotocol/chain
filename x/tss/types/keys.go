@@ -24,7 +24,7 @@ const (
 )
 
 var (
-	ReplaceGroupMsgPrefix byte = 0x00
+	ReplaceGroupMsgPrefix = tss.Hash([]byte("Replace"))[:4]
 )
 
 var lenTime = len(sdk.FormatTimeBytes(time.Now()))

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,7 @@ type Router interface {
 
 type router struct {
 	routes   map[string]Route
-	prefixes map[byte]Route
+	prefixes map[string]Route
 	sealed   bool
 }
 
@@ -26,7 +27,7 @@ type router struct {
 func NewRouter() Router {
 	return &router{
 		routes:   make(map[string]Route),
-		prefixes: make(map[byte]Route),
+		prefixes: make(map[string]Route),
 	}
 }
 
@@ -46,8 +47,8 @@ func (rtr *router) AddRoute(path string, h Route) Router {
 		panic("router sealed; cannot add route handler")
 	}
 
-	if h.Prefix == 0x00 {
-		panic("prefix (0x00) is reserved for replacing group only")
+	if bytes.Equal(h.Prefix, ReplaceGroupMsgPrefix) {
+		panic(fmt.Sprintf("prefix (%x) is reserved for replacing group only", ReplaceGroupMsgPrefix))
 	}
 
 	if !sdk.IsAlphaNumeric(path) {
@@ -63,7 +64,7 @@ func (rtr *router) AddRoute(path string, h Route) Router {
 	}
 
 	rtr.routes[path] = h
-	rtr.prefixes[h.Prefix] = h
+	rtr.prefixes[string(h.Prefix)] = h
 	return rtr
 }
 
@@ -74,8 +75,8 @@ func (rtr *router) HasRoute(path string) bool {
 }
 
 // HasPrefix returns true if the router has a prefix registered or false otherwise.
-func (rtr *router) HasPrefix(prefix byte) bool {
-	_, ok := rtr.prefixes[prefix]
+func (rtr *router) HasPrefix(prefix []byte) bool {
+	_, ok := rtr.prefixes[string(prefix)]
 	return ok
 }
 
