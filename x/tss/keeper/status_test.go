@@ -15,7 +15,7 @@ func (s *KeeperTestSuite) TestSetInActive() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
-	k.SetInactive(ctx, address)
+	k.SetInactiveStatus(ctx, address)
 
 	status := k.GetStatus(ctx, address)
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
@@ -47,20 +47,20 @@ func (s *KeeperTestSuite) TestSetActive() {
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case
-	err := k.SetActive(ctx, address)
+	err := k.SetActiveStatus(ctx, address)
 	s.Require().NoError(err)
 
 	status := k.GetStatus(ctx, address)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
 
 	// Failed case - penalty
-	k.SetInactive(ctx, address)
+	k.SetInactiveStatus(ctx, address)
 
-	err = k.SetActive(ctx, address)
+	err = k.SetActiveStatus(ctx, address)
 	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
 
 	// Failed case - no member
-	err = k.SetActive(ctx, address)
+	err = k.SetActiveStatus(ctx, address)
 	s.Require().Error(err)
 }
 
@@ -77,7 +77,7 @@ func (s *KeeperTestSuite) TestSetLastActive() {
 	s.Require().Equal(ctx.BlockTime(), status.LastActive)
 
 	// Failed case
-	k.SetInactive(ctx, address)
+	k.SetInactiveStatus(ctx, address)
 
 	err = k.SetLastActive(ctx, address)
 	s.Require().Error(err)

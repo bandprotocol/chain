@@ -236,7 +236,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := k.SetActive(ctx, ba.Sender.Address)
+			err := k.SetActiveStatus(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 

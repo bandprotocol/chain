@@ -402,7 +402,7 @@ func (k Keeper) HandleRequestSign(
 	}
 
 	// Wrap the message data with the registered prefix.
-	msg = append([]byte{route.Prefix}, msg...)
+	msg = append(route.Prefix, msg...)
 
 	return k.handleRequestSign(ctx, groupID, msg, feePayer, feeLimit)
 }
@@ -415,7 +415,7 @@ func (k Keeper) HandleReplaceGroupRequestSignature(
 	feePayer sdk.AccAddress,
 ) (tss.SigningID, error) {
 	// Wrap the message data as replace group msg.
-	msg := append([]byte{types.ReplaceGroupMsgPrefix}, pubKey...)
+	msg := append(types.ReplaceGroupMsgPrefix, pubKey...)
 
 	return k.handleRequestSign(ctx, groupID, msg, feePayer, sdk.NewCoins())
 }
@@ -491,7 +491,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 				if !found {
 					member := k.MustGetMember(ctx, signing.GroupID, mid)
 					accAddress := sdk.MustAccAddressFromBech32(member.Address)
-					k.SetInactive(ctx, accAddress)
+					k.SetInactiveStatus(ctx, accAddress)
 				}
 			}
 

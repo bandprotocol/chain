@@ -777,7 +777,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 
-	err = k.SetActive(ctx, address)
+	err = k.SetActiveStatus(ctx, address)
 	if err != nil {
 		return nil, err
 	}
@@ -837,7 +837,7 @@ func (k Keeper) UpdateParams(
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
 // If either a confirm or a complain message from the member is found, an error is returned.
-func (k msgServer) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {
 		return errors.Wrapf(

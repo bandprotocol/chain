@@ -17,11 +17,11 @@ type Handler func(ctx sdk.Context, content Content) ([]byte, error)
 
 // Router define a struct that hold prefix and handler of the route
 type Route struct {
-	Prefix  byte
+	Prefix  []byte
 	Handler Handler
 }
 
-func NewRoute(prefix byte, handler Handler) Route {
+func NewRoute(prefix []byte, handler Handler) Route {
 	return Route{
 		Prefix:  prefix,
 		Handler: handler,
