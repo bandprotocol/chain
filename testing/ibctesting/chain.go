@@ -29,7 +29,6 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
@@ -325,7 +324,7 @@ func (chain *TestChain) SendReport(
 
 // GetClientState retrieves the client state for the provided clientID. The client is
 // expected to exist otherwise testing will fail.
-func (chain *TestChain) GetClientState(clientID string) exported.ClientState {
+func (chain *TestChain) GetClientState(clientID string) ibcexported.ClientState {
 	clientState, found := chain.App.GetIBCKeeper().ClientKeeper.GetClientState(chain.GetContext(), clientID)
 	require.True(chain.t, found)
 
@@ -334,7 +333,10 @@ func (chain *TestChain) GetClientState(clientID string) exported.ClientState {
 
 // GetConsensusState retrieves the consensus state for the provided clientID and height.
 // It will return a success boolean depending on if consensus state exists or not.
-func (chain *TestChain) GetConsensusState(clientID string, height exported.Height) (exported.ConsensusState, bool) {
+func (chain *TestChain) GetConsensusState(
+	clientID string,
+	height ibcexported.Height,
+) (ibcexported.ConsensusState, bool) {
 	return chain.App.GetIBCKeeper().ClientKeeper.GetClientConsensusState(chain.GetContext(), clientID, height)
 }
 
@@ -357,7 +359,7 @@ func (chain *TestChain) GetValsAtHeight(height int64) (*tmtypes.ValidatorSet, bo
 
 // GetAcknowledgement retrieves an acknowledgement for the provided packet. If the
 // acknowledgement does not exist then testing will fail.
-func (chain *TestChain) GetAcknowledgement(packet exported.PacketI) []byte {
+func (chain *TestChain) GetAcknowledgement(packet ibcexported.PacketI) []byte {
 	ack, found := chain.App.GetIBCKeeper().ChannelKeeper.GetPacketAcknowledgement(
 		chain.GetContext(),
 		packet.GetDestPort(),

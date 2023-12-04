@@ -5,7 +5,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const (
+	TypeMsgUpdateParams = "update_params"
+)
+
 var _ sdk.Msg = &MsgUpdateParams{}
+
+// Route returns the route of MsgUpdateParams - "oracle" (sdk.Msg interface).
+func (m MsgUpdateParams) Route() string { return RouterKey }
+
+// Type returns the message type of MsgUpdateParams (sdk.Msg interface).
+func (m MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
