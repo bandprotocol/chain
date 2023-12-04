@@ -106,14 +106,14 @@ func runCmd(c *Context) *cobra.Command {
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cfg.ChainID == "" {
-				return errors.New("Chain ID must not be empty")
+				return errors.New("chain ID must not be empty")
 			}
 			keys, err := kb.List()
 			if err != nil {
 				return err
 			}
 			if len(keys) == 0 {
-				return errors.New("No key available")
+				return errors.New("no key available")
 			}
 			c.keys = keys
 			c.validator, err = sdk.ValAddressFromBech32(cfg.Validator)

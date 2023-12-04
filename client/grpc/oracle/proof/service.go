@@ -13,7 +13,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // RegisterProofService registers the node gRPC service on the provided gRPC router.
@@ -89,7 +88,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 	}
 
 	// Unmarshal the value into a Result object
-	var rs oracletypes.Result
+	var rs types.Result
 	types.ModuleCdc.MustUnmarshal(value, &rs)
 
 	// Create an OracleDataProof object with the relevant information
@@ -195,7 +194,7 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 		}
 
 		// Unmarshal the value into a Result object
-		var rs oracletypes.Result
+		var rs types.Result
 		types.ModuleCdc.MustUnmarshal(value, &rs)
 
 		// Create an OracleDataProof object with the relevant information
