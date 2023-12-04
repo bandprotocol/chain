@@ -13,7 +13,6 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/group"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -159,18 +158,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 }
 
 func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) {
-	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
-	lenTimeByte := byte(len(timeBytes))
-	prefix := []byte{groupkeeper.ProposalsByVotingPeriodEndPrefix}
-
-	iterator := ctx.KVStore(h.groupStoreKey).
-		Iterator(prefix, sdk.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		proposalID, _ := splitKeyWithTime(iterator.Key())
-		h.doUpdateGroupProposal(ctx, proposalID)
-	}
-
 	events := sdk.StringifyEvents([]abci.Event{event})
 	evMap := parseEvents(events)
 	switch event.Type {

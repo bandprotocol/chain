@@ -432,6 +432,19 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
 func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+	// update group proposals when voting period is end
+	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
+	lenTimeByte := byte(len(timeBytes))
+	prefix := []byte{groupkeeper.ProposalsByVotingPeriodEndPrefix}
+
+	iterator := ctx.KVStore(h.groupStoreKey).
+		Iterator(prefix, sdk.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		proposalID, _ := splitKeyWithTime(iterator.Key())
+		h.doUpdateGroupProposal(ctx, proposalID)
+	}
+
 	for _, event := range res.Events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}

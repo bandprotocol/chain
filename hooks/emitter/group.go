@@ -11,12 +11,16 @@ import (
 	proto "github.com/cosmos/gogoproto/proto"
 )
 
+func extractStringFromEventMap(evMap common.EvMap, event string, topic string) string {
+	return strings.Trim(evMap[event+"."+topic][0], `"`)
+}
+
 // handleGroupMsgCreateGroup implements emitter handler for Group's MsgCreateGroup.
 func (h *Hook) handleGroupMsgCreateGroup(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	groupId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventCreateGroup{})+".group_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventCreateGroup{}), "group_id")),
 	)
 	groupInfoResponse, _ := h.groupKeeper.GroupInfo(
 		sdk.WrapSDKContext(ctx),
@@ -38,7 +42,7 @@ func (h *Hook) handleGroupMsgCreateGroup(
 func (h *Hook) handleGroupMsgCreateGroupPolicy(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	policyAddress := strings.Trim(evMap[proto.MessageName(&group.EventCreateGroupPolicy{})+".address"][0], `"`)
+	policyAddress := extractStringFromEventMap(evMap, proto.MessageName(&group.EventCreateGroupPolicy{}), "address")
 	groupPolicyResponse, _ := h.groupKeeper.GroupPolicyInfo(
 		sdk.WrapSDKContext(ctx),
 		&group.QueryGroupPolicyInfoRequest{
@@ -72,7 +76,7 @@ func (h *Hook) handleGroupMsgSubmitProposal(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	proposalId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventSubmitProposal{})+".proposal_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventSubmitProposal{}), "proposal_id")),
 	)
 	proposalResponse, _ := h.groupKeeper.Proposal(
 		sdk.WrapSDKContext(ctx),
@@ -114,7 +118,7 @@ func (h *Hook) handleGroupMsgVote(
 	ctx sdk.Context, msg *group.MsgVote, evMap common.EvMap,
 ) {
 	proposalId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventVote{})+".proposal_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventVote{}), "proposal_id")),
 	)
 	voteResponse, err := h.groupKeeper.VoteByProposalVoter(
 		sdk.WrapSDKContext(ctx),
@@ -141,9 +145,9 @@ func (h *Hook) handleGroupMsgLeaveGroup(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	groupId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventLeaveGroup{})+".group_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventLeaveGroup{}), "group_id")),
 	)
-	address := strings.Trim(evMap[proto.MessageName(&group.EventLeaveGroup{})+".address"][0], `"`)
+	address := extractStringFromEventMap(evMap, proto.MessageName(&group.EventLeaveGroup{}), "address")
 	h.doUpdateGroup(ctx, groupId)
 	h.Write("REMOVE_GROUP_MEMBER", common.JsDict{
 		"group_id": groupId,
@@ -156,7 +160,7 @@ func (h *Hook) handleGroupMsgUpdateGroupAdmin(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	groupId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventUpdateGroup{})+".group_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventUpdateGroup{}), "group_id")),
 	)
 	h.doUpdateGroup(ctx, groupId)
 }
@@ -177,7 +181,7 @@ func (h *Hook) handleGroupMsgUpdateGroupMetadata(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	groupId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventUpdateGroup{})+".group_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventUpdateGroup{}), "group_id")),
 	)
 	h.doUpdateGroup(ctx, groupId)
 }
@@ -186,7 +190,11 @@ func (h *Hook) handleGroupMsgUpdateGroupMetadata(
 func (h *Hook) handleGroupMsgUpdateGroupPolicyAdmin(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	groupPolicyAddress := strings.Trim(evMap[proto.MessageName(&group.EventUpdateGroupPolicy{})+".address"][0], `"`)
+	groupPolicyAddress := extractStringFromEventMap(
+		evMap,
+		proto.MessageName(&group.EventUpdateGroupPolicy{}),
+		"address",
+	)
 	h.doUpdateGroupPolicy(ctx, groupPolicyAddress)
 }
 
@@ -194,7 +202,11 @@ func (h *Hook) handleGroupMsgUpdateGroupPolicyAdmin(
 func (h *Hook) handleGroupMsgUpdateGroupPolicyDecisionPolicy(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	groupPolicyAddress := strings.Trim(evMap[proto.MessageName(&group.EventUpdateGroupPolicy{})+".address"][0], `"`)
+	groupPolicyAddress := extractStringFromEventMap(
+		evMap,
+		proto.MessageName(&group.EventUpdateGroupPolicy{}),
+		"address",
+	)
 	h.doUpdateGroupPolicy(ctx, groupPolicyAddress)
 }
 
@@ -202,7 +214,11 @@ func (h *Hook) handleGroupMsgUpdateGroupPolicyDecisionPolicy(
 func (h *Hook) handleGroupMsgUpdateGroupPolicyMetadata(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
-	groupPolicyAddress := strings.Trim(evMap[proto.MessageName(&group.EventUpdateGroupPolicy{})+".address"][0], `"`)
+	groupPolicyAddress := extractStringFromEventMap(
+		evMap,
+		proto.MessageName(&group.EventUpdateGroupPolicy{}),
+		"address",
+	)
 	h.doUpdateGroupPolicy(ctx, groupPolicyAddress)
 }
 
@@ -211,7 +227,9 @@ func (h *Hook) handleGroupMsgWithdrawProposal(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
 	proposalId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventWithdrawProposal{})+".proposal_id"][0], `"`)),
+		common.Atoi(
+			extractStringFromEventMap(evMap, proto.MessageName(&group.EventWithdrawProposal{}), "proposal_id"),
+		),
 	)
 	h.doUpdateGroupProposal(ctx, proposalId)
 }
@@ -224,9 +242,9 @@ func (h *Hook) handleGroupEventExec(
 		return
 	}
 	proposalId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventExec{})+".proposal_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventExec{}), "proposal_id")),
 	)
-	executorResult := strings.Trim(evMap[proto.MessageName(&group.EventExec{})+".result"][0], `"`)
+	executorResult := extractStringFromEventMap(evMap, proto.MessageName(&group.EventExec{}), "result")
 	h.Write("UPDATE_GROUP_PROPOSAL_BY_ID", common.JsDict{
 		"id":              proposalId,
 		"executor_result": executorResult,
@@ -243,10 +261,10 @@ func (h *Hook) handleGroupEventProposalPruned(
 		return
 	}
 	proposalId := uint64(
-		common.Atoi(strings.Trim(evMap[proto.MessageName(&group.EventProposalPruned{})+".proposal_id"][0], `"`)),
+		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventProposalPruned{}), "proposal_id")),
 	)
-	proposalStatus := strings.Trim(evMap[proto.MessageName(&group.EventProposalPruned{})+".status"][0], `"`)
-	var tallyResult group.TallyResult
+	proposalStatus := extractStringFromEventMap(evMap, proto.MessageName(&group.EventProposalPruned{}), "status")
+	tallyResult := group.DefaultTallyResult()
 	json.Unmarshal([]byte(evMap[proto.MessageName(&group.EventProposalPruned{})+".tally_result"][0]), &tallyResult)
 	h.Write("UPDATE_GROUP_PROPOSAL_BY_ID", common.JsDict{
 		"id":                proposalId,
