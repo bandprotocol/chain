@@ -46,16 +46,14 @@ func ValidateOracleChannelParams(
 		return err
 	}
 	if channelSequence > uint64(math.MaxUint32) {
-		return sdkerrors.Wrapf(
-			types.ErrMaxOracleChannels,
+		return types.ErrMaxOracleChannels.Wrapf(
 			"channel sequence %d is greater than max allowed oracle channels %d",
 			channelSequence,
 			uint64(math.MaxUint32),
 		)
 	}
 	if order != channeltypes.UNORDERED {
-		return sdkerrors.Wrapf(
-			channeltypes.ErrInvalidChannelOrdering,
+		return channeltypes.ErrInvalidChannelOrdering.Wrapf(
 			"expected %s channel, got %s ",
 			channeltypes.UNORDERED,
 			order,
@@ -65,7 +63,7 @@ func ValidateOracleChannelParams(
 	// Require portID is the portID oracle module is bound to
 	boundPort := keeper.GetPort(ctx)
 	if boundPort != portID {
-		return sdkerrors.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
+		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
 	}
 
 	return nil
@@ -91,7 +89,7 @@ func (im IBCModule) OnChanOpenInit(
 	}
 
 	if version != types.Version {
-		return "", sdkerrors.Wrapf(types.ErrInvalidVersion, "got %s, expected %s", version, types.Version)
+		return "", types.ErrInvalidVersion.Wrapf("got %s, expected %s", version, types.Version)
 	}
 
 	// Claim channel capability passed back by IBC module
@@ -118,8 +116,7 @@ func (im IBCModule) OnChanOpenTry(
 	}
 
 	if counterpartyVersion != types.Version {
-		return "", sdkerrors.Wrapf(
-			types.ErrInvalidVersion,
+		return "", types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: got: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -149,8 +146,7 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(
-			types.ErrInvalidVersion,
+		return types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -175,7 +171,7 @@ func (im IBCModule) OnChanCloseInit(
 	channelID string,
 ) error {
 	// Disallow user-initiated channel closing for oracle channels
-	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "user cannot close channel")
+	return sdkerrors.ErrInvalidRequest.Wrap("user cannot close channel")
 }
 
 // OnChanCloseConfirm implements the IBCModule interface

@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -18,7 +17,7 @@ func (k Keeper) GetSigningResult(ctx sdk.Context, rid types.RequestID) (types.Si
 
 	// Check if the value is not found in the store
 	if bz == nil {
-		return types.SigningResult{}, sdkerrors.Wrapf(types.ErrSigningResultNotFound, "id: %d", rid)
+		return types.SigningResult{}, types.ErrSigningResultNotFound.Wrapf("id: %d", rid)
 	}
 
 	var result types.SigningResult

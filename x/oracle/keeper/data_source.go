@@ -4,7 +4,6 @@ import (
 	"bytes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -18,7 +17,7 @@ func (k Keeper) HasDataSource(ctx sdk.Context, id types.DataSourceID) bool {
 func (k Keeper) GetDataSource(ctx sdk.Context, id types.DataSourceID) (types.DataSource, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DataSourceStoreKey(id))
 	if bz == nil {
-		return types.DataSource{}, sdkerrors.Wrapf(types.ErrDataSourceNotFound, "id: %d", id)
+		return types.DataSource{}, types.ErrDataSourceNotFound.Wrapf("id: %d", id)
 	}
 	var dataSource types.DataSource
 	k.cdc.MustUnmarshal(bz, &dataSource)

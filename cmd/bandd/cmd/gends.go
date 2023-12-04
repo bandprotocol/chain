@@ -3,7 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/cometbft/cometbft/libs/cli"
@@ -34,7 +34,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 			config.SetRoot(clientCtx.HomeDir)
 
 			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
-			data, err := ioutil.ReadFile(args[3])
+			data, err := os.ReadFile(args[3])
 			if err != nil {
 				return err
 			}
