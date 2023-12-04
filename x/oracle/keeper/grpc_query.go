@@ -357,7 +357,7 @@ func (k Querier) RequestVerification(
 	// Provided signature should be valid, which means this query request should be signed by the provided reporter
 	pk, err := hex.DecodeString(req.Reporter)
 	if err != nil || len(pk) != secp256k1.PubKeySize {
-		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("unable to get reporter's public key"))
+		return nil, status.Error(codes.InvalidArgument, "unable to get reporter's public key")
 	}
 	reporterPubKey := secp256k1.PubKey(pk[:])
 
