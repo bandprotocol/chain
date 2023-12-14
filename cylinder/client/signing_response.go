@@ -22,7 +22,7 @@ func (sr SigningResponse) GetMemberIDs() []tss.MemberID {
 	return types.AssignedMembers(sr.Signing.AssignedMembers).MemberIDs()
 }
 
-// GetMemberIDs returns all assigned member's id of the assigned members
+// GetAssignedMember returns assigned member of the specific address
 func (sr SigningResponse) GetAssignedMember(address string) (types.AssignedMember, error) {
 	for _, am := range sr.Signing.AssignedMembers {
 		if am.Address == address {
