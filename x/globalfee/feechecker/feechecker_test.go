@@ -13,7 +13,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -59,7 +58,7 @@ type FeeCheckerTestSuite struct {
 	suite.Suite
 	FeeChecker feechecker.FeeChecker
 	ctx        sdk.Context
-	requestId  types.RequestID
+	requestId  oracletypes.RequestID
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
@@ -281,7 +280,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 				msgExec := authz.NewMsgExec(testapp.Alice.Address, []sdk.Msg{
 					oracletypes.NewMsgReportData(
 						suite.requestId+1,
-						[]types.RawReport{},
+						[]oracletypes.RawReport{},
 						testapp.Validators[0].ValAddress,
 					),
 				})
@@ -323,7 +322,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 		{
 			name: "valid MsgRequestData",
 			stubTx: func() *StubTx {
-				msgRequestData := types.NewMsgRequestData(
+				msgRequestData := oracletypes.NewMsgRequestData(
 					1,
 					BasicCalldata,
 					1,
@@ -364,12 +363,12 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 		{
 			name: "valid MsgRequestData and valid MsgReport in valid MsgExec with enough fee",
 			stubTx: func() *StubTx {
-				msgReportData := types.NewMsgReportData(
+				msgReportData := oracletypes.NewMsgReportData(
 					suite.requestId,
-					[]types.RawReport{},
+					[]oracletypes.RawReport{},
 					testapp.Validators[0].ValAddress,
 				)
-				msgRequestData := types.NewMsgRequestData(
+				msgRequestData := oracletypes.NewMsgRequestData(
 					1,
 					BasicCalldata,
 					1,
@@ -400,12 +399,12 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 		{
 			name: "valid MsgRequestData and valid MsgReport with enough fee",
 			stubTx: func() *StubTx {
-				msgReportData := types.NewMsgReportData(
+				msgReportData := oracletypes.NewMsgReportData(
 					suite.requestId,
-					[]types.RawReport{},
+					[]oracletypes.RawReport{},
 					testapp.Validators[0].ValAddress,
 				)
-				msgRequestData := types.NewMsgRequestData(
+				msgRequestData := oracletypes.NewMsgRequestData(
 					1,
 					BasicCalldata,
 					1,

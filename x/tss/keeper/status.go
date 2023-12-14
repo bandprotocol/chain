@@ -101,8 +101,6 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-
-	return
 }
 
 // SetPaused sets the member status to paused
@@ -133,6 +131,4 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-
-	return
 }

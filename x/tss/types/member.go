@@ -6,10 +6,7 @@ import (
 
 // Verify checks if the address of the Member matches the given address
 func (m Member) Verify(address string) bool {
-	if m.Address != address {
-		return false
-	}
-	return true
+	return m.Address == address
 }
 
 // Members represents a slice of Member values.

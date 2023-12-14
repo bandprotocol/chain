@@ -51,6 +51,9 @@ func (de *DE) subscribe() (err error) {
 		de.context.Config.Granter,
 	)
 	de.assignEventCh, err = de.client.Subscribe("DE-assigned", subscriptionQuery, 1000)
+	if err != nil {
+		return
+	}
 
 	subscriptionQuery = fmt.Sprintf(
 		"tm.event = 'Tx' AND %s.%s = '%s'",

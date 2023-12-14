@@ -238,6 +238,7 @@ func TestGetFileInconsistentContent(t *testing.T) {
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0666) // Not consistent with name
+	require.NoError(t, err)
 	_, err = f.GetFile(filename)
 	require.Error(t, err)
 }
