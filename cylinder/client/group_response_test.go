@@ -43,7 +43,7 @@ func TestGetRound1Info(t *testing.T) {
 			},
 			memberID:      2,
 			expectedData:  types.Round1Info{},
-			expectedError: fmt.Errorf("No Round1Info from MemberID(2)"),
+			expectedError: fmt.Errorf("no Round1Info from MemberID(2)"),
 		},
 	}
 
@@ -89,7 +89,7 @@ func TestGetRound2Infos(t *testing.T) {
 			},
 			memberID:      2,
 			expectedData:  types.Round2Info{},
-			expectedError: fmt.Errorf("No Round2Info from MemberID(2)"),
+			expectedError: fmt.Errorf("no Round2Info from MemberID(2)"),
 		},
 	}
 
@@ -140,7 +140,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 			senderID:      2,
 			receiverID:    1,
 			expectedShare: nil,
-			expectedError: fmt.Errorf("No Round2Info from MemberID(2)"),
+			expectedError: fmt.Errorf("no Round2Info from MemberID(2)"),
 		},
 		{
 			name: "Invalid SenderID",
@@ -155,7 +155,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 			senderID:      1,
 			receiverID:    4,
 			expectedShare: nil,
-			expectedError: fmt.Errorf("No encrypted secret share from MemberID(1) to MemberID(4)"),
+			expectedError: fmt.Errorf("no encrypted secret share from MemberID(1) to MemberID(4)"),
 		},
 	}
 

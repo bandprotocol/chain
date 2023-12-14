@@ -76,7 +76,7 @@ func TestParseEvent(t *testing.T) {
 			sdk.StringifyEvents([]abci.Event{}),
 			types.EventTypeCreateGroup,
 			nil,
-			"Cannot find event with type",
+			"cannot find event with type",
 		},
 		{
 			"no groupID",
@@ -87,7 +87,7 @@ func TestParseEvent(t *testing.T) {
 			}),
 			types.EventTypeCreateGroup,
 			nil,
-			"Cannot find event with type",
+			"cannot find event with type",
 		},
 	}
 
