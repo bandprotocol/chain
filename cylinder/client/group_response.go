@@ -25,7 +25,7 @@ func (gr GroupResponse) GetRound1Info(mid tss.MemberID) (types.Round1Info, error
 		}
 	}
 
-	return types.Round1Info{}, fmt.Errorf("No Round1Info from MemberID(%d)", mid)
+	return types.Round1Info{}, fmt.Errorf("no Round1Info from MemberID(%d)", mid)
 }
 
 // GetRound2Info retrieves the Round1Commitment for the specified member ID.
@@ -36,7 +36,7 @@ func (gr GroupResponse) GetRound2Info(mid tss.MemberID) (types.Round2Info, error
 		}
 	}
 
-	return types.Round2Info{}, fmt.Errorf("No Round2Info from MemberID(%d)", mid)
+	return types.Round2Info{}, fmt.Errorf("no Round2Info from MemberID(%d)", mid)
 }
 
 // GetEncryptedSecretShare retrieves the encrypted secret share from member (Sender) to member (Receiver).
@@ -51,7 +51,7 @@ func (gr GroupResponse) GetEncryptedSecretShare(senderID, receiverID tss.MemberI
 
 	// Return error if the slot exceeds length of shares
 	if int(slot) >= len(r2Sender.EncryptedSecretShares) {
-		return nil, fmt.Errorf("No encrypted secret share from MemberID(%d) to MemberID(%d)", senderID, receiverID)
+		return nil, fmt.Errorf("no encrypted secret share from MemberID(%d) to MemberID(%d)", senderID, receiverID)
 	}
 
 	return r2Sender.EncryptedSecretShares[slot], nil

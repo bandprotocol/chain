@@ -44,7 +44,7 @@ func (a *Activator) updateActive() {
 	}
 
 	if status.Status != types.MEMBER_STATUS_ACTIVE && status.Status != types.MEMBER_STATUS_PAUSED {
-		a.context.ErrCh <- errors.New("The status of the address is not active / paused")
+		a.context.ErrCh <- errors.New("the status of the address is not active / paused")
 		return
 	}
 
