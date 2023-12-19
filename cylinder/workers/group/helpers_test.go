@@ -81,7 +81,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 								expComplaint.KeySym,
 								complaints[slot].Signature,
 							)
-							assert.Nil(t, err)
+							assert.NoError(t, err)
 						}
 					} else {
 						assert.Nil(t, complaints)
@@ -90,7 +90,7 @@ func TestGetOwnPrivKey(t *testing.T) {
 					if test.expErr {
 						assert.Error(t, err)
 					} else {
-						assert.Nil(t, err)
+						assert.NoError(t, err)
 					}
 				})
 			}
@@ -155,7 +155,7 @@ func TestGetSecretShare(t *testing.T) {
 
 							if test.expSecretShare {
 								assert.Nil(t, complaint)
-								assert.Nil(t, err)
+								assert.NoError(t, err)
 								assert.Equal(
 									t,
 									sender.SecretShares[testutil.GetSlot(sender.ID, receiver.ID)],
@@ -185,7 +185,7 @@ func TestGetSecretShare(t *testing.T) {
 									expComplaint.KeySym,
 									complaint.Signature,
 								)
-								assert.Nil(t, err)
+								assert.NoError(t, err)
 							} else {
 								assert.Nil(t, complaint)
 							}
@@ -193,7 +193,7 @@ func TestGetSecretShare(t *testing.T) {
 							if test.expErr {
 								assert.Error(t, err)
 							} else {
-								assert.Nil(t, err)
+								assert.NoError(t, err)
 							}
 						},
 					)
