@@ -126,7 +126,6 @@ func (s *Store) GetGroup(pubKey tss.Point) (Group, error) {
 	var group Group
 	err = json.Unmarshal(bytes, &group)
 	if err != nil {
-		fmt.Printf("zzzzs")
 		return Group{}, err
 	}
 
