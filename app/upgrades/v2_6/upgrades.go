@@ -52,7 +52,7 @@ func CreateUpgradeHandler(
 				keyTable = govv1.ParamKeyTable() //nolint:staticcheck
 			case crisistypes.ModuleName:
 				keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
-				// ibc types
+			// ibc types
 			case ibctransfertypes.ModuleName:
 				keyTable = ibctransfertypes.ParamKeyTable() //nolint:staticcheck
 			case icahosttypes.SubModuleName:

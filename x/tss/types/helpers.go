@@ -2,16 +2,6 @@ package types
 
 import "github.com/bandprotocol/chain/v2/pkg/tss"
 
-// Uint64ArrayContains checks if the given array contains the specified uint64 value.
-func Uint64ArrayContains(arr []uint64, a uint64) bool {
-	for _, v := range arr {
-		if v == a {
-			return true
-		}
-	}
-	return false
-}
-
 // DuplicateInArray checks if there are any duplicates in the given string array.
 func DuplicateInArray(arr []string) bool {
 	visited := make(map[string]bool, 0)

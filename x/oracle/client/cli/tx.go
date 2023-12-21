@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +32,7 @@ const (
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
 	flagTSSGroupID    = "tss-group-id"
+	flagTSSEncodeType = "tss-encode-type"
 	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
@@ -129,11 +130,15 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
-			uint64TSSGroupID, err := cmd.Flags().GetUint64(flagTSSGroupID)
+			tssGroupID, err := cmd.Flags().GetUint64(flagTSSGroupID)
 			if err != nil {
 				return err
 			}
-			tssGroupID := tss.GroupID(uint64TSSGroupID)
+
+			tssEncodeType, err := cmd.Flags().GetInt32(flagTSSEncodeType)
+			if err != nil {
+				return err
+			}
 
 			msg := types.NewMsgRequestData(
 				oracleScriptID,
@@ -142,10 +147,11 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				minCount,
 				clientID,
 				feeLimit,
-				tssGroupID,
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
+				tss.GroupID(tssGroupID),
+				types.EncodeType(tssEncodeType),
 			)
 
 			err = msg.ValidateBasic()
@@ -163,6 +169,8 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().
 		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
 	cmd.Flags().Uint64(flagTSSGroupID, 0, "The TSS group that is requested to sign the oracle result data")
+	cmd.Flags().
+		Int32(flagTSSEncodeType, 0, "The encode type of oracle result that will be sent to TSS (1=proto, 2=ABI, 3=Partial ABI)")
 
 	flags.AddTxFlagsToCmd(cmd)
 
@@ -203,7 +211,7 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 			if err != nil {
 				return err
 			}
-			execBytes, err := ioutil.ReadFile(scriptPath)
+			execBytes, err := os.ReadFile(scriptPath)
 			if err != nil {
 				return err
 			}
@@ -306,7 +314,7 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 			}
 			execBytes := types.DoNotModifyBytes
 			if scriptPath != types.DoNotModify {
-				execBytes, err = ioutil.ReadFile(scriptPath)
+				execBytes, err = os.ReadFile(scriptPath)
 				if err != nil {
 					return err
 				}
@@ -403,7 +411,7 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 			if err != nil {
 				return err
 			}
-			scriptCode, err := ioutil.ReadFile(scriptPath)
+			scriptCode, err := os.ReadFile(scriptPath)
 			if err != nil {
 				return err
 			}
@@ -497,7 +505,7 @@ $ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle scrip
 			}
 			scriptCode := types.DoNotModifyBytes
 			if scriptPath != types.DoNotModify {
-				scriptCode, err = ioutil.ReadFile(scriptPath)
+				scriptCode, err = os.ReadFile(scriptPath)
 				if err != nil {
 					return err
 				}
@@ -692,9 +700,9 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	return &cobra.Command{
-		Use:   "oracle-result [request-id]",
+		Use:   "oracle-result [request-id] [encode-type]",
 		Short: "Request TSS signature from request id",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
@@ -719,6 +727,11 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 				return err
 			}
 
+			encodeType, err := strconv.ParseInt(args[1], 10, 32)
+			if err != nil {
+				return err
+			}
+
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {
 				return err
@@ -730,7 +743,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewRequestingSignature(types.RequestID(rid))
+			content := types.NewRequestingSignature(types.RequestID(rid), types.EncodeType(encodeType))
 
 			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
 			if err != nil {

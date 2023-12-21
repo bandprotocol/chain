@@ -20,10 +20,11 @@ type RequestSpec interface {
 	GetAskCount() uint64
 	GetMinCount() uint64
 	GetClientID() string
-	GetTSSGroupID() tss.GroupID
 	GetPrepareGas() uint64
 	GetExecuteGas() uint64
 	GetFeeLimit() sdk.Coins
+	GetTSSGroupID() tss.GroupID
+	GetTSSEncodeType() EncodeType
 }
 
 func NewRawRequest(
@@ -46,10 +47,11 @@ func NewRequest(
 	requestHeight int64,
 	requestTime time.Time,
 	clientID string,
-	tssGroupID tss.GroupID,
 	rawRequests []RawRequest,
 	ibcChannel *IBCChannel,
 	executeGas uint64,
+	tssGroupID tss.GroupID,
+	tssEncodeType EncodeType,
 	requester string,
 	feeLimit sdk.Coins,
 ) Request {
@@ -69,10 +71,11 @@ func NewRequest(
 		RequestHeight:       requestHeight,
 		RequestTime:         requestTime.Unix(),
 		ClientID:            clientID,
-		TSSGroupID:          tssGroupID,
 		RawRequests:         rawRequests,
 		IBCChannel:          ibcChannel,
 		ExecuteGas:          executeGas,
+		TSSGroupID:          tssGroupID,
+		TSSEncodeType:       tssEncodeType,
 		Requester:           requester,
 		FeeLimit:            feeLimit,
 	}

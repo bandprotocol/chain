@@ -42,7 +42,7 @@ func (m MsgCreateGroup) ValidateBasic() error {
 		if err != nil {
 			return errors.Wrap(
 				err,
-				fmt.Sprintf("member: %s ", member),
+				fmt.Sprintf("member: %s", member),
 			)
 		}
 	}

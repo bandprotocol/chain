@@ -24,9 +24,9 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 			address := sdk.AccAddress(validator.GetOperator())
 			status := k.GetStatus(ctx, address)
 
-			if status.Status == types.MEMBER_STATUS_ACTIVE &&
+			if (status.Status == types.MEMBER_STATUS_ACTIVE || status.Status == types.MEMBER_STATUS_PAUSED) &&
 				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
-				k.SetInactive(ctx, address)
+				k.SetInactiveStatus(ctx, address)
 
 				ctx.EventManager().EmitEvent(sdk.NewEvent(
 					types.EventTypeActivate,
@@ -40,7 +40,7 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 }
 
 // SetActive sets the member status to active
-func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
+func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 	status := k.GetStatus(ctx, address)
 	if status.Status == types.MEMBER_STATUS_ACTIVE {
 		return nil
@@ -58,7 +58,13 @@ func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 		return types.ErrTooSoonToActivate
 	}
 
-	status.Status = types.MEMBER_STATUS_ACTIVE
+	left := k.GetDECount(ctx, address)
+	if left == 0 {
+		status.Status = types.MEMBER_STATUS_PAUSED
+	} else {
+		status.Status = types.MEMBER_STATUS_ACTIVE
+	}
+
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
@@ -71,7 +77,7 @@ func (k Keeper) SetActive(ctx sdk.Context, address sdk.AccAddress) error {
 func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status != types.MEMBER_STATUS_ACTIVE {
+	if status.Status != types.MEMBER_STATUS_ACTIVE && status.Status != types.MEMBER_STATUS_PAUSED {
 		return types.ErrInvalidStatus
 	}
 
@@ -82,10 +88,12 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 }
 
 // SetInactive sets the member status to inactive
-func (k Keeper) SetInactive(ctx sdk.Context, address sdk.AccAddress) {
+func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
 	if status.Status == types.MEMBER_STATUS_INACTIVE {
+		return
+	} else if status.Status == types.MEMBER_STATUS_JAIL {
 		return
 	}
 
@@ -93,12 +101,24 @@ func (k Keeper) SetInactive(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
+}
 
-	return
+// SetPaused sets the member status to paused
+func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
+	status := k.GetStatus(ctx, address)
+
+	if status.Status != types.MEMBER_STATUS_PAUSED {
+		return
+	}
+
+	status.Status = types.MEMBER_STATUS_PAUSED
+	status.Address = address.String()
+	status.Since = ctx.BlockTime()
+	k.SetMemberStatus(ctx, status)
 }
 
 // SetJail sets the member status to jail
-func (k Keeper) SetJail(ctx sdk.Context, address sdk.AccAddress) {
+func (k Keeper) SetJailStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
 	if status.Status == types.MEMBER_STATUS_JAIL {
@@ -109,6 +129,4 @@ func (k Keeper) SetJail(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-
-	return
 }

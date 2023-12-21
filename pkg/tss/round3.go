@@ -81,7 +81,7 @@ func ComputeSecretShareCommit(rawCommits Points, mid MemberID) (Point, error) {
 
 // DecryptSecretShares decrypts a set of encrypted secret shares using the corresponding key syms.
 func DecryptSecretShares(
-	encSecretShares Scalars,
+	encSecretShares []EncSecretShare,
 	keySyms Points,
 ) (Scalars, error) {
 	if len(encSecretShares) != len(keySyms) {
@@ -108,7 +108,7 @@ func DecryptSecretShares(
 
 // DecryptSecretShare decrypts a encrypted secret share using the key sym.
 func DecryptSecretShare(
-	encSecretShare Scalar,
+	encSecretShare EncSecretShare,
 	keySym Point,
 ) (Scalar, error) {
 	return Decrypt(encSecretShare, keySym)
@@ -208,7 +208,7 @@ func VerifyComplaint(
 	oneTimePubJ Point,
 	keySym Point,
 	complaintSignature ComplaintSignature,
-	encSecretShare Scalar,
+	encSecretShare EncSecretShare,
 	midI MemberID,
 	commits Points,
 ) error {

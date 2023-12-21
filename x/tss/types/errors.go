@@ -44,7 +44,7 @@ var (
 	ErrGroupIsNotActive                 = errors.Register(ModuleName, 27, "group is not active")
 	ErrUnexpectedThreshold              = errors.Register(ModuleName, 28, "threshold value is unexpected")
 	ErrBadDrbgInitialization            = errors.Register(ModuleName, 29, "bad drbg initialization")
-	ErrPartialSigNotFound               = errors.Register(ModuleName, 30, "partial sig not found")
+	ErrPartialSignatureNotFound         = errors.Register(ModuleName, 30, "partial signature not found")
 	ErrInvalidArgument                  = errors.Register(ModuleName, 31, "invalid argument")
 	ErrSigningNotFound                  = errors.Register(ModuleName, 32, "signing not found")
 	ErrAlreadySigned                    = errors.Register(ModuleName, 33, "already signed")

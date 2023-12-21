@@ -35,7 +35,14 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 
 	for _, m := range members {
-		k.SetActive(ctx, sdk.MustAccAddressFromBech32(m))
+		address := sdk.MustAccAddressFromBech32(m)
+		k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
+		k.HandleSetDEs(ctx, address, []types.DE{
+			{
+				PubD: testutil.HexDecode("dddd"),
+				PubE: testutil.HexDecode("eeee"),
+			},
+		})
 	}
 
 	round1Info1 := types.Round1Info{
@@ -62,16 +69,16 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 	round2Info1 := types.Round2Info{
 		MemberID: memberID1,
-		EncryptedSecretShares: tss.Scalars{
-			[]byte("scalar1"),
-			[]byte("scalar2"),
+		EncryptedSecretShares: tss.EncSecretShares{
+			[]byte("secret1"),
+			[]byte("secret2"),
 		},
 	}
 	round2Info2 := types.Round2Info{
 		MemberID: memberID2,
-		EncryptedSecretShares: tss.Scalars{
-			[]byte("scalar1"),
-			[]byte("scalar2"),
+		EncryptedSecretShares: tss.EncSecretShares{
+			[]byte("secret1"),
+			[]byte("secret2"),
 		},
 	}
 	complaintWithStatus1 := types.ComplaintsWithStatus{
@@ -163,7 +170,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						GroupID:   1,
+						ID:        1,
 						Size_:     5,
 						Threshold: 3,
 						PubKey:    nil,

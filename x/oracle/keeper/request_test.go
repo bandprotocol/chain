@@ -49,9 +49,10 @@ func TestHasRequest(t *testing.T) {
 			1,
 			testapp.ParseTime(0),
 			"",
+			nil,
+			nil,
 			0,
-			nil,
-			nil,
+			0,
 			0,
 			testapp.FeePayer.Address.String(),
 			testapp.Coins100000000uband,
@@ -74,9 +75,10 @@ func TestDeleteRequest(t *testing.T) {
 			1,
 			testapp.ParseTime(0),
 			"",
+			nil,
+			nil,
 			0,
-			nil,
-			nil,
+			0,
 			0,
 			testapp.FeePayer.Address.String(),
 			testapp.Coins100000000uband,
@@ -106,9 +108,10 @@ func TestSetterGetterRequest(t *testing.T) {
 		1,
 		testapp.ParseTime(0),
 		"",
+		nil,
+		nil,
 		0,
-		nil,
-		nil,
+		0,
 		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
@@ -121,9 +124,10 @@ func TestSetterGetterRequest(t *testing.T) {
 		1,
 		testapp.ParseTime(0),
 		"",
+		nil,
+		nil,
 		0,
-		nil,
-		nil,
+		0,
 		0,
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
@@ -178,9 +182,10 @@ func TestAddDataSourceBasic(t *testing.T) {
 			1,
 			testapp.ParseTime(0),
 			"",
+			nil,
+			nil,
 			0,
-			nil,
-			nil,
+			0,
 			0,
 			testapp.FeePayer.Address.String(),
 			testapp.Coins100000000uband,
@@ -198,9 +203,10 @@ func TestAddDataSourceBasic(t *testing.T) {
 			1,
 			testapp.ParseTime(0),
 			"",
+			nil,
+			nil,
 			0,
-			nil,
-			nil,
+			0,
 			0,
 			testapp.FeePayer.Address.String(),
 			testapp.Coins100000000uband,
@@ -255,9 +261,9 @@ func TestProcessExpiredRequests(t *testing.T) {
 	k.AddReport(ctx, 4, testapp.Validators[1].ValAddress, true, rawReports)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
-	k.ResolveSuccess(ctx, 1, 0, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 1, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0, 0)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
-	k.ResolveSuccess(ctx, 4, 0, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234)
+	k.ResolveSuccess(ctx, 4, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0, 0)
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 

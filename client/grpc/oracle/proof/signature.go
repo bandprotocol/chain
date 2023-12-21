@@ -44,7 +44,7 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 			return crypto.PubkeyToAddress(*pubuc).Bytes(), 27 + i, nil
 		}
 	}
-	return nil, 0, fmt.Errorf("No match address found")
+	return nil, 0, fmt.Errorf("no match address found")
 }
 
 func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, error) {
@@ -126,7 +126,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 		}
 	}
 	if len(addrs) == 0 {
-		return nil, CommonEncodedVotePart{}, fmt.Errorf("No valid precommit")
+		return nil, CommonEncodedVotePart{}, fmt.Errorf("no valid precommit")
 	}
 
 	signatures := make([]TMSignature, len(addrs))

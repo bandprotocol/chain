@@ -30,9 +30,8 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetReplacement(ctx, rep)
 	}
 
-	for _, deq := range data.DEQueuesGenesis {
-		address := sdk.MustAccAddressFromBech32(deq.Address)
-		k.SetDEQueue(ctx, address, deq.DEQueue)
+	for _, deq := range data.DEQueues {
+		k.SetDEQueue(ctx, deq)
 	}
 
 	for _, de := range data.DEsGenesis {
@@ -56,7 +55,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Signings:         k.GetSignings(ctx),
 		ReplacementCount: k.GetReplacementCount(ctx),
 		Replacements:     k.GetReplacements(ctx),
-		DEQueuesGenesis:  k.GetDEQueuesGenesis(ctx),
+		DEQueues:         k.GetDEQueues(ctx),
 		DEsGenesis:       k.GetDEsGenesis(ctx),
 		Statuses:         k.GetStatuses(ctx),
 	}

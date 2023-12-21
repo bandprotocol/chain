@@ -47,17 +47,3 @@ func TestDuplicateInArray(t *testing.T) {
 		})
 	}
 }
-
-func TestUint64ArrayContains(t *testing.T) {
-	arr := []uint64{1, 2, 3, 4, 5}
-	existing := uint64(3)
-	nonExisting := uint64(6)
-
-	if !types.Uint64ArrayContains(arr, existing) {
-		t.Errorf("Expected arr to contain %d, but it did not.", existing)
-	}
-
-	if types.Uint64ArrayContains(arr, nonExisting) {
-		t.Errorf("Expected arr to not contain %d, but it did.", nonExisting)
-	}
-}

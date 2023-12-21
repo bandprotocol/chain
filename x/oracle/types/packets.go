@@ -35,30 +35,29 @@ func NewOracleRequestPacketData(
 // ValidateBasic is used for validating the request.
 func (p OracleRequestPacketData) ValidateBasic() error {
 	if p.MinCount <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", p.MinCount)
+		return ErrInvalidMinCount.Wrapf("got: %d", p.MinCount)
 	}
 	if p.AskCount < p.MinCount {
-		return sdkerrors.Wrapf(ErrInvalidAskCount, "got: %d, min count: %d", p.AskCount, p.MinCount)
+		return ErrInvalidAskCount.Wrapf("got: %d, min count: %d", p.AskCount, p.MinCount)
 	}
 	if len(p.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(p.ClientID), MaxClientIDLength)
 	}
 	if p.PrepareGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", p.PrepareGas)
+		return ErrInvalidOwasmGas.Wrapf("invalid prepare gas: %d", p.PrepareGas)
 	}
 	if p.ExecuteGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", p.ExecuteGas)
+		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", p.ExecuteGas)
 	}
 	if p.PrepareGas+p.ExecuteGas > MaximumOwasmGas {
-		return sdkerrors.Wrapf(
-			ErrInvalidOwasmGas,
+		return ErrInvalidOwasmGas.Wrapf(
 			"sum of prepare gas and execute gas (%d) exceed %d",
 			p.PrepareGas+p.ExecuteGas,
 			MaximumOwasmGas,
 		)
 	}
 	if !p.FeeLimit.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, p.FeeLimit.String())
+		return sdkerrors.ErrInvalidCoins.Wrap(p.FeeLimit.String())
 	}
 	return nil
 }

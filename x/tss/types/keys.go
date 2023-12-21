@@ -24,9 +24,7 @@ const (
 )
 
 var (
-	NormalMsgPrefix       = []byte{0x00}
-	ReplaceGroupMsgPrefix = []byte{0x01}
-	OracleMsgPrefix       = []byte{0x02}
+	ReplaceGroupMsgPrefix = tss.Hash([]byte("Replace"))[:4]
 )
 
 var lenTime = len(sdk.FormatTimeBytes(time.Now()))
@@ -107,8 +105,8 @@ var (
 	// SigCountStoreKeyPrefix is the key for keeps signature count data.
 	SigCountStoreKeyPrefix = []byte{0x0f}
 
-	// PartialSigStoreKeyPrefix is the key for keeps partial signature.
-	PartialSigStoreKeyPrefix = []byte{0x10}
+	// PartialSignatureStoreKeyPrefix is the key for keeps partial signature.
+	PartialSignatureStoreKeyPrefix = []byte{0x10}
 
 	// StatusStoreKeyPrefix is the prefix for status store.
 	StatusStoreKeyPrefix = []byte{0x11}
@@ -219,15 +217,15 @@ func SigCountStoreKey(signingID tss.SigningID) []byte {
 	return append(SigCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialSigStoreKey(signingID tss.SigningID) []byte {
-	return append(PartialSigStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+func PartialSignatureStoreKey(signingID tss.SigningID) []byte {
+	return append(PartialSignatureStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func PartialSigMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
-	return append(PartialSigStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+func PartialSignatureMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
+	return append(PartialSignatureStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
-func MemberIDFromPartialSignMemberStoreKey(key []byte) tss.MemberID {
+func MemberIDFromPartialSignatureMemberStoreKey(key []byte) tss.MemberID {
 	kv.AssertKeyLength(key, 1+2*uint64Len)
 	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
 }

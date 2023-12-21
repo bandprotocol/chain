@@ -33,6 +33,7 @@ func (suite *TSSTestSuite) TestComputeOwnPrivateKey() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
 		var allSecrets []tss.Scalar
 		ownSecret, err := tss.ComputeSecretShare(member.Coefficients, member.ID)
+		suite.Require().NoError(err)
 		allSecrets = append(allSecrets, ownSecret)
 
 		for _, m := range tc.Group.Members {
@@ -168,12 +169,15 @@ func (suite *TSSTestSuite) TestVerifyComplaint() {
 			iSlot := testutil.GetSlot(memberI.ID, memberJ.ID)
 			jSlot := testutil.GetSlot(memberJ.ID, memberI.ID)
 			// Success case - wrong encrypted secret share
+			falseEncSecretShare := testutil.HexDecode(
+				"9a4b4aff91200c9c8604fc218f67c35796d0aba5a2e277c46a01140dc4ff24b600939f506aa1550df8a0cf08db8f00d3",
+			)
 			err := tss.VerifyComplaint(
 				memberI.OneTimePubKey(),
 				memberJ.OneTimePubKey(),
 				memberI.KeySyms[iSlot],
 				memberI.ComplaintSignatures[iSlot],
-				testutil.FalsePrivKey,
+				falseEncSecretShare,
 				memberI.ID,
 				memberJ.CoefficientCommits,
 			)

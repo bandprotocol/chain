@@ -872,7 +872,7 @@ type MsgRequestSignature struct {
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
 	// content defines an interface that a request signature type must implement.
 	Content *types1.Any `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	// feeLimit is the maximum tokens that will be paid for this request.
+	// fee_limit is the maximum tokens that will be paid for this request.
 	FeeLimit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=fee_limit,json=feeLimit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_limit"`
 	// sender is the requester of the signing process.
 	Sender string `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`

@@ -10,7 +10,8 @@ func ComputeEncryptedSecretShares(
 	rawPrivKey Scalar,
 	rawPubKeys Points,
 	rawCoeffcients Scalars,
-) (Scalars, error) {
+	n16g INonce16Generator,
+) (EncSecretShares, error) {
 	// Compute the key sym for each member 1..n except mid.
 	var keySyms Points
 	for i, rawPubKey := range rawPubKeys {
@@ -43,14 +44,15 @@ func ComputeEncryptedSecretShares(
 	}
 
 	// Encrypt each secret share using its corresponding key sym.
-	return EncryptSecretShares(secretShares, keySyms)
+	return EncryptSecretShares(secretShares, keySyms, n16g)
 }
 
 // EncryptSecretShares encrypts secret shares using key syms.
 func EncryptSecretShares(
 	secretShares Scalars,
 	keySyms Points,
-) (Scalars, error) {
+	n16g INonce16Generator,
+) (EncSecretShares, error) {
 	if len(secretShares) != len(keySyms) {
 		return nil, NewError(
 			ErrInvalidLength,
@@ -60,14 +62,14 @@ func EncryptSecretShares(
 		)
 	}
 
-	var encSecretShares Scalars
+	var encSecretShares EncSecretShares
 	for i := 0; i < len(secretShares); i++ {
-		encSecretShare, err := Encrypt(secretShares[i], keySyms[i])
+		enc, err := Encrypt(secretShares[i], keySyms[i], n16g)
 		if err != nil {
 			return nil, NewError(err, "compute secret share: member id: %d", i)
 		}
 
-		encSecretShares = append(encSecretShares, encSecretShare)
+		encSecretShares = append(encSecretShares, enc)
 	}
 
 	return encSecretShares, nil

@@ -26,7 +26,7 @@ func GetMsgDetail(msg sdk.Msg) (detail string) {
 	case *types.MsgHealthCheck:
 		detail = fmt.Sprintf("Type: %s", t.Type())
 	default:
-		detail = fmt.Sprintf("Type: Unknown")
+		detail = "Type: Unknown"
 	}
 
 	return detail

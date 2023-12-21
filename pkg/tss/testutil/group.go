@@ -14,7 +14,7 @@ type Member struct {
 
 	KeySyms         tss.Points
 	SecretShares    tss.Scalars
-	EncSecretShares tss.Scalars
+	EncSecretShares tss.EncSecretShares
 
 	PrivKey             tss.Scalar
 	PubKeySignature     tss.Signature
@@ -44,7 +44,7 @@ func CopyMember(src Member) Member {
 		CoefficientCommits:  CopySlice(src.CoefficientCommits),
 		KeySyms:             CopySlice(src.KeySyms),
 		SecretShares:        CopySlice(src.SecretShares),
-		EncSecretShares:     CopySlice(src.EncSecretShares),
+		EncSecretShares:     src.EncSecretShares.Clone(),
 		PrivKey:             Copy(src.PrivKey),
 		PubKeySignature:     Copy(src.PubKeySignature),
 		ComplaintSignatures: CopySlice(src.ComplaintSignatures),

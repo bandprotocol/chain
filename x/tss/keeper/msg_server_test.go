@@ -36,6 +36,15 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 		msgSrvr.Activate(ctx, &types.MsgActivate{
 			Address: m,
 		})
+		msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+			DEs: []types.DE{
+				{
+					PubD: testutil.HexDecode("dddd"),
+					PubE: testutil.HexDecode("eeee"),
+				},
+			},
+			Address: m,
+		})
 	}
 
 	s.Run("create group", func() {
@@ -722,7 +731,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			"failure with inactive group",
 			func() {
 				inactiveGroup := types.Group{
-					GroupID:   2,
+					ID:        2,
 					Size_:     5,
 					Threshold: 3,
 					PubKey:    nil,
