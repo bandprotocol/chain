@@ -81,7 +81,13 @@ signing_data = sa.Table(
     Column("fee", sa.String),
     Column("status", CustomSigningStatus),
     Column("reason", sa.String, nullable=True),
-    Column("created_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
+    Column(
+        "created_height",
+        sa.Integer,
+        sa.ForeignKey("blocks.height"),
+        nullable=True,
+        index=True,
+    ),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
     sa.Index("ix_group_id_group_pub_key_status", "group_id", "group_pub_key", "status"),
 )
@@ -97,7 +103,12 @@ groups = sa.Table(
     Column("status", CustomGroupStatus),
     Column("fee", sa.String),
     # if zero set it to nil
-    Column("latest_replacement_id", sa.integer, sa.ForeignKey("replacements.id"), nullable=True),
+    Column(
+        "latest_replacement_id",
+        sa.Integer,
+        sa.ForeignKey("replacements.id"),
+        nullable=True,
+    ),
     Column("created_height", sa.Integer, index=True),
 )
 
@@ -115,7 +126,7 @@ members = sa.Table(
     metadata,
     Column("id", sa.Integer, primary_key=True),
     Column("group_id", sa.Integer, sa.ForeignKey("groups.id"), primary_key=True),
-    Column("account_id", sa.integer, sa.ForeignKey("tss_accounts.account_id")),
+    Column("account_id", sa.Integer, sa.ForeignKey("tss_accounts.account_id")),
     Column("pub_key", CustomBase64, nullable=True),
     Column("is_malicious", sa.Boolean),
 )
@@ -123,25 +134,29 @@ members = sa.Table(
 assigned_members = sa.Table(
     "assigned_members",
     metadata,
-    Column("signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), primary_key=True),
+    Column(
+        "signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), primary_key=True
+    ),
     Column("group_id", sa.Integer, primary_key=True),
     Column("member_id", sa.Integer, primary_key=True),
     Column("pub_d", CustomBase64),
     Column("pub_e", CustomBase64),
     Column("binding_factor", CustomBase64),
     Column("pub_nonce", CustomBase64),
-    sa.ForeignKeyConstraint(["member_id", "group_id"], ["members.id", "members.group_id"]),
+    sa.ForeignKeyConstraint(
+        ["member_id", "group_id"], ["members.id", "members.group_id"]
+    ),
 )
 
 replacements = sa.Table(
     "replacements",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("signing_id", sa.Integer, sa.Foreignkey("signing_data.id")),
-    Column("from_group_id", sa.Integer, sa.Foreignkey("groups.id")),
+    Column("signing_id", sa.Integer, sa.ForeignKey("signing_data.id")),
+    Column("from_group_id", sa.Integer, sa.ForeignKey("groups.id")),
     Column("from_pub_key", CustomBase64),
     Column("to_group_id", sa.Integer, sa.ForeignKey("groups.id")),
     Column("to_pub_key", CustomBase64),
     Column("exec_time", CustomDateTime),
-    Column("status", ReplacementStatus),
+    Column("status", CustomReplacementStatus),
 )
