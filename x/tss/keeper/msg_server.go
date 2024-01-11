@@ -102,104 +102,6 @@ func (k msgServer) CreateGroup(
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// ReplaceGroup handles the replacement of a group with another group. It verifies the authority,
-// retrieves necessary context, creates a new replace group data, requests a signature,
-// and adds the pending replace group for execution.
-func (k msgServer) ReplaceGroup(
-	goCtx context.Context,
-	req *types.MsgReplaceGroup,
-) (*types.MsgReplaceGroupResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	address, err := sdk.AccAddressFromBech32(req.Authority)
-	if err != nil {
-		return nil, errors.Wrapf(
-			types.ErrInvalidAccAddressFormat,
-			"invalid account address: %s", err,
-		)
-	}
-
-	// Get from group
-	fromGroup, err := k.GetGroup(ctx, req.FromGroupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify group status
-	if fromGroup.Status != types.GROUP_STATUS_ACTIVE {
-		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
-	// Get to group
-	toGroup, err := k.GetGroup(ctx, req.ToGroupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify group status
-	if toGroup.Status != types.GROUP_STATUS_ACTIVE {
-		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
-	// Verify whether the group is not in the pending replacement process.
-	lastReplacementID := toGroup.LatestReplacementID
-	if lastReplacementID != uint64(0) {
-		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
-		if err != nil {
-			panic(err)
-		}
-
-		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
-			return nil, errors.Wrap(
-				types.ErrRequestReplacementFailed,
-				"the group is in the pending replacement process",
-			)
-		}
-	}
-
-	// Request signature
-	sid, err := k.HandleReplaceGroupRequestSignature(
-		ctx,
-		fromGroup.PubKey,
-		req.ToGroupID,
-		address,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	nextID := k.GetNextReplacementCount(ctx)
-	k.SetReplacement(ctx, types.Replacement{
-		ID:          nextID,
-		SigningID:   sid,
-		FromGroupID: req.FromGroupID,
-		FromPubKey:  fromGroup.PubKey,
-		ToGroupID:   req.ToGroupID,
-		ToPubKey:    toGroup.PubKey,
-		ExecTime:    req.ExecTime,
-		Status:      types.REPLACEMENT_STATUS_WAITING,
-	})
-
-	k.InsertReplacementQueue(ctx, nextID, req.ExecTime)
-
-	// Update latest replacement ID to the group
-	toGroup.LatestReplacementID = nextID
-	k.SetGroup(ctx, toGroup)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeReplacement,
-			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", nextID)),
-		),
-	)
-
-	return &types.MsgReplaceGroupResponse{}, nil
-}
-
 // UpdateGroupFee updates the fee for a specific group based on the provided request.
 // It performs authorization checks, retrieves the group, updates the fee, and stores
 // the updated group information.
@@ -226,7 +128,7 @@ func (k msgServer) UpdateGroupFee(
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateGroupFee,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.GroupID)),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.ID)),
 			sdk.NewAttribute(types.AttributeKeyFee, group.Fee.String()),
 		),
 	)
@@ -676,6 +578,104 @@ func (k msgServer) RequestSignature(
 	return &types.MsgRequestSignatureResponse{}, nil
 }
 
+// ReplaceGroup handles the replacement of a group with another group. It verifies the authority,
+// retrieves necessary context, creates a new replace group data, requests a signature,
+// and adds the pending replace group for execution.
+func (k msgServer) ReplaceGroup(
+	goCtx context.Context,
+	req *types.MsgReplaceGroup,
+) (*types.MsgReplaceGroupResponse, error) {
+	if k.authority != req.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(req.Authority)
+	if err != nil {
+		return nil, errors.Wrapf(
+			types.ErrInvalidAccAddressFormat,
+			"invalid account address: %s", err,
+		)
+	}
+
+	// Get from group
+	fromGroup, err := k.GetGroup(ctx, req.FromGroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify group status
+	if fromGroup.Status != types.GROUP_STATUS_ACTIVE {
+		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Get to group
+	toGroup, err := k.GetGroup(ctx, req.ToGroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Verify group status
+	if toGroup.Status != types.GROUP_STATUS_ACTIVE {
+		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
+	}
+
+	// Verify whether the group is not in the pending replacement process.
+	lastReplacementID := toGroup.LatestReplacementID
+	if lastReplacementID != uint64(0) {
+		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
+		if err != nil {
+			panic(err)
+		}
+
+		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
+			return nil, errors.Wrap(
+				types.ErrRequestReplacementFailed,
+				"the group is in the pending replacement process",
+			)
+		}
+	}
+
+	// Request signature
+	sid, err := k.HandleReplaceGroupRequestSignature(
+		ctx,
+		fromGroup.PubKey,
+		req.ToGroupID,
+		address,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	nextID := k.GetNextReplacementCount(ctx)
+	k.SetReplacement(ctx, types.Replacement{
+		ID:          nextID,
+		SigningID:   sid,
+		FromGroupID: req.FromGroupID,
+		FromPubKey:  fromGroup.PubKey,
+		ToGroupID:   req.ToGroupID,
+		ToPubKey:    toGroup.PubKey,
+		ExecTime:    req.ExecTime,
+		Status:      types.REPLACEMENT_STATUS_WAITING,
+	})
+
+	k.InsertReplacementQueue(ctx, nextID, req.ExecTime)
+
+	// Update latest replacement ID to the group
+	toGroup.LatestReplacementID = nextID
+	k.SetGroup(ctx, toGroup)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplacement,
+			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", nextID)),
+		),
+	)
+
+	return &types.MsgReplaceGroupResponse{}, nil
+}
+
 // SubmitSignature verifies that the member and signing process are valid, and that the member hasn't already signed.
 // It checks the correctness of the signature and if the threshold is met, it combines all partial signatures into a group signature.
 // It then updates the signing record, deletes all interim data, and emits appropriate events.
@@ -777,7 +777,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 
-	err = k.SetActive(ctx, address)
+	err = k.SetActiveStatus(ctx, address)
 	if err != nil {
 		return nil, err
 	}
@@ -837,7 +837,7 @@ func (k Keeper) UpdateParams(
 
 // checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or "Complaint" message in a given group.
 // If either a confirm or a complain message from the member is found, an error is returned.
-func (k msgServer) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
+func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {
 		return errors.Wrapf(

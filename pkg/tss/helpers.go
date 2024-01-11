@@ -74,7 +74,7 @@ func GenerateSigningNonce(secret Scalar) (Scalar, error) {
 	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		// Generate random bytes
-		random, err := RandomBytes()
+		random, err := RandomBytes(32)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func RandomScalar() (Scalar, error) {
 	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		// Generate random bytes
-		random, err := RandomBytes()
+		random, err := RandomBytes(32)
 		if err != nil {
 			return nil, err
 		}
@@ -116,11 +116,10 @@ func RandomScalar() (Scalar, error) {
 }
 
 // RandomBytes generates random bytes.
-func RandomBytes() ([]byte, error) {
-	var b32 [32]byte
-	if _, err := rand.Read(b32[:]); err != nil {
+func RandomBytes(length int) ([]byte, error) {
+	b := make([]byte, length)
+	if _, err := rand.Read(b); err != nil {
 		return nil, NewError(ErrRandomError, "read bytes")
 	}
-
-	return b32[:], nil
+	return b, nil
 }

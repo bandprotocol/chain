@@ -72,6 +72,8 @@ message MsgRequestData {
     (gogoproto.customname) = "TSSGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // TSSEncodeType is the encode type of oracle result that will be sent to TSS.
+  EncodeType tss_encode_type = 11 [(gogoproto.customname) = "TSSEncodeType"];
 }
 
 // MsgRequestDataResponse is response data for MsgRequestData message

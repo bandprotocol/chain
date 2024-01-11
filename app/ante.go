@@ -29,31 +29,31 @@ type HandlerOptions struct {
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("account keeper is required for AnteHandler")
 	}
 	if options.BankKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("bank keeper is required for AnteHandler")
 	}
 	if options.SignModeHandler == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return nil, sdkerrors.ErrLogic.Wrap("sign mode handler is required for ante builder")
 	}
 	if options.AuthzKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "authz keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("authz keeper is required for AnteHandler")
 	}
 	if options.OracleKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "oracle keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
 	}
 	if options.TSSKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "tss keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("tss keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
 	}
 	if options.StakingKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Staking keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("Staking keeper is required for AnteHandler")
 	}
 	if options.GlobalfeeKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Globalfee keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("Globalfee keeper is required for AnteHandler")
 	}
 
 	sigGasConsumer := options.SigGasConsumer

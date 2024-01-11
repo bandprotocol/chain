@@ -26,7 +26,6 @@ type KeeperTestSuite struct {
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
-	requester   sdk.AccAddress
 	authority   sdk.AccAddress
 }
 
@@ -241,7 +240,7 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 	groupID := k.CreateNewGroup(ctx, group)
 
 	// init group ID
-	group.GroupID = tss.GroupID(1)
+	group.ID = groupID
 
 	// Get group by id
 	got, err := k.GetGroup(ctx, groupID)
@@ -265,7 +264,7 @@ func (s *KeeperTestSuite) TestSetGroup() {
 	group.Size_ = 6
 
 	// Add group ID
-	group.GroupID = 1
+	group.ID = groupID
 
 	k.SetGroup(ctx, group)
 
@@ -280,7 +279,7 @@ func (s *KeeperTestSuite) TestSetGroup() {
 func (s *KeeperTestSuite) TestGetGroups() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	group := types.Group{
-		GroupID:   1,
+		ID:        1,
 		Size_:     5,
 		Threshold: 3,
 		PubKey:    nil,
@@ -303,7 +302,7 @@ func (s *KeeperTestSuite) TestDeleteGroup() {
 
 	// Set up a sample group in the store
 	group := types.Group{
-		GroupID: groupID,
+		ID: groupID,
 		// Set other fields as needed
 	}
 	k.SetGroup(ctx, group)
@@ -402,6 +401,13 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 
 	// Create group
 	groupID := k.CreateNewGroup(ctx, types.Group{})
+	k.SetMember(ctx, types.Member{
+		ID:          1,
+		GroupID:     groupID,
+		Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+		PubKey:      nil,
+		IsMalicious: false,
+	})
 
 	// Set the current block height
 	blockHeight := int64(30001)
@@ -443,32 +449,32 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	k.SetMember(ctx, member)
 
 	k.SetGroup(ctx, types.Group{
-		GroupID: groupID,
-		Status:  types.GROUP_STATUS_ROUND_1,
+		ID:     groupID,
+		Status: types.GROUP_STATUS_ROUND_1,
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group := k.MustGetGroup(ctx, groupID)
 	s.Require().Equal(types.GROUP_STATUS_ROUND_2, group.Status)
 
 	k.SetGroup(ctx, types.Group{
-		GroupID: groupID,
-		Status:  types.GROUP_STATUS_ROUND_2,
+		ID:     groupID,
+		Status: types.GROUP_STATUS_ROUND_2,
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
 	s.Require().Equal(types.GROUP_STATUS_ROUND_3, group.Status)
 
 	k.SetGroup(ctx, types.Group{
-		GroupID: groupID,
-		Status:  types.GROUP_STATUS_FALLEN,
+		ID:     groupID,
+		Status: types.GROUP_STATUS_FALLEN,
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
 
 	k.SetGroup(ctx, types.Group{
-		GroupID: groupID,
-		Status:  types.GROUP_STATUS_ROUND_3,
+		ID:     groupID,
+		Status: types.GROUP_STATUS_ROUND_3,
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
@@ -476,8 +482,8 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 
 	// if member is malicious
 	k.SetGroup(ctx, types.Group{
-		GroupID: groupID,
-		Status:  types.GROUP_STATUS_ROUND_3,
+		ID:     groupID,
+		Status: types.GROUP_STATUS_ROUND_3,
 	})
 	member.IsMalicious = true
 	k.SetMember(ctx, member)
@@ -568,7 +574,7 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
-		GroupID:       fromGroupID,
+		ID:            fromGroupID,
 		Size_:         7,
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
@@ -577,7 +583,7 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		CreatedHeight: 2,
 	}
 	initialToGroup := types.Group{
-		GroupID:       toGroupID,
+		ID:            toGroupID,
 		Size_:         5,
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
@@ -593,9 +599,9 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	initialReplacement := types.Replacement{
 		ID:          replacementID,
 		SigningID:   signingID,
-		FromGroupID: initialFromGroup.GroupID,
+		FromGroupID: initialFromGroup.ID,
 		FromPubKey:  initialFromGroup.PubKey,
-		ToGroupID:   initialToGroup.GroupID,
+		ToGroupID:   initialToGroup.ID,
 		ToPubKey:    initialToGroup.PubKey,
 		Status:      types.REPLACEMENT_STATUS_WAITING,
 		ExecTime:    time.Now(),
@@ -612,7 +618,7 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	// Verify that the fromGroup was replaced with the toGroup's data
 	updatedGroup := k.MustGetGroup(ctx, toGroupID)
 	// Verify unchanged data
-	s.Require().Equal(toGroupID, updatedGroup.GroupID)
+	s.Require().Equal(toGroupID, updatedGroup.ID)
 	s.Require().Equal(initialToGroup.CreatedHeight, updatedGroup.CreatedHeight)
 	s.Require().Equal(initialToGroup.LatestReplacementID, updatedGroup.LatestReplacementID)
 	// Verify changed data
@@ -632,7 +638,7 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
-		GroupID:       fromGroupID,
+		ID:            fromGroupID,
 		Size_:         7,
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
@@ -641,7 +647,7 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		CreatedHeight: 2,
 	}
 	initialToGroup := types.Group{
-		GroupID:       toGroupID,
+		ID:            toGroupID,
 		Size_:         5,
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
@@ -657,9 +663,9 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 	initialReplacement := types.Replacement{
 		ID:          replacementID,
 		SigningID:   signingID,
-		FromGroupID: initialFromGroup.GroupID,
+		FromGroupID: initialFromGroup.ID,
 		FromPubKey:  initialFromGroup.PubKey,
-		ToGroupID:   initialToGroup.GroupID,
+		ToGroupID:   initialToGroup.ID,
 		ToPubKey:    initialToGroup.PubKey,
 		Status:      types.REPLACEMENT_STATUS_WAITING,
 		ExecTime:    time.Now(),

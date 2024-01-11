@@ -17,6 +17,11 @@ func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 			member.OneTimePrivKey,
 			pubKeys,
 			member.Coefficients,
+			testutil.MockNonce16Generator{
+				MockGenerateFunc: func() ([]byte, error) {
+					return member.EncSecretShares[0].Nonce(), nil
+				},
+			},
 		)
 		suite.Require().NoError(err)
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
@@ -25,7 +30,15 @@ func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 
 func (suite *TSSTestSuite) TestEncryptSecretShares() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		encSecretShares, err := tss.EncryptSecretShares(member.SecretShares, member.KeySyms)
+		encSecretShares, err := tss.EncryptSecretShares(
+			member.SecretShares,
+			member.KeySyms,
+			testutil.MockNonce16Generator{
+				MockGenerateFunc: func() ([]byte, error) {
+					return member.EncSecretShares[0].Nonce(), nil
+				},
+			},
+		)
 		suite.Require().NoError(err)
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
 	})

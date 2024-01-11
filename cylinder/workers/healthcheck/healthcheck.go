@@ -1,4 +1,4 @@
-package activator
+package healthcheck
 
 import (
 	"errors"
@@ -10,33 +10,33 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// Activator is a worker responsible for updating active status to the chain
-type Activator struct {
+// HealthCheck is a worker responsible for updating active status to the chain
+type HealthCheck struct {
 	context *cylinder.Context
 	logger  *logger.Logger
 	client  *client.Client
 }
 
-var _ cylinder.Worker = &Activator{}
+var _ cylinder.Worker = &HealthCheck{}
 
-// New creates a new instance of the Activator worker.
-// It initializes the necessary components and returns the created Activator instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Activator, error) {
+// New creates a new instance of the HealthCheck worker.
+// It initializes the necessary components and returns the created HealthCheck instance or an error if initialization fails.
+func New(ctx *cylinder.Context) (*HealthCheck, error) {
 	cli, err := client.New(ctx.Config, ctx.Keyring)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Activator{
+	return &HealthCheck{
 		context: ctx,
-		logger:  ctx.Logger.With("worker", "Activator"),
+		logger:  ctx.Logger.With("worker", "HealthCheck"),
 		client:  cli,
 	}, nil
 }
 
-// updateActive updates last active
-func (a *Activator) updateActive() {
-	// Query Active information
+// updateHealthCheck updates last active
+func (a *HealthCheck) updateHealthCheck() {
+	// Query active information
 	status, err := a.client.QueryStatus(a.context.Config.Granter)
 	if err != nil {
 		a.logger.Error(":cold_sweat: Failed to query status information: %s", err)
@@ -61,21 +61,21 @@ func (a *Activator) updateActive() {
 	}
 }
 
-// Start starts the activator worker.
+// Start starts the healthcheck worker.
 // It subscribes to events and starts processing incoming events.
-func (a *Activator) Start() {
+func (a *HealthCheck) Start() {
 	a.logger.Info("start")
 
 	// Update one time when starting worker first time.
-	a.updateActive()
+	a.updateHealthCheck()
 
 	for range time.Tick(time.Hour * 1) {
-		a.updateActive()
+		a.updateHealthCheck()
 	}
 }
 
-// Stop stops the Activator worker.
-func (a *Activator) Stop() {
+// Stop stops the HealthCheck worker.
+func (a *HealthCheck) Stop() {
 	a.logger.Info("stop")
 	a.client.Stop()
 }

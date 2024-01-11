@@ -10,8 +10,12 @@ import (
 
 // Requesting signature types
 const (
-	RequestingSignatureTypeText string = "text"
+	RequestingSignatureTypeText string = "Text"
 )
+
+func init() {
+	RegisterRequestingSignatureType(RequestingSignatureTypeText)
+}
 
 // Implements Content Interface
 var _ Content = &TextRequestingSignature{}
@@ -21,19 +25,17 @@ func NewTextRequestingSignature(msg []byte) *TextRequestingSignature {
 }
 
 // RequestingSignatureRoute returns the request router key
-func (rs *TextRequestingSignature) RequestingSignatureRoute() string { return RouterKey }
+func (rs *TextRequestingSignature) Route() string { return RouterKey }
 
 // RequestingSignatureType is "text"
-func (rs *TextRequestingSignature) RequestingSignatureType() string {
+func (rs *TextRequestingSignature) Type() string {
 	return RequestingSignatureTypeText
 }
 
 // ValidateBasic validates the content's title and description of the request signature
 func (rs *TextRequestingSignature) ValidateBasic() error { return nil }
 
-var validRequestingSignatureTypes = map[string]struct{}{
-	RequestingSignatureTypeText: {},
-}
+var validRequestingSignatureTypes = map[string]struct{}{}
 
 // RegisterRequestingSignatureType registers a request signature type. It will panic if the type is
 // already registered.
@@ -59,7 +61,7 @@ func NewRequestingSignatureHandler() Handler {
 			return nil, errors.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature message type: %s",
-				c.RequestingSignatureType(),
+				c.Type(),
 			)
 		}
 	}

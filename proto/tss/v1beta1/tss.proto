@@ -11,9 +11,9 @@ option (gogoproto.equal_all) = true;
 
 // Group is a type representing a participant group in a Distributed Key Generation or signing process.
 message Group {
-  // group_id is the unique identifier of the group.
-  uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // id is the unique identifier of the group.
+  uint64 id = 1
+      [(gogoproto.customname) = "ID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // size is the number of members in the group.
   uint64 size = 2;
   // threshold is the minimum number of members needed to generate a valid signature.
@@ -95,7 +95,7 @@ message Round2Info {
       [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
   // encrypted_secret_shares is a list of secret shares encrypted under the public keys of other members.
   repeated bytes encrypted_secret_shares = 2
-      [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.Scalars"];
+      [(gogoproto.castrepeated) = "github.com/bandprotocol/chain/v2/pkg/tss.EncSecretShares"];
 }
 
 // DE contains the public parts of a member's decryption and encryption keys.
@@ -108,10 +108,12 @@ message DE {
 
 // DEQueue is a simple queue data structure for holding DE objects.
 message DEQueue {
+  // address is the address of the de holder.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // head is the index of the first element in the queue.
-  uint64 head = 1;
+  uint64 head = 2;
   // tail is the index of the last element in the queue.
-  uint64 tail = 2;
+  uint64 tail = 3;
 }
 
 // Signing contains all necessary information for handling a signing request.
@@ -209,10 +211,12 @@ enum MemberStatus {
   MEMBER_STATUS_UNSPECIFIED = 0;
   // MEMBER_STATUS_ACTIVE is the active status.
   MEMBER_STATUS_ACTIVE = 1;
+  // MEMBER_STATUS_PAUSED is the paused status.
+  MEMBER_STATUS_PAUSED = 2;
   // MEMBER_STATUS_INACTIVE is the inactive status.
-  MEMBER_STATUS_INACTIVE = 2;
+  MEMBER_STATUS_INACTIVE = 3;
   // MEMBER_STATUS_JAIL is the status when member is jailed.
-  MEMBER_STATUS_JAIL = 3;
+  MEMBER_STATUS_JAIL = 4;
 }
 
 // Status maintains whether a member is an active member.
@@ -343,12 +347,12 @@ message EVMSignature {
 enum PrefixMsgType {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // PREFIX_UNSPECIFIED_MSG is the type of prefix that has not been specified.
-  PREFIX_UNSPECIFIED_MSG = 0;
-  // PREFIX_TEXT_MSG is the type of prefix that signs a text msg in the protocol.
-  PREFIX_TEXT_MSG = 1;
-  // PREFIX_REPLACE_GROUP_MSG is the type of prefix that signs a replace group msg in the protocol.
-  PREFIX_REPLACE_GROUP_MSG = 2;
-  // PREFIX_ORACLE_MSG is the type of prefix that signs an oracle result msg in the protocol.
-  PREFIX_ORACLE_MSG = 3;
+  // PREFIX_MSG_TYPE_UNSPECIFIED is the type of prefix that has not been specified.
+  PREFIX_MSG_TYPE_UNSPECIFIED = 0;
+  // PREFIX_MSG_TYPE_TEXT is the type of prefix that signs a text msg in the protocol.
+  PREFIX_MSG_TYPE_TEXT = 1;
+  // PREFIX_MSG_TYPE_REPLACE_GROUP is the type of prefix that signs a replace group msg in the protocol.
+  PREFIX_MSG_TYPE_REPLACE_GROUP = 2;
+  // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
+  PREFIX_MSG_TYPE_ORACLE = 3;
 }

@@ -78,10 +78,10 @@ func GetEventValuesBytes(events sdk.StringEvents, evType string, evKey string) (
 func GetEventValue(events sdk.StringEvents, evType string, evKey string) (string, error) {
 	values := GetEventValues(events, evType, evKey)
 	if len(values) == 0 {
-		return "", fmt.Errorf("Cannot find event with type: %s, key: %s", evType, evKey)
+		return "", fmt.Errorf("cannot find event with type: %s, key: %s", evType, evKey)
 	}
 	if len(values) > 1 {
-		return "", fmt.Errorf("Found more than one event with type: %s, key: %s", evType, evKey)
+		return "", fmt.Errorf("found more than one event with type: %s, key: %s", evType, evKey)
 	}
 	return values[0], nil
 }

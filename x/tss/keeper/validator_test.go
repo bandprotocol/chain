@@ -7,8 +7,10 @@ import (
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var Coins1000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
@@ -74,7 +76,13 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// From 50% of fee, 1% should go to community pool, the rest goes to the only active validator.
-	k.SetActive(ctx, testapp.Validators[1].Address)
+	k.HandleSetDEs(ctx, testapp.Validators[1].Address, []types.DE{
+		{
+			PubD: testutil.HexDecode("dddd"),
+			PubE: testutil.HexDecode("eeee"),
+		},
+	})
+	k.SetActiveStatus(ctx, testapp.Validators[1].Address)
 	k.AllocateTokens(ctx, defaultVotes())
 
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)

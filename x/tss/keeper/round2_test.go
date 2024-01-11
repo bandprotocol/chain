@@ -11,7 +11,7 @@ func (s *KeeperTestSuite) TestGetSetRound2Info() {
 	memberID := tss.MemberID(1)
 	round2Info := types.Round2Info{
 		MemberID: memberID,
-		EncryptedSecretShares: tss.Scalars{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestAddRound2Info() {
 	memberID := tss.MemberID(1)
 	round2Info := types.Round2Info{
 		MemberID: memberID,
-		EncryptedSecretShares: tss.Scalars{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
@@ -55,7 +55,7 @@ func (s *KeeperTestSuite) TestDeleteRound2Info() {
 	memberID := tss.MemberID(1)
 	Round2Info := types.Round2Info{
 		MemberID: memberID,
-		EncryptedSecretShares: tss.Scalars{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
@@ -78,7 +78,7 @@ func (s *KeeperTestSuite) TestDeleteRound2Infos() {
 	memberID := tss.MemberID(1)
 	Round2Info := types.Round2Info{
 		MemberID: memberID,
-		EncryptedSecretShares: tss.Scalars{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
@@ -102,7 +102,7 @@ func (s *KeeperTestSuite) TestGetRound2Infos() {
 	member2 := tss.MemberID(2)
 	round2InfoMember1 := types.Round2Info{
 		MemberID: member1,
-		EncryptedSecretShares: []tss.Scalar{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_12"),
 			[]byte("e_13"),
 			[]byte("e_14"),
@@ -110,7 +110,7 @@ func (s *KeeperTestSuite) TestGetRound2Infos() {
 	}
 	round2InfoMember2 := types.Round2Info{
 		MemberID: member2,
-		EncryptedSecretShares: []tss.Scalar{
+		EncryptedSecretShares: tss.EncSecretShares{
 			[]byte("e_11"),
 			[]byte("e_13"),
 			[]byte("e_14"),

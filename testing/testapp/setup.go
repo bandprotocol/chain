@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -42,6 +43,7 @@ import (
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
+	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -273,7 +275,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []sdkmath.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
@@ -400,9 +402,27 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 		// active tss status
-		app.TSSKeeper.SetActive(ctx, Validators[0].Address)
-		app.TSSKeeper.SetActive(ctx, Validators[1].Address)
-		app.TSSKeeper.SetActive(ctx, Validators[2].Address)
+		app.TSSKeeper.HandleSetDEs(ctx, Validators[0].Address, []tsstypes.DE{
+			{
+				PubD: testutil.HexDecode("dddd"),
+				PubE: testutil.HexDecode("eeee"),
+			},
+		})
+		app.TSSKeeper.HandleSetDEs(ctx, Validators[1].Address, []tsstypes.DE{
+			{
+				PubD: testutil.HexDecode("dddd"),
+				PubE: testutil.HexDecode("eeee"),
+			},
+		})
+		app.TSSKeeper.HandleSetDEs(ctx, Validators[2].Address, []tsstypes.DE{
+			{
+				PubD: testutil.HexDecode("dddd"),
+				PubE: testutil.HexDecode("eeee"),
+			},
+		})
+		app.TSSKeeper.SetActiveStatus(ctx, Validators[0].Address)
+		app.TSSKeeper.SetActiveStatus(ctx, Validators[1].Address)
+		app.TSSKeeper.SetActiveStatus(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }

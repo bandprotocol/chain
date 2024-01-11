@@ -10,14 +10,23 @@ import (
 )
 
 // SetDEQueue sets the DEQueue for a given address in the context's KVStore.
-func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue types.DEQueue) {
+func (k Keeper) SetDEQueue(ctx sdk.Context, deQueue types.DEQueue) {
+	address := sdk.MustAccAddressFromBech32(deQueue.Address)
 	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
 }
 
 // GetDEQueue retrieves the DEQueue for a given address from the context's KVStore.
 func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
+	bz := ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address))
+	if bz == nil {
+		return types.DEQueue{
+			Address: address.String(),
+			Head:    0,
+			Tail:    0,
+		}
+	}
 	var deQueue types.DEQueue
-	k.cdc.MustUnmarshal(ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address)), &deQueue)
+	k.cdc.MustUnmarshal(bz, &deQueue)
 	return deQueue
 }
 
@@ -26,18 +35,15 @@ func (k Keeper) GetDEQueueIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
 }
 
-// GetDEQueuesGenesis retrieves all DEQueues from the context's KVStore.
-func (k Keeper) GetDEQueuesGenesis(ctx sdk.Context) []types.DEQueueGenesis {
-	var deQueues []types.DEQueueGenesis
+// GetDEQueues retrieves all DEQueues from the context's KVStore.
+func (k Keeper) GetDEQueues(ctx sdk.Context) []types.DEQueue {
+	var deQueues []types.DEQueue
 	iterator := k.GetDEQueueIterator(ctx)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var deQueue types.DEQueue
 		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
-		deQueues = append(deQueues, types.DEQueueGenesis{
-			Address: types.AddressFromDEQueueStoreKey(iterator.Key()).String(),
-			DEQueue: deQueue,
-		})
+		deQueues = append(deQueues, deQueue)
 	}
 	return deQueues
 }
@@ -122,7 +128,18 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 		}
 	}
 
-	k.SetDEQueue(ctx, address, deQueue)
+	k.SetDEQueue(ctx, deQueue)
+
+	status := k.GetStatus(ctx, address)
+	if status.Status == types.MEMBER_STATUS_PAUSED {
+		left := k.GetDECount(ctx, address)
+		if left > 0 {
+			err := k.SetActiveStatus(ctx, address)
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
@@ -140,7 +157,7 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 	k.DeleteDE(ctx, address, deQueue.Head)
 
 	deQueue.Head = k.NextQueueValue(ctx, deQueue.Head)
-	k.SetDEQueue(ctx, address, deQueue)
+	k.SetDEQueue(ctx, deQueue)
 
 	return de, nil
 }
@@ -165,11 +182,14 @@ func (k Keeper) HandleAssignedMembersPollDE(
 
 		de, err := k.PollDE(ctx, accMember)
 		if err != nil {
-			// If failed to poll DE, deactivate the member.
-			accAddress := sdk.MustAccAddressFromBech32(member.Address)
-			k.SetInactive(ctx, accAddress)
-
 			return nil, err
+		}
+
+		left := k.GetDECount(ctx, accMember)
+		if left == 0 {
+			// If the member run out of DE, mark paused status for this member.
+			accAddress := sdk.MustAccAddressFromBech32(member.Address)
+			k.SetPausedStatus(ctx, accAddress)
 		}
 
 		assignedMembers = append(assignedMembers, types.AssignedMember{

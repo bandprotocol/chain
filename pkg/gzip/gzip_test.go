@@ -22,7 +22,7 @@ func TestUncompress(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, file1, accFile)
 
-	accFile, err = gzip.Uncompress(gzipFile, 2)
+	_, err = gzip.Uncompress(gzipFile, 2)
 	require.Error(t, err)
 
 	_, err = gzip.Uncompress(file1, 999)

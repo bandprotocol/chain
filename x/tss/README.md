@@ -145,7 +145,7 @@ var (
 	DEQueueStoreKeyPrefix = []byte{0x0d}
 	SigningStoreKeyPrefix = []byte{0x0e}
 	SigCountStoreKeyPrefix = []byte{0x0f}
-	PartialSigStoreKeyPrefix = []byte{0x10}
+	PartialSignatureStoreKeyPrefix = []byte{0x10}
 	StatusStoreKeyPrefix = []byte{0x11}
 	ParamsKeyPrefix = []byte{0x12}
 	ReplacementKeyPrefix = []byte{0x13}

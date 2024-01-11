@@ -1,10 +1,27 @@
 package testutil
 
 import (
+	"crypto/rand"
 	"encoding/hex"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
+
+type MockNonce16Generator struct {
+	MockGenerateFunc func() ([]byte, error)
+}
+
+func (m MockNonce16Generator) RandBytes16() ([]byte, error) {
+	if m.MockGenerateFunc != nil {
+		return m.MockGenerateFunc()
+	}
+	// Default behavior if generateFunc is not set
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return nil, tss.NewError(tss.ErrRandomError, "read bytes")
+	}
+	return b, nil
+}
 
 func HexDecode(str string) []byte {
 	b, err := hex.DecodeString(str)

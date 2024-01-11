@@ -10,13 +10,13 @@ import (
 
 func TestGenerateDEs(t *testing.T) {
 	privDEs, err := de.GenerateDEs(10, []byte("secret"))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	for _, privDE := range privDEs {
 		err = privDE.PrivD.Validate()
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		err = privDE.PrivE.Validate()
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	}
 }

@@ -236,12 +236,12 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := k.SetActive(ctx, ba.Sender.Address)
+			err := k.SetActiveStatus(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 
 		k.CreateNewGroup(ctx, tsstypes.Group{
-			GroupID:       tc.Group.ID,
+			ID:            tc.Group.ID,
 			Size_:         uint64(tc.Group.GetSize()),
 			Threshold:     tc.Group.Threshold,
 			PubKey:        tc.Group.PubKey,

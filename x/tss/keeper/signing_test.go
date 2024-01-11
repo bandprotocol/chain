@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -308,12 +306,12 @@ func (s *KeeperTestSuite) TestGetPartialSignatures() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Add PartialSigs
+	// Add PartialSignatures
 	for i, memberID := range memberIDs {
 		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
-	// Get all PartialSigs
+	// Get all PartialSignatures
 	got := k.GetPartialSignatures(ctx, signingID)
 
 	// Check if the returned signatures are equal to the ones we set
@@ -330,12 +328,12 @@ func (s *KeeperTestSuite) TestGetPartialSignaturesWithKey() {
 		tss.Signature("sample-signature-3"),
 	}
 
-	// Add PartialSigs
+	// Add PartialSignatures
 	for i, memberID := range memberIDs {
 		k.AddPartialSignature(ctx, signingID, memberID, sigs[i])
 	}
 
-	// Get all PartialSigs with keys
+	// Get all PartialSignatures with keys
 	got := k.GetPartialSignaturesWithKey(ctx, signingID)
 
 	// Construct expected result
@@ -455,7 +453,7 @@ func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	// Define the fee payer's address.
-	feePayer := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	feePayer := sdk.MustAccAddressFromBech32(k.GetAuthority())
 
 	// execute HandleReplaceGroupRequestSignature
 	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
@@ -630,7 +628,7 @@ func (s *KeeperTestSuite) TestRefundFee() {
 	}
 
 	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("%s", tc.name), func() {
+		s.Run(tc.name, func() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
 

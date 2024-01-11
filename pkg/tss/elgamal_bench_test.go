@@ -11,22 +11,24 @@ import (
 func BenchmarkEncrypt(b *testing.B) {
 	value := testutil.HexDecode("fc93f14f4e3e4e15378e2c65ba1986494a3f54b7c135dd21d67a44435332eb71")
 	key := testutil.HexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26")
-
+	rng := testutil.MockNonce16Generator{}
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Encrypt(value, key)
+		tss.Encrypt(value, key, rng)
 	}
 }
 
 func BenchmarkDecrypt(b *testing.B) {
-	value := testutil.HexDecode("d47a459f272be3d22e54af5a0a45ea8318e88f2c3c767962b2b5f9ba53d9922d")
-	key := testutil.HexDecode("035db2a125a23300bef24e57883f547503ab2598a99ed07d65d482b4ea1ff8ed26")
+	enc := testutil.HexDecode(
+		"cb0b29556849ad4219a5bb6fd7e12ac15805c9166371bcf2c4e931eeaf502807d8e4136601557341913837f01885d307",
+	)
+	key := testutil.HexDecode("64540a84e00ca07eb2f34bfa98caf96c8db3b09918427bca2863ee0b2d6df31f")
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Decrypt(value, key)
+		tss.Decrypt(enc, key)
 	}
 }
 

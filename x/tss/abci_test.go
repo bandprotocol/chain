@@ -30,7 +30,7 @@ func TestReplaceGroups(t *testing.T) {
 
 	// Set up initial state for testing
 	initialFromGroup := types.Group{
-		GroupID:       fromGroupID,
+		ID:            fromGroupID,
 		Size_:         7,
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
@@ -39,7 +39,7 @@ func TestReplaceGroups(t *testing.T) {
 		CreatedHeight: 2,
 	}
 	initialToGroup := types.Group{
-		GroupID:       toGroupID,
+		ID:            toGroupID,
 		Size_:         5,
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),

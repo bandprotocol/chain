@@ -9,7 +9,7 @@ import (
 )
 
 // handleBeginBlock handles the logic at the beginning of a block.
-func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
+func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Keeper) {
 	// Reward a portion of block rewards (inflation + tx fee) to active tss validators.
 	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
 }
@@ -39,7 +39,7 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// Fetch group replacements that have reached the execution time.
 	k.IterateReplacementQueue(ctx, ctx.BlockHeader().Time, func(replacement types.Replacement) bool {
 		k.HandleReplaceGroup(ctx, replacement)
-		k.RemoveFromReplacementQueue(ctx, replacement.ID, *&replacement.ExecTime)
+		k.RemoveFromReplacementQueue(ctx, replacement.ID, replacement.ExecTime)
 		return false
 	})
 

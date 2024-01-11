@@ -241,10 +241,11 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		r.RequestHeight,
 		r.RequestTime,
 		r.ClientID,
-		0,
 		rawRequests,
 		ibcChannel,
 		r.ExecuteGas,
+		0,
+		0,
 		"",
 		nil,
 	)

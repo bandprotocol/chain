@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
@@ -28,11 +28,16 @@ func (k Keeper) SetResult(ctx sdk.Context, reqID types.RequestID, result types.R
 	ctx.KVStore(k.storeKey).Set(types.ResultStoreKey(reqID), k.cdc.MustMarshal(&result))
 }
 
+// MarshalResult marshal the result
+func (k Keeper) MarshalResult(ctx sdk.Context, result types.Result) ([]byte, error) {
+	return k.cdc.Marshal(&result)
+}
+
 // GetResult returns the result for the given request ID or error if not exists.
 func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
-		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
+		return types.Result{}, types.ErrResultNotFound.Wrapf("id: %d", id)
 	}
 	var result types.Result
 	k.cdc.MustUnmarshal(bz, &result)
@@ -48,24 +53,16 @@ func (k Keeper) MustGetResult(ctx sdk.Context, id types.RequestID) types.Result 
 	return result
 }
 
-// GetByteResult returns the result in byte for the given request ID
-func (k Keeper) GetByteResult(ctx sdk.Context, id types.RequestID) ([]byte, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
-	if bz == nil {
-		return nil, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
-	}
-	return bz, nil
-}
-
 // ResolveSuccess resolves the given request as success with the given result.
 func (k Keeper) ResolveSuccess(
 	ctx sdk.Context,
 	id types.RequestID,
-	gid tss.GroupID,
 	requester string,
 	feeLimit sdk.Coins,
 	result []byte,
 	gasUsed uint64,
+	gid tss.GroupID,
+	encodeType types.EncodeType,
 ) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 
@@ -83,12 +80,12 @@ func (k Keeper) ResolveSuccess(
 		sid, err := k.tssKeeper.HandleRequestSign(
 			ctx,
 			gid,
-			types.NewRequestingSignature(id),
+			types.NewRequestingSignature(id, encodeType),
 			sdk.MustAccAddressFromBech32(requester),
 			feeLimit,
 		)
 		if err != nil {
-			codespace, code, _ := sdkerrors.ABCIInfo(err, false)
+			codespace, code, _ := errors.ABCIInfo(err, false)
 			signingResult = &types.SigningResult{
 				ErrorCodespace: codespace,
 				ErrorCode:      uint64(code),

@@ -213,7 +213,7 @@ message MsgRequestSignature {
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // content defines an interface that a request signature type must implement.
   google.protobuf.Any content = 2 [(cosmos_proto.accepts_interface) = "Content"];
-  // feeLimit is the maximum tokens that will be paid for this request.
+  // fee_limit is the maximum tokens that will be paid for this request.
   repeated cosmos.base.v1beta1.Coin fee_limit = 3
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // sender is the requester of the signing process.

@@ -49,7 +49,10 @@ func importGroupsCmd(ctx *Context) *cobra.Command {
 
 			// unmarshal json to data
 			var groups []store.Group
-			json.Unmarshal(bytes, &groups)
+			err = json.Unmarshal(bytes, &groups)
+			if err != nil {
+				return err
+			}
 
 			// create context
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
@@ -59,8 +62,7 @@ func importGroupsCmd(ctx *Context) *cobra.Command {
 
 			// loop to set each group to store
 			for _, group := range groups {
-				err = c.Store.SetGroup(group)
-				if err != nil {
+				if err = c.Store.SetGroup(group); err != nil {
 					return err
 				}
 			}
@@ -94,7 +96,10 @@ func importDKGsCmd(ctx *Context) *cobra.Command {
 
 			// unmarshal json to data
 			var dkgs []store.DKG
-			json.Unmarshal(bytes, &dkgs)
+			err = json.Unmarshal(bytes, &dkgs)
+			if err != nil {
+				return err
+			}
 
 			// create context
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
