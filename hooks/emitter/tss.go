@@ -57,7 +57,7 @@ func (h *Hook) emitSetTSSAccountStatus(status tsstypes.Status) {
 
 func (h *Hook) emitSetGroup(group tsstypes.Group, dkgContext []byte) {
 	h.Write("SET_GROUP", common.JsDict{
-		"id":                    group.GroupID,
+		"id":                    group.ID,
 		"size":                  group.Size_,
 		"threshold":             group.Threshold,
 		"dkg_context":           parseBytes(dkgContext),
