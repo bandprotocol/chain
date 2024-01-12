@@ -163,29 +163,20 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningFailed(ctx, evMap)
 	case tsstypes.EventTypeExpiredSigning:
 		h.handleEventExpiredSigning(ctx, evMap)
-	case tsstypes.EventTypeInactive:
-		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeInactive+"."+tsstypes.AttributeKeyAddress][0])
+	case tsstypes.EventTypeInactiveStatus:
+		address := sdk.MustAccAddressFromBech32(
+			evMap[tsstypes.EventTypeInactiveStatus+"."+tsstypes.AttributeKeyAddress][0],
+		)
 		h.handleUpdateTSSStatus(ctx, address)
-	case tsstypes.EventTypeCreateGroup:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeCreateGroup+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeRound2Success:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound2Success+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeComplainSuccess:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainSuccess+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeComplainFailed:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainFailed+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeRound3Success:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound3Success+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeExpiredGroup:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeExpiredGroup+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	case tsstypes.EventTypeUpdateGroupFee:
-		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeUpdateGroupFee+"."+tsstypes.AttributeKeyGroupID][0]))
+	case tsstypes.EventTypeCreateGroup,
+		tsstypes.EventTypeRound2Success,
+		tsstypes.EventTypeRound3Success,
+		tsstypes.EventTypeComplainSuccess,
+		tsstypes.EventTypeComplainFailed,
+		tsstypes.EventTypeExpiredGroup,
+		tsstypes.EventTypeUpdateGroupFee:
+
+		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
 		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeReplacement:
 		h.handleInitTSSReplacement(ctx, evMap)

@@ -166,7 +166,7 @@ tss_replacements = sa.Table(
     "tss_replacements",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
+    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
     Column("from_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("from_pub_key", CustomBase64),
     Column("to_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),

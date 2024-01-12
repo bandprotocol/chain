@@ -80,9 +80,9 @@ func (h *Hook) emitSetTSSGroupMember(member types.Member) {
 
 func (h *Hook) emitNewTSSAssignedMember(sid tss.SigningID, gid tss.GroupID, am types.AssignedMember) {
 	h.Write("NEW_TSS_ASSIGNED_MEMBER", common.JsDict{
-		"signing_id":          sid,
-		"tss_group_member_id": am.MemberID,
+		"tss_signing_id":      sid,
 		"tss_group_id":        gid,
+		"tss_group_member_id": am.MemberID,
 		"pub_d":               parseBytes(am.PubD),
 		"pub_e":               parseBytes(am.PubE),
 		"binding_factor":      parseBytes(am.PubKey),
@@ -135,11 +135,11 @@ func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) 
 		id := tss.SigningID(common.Atoi(sid))
 		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
+		h.emitNewTSSSigning(signing)
+
 		for _, am := range signing.AssignedMembers {
 			h.emitNewTSSAssignedMember(signing.ID, signing.GroupID, am)
 		}
-
-		h.emitNewTSSSigning(signing)
 	}
 }
 
