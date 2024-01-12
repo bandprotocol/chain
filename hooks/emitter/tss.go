@@ -5,14 +5,13 @@ import (
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
-	h.Write("NEW_SIGNING", common.JsDict{
+func (h *Hook) emitNewTSSSigning(signing types.Signing) {
+	h.Write("NEW_TSS_SIGNING", common.JsDict{
 		"id":              signing.ID,
-		"group_id":        signing.GroupID,
+		"tss_group_id":    signing.GroupID,
 		"group_pub_key":   parseBytes(signing.GroupPubKey),
 		"msg":             parseBytes(signing.Message),
 		"group_pub_nonce": parseBytes(signing.GroupPubNonce),
@@ -23,40 +22,40 @@ func (h *Hook) emitNewSigning(signing tsstypes.Signing) {
 	})
 }
 
-func (h *Hook) emitUpdateSigningSuccess(signing tsstypes.Signing) {
-	h.Write("UPDATE_SIGNING", common.JsDict{
+func (h *Hook) emitUpdateTSSSigningSuccess(signing types.Signing) {
+	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":        signing.ID,
 		"status":    int(signing.Status),
 		"signature": parseBytes(signing.Signature),
 	})
 }
 
-func (h *Hook) emitUpdateSigningFailed(reason string, signing tsstypes.Signing) {
-	h.Write("UPDATE_SIGNING", common.JsDict{
+func (h *Hook) emitUpdateTSSSigningFailed(reason string, signing types.Signing) {
+	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":     signing.ID,
 		"status": int(signing.Status),
 		"reason": reason,
 	})
 }
 
-func (h *Hook) emitUpdateSigningStatus(signing tsstypes.Signing) {
-	h.Write("UPDATE_SIGNING", common.JsDict{
+func (h *Hook) emitUpdateTSSSigningStatus(signing types.Signing) {
+	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":     signing.ID,
 		"status": int(signing.Status),
 	})
 }
 
-func (h *Hook) emitSetTSSAccountStatus(status tsstypes.Status) {
-	h.Write("SET_TSS_ACCOUNT_STATUS", common.JsDict{
+func (h *Hook) emitSetTSSStatus(status types.Status) {
+	h.Write("SET_TSS_STATUS", common.JsDict{
 		"address":     status.Address,
 		"status":      int(status.Status),
-		"since":       status.Since.Unix(),
-		"last_active": status.LastActive.Unix(),
+		"since":       status.Since.UnixNano(),
+		"last_active": status.LastActive.UnixNano(),
 	})
 }
 
-func (h *Hook) emitSetGroup(group tsstypes.Group, dkgContext []byte) {
-	h.Write("SET_GROUP", common.JsDict{
+func (h *Hook) emitSetTSSGroup(group types.Group, dkgContext []byte) {
+	h.Write("SET_TSS_GROUP", common.JsDict{
 		"id":                    group.ID,
 		"size":                  group.Size_,
 		"threshold":             group.Threshold,
@@ -69,43 +68,43 @@ func (h *Hook) emitSetGroup(group tsstypes.Group, dkgContext []byte) {
 	})
 }
 
-func (h *Hook) emitSetMember(member tsstypes.Member) {
-	h.Write("SET_MEMBER", common.JsDict{
+func (h *Hook) emitSetTSSGroupMember(member types.Member) {
+	h.Write("SET_TSS_GROUP_MEMBER", common.JsDict{
 		"id":           member.ID,
-		"group_id":     member.GroupID,
+		"tss_group_id": member.GroupID,
 		"address":      member.Address,
 		"pub_key":      parseBytes(member.PubKey),
 		"is_malicious": member.IsMalicious,
 	})
 }
 
-func (h *Hook) emitNewAssignedMember(sid tss.SigningID, gid tss.GroupID, am tsstypes.AssignedMember) {
-	h.Write("NEW_ASSIGNED_MEMBER", common.JsDict{
-		"signing_id":     sid,
-		"member_id":      am.MemberID,
-		"group_id":       gid,
-		"pub_d":          parseBytes(am.PubD),
-		"pub_e":          parseBytes(am.PubE),
-		"binding_factor": parseBytes(am.PubKey),
-		"pub_nonce":      parseBytes(am.PubNonce),
+func (h *Hook) emitNewTSSAssignedMember(sid tss.SigningID, gid tss.GroupID, am types.AssignedMember) {
+	h.Write("NEW_TSS_ASSIGNED_MEMBER", common.JsDict{
+		"signing_id":          sid,
+		"tss_group_member_id": am.MemberID,
+		"tss_group_id":        gid,
+		"pub_d":               parseBytes(am.PubD),
+		"pub_e":               parseBytes(am.PubE),
+		"binding_factor":      parseBytes(am.PubKey),
+		"pub_nonce":           parseBytes(am.PubNonce),
 	})
 }
 
-func (h *Hook) emitNewReplacement(replacement tsstypes.Replacement) {
-	h.Write("NEW_REPLACEMENT", common.JsDict{
-		"id":            replacement.ID,
-		"signing_id":    replacement.SigningID,
-		"from_group_id": replacement.FromGroupID,
-		"from_pub_key":  parseBytes(replacement.FromPubKey),
-		"to_group_id":   replacement.ToGroupID,
-		"to_pub_key":    parseBytes(replacement.ToPubKey),
-		"exec_time":     replacement.ExecTime.Unix(),
-		"status":        int(replacement.Status),
+func (h *Hook) emitNewTSSReplacement(replacement types.Replacement) {
+	h.Write("NEW_TSS_REPLACEMENT", common.JsDict{
+		"id":             replacement.ID,
+		"tss_signing_id": replacement.SigningID,
+		"from_group_id":  replacement.FromGroupID,
+		"from_pub_key":   parseBytes(replacement.FromPubKey),
+		"to_group_id":    replacement.ToGroupID,
+		"to_pub_key":     parseBytes(replacement.ToPubKey),
+		"exec_time":      replacement.ExecTime.UnixNano(),
+		"status":         int(replacement.Status),
 	})
 }
 
-func (h *Hook) emitUpdateReplacementStatus(ctx sdk.Context, id uint64, status tsstypes.ReplacementStatus) {
-	h.Write("UPDATE_REPLACEMENT_STATUS", common.JsDict{
+func (h *Hook) emitUpdateTSSReplacementStatus(ctx sdk.Context, id uint64, status types.ReplacementStatus) {
+	h.Write("UPDATE_TSS_REPLACEMENT_STATUS", common.JsDict{
 		"id":     id,
 		"status": int(status),
 	})
@@ -114,9 +113,9 @@ func (h *Hook) emitUpdateReplacementStatus(ctx sdk.Context, id uint64, status ts
 // handleInitTSSModule implements emitter handler for initializing tss module.
 func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
 	for _, signing := range h.tssKeeper.GetSignings(ctx) {
-		h.Write("NEW_SIGNING", common.JsDict{
+		h.Write("NEW_TSS_SIGNING", common.JsDict{
 			"id":              signing.ID,
-			"group_id":        signing.GroupID,
+			"tss_group_id":    signing.GroupID,
 			"group_pub_key":   parseBytes(signing.GroupPubKey),
 			"msg":             parseBytes(signing.Message),
 			"group_pub_nonce": parseBytes(signing.GroupPubNonce),
@@ -131,93 +130,143 @@ func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
 
 // handleEventRequestSignature implements emitter handler for RequestSignature event.
 func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
-	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeRequestSignature+"."+types.AttributeKeySigningID][0]))
-	signing := h.tssKeeper.MustGetSigning(ctx, id)
+	sids := evMap[types.EventTypeRequestSignature+"."+types.AttributeKeySigningID]
+	for _, sid := range sids {
+		id := tss.SigningID(common.Atoi(sid))
+		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-	for _, am := range signing.AssignedMembers {
-		h.emitNewAssignedMember(signing.ID, signing.GroupID, am)
+		for _, am := range signing.AssignedMembers {
+			h.emitNewTSSAssignedMember(signing.ID, signing.GroupID, am)
+		}
+
+		h.emitNewTSSSigning(signing)
 	}
-
-	h.emitNewSigning(signing)
 }
 
 // handleEventSigningSuccess implements emitter handler for SigningSuccess event.
 func (h *Hook) handleEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
-	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeSigningSuccess+"."+types.AttributeKeySigningID][0]))
-	signing := h.tssKeeper.MustGetSigning(ctx, id)
+	sids := evMap[types.EventTypeSigningSuccess+"."+types.AttributeKeySigningID]
+	for _, sid := range sids {
+		id := tss.SigningID(common.Atoi(sid))
+		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-	h.emitUpdateSigningSuccess(signing)
+		h.emitUpdateTSSSigningSuccess(signing)
+	}
 }
 
 // handleEventSigningFailed implements emitter handler for SigningSuccess event.
 func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
-	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeSigningFailed+"."+types.AttributeKeySigningID][0]))
-	signing := h.tssKeeper.MustGetSigning(ctx, id)
+	sids := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeySigningID]
+	for _, sid := range sids {
+		id := tss.SigningID(common.Atoi(sid))
+		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-	if reason, ok := evMap[tsstypes.EventTypeSigningFailed+"."+tsstypes.AttributeKeyReason]; ok {
-		h.emitUpdateSigningFailed(
-			reason[0],
-			signing,
-		)
-	} else {
-		h.emitUpdateSigningFailed(
-			"failed with on reason",
-			signing,
-		)
+		if reason, ok := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeyReason]; ok {
+			h.emitUpdateTSSSigningFailed(
+				reason[0],
+				signing,
+			)
+		} else {
+			h.emitUpdateTSSSigningFailed(
+				"failed with on reason",
+				signing,
+			)
+		}
 	}
 }
 
 // handleEventExpiredSigning implements emitter handler for ExpiredSigning event.
 func (h *Hook) handleEventExpiredSigning(ctx sdk.Context, evMap common.EvMap) {
-	id := tss.SigningID(common.Atoi(evMap[tsstypes.EventTypeExpiredSigning+"."+types.AttributeKeySigningID][0]))
-	signing := h.tssKeeper.MustGetSigning(ctx, id)
+	sids := evMap[types.EventTypeExpiredSigning+"."+types.AttributeKeySigningID]
+	for _, sid := range sids {
+		id := tss.SigningID(common.Atoi(sid))
+		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-	h.emitUpdateSigningStatus(signing)
+		h.emitUpdateTSSSigningStatus(signing)
+	}
 }
 
-// handleUpdateStatusTSSAccount implements emitter handler for update tss account status.
-func (h *Hook) handleUpdateStatusTSSAccount(ctx sdk.Context, address sdk.AccAddress) {
+// handleUpdateTSSStatus implements emitter handler for update tss status.
+func (h *Hook) handleUpdateTSSStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := h.tssKeeper.GetStatus(ctx, address)
-
-	h.emitSetTSSAccountStatus(status)
+	h.emitSetTSSStatus(status)
 }
 
-// handleSetGroup implements emitter handler events related to group.
-func (h *Hook) handleSetGroup(ctx sdk.Context, gid tss.GroupID) {
+// handleSetTSSGroup implements emitter handler events related to group.
+func (h *Hook) handleSetTSSGroup(ctx sdk.Context, gid tss.GroupID) {
 	group := h.tssKeeper.MustGetGroup(ctx, gid)
 	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
 	if err != nil {
 		panic(err)
 	}
 
-	h.emitSetGroup(group, dkgContext)
+	h.emitSetTSSGroup(group, dkgContext)
 
 	members := h.tssKeeper.MustGetMembers(ctx, gid)
 	for _, m := range members {
-		h.emitSetMember(m)
+		h.emitSetTSSGroupMember(m)
 	}
 }
 
-// handleInitReplacement implements emitter handler for init replacement event.
-func (h *Hook) handleInitReplacement(ctx sdk.Context, evMap common.EvMap) {
-	rid := common.Atoi(evMap[tsstypes.EventTypeReplacement+"."+tsstypes.AttributeKeyReplacementID][0])
-	r, err := h.tssKeeper.GetReplacement(ctx, uint64(rid))
-	if err != nil {
-		panic(err)
-	}
+// handleInitTSSReplacement implements emitter handler for init replacement event.
+func (h *Hook) handleInitTSSReplacement(ctx sdk.Context, evMap common.EvMap) {
+	rids := evMap[types.EventTypeReplacement+"."+types.AttributeKeyReplacementID]
+	for _, rid := range rids {
+		id := uint64(common.Atoi(rid))
+		r, err := h.tssKeeper.GetReplacement(ctx, id)
+		if err != nil {
+			panic(err)
+		}
 
-	h.emitNewReplacement(r)
+		h.emitNewTSSReplacement(r)
+	}
 }
 
-// handleUpdateReplacementStatus implements emitter handler events related to replacements.
-func (h *Hook) handleUpdateReplacementStatus(ctx sdk.Context, rid uint64) {
+// handleUpdateTSSReplacementStatus implements emitter handler events related to replacements.
+func (h *Hook) handleUpdateTSSReplacementStatus(ctx sdk.Context, rid uint64) {
 	r, err := h.tssKeeper.GetReplacement(ctx, rid)
 	if err != nil {
 		panic(err)
 	}
-	if r.Status == tsstypes.REPLACEMENT_STATUS_SUCCESS {
-		h.handleSetGroup(ctx, r.ToGroupID)
+	if r.Status == types.REPLACEMENT_STATUS_SUCCESS {
+		h.handleSetTSSGroup(ctx, r.ToGroupID)
 	}
 
-	h.emitUpdateReplacementStatus(ctx, rid, r.Status)
+	h.emitUpdateTSSReplacementStatus(ctx, rid, r.Status)
+}
+
+// handleTSSMsgActivate implements emitter handler for MsgActivate of TSS.
+func (h *Hook) handleTSSMsgActivate(
+	ctx sdk.Context, msg *types.MsgActivate,
+) {
+	acc, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		panic(err)
+	}
+
+	h.handleUpdateTSSStatus(ctx, acc)
+}
+
+// handleTSSMsgHealthCheck implements emitter handler for MsgHealthCheck of TSS.
+func (h *Hook) handleTSSMsgHealthCheck(
+	ctx sdk.Context, msg *types.MsgHealthCheck,
+) {
+	acc, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		panic(err)
+	}
+
+	h.handleUpdateTSSStatus(ctx, acc)
+}
+
+// handleTSSMsgSubmitDEs implements emitter handler for MsgSubmitDEs of TSS.
+func (h *Hook) handleTSSMsgSubmitDEs(
+	ctx sdk.Context, msg *types.MsgSubmitDEs,
+) {
+	acc, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		panic(err)
+	}
+
+	h.handleUpdateTSSStatus(ctx, acc)
 }

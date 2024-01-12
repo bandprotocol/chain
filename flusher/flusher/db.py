@@ -195,7 +195,7 @@ requests = sa.Table(
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column(
-        "tss_signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), nullable=True
+        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), nullable=True
     ),
     Column("tss_signing_error_codespace", sa.String, nullable=True),
     Column("tss_signing_error_code", sa.Integer, nullable=True),

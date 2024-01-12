@@ -27,11 +27,12 @@ class GroupStatus(enum.Enum):
     failed = 6
 
 
-class TSSAccountStatus(enum.Enum):
+class TSSStatus(enum.Enum):
     nil = 0
     active = 1
-    inactive = 2
-    jail = 3
+    paused = 2
+    inactive = 3
+    jail = 4
 
 
 class ReplacementStatus(enum.Enum):
@@ -55,11 +56,11 @@ class CustomGroupStatus(sa.types.TypeDecorator):
         return GroupStatus(value)
 
 
-class CustomTSSAccountStatus(sa.types.TypeDecorator):
-    impl = sa.Enum(TSSAccountStatus)
+class CustomTSSStatus(sa.types.TypeDecorator):
+    impl = sa.Enum(TSSStatus)
 
     def process_bind_param(self, value, dialect):
-        return TSSAccountStatus(value)
+        return TSSStatus(value)
 
 
 class CustomReplacementStatus(sa.types.TypeDecorator):
@@ -69,11 +70,11 @@ class CustomReplacementStatus(sa.types.TypeDecorator):
         return ReplacementStatus(value)
 
 
-signing_data = sa.Table(
-    "signing_data",
+tss_signings = sa.Table(
+    "tss_signings",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("group_id", sa.Integer, sa.ForeignKey("groups.id")),
+    Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("group_pub_key", CustomBase64),
     Column("msg", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
@@ -89,11 +90,13 @@ signing_data = sa.Table(
         index=True,
     ),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
-    sa.Index("ix_group_id_group_pub_key_status", "group_id", "group_pub_key", "status"),
+    sa.Index(
+        "ix_group_id_group_pub_key_status", "tss_group_id", "group_pub_key", "status"
+    ),
 )
 
-groups = sa.Table(
-    "groups",
+tss_groups = sa.Table(
+    "tss_groups",
     metadata,
     Column("id", sa.Integer, primary_key=True),
     Column("size", sa.Integer),
@@ -106,56 +109,67 @@ groups = sa.Table(
     Column(
         "latest_replacement_id",
         sa.Integer,
-        sa.ForeignKey("replacements.id"),
+        sa.ForeignKey("tss_replacements.id"),
         nullable=True,
     ),
     Column("created_height", sa.Integer, index=True),
 )
 
-tss_accounts = sa.Table(
-    "tss_accounts",
+tss_statuses = sa.Table(
+    "tss_statuses",
     metadata,
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    Column("status", CustomTSSAccountStatus),
+    Column("status", CustomTSSStatus),
     Column("since", CustomDateTime),
     Column("last_active", CustomDateTime),
 )
 
-members = sa.Table(
-    "members",
+tss_group_members = sa.Table(
+    "tss_group_members",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("group_id", sa.Integer, sa.ForeignKey("groups.id"), primary_key=True),
-    Column("account_id", sa.Integer, sa.ForeignKey("tss_accounts.account_id")),
+    Column(
+        "tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True
+    ),
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("pub_key", CustomBase64, nullable=True),
     Column("is_malicious", sa.Boolean),
 )
 
-assigned_members = sa.Table(
-    "assigned_members",
+tss_assigned_members = sa.Table(
+    "tss_assigned_members",
     metadata,
     Column(
-        "signing_id", sa.Integer, sa.ForeignKey("signing_data.id"), primary_key=True
+        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), primary_key=True
     ),
-    Column("group_id", sa.Integer, primary_key=True),
-    Column("member_id", sa.Integer, primary_key=True),
+    Column(
+        "tss_group_id",
+        sa.Integer,
+        primary_key=True,
+    ),
+    Column(
+        "tss_group_member_id",
+        sa.Integer,
+        primary_key=True,
+    ),
     Column("pub_d", CustomBase64),
     Column("pub_e", CustomBase64),
     Column("binding_factor", CustomBase64),
     Column("pub_nonce", CustomBase64),
     sa.ForeignKeyConstraint(
-        ["member_id", "group_id"], ["members.id", "members.group_id"]
+        ["tss_group_id", "tss_group_member_id"],
+        ["tss_group_members.tss_group_id", "tss_group_members.id"],
     ),
 )
 
-replacements = sa.Table(
-    "replacements",
+tss_replacements = sa.Table(
+    "tss_replacements",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("signing_id", sa.Integer, sa.ForeignKey("signing_data.id")),
-    Column("from_group_id", sa.Integer, sa.ForeignKey("groups.id")),
+    Column("signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
+    Column("from_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("from_pub_key", CustomBase64),
-    Column("to_group_id", sa.Integer, sa.ForeignKey("groups.id")),
+    Column("to_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("to_pub_key", CustomBase64),
     Column("exec_time", CustomDateTime),
     Column("status", CustomReplacementStatus),

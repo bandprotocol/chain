@@ -120,6 +120,14 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, log, detail)
+	case *tsstypes.MsgActivate:
+		h.handleTSSMsgActivate(ctx, msg)
+	case *tsstypes.MsgHealthCheck:
+		h.handleTSSMsgHealthCheck(ctx, msg)
+	case *tsstypes.MsgSubmitDEs:
+		h.handleTSSMsgSubmitDEs(ctx, msg)
+	case *tsstypes.MsgRequestSignature:
+		h.handleEventRequestSignature(ctx, evMap)
 	default:
 		break
 	}
@@ -155,50 +163,42 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningFailed(ctx, evMap)
 	case tsstypes.EventTypeExpiredSigning:
 		h.handleEventExpiredSigning(ctx, evMap)
-	case tsstypes.EventTypeActivate:
-		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeActivate+"."+tsstypes.AttributeKeyAddress][0])
-		h.handleUpdateStatusTSSAccount(ctx, address)
-	case tsstypes.EventTypeHealthCheck:
-		address := sdk.MustAccAddressFromBech32(
-			evMap[tsstypes.EventTypeHealthCheck+"."+tsstypes.AttributeKeyAddress][0],
-		)
-		h.handleUpdateStatusTSSAccount(ctx, address)
 	case tsstypes.EventTypeInactive:
 		address := sdk.MustAccAddressFromBech32(evMap[tsstypes.EventTypeInactive+"."+tsstypes.AttributeKeyAddress][0])
-		h.handleUpdateStatusTSSAccount(ctx, address)
+		h.handleUpdateTSSStatus(ctx, address)
 	case tsstypes.EventTypeCreateGroup:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeCreateGroup+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeRound2Success:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound2Success+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeComplainSuccess:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainSuccess+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeComplainFailed:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeComplainFailed+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeRound3Success:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeRound3Success+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeExpiredGroup:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeExpiredGroup+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeUpdateGroupFee:
 		gid := tss.GroupID(common.Atoi(evMap[tsstypes.EventTypeUpdateGroupFee+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetGroup(ctx, gid)
+		h.handleSetTSSGroup(ctx, gid)
 	case tsstypes.EventTypeReplacement:
-		h.handleInitReplacement(ctx, evMap)
+		h.handleInitTSSReplacement(ctx, evMap)
 	case tsstypes.EventTypeReplacementSuccess:
 		rid := uint64(
 			common.Atoi(evMap[tsstypes.EventTypeReplacementSuccess+"."+tsstypes.AttributeKeyReplacementID][0]),
 		)
-		h.handleUpdateReplacementStatus(ctx, rid)
+		h.handleUpdateTSSReplacementStatus(ctx, rid)
 	case tsstypes.EventTypeReplacementFailed:
 		rid := uint64(
 			common.Atoi(evMap[tsstypes.EventTypeReplacementFailed+"."+tsstypes.AttributeKeyReplacementID][0]),
 		)
-		h.handleUpdateReplacementStatus(ctx, rid)
+		h.handleUpdateTSSReplacementStatus(ctx, rid)
 	default:
 		break
 	}
