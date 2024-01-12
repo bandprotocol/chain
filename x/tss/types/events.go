@@ -23,7 +23,9 @@ const (
 	EventTypeSubmitSignature    = "submit_signature"
 	EventTypeActivate           = "activate"
 	EventTypeHealthCheck        = "health_check"
-	EventTypeInactive           = "inactive"
+	EventTypeInactiveStatus     = "inactive_status"
+	EventTypePausedStatus       = "paused_status"
+	EventTypeJailStatus         = "jail_status"
 
 	AttributeKeyGroupID       = "group_id"
 	AttributeKeyReplacementID = "replacement_id"
