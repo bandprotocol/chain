@@ -7,28 +7,42 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	feedkeeper "github.com/bandprotocol/chain/v2/x/feed/keeper"
+	feedtypes "github.com/bandprotocol/chain/v2/x/feed/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type FeeChecker struct {
+	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
+	FeedKeeper      *feedkeeper.Keeper
+
+	FeedMsgServer feedtypes.MsgServer
 }
 
 func NewFeeChecker(
+	authzKeeper *authzkeeper.Keeper,
 	oracleKeeper *oraclekeeper.Keeper,
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
+	feedKeeper *feedkeeper.Keeper,
 ) FeeChecker {
+	feedMsgServer := feedkeeper.NewMsgServerImpl(*feedKeeper)
+
 	return FeeChecker{
+		AuthzKeeper:     authzKeeper,
 		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
+		FeedKeeper:      feedKeeper,
+		FeedMsgServer:   feedMsgServer,
 	}
 }
 
@@ -48,9 +62,9 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on check tx.
 	if ctx.IsCheckTx() {
-		// Check if this is a valid report transaction, we allow gas price to be zero and set priority to the highest
-		isValidReportTx := fc.CheckReportTx(ctx, tx)
-		if isValidReportTx {
+		// Check if this tx should be free or not
+		isBypassMinFeeTx := fc.IsBypassMinFeeTx(ctx, tx)
+		if isBypassMinFeeTx {
 			return sdk.Coins{}, int64(math.MaxInt64), nil
 		}
 
@@ -89,21 +103,61 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 	return feeCoins, priority, nil
 }
 
-func (fc FeeChecker) CheckReportTx(ctx sdk.Context, tx sdk.Tx) bool {
+func (fc FeeChecker) IsBypassMinFeeTx(ctx sdk.Context, tx sdk.Tx) bool {
+	newCtx, _ := ctx.CacheContext()
+
+	// Check if all messages are free
 	for _, msg := range tx.GetMsgs() {
-		switch msg := msg.(type) {
-		case *oracletypes.MsgReportData:
-			if err := checkValidReportMsg(ctx, fc.OracleKeeper, msg); err != nil {
-				return false
-			}
-		case *authz.MsgExec:
-			if !checkExecMsgReportFromReporter(ctx, fc.OracleKeeper, msg) {
-				return false
-			}
-		default:
+		if !fc.IsBypassMinFeeMsg(newCtx, msg) {
 			return false
 		}
 	}
+
+	return true
+}
+
+func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
+	switch msg := msg.(type) {
+	case *oracletypes.MsgReportData:
+		if err := checkValidMsgReport(ctx, fc.OracleKeeper, msg); err != nil {
+			return false
+		}
+	case *feedtypes.MsgSubmitPrices:
+		if _, err := fc.FeedMsgServer.SubmitPrices(ctx, msg); err != nil {
+			return false
+		}
+	case *authz.MsgExec:
+		msgs, err := msg.GetMessages()
+		if err != nil {
+			return false
+		}
+
+		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
+		if err != nil {
+			return false
+		}
+
+		for _, m := range msgs {
+			// Check if this grantee have authorization for the message.
+			cap, _ := fc.AuthzKeeper.GetAuthorization(
+				ctx,
+				grantee,
+				m.GetSigners()[0],
+				sdk.MsgTypeURL(m),
+			)
+			if cap == nil {
+				return false
+			}
+
+			// Check if this message should be free or not.
+			if !fc.IsBypassMinFeeMsg(ctx, m) {
+				return false
+			}
+		}
+	default:
+		return false
+	}
+
 	return true
 }
 

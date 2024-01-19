@@ -1,0 +1,68 @@
+syntax = "proto3";
+package feed.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/feed/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "feed/v1beta1/feed.proto";
+import "feed/v1beta1/params.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  // RPC method that returns all prices.
+  rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
+    option (google.api.http).get = "/feed/v1beta1/prices";
+  }
+
+  // RPC method that returns price by symbol.
+  rpc Price(QueryPriceRequest) returns (QueryPriceResponse) {
+    option (google.api.http).get = "/feed/v1beta1/prices/{symbol}";
+  }
+
+  // RPC method that returns all symbols.
+  rpc Symbols(QuerySymbolsRequest) returns (QuerySymbolsResponse) {
+    option (google.api.http).get = "/feed/v1beta1/symbols";
+  }
+
+  // RPC method that returns all parameters of the module
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/feed/v1beta1/params";
+  }
+}
+
+// QueryPricesRequest is the request type for the Query/Prices RPC method.
+message QueryPricesRequest {}
+
+// QueryPricesResponse is the response type for the Query/Prices RPC method.
+message QueryPricesResponse {
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryPriceRequest is the request type for the Query/Price RPC method.
+message QueryPriceRequest {
+  string symbol = 1;
+}
+
+// QueryPriceResponse is the response type for the Query/Price RPC method.
+message QueryPriceResponse {
+  Price                   price            = 1 [(gogoproto.nullable) = false];
+  repeated PriceValidator price_validators = 2
+      [(gogoproto.customname) = "PriceValidators", (gogoproto.nullable) = false];
+}
+
+// QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
+message QuerySymbolsRequest {}
+
+// QuerySymbolsResponse is the response type for the Query/Symbols RPC method.
+message QuerySymbolsResponse {
+  repeated Symbol symbols = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
