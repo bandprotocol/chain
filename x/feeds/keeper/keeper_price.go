@@ -59,6 +59,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 	var prices []uint64
 	var powers []uint64
 	totalPower := uint64(0)
+	blockTime := ctx.BlockTime()
 
 	// TODO: confirm if it's sorted by power already
 	k.stakingKeeper.IterateBondedValidatorsByPower(
@@ -70,12 +71,8 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 
 			if status.IsActive {
 				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
-				if err != nil {
-					// TODO: deactivate
-				}
-
-				if priceVal.Timestamp < ctx.BlockTime().Unix()-int64(symbol.Interval)*2 {
-					// TODO: deactivate
+				if err != nil || priceVal.Timestamp < blockTime.Unix()-int64(symbol.Interval)*2 {
+					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				} else {
 					prices = append(prices, priceVal.Price)
 					powers = append(powers, power)
