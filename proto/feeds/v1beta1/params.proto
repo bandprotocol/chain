@@ -1,0 +1,18 @@
+syntax = "proto3";
+package feeds.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+
+// Params is the data structure that keeps the parameters of the feed module.
+message Params {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  // The address of the admin that is allowed to do operations on modules
+  string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  int64 cold_start_time = 2 [(gogoproto.customname) = "ColdStartTime"];
+}

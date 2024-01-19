@@ -10,8 +10,8 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	feedkeeper "github.com/bandprotocol/chain/v2/x/feed/keeper"
-	feedtypes "github.com/bandprotocol/chain/v2/x/feed/types"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -22,9 +22,9 @@ type FeeChecker struct {
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
-	FeedKeeper      *feedkeeper.Keeper
+	Feedskeeper     *feedskeeper.Keeper
 
-	FeedMsgServer feedtypes.MsgServer
+	FeedMsgServer feedstypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -32,16 +32,16 @@ func NewFeeChecker(
 	oracleKeeper *oraclekeeper.Keeper,
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
-	feedKeeper *feedkeeper.Keeper,
+	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
-	feedMsgServer := feedkeeper.NewMsgServerImpl(*feedKeeper)
+	feedMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{
 		AuthzKeeper:     authzKeeper,
 		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
-		FeedKeeper:      feedKeeper,
+		Feedskeeper:     feedsKeeper,
 		FeedMsgServer:   feedMsgServer,
 	}
 }
@@ -122,7 +122,7 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if err := checkValidMsgReport(ctx, fc.OracleKeeper, msg); err != nil {
 			return false
 		}
-	case *feedtypes.MsgSubmitPrices:
+	case *feedstypes.MsgSubmitPrices:
 		if _, err := fc.FeedMsgServer.SubmitPrices(ctx, msg); err != nil {
 			return false
 		}

@@ -1,0 +1,87 @@
+syntax = "proto3";
+package feeds.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+
+import "gogoproto/gogo.proto";
+
+// Symbol defines a standard unit of exchange for a commodity.
+message Symbol {
+  option (gogoproto.equal) = true;
+
+  // The unique symbol string that identifies the unit of exchange.
+  string symbol = 1;
+
+  // The interval at which the price of the symbol is expected to be submitted.
+  uint64 interval = 2;
+
+  // The timestamp that this symbol is added.
+  int64 timestamp = 3;
+}
+
+// UpdateSymbol defines a standard unit of exchange for a commodity.
+message UpdateSymbol {
+  option (gogoproto.equal) = true;
+
+  // The unique symbol string that identifies the unit of exchange.
+  string symbol = 1;
+
+  // The interval at which the price of the symbol is expected to be submitted.
+  uint64 interval = 2;
+}
+
+// Price defines the price of a symbol.
+message Price {
+  option (gogoproto.equal) = true;
+
+  // The symbol of the price.
+  string symbol = 1;
+
+  // The price of the symbol.
+  uint64 price = 2;
+
+  // The timestamp at which the price was submitted.
+  int64 timestamp = 3;
+}
+
+// SubmitPrice defines the submit price of a symbol.
+message SubmitPrice {
+  option (gogoproto.equal) = true;
+
+  // The symbol of the price.
+  string symbol = 1;
+
+  // The price of the symbol.
+  uint64 price = 2;
+}
+
+// Price defines the price of a symbol.
+message PriceValidator {
+  option (gogoproto.equal) = true;
+
+  // The validator address
+  string validator = 1;
+
+  // The symbol of the price.
+  string symbol = 2;
+
+  // The price of the symbol.
+  uint64 price = 3;
+
+  // The timestamp at which the price was submitted.
+  int64 timestamp = 4;
+}
+
+// OffChain defines the information of off-chain program.
+message OffChain {
+  option (gogoproto.equal) = true;
+
+  // The hash of the off-chain program.
+  string hash = 1;
+
+  // The version of the off-chain program.
+  string version = 2;
+
+  // The url of the off-chain program.
+  string url = 3;
+}

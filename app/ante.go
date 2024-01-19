@@ -9,7 +9,7 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
-	feedkeeper "github.com/bandprotocol/chain/v2/x/feed/keeper"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -24,7 +24,7 @@ type HandlerOptions struct {
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	GlobalfeeKeeper *globalfeekeeper.Keeper
-	FeedKeeper      *feedkeeper.Keeper
+	Feedskeeper     *feedskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -43,7 +43,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.OracleKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
 	}
-	if options.FeedKeeper == nil {
+	if options.Feedskeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("Feed keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
@@ -67,7 +67,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
-			options.FeedKeeper,
+			options.Feedskeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}
