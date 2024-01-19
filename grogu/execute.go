@@ -18,7 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	band "github.com/bandprotocol/chain/v2/app"
-	feedtypes "github.com/bandprotocol/chain/v2/x/feed/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -44,6 +44,7 @@ func signAndBroadcast2(
 		return "", fmt.Errorf("unable to get account: %w", err)
 	}
 	l.Info("exp 3")
+	l.Info(c.gasPrices)
 
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
@@ -172,15 +173,16 @@ func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account
 	return acc, nil
 }
 
-func SubmitPrices(c *Context, l *Logger, keyIndex int64, prices []feedtypes.Price) {
+func SubmitPrices(c *Context, l *Logger, keyIndex int64, prices []feedstypes.SubmitPrice) {
 	l.Info("inside SubmitPrices")
 	// Return key and update pending metric when done with SubmitReport whether successfully or not.
 	defer func() {
 		c.freeKeys <- keyIndex
 	}()
 
-	msg := feedtypes.MsgSubmitPrices{
+	msg := feedstypes.MsgSubmitPrices{
 		Validator: c.validator.String(),
+		Timestamp: time.Now().Unix(),
 		Prices:    prices,
 	}
 
@@ -192,7 +194,7 @@ func SubmitPrices(c *Context, l *Logger, keyIndex int64, prices []feedtypes.Pric
 	if err != nil {
 		l.Info(":warning:  err:%s", err.Error())
 	}
-	l.Info("hash", hash)
+	l.Info("hash %s", hash)
 }
 
 func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWithKey) {

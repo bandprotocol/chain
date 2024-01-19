@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	feedtypes "github.com/bandprotocol/chain/v2/x/feed/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -101,11 +101,10 @@ func runImpl(c *Context, l *Logger) error {
 	// 	}
 	// }
 
-	mockPrices := []feedtypes.Price{
+	mockPrices := []feedstypes.SubmitPrice{
 		{
-			Symbol:    "BTC",
-			Price:     45123,
-			Timestamp: 123456789,
+			Symbol: "BTC",
+			Price:  45123,
 		},
 	}
 

@@ -38,7 +38,7 @@ echo "y" | bandd tx bank send validator $(grogu keys list -a) 1000000uband --gas
 sleep 2
 
 # add reporter to bandchain
-echo "y" | bandd tx oracle add-reporters $(grogu keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx feed add-grantees $(grogu keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for addding reporter transaction success
 sleep 2
