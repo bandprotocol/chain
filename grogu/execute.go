@@ -8,6 +8,7 @@ import (
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,7 +36,7 @@ func signAndBroadcast2(
 		Client:            c.client,
 		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		BroadcastMode:     "sync",
+		BroadcastMode:     flags.BroadcastSync,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 	l.Info("exp 2")
@@ -50,21 +51,38 @@ func signAndBroadcast2(
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
 		WithTxConfig(band.MakeEncodingConfig().TxConfig).
-		WithSimulateAndExecute(true).WithGasAdjustment(2).
+		WithSimulateAndExecute(true).
+		WithGasAdjustment(2).
 		WithChainID(cfg.ChainID).
 		WithGasPrices(c.gasPrices).
 		WithKeybase(kb).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 	l.Info("exp 4")
 
+	fmt.Printf("num: %+v\n", acc.GetAccountNumber())
+	fmt.Printf("seq: %+v\n", acc.GetSequence())
+	fmt.Printf(": %+v\n", acc)
 	address, err := key.GetAddress()
 	if err != nil {
 		return "", err
 	}
 	l.Info("exp 5")
 
+	fmt.Printf("num: %+v\n", acc.GetAccountNumber())
+	fmt.Printf("seq: %+v\n", acc.GetSequence())
+	fmt.Printf("address: %+v\n", address.String())
+	fmt.Printf("msgs: %+v\n", msgs)
+
 	execMsg := authz.NewMsgExec(address, msgs)
 	l.Info("exp 6")
+
+	_, adjusted, err := tx.CalculateGas(clientCtx, txf, &execMsg)
+	if err != nil {
+		return "", err
+	}
+
+	// Set the gas amount on the transaction factory
+	txf = txf.WithGas(adjusted)
 
 	txb, err := txf.BuildUnsignedTx(&execMsg)
 	if err != nil {
