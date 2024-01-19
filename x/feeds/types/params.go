@@ -5,17 +5,17 @@ import (
 )
 
 // NewParams creates a new Params instance
-func NewParams() Params {
+func NewParams(admin string, codeStartTime int64) Params {
 	return Params{
-		Admin: "[NOT_SET]",
+		Admin: admin,
 		// TODO : adjust to be 1 day.
-		ColdStartTime: 120,
+		ColdStartTime: codeStartTime,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams()
+	return NewParams("[NOT_SET]", 120)
 }
 
 // Validate validates the set of params

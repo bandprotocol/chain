@@ -2,24 +2,19 @@ package types
 
 import (
 	"fmt"
-	time "time"
 )
 
-func NewGenesisState(params Params, symbols []Symbol) *GenesisState {
+func NewGenesisState(params Params, symbols []Symbol, offChain OffChain) *GenesisState {
 	return &GenesisState{
-		Params:  params,
-		Symbols: symbols,
+		Params:   params,
+		Symbols:  symbols,
+		OffChain: offChain,
 	}
 }
 
 // DefaultGenesis returns the default genesis state
-// TODO: what should be default one?
 func DefaultGenesis() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Symbol{{
-		Symbol:    "BAND",
-		Interval:  1,
-		Timestamp: time.Now().Unix(),
-	}})
+	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultOffChain())
 }
 
 // Validate performs basic genesis state validation

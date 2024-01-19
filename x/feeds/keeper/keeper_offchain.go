@@ -6,16 +6,15 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func (k Keeper) GetOffChain(ctx sdk.Context) (types.OffChain, error) {
+func (k Keeper) GetOffChain(ctx sdk.Context) (oc types.OffChain) {
 	bz := ctx.KVStore(k.storeKey).Get(types.OffChainStoreKey)
 	if bz == nil {
-		return types.OffChain{}, types.ErrPriceNotFound.Wrap("failed to get off-chain detail")
+		return oc
 	}
 
-	var oc types.OffChain
 	k.cdc.MustUnmarshal(bz, &oc)
 
-	return oc, nil
+	return oc
 }
 
 func (k Keeper) SetOffChain(ctx sdk.Context, offChain types.OffChain) error {

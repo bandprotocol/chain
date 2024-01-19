@@ -13,12 +13,14 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 
 	k.SetSymbols(ctx, genState.Symbols)
+	k.SetOffChain(ctx, genState.OffChain)
 }
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Params:  k.GetParams(ctx),
-		Symbols: k.GetSymbols(ctx),
+		Params:   k.GetParams(ctx),
+		Symbols:  k.GetSymbols(ctx),
+		OffChain: k.GetOffChain(ctx),
 	}
 }

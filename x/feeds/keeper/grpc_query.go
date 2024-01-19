@@ -68,13 +68,8 @@ func (q queryServer) OffChain(
 ) (*types.QueryOffChainResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	offChain, err := q.keeper.GetOffChain(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	return &types.QueryOffChainResponse{
-		OffChain: offChain,
+		OffChain: q.keeper.GetOffChain(ctx),
 	}, nil
 }
 

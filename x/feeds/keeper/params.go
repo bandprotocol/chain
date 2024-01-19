@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// SetParams sets the x/feed module parameters.
+// SetParams sets the x/feeds module parameters.
 func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 	if err := p.Validate(); err != nil {
 		return err
@@ -16,7 +16,7 @@ func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 	return nil
 }
 
-// GetParams returns the current x/feed module parameters.
+// GetParams returns the current x/feeds module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ParamsKey)
 	if bz == nil {

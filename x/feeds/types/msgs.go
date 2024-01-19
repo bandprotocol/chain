@@ -131,7 +131,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(m.Authority); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
@@ -164,7 +164,7 @@ func (m *MsgUpdateOffChain) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateOffChain) ValidateBasic() error {
-	if _, err := sdk.ValAddressFromBech32(m.Admin); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
 		return errors.Wrap(err, "invalid admin address")
 	}
 
