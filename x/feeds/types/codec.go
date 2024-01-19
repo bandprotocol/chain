@@ -10,10 +10,10 @@ import (
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateSymbols{}, "feed/MsgUpdateSymbols")
-	legacy.RegisterAminoMsg(cdc, &MsgRemoveSymbols{}, "feed/MsgRemoveSymbols")
-	legacy.RegisterAminoMsg(cdc, &MsgSubmitPrices{}, "feed/MsgSubmitPrices")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateOffChain{}, "feed/MsgUpdateOffChain")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateSymbols{}, "feeds/MsgUpdateSymbols")
+	legacy.RegisterAminoMsg(cdc, &MsgRemoveSymbols{}, "feeds/MsgRemoveSymbols")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitPrices{}, "feeds/MsgSubmitPrices")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateOffChain{}, "feeds/MsgUpdateOffChain")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

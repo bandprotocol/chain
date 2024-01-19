@@ -19,7 +19,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// ConsensusVersion defines the current x/feed module consensus version.
+// ConsensusVersion defines the current x/feeds module consensus version.
 const ConsensusVersion = 1
 
 var (
@@ -45,7 +45,7 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterLegacyAminoCodec does nothing. Feed does not support amino.
+// RegisterLegacyAminoCodec does nothing. Feeds does not support amino.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 

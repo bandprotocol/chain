@@ -16,7 +16,7 @@ type msgServer struct {
 	Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the x/feed MsgServer interface.
+// NewMsgServerImpl returns an implementation of the x/feeds MsgServer interface.
 func NewMsgServerImpl(k Keeper) types.MsgServer {
 	return &msgServer{
 		Keeper: k,

@@ -6,7 +6,7 @@ option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
 
-// Params is the data structure that keeps the parameters of the feed module.
+// Params is the data structure that keeps the parameters of the feeds module.
 message Params {
   option (gogoproto.equal)            = true;
   option (gogoproto.goproto_stringer) = false;

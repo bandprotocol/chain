@@ -36,7 +36,7 @@ func NewKeeper(
 	}
 }
 
-// GetAuthority returns the x/feed module's authority.
+// GetAuthority returns the x/feeds module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
 }

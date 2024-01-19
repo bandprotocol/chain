@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 import "feeds/v1beta1/params.proto";
 import "feeds/v1beta1/feeds.proto";
 
-// GenesisState defines the feed module's genesis state.
+// GenesisState defines the feeds module's genesis state.
 message GenesisState {
   // Params defines all the parameters of the module.
   Params          params    = 1 [(gogoproto.nullable) = false];

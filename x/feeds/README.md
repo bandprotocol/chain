@@ -1,1 +1,1 @@
-# `x/feed`
+# `x/feeds`
