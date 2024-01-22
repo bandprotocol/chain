@@ -58,8 +58,7 @@ message QueryPriceRequest {
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 message QueryPriceResponse {
   Price                   price            = 1 [(gogoproto.nullable) = false];
-  repeated PriceValidator price_validators = 2
-      [(gogoproto.customname) = "PriceValidators", (gogoproto.nullable) = false];
+  repeated PriceValidator price_validators = 2 [(gogoproto.nullable) = false];
 }
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
@@ -70,7 +69,7 @@ message QueryPriceValidatorRequest {
 
 // QueryPriceValidatorResponse is the response type for the Query/PriceValidator RPC method.
 message QueryPriceValidatorResponse {
-  PriceValidator price_validator = 1 [(gogoproto.customname) = "PriceValidator", (gogoproto.nullable) = false];
+  PriceValidator price_validator = 1 [(gogoproto.nullable) = false];
 }
 
 // QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
@@ -94,5 +93,5 @@ message QueryOffChainRequest {}
 
 // QueryOffChainResponse is the response type for the Query/OffChain RPC method.
 message QueryOffChainResponse {
-  OffChain off_chain = 1 [(gogoproto.customname) = "OffChain", (gogoproto.nullable) = false];
+  OffChain off_chain = 1 [(gogoproto.nullable) = false];
 }

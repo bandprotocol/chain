@@ -12,5 +12,5 @@ message GenesisState {
   // Params defines all the parameters of the module.
   Params          params    = 1 [(gogoproto.nullable) = false];
   repeated Symbol symbols   = 2 [(gogoproto.nullable) = false];
-  OffChain        off_chain = 3 [(gogoproto.customname) = "OffChain", (gogoproto.nullable) = false];
+  OffChain        off_chain = 3 [(gogoproto.nullable) = false];
 }

@@ -6,10 +6,12 @@
             "symbols": [
                 {
                     "symbol": "BTC",
+                    "aggregated_period": 120,
                     "interval": 60
                 },
                 {
                     "symbol": "ETH",
+                    "aggregated_period": 120,
                     "interval": 60
                 }
             ],

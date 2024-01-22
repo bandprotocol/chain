@@ -7,9 +7,10 @@ const (
 	EventTypeSubmitPrice  = "submit_price"
 	EventTypeUpdatePrice  = "update_price"
 
-	AttributeKeyValidator = "validator"
-	AttributeKeyPrice     = "price"
-	AttributeKeyTimestamp = "timestamp"
-	AttributeKeySymbol    = "symbol"
-	AttributeKeyInterval  = "interval"
+	AttributeKeyValidator        = "validator"
+	AttributeKeyPrice            = "price"
+	AttributeKeyTimestamp        = "timestamp"
+	AttributeKeySymbol           = "symbol"
+	AttributeKeyInterval         = "interval"
+	AttributeKeyAggregatedPeriod = "aggregated_period"
 )

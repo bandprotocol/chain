@@ -48,9 +48,10 @@ func (ms msgServer) UpdateSymbols(
 		}
 
 		ms.Keeper.SetSymbol(ctx, types.Symbol{
-			Symbol:    symbol.Symbol,
-			Interval:  symbol.Interval,
-			Timestamp: time,
+			Symbol:           symbol.Symbol,
+			AggregatedPeriod: symbol.AggregatedPeriod,
+			Interval:         symbol.Interval,
+			Timestamp:        time,
 		})
 
 		ctx.EventManager().EmitEvent(
@@ -58,6 +59,8 @@ func (ms msgServer) UpdateSymbols(
 				types.EventTypeUpdateSymbol,
 				sdk.NewAttribute(types.AttributeKeySymbol, symbol.Symbol),
 				sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", symbol.Interval)),
+				sdk.NewAttribute(types.AttributeKeyAggregatedPeriod, fmt.Sprintf("%d", symbol.AggregatedPeriod)),
+				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", time)),
 			),
 		)
 	}
@@ -144,7 +147,7 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.Interval/2 {
+			if blockTime < priceVal.Timestamp+s.Interval {
 				return nil, types.ErrPriceTooFast.Wrapf(
 					"symbol: %s, old: %d, new: %d, interval: %d",
 					price.Symbol,

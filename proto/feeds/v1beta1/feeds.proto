@@ -12,11 +12,13 @@ message Symbol {
   // The unique symbol string that identifies the unit of exchange.
   string symbol = 1;
 
+  int64 aggregated_period = 2;
+
   // The interval at which the price of the symbol is expected to be submitted.
-  int64 interval = 2;
+  int64 interval = 3;
 
   // The timestamp that this symbol is added.
-  int64 timestamp = 3;
+  int64 timestamp = 4;
 }
 
 // UpdateSymbol defines a standard unit of exchange for a commodity.
@@ -26,8 +28,10 @@ message UpdateSymbol {
   // The unique symbol string that identifies the unit of exchange.
   string symbol = 1;
 
+  int64 aggregated_period = 2;
+
   // The interval at which the price of the symbol is expected to be submitted.
-  int64 interval = 2;
+  int64 interval = 3;
 }
 
 // Price defines the price of a symbol.
