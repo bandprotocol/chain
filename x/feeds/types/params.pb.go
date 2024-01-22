@@ -26,10 +26,13 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// The address of the admin that is allowed to do operations on modules
-	Admin         string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	PrepareTime   int64  `protobuf:"varint,2,opt,name=prepare_time,json=prepareTime,proto3" json:"prepare_time,omitempty"`
-	AllowDiffTime int64  `protobuf:"varint,3,opt,name=allow_diff_time,json=allowDiffTime,proto3" json:"allow_diff_time,omitempty"`
+	// The address of the admin that is allowed to perform operations on modules.
+	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
+	// prepare_time is the time (in seconds) given for validators to prepare data for the new symbol.
+	PrepareTime int64 `protobuf:"varint,2,opt,name=prepare_time,json=prepareTime,proto3" json:"prepare_time,omitempty"`
+	// allow_diff_time is the allowed difference (in seconds) between timestamp and block_time when validator submits the
+	// prices.
+	AllowDiffTime int64 `protobuf:"varint,3,opt,name=allow_diff_time,json=allowDiffTime,proto3" json:"allow_diff_time,omitempty"`
 }
 
 func (m *Params) Reset()      { *m = Params{} }

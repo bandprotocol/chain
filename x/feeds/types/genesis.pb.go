@@ -26,8 +26,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // GenesisState defines the feeds module's genesis state.
 type GenesisState struct {
 	// Params defines all the parameters of the module.
-	Params   Params   `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	Symbols  []Symbol `protobuf:"bytes,2,rep,name=symbols,proto3" json:"symbols"`
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	// Symbols is a list of symbols that requires validators to submit the price.
+	Symbols []Symbol `protobuf:"bytes,2,rep,name=symbols,proto3" json:"symbols"`
+	// OffChain defines information about off-chain programs.
 	OffChain OffChain `protobuf:"bytes,3,opt,name=off_chain,json=offChain,proto3" json:"off_chain"`
 }
 

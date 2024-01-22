@@ -33,8 +33,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 type QueryPricesRequest struct {
+	// List of symbols to query prices for.
 	Symbols []string `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
-	// pagination defines an optional pagination for the request.
+	// Pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -87,8 +88,9 @@ func (m *QueryPricesRequest) GetPagination() *query.PageRequest {
 
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 type QueryPricesResponse struct {
+	// List of prices.
 	Prices []*Price `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices,omitempty"`
-	// pagination defines the pagination in the response.
+	// Pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -141,6 +143,7 @@ func (m *QueryPricesResponse) GetPagination() *query.PageResponse {
 
 // QueryPriceRequest is the request type for the Query/Price RPC method.
 type QueryPriceRequest struct {
+	// Symbol to query the price for.
 	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
 }
 
@@ -186,7 +189,9 @@ func (m *QueryPriceRequest) GetSymbol() string {
 
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 type QueryPriceResponse struct {
-	Price           Price            `protobuf:"bytes,1,opt,name=price,proto3" json:"price"`
+	// The aggregated price of the symbol.
+	Price Price `protobuf:"bytes,1,opt,name=price,proto3" json:"price"`
+	// List of prices from each validator.
 	PriceValidators []PriceValidator `protobuf:"bytes,2,rep,name=price_validators,json=priceValidators,proto3" json:"price_validators"`
 }
 
@@ -239,6 +244,7 @@ func (m *QueryPriceResponse) GetPriceValidators() []PriceValidator {
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
 type QueryValidatorPricesRequest struct {
+	// Validator address to query prices for.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -284,6 +290,7 @@ func (m *QueryValidatorPricesRequest) GetValidator() string {
 
 // QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
 type QueryValidatorPricesResponse struct {
+	// List of prices submitted by the validator.
 	ValidatorPrices []PriceValidator `protobuf:"bytes,1,rep,name=validator_prices,json=validatorPrices,proto3" json:"validator_prices"`
 }
 
@@ -329,7 +336,9 @@ func (m *QueryValidatorPricesResponse) GetValidatorPrices() []PriceValidator {
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
 type QueryPriceValidatorRequest struct {
-	Symbol    string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// Symbol to query the price for.
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// Validator address to query the price for.
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -382,6 +391,7 @@ func (m *QueryPriceValidatorRequest) GetValidator() string {
 
 // QueryPriceValidatorResponse is the response type for the Query/PriceValidator RPC method.
 type QueryPriceValidatorResponse struct {
+	// The requested price submitted by the validator.
 	PriceValidator PriceValidator `protobuf:"bytes,1,opt,name=price_validator,json=priceValidator,proto3" json:"price_validator"`
 }
 
@@ -427,8 +437,9 @@ func (m *QueryPriceValidatorResponse) GetPriceValidator() PriceValidator {
 
 // QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
 type QuerySymbolsRequest struct {
+	// List of symbols to query.
 	Symbols []string `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
-	// pagination defines an optional pagination for the request.
+	// Pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -481,8 +492,9 @@ func (m *QuerySymbolsRequest) GetPagination() *query.PageRequest {
 
 // QuerySymbolsResponse is the response type for the Query/Symbols RPC method.
 type QuerySymbolsResponse struct {
+	// List of symbols.
 	Symbols []*Symbol `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
-	// pagination defines the pagination in the response.
+	// Pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -572,6 +584,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 type QueryParamsResponse struct {
+	// The parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
@@ -654,6 +667,7 @@ var xxx_messageInfo_QueryOffChainRequest proto.InternalMessageInfo
 
 // QueryOffChainResponse is the response type for the Query/OffChain RPC method.
 type QueryOffChainResponse struct {
+	// Information about off-chain programs.
 	OffChain OffChain `protobuf:"bytes,1,opt,name=off_chain,json=offChain,proto3" json:"off_chain"`
 }
 
@@ -794,7 +808,7 @@ type QueryClient interface {
 	PriceValidator(ctx context.Context, in *QueryPriceValidatorRequest, opts ...grpc.CallOption) (*QueryPriceValidatorResponse, error)
 	// RPC method that returns all symbols.
 	Symbols(ctx context.Context, in *QuerySymbolsRequest, opts ...grpc.CallOption) (*QuerySymbolsResponse, error)
-	// RPC method that returns all parameters of the module
+	// RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// RPC method that returns information of off-chain.
 	OffChain(ctx context.Context, in *QueryOffChainRequest, opts ...grpc.CallOption) (*QueryOffChainResponse, error)
@@ -883,7 +897,7 @@ type QueryServer interface {
 	PriceValidator(context.Context, *QueryPriceValidatorRequest) (*QueryPriceValidatorResponse, error)
 	// RPC method that returns all symbols.
 	Symbols(context.Context, *QuerySymbolsRequest) (*QuerySymbolsResponse, error)
-	// RPC method that returns all parameters of the module
+	// RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// RPC method that returns information of off-chain.
 	OffChain(context.Context, *QueryOffChainRequest) (*QueryOffChainResponse, error)
