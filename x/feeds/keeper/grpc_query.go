@@ -3,7 +3,11 @@ package keeper
 import (
 	"context"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
@@ -25,13 +29,42 @@ func (q queryServer) Prices(
 ) (*types.QueryPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO:
-	// - add filter
-	// - add pagination
+	// convert filter symbols to map
+	reqSymbols := make(map[string]bool, 0)
+	for _, s := range req.Symbols {
+		reqSymbols[s] = true
+	}
 
-	return &types.QueryPricesResponse{
-		Prices: q.keeper.GetPrices(ctx),
-	}, nil
+	store := ctx.KVStore(q.keeper.storeKey)
+	priceStore := prefix.NewStore(store, types.PriceStoreKeyPrefix)
+
+	filteredPrices, pageRes, err := query.GenericFilteredPaginate(
+		q.keeper.cdc,
+		priceStore,
+		req.Pagination,
+		func(key []byte, p *types.Price) (*types.Price, error) {
+			matchSymbol := true
+
+			// match symbol
+			if len(reqSymbols) != 0 {
+				if _, ok := reqSymbols[p.Symbol]; !ok {
+					matchSymbol = false
+				}
+			}
+
+			if matchSymbol {
+				return p, nil
+			}
+
+			return nil, nil
+		}, func() *types.Price {
+			return &types.Price{}
+		})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryPricesResponse{Prices: filteredPrices, Pagination: pageRes}, nil
 }
 
 func (q queryServer) Price(
@@ -39,7 +72,10 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: handle error
+	if _, err := q.keeper.GetSymbol(ctx, req.Symbol); err != nil {
+		return nil, err
+	}
+
 	price, _ := q.keeper.GetPrice(ctx, req.Symbol)
 	priceVals := q.keeper.GetPriceValidators(ctx, req.Symbol)
 
@@ -49,9 +85,9 @@ func (q queryServer) Price(
 	}, nil
 }
 
-func (q queryServer) PriceValidators(
-	goCtx context.Context, req *types.QueryPriceValidatorsRequest,
-) (*types.QueryPriceValidatorsResponse, error) {
+func (q queryServer) ValidatorPrices(
+	goCtx context.Context, req *types.QueryValidatorPricesRequest,
+) (*types.QueryValidatorPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)
@@ -71,8 +107,8 @@ func (q queryServer) PriceValidators(
 		priceVals = append(priceVals, priceVal)
 	}
 
-	return &types.QueryPriceValidatorsResponse{
-		PriceValidators: priceVals,
+	return &types.QueryValidatorPricesResponse{
+		ValidatorPrices: priceVals,
 	}, nil
 }
 
@@ -101,13 +137,42 @@ func (q queryServer) Symbols(
 ) (*types.QuerySymbolsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO
-	// - add pagination
-	// - add filter
+	// convert filter symbols to map
+	reqSymbols := make(map[string]bool, 0)
+	for _, s := range req.Symbols {
+		reqSymbols[s] = true
+	}
 
-	return &types.QuerySymbolsResponse{
-		Symbols: q.keeper.GetSymbols(ctx),
-	}, nil
+	store := ctx.KVStore(q.keeper.storeKey)
+	symbolStore := prefix.NewStore(store, types.SymbolStoreKeyPrefix)
+
+	filteredSymbols, pageRes, err := query.GenericFilteredPaginate(
+		q.keeper.cdc,
+		symbolStore,
+		req.Pagination,
+		func(key []byte, s *types.Symbol) (*types.Symbol, error) {
+			matchSymbol := true
+
+			// match symbol
+			if len(reqSymbols) != 0 {
+				if _, ok := reqSymbols[s.Symbol]; !ok {
+					matchSymbol = false
+				}
+			}
+
+			if matchSymbol {
+				return s, nil
+			}
+
+			return nil, nil
+		}, func() *types.Symbol {
+			return &types.Symbol{}
+		})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
 }
 
 func (q queryServer) OffChain(

@@ -24,7 +24,13 @@ func (gs GenesisState) Validate() error {
 	}
 
 	for _, symbol := range gs.Symbols {
-		if err := validateUint64("interval", true)(symbol.Interval); err != nil {
+		if err := validateInt64("interval", true)(symbol.Interval); err != nil {
+			return err
+		}
+		if err := validateInt64("aggregatedPeriod", true)(symbol.AggregatedPeriod); err != nil {
+			return err
+		}
+		if err := validateInt64("tiemstamp", true)(symbol.Timestamp); err != nil {
 			return err
 		}
 	}
@@ -32,9 +38,9 @@ func (gs GenesisState) Validate() error {
 	return nil
 }
 
-func validateUint64(name string, positiveOnly bool) func(interface{}) error {
+func validateInt64(name string, positiveOnly bool) func(interface{}) error {
 	return func(i interface{}) error {
-		v, ok := i.(uint64)
+		v, ok := i.(int64)
 		if !ok {
 			return fmt.Errorf("invalid parameter type: %T", i)
 		}

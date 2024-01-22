@@ -24,7 +24,7 @@ func GetQueryCmd() *cobra.Command {
 	queryCmd.AddCommand(
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
-		GetQueryCmdPriceValidators(),
+		GetQueryCmdValidatorPrices(),
 		GetQueryCmdPriceValidator(),
 		GetQueryCmdSymbols(),
 		GetQueryCmdParams(),
@@ -81,16 +81,16 @@ func GetQueryCmdPrice() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdPriceValidators() *cobra.Command {
+func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-validators [validator]",
+		Use:   "validator-prices [validator]",
 		Short: "shows all prices of the validator",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.PriceValidators(context.Background(), &types.QueryPriceValidatorsRequest{
+			res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 				Validator: args[0],
 			})
 			if err != nil {
