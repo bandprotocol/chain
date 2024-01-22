@@ -17,6 +17,7 @@ type OracleKeeper interface {
 
 // StakingKeeper defines the expected staking keeper.
 type StakingKeeper interface {
+	GetBondedValidatorsByPower(ctx sdk.Context) []stakingtypes.Validator
 	IterateBondedValidatorsByPower(
 		ctx sdk.Context,
 		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),

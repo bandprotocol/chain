@@ -13,7 +13,7 @@ message Symbol {
   string symbol = 1;
 
   // The interval at which the price of the symbol is expected to be submitted.
-  uint64 interval = 2;
+  int64 interval = 2;
 
   // The timestamp that this symbol is added.
   int64 timestamp = 3;
@@ -27,7 +27,7 @@ message UpdateSymbol {
   string symbol = 1;
 
   // The interval at which the price of the symbol is expected to be submitted.
-  uint64 interval = 2;
+  int64 interval = 2;
 }
 
 // Price defines the price of a symbol.

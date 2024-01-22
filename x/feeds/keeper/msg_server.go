@@ -38,9 +38,6 @@ func (ms msgServer) UpdateSymbols(
 		)
 	}
 
-	// TODO
-	// - reject duplicated symbol
-
 	for _, symbol := range req.Symbols {
 		time := ctx.BlockTime().Unix()
 
@@ -83,10 +80,11 @@ func (ms msgServer) RemoveSymbols(
 		)
 	}
 
-	// TODO
-	// - reject duplicated symbol
-
 	for _, symbol := range req.Symbols {
+		if _, err := ms.Keeper.GetSymbol(ctx, symbol); err != nil {
+			return nil, err
+		}
+
 		ms.Keeper.DeleteSymbol(ctx, symbol)
 
 		ctx.EventManager().EmitEvent(
@@ -105,9 +103,20 @@ func (ms msgServer) SubmitPrices(
 	req *types.MsgSubmitPrices,
 ) (*types.MsgSubmitPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	blockTime := ctx.BlockTime().Unix()
 
-	// TODO:
-	// - check validator is in top 100 ?
+	// check if it's in top bonded validators.
+	vals := ms.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	isInTop := false
+	for _, val := range vals {
+		if req.Validator == val.GetOperator().String() {
+			isInTop = true
+			break
+		}
+	}
+	if !isInTop {
+		return nil, types.ErrInvalidTimestamp
+	}
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
@@ -119,27 +128,29 @@ func (ms msgServer) SubmitPrices(
 		return nil, types.ErrOracleStatusNotActive.Wrapf("val: %s", val.String())
 	}
 
-	if req.Timestamp > int64(ctx.BlockTime().Unix())+60 {
+	if types.AbsInt64(req.Timestamp-blockTime) > ms.Keeper.GetParams(ctx).AllowGapTime {
 		return nil, types.ErrInvalidTimestamp.Wrapf(
 			"block_time: %d, timestamp: %d",
-			ctx.BlockTime().Unix(),
+			blockTime,
 			req.Timestamp,
 		)
 	}
 
 	for _, price := range req.Prices {
-		if _, err := ms.Keeper.GetSymbol(ctx, price.Symbol); err != nil {
+		s, err := ms.Keeper.GetSymbol(ctx, price.Symbol)
+		if err != nil {
 			return nil, err
 		}
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if req.Timestamp < priceVal.Timestamp {
-				return nil, types.ErrTimestampOlder.Wrapf(
-					"symbol: %s, current: %d, new: %d",
+			if blockTime < priceVal.Timestamp+s.Interval/2 {
+				return nil, types.ErrPriceTooFast.Wrapf(
+					"symbol: %s, old: %d, new: %d, interval: %d",
 					price.Symbol,
 					priceVal.Timestamp,
-					req.Timestamp,
+					blockTime,
+					s.Interval,
 				)
 			}
 		}
@@ -148,7 +159,7 @@ func (ms msgServer) SubmitPrices(
 			Validator: req.Validator,
 			Symbol:    price.Symbol,
 			Price:     price.Price,
-			Timestamp: ctx.BlockTime().Unix(),
+			Timestamp: blockTime,
 		}
 
 		ms.Keeper.SetPriceValidator(ctx, priceVal)

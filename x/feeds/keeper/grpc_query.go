@@ -49,6 +49,26 @@ func (q queryServer) Price(
 	}, nil
 }
 
+func (q queryServer) PriceValidator(
+	goCtx context.Context, req *types.QueryPriceValidatorRequest,
+) (*types.QueryPriceValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	val, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, err
+	}
+
+	priceVal, err := q.keeper.GetPriceValidator(ctx, req.Symbol, val)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryPriceValidatorResponse{
+		PriceValidator: priceVal,
+	}, nil
+}
+
 func (q queryServer) Symbols(
 	goCtx context.Context, req *types.QuerySymbolsRequest,
 ) (*types.QuerySymbolsResponse, error) {

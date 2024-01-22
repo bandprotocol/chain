@@ -6,11 +6,11 @@
             "symbols": [
                 {
                     "symbol": "BTC",
-                    "interval": 120
+                    "interval": 60
                 },
                 {
                     "symbol": "ETH",
-                    "interval": 120
+                    "interval": 60
                 }
             ],
             "admin": "band1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzs5lmews"

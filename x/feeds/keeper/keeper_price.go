@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -72,18 +70,25 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 			status := k.oracleKeeper.GetValidatorStatus(ctx, address)
 
 			if status.IsActive {
+				lastTime := status.Since.Unix()
 				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
-				// TODO:
-				// - check if it make sense?
-				if err != nil || priceVal.Timestamp < blockTime.Unix()-int64(symbol.Interval)*2 {
-					// deactivate only who that has activated before interval * 2
-					if status.Since.Add(time.Duration(symbol.Interval*2) * time.Second).Before(blockTime) {
-						k.oracleKeeper.MissReport(ctx, address, blockTime)
+				if err == nil {
+					// if timestamp of price is in acception period, append it
+					if priceVal.Timestamp >= blockTime.Unix()-symbol.Interval {
+						prices = append(prices, priceVal.Price)
+						powers = append(powers, power)
+						totalPower += power
 					}
-				} else {
-					prices = append(prices, priceVal.Price)
-					powers = append(powers, power)
-					totalPower += power
+
+					// update last time of action
+					if priceVal.Timestamp > lastTime {
+						lastTime = priceVal.Timestamp
+					}
+				}
+
+				// deactivate if last time of action is too old
+				if lastTime < blockTime.Unix()-int64(symbol.Interval) {
+					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}
 
