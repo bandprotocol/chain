@@ -21,6 +21,11 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/prices/{symbol}";
   }
 
+  // RPC method that returns prices of a validator.
+  rpc PriceValidators(QueryPriceValidatorsRequest) returns (QueryPriceValidatorsResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/validators/{validator}/prices";
+  }
+
   // RPC method that returns price of validator by symbol.
   rpc PriceValidator(QueryPriceValidatorRequest) returns (QueryPriceValidatorResponse) {
     option (google.api.http).get = "/feeds/v1beta1/prices/{symbol}/validators/{validator}";
@@ -59,6 +64,16 @@ message QueryPriceRequest {
 message QueryPriceResponse {
   Price                   price            = 1 [(gogoproto.nullable) = false];
   repeated PriceValidator price_validators = 2 [(gogoproto.nullable) = false];
+}
+
+// QueryPriceValidatorsRequest is the request type for the Query/PriceValidators RPC method.
+message QueryPriceValidatorsRequest {
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryPriceValidatorsResponse is the response type for the Query/PriceValidators RPC method.
+message QueryPriceValidatorsResponse {
+  repeated PriceValidator price_validators = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.

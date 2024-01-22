@@ -24,6 +24,8 @@ func GetQueryCmd() *cobra.Command {
 	queryCmd.AddCommand(
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
+		GetQueryCmdPriceValidators(),
+		GetQueryCmdPriceValidator(),
 		GetQueryCmdSymbols(),
 		GetQueryCmdParams(),
 	)
@@ -63,7 +65,60 @@ func GetQueryCmdPrice() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Prices(context.Background(), &types.QueryPricesRequest{})
+			res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
+				Symbol: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryCmdPriceValidators() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "price-validators [validator]",
+		Short: "shows all prices of the validator",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.PriceValidators(context.Background(), &types.QueryPriceValidatorsRequest{
+				Validator: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryCmdPriceValidator() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "price-validator [symbol] [validator]",
+		Short: "shows the price of validator of the symbol",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.PriceValidator(context.Background(), &types.QueryPriceValidatorRequest{
+				Symbol:    args[0],
+				Validator: args[1],
+			})
 			if err != nil {
 				return err
 			}
