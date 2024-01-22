@@ -1,10 +1,11 @@
 package executor
 
 import (
-	"encoding/base64"
-	"net/url"
+	"encoding/json"
+	"fmt"
 	"time"
 
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/levigross/grequests"
 )
 
@@ -24,47 +25,39 @@ type externalExecutionResponse struct {
 	Version    string `json:"version"`
 }
 
-func (e *RestExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
-	executable := base64.StdEncoding.EncodeToString(code)
-	resp, err := grequests.Post(
+type PriceData struct {
+	Prices map[string]float64 `json:"prices"`
+}
+
+func (e *RestExec) Exec(params map[string]string) ([]feedstypes.SubmitPrice, error) {
+	fmt.Println("executor url", e.url)
+	resp, err := grequests.Get(
 		e.url,
 		&grequests.RequestOptions{
-			Headers: map[string]string{
-				"Content-Type": "application/json",
-			},
-			JSON: map[string]interface{}{
-				"executable": executable,
-				"calldata":   arg,
-				"timeout":    e.timeout.Milliseconds(),
-				"env":        env,
-			},
-			RequestTimeout: e.timeout,
+			Params: params,
 		},
 	)
 
 	if err != nil {
-		urlErr, ok := err.(*url.Error)
-		if !ok || !urlErr.Timeout() {
-			return ExecResult{}, err
-		}
-		// Return timeout code
-		return ExecResult{Output: []byte{}, Code: 111}, nil
+		return []feedstypes.SubmitPrice{}, err
 	}
 
-	if !resp.Ok {
-		return ExecResult{}, ErrRestNotOk
-	}
-
-	r := externalExecutionResponse{}
-	err = resp.JSON(&r)
-
+	var priceData PriceData
+	err = json.Unmarshal(resp.Bytes(), &priceData)
 	if err != nil {
-		return ExecResult{}, err
+		fmt.Println("Error parsing JSON:", err)
+		return []feedstypes.SubmitPrice{}, err
 	}
 
-	if r.Returncode == 0 {
-		return ExecResult{Output: []byte(r.Stdout), Code: 0, Version: r.Version}, nil
-	} else {
-		return ExecResult{Output: []byte(r.Stderr), Code: r.Returncode, Version: r.Version}, nil
+	// Convert PriceData to an array of SubmitPrice
+	var submitPrices []feedstypes.SubmitPrice
+	for symbol, price := range priceData.Prices {
+		submitPrice := feedstypes.SubmitPrice{
+			Symbol: symbol,
+			Price:  uint64(price), // Assuming you want to convert the float64 price to uint64
+		}
+		submitPrices = append(submitPrices, submitPrice)
 	}
+
+	return submitPrices, nil
 }

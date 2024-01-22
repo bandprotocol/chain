@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 const (
@@ -24,7 +26,7 @@ type ExecResult struct {
 }
 
 type Executor interface {
-	Exec(exec []byte, arg string, env interface{}) (ExecResult, error)
+	Exec(params map[string]string) ([]feedstypes.SubmitPrice, error)
 }
 
 var testProgram []byte = []byte(
@@ -32,41 +34,30 @@ var testProgram []byte = []byte(
 )
 
 // NewExecutor returns executor by name and executor URL
-// func NewExecutor(executor string) (exec Executor, err error) {
-// 	name, base, timeout, err := parseExecutor(executor)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	switch name {
-// 	case "rest":
-// 		exec = NewRestExec(base, timeout)
-// 	case "docker":
-// 		return nil, fmt.Errorf("docker executor is currently not supported")
-// 	default:
-// 		return nil, fmt.Errorf("invalid executor name: %s, base: %s", name, base)
-// 	}
+func NewExecutor(executor string) (exec Executor, err error) {
+	name, base, timeout, err := parseExecutor(executor)
+	if err != nil {
+		return nil, err
+	}
+	switch name {
+	case "rest":
+		exec = NewRestExec(base, timeout)
+	case "docker":
+		return nil, fmt.Errorf("docker executor is currently not supported")
+	default:
+		return nil, fmt.Errorf("invalid executor name: %s, base: %s", name, base)
+	}
 
-// 	// TODO: Remove hardcode in test execution
-// 	res, err := exec.Exec(testProgram, "TEST_ARG", map[string]interface{}{
-// 		"BAND_CHAIN_ID":    "test-chain-id",
-// 		"BAND_VALIDATOR":   "test-validator",
-// 		"BAND_REQUEST_ID":  "test-request-id",
-// 		"BAND_EXTERNAL_ID": "test-external-id",
-// 		"BAND_REPORTER":    "test-reporter",
-// 		"BAND_SIGNATURE":   "test-signature",
-// 	})
+	// TODO: Remove hardcode in test execution
+	_, err = exec.Exec(map[string]string{
+		"symbols": "BTC",
+	})
 
-// 	if err != nil {
-// 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
-// 	}
-// 	if res.Code != 0 {
-// 		return nil, fmt.Errorf("test program returned nonzero code: %d", res.Code)
-// 	}
-// 	if string(res.Output) != "TEST_ARG test-chain-id\n" {
-// 		return nil, fmt.Errorf("test program returned wrong output: %s", res.Output)
-// 	}
-// 	return exec, nil
-// }
+	if err != nil {
+		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
+	}
+	return exec, nil
+}
 
 // parseExecutor splits the executor string in the form of "name:base?timeout=" into parts.
 func parseExecutor(executorStr string) (name string, base string, timeout time.Duration, err error) {

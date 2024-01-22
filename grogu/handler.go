@@ -1,7 +1,6 @@
 package grogu
 
 import (
-	"encoding/hex"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -172,37 +171,8 @@ func handleRawRequest(
 	c.updateHandlingGauge(1)
 	defer c.updateHandlingGauge(-1)
 
-	exec, err := GetExecutable(c, l, req.dataSourceHash)
-	if err != nil {
-		l.Error(":skull: Failed to load data source with error: %s", c, err.Error())
-		processingResultCh <- processingResult{
-			rawReport: types.NewRawReport(
-				req.externalID, 255, []byte("FAIL_TO_LOAD_DATA_SOURCE"),
-			),
-			err: err,
-		}
-		return
-	}
-
-	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
-	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes())
-	if err != nil {
-		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
-		processingResultCh <- processingResult{
-			rawReport: types.NewRawReport(req.externalID, 255, nil),
-			err:       err,
-		}
-		return
-	}
-
-	result, err := c.executor.Exec(exec, req.calldata, map[string]interface{}{
-		"BAND_CHAIN_ID":       vmsg.ChainID,
-		"BAND_DATA_SOURCE_ID": strconv.Itoa(int(vmsg.DataSourceID)),
-		"BAND_VALIDATOR":      vmsg.Validator,
-		"BAND_REQUEST_ID":     strconv.Itoa(int(vmsg.RequestID)),
-		"BAND_EXTERNAL_ID":    strconv.Itoa(int(vmsg.ExternalID)),
-		"BAND_REPORTER":       hex.EncodeToString(pubkey.Bytes()),
-		"BAND_SIGNATURE":      sig,
+	_, err := c.executor.Exec(map[string]string{
+		"symbols": "BTC",
 	})
 
 	if err != nil {
@@ -213,13 +183,13 @@ func handleRawRequest(
 		}
 		return
 	} else {
-		l.Debug(
-			":sparkles: Query data done with calldata: %q, result: %q, exitCode: %d",
-			req.calldata, result.Output, result.Code,
-		)
-		processingResultCh <- processingResult{
-			rawReport: types.NewRawReport(req.externalID, result.Code, result.Output),
-			version:   result.Version,
-		}
+		// l.Debug(
+		// 	":sparkles: Query data done with calldata: %q, result: %q, exitCode: %d",
+		// 	req.calldata, result.Output, result.Code,
+		// )
+		// processingResultCh <- processingResult{
+		// 	rawReport: types.NewRawReport(req.externalID, result.Code, result.Output),
+		// 	version:   result.Version,
+		// }
 	}
 }

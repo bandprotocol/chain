@@ -1,8 +1,11 @@
 package grogu
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -12,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/bandprotocol/chain/v2/grogu/executor"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -58,61 +62,37 @@ func runImpl(c *Context, l *Logger) error {
 	}
 	l.Info("finished put key")
 
-	// bz := cdc.MustMarshal(&types.QueryPendingRequestsRequest{
-	// 	ValidatorAddress: c.validator.String(),
-	// })
-	// resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
-	// if err != nil {
-	// 	l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
-	// }
-	// pendingRequests := types.QueryPendingRequestsResponse{}
-	// cdc.MustUnmarshal(resBz.Response.Value, &pendingRequests)
+	bz := cdc.MustMarshal(&feedstypes.QuerySymbolsRequest{})
+	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
+	if err != nil {
+		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
+	}
+	symbols := feedstypes.QuerySymbolsResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &symbols)
 
-	// l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
-	// for _, id := range pendingRequests.RequestIDs {
-	// 	c.pendingRequests[types.RequestID(id)] = true
-	// 	go handleRequest(c, l, types.RequestID(id))
-	// }
+	var symbolList []string
+	for _, symbol := range symbols.Symbols {
+		symbolList = append(symbolList, symbol.Symbol)
+	}
 
-	// for {
-	// 	select {
-	// 	case ev := <-eventChan:
-	// 		go handleTransaction(c, l, ev.Data.(tmtypes.EventDataTx).TxResult)
-	// 	case keyIndex := <-c.freeKeys:
-	// 		if len(waitingMsgs[keyIndex]) != 0 {
-	// 			if uint64(len(waitingMsgs[keyIndex])) > c.maxReport {
-	// 				go SubmitReport(c, l, keyIndex, waitingMsgs[keyIndex][:c.maxReport])
-	// 				waitingMsgs[keyIndex] = waitingMsgs[keyIndex][c.maxReport:]
-	// 			} else {
-	// 				go SubmitReport(c, l, keyIndex, waitingMsgs[keyIndex])
-	// 				waitingMsgs[keyIndex] = []ReportMsgWithKey{}
-	// 			}
-	// 		} else {
-	// 			availiableKeys[keyIndex] = true
-	// 		}
-	// 	case pm := <-c.pendingMsgs:
-	// 		c.updatePendingGauge(1)
-	// 		if availiableKeys[pm.keyIndex] {
-	// 			availiableKeys[pm.keyIndex] = false
-	// 			go SubmitReport(c, l, pm.keyIndex, []ReportMsgWithKey{pm})
-	// 		} else {
-	// 			waitingMsgs[pm.keyIndex] = append(waitingMsgs[pm.keyIndex], pm)
-	// 		}
-	// 	}
-	// }
+	symbolStr := strings.Join(symbolList, ",")
 
-	mockPrices := []feedstypes.SubmitPrice{
-		{
-			Symbol: "BTC",
-			Price:  45123,
-		},
+	mockParams := map[string]string{
+		"symbols": symbolStr,
 	}
 
 	for {
 		l.Info("for loop")
 		keyIndex := <-c.freeKeys
 		l.Info("get keyIndex")
-		go SubmitPrices(c, l, keyIndex, mockPrices)
+
+		prices, err := c.executor.Exec(mockParams)
+		if err != nil {
+			fmt.Println("exec err", err)
+		} else {
+			fmt.Println("exec res", prices)
+		}
+		go SubmitPrices(c, l, keyIndex, prices)
 		time.Sleep(time.Second)
 	}
 }
@@ -151,10 +131,10 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			l := NewLogger(allowLevel)
-			// c.executor, err = executor.NewExecutor(cfg.Executor)
-			// if err != nil {
-			// 	return err
-			// }
+			c.executor, err = executor.NewExecutor(cfg.Executor)
+			if err != nil {
+				return err
+			}
 			l.Info(":star: Creating HTTP client with node URI: %s", cfg.NodeURI)
 			c.client, err = httpclient.New(cfg.NodeURI, "/websocket")
 			if err != nil {
