@@ -5,18 +5,18 @@ import (
 )
 
 // NewParams creates a new Params instance
-func NewParams(admin string, codeStartTime int64, allowGapTime int64) Params {
+func NewParams(admin string, prepareTime int64, allowDiffTime int64) Params {
 	return Params{
-		Admin: admin,
-		// TODO : adjust to be 1 day.
-		ColdStartTime: codeStartTime,
-		AllowGapTime:  allowGapTime,
+		Admin:         admin,
+		PrepareTime:   prepareTime,
+		AllowDiffTime: allowDiffTime,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	// TODO: adjust the default parameters.
+	// - prepare time: 1 day.
 	return NewParams("[NOT_SET]", 60, 30)
 }
 

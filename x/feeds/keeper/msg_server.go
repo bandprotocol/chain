@@ -48,18 +48,18 @@ func (ms msgServer) UpdateSymbols(
 		}
 
 		ms.Keeper.SetSymbol(ctx, types.Symbol{
-			Symbol:           symbol.Symbol,
-			AggregatedPeriod: symbol.AggregatedPeriod,
-			Interval:         symbol.Interval,
-			Timestamp:        time,
+			Symbol:      symbol.Symbol,
+			MinInterval: symbol.MinInterval,
+			MaxInterval: symbol.MaxInterval,
+			Timestamp:   time,
 		})
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdateSymbol,
 				sdk.NewAttribute(types.AttributeKeySymbol, symbol.Symbol),
-				sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", symbol.Interval)),
-				sdk.NewAttribute(types.AttributeKeyAggregatedPeriod, fmt.Sprintf("%d", symbol.AggregatedPeriod)),
+				sdk.NewAttribute(types.AttributeKeyMinInterval, fmt.Sprintf("%d", symbol.MinInterval)),
+				sdk.NewAttribute(types.AttributeKeyMaxInterval, fmt.Sprintf("%d", symbol.MaxInterval)),
 				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", time)),
 			),
 		)
@@ -131,7 +131,7 @@ func (ms msgServer) SubmitPrices(
 		return nil, types.ErrOracleStatusNotActive.Wrapf("val: %s", val.String())
 	}
 
-	if types.AbsInt64(req.Timestamp-blockTime) > ms.Keeper.GetParams(ctx).AllowGapTime {
+	if types.AbsInt64(req.Timestamp-blockTime) > ms.Keeper.GetParams(ctx).AllowDiffTime {
 		return nil, types.ErrInvalidTimestamp.Wrapf(
 			"block_time: %d, timestamp: %d",
 			blockTime,
@@ -147,13 +147,13 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.Interval {
+			if blockTime < priceVal.Timestamp+s.MinInterval {
 				return nil, types.ErrPriceTooFast.Wrapf(
-					"symbol: %s, old: %d, new: %d, interval: %d",
+					"symbol: %s, old: %d, new: %d, min_interval: %d",
 					price.Symbol,
 					priceVal.Timestamp,
 					blockTime,
-					s.Interval,
+					s.MinInterval,
 				)
 			}
 		}

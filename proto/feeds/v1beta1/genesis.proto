@@ -10,7 +10,11 @@ import "feeds/v1beta1/feeds.proto";
 // GenesisState defines the feeds module's genesis state.
 message GenesisState {
   // Params defines all the parameters of the module.
-  Params          params    = 1 [(gogoproto.nullable) = false];
-  repeated Symbol symbols   = 2 [(gogoproto.nullable) = false];
-  OffChain        off_chain = 3 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // Symbols is a list of symbols that requires validators to submit the price.
+  repeated Symbol symbols = 2 [(gogoproto.nullable) = false];
+
+  // OffChain defines information about off-chain programs.
+  OffChain off_chain = 3 [(gogoproto.nullable) = false];
 }

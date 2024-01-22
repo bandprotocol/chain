@@ -11,10 +11,10 @@ import (
 // HandleEndBlock is a handler function for the EndBlock ABCI request.
 func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	symbols := k.GetSymbols(ctx)
-	coldStart := k.GetParams(ctx).ColdStartTime
+	prepareTime := k.GetParams(ctx).PrepareTime
 	blockTime := ctx.BlockTime().Unix()
 	for _, symbol := range symbols {
-		if blockTime < symbol.Timestamp+coldStart {
+		if blockTime < symbol.Timestamp+prepareTime {
 			continue
 		}
 

@@ -37,7 +37,7 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/symbols";
   }
 
-  // RPC method that returns all parameters of the module
+  // RPC method that returns all parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/params";
   }
@@ -50,63 +50,79 @@ service Query {
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 message QueryPricesRequest {
+  // List of symbols to query prices for.
   repeated string symbols = 1;
-  // pagination defines an optional pagination for the request.
+
+  // Pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 message QueryPricesResponse {
+  // List of prices.
   repeated Price prices = 1;
 
-  // pagination defines the pagination in the response.
+  // Pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryPriceRequest is the request type for the Query/Price RPC method.
 message QueryPriceRequest {
+  // Symbol to query the price for.
   string symbol = 1;
 }
 
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 message QueryPriceResponse {
-  Price                   price            = 1 [(gogoproto.nullable) = false];
+  // The aggregated price of the symbol.
+  Price price = 1 [(gogoproto.nullable) = false];
+
+  // List of prices from each validator.
   repeated PriceValidator price_validators = 2 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
 message QueryValidatorPricesRequest {
+  // Validator address to query prices for.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
 message QueryValidatorPricesResponse {
+  // List of prices submitted by the validator.
   repeated PriceValidator validator_prices = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
 message QueryPriceValidatorRequest {
-  string symbol    = 1;
+  // Symbol to query the price for.
+  string symbol = 1;
+
+  // Validator address to query the price for.
   string validator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryPriceValidatorResponse is the response type for the Query/PriceValidator RPC method.
 message QueryPriceValidatorResponse {
+  // The requested price submitted by the validator.
   PriceValidator price_validator = 1 [(gogoproto.nullable) = false];
 }
 
 // QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
 message QuerySymbolsRequest {
+  // List of symbols to query.
   repeated string symbols = 1;
-  // pagination defines an optional pagination for the request.
+
+  // Pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QuerySymbolsResponse is the response type for the Query/Symbols RPC method.
 message QuerySymbolsResponse {
+  // List of symbols.
   repeated Symbol symbols = 1;
 
-  // pagination defines the pagination in the response.
+  // Pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
@@ -115,6 +131,7 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
+  // The parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
@@ -123,5 +140,6 @@ message QueryOffChainRequest {}
 
 // QueryOffChainResponse is the response type for the Query/OffChain RPC method.
 message QueryOffChainResponse {
+  // Information about off-chain programs.
   OffChain off_chain = 1 [(gogoproto.nullable) = false];
 }

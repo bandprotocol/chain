@@ -12,10 +12,11 @@ message Symbol {
   // The unique symbol string that identifies the unit of exchange.
   string symbol = 1;
 
-  int64 aggregated_period = 2;
+  // The minimum interval at which the price of the symbol is expected to be submitted.
+  int64 min_interval = 2;
 
-  // The interval at which the price of the symbol is expected to be submitted.
-  int64 interval = 3;
+  // The maximum interval at which the price of the symbol is expected to be submitted.
+  int64 max_interval = 3;
 
   // The timestamp that this symbol is added.
   int64 timestamp = 4;
@@ -28,10 +29,11 @@ message UpdateSymbol {
   // The unique symbol string that identifies the unit of exchange.
   string symbol = 1;
 
-  int64 aggregated_period = 2;
+  // The minimum interval at which the price of the symbol is expected to be submitted.
+  int64 min_interval = 2;
 
-  // The interval at which the price of the symbol is expected to be submitted.
-  int64 interval = 3;
+  // The maximum interval at which the price of the symbol is expected to be submitted.
+  int64 max_interval = 3;
 }
 
 // Price defines the price of a symbol.
@@ -44,7 +46,7 @@ message Price {
   // The price of the symbol.
   uint64 price = 2;
 
-  // The timestamp at which the price was submitted.
+  // The timestamp at which the price was aggregated.
   int64 timestamp = 3;
 }
 
@@ -59,17 +61,17 @@ message SubmitPrice {
   uint64 price = 2;
 }
 
-// Price defines the price of a symbol.
+// PriceValidator defines the price submitted by a validator for a symbol.
 message PriceValidator {
   option (gogoproto.equal) = true;
 
-  // The validator address
+  // The validator address.
   string validator = 1;
 
   // The symbol of the price.
   string symbol = 2;
 
-  // The price of the symbol.
+  // The price submitted by the validator.
   uint64 price = 3;
 
   // The timestamp at which the price was submitted.
@@ -86,6 +88,6 @@ message OffChain {
   // The version of the off-chain program.
   string version = 2;
 
-  // The url of the off-chain program.
+  // The URL of the off-chain program.
   string url = 3;
 }

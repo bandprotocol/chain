@@ -74,7 +74,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
 				if err == nil {
 					// if timestamp of price is in acception period, append it
-					if priceVal.Timestamp >= blockTime.Unix()-symbol.AggregatedPeriod {
+					if priceVal.Timestamp >= blockTime.Unix()-symbol.MaxInterval {
 						prices = append(prices, priceVal.Price)
 						powers = append(powers, power)
 						totalPower += power
@@ -87,7 +87,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 				}
 
 				// deactivate if last time of action is too old
-				if lastTime < blockTime.Unix()-symbol.AggregatedPeriod {
+				if lastTime < blockTime.Unix()-symbol.MaxInterval {
 					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}
