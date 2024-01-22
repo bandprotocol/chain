@@ -81,7 +81,7 @@ func GetQueryCmdSymbols() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "symbols",
 		Short: "shows all information of supported symbols",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
