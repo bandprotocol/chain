@@ -11,12 +11,7 @@ type PriceFeedInfo struct {
 	Timestamp int64
 }
 
-func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
-	n := len(pfInfos)
-	if n == 0 {
-		return 0, ErrNotEnoughPriceValidator
-	}
-
+func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
 	totalPower := uint64(0)
 	for _, pfInfo := range pfInfos {
 		totalPower += pfInfo.Power
@@ -34,27 +29,20 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 	sections := []uint64{1, 3, 7, 15, 32}
 
 	var wps []WeightedPrice
-	idxSection := 0
+	currentSection := 0
 	currentPower := uint64(0)
 	for _, pfInfo := range pfInfos {
 		leftPower := pfInfo.Power * 32
-		for ; idxSection < len(sections); idxSection++ {
+		totalWeight := uint64(0)
+		for ; currentSection < len(sections); currentSection++ {
 			takePower := uint64(0)
-			if currentPower+leftPower <= totalPower*sections[idxSection] {
+			if currentPower+leftPower <= totalPower*sections[currentSection] {
 				takePower = leftPower
 			} else {
-				takePower = totalPower*sections[idxSection] - currentPower
+				takePower = totalPower*sections[currentSection] - currentPower
 			}
 
-			wps = append(
-				wps,
-				GetDeviationWeightedPrices(
-					pfInfo.Price,
-					pfInfo.Deviation,
-					takePower*multipliers[idxSection],
-				)...,
-			)
-
+			totalWeight += takePower * multipliers[currentSection]
 			currentPower += takePower
 			leftPower -= takePower
 
@@ -62,6 +50,15 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 				break
 			}
 		}
+
+		wps = append(
+			wps,
+			GetDeviationWeightedPrices(
+				pfInfo.Price,
+				pfInfo.Deviation,
+				totalWeight,
+			)...,
+		)
 	}
 
 	return CalculateMedianWeightedPrice(wps)
@@ -85,12 +82,7 @@ type WeightedPrice struct {
 	Price uint64
 }
 
-func CalculateMedianWeightedPrice(wps []WeightedPrice) (uint64, error) {
-	n := len(wps)
-	if n == 0 {
-		return 0, ErrNotEnoughPriceValidator
-	}
-
+func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
 	sort.Slice(wps, func(i, j int) bool {
 		return wps[i].Price < wps[j].Price
 	})
@@ -100,15 +92,13 @@ func CalculateMedianWeightedPrice(wps []WeightedPrice) (uint64, error) {
 		totalPower += wp.Power
 	}
 
-	price := wps[0].Price
-	currentPower := wps[0].Power
-	for i := 1; i < n; i++ {
-		if currentPower >= totalPower/2 {
-			break
+	currentPower := uint64(0)
+	for _, wp := range wps {
+		currentPower += wp.Power
+		if currentPower*2 >= totalPower {
+			return wp.Price
 		}
-		currentPower += wps[i].Power
-		price = wps[i].Price
 	}
 
-	return price, nil
+	return 0
 }

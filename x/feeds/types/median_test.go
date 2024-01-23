@@ -10,21 +10,13 @@ import (
 
 func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 	pfInfos := []types.PriceFeedInfo{
-		{
-			Power:     1,
-			Price:     1,
-			Deviation: 0,
-			Timestamp: 1,
-		},
-		{
-			Power:     2,
-			Price:     2,
-			Deviation: 0,
-			Timestamp: 2,
-		},
+		{Price: 100, Deviation: 10, Power: 100, Timestamp: 100},
+		{Price: 103, Deviation: 10, Power: 100, Timestamp: 101},
+		{Price: 105, Deviation: 10, Power: 100, Timestamp: 102},
+		{Price: 107, Deviation: 10, Power: 100, Timestamp: 103},
+		{Price: 109, Deviation: 10, Power: 100, Timestamp: 104},
 	}
 
-	price, err := types.CalculateMedianPriceFeedInfo(pfInfos)
-	require.NoError(t, err)
-	require.Equal(t, uint64(2), price)
+	price := types.CalculateMedianPriceFeedInfo(pfInfos)
+	require.Equal(t, uint64(107), price)
 }
