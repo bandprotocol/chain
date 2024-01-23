@@ -38,6 +38,12 @@ echo "smile stem oven genius cave resource better lunar nasty moon company ridge
 echo "audit silver absorb involve more aspect girl report open gather excite mirror bar hammer clay tackle negative example gym group finger shop stool seminar" \
     | bandd keys add relayer --recover --keyring-backend test
 
+echo "erase relief tree tobacco around knee concert toast diesel melody rule sight forum camera oil sick leopard valid furnace casino post dumb tag young" \
+    | bandd keys add group1 --recover --keyring-backend test
+
+echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
+    | bandd keys add group2 --recover --keyring-backend test
+
 # add accounts to genesis
 bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account validator2 10000000000000uband --keyring-backend test
@@ -45,6 +51,8 @@ bandd genesis add-genesis-account validator3 10000000000000uband --keyring-backe
 bandd genesis add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account group1 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account group2 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -107,19 +115,63 @@ bandd genesis collect-gentxs
 
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
+cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
 docker-compose up -d --build
 
 sleep 10
 
+# for v in {1..4}
+# do
+#     rm -rf ~/.yoda
+#     yoda config chain-id bandchain
+#     yoda config node tcp://multi-validator$v-node:26657
+#     yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+#     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
+
+#     # activate validator
+#     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+#     # wait for activation transaction success
+#     sleep 4
+
+#     for i in $(eval echo {1..1})
+#     do
+#         # add reporter key
+#         yoda keys add reporter$i
+#     done
+
+#     # send band tokens to reporters
+#     echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+#     # wait for sending band tokens transaction success
+#     sleep 4
+
+#     # add reporter to bandchain
+#     echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+#     # wait for addding reporter transaction success
+#     sleep 4
+
+#     docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
+#     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
+#     docker start bandchain_oracle${v}
+# done
+
+
 for v in {1..4}
 do
-    rm -rf ~/.yoda
-    yoda config chain-id bandchain
-    yoda config node tcp://multi-validator$v-node:26657
-    yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
-    yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
+    docker run -d --name off-chain-price$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
+
+    # TODO: Run off-chain-prices image
+    rm -rf ~/.grogu
+    grogu config chain-id bandchain
+    grogu config node tcp://multi-validator$v-node:26657
+    grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+
+    # TODO: change url to off-chain-prices image
+    grogu config executor "rest:http://off-chain-prices$v:8080/crypto?timeout=10s"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
@@ -130,25 +182,26 @@ do
     for i in $(eval echo {1..1})
     do
         # add reporter key
-        yoda keys add reporter$i
+        grogu keys add reporter$i
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx bank send validator$v  $(grogu keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
     sleep 4
 
     # add reporter to bandchain
-    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx feeds add-grantees $(grogu keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for addding reporter transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
-    docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
+    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest grogu r
+    docker cp ~/.grogu bandchain_oracle${v}:/root/.grogu
     docker start bandchain_oracle${v}
 done
+
 
 # Create faucet container
 rm -rf ~/.faucet
