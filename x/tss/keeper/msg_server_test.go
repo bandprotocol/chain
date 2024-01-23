@@ -65,16 +65,16 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 	// Create an authority address.
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	// Define fromGroupID and toGroupID.
-	fromGroupID := tss.GroupID(2)
-	toGroupID := tss.GroupID(1)
+	// Define currentGroupID and newGroupID.
+	currentGroupID := tss.GroupID(1)
+	newGroupID := tss.GroupID(2)
 
 	// Create a replace group message.
 	var req types.MsgReplaceGroup
 
 	// Set up the test by creating an active group.
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-	group := k.MustGetGroup(ctx, fromGroupID)
+	group := k.MustGetGroup(ctx, newGroupID)
 
 	// Define test cases.
 	tcs := []TestCase{
@@ -82,10 +82,10 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 			"failure due to incorrect authority",
 			func() {
 				req = types.MsgReplaceGroup{
-					Authority:   "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					FromGroupID: fromGroupID,
-					ToGroupID:   toGroupID,
-					ExecTime:    time.Now().UTC(),
+					Authority:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					CurrentGroupID: currentGroupID,
+					NewGroupID:     newGroupID,
+					ExecTime:       time.Now().UTC(),
 				}
 			},
 			func() {
@@ -96,10 +96,10 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 			"failure due to group is not active",
 			func() {
 				req = types.MsgReplaceGroup{
-					Authority:   authority.String(),
-					FromGroupID: fromGroupID,
-					ToGroupID:   toGroupID,
-					ExecTime:    time.Now().UTC(),
+					Authority:      authority.String(),
+					CurrentGroupID: currentGroupID,
+					NewGroupID:     newGroupID,
+					ExecTime:       time.Now().UTC(),
 				}
 				group.Status = types.GROUP_STATUS_FALLEN
 				k.SetGroup(ctx, group)
@@ -131,17 +131,17 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
-	toGroupID, replacementID := tss.GroupID(1), uint64(1)
+	currentGroupID, replacementID := tss.GroupID(1), uint64(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	now := time.Now()
 
 	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
-		FromGroupID: 2,
-		ToGroupID:   1,
-		ExecTime:    now,
-		Authority:   s.authority.String(),
+		CurrentGroupID: 1,
+		NewGroupID:     2,
+		ExecTime:       now,
+		Authority:      s.authority.String(),
 	})
 	s.Require().NoError(err)
 
@@ -156,8 +156,8 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 
 	replacementIterator.Close()
 
-	toGroup := k.MustGetGroup(ctx, toGroupID)
-	s.Require().Equal(gotReplacementID, toGroup.LatestReplacementID)
+	currentGroup := k.MustGetGroup(ctx, currentGroupID)
+	s.Require().Equal(gotReplacementID, currentGroup.LatestReplacementID)
 }
 
 func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
@@ -718,7 +718,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(999), // non-existent groupID
-					types.NewTextRequestingSignature([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -741,7 +741,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				k.SetGroup(ctx, inactiveGroup)
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(2), // inactive groupID
-					types.NewTextRequestingSignature([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -755,7 +755,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(1),
-					types.NewTextRequestingSignature([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					testapp.FeePayer.Address,
 				)
@@ -811,7 +811,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 
 				msg, err := types.NewMsgRequestSignature(
 					tc.Group.ID,
-					types.NewTextRequestingSignature(signing.Data),
+					types.NewTextSignatureOrder(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -908,7 +908,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Request signature for the first member in the group
 			msg, err := types.NewMsgRequestSignature(
 				tc.Group.ID,
-				types.NewTextRequestingSignature([]byte("msg")),
+				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				testapp.FeePayer.Address,
 			)

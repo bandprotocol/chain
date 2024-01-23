@@ -432,8 +432,8 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	// Set the fee limit to zero.
 	feeLimit := sdk.NewCoins()
 
-	// Create a new content for the request signature
-	content := types.NewTextRequestingSignature([]byte("example"))
+	// Create a new request for the request signature
+	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
 	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)

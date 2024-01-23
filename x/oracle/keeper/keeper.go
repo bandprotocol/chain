@@ -19,10 +19,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-const (
-	RollingSeedSizeInBytes = 32
-)
-
 type Keeper struct {
 	storeKey         storetypes.StoreKey
 	cdc              codec.BinaryCodec

@@ -81,14 +81,14 @@ message MsgReplaceGroup {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "tss/MsgReplaceGroup";
 
-  // from_group_id is the ID of the group that want to replace, and subsequently remove this group.
-  uint64 from_group_id = 1 [
-    (gogoproto.customname) = "FromGroupID",
+  // current_group_id is the ID of the group that will be replaced.
+  uint64 current_group_id = 1 [
+    (gogoproto.customname) = "CurrentGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // to_group_id is the ID of the group that will take the place of another group.
-  uint64 to_group_id = 2
-      [(gogoproto.customname) = "ToGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // new_group_id is the ID of the group that want to replace, and subsequently remove this group.
+  uint64 new_group_id = 2
+      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // exec_time is the time that will be substituted in place of the group.
   google.protobuf.Timestamp exec_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
   // authority is the address that controls the module (defaults to x/gov unless overwritten).
@@ -211,7 +211,7 @@ message MsgRequestSignature {
   // group_id is the unique identifier of the group.
   uint64 group_id = 1
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // content defines an interface that a request signature type must implement.
+  // content is the signature order of this request signature message.
   google.protobuf.Any content = 2 [(cosmos_proto.accepts_interface) = "Content"];
   // fee_limit is the maximum tokens that will be paid for this request.
   repeated cosmos.base.v1beta1.Coin fee_limit = 3

@@ -599,30 +599,30 @@ func (k msgServer) ReplaceGroup(
 		)
 	}
 
-	// Get from group
-	fromGroup, err := k.GetGroup(ctx, req.FromGroupID)
+	// Get new group
+	newGroup, err := k.GetGroup(ctx, req.NewGroupID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Verify group status
-	if fromGroup.Status != types.GROUP_STATUS_ACTIVE {
+	if newGroup.Status != types.GROUP_STATUS_ACTIVE {
 		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
-	// Get to group
-	toGroup, err := k.GetGroup(ctx, req.ToGroupID)
+	// Get current group
+	currentGroup, err := k.GetGroup(ctx, req.CurrentGroupID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Verify group status
-	if toGroup.Status != types.GROUP_STATUS_ACTIVE {
+	if currentGroup.Status != types.GROUP_STATUS_ACTIVE {
 		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
 	}
 
 	// Verify whether the group is not in the pending replacement process.
-	lastReplacementID := toGroup.LatestReplacementID
+	lastReplacementID := currentGroup.LatestReplacementID
 	if lastReplacementID != uint64(0) {
 		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
 		if err != nil {
@@ -640,8 +640,8 @@ func (k msgServer) ReplaceGroup(
 	// Request signature
 	sid, err := k.HandleReplaceGroupRequestSignature(
 		ctx,
-		fromGroup.PubKey,
-		req.ToGroupID,
+		newGroup.PubKey,
+		req.CurrentGroupID,
 		address,
 	)
 	if err != nil {
@@ -650,21 +650,21 @@ func (k msgServer) ReplaceGroup(
 
 	nextID := k.GetNextReplacementCount(ctx)
 	k.SetReplacement(ctx, types.Replacement{
-		ID:          nextID,
-		SigningID:   sid,
-		FromGroupID: req.FromGroupID,
-		FromPubKey:  fromGroup.PubKey,
-		ToGroupID:   req.ToGroupID,
-		ToPubKey:    toGroup.PubKey,
-		ExecTime:    req.ExecTime,
-		Status:      types.REPLACEMENT_STATUS_WAITING,
+		ID:             nextID,
+		SigningID:      sid,
+		CurrentGroupID: req.CurrentGroupID,
+		CurrentPubKey:  currentGroup.PubKey,
+		NewGroupID:     req.NewGroupID,
+		NewPubKey:      newGroup.PubKey,
+		ExecTime:       req.ExecTime,
+		Status:         types.REPLACEMENT_STATUS_WAITING,
 	})
 
 	k.InsertReplacementQueue(ctx, nextID, req.ExecTime)
 
 	// Update latest replacement ID to the group
-	toGroup.LatestReplacementID = nextID
-	k.SetGroup(ctx, toGroup)
+	currentGroup.LatestReplacementID = nextID
+	k.SetGroup(ctx, currentGroup)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

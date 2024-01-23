@@ -58,18 +58,14 @@ var (
 		39,
 		"failed to verify group signing signature",
 	)
-	ErrDEQueueFull                        = errors.Register(ModuleName, 40, "de queue is full")
-	ErrSigningExpired                     = errors.Register(ModuleName, 41, "signing expired")
-	ErrTooSoonToActivate                  = errors.Register(ModuleName, 42, "too soon to activate")
-	ErrStatusNotFound                     = errors.Register(ModuleName, 43, "status not found")
-	ErrStatusIsNotActive                  = errors.Register(ModuleName, 44, "status is not active")
-	ErrNotEnoughFee                       = errors.Register(ModuleName, 45, "not enough fee")
-	ErrInvalidRequestSignatureContent     = errors.Register(ModuleName, 46, "invalid request signature content")
-	ErrNoRequestingSignatureHandlerExists = errors.Register(
-		ModuleName,
-		47,
-		"no handler exists for request signature type",
-	)
-	ErrReplacementNotFound      = errors.Register(ModuleName, 48, "replacement group not found")
-	ErrRequestReplacementFailed = errors.Register(ModuleName, 49, "failed to request replacement")
+	ErrDEQueueFull                   = errors.Register(ModuleName, 40, "de queue is full")
+	ErrSigningExpired                = errors.Register(ModuleName, 41, "signing expired")
+	ErrTooSoonToActivate             = errors.Register(ModuleName, 42, "too soon to activate")
+	ErrStatusNotFound                = errors.Register(ModuleName, 43, "status not found")
+	ErrStatusIsNotActive             = errors.Register(ModuleName, 44, "status is not active")
+	ErrNotEnoughFee                  = errors.Register(ModuleName, 45, "not enough fee")
+	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 46, "failed to handle signature order")
+	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 47, "no handler exists for signature order type")
+	ErrReplacementNotFound           = errors.Register(ModuleName, 48, "replacement group not found")
+	ErrRequestReplacementFailed      = errors.Register(ModuleName, 49, "failed to request replacement")
 )

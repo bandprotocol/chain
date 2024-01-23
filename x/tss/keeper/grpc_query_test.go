@@ -566,14 +566,14 @@ func (s *KeeperTestSuite) TestGRPCQueryReplacement() {
 
 	// Create a replacement
 	replacement := types.Replacement{
-		ID:          1,
-		SigningID:   1,
-		FromGroupID: 2,
-		ToGroupID:   1,
-		FromPubKey:  []byte("test_pub_key"),
-		ToPubKey:    []byte("test_pub_key"),
-		Status:      types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:    now,
+		ID:             1,
+		SigningID:      1,
+		CurrentGroupID: 1,
+		NewGroupID:     2,
+		CurrentPubKey:  []byte("test_pub_key"),
+		NewPubKey:      []byte("test_pub_key"),
+		Status:         types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:       now,
 	}
 	k.SetReplacement(ctx, replacement)
 
@@ -621,14 +621,14 @@ func (s *KeeperTestSuite) TestGRPCQueryReplacements() {
 
 	// Create a replacement
 	replacement := types.Replacement{
-		ID:          1,
-		SigningID:   1,
-		FromGroupID: 2,
-		ToGroupID:   1,
-		FromPubKey:  []byte("test_pub_key"),
-		ToPubKey:    []byte("test_pub_key"),
-		Status:      types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:    time.Now(),
+		ID:             1,
+		SigningID:      1,
+		CurrentGroupID: 1,
+		NewGroupID:     2,
+		CurrentPubKey:  []byte("test_pub_key"),
+		NewPubKey:      []byte("test_pub_key"),
+		Status:         types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:       time.Now(),
 	}
 	k.SetReplacement(ctx, replacement)
 

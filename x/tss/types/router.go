@@ -1,53 +1,42 @@
 package types
 
 import (
-	"bytes"
 	"fmt"
 
+	"cosmossdk.io/errors"
+	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _ Router = (*router)(nil)
-
-// Router implements a TSS Handler router.
-type Router interface {
-	AddRoute(r string, h Route) (rtr Router)
-	HasRoute(r string) bool
-	GetRoute(path string) (h Route)
-	Seal()
-}
-
-type router struct {
-	routes   map[string]Route
-	prefixes map[string]Route
+type Router struct {
+	handlers map[string]Handler
 	sealed   bool
 }
 
 // NewRouter creates a new Router interface instance
-func NewRouter() Router {
-	return &router{
-		routes:   make(map[string]Route),
-		prefixes: make(map[string]Route),
+func NewRouter() *Router {
+	return &Router{
+		handlers: make(map[string]Handler),
 	}
 }
 
 // Seal seals the router which prohibits any subsequent route handlers to be
 // added. Seal will panic if called more than once.
-func (rtr *router) Seal() {
-	if rtr.sealed {
+func (r *Router) Seal() {
+	if r.sealed {
 		panic("router already sealed")
 	}
-	rtr.sealed = true
+	r.sealed = true
 }
 
-// AddRoute adds request signature handler for a given path. It returns the Router
+// AddRoute adds request signature handler for a given path and prefix. It returns the Router
 // so AddRoute calls can be linked. It will panic if the router is sealed.
-func (rtr *router) AddRoute(path string, h Route) Router {
-	if rtr.sealed {
+func (r *Router) AddRoute(path string, h Handler) *Router {
+	if r.sealed {
 		panic("router sealed; cannot add route handler")
 	}
 
-	if bytes.Equal(h.Prefix, ReplaceGroupMsgPrefix) {
+	if path == ReplaceGroupPath {
 		panic(fmt.Sprintf("prefix (%x) is reserved for replacing group only", ReplaceGroupMsgPrefix))
 	}
 
@@ -55,36 +44,37 @@ func (rtr *router) AddRoute(path string, h Route) Router {
 		panic("route expressions can only contain alphanumeric characters")
 	}
 
-	if rtr.HasRoute(path) {
+	if r.HasRoute(path) {
 		panic(fmt.Sprintf("route %s has already been initialized", path))
 	}
 
-	if rtr.HasPrefix(h.Prefix) {
-		panic(fmt.Sprintf("prefix %s has already been initialized", path))
-	}
-
-	rtr.routes[path] = h
-	rtr.prefixes[string(h.Prefix)] = h
-	return rtr
+	r.handlers[path] = wrapHandler(path, h)
+	return r
 }
 
 // HasRoute returns true if the router has a path registered or false otherwise.
-func (rtr *router) HasRoute(path string) bool {
-	_, ok := rtr.routes[path]
-	return ok
-}
-
-// HasPrefix returns true if the router has a prefix registered or false otherwise.
-func (rtr *router) HasPrefix(prefix []byte) bool {
-	_, ok := rtr.prefixes[string(prefix)]
+func (r *Router) HasRoute(path string) bool {
+	_, ok := r.handlers[path]
 	return ok
 }
 
 // GetRoute returns a Handler for a given path.
-func (rtr *router) GetRoute(path string) Route {
-	if !rtr.HasRoute(path) {
+func (r *Router) GetRoute(path string) Handler {
+	if !r.HasRoute(path) {
 		panic(fmt.Sprintf("route \"%s\" does not exist", path))
 	}
 
-	return rtr.routes[path]
+	return r.handlers[path]
+}
+
+func wrapHandler(path string, handler Handler) Handler {
+	return func(ctx sdk.Context, req Content) ([]byte, error) {
+		msg, err := handler(ctx, req)
+		if err != nil {
+			return nil, errors.Wrap(ErrHandleSignatureOrderFailed, err.Error())
+		}
+		selector := tsslib.Hash([]byte(path))[:4]
+
+		return append(selector, msg...), nil
+	}
 }
