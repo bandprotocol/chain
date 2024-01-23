@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"strings"
+	"sync"
 	"time"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -17,8 +17,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/grogu/executor"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 const (
@@ -26,6 +25,45 @@ const (
 	// EventChannelCapacity is a buffer size of channel between node and this program
 	EventChannelCapacity = 2000
 )
+
+// InProgressSymbols represents a data structure to store symbols in progress.
+type InProgressSymbols struct {
+	mu      sync.Mutex
+	symbols map[string]time.Time
+}
+
+// MarkInProgress adds a symbol to the in-progress list with the current time.
+func (ips *InProgressSymbols) MarkInProgress(symbol string) {
+	ips.mu.Lock()
+	defer ips.mu.Unlock()
+	ips.symbols[symbol] = time.Now()
+}
+
+// MarkCompleted removes a symbol from the in-progress list.
+func (ips *InProgressSymbols) MarkCompleted(symbol string) {
+	ips.mu.Lock()
+	defer ips.mu.Unlock()
+	delete(ips.symbols, symbol)
+}
+
+// GetInProgressSymbols returns a list of symbols currently in progress.
+func (ips *InProgressSymbols) GetInProgressSymbols() []string {
+	ips.mu.Lock()
+	defer ips.mu.Unlock()
+	var inProgress []string
+	for symbol := range ips.symbols {
+		inProgress = append(inProgress, symbol)
+	}
+	return inProgress
+}
+
+// IsSymbolInProgress checks if a symbol is currently in progress.
+func (ips *InProgressSymbols) IsSymbolInProgress(symbol string) bool {
+	ips.mu.Lock()
+	defer ips.mu.Unlock()
+	_, inProgress := ips.symbols[symbol]
+	return inProgress
+}
 
 func runImpl(c *Context, l *Logger) error {
 	l.Info(":rocket: Starting WebSocket subscriber")
@@ -44,11 +82,6 @@ func runImpl(c *Context, l *Logger) error {
 	// 	return err
 	// }
 
-	if c.metricsEnabled {
-		l.Info(":eyes: Starting Prometheus listener")
-		go metricsListen(cfg.MetricsListenAddr, c)
-	}
-
 	availiableKeys := make([]bool, len(c.keys))
 	waitingMsgs := make([][]ReportMsgWithKey, len(c.keys))
 	for i := range availiableKeys {
@@ -62,12 +95,12 @@ func runImpl(c *Context, l *Logger) error {
 	}
 	l.Info("finished put key")
 
-	bz := cdc.MustMarshal(&feedstypes.QuerySymbolsRequest{})
+	bz := cdc.MustMarshal(&types.QuerySymbolsRequest{})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
 	}
-	symbols := feedstypes.QuerySymbolsResponse{}
+	symbols := types.QuerySymbolsResponse{}
 	cdc.MustUnmarshal(resBz.Response.Value, &symbols)
 
 	var symbolList []string
@@ -75,50 +108,81 @@ func runImpl(c *Context, l *Logger) error {
 		symbolList = append(symbolList, symbol.Symbol)
 	}
 
-	symbolStr := strings.Join(symbolList, ",")
+	// symbolStr := strings.Join(symbolList, ",")
 
-	mockParams := map[string]string{
-		"symbols": symbolStr,
-	}
+	// mockParams := map[string]string{
+	// 	"symbols": symbolStr,
+	// }
 
 	for {
 		l.Info("for loop")
-		keyIndex := <-c.freeKeys
-		l.Info("get keyIndex")
+		// keyIndex := <-c.freeKeys
+		// l.Info("get keyIndex")
 
-		prices, err := c.executor.Exec(mockParams)
-		if err != nil {
-			fmt.Println("exec err", err)
-		} else {
-			fmt.Println("exec res", prices)
-		}
-		go SubmitPrices(c, l, keyIndex, prices)
-		checkSymbol(c, l)
+		// prices, err := c.executor.Exec(mockParams)
+		// if err != nil {
+		// 	fmt.Println("exec err", err)
+		// } else {
+		// 	fmt.Println("exec res", prices)
+		// }
+		// go SubmitPrices(c, l, keyIndex, prices)
+		checkSymbols(c, l)
 		time.Sleep(time.Second)
 	}
 }
 
-func checkSymbol(c *Context, l *Logger) {
-	bz := cdc.MustMarshal(&feedstypes.QuerySymbolsRequest{})
+func checkSymbols(c *Context, l *Logger) {
+	bz := cdc.MustMarshal(&types.QuerySymbolsRequest{})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
 	}
-	symbolsResponse := feedstypes.QuerySymbolsResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
 
+	symbolsResponse := types.QuerySymbolsResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
 	symbols := symbolsResponse.Symbols
 
-	now := time.Now()
 	var symbolList []string
 
+	bz = cdc.MustMarshal(&types.QueryValidatorPricesRequest{
+		Validator: c.validator.String(),
+	})
+	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/ValidatorPrices", bz)
+	if err != nil {
+		l.Error(":exploding_head: Failed to get validator prices with error: %s", c, err.Error())
+	}
+	validatorPricesResponse := types.QueryValidatorPricesResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
+	validatorPrices := validatorPricesResponse.ValidatorPrices
+	now := time.Now()
+
 	for _, symbol := range symbols {
-		if time.Unix(symbol.Timestamp, 0).Add(time.Duration(symbol.Interval) * time.Second).Before(now) {
-			symbolList = append(symbolList, symbol.Symbol)
+		if !c.inProgressSymbols.IsSymbolInProgress(symbol.GetSymbol()) {
+			validatorPrice := findValidatorPrice(symbol.GetSymbol(), validatorPrices)
+			if validatorPrice == nil ||
+				time.Unix(validatorPrice.GetTimestamp(), 0).
+					Add(time.Duration(symbol.MinInterval)*time.Second).
+					Before(now) {
+				symbolList = append(symbolList, symbol.Symbol)
+				c.inProgressSymbols.MarkInProgress(symbol.GetSymbol())
+			}
 		}
 	}
 
-	c.pendingSymbols <- symbolList
+	fmt.Println("symbols list", symbolList)
+}
+
+func query_symbols(symbolList []string) {
+
+}
+
+func findValidatorPrice(symbol string, validatorPrices []types.PriceValidator) *types.PriceValidator {
+	for _, validatorPrice := range validatorPrices {
+		if validatorPrice.Symbol == symbol {
+			return &validatorPrice
+		}
+	}
+	return nil
 }
 
 func runCmd(c *Context) *cobra.Command {
@@ -178,8 +242,9 @@ func runCmd(c *Context) *cobra.Command {
 			c.pendingSymbols = make(chan []string)
 			c.freeKeys = make(chan int64, len(keys))
 			c.keyRoundRobinIndex = -1
-			c.pendingRequests = make(map[types.RequestID]bool)
-			c.metricsEnabled = cfg.MetricsListenAddr != ""
+			c.inProgressSymbols = &InProgressSymbols{
+				symbols: make(map[string]time.Time),
+			}
 			return runImpl(c, l)
 		},
 	}
