@@ -3,7 +3,6 @@ package grogu
 import (
 	"context"
 	"errors"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/bandprotocol/chain/v2/grogu/executor"
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -123,8 +121,9 @@ func checkSymbols(c *Context, l *Logger) {
 	for _, symbol := range symbols {
 		if !c.inProgressSymbols.IsSymbolInProgress(symbol.GetSymbol()) {
 			validatorPrice := findValidatorPrice(symbol.GetSymbol(), validatorPrices)
+			// add 2 to prevent too fast cases
 			if validatorPrice == nil ||
-				time.Unix(validatorPrice.GetTimestamp(), 0).
+				time.Unix(validatorPrice.GetTimestamp()+2, 0).
 					Add(time.Duration(symbol.MinInterval)*time.Second).
 					Before(now) {
 				symbolList = append(symbolList, symbol.Symbol)
@@ -170,7 +169,7 @@ func runCmd(c *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
-		Short:   "Run the oracle process",
+		Short:   "Run the grogu process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cfg.ChainID == "" {
@@ -209,19 +208,16 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.fileCache = filecache.New(filepath.Join(c.home, "files"))
 			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
 			if err != nil {
 				return err
 			}
 			c.maxTry = cfg.MaxTry
-			c.maxReport = cfg.MaxReport
 			c.rpcPollInterval, err = time.ParseDuration(cfg.RPCPollInterval)
 			if err != nil {
 				return err
 			}
 			c.freeKeys = make(chan int64, len(keys))
-			c.keyRoundRobinIndex = -1
 			c.inProgressSymbols = &InProgressSymbols{
 				symbols: make(map[string]time.Time),
 			}
@@ -232,13 +228,12 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagValidator, "", "validator address")
-	cmd.Flags().String(flagExecutor, "", "executor name and url for executing the data source script")
-	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
+	cmd.Flags().String(flagExecutor, "", "executor name and url for getting prices")
+	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Grogu will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
-	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a report transaction")
-	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
+	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
 	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
 	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
@@ -248,6 +243,5 @@ func runCmd(c *Context) *cobra.Command {
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
-	viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
 	return cmd
 }

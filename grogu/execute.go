@@ -86,10 +86,7 @@ func signAndBroadcast(
 	if err != nil {
 		return "", err
 	}
-	// out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
-	// if err != nil {
-	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
-	// }
+
 	return res.TxHash, nil
 }
 
@@ -177,7 +174,7 @@ func SubmitPrices(c *Context, l *Logger) {
 				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas limit and try to broadcast again
 				gasAdjustment = gasAdjustment * 110 / 100
-				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment", txHash, gasAdjustment)
+				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
 				txFound = true
 				break FindTx
 			} else {

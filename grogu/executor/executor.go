@@ -29,10 +29,6 @@ type Executor interface {
 	Exec(params map[string]string) ([]feedstypes.SubmitPrice, error)
 }
 
-var testProgram []byte = []byte(
-	"#!/usr/bin/env python3\nimport os\nimport sys\nprint(sys.argv[1], os.getenv('BAND_CHAIN_ID'))",
-)
-
 // NewExecutor returns executor by name and executor URL
 func NewExecutor(executor string) (exec Executor, err error) {
 	name, base, timeout, err := parseExecutor(executor)
