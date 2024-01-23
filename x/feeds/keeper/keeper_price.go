@@ -97,10 +97,12 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 		},
 	)
 
-	price, err := types.CalculateMedianPriceFeedInfo(pfInfos)
-	if err != nil {
-		return types.Price{}, err
+	n := len(pfInfos)
+	if n == 0 {
+		return types.Price{}, types.ErrNotEnoughPriceValidator
 	}
+
+	price := types.CalculateMedianPriceFeedInfo(pfInfos)
 
 	return types.Price{
 		Symbol:    symbol.Symbol,
