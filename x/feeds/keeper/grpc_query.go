@@ -100,11 +100,9 @@ func (q queryServer) ValidatorPrices(
 	symbols := q.keeper.GetSymbols(ctx)
 	for _, symbol := range symbols {
 		priceVal, err := q.keeper.GetPriceValidator(ctx, symbol.Symbol, val)
-		if err != nil {
-			return nil, err
+		if err == nil {
+			priceVals = append(priceVals, priceVal)
 		}
-
-		priceVals = append(priceVals, priceVal)
 	}
 
 	return &types.QueryValidatorPricesResponse{
