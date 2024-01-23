@@ -56,9 +56,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
 }
 
 func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate bool) (types.Price, error) {
-	var prices []uint64
-	var powers []uint64
-	totalPower := uint64(0)
+	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 
 	// TODO: confirm if it's sorted by power already
@@ -75,9 +73,12 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 				if err == nil {
 					// if timestamp of price is in acception period, append it
 					if priceVal.Timestamp >= blockTime.Unix()-symbol.MaxInterval {
-						prices = append(prices, priceVal.Price)
-						powers = append(powers, power)
-						totalPower += power
+						pfInfos = append(pfInfos, types.PriceFeedInfo{
+							Price:     priceVal.Price,
+							Power:     power,
+							Deviation: 0,
+							Timestamp: priceVal.Timestamp,
+						})
 					}
 
 					// update last time of action
@@ -96,19 +97,9 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 		},
 	)
 
-	n := len(prices)
-	if n == 0 {
-		return types.Price{}, types.ErrNotEnoughPriceValidator
-	}
-
-	price := prices[0]
-	currentPower := powers[0]
-	for i := 1; i < n; i++ {
-		if currentPower >= totalPower/2 {
-			break
-		}
-		currentPower += powers[i]
-		price = prices[i]
+	price, err := types.CalculateMedianPriceFeedInfo(pfInfos)
+	if err != nil {
+		return types.Price{}, err
 	}
 
 	return types.Price{
