@@ -4,10 +4,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -17,33 +19,41 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
+	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	GlobalfeeKeeper *globalfeekeeper.Keeper
+	Feedskeeper     *feedskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.AccountKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "account keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("account keeper is required for AnteHandler")
 	}
 	if options.BankKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "bank keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("bank keeper is required for AnteHandler")
 	}
 	if options.SignModeHandler == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
+		return nil, sdkerrors.ErrLogic.Wrap("sign mode handler is required for ante builder")
+	}
+	if options.AuthzKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("authz keeper is required for AnteHandler")
 	}
 	if options.OracleKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "oracle keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
+	}
+	if options.Feedskeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("Feed keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "IBC keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
 	}
 	if options.StakingKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Staking keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("Staking keeper is required for AnteHandler")
 	}
 	if options.GlobalfeeKeeper == nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "Globalfee keeper is required for AnteHandler")
+		return nil, sdkerrors.ErrLogic.Wrap("Globalfee keeper is required for AnteHandler")
 	}
 
 	sigGasConsumer := options.SigGasConsumer
@@ -53,9 +63,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	if options.TxFeeChecker == nil {
 		feeChecker := feechecker.NewFeeChecker(
+			options.AuthzKeeper,
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
+			options.Feedskeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}

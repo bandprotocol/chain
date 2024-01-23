@@ -21,6 +21,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 )
@@ -47,6 +48,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	Feedskeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 

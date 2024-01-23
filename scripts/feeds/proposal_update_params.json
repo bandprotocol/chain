@@ -1,0 +1,17 @@
+{
+    "messages": [
+        {
+            "@type": "/feeds.v1beta1.MsgUpdateParams",
+            "params": {
+                "admin": "band1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzs5lmews",
+                "cold_start_time": 60,
+                "allow_gap_time": 30
+            },
+            "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
+        }
+    ],
+    "metadata": "ipfs://",
+    "deposit": "1000000000uband",
+    "title": "Update params",
+    "summary": "This proposal is to update params"
+}

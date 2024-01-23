@@ -1,0 +1,27 @@
+{
+    "group_policy_address": "band1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzs5lmews",
+    "messages": [
+        {
+            "@type": "/feeds.v1beta1.MsgUpdateSymbols",
+            "symbols": [
+                {
+                    "symbol": "BTC",
+                    "aggregated_period": 120,
+                    "interval": 60
+                },
+                {
+                    "symbol": "ETH",
+                    "aggregated_period": 120,
+                    "interval": 60
+                }
+            ],
+            "admin": "band1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzs5lmews"
+        }
+    ],
+    "metadata": "ipfs://",
+    "title": "Update symbols (BTC, ETH)",
+    "summary": "Update symbols (BTC, ETH)",
+    "proposers": [
+        "band1w8yurh6naeqg4mjx4zcs7hsu3fppwu0f4q4l7f"
+    ]
+}

@@ -126,6 +126,9 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/request"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	"github.com/bandprotocol/chain/v2/x/feeds"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
@@ -179,6 +182,7 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
+		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -301,6 +305,7 @@ func NewBandApp(
 		icahosttypes.StoreKey,
 		group.StoreKey,
 		oracletypes.StoreKey,
+		feedstypes.StoreKey,
 		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -587,6 +592,14 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName), app.hooks)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
+	app.Feedskeeper = feedskeeper.NewKeeper(
+		appCodec,
+		keys[feedstypes.StoreKey],
+		app.OracleKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.
@@ -676,6 +689,7 @@ func NewBandApp(
 		transferModule,
 		icaModule,
 		oracleModule,
+		feeds.NewAppModule(appCodec, app.Feedskeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -688,6 +702,7 @@ func NewBandApp(
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
+		feedstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -713,6 +728,7 @@ func NewBandApp(
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
+		feedstypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -762,6 +778,7 @@ func NewBandApp(
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		oracletypes.ModuleName,
+		feedstypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 
@@ -804,7 +821,9 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeegrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
+			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
+			Feedskeeper:     &app.Feedskeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,

@@ -4,10 +4,9 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // getTxPriority returns priority of the provided fee based on gas prices of uband
@@ -59,50 +58,11 @@ func CombinedGasPricesRequirement(globalMinGasPrices, minGasPrices sdk.DecCoins)
 	return allGasPrices.Sort()
 }
 
-func checkValidReportMsg(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, r *types.MsgReportData) error {
-	validator, err := sdk.ValAddressFromBech32(r.Validator)
+func checkValidMsgReport(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg *oracletypes.MsgReportData) error {
+	validator, err := sdk.ValAddressFromBech32(msg.Validator)
 	if err != nil {
 		return err
 	}
-	return oracleKeeper.CheckValidReport(ctx, r.RequestID, validator, r.RawReports)
-}
 
-func checkExecMsgReportFromReporter(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msgExec *authz.MsgExec) bool {
-	// If cannot get message, then pretend as non-free transaction
-	msgs, err := msgExec.GetMessages()
-	if err != nil {
-		return false
-	}
-
-	grantee, err := sdk.AccAddressFromBech32(msgExec.Grantee)
-	if err != nil {
-		return false
-	}
-
-	for _, m := range msgs {
-		r, ok := m.(*types.MsgReportData)
-		// If this is not report msg, skip other msgs on this exec msg
-		if !ok {
-			return false
-		}
-
-		// Fail to parse validator, then reject this message
-		validator, err := sdk.ValAddressFromBech32(r.Validator)
-		if err != nil {
-			return false
-		}
-
-		// If this grantee is not a reporter of validator, then reject this message
-		if !oracleKeeper.IsReporter(ctx, validator, grantee) {
-			return false
-		}
-
-		// Check if it's not valid report msg, discard this message
-		if err := checkValidReportMsg(ctx, oracleKeeper, r); err != nil {
-			return false
-		}
-	}
-
-	// Return true if all sub exec msgs have not been rejected
-	return true
+	return oracleKeeper.CheckValidReport(ctx, msg.RequestID, validator, msg.RawReports)
 }
