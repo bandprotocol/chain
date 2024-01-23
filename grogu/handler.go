@@ -86,8 +86,8 @@ func handleRequest(c *Context, l *Logger, id types.RequestID) {
 
 	l.Info(":delivery_truck: Processing request")
 
-	keyIndex := c.nextKeyIndex()
-	key := c.keys[keyIndex]
+	// keyIndex := c.nextKeyIndex()
+	// key := c.keys[keyIndex]
 
 	var rawRequests []rawRequest
 
@@ -108,20 +108,20 @@ func handleRequest(c *Context, l *Logger, id types.RequestID) {
 	}
 
 	// process raw requests
-	reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
+	// reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
 
-	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
-		execVersion: execVersions,
-		keyIndex:    keyIndex,
-		feeEstimationData: FeeEstimationData{
-			askCount:    int64(len(req.RequestedValidators)),
-			minCount:    int64(req.MinCount),
-			callData:    req.Calldata,
-			rawRequests: rawRequests,
-			clientID:    req.ClientID,
-		},
-	}
+	// c.pendingMsgs <- ReportMsgWithKey{
+	// 	msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
+	// 	execVersion: execVersions,
+	// 	keyIndex:    keyIndex,
+	// 	feeEstimationData: FeeEstimationData{
+	// 		askCount:    int64(len(req.RequestedValidators)),
+	// 		minCount:    int64(req.MinCount),
+	// 		callData:    req.Calldata,
+	// 		rawRequests: rawRequests,
+	// 		clientID:    req.ClientID,
+	// 	},
+	// }
 }
 
 func handleRawRequests(

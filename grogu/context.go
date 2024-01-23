@@ -40,7 +40,7 @@ type Context struct {
 	rpcPollInterval  time.Duration
 	maxReport        uint64
 
-	pendingMsgs        chan ReportMsgWithKey
+	pendingSymbols     chan []string
 	freeKeys           chan int64
 	keyRoundRobinIndex int64 // Must use in conjunction with sync/atomic
 

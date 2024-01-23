@@ -93,8 +93,32 @@ func runImpl(c *Context, l *Logger) error {
 			fmt.Println("exec res", prices)
 		}
 		go SubmitPrices(c, l, keyIndex, prices)
+		checkSymbol(c, l)
 		time.Sleep(time.Second)
 	}
+}
+
+func checkSymbol(c *Context, l *Logger) {
+	bz := cdc.MustMarshal(&feedstypes.QuerySymbolsRequest{})
+	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
+	if err != nil {
+		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
+	}
+	symbolsResponse := feedstypes.QuerySymbolsResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
+
+	symbols := symbolsResponse.Symbols
+
+	now := time.Now()
+	var symbolList []string
+
+	for _, symbol := range symbols {
+		if time.Unix(symbol.Timestamp, 0).Add(time.Duration(symbol.Interval) * time.Second).Before(now) {
+			symbolList = append(symbolList, symbol.Symbol)
+		}
+	}
+
+	c.pendingSymbols <- symbolList
 }
 
 func runCmd(c *Context) *cobra.Command {
@@ -151,7 +175,7 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.pendingMsgs = make(chan ReportMsgWithKey)
+			c.pendingSymbols = make(chan []string)
 			c.freeKeys = make(chan int64, len(keys))
 			c.keyRoundRobinIndex = -1
 			c.pendingRequests = make(map[types.RequestID]bool)
