@@ -30,7 +30,6 @@ type PriceData struct {
 }
 
 func (e *RestExec) Exec(params map[string]string) ([]feedstypes.SubmitPrice, error) {
-	fmt.Println("executor url", e.url)
 	resp, err := grequests.Get(
 		e.url,
 		&grequests.RequestOptions{

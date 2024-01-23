@@ -10,7 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/grogu/executor"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 type FeeEstimationData struct {
@@ -19,13 +19,6 @@ type FeeEstimationData struct {
 	callData    []byte
 	rawRequests []rawRequest
 	clientID    string
-}
-
-type ReportMsgWithKey struct {
-	msg               *types.MsgReportData
-	execVersion       []string
-	keyIndex          int64
-	feeEstimationData FeeEstimationData
 }
 
 type Context struct {
@@ -40,7 +33,7 @@ type Context struct {
 	rpcPollInterval  time.Duration
 	maxReport        uint64
 
-	pendingSymbols     chan []string
+	pendingPrices      chan []types.SubmitPrice
 	inProgressSymbols  *InProgressSymbols
 	freeKeys           chan int64
 	keyRoundRobinIndex int64 // Must use in conjunction with sync/atomic

@@ -3,8 +3,8 @@ package grogu
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -73,61 +73,23 @@ func runImpl(c *Context, l *Logger) error {
 	}
 	defer c.client.Stop()
 
-	// ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cxl()
-
-	l.Info(":ear: Subscribing to events with query: %s...", TxQuery)
-	// eventChan, err := c.client.Subscribe(ctx, "", TxQuery, EventChannelCapacity)
-	// if err != nil {
-	// 	return err
-	// }
-
-	availiableKeys := make([]bool, len(c.keys))
-	waitingMsgs := make([][]ReportMsgWithKey, len(c.keys))
-	for i := range availiableKeys {
-		availiableKeys[i] = true
-		waitingMsgs[i] = []ReportMsgWithKey{}
-	}
-	l.Info("len freekeys", len(c.freeKeys))
 	for i := int64(0); i < int64(len(c.keys)); i++ {
-		l.Info("put key")
 		c.freeKeys <- i
 	}
-	l.Info("finished put key")
 
-	bz := cdc.MustMarshal(&types.QuerySymbolsRequest{})
-	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
-	if err != nil {
-		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
-	}
-	symbols := types.QuerySymbolsResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &symbols)
+	l.Info(":rocket: Starting Prices submitter")
+	go startSubmitPrices(c, l)
 
-	var symbolList []string
-	for _, symbol := range symbols.Symbols {
-		symbolList = append(symbolList, symbol.Symbol)
-	}
-
-	// symbolStr := strings.Join(symbolList, ",")
-
-	// mockParams := map[string]string{
-	// 	"symbols": symbolStr,
-	// }
-
+	l.Info(":rocket: Starting Symbol checker")
 	for {
-		l.Info("for loop")
-		// keyIndex := <-c.freeKeys
-		// l.Info("get keyIndex")
-
-		// prices, err := c.executor.Exec(mockParams)
-		// if err != nil {
-		// 	fmt.Println("exec err", err)
-		// } else {
-		// 	fmt.Println("exec res", prices)
-		// }
-		// go SubmitPrices(c, l, keyIndex, prices)
 		checkSymbols(c, l)
 		time.Sleep(time.Second)
+	}
+}
+
+func startSubmitPrices(c *Context, l *Logger) {
+	for {
+		SubmitPrices(c, l)
 	}
 }
 
@@ -136,6 +98,7 @@ func checkSymbols(c *Context, l *Logger) {
 	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
+		return
 	}
 
 	symbolsResponse := types.QuerySymbolsResponse{}
@@ -150,6 +113,7 @@ func checkSymbols(c *Context, l *Logger) {
 	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/ValidatorPrices", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get validator prices with error: %s", c, err.Error())
+		return
 	}
 	validatorPricesResponse := types.QueryValidatorPricesResponse{}
 	cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
@@ -168,12 +132,29 @@ func checkSymbols(c *Context, l *Logger) {
 			}
 		}
 	}
-
-	fmt.Println("symbols list", symbolList)
+	if len(symbolList) != 0 {
+		l.Info("found symbols to send: %v", symbolList)
+		go query_symbols(c, l, symbolList)
+	}
 }
 
-func query_symbols(symbolList []string) {
+func query_symbols(c *Context, l *Logger, symbolList []string) {
+	symbolStr := strings.Join(symbolList, ",")
 
+	params := map[string]string{
+		"symbols": symbolStr,
+	}
+
+	l.Info("Try to get prices for symbols: %s", symbolStr)
+	prices, err := c.executor.Exec(params)
+	if err != nil {
+		l.Error(":exploding_head: Failed to get prices from executor with error: %s", c, err.Error())
+		return
+	}
+
+	// TODO: check if prices has all symbols
+	l.Info("got prices for symbols: %s", symbolStr)
+	c.pendingPrices <- prices
 }
 
 func findValidatorPrice(symbol string, validatorPrices []types.PriceValidator) *types.PriceValidator {
@@ -239,12 +220,12 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.pendingSymbols = make(chan []string)
 			c.freeKeys = make(chan int64, len(keys))
 			c.keyRoundRobinIndex = -1
 			c.inProgressSymbols = &InProgressSymbols{
 				symbols: make(map[string]time.Time),
 			}
+			c.pendingPrices = make(chan []types.SubmitPrice, 10)
 			return runImpl(c, l)
 		},
 	}
