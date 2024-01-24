@@ -22,6 +22,7 @@ type Context struct {
 	maxTry           uint64
 	rpcPollInterval  time.Duration
 
+	pendingSymbols    chan []string
 	pendingPrices     chan []types.SubmitPrice
 	inProgressSymbols *sync.Map
 	freeKeys          chan int64

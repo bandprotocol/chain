@@ -32,6 +32,7 @@ func runImpl(c *Context, l *Logger) error {
 
 	l.Info(":rocket: Starting Prices submitter")
 	go startSubmitPrices(c, l)
+	go startQuerySymbols(c, l)
 
 	l.Info(":rocket: Starting Symbol checker")
 	for {
@@ -43,6 +44,12 @@ func runImpl(c *Context, l *Logger) error {
 func startSubmitPrices(c *Context, l *Logger) {
 	for {
 		SubmitPrices(c, l)
+	}
+}
+
+func startQuerySymbols(c *Context, l *Logger) {
+	for {
+		querySymbols(c, l)
 	}
 }
 
@@ -92,7 +99,7 @@ func checkSymbols(c *Context, l *Logger) {
 	}
 	if len(symbolList) != 0 {
 		l.Info("found symbols to send: %v", symbolList)
-		go query_symbols(c, l, symbolList)
+		c.pendingSymbols <- symbolList
 	}
 }
 
@@ -118,8 +125,20 @@ func ConvertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
 	return symbolPriceMap
 }
 
-func query_symbols(c *Context, l *Logger, symbolList []string) {
-	symbolStr := strings.Join(symbolList, ",")
+func querySymbols(c *Context, l *Logger) {
+	symbols := <-c.pendingSymbols
+
+GetAllSymbols:
+	for {
+		select {
+		case nextSymbols := <-c.pendingSymbols:
+			symbols = append(symbols, nextSymbols...)
+		default:
+			break GetAllSymbols
+		}
+	}
+
+	symbolStr := strings.Join(symbols, ",")
 
 	params := map[string]string{
 		"symbols": symbolStr,
@@ -133,7 +152,7 @@ func query_symbols(c *Context, l *Logger, symbolList []string) {
 
 	// delete symbol from in progress map if its price is not found
 	symbolPriceMap := ConvertToSymbolPriceMap(prices)
-	for _, symbol := range symbolList {
+	for _, symbol := range symbols {
 		if _, found := symbolPriceMap[symbol]; !found {
 			c.inProgressSymbols.Delete(symbol)
 		}
@@ -201,7 +220,8 @@ func runCmd(c *Context) *cobra.Command {
 			}
 			c.freeKeys = make(chan int64, len(keys))
 			c.inProgressSymbols = &sync.Map{}
-			c.pendingPrices = make(chan []types.SubmitPrice, 10)
+			c.pendingSymbols = make(chan []string, 100)
+			c.pendingPrices = make(chan []types.SubmitPrice, 30)
 			return runImpl(c, l)
 		},
 	}

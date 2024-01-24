@@ -112,7 +112,19 @@ func SubmitPrices(c *Context, l *Logger) {
 	defer func() {
 		c.freeKeys <- keyIndex
 	}()
+
 	prices := <-c.pendingPrices
+
+GetAllPrices:
+	for {
+		select {
+		case nextPrices := <-c.pendingPrices:
+			prices = append(prices, nextPrices...)
+		default:
+			break GetAllPrices
+		}
+	}
+
 	defer func() {
 		for _, price := range prices {
 			c.inProgressSymbols.Delete(price.Symbol)
