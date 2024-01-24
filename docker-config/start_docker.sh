@@ -162,7 +162,7 @@ sleep 10
 
 for v in {1..4}
 do
-    docker run -d --name off-chain-price$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
+    docker run -d --name off-chain-prices$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
 
     # TODO: Run off-chain-prices image
     rm -rf ~/.grogu
