@@ -4,7 +4,7 @@
 
 This document specifies the TSS module.
 
-The TSS module acts like a smart tool that makes special signatures for groups of people within the group.
+The TSS module acts like a tool that makes signatures for groups of people within the group.
 
 To become a TSS provider, members simply need to show they're ready to join in by activating their status. The group is then formed from these active members. Once the group is all set up, anyone can ask the group to sign something specific. The resulting group signature, which you can check using the group's public key, becomes handy in various situations, making the TSS module quite useful. This way of creating signatures not only makes sure everyone trusts it but also adds an extra layer of security to the system.
 
