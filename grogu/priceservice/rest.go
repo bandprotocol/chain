@@ -1,4 +1,4 @@
-package executor
+package priceservice
 
 import (
 	"encoding/json"
@@ -10,20 +10,20 @@ import (
 	"github.com/levigross/grequests"
 )
 
-type RestExec struct {
+type RestService struct {
 	url     string
 	timeout time.Duration
 }
 
-func NewRestExec(url string, timeout time.Duration) *RestExec {
-	return &RestExec{url: url, timeout: timeout}
+func NewRestService(url string, timeout time.Duration) *RestService {
+	return &RestService{url: url, timeout: timeout}
 }
 
 type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-func (e *RestExec) Exec(params map[string]string) ([]types.SubmitPrice, error) {
+func (e *RestService) Query(params map[string]string) ([]types.SubmitPrice, error) {
 	resp, err := grequests.Get(
 		e.url,
 		&grequests.RequestOptions{

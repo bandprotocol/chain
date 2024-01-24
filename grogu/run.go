@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/chain/v2/grogu/executor"
+	"github.com/bandprotocol/chain/v2/grogu/priceservice"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -145,9 +145,9 @@ GetAllSymbols:
 	}
 
 	l.Info("Try to get prices for symbols: %s", symbolStr)
-	prices, err := c.executor.Exec(params)
+	prices, err := c.priceService.Query(params)
 	if err != nil {
-		l.Error(":exploding_head: Failed to get prices from executor with error: %s", c, err.Error())
+		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
 	}
 
 	// delete symbol from in progress map if its price is not found
@@ -200,7 +200,7 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			l := NewLogger(allowLevel)
-			c.executor, err = executor.NewExecutor(cfg.Executor)
+			c.priceService, err = priceservice.NewPriceService(cfg.PriceService)
 			if err != nil {
 				return err
 			}
@@ -228,7 +228,7 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagValidator, "", "validator address")
-	cmd.Flags().String(flagExecutor, "", "executor name and url for getting prices")
+	cmd.Flags().String(flagPriceService, "", "price-service name and url for getting prices")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Grogu will wait for tx commit")
@@ -239,7 +239,7 @@ func runCmd(c *Context) *cobra.Command {
 	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
+	viper.BindPFlag(flagPriceService, cmd.Flags().Lookup(flagPriceService))
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
