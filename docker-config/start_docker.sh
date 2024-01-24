@@ -171,7 +171,7 @@ do
     grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
 
     # change url to off-chain-prices image
-    grogu config executor "rest:http://off-chain-prices$v:8080/crypto?timeout=10s"
+    grogu config price-service "rest:http://off-chain-prices$v:8080/crypto?timeout=10s"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
