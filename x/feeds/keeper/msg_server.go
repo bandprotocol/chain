@@ -181,10 +181,10 @@ func (ms msgServer) SubmitPrices(
 	return &types.MsgSubmitPricesResponse{}, nil
 }
 
-func (ms msgServer) UpdateOffChain(
+func (ms msgServer) UpdatePriceService(
 	goCtx context.Context,
-	req *types.MsgUpdateOffChain,
-) (*types.MsgUpdateOffChainResponse, error) {
+	req *types.MsgUpdatePriceService,
+) (*types.MsgUpdatePriceServiceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	admin := ms.GetParams(ctx).Admin
@@ -196,11 +196,11 @@ func (ms msgServer) UpdateOffChain(
 		)
 	}
 
-	if err := ms.SetOffChain(ctx, req.OffChain); err != nil {
+	if err := ms.SetPriceService(ctx, req.PriceService); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUpdateOffChainResponse{}, nil
+	return &types.MsgUpdatePriceServiceResponse{}, nil
 }
 
 func (ms msgServer) UpdateParams(

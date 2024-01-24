@@ -6,8 +6,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func (k Keeper) GetOffChain(ctx sdk.Context) (oc types.OffChain) {
-	bz := ctx.KVStore(k.storeKey).Get(types.OffChainStoreKey)
+func (k Keeper) GetPriceService(ctx sdk.Context) (oc types.PriceService) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PriceServiceStoreKey)
 	if bz == nil {
 		return oc
 	}
@@ -17,11 +17,11 @@ func (k Keeper) GetOffChain(ctx sdk.Context) (oc types.OffChain) {
 	return oc
 }
 
-func (k Keeper) SetOffChain(ctx sdk.Context, offChain types.OffChain) error {
-	if err := offChain.Validate(); err != nil {
+func (k Keeper) SetPriceService(ctx sdk.Context, ps types.PriceService) error {
+	if err := ps.Validate(); err != nil {
 		return err
 	}
 
-	ctx.KVStore(k.storeKey).Set(types.OffChainStoreKey, k.cdc.MustMarshal(&offChain))
+	ctx.KVStore(k.storeKey).Set(types.PriceServiceStoreKey, k.cdc.MustMarshal(&ps))
 	return nil
 }

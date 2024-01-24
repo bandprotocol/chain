@@ -7,7 +7,7 @@ import (
 // x/feeds module sentinel errors
 var (
 	ErrPriceNotFound           = errors.Register(ModuleName, 2, "price not found")
-	ErrOffChainNotFound        = errors.Register(ModuleName, 3, "off-chain not found")
+	ErrPriceServiceNotFound    = errors.Register(ModuleName, 3, "price-service not found")
 	ErrOracleStatusNotActive   = errors.Register(ModuleName, 4, "oracle status not active")
 	ErrPriceTooFast            = errors.Register(ModuleName, 5, "price is too fast")
 	ErrInvalidTimestamp        = errors.Register(ModuleName, 6, "invalid timestamp")
