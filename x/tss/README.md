@@ -60,15 +60,15 @@ This module is used in the BandChain.
   + [Parameters](#parameters)
   + [Client](#client)
     - [CLI](#cli)
-			- [Query](#query)
-				- [Group](#group-1)
-				- [Signing](#signing-1)
+    	- [Query](#query)
+		- [Group](#group-1)
+		- [Signing](#signing-1)
     - [gRPC](#grpc)
-			- [Group](#group-2)
-			- [Signing](#signing-2)
+    	- [Group](#group-2)
+    	- [Signing](#signing-2)
     - [REST](#rest)
-			- [Group](#group-3)
-			- [Signing](#signing-3)
+    	- [Group](#group-3)
+    	- [Signing](#signing-3)
 
 ## Concepts
 
@@ -78,7 +78,7 @@ There are 4 statuses in the TSS system:
 1. Active: This status designates a member who is prepared to engage in the TSS process actively.
 2. Paused: Members assume the paused status when their DE (nonce) is run out.
 3. Jailed: A member is placed in the jailed status if they fail to respond during the group creation process.
-4. Inactive: By default, members are assigned to this status. However, they may be set to inactive status if they fail to respond to a sign request.
+4. Inactive: By default, members are assigned to this status. However, they may be set to inactive status if they fail to respond to a signed request.
 
 Statuses within the TSS system are account-level indicators. To become a participant in the TSS system, an account must send a message to the chain. Upon activating their status in the TSS module, participants are required to send a health-check message to the chain at regular intervals, typically set as the "ActiveDuration" (defaulting to one day).
 
