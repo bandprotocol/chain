@@ -253,7 +253,7 @@ func SplitReplacementQueueKey(key []byte) (replacementID uint64, endTime time.Ti
 }
 
 func splitKeyWithTime(key []byte) (replacementID uint64, endTime time.Time) {
-	// Lenght of bytes of time
+	// Length of bytes of time
 	lenTime := 29
 	kv.AssertKeyLength(key[1:], 8+lenTime)
 
