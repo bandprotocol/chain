@@ -14,54 +14,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/chain/v2/grogu/executor"
+	"github.com/bandprotocol/chain/v2/grogu/priceservice"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
-
-const (
-	TxQuery = "tm.event = 'Tx' AND request.id EXISTS"
-	// EventChannelCapacity is a buffer size of channel between node and this program
-	EventChannelCapacity = 2000
-)
-
-// InProgressSymbols represents a data structure to store symbols in progress.
-type InProgressSymbols struct {
-	mu      sync.Mutex
-	symbols map[string]time.Time
-}
-
-// MarkInProgress adds a symbol to the in-progress list with the current time.
-func (ips *InProgressSymbols) MarkInProgress(symbol string) {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	ips.symbols[symbol] = time.Now()
-}
-
-// MarkCompleted removes a symbol from the in-progress list.
-func (ips *InProgressSymbols) MarkCompleted(symbol string) {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	delete(ips.symbols, symbol)
-}
-
-// GetInProgressSymbols returns a list of symbols currently in progress.
-func (ips *InProgressSymbols) GetInProgressSymbols() []string {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	var inProgress []string
-	for symbol := range ips.symbols {
-		inProgress = append(inProgress, symbol)
-	}
-	return inProgress
-}
-
-// IsSymbolInProgress checks if a symbol is currently in progress.
-func (ips *InProgressSymbols) IsSymbolInProgress(symbol string) bool {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	_, inProgress := ips.symbols[symbol]
-	return inProgress
-}
 
 func runImpl(c *Context, l *Logger) error {
 	l.Info(":rocket: Starting WebSocket subscriber")
@@ -77,6 +32,7 @@ func runImpl(c *Context, l *Logger) error {
 
 	l.Info(":rocket: Starting Prices submitter")
 	go startSubmitPrices(c, l)
+	go startQuerySymbols(c, l)
 
 	l.Info(":rocket: Starting Symbol checker")
 	for {
@@ -88,6 +44,12 @@ func runImpl(c *Context, l *Logger) error {
 func startSubmitPrices(c *Context, l *Logger) {
 	for {
 		SubmitPrices(c, l)
+	}
+}
+
+func startQuerySymbols(c *Context, l *Logger) {
+	for {
+		querySymbols(c, l)
 	}
 }
 
@@ -116,53 +78,92 @@ func checkSymbols(c *Context, l *Logger) {
 	validatorPricesResponse := types.QueryValidatorPricesResponse{}
 	cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
 	validatorPrices := validatorPricesResponse.ValidatorPrices
+	symbolTimestampMap := ConvertToSymbolTimestampMap(validatorPrices)
+
 	now := time.Now()
 
 	for _, symbol := range symbols {
-		if !c.inProgressSymbols.IsSymbolInProgress(symbol.GetSymbol()) {
-			validatorPrice := findValidatorPrice(symbol.GetSymbol(), validatorPrices)
-			// add 2 to prevent too fast cases
-			if validatorPrice == nil ||
-				time.Unix(validatorPrice.GetTimestamp()+2, 0).
-					Add(time.Duration(symbol.MinInterval)*time.Second).
-					Before(now) {
-				symbolList = append(symbolList, symbol.Symbol)
-				c.inProgressSymbols.MarkInProgress(symbol.GetSymbol())
-			}
+		if _, inProgress := c.inProgressSymbols.Load(symbol.GetSymbol()); inProgress {
+			continue
+		}
+
+		timestamp, ok := symbolTimestampMap[symbol.GetSymbol()]
+		// add 2 to prevent too fast cases
+		if !ok ||
+			time.Unix(timestamp+2, 0).
+				Add(time.Duration(symbol.MinInterval)*time.Second).
+				Before(now) {
+			symbolList = append(symbolList, symbol.Symbol)
+			c.inProgressSymbols.Store(symbol.GetSymbol(), time.Now())
 		}
 	}
 	if len(symbolList) != 0 {
 		l.Info("found symbols to send: %v", symbolList)
-		go query_symbols(c, l, symbolList)
+		c.pendingSymbols <- symbolList
 	}
 }
 
-func query_symbols(c *Context, l *Logger, symbolList []string) {
-	symbolStr := strings.Join(symbolList, ",")
+// ConvertToSymbolTimestampMap converts an array of PriceValidator to a map of symbol to timestamp.
+func ConvertToSymbolTimestampMap(data []types.PriceValidator) map[string]int64 {
+	symbolTimestampMap := make(map[string]int64)
+
+	for _, entry := range data {
+		symbolTimestampMap[entry.Symbol] = entry.Timestamp
+	}
+
+	return symbolTimestampMap
+}
+
+// ConvertToSymbolPriceMap converts an array of SubmitPrice to a map of symbol to price.
+func ConvertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
+	symbolPriceMap := make(map[string]uint64)
+
+	for _, entry := range data {
+		symbolPriceMap[entry.Symbol] = entry.Price
+	}
+
+	return symbolPriceMap
+}
+
+func querySymbols(c *Context, l *Logger) {
+	symbols := <-c.pendingSymbols
+
+GetAllSymbols:
+	for {
+		select {
+		case nextSymbols := <-c.pendingSymbols:
+			symbols = append(symbols, nextSymbols...)
+		default:
+			break GetAllSymbols
+		}
+	}
+
+	symbolStr := strings.Join(symbols, ",")
 
 	params := map[string]string{
 		"symbols": symbolStr,
 	}
 
 	l.Info("Try to get prices for symbols: %s", symbolStr)
-	prices, err := c.executor.Exec(params)
+	prices, err := c.priceService.Query(params)
 	if err != nil {
-		l.Error(":exploding_head: Failed to get prices from executor with error: %s", c, err.Error())
-		return
+		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
 	}
 
-	// TODO: check if prices has all symbols
-	l.Info("got prices for symbols: %s", symbolStr)
-	c.pendingPrices <- prices
-}
-
-func findValidatorPrice(symbol string, validatorPrices []types.PriceValidator) *types.PriceValidator {
-	for _, validatorPrice := range validatorPrices {
-		if validatorPrice.Symbol == symbol {
-			return &validatorPrice
+	// delete symbol from in progress map if its price is not found
+	symbolPriceMap := ConvertToSymbolPriceMap(prices)
+	for _, symbol := range symbols {
+		if _, found := symbolPriceMap[symbol]; !found {
+			c.inProgressSymbols.Delete(symbol)
 		}
 	}
-	return nil
+
+	l.Info("got prices for symbols: %s", symbolStr)
+	if len(prices) == 0 {
+		l.Error(":exploding_head: query symbol got no prices with symbols: %s", c, symbolStr)
+		return
+	}
+	c.pendingPrices <- prices
 }
 
 func runCmd(c *Context) *cobra.Command {
@@ -199,7 +200,7 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			l := NewLogger(allowLevel)
-			c.executor, err = executor.NewExecutor(cfg.Executor)
+			c.priceService, err = priceservice.NewPriceService(cfg.PriceService)
 			if err != nil {
 				return err
 			}
@@ -218,17 +219,16 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			c.freeKeys = make(chan int64, len(keys))
-			c.inProgressSymbols = &InProgressSymbols{
-				symbols: make(map[string]time.Time),
-			}
-			c.pendingPrices = make(chan []types.SubmitPrice, 10)
+			c.inProgressSymbols = &sync.Map{}
+			c.pendingSymbols = make(chan []string, 100)
+			c.pendingPrices = make(chan []types.SubmitPrice, 30)
 			return runImpl(c, l)
 		},
 	}
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagValidator, "", "validator address")
-	cmd.Flags().String(flagExecutor, "", "executor name and url for getting prices")
+	cmd.Flags().String(flagPriceService, "", "price-service name and url for getting prices")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Grogu will wait for tx commit")
@@ -239,7 +239,7 @@ func runCmd(c *Context) *cobra.Command {
 	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
 	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
+	viper.BindPFlag(flagPriceService, cmd.Flags().Lookup(flagPriceService))
 	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))

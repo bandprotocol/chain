@@ -1,13 +1,14 @@
 package grogu
 
 import (
+	"sync"
 	"time"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/grogu/executor"
+	"github.com/bandprotocol/chain/v2/grogu/priceservice"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -16,13 +17,14 @@ type Context struct {
 	validator        sdk.ValAddress
 	gasPrices        string
 	keys             []*keyring.Record
-	executor         executor.Executor
+	priceService     priceservice.PriceService
 	broadcastTimeout time.Duration
 	maxTry           uint64
 	rpcPollInterval  time.Duration
 
+	pendingSymbols    chan []string
 	pendingPrices     chan []types.SubmitPrice
-	inProgressSymbols *InProgressSymbols
+	inProgressSymbols *sync.Map
 	freeKeys          chan int64
 
 	home string
