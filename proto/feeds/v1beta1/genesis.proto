@@ -15,6 +15,6 @@ message GenesisState {
   // Symbols is a list of symbols that requires validators to submit the price.
   repeated Symbol symbols = 2 [(gogoproto.nullable) = false];
 
-  // OffChain defines information about off-chain programs.
-  OffChain off_chain = 3 [(gogoproto.nullable) = false];
+  // PriceService defines information about price service.
+  PriceService price_service = 3 [(gogoproto.nullable) = false];
 }

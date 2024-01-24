@@ -155,16 +155,16 @@ func GetQueryCmdSymbols() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdOffChain() *cobra.Command {
+func GetQueryCmdPriceService() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "off-chain",
-		Short: "shows information of off-chain program",
+		Use:   "price-service",
+		Short: "shows information of price service",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.OffChain(context.Background(), &types.QueryOffChainRequest{})
+			res, err := queryClient.PriceService(context.Background(), &types.QueryPriceServiceRequest{})
 			if err != nil {
 				return err
 			}

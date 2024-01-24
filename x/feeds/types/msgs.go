@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	_, _, _, _, _ sdk.Msg = &MsgUpdateSymbols{}, &MsgRemoveSymbols{}, &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdateOffChain{}
+	_, _, _, _, _ sdk.Msg = &MsgUpdateSymbols{}, &MsgRemoveSymbols{}, &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
 )
 
 // ====================================
@@ -143,32 +143,32 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 }
 
 // ====================================
-// MsgUpdateOffChain
+// MsgUpdatePriceService
 // ====================================
 
 // Route Implements Msg.
-func (m MsgUpdateOffChain) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgUpdatePriceService) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgUpdateOffChain) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgUpdatePriceService) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateOffChain) GetSignBytes() []byte {
+func (m MsgUpdatePriceService) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgUpdateOffChain) GetSigners() []sdk.AccAddress {
+func (m *MsgUpdatePriceService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
 }
 
 // ValidateBasic does a sanity check on the provided data.
-func (m *MsgUpdateOffChain) ValidateBasic() error {
+func (m *MsgUpdatePriceService) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
 		return errors.Wrap(err, "invalid admin address")
 	}
 
-	if err := m.OffChain.Validate(); err != nil {
+	if err := m.PriceService.Validate(); err != nil {
 		return err
 	}
 
