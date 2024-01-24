@@ -162,15 +162,15 @@ sleep 10
 
 for v in {1..4}
 do
+    # run off-chain-prices image
     docker run -d --name off-chain-prices$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
 
-    # TODO: Run off-chain-prices image
     rm -rf ~/.grogu
     grogu config chain-id bandchain
     grogu config node tcp://multi-validator$v-node:26657
     grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
 
-    # TODO: change url to off-chain-prices image
+    # change url to off-chain-prices image
     grogu config executor "rest:http://off-chain-prices$v:8080/crypto?timeout=10s"
 
     # activate validator
