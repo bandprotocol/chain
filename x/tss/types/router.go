@@ -37,7 +37,7 @@ func (r *Router) AddRoute(path string, h Handler) *Router {
 	}
 
 	if path == ReplaceGroupPath {
-		panic(fmt.Sprintf("prefix (%x) is reserved for replacing group only", ReplaceGroupMsgPrefix))
+		panic(fmt.Sprintf("path (%s) is reserved for replacing group only", ReplaceGroupPath))
 	}
 
 	if !sdk.IsAlphaNumeric(path) {
