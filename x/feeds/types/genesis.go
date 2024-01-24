@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-func NewGenesisState(params Params, symbols []Symbol, offChain OffChain) *GenesisState {
+func NewGenesisState(params Params, symbols []Symbol, ps PriceService) *GenesisState {
 	return &GenesisState{
-		Params:   params,
-		Symbols:  symbols,
-		OffChain: offChain,
+		Params:       params,
+		Symbols:      symbols,
+		PriceService: ps,
 	}
 }
 
 // DefaultGenesis returns the default genesis state
 func DefaultGenesis() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultOffChain())
+	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultPriceService())
 }
 
 // Validate performs basic genesis state validation

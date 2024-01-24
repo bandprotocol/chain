@@ -173,13 +173,13 @@ func (q queryServer) Symbols(
 	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
 }
 
-func (q queryServer) OffChain(
-	goCtx context.Context, req *types.QueryOffChainRequest,
-) (*types.QueryOffChainResponse, error) {
+func (q queryServer) PriceService(
+	goCtx context.Context, req *types.QueryPriceServiceRequest,
+) (*types.QueryPriceServiceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QueryOffChainResponse{
-		OffChain: q.keeper.GetOffChain(ctx),
+	return &types.QueryPriceServiceResponse{
+		PriceService: q.keeper.GetPriceService(ctx),
 	}, nil
 }
 

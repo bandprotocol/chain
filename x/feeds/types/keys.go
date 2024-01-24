@@ -19,7 +19,7 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	OffChainStoreKey = append(GlobalStoreKeyPrefix, []byte("OffChain")...)
+	PriceServiceStoreKey = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
 
 	SymbolStoreKeyPrefix         = []byte{0x01}
 	PriceValidatorStoreKeyPrefix = []byte{0x02}

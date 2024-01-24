@@ -42,9 +42,9 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/params";
   }
 
-  // RPC method that returns information of off-chain.
-  rpc OffChain(QueryOffChainRequest) returns (QueryOffChainResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/off-chain";
+  // RPC method that returns information of price service.
+  rpc PriceService(QueryPriceServiceRequest) returns (QueryPriceServiceResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/price-service";
   }
 }
 
@@ -135,11 +135,11 @@ message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryOffChainRequest is the request type for the Query/OffChain RPC method.
-message QueryOffChainRequest {}
+// QueryPriceServiceRequest is the request type for the Query/PriceService RPC method.
+message QueryPriceServiceRequest {}
 
-// QueryOffChainResponse is the response type for the Query/OffChain RPC method.
-message QueryOffChainResponse {
-  // Information about off-chain programs.
-  OffChain off_chain = 1 [(gogoproto.nullable) = false];
+// QueryPriceServiceResponse is the response type for the Query/PriceService RPC method.
+message QueryPriceServiceResponse {
+  // Information about price service.
+  PriceService price_service = 1 [(gogoproto.nullable) = false];
 }

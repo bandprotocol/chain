@@ -78,16 +78,16 @@ message PriceValidator {
   int64 timestamp = 4;
 }
 
-// OffChain defines the information of off-chain program.
-message OffChain {
+// PriceService defines the information of price service.
+message PriceService {
   option (gogoproto.equal) = true;
 
-  // The hash of the off-chain program.
+  // The hash of the price service.
   string hash = 1;
 
-  // The version of the off-chain program.
+  // The version of the price service.
   string version = 2;
 
-  // The URL of the off-chain program.
+  // The URL of the price service.
   string url = 3;
 }
