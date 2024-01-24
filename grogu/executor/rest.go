@@ -3,9 +3,10 @@ package executor
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/levigross/grequests"
 )
 
@@ -22,7 +23,7 @@ type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-func (e *RestExec) Exec(params map[string]string) ([]feedstypes.SubmitPrice, error) {
+func (e *RestExec) Exec(params map[string]string) ([]types.SubmitPrice, error) {
 	resp, err := grequests.Get(
 		e.url,
 		&grequests.RequestOptions{
@@ -31,22 +32,22 @@ func (e *RestExec) Exec(params map[string]string) ([]feedstypes.SubmitPrice, err
 	)
 
 	if err != nil {
-		return []feedstypes.SubmitPrice{}, err
+		return []types.SubmitPrice{}, err
 	}
 
 	var priceData PriceData
 	err = json.Unmarshal(resp.Bytes(), &priceData)
 	if err != nil {
 		fmt.Println("Error parsing JSON:", err)
-		return []feedstypes.SubmitPrice{}, err
+		return []types.SubmitPrice{}, err
 	}
 
 	// Convert PriceData to an array of SubmitPrice
-	var submitPrices []feedstypes.SubmitPrice
+	var submitPrices []types.SubmitPrice
 	for symbol, price := range priceData.Prices {
-		submitPrice := feedstypes.SubmitPrice{
+		submitPrice := types.SubmitPrice{
 			Symbol: symbol,
-			Price:  uint64(price), // Assuming you want to convert the float64 price to uint64
+			Price:  uint64(price * math.Pow10(9)), // Assuming you want to convert the float64 price to uint64
 		}
 		submitPrices = append(submitPrices, submitPrice)
 	}

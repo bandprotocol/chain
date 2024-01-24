@@ -1,6 +1,7 @@
 package grogu
 
 import (
+	"sync"
 	"time"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -22,7 +23,7 @@ type Context struct {
 	rpcPollInterval  time.Duration
 
 	pendingPrices     chan []types.SubmitPrice
-	inProgressSymbols *InProgressSymbols
+	inProgressSymbols *sync.Map
 	freeKeys          chan int64
 
 	home string

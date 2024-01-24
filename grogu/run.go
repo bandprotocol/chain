@@ -18,51 +18,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-const (
-	TxQuery = "tm.event = 'Tx' AND request.id EXISTS"
-	// EventChannelCapacity is a buffer size of channel between node and this program
-	EventChannelCapacity = 2000
-)
-
-// InProgressSymbols represents a data structure to store symbols in progress.
-type InProgressSymbols struct {
-	mu      sync.Mutex
-	symbols map[string]time.Time
-}
-
-// MarkInProgress adds a symbol to the in-progress list with the current time.
-func (ips *InProgressSymbols) MarkInProgress(symbol string) {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	ips.symbols[symbol] = time.Now()
-}
-
-// MarkCompleted removes a symbol from the in-progress list.
-func (ips *InProgressSymbols) MarkCompleted(symbol string) {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	delete(ips.symbols, symbol)
-}
-
-// GetInProgressSymbols returns a list of symbols currently in progress.
-func (ips *InProgressSymbols) GetInProgressSymbols() []string {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	var inProgress []string
-	for symbol := range ips.symbols {
-		inProgress = append(inProgress, symbol)
-	}
-	return inProgress
-}
-
-// IsSymbolInProgress checks if a symbol is currently in progress.
-func (ips *InProgressSymbols) IsSymbolInProgress(symbol string) bool {
-	ips.mu.Lock()
-	defer ips.mu.Unlock()
-	_, inProgress := ips.symbols[symbol]
-	return inProgress
-}
-
 func runImpl(c *Context, l *Logger) error {
 	l.Info(":rocket: Starting WebSocket subscriber")
 	err := c.client.Start()
@@ -116,25 +71,51 @@ func checkSymbols(c *Context, l *Logger) {
 	validatorPricesResponse := types.QueryValidatorPricesResponse{}
 	cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
 	validatorPrices := validatorPricesResponse.ValidatorPrices
+	symbolTimestampMap := ConvertToSymbolTimestampMap(validatorPrices)
+
 	now := time.Now()
 
 	for _, symbol := range symbols {
-		if !c.inProgressSymbols.IsSymbolInProgress(symbol.GetSymbol()) {
-			validatorPrice := findValidatorPrice(symbol.GetSymbol(), validatorPrices)
-			// add 2 to prevent too fast cases
-			if validatorPrice == nil ||
-				time.Unix(validatorPrice.GetTimestamp()+2, 0).
-					Add(time.Duration(symbol.MinInterval)*time.Second).
-					Before(now) {
-				symbolList = append(symbolList, symbol.Symbol)
-				c.inProgressSymbols.MarkInProgress(symbol.GetSymbol())
-			}
+		if _, inProgress := c.inProgressSymbols.Load(symbol.GetSymbol()); inProgress {
+			continue
+		}
+
+		timestamp, ok := symbolTimestampMap[symbol.GetSymbol()]
+		// add 2 to prevent too fast cases
+		if !ok ||
+			time.Unix(timestamp+2, 0).
+				Add(time.Duration(symbol.MinInterval)*time.Second).
+				Before(now) {
+			symbolList = append(symbolList, symbol.Symbol)
+			c.inProgressSymbols.Store(symbol.GetSymbol(), time.Now())
 		}
 	}
 	if len(symbolList) != 0 {
 		l.Info("found symbols to send: %v", symbolList)
 		go query_symbols(c, l, symbolList)
 	}
+}
+
+// ConvertToSymbolTimestampMap converts an array of PriceValidator to a map of symbol to timestamp.
+func ConvertToSymbolTimestampMap(data []types.PriceValidator) map[string]int64 {
+	symbolTimestampMap := make(map[string]int64)
+
+	for _, entry := range data {
+		symbolTimestampMap[entry.Symbol] = entry.Timestamp
+	}
+
+	return symbolTimestampMap
+}
+
+// ConvertToSymbolPriceMap converts an array of SubmitPrice to a map of symbol to price.
+func ConvertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
+	symbolPriceMap := make(map[string]uint64)
+
+	for _, entry := range data {
+		symbolPriceMap[entry.Symbol] = entry.Price
+	}
+
+	return symbolPriceMap
 }
 
 func query_symbols(c *Context, l *Logger, symbolList []string) {
@@ -148,21 +129,22 @@ func query_symbols(c *Context, l *Logger, symbolList []string) {
 	prices, err := c.executor.Exec(params)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get prices from executor with error: %s", c, err.Error())
-		return
 	}
 
-	// TODO: check if prices has all symbols
-	l.Info("got prices for symbols: %s", symbolStr)
-	c.pendingPrices <- prices
-}
-
-func findValidatorPrice(symbol string, validatorPrices []types.PriceValidator) *types.PriceValidator {
-	for _, validatorPrice := range validatorPrices {
-		if validatorPrice.Symbol == symbol {
-			return &validatorPrice
+	// delete symbol from in progress map if its price is not found
+	symbolPriceMap := ConvertToSymbolPriceMap(prices)
+	for _, symbol := range symbolList {
+		if _, found := symbolPriceMap[symbol]; !found {
+			c.inProgressSymbols.Delete(symbol)
 		}
 	}
-	return nil
+
+	l.Info("got prices for symbols: %s", symbolStr)
+	if len(prices) == 0 {
+		l.Error(":exploding_head: query symbol got no prices with symbols: %s", c, symbolStr)
+		return
+	}
+	c.pendingPrices <- prices
 }
 
 func runCmd(c *Context) *cobra.Command {
@@ -218,9 +200,7 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			c.freeKeys = make(chan int64, len(keys))
-			c.inProgressSymbols = &InProgressSymbols{
-				symbols: make(map[string]time.Time),
-			}
+			c.inProgressSymbols = &sync.Map{}
 			c.pendingPrices = make(chan []types.SubmitPrice, 10)
 			return runImpl(c, l)
 		},

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 const (
@@ -26,7 +26,7 @@ type ExecResult struct {
 }
 
 type Executor interface {
-	Exec(params map[string]string) ([]feedstypes.SubmitPrice, error)
+	Exec(params map[string]string) ([]types.SubmitPrice, error)
 }
 
 // NewExecutor returns executor by name and executor URL

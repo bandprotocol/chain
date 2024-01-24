@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	band "github.com/bandprotocol/chain/v2/app"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 var (
@@ -115,11 +115,11 @@ func SubmitPrices(c *Context, l *Logger) {
 	prices := <-c.pendingPrices
 	defer func() {
 		for _, price := range prices {
-			c.inProgressSymbols.MarkCompleted(price.Symbol)
+			c.inProgressSymbols.Delete(price.Symbol)
 		}
 	}()
 
-	msg := feedstypes.MsgSubmitPrices{
+	msg := types.MsgSubmitPrices{
 		Validator: c.validator.String(),
 		Timestamp: time.Now().Unix(),
 		Prices:    prices,
