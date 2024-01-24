@@ -30,7 +30,7 @@ func keysCmd(c *Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
-		Short:   "Manage key held by the oracle process",
+		Short:   "Manage key held by the grogu process",
 	}
 	cmd.AddCommand(
 		keysAddCmd(c),

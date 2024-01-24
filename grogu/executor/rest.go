@@ -18,13 +18,6 @@ func NewRestExec(url string, timeout time.Duration) *RestExec {
 	return &RestExec{url: url, timeout: timeout}
 }
 
-type externalExecutionResponse struct {
-	Returncode uint32 `json:"returncode"`
-	Stdout     string `json:"stdout"`
-	Stderr     string `json:"stderr"`
-	Version    string `json:"version"`
-}
-
 type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }

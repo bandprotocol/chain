@@ -4,16 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
-
-type rawRequest struct {
-	dataSourceID   types.DataSourceID
-	dataSourceHash string
-	externalID     types.ExternalID
-	calldata       string
-}
 
 // GetEventValues returns the list of all values in the given log with the given type and key.
 func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []string) {
