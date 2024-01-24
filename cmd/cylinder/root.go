@@ -65,7 +65,7 @@ func initConfig(ctx *Context, cmd *cobra.Command) error {
 		mapstructure.StringToSliceHookFunc(","),
 	))
 
-	if err := viper.Unmarshal(&ctx.config, configOption); err != nil {
+	if err := viper.Unmarshal(ctx.config, configOption); err != nil {
 		return err
 	}
 

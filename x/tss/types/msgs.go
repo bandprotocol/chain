@@ -18,10 +18,7 @@ var (
 	_                   types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
-// Route Implements Msg.
-func (m MsgCreateGroup) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgCreateGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -77,10 +74,7 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgReplaceGroup) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -107,10 +101,7 @@ func (m MsgReplaceGroup) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDKGRound1) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDKGRound1) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -156,10 +147,7 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDKGRound2) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -190,10 +178,7 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgComplain) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -252,10 +237,7 @@ func (m MsgComplain) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgConfirm) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -284,10 +266,7 @@ func (m MsgConfirm) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDEs) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDEs) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -343,10 +322,7 @@ func NewMsgRequestSignature(
 	return m, nil
 }
 
-// Route Implements Msg.
-func (m MsgRequestSignature) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -399,10 +375,7 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 	return unpacker.UnpackAny(m.Content, &content)
 }
 
-// Route Implements Msg.
-func (m MsgSubmitSignature) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -431,10 +404,7 @@ func (m MsgSubmitSignature) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgActivate) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -458,10 +428,7 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgHealthCheck) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -485,10 +452,7 @@ func (m MsgHealthCheck) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgUpdateGroupFee) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgUpdateGroupFee) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -528,10 +492,7 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	}
 }
 
-// Route Implements Msg.
-func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.

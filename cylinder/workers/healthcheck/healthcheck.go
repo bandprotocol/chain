@@ -61,8 +61,8 @@ func (a *HealthCheck) updateHealthCheck() {
 	}
 }
 
-// Start starts the healthcheck worker.
-// It subscribes to events and starts processing incoming events.
+// Start starts the healthcheck worker that will check latest healthcheck of validator on BandChain
+// and send healthcheck msg if needed every hour.
 func (a *HealthCheck) Start() {
 	a.logger.Info("start")
 

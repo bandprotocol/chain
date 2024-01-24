@@ -8,7 +8,7 @@ import (
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Context holds the context information for the Cylinder process.
@@ -20,7 +20,7 @@ type Context struct {
 	Logger *logger.Logger
 
 	ErrCh chan error
-	MsgCh chan types.Msg
+	MsgCh chan sdk.Msg
 
 	Store *store.Store
 }
@@ -43,7 +43,7 @@ func NewContext(cfg *Config, kr keyring.Keyring, home string) (*Context, error) 
 
 	// Create the error and message channels
 	ctx.ErrCh = make(chan error, 1)
-	ctx.MsgCh = make(chan types.Msg, 1000)
+	ctx.MsgCh = make(chan sdk.Msg, 1000)
 
 	// Create the store
 	dataDir := filepath.Join(ctx.Home, "data")
