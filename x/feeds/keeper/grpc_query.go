@@ -72,16 +72,25 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := q.keeper.GetSymbol(ctx, req.Symbol); err != nil {
+	s, err := q.keeper.GetSymbol(ctx, req.Symbol)
+	if err != nil {
 		return nil, err
 	}
 
 	price, _ := q.keeper.GetPrice(ctx, req.Symbol)
 	priceVals := q.keeper.GetPriceValidators(ctx, req.Symbol)
 
+	var filteredPriceVals []types.PriceValidator
+	blockTime := ctx.BlockTime().Unix()
+	for _, priceVal := range priceVals {
+		if priceVal.Timestamp > blockTime-s.MaxInterval {
+			filteredPriceVals = append(filteredPriceVals, priceVal)
+		}
+	}
+
 	return &types.QueryPriceResponse{
 		Price:           price,
-		PriceValidators: priceVals,
+		PriceValidators: filteredPriceVals,
 	}, nil
 }
 
