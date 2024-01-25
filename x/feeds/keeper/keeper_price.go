@@ -59,7 +59,6 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 
-	// TODO: confirm if it's sorted by power already
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
