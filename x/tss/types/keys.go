@@ -23,7 +23,7 @@ const (
 	QuerierRoute = ModuleName
 
 	// ReplaceGroupPath is the reserved path for replace group msg
-	ReplaceGroupPath = "Replace"
+	ReplaceGroupPath = "replace"
 )
 
 var (
