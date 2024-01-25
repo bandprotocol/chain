@@ -21,8 +21,8 @@ service Msg {
   // RPC method to submit prices
   rpc SubmitPrices(MsgSubmitPrices) returns (MsgSubmitPricesResponse);
 
-  // RPC method to update off-chain information
-  rpc UpdateOffChain(MsgUpdateOffChain) returns (MsgUpdateOffChainResponse);
+  // RPC method to update price service information
+  rpc UpdatePriceService(MsgUpdatePriceService) returns (MsgUpdatePriceServiceResponse);
 
   // RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -76,20 +76,20 @@ message MsgSubmitPrices {
 // MsgSubmitPricesResponse is the response type for the Msg/SubmitPrices RPC method.
 message MsgSubmitPricesResponse {}
 
-// MsgUpdateOffChain is the transaction message to update off-chain information.
-message MsgUpdateOffChain {
+// MsgUpdatePriceService is the transaction message to update price service's information.
+message MsgUpdatePriceService {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateParams";
 
   // The address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // off-chain program information
-  OffChain off_chain = 2 [(gogoproto.nullable) = false];
+  // information of price service.
+  PriceService price_service = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgUpdateOffChainResponse is the response type for the Msg/UpdateOffChain RPC method.
-message MsgUpdateOffChainResponse {}
+// MsgUpdatePriceServiceResponse is the response type for the Msg/UpdatePriceService RPC method.
+message MsgUpdatePriceServiceResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

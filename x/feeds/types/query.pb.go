@@ -435,6 +435,98 @@ func (m *QueryPriceValidatorResponse) GetPriceValidator() PriceValidator {
 	return PriceValidator{}
 }
 
+// QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
+type QueryValidValidatorRequest struct {
+	// Validator address to query the flag.
+	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
+}
+
+func (m *QueryValidValidatorRequest) Reset()         { *m = QueryValidValidatorRequest{} }
+func (m *QueryValidValidatorRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryValidValidatorRequest) ProtoMessage()    {}
+func (*QueryValidValidatorRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8d77250ebbf26fe1, []int{8}
+}
+func (m *QueryValidValidatorRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidValidatorRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidValidatorRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidValidatorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidValidatorRequest.Merge(m, src)
+}
+func (m *QueryValidValidatorRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidValidatorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidValidatorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidValidatorRequest proto.InternalMessageInfo
+
+func (m *QueryValidValidatorRequest) GetValidator() string {
+	if m != nil {
+		return m.Validator
+	}
+	return ""
+}
+
+// QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
+type QueryValidValidatorResponse struct {
+	// valid flag.
+	Valid bool `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+}
+
+func (m *QueryValidValidatorResponse) Reset()         { *m = QueryValidValidatorResponse{} }
+func (m *QueryValidValidatorResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryValidValidatorResponse) ProtoMessage()    {}
+func (*QueryValidValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8d77250ebbf26fe1, []int{9}
+}
+func (m *QueryValidValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryValidValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryValidValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryValidValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryValidValidatorResponse.Merge(m, src)
+}
+func (m *QueryValidValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryValidValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryValidValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryValidValidatorResponse proto.InternalMessageInfo
+
+func (m *QueryValidValidatorResponse) GetValid() bool {
+	if m != nil {
+		return m.Valid
+	}
+	return false
+}
+
 // QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
 type QuerySymbolsRequest struct {
 	// List of symbols to query.
@@ -447,7 +539,7 @@ func (m *QuerySymbolsRequest) Reset()         { *m = QuerySymbolsRequest{} }
 func (m *QuerySymbolsRequest) String() string { return proto.CompactTextString(m) }
 func (*QuerySymbolsRequest) ProtoMessage()    {}
 func (*QuerySymbolsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{8}
+	return fileDescriptor_8d77250ebbf26fe1, []int{10}
 }
 func (m *QuerySymbolsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -502,7 +594,7 @@ func (m *QuerySymbolsResponse) Reset()         { *m = QuerySymbolsResponse{} }
 func (m *QuerySymbolsResponse) String() string { return proto.CompactTextString(m) }
 func (*QuerySymbolsResponse) ProtoMessage()    {}
 func (*QuerySymbolsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{9}
+	return fileDescriptor_8d77250ebbf26fe1, []int{11}
 }
 func (m *QuerySymbolsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -553,7 +645,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{10}
+	return fileDescriptor_8d77250ebbf26fe1, []int{12}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -592,7 +684,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{11}
+	return fileDescriptor_8d77250ebbf26fe1, []int{13}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -628,22 +720,22 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryOffChainRequest is the request type for the Query/OffChain RPC method.
-type QueryOffChainRequest struct {
+// QueryPriceServiceRequest is the request type for the Query/PriceService RPC method.
+type QueryPriceServiceRequest struct {
 }
 
-func (m *QueryOffChainRequest) Reset()         { *m = QueryOffChainRequest{} }
-func (m *QueryOffChainRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryOffChainRequest) ProtoMessage()    {}
-func (*QueryOffChainRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{12}
+func (m *QueryPriceServiceRequest) Reset()         { *m = QueryPriceServiceRequest{} }
+func (m *QueryPriceServiceRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryPriceServiceRequest) ProtoMessage()    {}
+func (*QueryPriceServiceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8d77250ebbf26fe1, []int{14}
 }
-func (m *QueryOffChainRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryPriceServiceRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryOffChainRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryPriceServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryOffChainRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryPriceServiceRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -653,36 +745,36 @@ func (m *QueryOffChainRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryOffChainRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryOffChainRequest.Merge(m, src)
+func (m *QueryPriceServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPriceServiceRequest.Merge(m, src)
 }
-func (m *QueryOffChainRequest) XXX_Size() int {
+func (m *QueryPriceServiceRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryOffChainRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryOffChainRequest.DiscardUnknown(m)
+func (m *QueryPriceServiceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPriceServiceRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryOffChainRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryPriceServiceRequest proto.InternalMessageInfo
 
-// QueryOffChainResponse is the response type for the Query/OffChain RPC method.
-type QueryOffChainResponse struct {
-	// Information about off-chain programs.
-	OffChain OffChain `protobuf:"bytes,1,opt,name=off_chain,json=offChain,proto3" json:"off_chain"`
+// QueryPriceServiceResponse is the response type for the Query/PriceService RPC method.
+type QueryPriceServiceResponse struct {
+	// Information about price service.
+	PriceService PriceService `protobuf:"bytes,1,opt,name=price_service,json=priceService,proto3" json:"price_service"`
 }
 
-func (m *QueryOffChainResponse) Reset()         { *m = QueryOffChainResponse{} }
-func (m *QueryOffChainResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryOffChainResponse) ProtoMessage()    {}
-func (*QueryOffChainResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8d77250ebbf26fe1, []int{13}
+func (m *QueryPriceServiceResponse) Reset()         { *m = QueryPriceServiceResponse{} }
+func (m *QueryPriceServiceResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryPriceServiceResponse) ProtoMessage()    {}
+func (*QueryPriceServiceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8d77250ebbf26fe1, []int{15}
 }
-func (m *QueryOffChainResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryPriceServiceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryOffChainResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryPriceServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryOffChainResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryPriceServiceResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -692,23 +784,23 @@ func (m *QueryOffChainResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryOffChainResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryOffChainResponse.Merge(m, src)
+func (m *QueryPriceServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPriceServiceResponse.Merge(m, src)
 }
-func (m *QueryOffChainResponse) XXX_Size() int {
+func (m *QueryPriceServiceResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryOffChainResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryOffChainResponse.DiscardUnknown(m)
+func (m *QueryPriceServiceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPriceServiceResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryOffChainResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryPriceServiceResponse proto.InternalMessageInfo
 
-func (m *QueryOffChainResponse) GetOffChain() OffChain {
+func (m *QueryPriceServiceResponse) GetPriceService() PriceService {
 	if m != nil {
-		return m.OffChain
+		return m.PriceService
 	}
-	return OffChain{}
+	return PriceService{}
 }
 
 func init() {
@@ -720,70 +812,76 @@ func init() {
 	proto.RegisterType((*QueryValidatorPricesResponse)(nil), "feeds.v1beta1.QueryValidatorPricesResponse")
 	proto.RegisterType((*QueryPriceValidatorRequest)(nil), "feeds.v1beta1.QueryPriceValidatorRequest")
 	proto.RegisterType((*QueryPriceValidatorResponse)(nil), "feeds.v1beta1.QueryPriceValidatorResponse")
+	proto.RegisterType((*QueryValidValidatorRequest)(nil), "feeds.v1beta1.QueryValidValidatorRequest")
+	proto.RegisterType((*QueryValidValidatorResponse)(nil), "feeds.v1beta1.QueryValidValidatorResponse")
 	proto.RegisterType((*QuerySymbolsRequest)(nil), "feeds.v1beta1.QuerySymbolsRequest")
 	proto.RegisterType((*QuerySymbolsResponse)(nil), "feeds.v1beta1.QuerySymbolsResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "feeds.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "feeds.v1beta1.QueryParamsResponse")
-	proto.RegisterType((*QueryOffChainRequest)(nil), "feeds.v1beta1.QueryOffChainRequest")
-	proto.RegisterType((*QueryOffChainResponse)(nil), "feeds.v1beta1.QueryOffChainResponse")
+	proto.RegisterType((*QueryPriceServiceRequest)(nil), "feeds.v1beta1.QueryPriceServiceRequest")
+	proto.RegisterType((*QueryPriceServiceResponse)(nil), "feeds.v1beta1.QueryPriceServiceResponse")
 }
 
 func init() { proto.RegisterFile("feeds/v1beta1/query.proto", fileDescriptor_8d77250ebbf26fe1) }
 
 var fileDescriptor_8d77250ebbf26fe1 = []byte{
-	// 826 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0x4d, 0x6f, 0xd3, 0x4c,
-	0x10, 0x8e, 0xf3, 0xbe, 0x4d, 0x9b, 0xad, 0xde, 0xb6, 0xef, 0x92, 0xb6, 0xae, 0x69, 0x4d, 0x6a,
-	0x50, 0x29, 0xfd, 0xb0, 0x69, 0xca, 0x87, 0x84, 0xc4, 0x81, 0x22, 0x01, 0x42, 0xa8, 0x94, 0x54,
-	0x70, 0xe0, 0x12, 0x39, 0x89, 0xe3, 0x5a, 0x24, 0x5e, 0xd7, 0xeb, 0xa6, 0x54, 0x55, 0x2f, 0x9c,
-	0x39, 0x54, 0x42, 0xea, 0x99, 0x13, 0xbf, 0x80, 0x1f, 0xd1, 0x63, 0x05, 0x17, 0x4e, 0x08, 0xb5,
-	0xfc, 0x10, 0x94, 0xdd, 0x71, 0xd2, 0x5d, 0x9c, 0x34, 0x07, 0xc4, 0xcd, 0xbb, 0xf3, 0xcc, 0x3c,
-	0xcf, 0xcc, 0xce, 0x8c, 0x8c, 0xa6, 0x6a, 0x8e, 0x53, 0xa5, 0x56, 0x73, 0xa5, 0xec, 0x44, 0xf6,
-	0x8a, 0xb5, 0xbd, 0xe3, 0x84, 0x7b, 0x66, 0x10, 0x92, 0x88, 0xe0, 0xff, 0x98, 0xc9, 0x04, 0x93,
-	0x96, 0x73, 0x89, 0x4b, 0x98, 0xc5, 0x6a, 0x7d, 0x71, 0x90, 0x36, 0xed, 0x12, 0xe2, 0xd6, 0x1d,
-	0xcb, 0x0e, 0x3c, 0xcb, 0xf6, 0x7d, 0x12, 0xd9, 0x91, 0x47, 0x7c, 0x0a, 0xd6, 0xa9, 0x0a, 0xa1,
-	0x0d, 0x42, 0x4b, 0xdc, 0x8d, 0x1f, 0xc0, 0xb4, 0xc0, 0x4f, 0x56, 0xd9, 0xa6, 0x0e, 0xa7, 0x6d,
-	0x8b, 0x08, 0x6c, 0xd7, 0xf3, 0x59, 0x9c, 0x38, 0x8c, 0x28, 0x92, 0xeb, 0xe2, 0x26, 0x4d, 0x34,
-	0x05, 0x76, 0x68, 0x37, 0xc0, 0x66, 0x34, 0x11, 0x7e, 0xd1, 0x0a, 0xbc, 0x11, 0x7a, 0x15, 0x87,
-	0x16, 0x9d, 0xed, 0x1d, 0x87, 0x46, 0x58, 0x45, 0x83, 0x74, 0xaf, 0x51, 0x26, 0x75, 0xaa, 0x2a,
-	0xf9, 0x7f, 0xe6, 0xb3, 0xc5, 0xf8, 0x88, 0x1f, 0x21, 0xd4, 0xa1, 0x56, 0xd3, 0x79, 0x65, 0x7e,
-	0xb8, 0x30, 0x67, 0x82, 0xea, 0x96, 0x4e, 0x93, 0x97, 0x07, 0xc8, 0xcc, 0x0d, 0xdb, 0x75, 0x20,
-	0x6a, 0xf1, 0x9c, 0xa7, 0xf1, 0x5e, 0x41, 0x97, 0x04, 0x62, 0x1a, 0x10, 0x9f, 0x3a, 0x78, 0x09,
-	0x65, 0x02, 0x76, 0xc3, 0x88, 0x87, 0x0b, 0x39, 0x53, 0xa8, 0xb0, 0xc9, 0xe0, 0x45, 0xc0, 0xe0,
-	0xc7, 0x09, 0x6a, 0xae, 0x5f, 0xa8, 0x86, 0x53, 0x09, 0x72, 0x16, 0xd1, 0xff, 0x1d, 0x35, 0x71,
-	0x15, 0x26, 0x50, 0x86, 0xa7, 0xad, 0x2a, 0x79, 0x65, 0x3e, 0x5b, 0x84, 0x93, 0x71, 0xa4, 0x9c,
-	0x2f, 0x5a, 0x5b, 0xfa, 0x4d, 0x34, 0xc0, 0x64, 0x31, 0x74, 0x17, 0xe5, 0x6b, 0xff, 0x1e, 0x7f,
-	0xbf, 0x92, 0x2a, 0x72, 0x20, 0x5e, 0x47, 0x63, 0xec, 0xa3, 0xd4, 0xb4, 0xeb, 0x5e, 0xd5, 0x8e,
-	0x48, 0x48, 0xd5, 0x34, 0x4b, 0x7b, 0x26, 0xc9, 0xf9, 0x55, 0x8c, 0x82, 0x28, 0xa3, 0x81, 0x70,
-	0x4b, 0x8d, 0x97, 0xe8, 0x32, 0xd3, 0xd5, 0xbe, 0x12, 0x5f, 0xf5, 0x0e, 0xca, 0xb6, 0x89, 0x78,
-	0x4a, 0x6b, 0xea, 0x97, 0xcf, 0xcb, 0x39, 0xa8, 0xd7, 0x83, 0x6a, 0x35, 0x74, 0x28, 0xdd, 0x8c,
-	0x42, 0xcf, 0x77, 0x8b, 0x1d, 0xa8, 0xe1, 0xa3, 0xe9, 0xe4, 0xb0, 0x90, 0xf8, 0x3a, 0x1a, 0x6b,
-	0x83, 0x4b, 0xc2, 0xeb, 0xf5, 0x97, 0x46, 0x53, 0x8c, 0x6b, 0xd4, 0x91, 0xd6, 0x29, 0x6f, 0x1b,
-	0x7d, 0xc1, 0xab, 0x88, 0xd9, 0xa5, 0xfb, 0xcf, 0xee, 0x0d, 0x14, 0x4d, 0x66, 0x83, 0xe4, 0x9e,
-	0xa1, 0x51, 0xe9, 0x8d, 0xe0, 0x7d, 0xfb, 0xca, 0x6d, 0x44, 0x7c, 0x22, 0x63, 0x17, 0xba, 0x7e,
-	0x93, 0x8f, 0xd3, 0xdf, 0x9b, 0xb7, 0x43, 0x05, 0xe5, 0x44, 0x66, 0xc8, 0xcf, 0x12, 0xa9, 0x87,
-	0x0b, 0xe3, 0x52, 0x5e, 0xdc, 0xa1, 0xa3, 0xe8, 0x8f, 0xcd, 0x5c, 0x2e, 0x9e, 0x22, 0xb6, 0x8f,
-	0x40, 0xb4, 0xf1, 0x34, 0xde, 0x0b, 0x70, 0x0b, 0x32, 0x57, 0x51, 0x86, 0xef, 0x2d, 0xa8, 0xbe,
-	0xac, 0x92, 0xc3, 0xa1, 0xea, 0x00, 0x35, 0x26, 0x20, 0xe7, 0xe7, 0xb5, 0xda, 0xc3, 0x2d, 0xdb,
-	0xf3, 0x63, 0x8e, 0x4d, 0x34, 0x2e, 0xdd, 0x03, 0xcb, 0x3d, 0x94, 0x25, 0xb5, 0x5a, 0xa9, 0xd2,
-	0xba, 0x04, 0xa2, 0x49, 0x89, 0x28, 0xf6, 0x01, 0xaa, 0x21, 0x02, 0xe7, 0xc2, 0xd1, 0x20, 0x1a,
-	0x60, 0x51, 0xb1, 0x8f, 0x32, 0xbc, 0x93, 0xf1, 0xac, 0xe4, 0xfc, 0xfb, 0xaa, 0xd5, 0x8c, 0x5e,
-	0x10, 0x2e, 0xcb, 0x98, 0x79, 0xf7, 0xf5, 0xe7, 0x87, 0xf4, 0x24, 0x1e, 0xb7, 0xa4, 0x4d, 0xce,
-	0x59, 0x22, 0x34, 0xc0, 0x1c, 0x70, 0xbe, 0x6b, 0xac, 0x98, 0x6d, 0xb6, 0x07, 0x02, 0xc8, 0xe6,
-	0x18, 0x59, 0x1e, 0xeb, 0x89, 0x64, 0xd6, 0x3e, 0xef, 0x83, 0x03, 0xfc, 0x51, 0x41, 0xa3, 0xd2,
-	0x46, 0xc0, 0x0b, 0x49, 0xe1, 0x93, 0xb7, 0x91, 0xb6, 0xd8, 0x17, 0x16, 0x44, 0xdd, 0x62, 0xa2,
-	0x4c, 0xbc, 0x24, 0x89, 0xea, 0x2c, 0x4e, 0x6b, 0xbf, 0xfd, 0x7d, 0x10, 0x17, 0xe6, 0x93, 0x82,
-	0x46, 0xc4, 0xb1, 0xc4, 0x37, 0xba, 0x16, 0x40, 0x5e, 0x34, 0xda, 0x42, 0x3f, 0x50, 0xd0, 0x77,
-	0x9f, 0xe9, 0xbb, 0x8b, 0x6f, 0xf7, 0x2e, 0x5a, 0x17, 0xbd, 0x38, 0x44, 0x83, 0x30, 0x97, 0x38,
-	0xb1, 0x1f, 0xc4, 0x75, 0xa1, 0x5d, 0xed, 0x89, 0x01, 0x49, 0x3a, 0x93, 0xa4, 0xe2, 0x09, 0x49,
-	0x52, 0x3c, 0xc7, 0xad, 0x2e, 0x65, 0x63, 0xd2, 0xa5, 0x4b, 0xcf, 0x4f, 0x65, 0x97, 0x2e, 0x15,
-	0x46, 0xb4, 0x7b, 0x97, 0x72, 0x96, 0x5d, 0x34, 0x14, 0xcf, 0x0e, 0x4e, 0x4c, 0x40, 0x9a, 0x52,
-	0xed, 0x5a, 0x6f, 0x10, 0xb0, 0xe6, 0x19, 0xab, 0x86, 0x55, 0x89, 0x95, 0xd4, 0x6a, 0xcb, 0x6c,
-	0x8e, 0xd7, 0x9e, 0x1c, 0x9f, 0xea, 0xca, 0xc9, 0xa9, 0xae, 0xfc, 0x38, 0xd5, 0x95, 0xc3, 0x33,
-	0x3d, 0x75, 0x72, 0xa6, 0xa7, 0xbe, 0x9d, 0xe9, 0xa9, 0xd7, 0xa6, 0xeb, 0x45, 0x5b, 0x3b, 0x65,
-	0xb3, 0x42, 0x1a, 0x56, 0xd9, 0xf6, 0xab, 0xec, 0x97, 0xa8, 0x42, 0xea, 0x16, 0x73, 0xb4, 0x9a,
-	0x05, 0xeb, 0x2d, 0x44, 0x8d, 0xf6, 0x02, 0x87, 0x96, 0x33, 0x0c, 0xb0, 0xfa, 0x2b, 0x00, 0x00,
-	0xff, 0xff, 0xf8, 0xd3, 0xe1, 0xd6, 0x11, 0x0a, 0x00, 0x00,
+	// 884 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0xcf, 0x4f, 0xdb, 0x48,
+	0x14, 0x8e, 0xb3, 0x9b, 0x00, 0xc3, 0xcf, 0x9d, 0x0d, 0xac, 0x31, 0xe0, 0x0d, 0xde, 0x5d, 0xc8,
+	0x06, 0xb0, 0x97, 0xb0, 0x6d, 0x4f, 0x3d, 0x94, 0x03, 0xad, 0xaa, 0x0a, 0x51, 0xd3, 0xf6, 0xd0,
+	0x0b, 0x72, 0x12, 0xd7, 0x58, 0x4d, 0x6c, 0xe3, 0x31, 0x69, 0x11, 0xe2, 0xd2, 0x4b, 0x2f, 0x3d,
+	0x20, 0x55, 0xe2, 0xdc, 0x53, 0xff, 0x82, 0xfe, 0x01, 0x3d, 0x72, 0x44, 0xed, 0xa5, 0xa7, 0xaa,
+	0x82, 0xfe, 0x21, 0x55, 0x66, 0x9e, 0xe3, 0x8c, 0xb1, 0x43, 0x54, 0x55, 0xbd, 0x79, 0xe6, 0x7d,
+	0xf3, 0xbe, 0xef, 0xbd, 0x99, 0xf7, 0x25, 0x68, 0xfa, 0x89, 0x69, 0xd6, 0x89, 0xd6, 0x5a, 0xad,
+	0x9a, 0x81, 0xb1, 0xaa, 0xed, 0xed, 0x9b, 0xfe, 0x81, 0xea, 0xf9, 0x6e, 0xe0, 0xe2, 0x51, 0x1a,
+	0x52, 0x21, 0x24, 0x15, 0x2c, 0xd7, 0x72, 0x69, 0x44, 0x6b, 0x7f, 0x31, 0x90, 0x34, 0x6b, 0xb9,
+	0xae, 0xd5, 0x30, 0x35, 0xc3, 0xb3, 0x35, 0xc3, 0x71, 0xdc, 0xc0, 0x08, 0x6c, 0xd7, 0x21, 0x10,
+	0x9d, 0xae, 0xb9, 0xa4, 0xe9, 0x92, 0x1d, 0x76, 0x8c, 0x2d, 0x20, 0x54, 0x66, 0x2b, 0xad, 0x6a,
+	0x10, 0x93, 0xd1, 0x76, 0x44, 0x78, 0x86, 0x65, 0x3b, 0x34, 0x4f, 0x98, 0x86, 0x17, 0xc9, 0x74,
+	0xb1, 0x90, 0xc4, 0x87, 0x3c, 0xc3, 0x37, 0x9a, 0x10, 0x53, 0x5a, 0x08, 0xdf, 0x6f, 0x27, 0xde,
+	0xf2, 0xed, 0x9a, 0x49, 0x74, 0x73, 0x6f, 0xdf, 0x24, 0x01, 0x16, 0xd1, 0x00, 0x39, 0x68, 0x56,
+	0xdd, 0x06, 0x11, 0x85, 0xe2, 0x2f, 0xa5, 0x21, 0x3d, 0x5c, 0xe2, 0x0d, 0x84, 0x22, 0x6a, 0x31,
+	0x5b, 0x14, 0x4a, 0xc3, 0x95, 0x05, 0x15, 0x54, 0xb7, 0x75, 0xaa, 0xac, 0x3d, 0x40, 0xa6, 0x6e,
+	0x19, 0x96, 0x09, 0x59, 0xf5, 0xae, 0x93, 0xca, 0x2b, 0x01, 0xfd, 0xce, 0x11, 0x13, 0xcf, 0x75,
+	0x88, 0x89, 0x97, 0x51, 0xde, 0xa3, 0x3b, 0x94, 0x78, 0xb8, 0x52, 0x50, 0xb9, 0x0e, 0xab, 0x14,
+	0xae, 0x03, 0x06, 0xdf, 0x4e, 0x50, 0xb3, 0x78, 0xa5, 0x1a, 0x46, 0xc5, 0xc9, 0x59, 0x42, 0xbf,
+	0x45, 0x6a, 0xc2, 0x2e, 0x4c, 0xa1, 0x3c, 0x2b, 0x5b, 0x14, 0x8a, 0x42, 0x69, 0x48, 0x87, 0x95,
+	0x72, 0x22, 0x74, 0x37, 0xad, 0x23, 0xfd, 0x3f, 0x94, 0xa3, 0xb2, 0x28, 0x3a, 0x45, 0xf9, 0xfa,
+	0xaf, 0xa7, 0x9f, 0xff, 0xcc, 0xe8, 0x0c, 0x88, 0x37, 0xd1, 0x04, 0xfd, 0xd8, 0x69, 0x19, 0x0d,
+	0xbb, 0x6e, 0x04, 0xae, 0x4f, 0xc4, 0x2c, 0x2d, 0x7b, 0x2e, 0xe9, 0xf0, 0xa3, 0x10, 0x05, 0x59,
+	0xc6, 0x3d, 0x6e, 0x97, 0x28, 0x0f, 0xd1, 0x0c, 0xd5, 0xd5, 0xd9, 0xe2, 0x6f, 0xf5, 0x3a, 0x1a,
+	0xea, 0x10, 0xb1, 0x92, 0xd6, 0xc5, 0x0f, 0xef, 0x56, 0x0a, 0xd0, 0xaf, 0x5b, 0xf5, 0xba, 0x6f,
+	0x12, 0xb2, 0x1d, 0xf8, 0xb6, 0x63, 0xe9, 0x11, 0x54, 0x71, 0xd0, 0x6c, 0x72, 0x5a, 0x28, 0x7c,
+	0x13, 0x4d, 0x74, 0xc0, 0x3b, 0xdc, 0xed, 0xf5, 0x57, 0x46, 0x8b, 0xcf, 0xab, 0x34, 0x90, 0x14,
+	0xb5, 0xb7, 0x83, 0xbe, 0xe2, 0x56, 0xf8, 0xea, 0xb2, 0xfd, 0x57, 0xf7, 0x14, 0x9a, 0x16, 0x67,
+	0x83, 0xe2, 0xee, 0xa1, 0xf1, 0xd8, 0x1d, 0xc1, 0xfd, 0xf6, 0x55, 0xdb, 0x18, 0x7f, 0x45, 0xca,
+	0x03, 0x28, 0x8d, 0xee, 0x5c, 0x2a, 0xed, 0x7b, 0x2f, 0x68, 0xad, 0xfb, 0xde, 0x2f, 0x97, 0x50,
+	0x40, 0x39, 0x8a, 0xa5, 0x29, 0x07, 0x75, 0xb6, 0x50, 0x9e, 0xc1, 0x00, 0x6e, 0xb3, 0xc9, 0xfe,
+	0x79, 0xa3, 0x7f, 0x2c, 0xa0, 0x02, 0xcf, 0x0c, 0x3a, 0x35, 0x9e, 0x7a, 0xb8, 0x32, 0x19, 0x6b,
+	0x31, 0x3b, 0x10, 0x29, 0xfa, 0x61, 0xe3, 0x5f, 0x08, 0x07, 0x9a, 0x5a, 0x23, 0x88, 0x56, 0xee,
+	0x86, 0x16, 0x05, 0xbb, 0x20, 0x73, 0x0d, 0xe5, 0x99, 0x85, 0xc2, 0x43, 0x88, 0xab, 0x64, 0x70,
+	0x78, 0x00, 0x00, 0x55, 0x24, 0x24, 0x46, 0xaf, 0x6c, 0xdb, 0xf4, 0x5b, 0x91, 0xcf, 0x28, 0x35,
+	0x34, 0x9d, 0x10, 0x03, 0xb6, 0x0d, 0x34, 0xca, 0xde, 0x1f, 0x61, 0x01, 0x20, 0x9d, 0x49, 0x7a,
+	0x7d, 0x70, 0x16, 0xa8, 0x47, 0xbc, 0xae, 0xbd, 0xca, 0xfb, 0x41, 0x94, 0xa3, 0x2c, 0xd8, 0x41,
+	0x79, 0x36, 0x68, 0x78, 0x3e, 0x96, 0xe4, 0xf2, 0x2f, 0x81, 0xa4, 0xf4, 0x82, 0x30, 0x89, 0xca,
+	0xdc, 0x8b, 0x8f, 0x5f, 0x5f, 0x67, 0xff, 0xc0, 0x93, 0x5a, 0xec, 0x87, 0x86, 0xb1, 0x04, 0x28,
+	0x47, 0x0f, 0xe0, 0x62, 0x6a, 0xae, 0x90, 0x6d, 0xbe, 0x07, 0x02, 0xc8, 0x16, 0x28, 0x59, 0x11,
+	0xcb, 0x89, 0x64, 0xda, 0x21, 0x7b, 0x1b, 0x47, 0xf8, 0x8d, 0x80, 0xc6, 0x63, 0x86, 0x85, 0xcb,
+	0x49, 0xe9, 0x93, 0xcd, 0x52, 0x5a, 0xea, 0x0b, 0x0b, 0xa2, 0xfe, 0xa7, 0xa2, 0x54, 0xbc, 0x1c,
+	0x13, 0x15, 0xf9, 0xba, 0x76, 0xd8, 0xf9, 0x3e, 0x0a, 0x1b, 0xf3, 0x56, 0x40, 0x63, 0xbc, 0x6b,
+	0xe0, 0x7f, 0x53, 0x1b, 0x10, 0x37, 0x0b, 0xa9, 0xdc, 0x0f, 0x14, 0xf4, 0xdd, 0xa4, 0xfa, 0x6e,
+	0xe0, 0x6b, 0xbd, 0x9b, 0x96, 0xa2, 0x17, 0x9f, 0x08, 0x68, 0x8c, 0xf7, 0x96, 0x64, 0xa1, 0x89,
+	0xae, 0x26, 0x95, 0xfb, 0x81, 0x82, 0xd0, 0x15, 0x2a, 0x74, 0x11, 0xff, 0xd3, 0x57, 0x23, 0xb1,
+	0x8f, 0x06, 0xc0, 0x44, 0x70, 0xe2, 0x43, 0xe5, 0xbd, 0x4d, 0xfa, 0xab, 0x27, 0x06, 0x24, 0xc8,
+	0x54, 0x82, 0x88, 0xa7, 0x62, 0x12, 0x42, 0xd3, 0x69, 0x8f, 0x0f, 0x9d, 0xe9, 0x94, 0xf1, 0xe9,
+	0xb6, 0x90, 0x94, 0xf1, 0xe1, 0xfc, 0x24, 0x7d, 0x7c, 0x18, 0xcb, 0x4b, 0x01, 0x8d, 0x74, 0x4f,
+	0x37, 0x5e, 0x4c, 0xbd, 0x78, 0xde, 0x57, 0xa4, 0xd2, 0xd5, 0x40, 0x90, 0xf0, 0x37, 0x95, 0x20,
+	0xe3, 0xd9, 0xa4, 0xf7, 0xb1, 0x02, 0xce, 0xb3, 0x7e, 0xe7, 0xf4, 0x5c, 0x16, 0xce, 0xce, 0x65,
+	0xe1, 0xcb, 0xb9, 0x2c, 0x1c, 0x5f, 0xc8, 0x99, 0xb3, 0x0b, 0x39, 0xf3, 0xe9, 0x42, 0xce, 0x3c,
+	0x56, 0x2d, 0x3b, 0xd8, 0xdd, 0xaf, 0xaa, 0x35, 0xb7, 0xa9, 0x55, 0x0d, 0xa7, 0x4e, 0xff, 0x5b,
+	0xd6, 0xdc, 0x86, 0x56, 0xdb, 0x35, 0x6c, 0x47, 0x6b, 0x55, 0xb4, 0xe7, 0x90, 0x39, 0x38, 0xf0,
+	0x4c, 0x52, 0xcd, 0x53, 0xc0, 0xda, 0xb7, 0x00, 0x00, 0x00, 0xff, 0xff, 0x01, 0x93, 0x16, 0xc8,
+	0x5a, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -806,12 +904,14 @@ type QueryClient interface {
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
 	// RPC method that returns price of validator by symbol.
 	PriceValidator(ctx context.Context, in *QueryPriceValidatorRequest, opts ...grpc.CallOption) (*QueryPriceValidatorResponse, error)
+	// RPC method that returns flag to show if the validator is required to send prices.
+	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
 	// RPC method that returns all symbols.
 	Symbols(ctx context.Context, in *QuerySymbolsRequest, opts ...grpc.CallOption) (*QuerySymbolsResponse, error)
 	// RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// RPC method that returns information of off-chain.
-	OffChain(ctx context.Context, in *QueryOffChainRequest, opts ...grpc.CallOption) (*QueryOffChainResponse, error)
+	// RPC method that returns information of price service.
+	PriceService(ctx context.Context, in *QueryPriceServiceRequest, opts ...grpc.CallOption) (*QueryPriceServiceResponse, error)
 }
 
 type queryClient struct {
@@ -858,6 +958,15 @@ func (c *queryClient) PriceValidator(ctx context.Context, in *QueryPriceValidato
 	return out, nil
 }
 
+func (c *queryClient) ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error) {
+	out := new(QueryValidValidatorResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/ValidValidator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) Symbols(ctx context.Context, in *QuerySymbolsRequest, opts ...grpc.CallOption) (*QuerySymbolsResponse, error) {
 	out := new(QuerySymbolsResponse)
 	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/Symbols", in, out, opts...)
@@ -876,9 +985,9 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) OffChain(ctx context.Context, in *QueryOffChainRequest, opts ...grpc.CallOption) (*QueryOffChainResponse, error) {
-	out := new(QueryOffChainResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/OffChain", in, out, opts...)
+func (c *queryClient) PriceService(ctx context.Context, in *QueryPriceServiceRequest, opts ...grpc.CallOption) (*QueryPriceServiceResponse, error) {
+	out := new(QueryPriceServiceResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/PriceService", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -895,12 +1004,14 @@ type QueryServer interface {
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
 	// RPC method that returns price of validator by symbol.
 	PriceValidator(context.Context, *QueryPriceValidatorRequest) (*QueryPriceValidatorResponse, error)
+	// RPC method that returns flag to show if the validator is required to send prices.
+	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
 	// RPC method that returns all symbols.
 	Symbols(context.Context, *QuerySymbolsRequest) (*QuerySymbolsResponse, error)
 	// RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// RPC method that returns information of off-chain.
-	OffChain(context.Context, *QueryOffChainRequest) (*QueryOffChainResponse, error)
+	// RPC method that returns information of price service.
+	PriceService(context.Context, *QueryPriceServiceRequest) (*QueryPriceServiceResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -919,14 +1030,17 @@ func (*UnimplementedQueryServer) ValidatorPrices(ctx context.Context, req *Query
 func (*UnimplementedQueryServer) PriceValidator(ctx context.Context, req *QueryPriceValidatorRequest) (*QueryPriceValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PriceValidator not implemented")
 }
+func (*UnimplementedQueryServer) ValidValidator(ctx context.Context, req *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidValidator not implemented")
+}
 func (*UnimplementedQueryServer) Symbols(ctx context.Context, req *QuerySymbolsRequest) (*QuerySymbolsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Symbols not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedQueryServer) OffChain(ctx context.Context, req *QueryOffChainRequest) (*QueryOffChainResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OffChain not implemented")
+func (*UnimplementedQueryServer) PriceService(ctx context.Context, req *QueryPriceServiceRequest) (*QueryPriceServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PriceService not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -1005,6 +1119,24 @@ func _Query_PriceValidator_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_ValidValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryValidValidatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ValidValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/feeds.v1beta1.Query/ValidValidator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ValidValidator(ctx, req.(*QueryValidValidatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_Symbols_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QuerySymbolsRequest)
 	if err := dec(in); err != nil {
@@ -1041,20 +1173,20 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_OffChain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryOffChainRequest)
+func _Query_PriceService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPriceServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).OffChain(ctx, in)
+		return srv.(QueryServer).PriceService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Query/OffChain",
+		FullMethod: "/feeds.v1beta1.Query/PriceService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).OffChain(ctx, req.(*QueryOffChainRequest))
+		return srv.(QueryServer).PriceService(ctx, req.(*QueryPriceServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1080,6 +1212,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_PriceValidator_Handler,
 		},
 		{
+			MethodName: "ValidValidator",
+			Handler:    _Query_ValidValidator_Handler,
+		},
+		{
 			MethodName: "Symbols",
 			Handler:    _Query_Symbols_Handler,
 		},
@@ -1088,8 +1224,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Params_Handler,
 		},
 		{
-			MethodName: "OffChain",
-			Handler:    _Query_OffChain_Handler,
+			MethodName: "PriceService",
+			Handler:    _Query_PriceService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1403,6 +1539,69 @@ func (m *QueryPriceValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryValidValidatorRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidValidatorRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidValidatorRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Validator) > 0 {
+		i -= len(m.Validator)
+		copy(dAtA[i:], m.Validator)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Validator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryValidValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryValidValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryValidValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Valid {
+		i--
+		if m.Valid {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *QuerySymbolsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1552,7 +1751,7 @@ func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryOffChainRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryPriceServiceRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1562,12 +1761,12 @@ func (m *QueryOffChainRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryOffChainRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryPriceServiceRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryOffChainRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryPriceServiceRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1575,7 +1774,7 @@ func (m *QueryOffChainRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryOffChainResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryPriceServiceResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1585,18 +1784,18 @@ func (m *QueryOffChainResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryOffChainResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryPriceServiceResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryOffChainResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryPriceServiceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.OffChain.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.PriceService.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -1743,6 +1942,31 @@ func (m *QueryPriceValidatorResponse) Size() (n int) {
 	return n
 }
 
+func (m *QueryValidValidatorRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Validator)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryValidValidatorResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Valid {
+		n += 2
+	}
+	return n
+}
+
 func (m *QuerySymbolsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1801,7 +2025,7 @@ func (m *QueryParamsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryOffChainRequest) Size() (n int) {
+func (m *QueryPriceServiceRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1810,13 +2034,13 @@ func (m *QueryOffChainRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryOffChainResponse) Size() (n int) {
+func (m *QueryPriceServiceResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.OffChain.Size()
+	l = m.PriceService.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -2627,6 +2851,158 @@ func (m *QueryPriceValidatorResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *QueryValidValidatorRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidValidatorRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidValidatorRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Validator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Validator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryValidValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryValidValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryValidValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Valid", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Valid = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *QuerySymbolsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2998,7 +3374,7 @@ func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryOffChainRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryPriceServiceRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3021,10 +3397,10 @@ func (m *QueryOffChainRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryOffChainRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryPriceServiceRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryOffChainRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryPriceServiceRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -3048,7 +3424,7 @@ func (m *QueryOffChainRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryOffChainResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryPriceServiceResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3071,15 +3447,15 @@ func (m *QueryOffChainResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryOffChainResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryPriceServiceResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryOffChainResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryPriceServiceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OffChain", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PriceService", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3106,7 +3482,7 @@ func (m *QueryOffChainResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.OffChain.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.PriceService.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

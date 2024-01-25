@@ -72,16 +72,25 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := q.keeper.GetSymbol(ctx, req.Symbol); err != nil {
+	s, err := q.keeper.GetSymbol(ctx, req.Symbol)
+	if err != nil {
 		return nil, err
 	}
 
 	price, _ := q.keeper.GetPrice(ctx, req.Symbol)
 	priceVals := q.keeper.GetPriceValidators(ctx, req.Symbol)
 
+	var filteredPriceVals []types.PriceValidator
+	blockTime := ctx.BlockTime().Unix()
+	for _, priceVal := range priceVals {
+		if priceVal.Timestamp > blockTime-s.MaxInterval {
+			filteredPriceVals = append(filteredPriceVals, priceVal)
+		}
+	}
+
 	return &types.QueryPriceResponse{
 		Price:           price,
-		PriceValidators: priceVals,
+		PriceValidators: filteredPriceVals,
 	}, nil
 }
 
@@ -130,6 +139,39 @@ func (q queryServer) PriceValidator(
 	}, nil
 }
 
+func (q queryServer) ValidValidator(
+	goCtx context.Context, req *types.QueryValidValidatorRequest,
+) (*types.QueryValidValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	flag := true
+
+	// check if it's in top bonded validators.
+	vals := q.keeper.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	isInTop := false
+	for _, val := range vals {
+		if req.Validator == val.GetOperator().String() {
+			isInTop = true
+			break
+		}
+	}
+	if !isInTop {
+		flag = false
+	}
+
+	val, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, err
+	}
+
+	status := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
+	if !status.IsActive {
+		flag = false
+	}
+
+	return &types.QueryValidValidatorResponse{Valid: flag}, nil
+}
+
 func (q queryServer) Symbols(
 	goCtx context.Context, req *types.QuerySymbolsRequest,
 ) (*types.QuerySymbolsResponse, error) {
@@ -173,13 +215,13 @@ func (q queryServer) Symbols(
 	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
 }
 
-func (q queryServer) OffChain(
-	goCtx context.Context, req *types.QueryOffChainRequest,
-) (*types.QueryOffChainResponse, error) {
+func (q queryServer) PriceService(
+	goCtx context.Context, req *types.QueryPriceServiceRequest,
+) (*types.QueryPriceServiceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QueryOffChainResponse{
-		OffChain: q.keeper.GetOffChain(ctx),
+	return &types.QueryPriceServiceResponse{
+		PriceService: q.keeper.GetPriceService(ctx),
 	}, nil
 }
 

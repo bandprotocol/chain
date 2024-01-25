@@ -17,8 +17,13 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
 		totalPower += pfInfo.Power
 	}
 
+	// TODO: recheck
 	sort.Slice(pfInfos, func(i, j int) bool {
 		if pfInfos[i].Timestamp == pfInfos[j].Timestamp {
+			if pfInfos[i].Power == pfInfos[j].Power {
+				return i < j
+			}
+
 			return pfInfos[i].Power > pfInfos[j].Power
 		}
 
@@ -84,6 +89,9 @@ type WeightedPrice struct {
 
 func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
 	sort.Slice(wps, func(i, j int) bool {
+		if wps[i].Price == wps[j].Price {
+			return wps[i].Power < wps[j].Power
+		}
 		return wps[i].Price < wps[j].Price
 	})
 
@@ -100,5 +108,6 @@ func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
 		}
 	}
 
+	// TODO: check if should panic or not
 	return 0
 }
