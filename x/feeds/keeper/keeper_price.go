@@ -62,7 +62,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 	// TODO: confirm if it's sorted by power already
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
-		func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
+		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			address := val.GetOperator()
 			power := val.GetTokens().Uint64()
 			status := k.oracleKeeper.GetValidatorStatus(ctx, address)
@@ -78,6 +78,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 							Power:     power,
 							Deviation: 0,
 							Timestamp: priceVal.Timestamp,
+							Index:     idx,
 						})
 					}
 
