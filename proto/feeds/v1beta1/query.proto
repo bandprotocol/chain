@@ -32,6 +32,11 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/prices/{symbol}/validators/{validator}";
   }
 
+  // RPC method that returns flag to show if the validator is required to send prices.
+  rpc ValidValidator(QueryValidValidatorRequest) returns (QueryValidValidatorResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/validators/{validator}";
+  }
+
   // RPC method that returns all symbols.
   rpc Symbols(QuerySymbolsRequest) returns (QuerySymbolsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/symbols";
@@ -106,6 +111,18 @@ message QueryPriceValidatorRequest {
 message QueryPriceValidatorResponse {
   // The requested price submitted by the validator.
   PriceValidator price_validator = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
+message QueryValidValidatorRequest {
+  // Validator address to query the flag.
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
+message QueryValidValidatorResponse {
+  // valid flag.
+  bool valid = 1;
 }
 
 // QuerySymbolsRequest is the request type for the Query/Symbols RPC method.

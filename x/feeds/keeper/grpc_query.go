@@ -130,6 +130,39 @@ func (q queryServer) PriceValidator(
 	}, nil
 }
 
+func (q queryServer) ValidValidator(
+	goCtx context.Context, req *types.QueryValidValidatorRequest,
+) (*types.QueryValidValidatorResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	flag := true
+
+	// check if it's in top bonded validators.
+	vals := q.keeper.stakingKeeper.GetBondedValidatorsByPower(ctx)
+	isInTop := false
+	for _, val := range vals {
+		if req.Validator == val.GetOperator().String() {
+			isInTop = true
+			break
+		}
+	}
+	if !isInTop {
+		flag = false
+	}
+
+	val, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, err
+	}
+
+	status := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
+	if !status.IsActive {
+		flag = false
+	}
+
+	return &types.QueryValidValidatorResponse{Valid: flag}, nil
+}
+
 func (q queryServer) Symbols(
 	goCtx context.Context, req *types.QuerySymbolsRequest,
 ) (*types.QuerySymbolsResponse, error) {
