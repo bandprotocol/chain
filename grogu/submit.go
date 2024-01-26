@@ -78,15 +78,24 @@ GetAllPrices:
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, gasAdjustment)
+			res, err := signAndBroadcast(c, key, msgs, gasAdjustment)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())
 				time.Sleep(c.rpcPollInterval)
 				continue
 			}
+			if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
+				gasAdjustment = gasAdjustment + 0.1
+				l.Info(
+					":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)",
+					txHash,
+					gasAdjustment,
+				)
+				continue
+			}
 			// Transaction passed CheckTx process and wait to include in block.
-			txHash = hash
+			txHash = res.TxHash
 			break
 		}
 		if txHash == "" {
@@ -109,8 +118,8 @@ GetAllPrices:
 			}
 			if txRes.Codespace == sdkerrors.RootCodespace &&
 				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
-				// Increase gas limit and try to broadcast again
-				gasAdjustment = gasAdjustment * 110 / 100
+				// Increase gas adjustment and try to broadcast again
+				gasAdjustment = gasAdjustment + 0.1
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
 				txFound = true
 				break FindTx
@@ -133,7 +142,7 @@ GetAllPrices:
 
 func signAndBroadcast(
 	c *Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
-) (string, error) {
+) (*sdk.TxResponse, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
 		Codec:             cdc,
@@ -143,7 +152,7 @@ func signAndBroadcast(
 	}
 	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
-		return "", fmt.Errorf("unable to get account: %w", err)
+		return nil, fmt.Errorf("unable to get account: %w", err)
 	}
 
 	txf := tx.Factory{}.
@@ -159,14 +168,14 @@ func signAndBroadcast(
 
 	address, err := key.GetAddress()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	execMsg := authz.NewMsgExec(address, msgs)
 
 	_, adjusted, err := tx.CalculateGas(clientCtx, txf, &execMsg)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Set the gas amount on the transaction factory
@@ -174,26 +183,26 @@ func signAndBroadcast(
 
 	txb, err := txf.BuildUnsignedTx(&execMsg)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	err = tx.Sign(txf, key.Name, txb, true)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// broadcast to a Tendermint node
 	res, err := clientCtx.BroadcastTx(txBytes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return res.TxHash, nil
+	return res, nil
 }
 
 func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account, error) {
