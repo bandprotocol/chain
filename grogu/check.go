@@ -8,8 +8,23 @@ import (
 )
 
 func checkSymbols(c *Context, l *Logger) {
-	bz := cdc.MustMarshal(&types.QuerySymbolsRequest{})
-	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
+	bz := cdc.MustMarshal(&types.QueryValidValidatorRequest{
+		Validator: c.validator.String(),
+	})
+	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/ValidValidator", bz)
+	if err != nil {
+		l.Error(":exploding_head: Failed to check validator validity with error: %s", c, err.Error())
+		return
+	}
+
+	validValidator := types.QueryValidValidatorResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &validValidator)
+	if !validValidator.Valid {
+		return
+	}
+
+	bz = cdc.MustMarshal(&types.QuerySymbolsRequest{})
+	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
 		return
@@ -60,5 +75,6 @@ func checkSymbols(c *Context, l *Logger) {
 func StartCheckSymbols(c *Context, l *Logger) {
 	for {
 		checkSymbols(c, l)
+		time.Sleep(time.Second)
 	}
 }
