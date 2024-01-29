@@ -22,4 +22,6 @@ type StakingKeeper interface {
 		ctx sdk.Context,
 		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
 	)
+	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
+	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.Delegation
 }

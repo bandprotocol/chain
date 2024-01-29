@@ -23,6 +23,102 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type SymbolWithPower struct {
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Power  uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+}
+
+func (m *SymbolWithPower) Reset()         { *m = SymbolWithPower{} }
+func (m *SymbolWithPower) String() string { return proto.CompactTextString(m) }
+func (*SymbolWithPower) ProtoMessage()    {}
+func (*SymbolWithPower) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{0}
+}
+func (m *SymbolWithPower) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SymbolWithPower) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SymbolWithPower.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SymbolWithPower) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SymbolWithPower.Merge(m, src)
+}
+func (m *SymbolWithPower) XXX_Size() int {
+	return m.Size()
+}
+func (m *SymbolWithPower) XXX_DiscardUnknown() {
+	xxx_messageInfo_SymbolWithPower.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SymbolWithPower proto.InternalMessageInfo
+
+func (m *SymbolWithPower) GetSymbol() string {
+	if m != nil {
+		return m.Symbol
+	}
+	return ""
+}
+
+func (m *SymbolWithPower) GetPower() uint64 {
+	if m != nil {
+		return m.Power
+	}
+	return 0
+}
+
+type Signal struct {
+	Symbols []SymbolWithPower `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols"`
+}
+
+func (m *Signal) Reset()         { *m = Signal{} }
+func (m *Signal) String() string { return proto.CompactTextString(m) }
+func (*Signal) ProtoMessage()    {}
+func (*Signal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{1}
+}
+func (m *Signal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Signal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Signal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Signal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Signal.Merge(m, src)
+}
+func (m *Signal) XXX_Size() int {
+	return m.Size()
+}
+func (m *Signal) XXX_DiscardUnknown() {
+	xxx_messageInfo_Signal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Signal proto.InternalMessageInfo
+
+func (m *Signal) GetSymbols() []SymbolWithPower {
+	if m != nil {
+		return m.Symbols
+	}
+	return nil
+}
+
 // Symbol defines a standard unit of exchange for a commodity.
 type Symbol struct {
 	// The unique symbol string that identifies the unit of exchange.
@@ -39,7 +135,7 @@ func (m *Symbol) Reset()         { *m = Symbol{} }
 func (m *Symbol) String() string { return proto.CompactTextString(m) }
 func (*Symbol) ProtoMessage()    {}
 func (*Symbol) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{0}
+	return fileDescriptor_4b338829e148e6ea, []int{2}
 }
 func (m *Symbol) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -110,7 +206,7 @@ func (m *UpdateSymbol) Reset()         { *m = UpdateSymbol{} }
 func (m *UpdateSymbol) String() string { return proto.CompactTextString(m) }
 func (*UpdateSymbol) ProtoMessage()    {}
 func (*UpdateSymbol) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{1}
+	return fileDescriptor_4b338829e148e6ea, []int{3}
 }
 func (m *UpdateSymbol) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -174,7 +270,7 @@ func (m *Price) Reset()         { *m = Price{} }
 func (m *Price) String() string { return proto.CompactTextString(m) }
 func (*Price) ProtoMessage()    {}
 func (*Price) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{2}
+	return fileDescriptor_4b338829e148e6ea, []int{4}
 }
 func (m *Price) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -236,7 +332,7 @@ func (m *SubmitPrice) Reset()         { *m = SubmitPrice{} }
 func (m *SubmitPrice) String() string { return proto.CompactTextString(m) }
 func (*SubmitPrice) ProtoMessage()    {}
 func (*SubmitPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{3}
+	return fileDescriptor_4b338829e148e6ea, []int{5}
 }
 func (m *SubmitPrice) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -295,7 +391,7 @@ func (m *PriceValidator) Reset()         { *m = PriceValidator{} }
 func (m *PriceValidator) String() string { return proto.CompactTextString(m) }
 func (*PriceValidator) ProtoMessage()    {}
 func (*PriceValidator) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{4}
+	return fileDescriptor_4b338829e148e6ea, []int{6}
 }
 func (m *PriceValidator) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -366,7 +462,7 @@ func (m *PriceService) Reset()         { *m = PriceService{} }
 func (m *PriceService) String() string { return proto.CompactTextString(m) }
 func (*PriceService) ProtoMessage()    {}
 func (*PriceService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{5}
+	return fileDescriptor_4b338829e148e6ea, []int{7}
 }
 func (m *PriceService) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -417,6 +513,8 @@ func (m *PriceService) GetUrl() string {
 }
 
 func init() {
+	proto.RegisterType((*SymbolWithPower)(nil), "feeds.v1beta1.SymbolWithPower")
+	proto.RegisterType((*Signal)(nil), "feeds.v1beta1.Signal")
 	proto.RegisterType((*Symbol)(nil), "feeds.v1beta1.Symbol")
 	proto.RegisterType((*UpdateSymbol)(nil), "feeds.v1beta1.UpdateSymbol")
 	proto.RegisterType((*Price)(nil), "feeds.v1beta1.Price")
@@ -428,33 +526,64 @@ func init() {
 func init() { proto.RegisterFile("feeds/v1beta1/feeds.proto", fileDescriptor_4b338829e148e6ea) }
 
 var fileDescriptor_4b338829e148e6ea = []byte{
-	// 371 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x92, 0xb1, 0x4e, 0xf3, 0x30,
-	0x14, 0x85, 0xeb, 0x26, 0xed, 0xaf, 0xde, 0xf6, 0x47, 0x28, 0xaa, 0x50, 0x40, 0x28, 0x94, 0x4e,
-	0x9d, 0x6a, 0x15, 0x36, 0x36, 0x98, 0x60, 0x43, 0x29, 0x20, 0xc1, 0x82, 0x9c, 0xc4, 0x34, 0x96,
-	0x92, 0x38, 0x72, 0xdc, 0xa8, 0xdd, 0x98, 0x99, 0x78, 0x04, 0x1e, 0x87, 0xb1, 0x23, 0x23, 0x6a,
-	0x17, 0x1e, 0x03, 0xc5, 0x71, 0x29, 0x48, 0xed, 0xc2, 0xc0, 0x76, 0xce, 0xbd, 0xc7, 0xf7, 0xf3,
-	0x4d, 0x0c, 0xbb, 0x0f, 0x94, 0x06, 0x19, 0xce, 0x07, 0x1e, 0x95, 0x64, 0x80, 0x95, 0xeb, 0xa7,
-	0x82, 0x4b, 0x6e, 0xfd, 0x2f, 0x8d, 0x6e, 0xed, 0xb5, 0x47, 0x7c, 0xc4, 0x55, 0x07, 0x17, 0xaa,
-	0x0c, 0x75, 0x9f, 0x10, 0xd4, 0x87, 0xd3, 0xd8, 0xe3, 0x91, 0xb5, 0x03, 0xf5, 0x4c, 0x29, 0x1b,
-	0x75, 0x50, 0xaf, 0xe1, 0x6a, 0x67, 0x1d, 0x42, 0x2b, 0x66, 0xc9, 0x3d, 0x4b, 0x24, 0x15, 0x39,
-	0x89, 0xec, 0x6a, 0x07, 0xf5, 0x0c, 0xb7, 0x19, 0xb3, 0xe4, 0x42, 0x97, 0x54, 0x84, 0x4c, 0x56,
-	0x11, 0x43, 0x47, 0xc8, 0xe4, 0x2b, 0xb2, 0x0f, 0x0d, 0xc9, 0x62, 0x9a, 0x49, 0x12, 0xa7, 0xb6,
-	0xa9, 0xfa, 0xab, 0xc2, 0x89, 0xf9, 0xf1, 0x72, 0x80, 0xba, 0x02, 0x5a, 0xd7, 0x69, 0x40, 0x24,
-	0xfd, 0x8b, 0x1b, 0x69, 0xe6, 0x2d, 0xd4, 0x2e, 0x05, 0xf3, 0xe9, 0x46, 0x58, 0x1b, 0x6a, 0x69,
-	0x11, 0x50, 0x14, 0xd3, 0x2d, 0xcd, 0xcf, 0x75, 0x8c, 0xf5, 0xeb, 0x9c, 0x42, 0x73, 0x38, 0xf6,
-	0x62, 0x26, 0x7f, 0x01, 0xd0, 0x23, 0x1e, 0x11, 0x6c, 0xa9, 0xd3, 0x37, 0x24, 0x62, 0x01, 0x91,
-	0x5c, 0x14, 0xe4, 0x7c, 0x69, 0xf4, 0xa4, 0x55, 0xe1, 0x1b, 0xa4, 0xba, 0x1e, 0x62, 0x6c, 0xdc,
-	0x62, 0xc3, 0x4f, 0xb9, 0x82, 0x96, 0xba, 0xc1, 0x90, 0x8a, 0xbc, 0x38, 0x63, 0x81, 0x19, 0x92,
-	0x2c, 0xd4, 0x68, 0xa5, 0x2d, 0x1b, 0xfe, 0xe5, 0x54, 0x64, 0x8c, 0x27, 0x1a, 0xbb, 0xb4, 0xd6,
-	0x36, 0x18, 0x63, 0x51, 0x7e, 0xfe, 0x86, 0x5b, 0xc8, 0x72, 0xea, 0xd9, 0xf9, 0xeb, 0xdc, 0x41,
-	0xb3, 0xb9, 0x83, 0xde, 0xe7, 0x0e, 0x7a, 0x5e, 0x38, 0x95, 0xd9, 0xc2, 0xa9, 0xbc, 0x2d, 0x9c,
-	0xca, 0x5d, 0x7f, 0xc4, 0x64, 0x38, 0xf6, 0xfa, 0x3e, 0x8f, 0xb1, 0x47, 0x92, 0x40, 0xbd, 0x53,
-	0x9f, 0x47, 0xd8, 0x0f, 0x09, 0x4b, 0x70, 0x7e, 0x84, 0x27, 0xe5, 0x33, 0xc7, 0x72, 0x9a, 0xd2,
-	0xcc, 0xab, 0xab, 0xc0, 0xf1, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x4f, 0xdc, 0xcd, 0xec, 0x0a,
+	// 435 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x93, 0xbd, 0x8e, 0xd3, 0x40,
+	0x10, 0xc7, 0xbd, 0x67, 0x9f, 0x4f, 0x99, 0x84, 0x0f, 0x59, 0x27, 0x64, 0x10, 0xf2, 0x85, 0x54,
+	0xa9, 0xbc, 0xba, 0xa3, 0xa3, 0x40, 0xe2, 0x24, 0xa4, 0xa3, 0x3b, 0xd9, 0x7c, 0x08, 0x1a, 0xb4,
+	0xb6, 0x17, 0x7b, 0x25, 0xdb, 0x6b, 0xad, 0x37, 0x26, 0xd7, 0x51, 0x53, 0xf1, 0x08, 0x3c, 0xce,
+	0x95, 0x57, 0x52, 0x21, 0x94, 0x34, 0x3c, 0x06, 0xf2, 0xee, 0x26, 0x21, 0x28, 0xa1, 0xa0, 0xa0,
+	0xdb, 0xff, 0xcc, 0x6f, 0xe6, 0x3f, 0xe3, 0x91, 0xe1, 0xfe, 0x07, 0x4a, 0xb3, 0x16, 0x77, 0xa7,
+	0x09, 0x95, 0xe4, 0x14, 0x2b, 0x15, 0x36, 0x82, 0x4b, 0xee, 0xdd, 0xd2, 0xc2, 0xa4, 0x1e, 0x1c,
+	0xe7, 0x3c, 0xe7, 0x2a, 0x83, 0xfb, 0x97, 0x86, 0x26, 0xcf, 0xe1, 0x4e, 0x7c, 0x55, 0x25, 0xbc,
+	0x7c, 0xc3, 0x64, 0x71, 0xc9, 0x3f, 0x52, 0xe1, 0xdd, 0x03, 0xb7, 0x55, 0x21, 0x1f, 0x8d, 0xd1,
+	0x74, 0x10, 0x19, 0xe5, 0x1d, 0xc3, 0x61, 0xd3, 0x03, 0xfe, 0xc1, 0x18, 0x4d, 0x9d, 0x48, 0x8b,
+	0x27, 0xce, 0xcf, 0xaf, 0x27, 0x68, 0x72, 0x01, 0x6e, 0xcc, 0xf2, 0x9a, 0x94, 0xde, 0x53, 0x38,
+	0xd2, 0x7c, 0xeb, 0xa3, 0xb1, 0x3d, 0x1d, 0x9e, 0x05, 0xe1, 0xd6, 0x1c, 0xe1, 0x1f, 0x76, 0xe7,
+	0xce, 0xf5, 0xf7, 0x13, 0x2b, 0x5a, 0x15, 0x4d, 0x3e, 0x23, 0x70, 0x35, 0xb2, 0x77, 0x90, 0x47,
+	0x30, 0xaa, 0x58, 0xfd, 0x9e, 0xd5, 0x92, 0x8a, 0x8e, 0x94, 0x6a, 0x1e, 0x3b, 0x1a, 0x56, 0xac,
+	0x7e, 0x61, 0x42, 0x0a, 0x21, 0xf3, 0x0d, 0x62, 0x1b, 0x84, 0xcc, 0xd7, 0xc8, 0x43, 0x18, 0x48,
+	0x56, 0xd1, 0x56, 0x92, 0xaa, 0xf1, 0x1d, 0x95, 0xdf, 0x04, 0xcc, 0x5a, 0x02, 0x46, 0xaf, 0x9a,
+	0x8c, 0x48, 0xfa, 0x3f, 0x26, 0x32, 0x9e, 0x6f, 0xe1, 0xf0, 0x52, 0xb0, 0x94, 0xfe, 0xf5, 0x0e,
+	0x3d, 0xb0, 0xbe, 0x83, 0xa2, 0xb7, 0xd6, 0xb1, 0x77, 0xaf, 0xf3, 0x0c, 0x86, 0xf1, 0x2c, 0xa9,
+	0x98, 0xfc, 0x07, 0x03, 0xd3, 0xe2, 0x13, 0x82, 0xdb, 0xaa, 0xfa, 0x35, 0x29, 0x59, 0x46, 0x24,
+	0x17, 0xbd, 0x73, 0xb7, 0x12, 0xa6, 0xd3, 0x26, 0xf0, 0x9b, 0xc9, 0xc1, 0x6e, 0x13, 0x7b, 0xef,
+	0x16, 0x7b, 0x8e, 0xf2, 0x12, 0x46, 0x6a, 0x82, 0x98, 0x8a, 0xae, 0xaf, 0xf1, 0xc0, 0x29, 0x48,
+	0x5b, 0x18, 0x6b, 0xf5, 0xf6, 0x7c, 0x38, 0xea, 0xa8, 0x68, 0x19, 0xaf, 0x8d, 0xed, 0x4a, 0x7a,
+	0x77, 0xc1, 0x9e, 0x09, 0xfd, 0xf9, 0x07, 0x51, 0xff, 0xd4, 0x5d, 0xcf, 0x2f, 0xae, 0x17, 0x01,
+	0xba, 0x59, 0x04, 0xe8, 0xc7, 0x22, 0x40, 0x5f, 0x96, 0x81, 0x75, 0xb3, 0x0c, 0xac, 0x6f, 0xcb,
+	0xc0, 0x7a, 0x17, 0xe6, 0x4c, 0x16, 0xb3, 0x24, 0x4c, 0x79, 0x85, 0x13, 0x52, 0x67, 0xea, 0xc7,
+	0x49, 0x79, 0x89, 0xd3, 0x82, 0xb0, 0x1a, 0x77, 0x67, 0x78, 0xae, 0xff, 0x3b, 0x2c, 0xaf, 0x1a,
+	0xda, 0x26, 0xae, 0x02, 0x1e, 0xff, 0x0a, 0x00, 0x00, 0xff, 0xff, 0xf5, 0x73, 0xb4, 0x21, 0x9b,
 	0x03, 0x00, 0x00,
 }
 
+func (this *SymbolWithPower) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SymbolWithPower)
+	if !ok {
+		that2, ok := that.(SymbolWithPower)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Symbol != that1.Symbol {
+		return false
+	}
+	if this.Power != that1.Power {
+		return false
+	}
+	return true
+}
 func (this *Symbol) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -638,6 +767,78 @@ func (this *PriceService) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (m *SymbolWithPower) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SymbolWithPower) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SymbolWithPower) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Power != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Power))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Symbol) > 0 {
+		i -= len(m.Symbol)
+		copy(dAtA[i:], m.Symbol)
+		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Symbol)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Signal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Signal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Signal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Symbols) > 0 {
+		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Symbols[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFeeds(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Symbol) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -900,6 +1101,37 @@ func encodeVarintFeeds(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *SymbolWithPower) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Symbol)
+	if l > 0 {
+		n += 1 + l + sovFeeds(uint64(l))
+	}
+	if m.Power != 0 {
+		n += 1 + sovFeeds(uint64(m.Power))
+	}
+	return n
+}
+
+func (m *Signal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Symbols) > 0 {
+		for _, e := range m.Symbols {
+			l = e.Size()
+			n += 1 + l + sovFeeds(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *Symbol) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1025,6 +1257,191 @@ func sovFeeds(x uint64) (n int) {
 }
 func sozFeeds(x uint64) (n int) {
 	return sovFeeds(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *SymbolWithPower) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SymbolWithPower: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SymbolWithPower: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Symbol = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
+			}
+			m.Power = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Power |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Signal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Signal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Signal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Symbols = append(m.Symbols, SymbolWithPower{})
+			if err := m.Symbols[len(m.Symbols)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *Symbol) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)

@@ -14,4 +14,6 @@ var (
 	ErrNotEnoughPriceValidator = errors.Register(ModuleName, 7, "not enough price validator")
 	ErrInvalidSigner           = errors.Register(ModuleName, 8, "expected admin to be signer")
 	ErrNotTopValidator         = errors.Register(ModuleName, 9, "not top validator")
+	ErrNotEnoughDelegation     = errors.Register(ModuleName, 10, "not enough delegation")
+	ErrSymbolPowerNotFound     = errors.Register(ModuleName, 11, "symbol power not found")
 )

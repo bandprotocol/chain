@@ -26,7 +26,19 @@ service Msg {
 
   // RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  rpc SignalSymbols(MsgSignalSymbols) returns (MsgSignalSymbolsResponse);
 }
+
+message MsgSignalSymbols {
+  option (cosmos.msg.v1.signer) = "delegator";
+  option (amino.name)           = "feeds/MsgSignalSymbols";
+
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  Signal signal    = 2;
+}
+
+message MsgSignalSymbolsResponse {}
 
 // MsgUpdateSymbols is the transaction message to add and update symbols.
 message MsgUpdateSymbols {

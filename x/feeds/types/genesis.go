@@ -30,7 +30,7 @@ func (gs GenesisState) Validate() error {
 		if err := validateInt64("maxInterval", true)(symbol.MaxInterval); err != nil {
 			return err
 		}
-		if err := validateInt64("tiemstamp", true)(symbol.Timestamp); err != nil {
+		if err := validateInt64("timestamp", true)(symbol.Timestamp); err != nil {
 			return err
 		}
 	}

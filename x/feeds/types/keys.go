@@ -21,12 +21,22 @@ var (
 
 	PriceServiceStoreKey = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
 
-	SymbolStoreKeyPrefix         = []byte{0x01}
-	PriceValidatorStoreKeyPrefix = []byte{0x02}
-	PriceStoreKeyPrefix          = []byte{0x03}
+	SymbolStoreKeyPrefix          = []byte{0x01}
+	PriceValidatorStoreKeyPrefix  = []byte{0x02}
+	PriceStoreKeyPrefix           = []byte{0x03}
+	DelegatorSignalStoreKeyPrefix = []byte{0x10}
+	SymbolPowerStoreKeyPrefix     = []byte{0x11}
 
 	ParamsKey = []byte{0x05}
 )
+
+func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
+	return append(DelegatorSignalStoreKeyPrefix, delegator...)
+}
+
+func SymbolPowerStoreKey(symbol string) []byte {
+	return append(SymbolPowerStoreKeyPrefix, []byte(symbol)...)
+}
 
 func SymbolStoreKey(symbol string) []byte {
 	return append(SymbolStoreKeyPrefix, []byte(symbol)...)

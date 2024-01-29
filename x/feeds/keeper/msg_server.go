@@ -23,6 +23,48 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
+func (ms msgServer) SignalSymbols(
+	goCtx context.Context,
+	req *types.MsgSignalSymbols,
+) (*types.MsgSignalSymbolsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	sumPower := sumPower(req.Signal.Symbols)
+	sumDelegation := ms.Keeper.GetDelegatorDelegationsSum(ctx, delegator)
+	if sumPower > sumDelegation {
+		return nil, types.ErrNotEnoughDelegation
+	}
+	oldSignal, found := ms.Keeper.GetDelegatorSignal(ctx, delegator)
+	if !found {
+		for _, symbolWithPower := range oldSignal.Symbols {
+			power := ms.Keeper.GetSymbolPower(ctx, symbolWithPower.Symbol)
+			power = power - symbolWithPower.Power
+			ms.Keeper.SetSymbolPower(ctx, symbolWithPower.Symbol, power)
+		}
+	}
+
+	ms.Keeper.SetDelegatorSignal(ctx, delegator, *req.Signal)
+	for _, symbolWithPower := range req.Signal.Symbols {
+		power := ms.Keeper.GetSymbolPower(ctx, symbolWithPower.Symbol)
+		power = power + symbolWithPower.Power
+		ms.Keeper.SetSymbolPower(ctx, symbolWithPower.Symbol, power)
+	}
+
+	return &types.MsgSignalSymbolsResponse{}, nil
+}
+
+func sumPower(symbolsWithPower []types.SymbolWithPower) (sum uint64) {
+	for _, symbol := range symbolsWithPower {
+		sum = sum + symbol.Power
+	}
+	return
+}
+
 func (ms msgServer) UpdateSymbols(
 	goCtx context.Context,
 	req *types.MsgUpdateSymbols,

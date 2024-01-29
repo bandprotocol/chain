@@ -5,6 +5,16 @@ option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 
+message SymbolWithPower {
+  option (gogoproto.equal) = true;
+  string symbol            = 1;
+  uint64 power             = 2;
+}
+
+message Signal {
+  repeated SymbolWithPower symbols = 1 [(gogoproto.nullable) = false];
+}
+
 // Symbol defines a standard unit of exchange for a commodity.
 message Symbol {
   option (gogoproto.equal) = true;
