@@ -74,6 +74,12 @@ build_deps:
 ...
 ```
 
+If you are using Mac ARM architecture (M1, M2) and face the issue of GMP library, you can run this.
+```
+brew update && brew install gmp
+sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
+```
+
 ## Useful scripts for development
 
 - `scripts/generate_genesis.sh` to create/reset the default genesis file 
