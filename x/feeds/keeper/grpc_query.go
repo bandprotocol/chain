@@ -32,20 +32,20 @@ func (q queryServer) SymbolPower(
 	return &types.QuerySymbolPowerResponse{Power: power}, nil
 }
 
-func (q queryServer) DelegatorSignal(
-	goCtx context.Context, req *types.QueryDelegatorSignalRequest,
-) (*types.QueryDelegatorSignalResponse, error) {
+func (q queryServer) DelegatorSignals(
+	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
+) (*types.QueryDelegatorSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
 	if err != nil {
 		return nil, err
 	}
 
-	signal, found := q.keeper.GetDelegatorSignal(ctx, delegator)
-	if !found {
+	signals := q.keeper.GetDelegatorSignals(ctx, delegator)
+	if signals == nil {
 		return nil, status.Error(codes.Internal, "no signal")
 	}
-	return &types.QueryDelegatorSignalResponse{Signal: &signal}, nil
+	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
 }
 
 func (q queryServer) Prices(
@@ -107,7 +107,7 @@ func (q queryServer) Price(
 	var filteredPriceVals []types.PriceValidator
 	blockTime := ctx.BlockTime().Unix()
 	for _, priceVal := range priceVals {
-		if priceVal.Timestamp > blockTime-s.MaxInterval {
+		if priceVal.Timestamp > blockTime-s.Interval {
 			filteredPriceVals = append(filteredPriceVals, priceVal)
 		}
 	}

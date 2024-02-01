@@ -7,7 +7,6 @@ import (
 // NewParams creates a new Params instance
 func NewParams(
 	admin string,
-	prepareTime int64,
 	allowDiffTime int64,
 	transitionTime int64,
 	minInterval int64,
@@ -17,7 +16,6 @@ func NewParams(
 ) Params {
 	return Params{
 		Admin:              admin,
-		PrepareTime:        prepareTime,
 		AllowDiffTime:      allowDiffTime,
 		TransitionTime:     transitionTime,
 		MinInterval:        minInterval,
@@ -31,7 +29,7 @@ func NewParams(
 func DefaultParams() Params {
 	// TODO: adjust the default parameters.
 	// - prepare time: 1 day.
-	return NewParams("[NOT_SET]", 60, 30, 30, 60, 3600, 3600000, 300)
+	return NewParams("[NOT_SET]", 30, 30, 60, 3600, 3600000, 300)
 }
 
 // Validate validates the set of params

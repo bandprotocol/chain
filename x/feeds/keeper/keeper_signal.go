@@ -16,20 +16,21 @@ func (k Keeper) GetDelegatorDelegationsSum(ctx sdk.Context, delegator sdk.AccAdd
 	return
 }
 
-func (k Keeper) GetDelegatorSignal(ctx sdk.Context, delegator sdk.AccAddress) (types.Signal, bool) {
+func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) []types.Signal {
 	bz := ctx.KVStore(k.storeKey).Get(types.DelegatorSignalStoreKey(delegator))
 	if bz == nil {
-		return types.Signal{}, false
+		return nil
 	}
 
-	var s types.Signal
+	var s types.Signals
 	k.cdc.MustUnmarshal(bz, &s)
 
-	return s, true
+	return s.Signals
 }
 
-func (k Keeper) SetDelegatorSignal(ctx sdk.Context, delegator sdk.AccAddress, signal types.Signal) {
-	ctx.KVStore(k.storeKey).Set(types.DelegatorSignalStoreKey(delegator), k.cdc.MustMarshal(&signal))
+func (k Keeper) SetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress, signals []types.Signal) {
+	ctx.KVStore(k.storeKey).
+		Set(types.DelegatorSignalStoreKey(delegator), k.cdc.MustMarshal(&types.Signals{Signals: signals}))
 }
 
 func (k Keeper) GetSymbolPower(ctx sdk.Context, symbol string) uint64 {

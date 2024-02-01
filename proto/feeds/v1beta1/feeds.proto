@@ -5,14 +5,16 @@ option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 
-message SymbolWithPower {
+// Signal contains symbol and power of that symbol
+message Signal {
   option (gogoproto.equal) = true;
   string symbol            = 1;
   uint64 power             = 2;
 }
 
-message Signal {
-  repeated SymbolWithPower symbols = 1 [(gogoproto.nullable) = false];
+// Signal contains array of signal
+message Signals {
+  repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
 // Symbol defines a standard unit of exchange for a commodity.
@@ -22,28 +24,11 @@ message Symbol {
   // The unique symbol string that identifies the unit of exchange.
   string symbol = 1;
 
-  // The minimum interval at which the price of the symbol is expected to be submitted.
-  int64 min_interval = 2;
+  uint64 power = 2;
 
-  // The maximum interval at which the price of the symbol is expected to be submitted.
-  int64 max_interval = 3;
+  int64 interval = 3 [(gogoproto.nullable) = true];
 
-  // The timestamp that this symbol is added.
-  int64 timestamp = 4;
-}
-
-// UpdateSymbol defines a standard unit of exchange for a commodity.
-message UpdateSymbol {
-  option (gogoproto.equal) = true;
-
-  // The unique symbol string that identifies the unit of exchange.
-  string symbol = 1;
-
-  // The minimum interval at which the price of the symbol is expected to be submitted.
-  int64 min_interval = 2;
-
-  // The maximum interval at which the price of the symbol is expected to be submitted.
-  int64 max_interval = 3;
+  int64 last_interval_update_timestamp = 4;
 }
 
 // Price defines the price of a symbol.

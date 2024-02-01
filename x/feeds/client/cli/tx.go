@@ -53,12 +53,10 @@ func GetTxCmdSignalSymbols() *cobra.Command {
 
 			msg := types.MsgSignalSymbols{
 				Delegator: delegator.String(),
-				Signal: &types.Signal{
-					Symbols: []types.SymbolWithPower{
-						types.SymbolWithPower{
-							Symbol: args[0],
-							Power:  power,
-						},
+				Signals: []types.Signal{
+					types.Signal{
+						Symbol: args[0],
+						Power:  power,
 					},
 				},
 			}

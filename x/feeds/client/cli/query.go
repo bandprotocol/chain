@@ -37,16 +37,16 @@ func GetQueryCmd() *cobra.Command {
 
 func GetQueryCmdDelegatorSignal() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signal",
+		Use:   "delegator-signal [delegator-addr]",
 		Short: "",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.DelegatorSignal(
+			res, err := queryClient.DelegatorSignals(
 				context.Background(),
-				&types.QueryDelegatorSignalRequest{Delegator: args[0]},
+				&types.QueryDelegatorSignalsRequest{Delegator: args[0]},
 			)
 			if err != nil {
 				return err

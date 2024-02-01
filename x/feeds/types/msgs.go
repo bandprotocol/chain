@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	_, _, _, _, _ sdk.Msg = &MsgUpdateSymbols{}, &MsgRemoveSymbols{}, &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
+	_, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
 )
 
 // Route Implements Msg.
@@ -28,70 +28,6 @@ func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgSignalSymbols) ValidateBasic() error {
-	return nil
-}
-
-// ====================================
-// MsgUpdateSymbols
-// ====================================
-
-// Route Implements Msg.
-func (m MsgUpdateSymbols) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgUpdateSymbols) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateSymbols) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateSymbols) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
-}
-
-// ValidateBasic does a sanity check on the provided data.
-func (m *MsgUpdateSymbols) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
-		return errors.Wrap(err, "invalid admin address")
-	}
-
-	for i, us := range m.Symbols {
-		if err := us.Validate(); err != nil {
-			return errors.Wrapf(err, "symbol: %d", i+1)
-		}
-	}
-
-	return nil
-}
-
-// ====================================
-// MsgRemoveSymbols
-// ====================================
-
-// Route Implements Msg.
-func (m MsgRemoveSymbols) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgRemoveSymbols) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgRemoveSymbols) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgRemoveSymbols) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
-}
-
-// ValidateBasic does a sanity check on the provided data.
-func (m *MsgRemoveSymbols) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
-		return errors.Wrap(err, "invalid admin address")
-	}
-
 	return nil
 }
 

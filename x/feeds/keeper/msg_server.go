@@ -34,113 +34,35 @@ func (ms msgServer) SignalSymbols(
 		return nil, err
 	}
 
-	sumPower := sumPower(req.Signal.Symbols)
+	sumPower := sumPower(req.Signals)
 	sumDelegation := ms.Keeper.GetDelegatorDelegationsSum(ctx, delegator)
 	if sumPower > sumDelegation {
 		return nil, types.ErrNotEnoughDelegation
 	}
-	oldSignal, found := ms.Keeper.GetDelegatorSignal(ctx, delegator)
-	if found {
-		for _, symbolWithPower := range oldSignal.Symbols {
-			power := ms.Keeper.GetSymbolPower(ctx, symbolWithPower.Symbol)
-			power = power - symbolWithPower.Power
-			ms.Keeper.SetSymbolPower(ctx, symbolWithPower.Symbol, power)
+	oldSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
+	if oldSignals != nil {
+		for _, signal := range oldSignals {
+			power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
+			power = power - signal.Power
+			ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
 		}
 	}
 
-	ms.Keeper.SetDelegatorSignal(ctx, delegator, *req.Signal)
-	for _, symbolWithPower := range req.Signal.Symbols {
-		power := ms.Keeper.GetSymbolPower(ctx, symbolWithPower.Symbol)
-		power = power + symbolWithPower.Power
-		ms.Keeper.SetSymbolPower(ctx, symbolWithPower.Symbol, power)
+	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
+	for _, signal := range req.Signals {
+		power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
+		power = power + signal.Power
+		ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
 	}
 
 	return &types.MsgSignalSymbolsResponse{}, nil
 }
 
-func sumPower(symbolsWithPower []types.SymbolWithPower) (sum uint64) {
-	for _, symbol := range symbolsWithPower {
-		sum = sum + symbol.Power
+func sumPower(signals []types.Signal) (sum uint64) {
+	for _, signal := range signals {
+		sum = sum + signal.Power
 	}
 	return
-}
-
-func (ms msgServer) UpdateSymbols(
-	goCtx context.Context,
-	req *types.MsgUpdateSymbols,
-) (*types.MsgUpdateSymbolsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	admin := ms.GetParams(ctx).Admin
-	if admin != req.Admin {
-		return nil, types.ErrInvalidSigner.Wrapf(
-			"invalid admin; expected %s, got %s",
-			admin,
-			req.Admin,
-		)
-	}
-
-	for _, symbol := range req.Symbols {
-		time := ctx.BlockTime().Unix()
-
-		// if the symbols already existing, we won't update timestamp.
-		s, err := ms.Keeper.GetSymbol(ctx, symbol.Symbol)
-		if err == nil {
-			time = s.Timestamp
-		}
-
-		ms.Keeper.SetSymbol(ctx, types.Symbol{
-			Symbol:      symbol.Symbol,
-			MinInterval: symbol.MinInterval,
-			MaxInterval: symbol.MaxInterval,
-			Timestamp:   time,
-		})
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateSymbol,
-				sdk.NewAttribute(types.AttributeKeySymbol, symbol.Symbol),
-				sdk.NewAttribute(types.AttributeKeyMinInterval, fmt.Sprintf("%d", symbol.MinInterval)),
-				sdk.NewAttribute(types.AttributeKeyMaxInterval, fmt.Sprintf("%d", symbol.MaxInterval)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", time)),
-			),
-		)
-	}
-
-	return &types.MsgUpdateSymbolsResponse{}, nil
-}
-
-func (ms msgServer) RemoveSymbols(
-	goCtx context.Context,
-	req *types.MsgRemoveSymbols,
-) (*types.MsgRemoveSymbolsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	admin := ms.GetParams(ctx).Admin
-	if admin != req.Admin {
-		return nil, types.ErrInvalidSigner.Wrapf(
-			"invalid admin; expected %s, got %s",
-			admin,
-			req.Admin,
-		)
-	}
-
-	for _, symbol := range req.Symbols {
-		if _, err := ms.Keeper.GetSymbol(ctx, symbol); err != nil {
-			return nil, err
-		}
-
-		ms.Keeper.DeleteSymbol(ctx, symbol)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRemoveSymbol,
-				sdk.NewAttribute(types.AttributeKeySymbol, symbol),
-			),
-		)
-	}
-
-	return &types.MsgRemoveSymbolsResponse{}, nil
 }
 
 func (ms msgServer) SubmitPrices(
@@ -189,13 +111,13 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.MinInterval {
+			if blockTime < priceVal.Timestamp+s.Interval {
 				return nil, types.ErrPriceTooFast.Wrapf(
 					"symbol: %s, old: %d, new: %d, min_interval: %d",
 					price.Symbol,
 					priceVal.Timestamp,
 					blockTime,
-					s.MinInterval,
+					s.Interval,
 				)
 			}
 		}

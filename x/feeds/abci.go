@@ -11,13 +11,7 @@ import (
 // HandleEndBlock is a handler function for the EndBlock ABCI request.
 func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	symbols := k.GetSymbols(ctx)
-	prepareTime := k.GetParams(ctx).PrepareTime
-	blockTime := ctx.BlockTime().Unix()
 	for _, symbol := range symbols {
-		if blockTime < symbol.Timestamp+prepareTime {
-			continue
-		}
-
 		price, err := k.CalculatePrice(ctx, symbol, true)
 		if err != nil {
 			// TODO: handle error
