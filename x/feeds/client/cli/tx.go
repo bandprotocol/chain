@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,9 +32,43 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
+		GetTxCmdSignalSymbols(),
 	)
 
 	return txCmd
+}
+
+func GetTxCmdSignalSymbols() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:  "signal [symbol] [power]",
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			delegator := clientCtx.GetFromAddress()
+			power, _ := strconv.ParseUint(args[1], 0, 64)
+
+			msg := types.MsgSignalSymbols{
+				Delegator: delegator.String(),
+				Signal: &types.Signal{
+					Symbols: []types.SymbolWithPower{
+						types.SymbolWithPower{
+							Symbol: args[0],
+							Power:  power,
+						},
+					},
+				},
+			}
+			msgs := []sdk.Msg{&msg}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
 }
 
 // GetTxCmdAddGrantees creates a CLI command for add new grantees

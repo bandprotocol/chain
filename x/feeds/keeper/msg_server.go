@@ -40,7 +40,7 @@ func (ms msgServer) SignalSymbols(
 		return nil, types.ErrNotEnoughDelegation
 	}
 	oldSignal, found := ms.Keeper.GetDelegatorSignal(ctx, delegator)
-	if !found {
+	if found {
 		for _, symbolWithPower := range oldSignal.Symbols {
 			power := ms.Keeper.GetSymbolPower(ctx, symbolWithPower.Symbol)
 			power = power - symbolWithPower.Power

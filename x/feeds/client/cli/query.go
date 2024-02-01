@@ -28,9 +28,63 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPriceValidator(),
 		GetQueryCmdSymbols(),
 		GetQueryCmdParams(),
+		GetQueryCmdDelegatorSignal(),
+		GetQueryCmdSymbolPower(),
 	)
 
 	return queryCmd
+}
+
+func GetQueryCmdDelegatorSignal() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "signal",
+		Short: "",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.DelegatorSignal(
+				context.Background(),
+				&types.QueryDelegatorSignalRequest{Delegator: args[0]},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryCmdSymbolPower() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "symbol-power [symbol]",
+		Short: "",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.SymbolPower(
+				context.Background(),
+				&types.QuerySymbolPowerRequest{Symbol: args[0]},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func GetQueryCmdPrices() *cobra.Command {

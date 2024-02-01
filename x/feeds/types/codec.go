@@ -14,6 +14,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgRemoveSymbols{}, "feeds/MsgRemoveSymbols")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitPrices{}, "feeds/MsgSubmitPrices")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdatePriceService{}, "feeds/MsgUpdatePriceService")
+	legacy.RegisterAminoMsg(cdc, &MsgSignalSymbols{}, "feeds/MsgSignalSymbols")
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -22,6 +23,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateSymbols{},
 		&MsgRemoveSymbols{},
 		&MsgSubmitPrices{},
+		&MsgSignalSymbols{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

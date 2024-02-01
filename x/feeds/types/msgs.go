@@ -10,6 +10,27 @@ var (
 	_, _, _, _, _ sdk.Msg = &MsgUpdateSymbols{}, &MsgRemoveSymbols{}, &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
 )
 
+// Route Implements Msg.
+func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgSignalSymbols) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgSignalSymbols) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
+}
+
+// ValidateBasic does a sanity check on the provided data.
+func (m *MsgSignalSymbols) ValidateBasic() error {
+	return nil
+}
+
 // ====================================
 // MsgUpdateSymbols
 // ====================================

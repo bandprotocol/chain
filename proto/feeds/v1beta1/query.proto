@@ -51,6 +51,30 @@ service Query {
   rpc PriceService(QueryPriceServiceRequest) returns (QueryPriceServiceResponse) {
     option (google.api.http).get = "/feeds/v1beta1/price-service";
   }
+
+  rpc DelegatorSignal(QueryDelegatorSignalRequest) returns (QueryDelegatorSignalResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/delegator-signal";
+  }
+
+  rpc SymbolPower(QuerySymbolPowerRequest) returns (QuerySymbolPowerResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/symbol-power";
+  }
+}
+
+message QuerySymbolPowerRequest {
+  string symbol = 1;
+}
+
+message QuerySymbolPowerResponse {
+  uint64 power = 1;
+}
+
+message QueryDelegatorSignalRequest {
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+message QueryDelegatorSignalResponse {
+  Signal signal = 1;
 }
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.

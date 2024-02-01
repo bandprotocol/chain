@@ -24,6 +24,30 @@ func NewQueryServer(k Keeper) types.QueryServer {
 	}
 }
 
+func (q queryServer) SymbolPower(
+	goCtx context.Context, req *types.QuerySymbolPowerRequest,
+) (*types.QuerySymbolPowerResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	power := q.keeper.GetSymbolPower(ctx, req.Symbol)
+	return &types.QuerySymbolPowerResponse{Power: power}, nil
+}
+
+func (q queryServer) DelegatorSignal(
+	goCtx context.Context, req *types.QueryDelegatorSignalRequest,
+) (*types.QueryDelegatorSignalResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	signal, found := q.keeper.GetDelegatorSignal(ctx, delegator)
+	if !found {
+		return nil, status.Error(codes.Internal, "no signal")
+	}
+	return &types.QueryDelegatorSignalResponse{Signal: &signal}, nil
+}
+
 func (q queryServer) Prices(
 	goCtx context.Context, req *types.QueryPricesRequest,
 ) (*types.QueryPricesResponse, error) {
