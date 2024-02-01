@@ -20,4 +20,21 @@ message Params {
   // allow_diff_time is the allowed difference (in seconds) between timestamp and block_time when validator submits the
   // prices.
   int64 allow_diff_time = 3;
+
+  // transition_time is the time (in seconds) given for validators to adapt to changing in symbol's interval.
+  int64 transition_time = 4;
+
+  // min_interval is the minimum limit of every symbols' interval (in seconds).
+  // If the calculated interval is lower than this, it will be capped at this value.
+  int64 min_interval = 5;
+
+  // max_interval is the maximum limit of every symbols' interval (in seconds).
+  // If the calculated interval of a symbol is higher than this, it will not be recognized as a supported symbol.
+  int64 max_interval = 6;
+
+  // time_dividend is the dividend for interval calculation.
+  int64 time_dividend = 7;
+
+  // max_support_symbol is the maximum number of symbols supported at a time.
+  uint64 max_supported_symbol = 8;
 }
