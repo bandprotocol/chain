@@ -29,9 +29,9 @@ message Params {
   // If the calculated interval of a symbol is higher than this, it will not be recognized as a supported symbol.
   int64 max_interval = 5;
 
-  // time_dividend is the dividend for interval calculation.
-  int64 time_dividend = 6;
+  // power_threshold is the amount of minimum power required to put symbol in the supported list.
+  int64 power_threshold = 6;
 
   // max_support_symbol is the maximum number of symbols supported at a time.
-  uint64 max_supported_symbol = 7;
+  int64 max_supported_symbol = 7;
 }

@@ -39,24 +39,28 @@ func (ms msgServer) SignalSymbols(
 	if sumPower > sumDelegation {
 		return nil, types.ErrNotEnoughDelegation
 	}
-	oldSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
-	if oldSignals != nil {
-		for _, oldSignal := range oldSignals {
-			symbol, err := ms.Keeper.GetSymbol(ctx, oldSignal.Symbol)
+
+	symbolToIntervalDiff := make(map[string]int64)
+	prevSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
+	if prevSignals != nil {
+		for _, prevSignal := range prevSignals {
+			symbol, err := ms.Keeper.GetSymbol(ctx, prevSignal.Symbol)
 			if err != nil {
 				return nil, err
 			}
-			symbol.Power = symbol.Power - oldSignal.Power
+			symbol.Power = symbol.Power - prevSignal.Power
+			prevInterval := symbol.Interval
+			symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
 			ms.Keeper.SetSymbol(ctx, symbol)
-			// TODO: calculate new interval
+			intervalDiff := symbol.Interval - prevInterval
+			if symbol.Interval-prevInterval != 0 {
+				symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+			}
 		}
 	}
 
 	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
 	for _, signal := range req.Signals {
-		// power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
-		// power = power + signal.Power
-		// ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
 		symbol, err := ms.Keeper.GetSymbol(ctx, signal.Symbol)
 		if err != nil {
 			symbol = types.Symbol{
@@ -67,11 +71,40 @@ func (ms msgServer) SignalSymbols(
 			}
 		}
 		symbol.Power = symbol.Power + signal.Power
+		prevInterval := symbol.Interval
+		symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
 		ms.Keeper.SetSymbol(ctx, symbol)
-		// TODO: do calculate new interval
+
+		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
+		if intervalDiff == 0 {
+			delete(symbolToIntervalDiff, symbol.Symbol)
+		} else {
+			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+		}
+	}
+
+	for symbolName, _ := range symbolToIntervalDiff {
+		symbol, err := ms.Keeper.GetSymbol(ctx, symbolName)
+		if err != nil {
+			return nil, err
+		}
+		symbol.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
+		ms.Keeper.SetSymbol(ctx, symbol)
 	}
 
 	return &types.MsgSignalSymbolsResponse{}, nil
+}
+
+func calculateInterval(power int64, param types.Params) int64 {
+	if power < param.PowerThreshold {
+		return 0
+	}
+
+	interval := param.MaxInterval / (power / param.PowerThreshold)
+	if interval < param.MinInterval {
+		return param.MinInterval
+	}
+	return interval
 }
 
 func sumPower(signals []types.Signal) (sum uint64) {
