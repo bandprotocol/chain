@@ -656,8 +656,8 @@ func NewBandApp(
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
 	// NOTE: During begin block slashing happens after distr.BeginBlocker so that there is nothing left
 	// over in the validator fee pool, so as to keep the CanWithdrawInvariant invariant.
+	// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 
-	// TODO: Recheck all Begin/End block logic order
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
@@ -712,6 +712,7 @@ func NewBandApp(
 		consensusparamtypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
+
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: The genutils module must also occur after auth so that it can access the params from auth.
