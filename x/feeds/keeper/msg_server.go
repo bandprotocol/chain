@@ -41,18 +41,34 @@ func (ms msgServer) SignalSymbols(
 	}
 	oldSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
 	if oldSignals != nil {
-		for _, signal := range oldSignals {
-			power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
-			power = power - signal.Power
-			ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
+		for _, oldSignal := range oldSignals {
+			symbol, err := ms.Keeper.GetSymbol(ctx, oldSignal.Symbol)
+			if err != nil {
+				return nil, err
+			}
+			symbol.Power = symbol.Power - oldSignal.Power
+			ms.Keeper.SetSymbol(ctx, symbol)
+			// TODO: calculate new interval
 		}
 	}
 
 	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
 	for _, signal := range req.Signals {
-		power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
-		power = power + signal.Power
-		ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
+		// power := ms.Keeper.GetSymbolPower(ctx, signal.Symbol)
+		// power = power + signal.Power
+		// ms.Keeper.SetSymbolPower(ctx, signal.Symbol, power)
+		symbol, err := ms.Keeper.GetSymbol(ctx, signal.Symbol)
+		if err != nil {
+			symbol = types.Symbol{
+				Symbol:                      signal.Symbol,
+				Power:                       0,
+				Interval:                    0,
+				LastIntervalUpdateTimestamp: 0,
+			}
+		}
+		symbol.Power = symbol.Power + signal.Power
+		ms.Keeper.SetSymbol(ctx, symbol)
+		// TODO: do calculate new interval
 	}
 
 	return &types.MsgSignalSymbolsResponse{}, nil
