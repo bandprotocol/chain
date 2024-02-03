@@ -1,7 +1,7 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -22,7 +22,7 @@ func DefaultParams() Params {
 func validateMinimumGasPrices(i interface{}) error {
 	v, ok := i.(sdk.DecCoins)
 	if !ok {
-		return errors.Wrapf(sdkerrors.ErrInvalidType, "type: %T, expected sdk.DecCoins", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "type: %T, expected sdk.DecCoins", i)
 	}
 
 	return v.Validate()

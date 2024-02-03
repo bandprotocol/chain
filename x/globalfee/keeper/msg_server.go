@@ -3,7 +3,7 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -28,7 +28,7 @@ func (ms msgServer) UpdateParams(
 	req *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
 	if ms.authority != req.Authority {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			govtypes.ErrInvalidSigner,
 			"invalid authority; expected %s, got %s",
 			ms.authority,
