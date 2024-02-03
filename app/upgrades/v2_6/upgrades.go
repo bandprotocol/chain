@@ -1,7 +1,6 @@
 package v2_6
 
 import (
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -21,12 +20,13 @@ import (
 	"github.com/bandprotocol/chain/v2/app/keepers"
 	"github.com/bandprotocol/chain/v2/app/upgrades"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	am upgrades.AppManager,
+	_ upgrades.AppManager,
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
@@ -41,7 +41,7 @@ func CreateUpgradeHandler(
 			case banktypes.ModuleName:
 				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
 			case stakingtypes.ModuleName:
-				keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = stakingtypes.ParamKeyTable()
 			case minttypes.ModuleName:
 				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 			case distrtypes.ModuleName:
@@ -54,11 +54,11 @@ func CreateUpgradeHandler(
 				keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
 			// ibc types
 			case ibctransfertypes.ModuleName:
-				keyTable = ibctransfertypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = ibctransfertypes.ParamKeyTable()
 			case icahosttypes.SubModuleName:
-				keyTable = icahosttypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = icahosttypes.ParamKeyTable()
 			case oracletypes.ModuleName:
-				keyTable = oracletypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = oracletypes.ParamKeyTable()
 			default:
 				continue
 			}

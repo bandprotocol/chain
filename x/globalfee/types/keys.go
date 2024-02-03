@@ -14,6 +14,4 @@ const (
 	RouterKey = ModuleName
 )
 
-var (
-	ParamsKeyPrefix = []byte{0x01}
-)
+var ParamsKeyPrefix = []byte{0x01}

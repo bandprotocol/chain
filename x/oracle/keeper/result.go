@@ -93,7 +93,7 @@ func (k Keeper) SaveResult(
 		r.MinCount,                         // MinCount
 		id,                                 // RequestID
 		reportCount,                        // AnsCount
-		int64(r.RequestTime),               // RequestTime
+		r.RequestTime,                      // RequestTime
 		ctx.BlockTime().Unix(),             // ResolveTime
 		status,                             // ResolveStatus
 		result,                             // Result
@@ -113,7 +113,7 @@ func (k Keeper) SaveResult(
 		}
 
 		packetData := types.NewOracleResponsePacketData(
-			r.ClientID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+			r.ClientID, id, reportCount, r.RequestTime, ctx.BlockTime().Unix(), status, result,
 		)
 
 		if _, err := k.channelKeeper.SendPacket(

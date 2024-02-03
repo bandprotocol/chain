@@ -1,6 +1,5 @@
 package types
 
-// nolint
 const (
 	EventTypeCreateDataSource   = "create_data_source"
 	EventTypeEditDataSource     = "edit_data_source"

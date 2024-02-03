@@ -26,10 +26,10 @@ var _ types.QueryServer = Querier{}
 func (k Querier) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryCountsResponse{
-			DataSourceCount:   k.GetDataSourceCount(ctx),
-			OracleScriptCount: k.GetOracleScriptCount(ctx),
-			RequestCount:      k.GetRequestCount(ctx)},
-		nil
+		DataSourceCount:   k.GetDataSourceCount(ctx),
+		OracleScriptCount: k.GetOracleScriptCount(ctx),
+		RequestCount:      k.GetRequestCount(ctx),
+	}, nil
 }
 
 // Data queries the data source or oracle script script for given file hash.
@@ -343,7 +343,7 @@ func (k Querier) RequestVerification(
 	if err != nil || len(pk) != secp256k1.PubKeySize {
 		return nil, status.Error(codes.InvalidArgument, "unable to get reporter's public key")
 	}
-	reporterPubKey := secp256k1.PubKey(pk[:])
+	reporterPubKey := secp256k1.PubKey(pk)
 
 	requestVerificationContent := types.NewRequestVerification(
 		req.ChainId,
@@ -400,14 +400,14 @@ func (k Querier) RequestVerification(
 	}
 
 	// Provided external ID should be required by the request determined by oracle script
-	var dataSourceID *types.DataSourceID
+	var dataSourceID types.DataSourceID
 	for _, rawRequest := range request.RawRequests {
 		if rawRequest.ExternalID == types.ExternalID(req.ExternalId) {
-			dataSourceID = &rawRequest.DataSourceID
+			dataSourceID = rawRequest.DataSourceID
 			break
 		}
 	}
-	if dataSourceID == nil {
+	if dataSourceID == 0 {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			fmt.Sprintf(
@@ -417,7 +417,7 @@ func (k Querier) RequestVerification(
 			),
 		)
 	}
-	if *dataSourceID != types.DataSourceID(req.DataSourceId) {
+	if dataSourceID != types.DataSourceID(req.DataSourceId) {
 		return nil, status.Error(
 			codes.InvalidArgument,
 			fmt.Sprintf(
@@ -458,7 +458,7 @@ func (k Querier) RequestVerification(
 		Validator:    req.Validator,
 		RequestId:    req.RequestId,
 		ExternalId:   req.ExternalId,
-		DataSourceId: uint64(*dataSourceID),
+		DataSourceId: uint64(dataSourceID),
 		IsDelay:      false,
 	}, nil
 }

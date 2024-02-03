@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func creatDefaultServer() *httptest.Server {
+func createDefaultServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		ret := externalExecutionResponse{
@@ -18,7 +18,7 @@ func creatDefaultServer() *httptest.Server {
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}
-		json.NewEncoder(res).Encode(ret)
+		_ = json.NewEncoder(res).Encode(ret)
 	}))
 }
 
@@ -28,14 +28,14 @@ func createResponseNotOkSenarioServer() *httptest.Server {
 	}))
 }
 
-func createCannotDecodeJsonSenarioServer() *httptest.Server {
+func createCannotDecodeJSONSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
-		res.Write([]byte("invalid bytes"))
+		_, _ = res.Write([]byte("invalid bytes"))
 	}))
 }
 
-func creatExecuteFailSenarioServer() *httptest.Server {
+func createExecuteFailSenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		ret := externalExecutionResponse{
@@ -43,12 +43,12 @@ func creatExecuteFailSenarioServer() *httptest.Server {
 			Stdout:     "BEEB",
 			Stderr:     "Stderr",
 		}
-		json.NewEncoder(res).Encode(ret)
+		_ = json.NewEncoder(res).Encode(ret)
 	}))
 }
 
 func TestExecuteSuccess(t *testing.T) {
-	testServer := creatDefaultServer()
+	testServer := createDefaultServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
@@ -59,7 +59,7 @@ func TestExecuteSuccess(t *testing.T) {
 }
 
 func TestExecuteBadUrlFail(t *testing.T) {
-	testServer := creatDefaultServer()
+	testServer := createDefaultServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec("www.beeb.com", 1*time.Second) // bad url
@@ -68,7 +68,7 @@ func TestExecuteBadUrlFail(t *testing.T) {
 }
 
 func TestExecuteDecodeStructFail(t *testing.T) {
-	testServer := createCannotDecodeJsonSenarioServer()
+	testServer := createCannotDecodeJSONSenarioServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
@@ -86,7 +86,7 @@ func TestExecuteResponseNotOk(t *testing.T) {
 }
 
 func TestExecuteFail(t *testing.T) {
-	testServer := creatExecuteFailSenarioServer()
+	testServer := createExecuteFailSenarioServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
