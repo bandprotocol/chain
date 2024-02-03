@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/gzip"
@@ -97,7 +96,7 @@ func (k msgServer) CreateDataSource(
 		var err error
 		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -158,7 +157,7 @@ func (k msgServer) EditDataSource(
 	if gzip.IsGzipped(msg.Executable) {
 		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -191,7 +190,7 @@ func (k msgServer) CreateOracleScript(
 		var err error
 		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -247,7 +246,7 @@ func (k msgServer) EditOracleScript(
 	if gzip.IsGzipped(msg.Code) {
 		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -296,8 +295,7 @@ func (k msgServer) UpdateParams(
 	msg *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != msg.Authority {
-		return nil, sdkerrors.Wrapf(
-			govtypes.ErrInvalidSigner,
+		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
 			k.authority,
 			msg.Authority,
