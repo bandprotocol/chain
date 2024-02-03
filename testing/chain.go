@@ -313,7 +313,8 @@ func (chain *TestChain) SendReport(
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	_ = senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	err = senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	require.NoError(chain.t, err)
 
 	chain.Coordinator.IncrementTime()
 

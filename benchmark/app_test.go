@@ -73,7 +73,8 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	ba.Did = uint64(did)
 
 	// activate oracle
-	_, _, _ = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	require.NoError(tb, err)
 
 	ba.CallEndBlock()
 	ba.Commit()
