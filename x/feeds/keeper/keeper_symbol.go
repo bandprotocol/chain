@@ -62,7 +62,7 @@ func (k Keeper) DeleteSymbolByPowerIndex(ctx sdk.Context, symbol types.Symbol) {
 
 // get the current group of bonded validators sorted by power-rank
 func (k Keeper) GetSymbolsByPower(ctx sdk.Context) []types.Symbol {
-	maxSymbols := 300
+	maxSymbols := k.GetParams(ctx).MaxSupportedSymbol
 	symbols := make([]types.Symbol, maxSymbols)
 
 	iterator := k.SymbolsPowerStoreIterator(ctx)
