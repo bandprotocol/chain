@@ -32,12 +32,3 @@ func (k Keeper) SetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress, s
 	ctx.KVStore(k.storeKey).
 		Set(types.DelegatorSignalStoreKey(delegator), k.cdc.MustMarshal(&types.Signals{Signals: signals}))
 }
-
-func (k Keeper) GetSymbolPower(ctx sdk.Context, symbol string) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.SymbolPowerStoreKey(symbol))
-	return sdk.BigEndianToUint64(bz)
-}
-
-func (k Keeper) SetSymbolPower(ctx sdk.Context, symbol string, power uint64) {
-	ctx.KVStore(k.storeKey).Set(types.SymbolPowerStoreKey(symbol), sdk.Uint64ToBigEndian(power))
-}

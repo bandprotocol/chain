@@ -56,17 +56,16 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/delegator-signal";
   }
 
-  rpc SymbolPower(QuerySymbolPowerRequest) returns (QuerySymbolPowerResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/symbol-power";
+  rpc SupportedSymbols(QuerySupportedSymbols) returns (QuerySupportedSymbolsResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/supported-symbols";
   }
 }
 
-message QuerySymbolPowerRequest {
-  string symbol = 1;
-}
+message QuerySupportedSymbols {}
 
-message QuerySymbolPowerResponse {
-  uint64 power = 1;
+message QuerySupportedSymbolsResponse {
+  // List of symbols.
+  repeated Symbol symbols = 1 [(gogoproto.nullable) = false];
 }
 
 message QueryDelegatorSignalsRequest {

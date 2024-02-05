@@ -48,10 +48,17 @@ func (ms msgServer) SignalSymbols(
 			if err != nil {
 				return nil, err
 			}
+			// before changing in symbol, delete the SymbolByPower index
+			ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
+
 			symbol.Power = symbol.Power - prevSignal.Power
 			prevInterval := symbol.Interval
 			symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
 			ms.Keeper.SetSymbol(ctx, symbol)
+
+			// setting SymbolByPowerIndex every time setting symbol
+			ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
+
 			intervalDiff := symbol.Interval - prevInterval
 			if symbol.Interval-prevInterval != 0 {
 				symbolToIntervalDiff[symbol.Symbol] = intervalDiff
@@ -70,10 +77,16 @@ func (ms msgServer) SignalSymbols(
 				LastIntervalUpdateTimestamp: 0,
 			}
 		}
+		// before changing in symbol, delete the SymbolByPower index
+		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
+
 		symbol.Power = symbol.Power + signal.Power
 		prevInterval := symbol.Interval
 		symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
 		ms.Keeper.SetSymbol(ctx, symbol)
+
+		// setting SymbolByPowerIndex every time setting symbol
+		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
 
 		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
 		if intervalDiff == 0 {
@@ -83,13 +96,19 @@ func (ms msgServer) SignalSymbols(
 		}
 	}
 
-	for symbolName, _ := range symbolToIntervalDiff {
+	for symbolName := range symbolToIntervalDiff {
 		symbol, err := ms.Keeper.GetSymbol(ctx, symbolName)
 		if err != nil {
 			return nil, err
 		}
+		// before changing in symbol, delete the SymbolByPower index
+		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
+
 		symbol.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
 		ms.Keeper.SetSymbol(ctx, symbol)
+
+		// setting SymbolByPowerIndex every time setting symbol
+		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
 	}
 
 	return &types.MsgSignalSymbolsResponse{}, nil

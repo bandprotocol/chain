@@ -24,14 +24,6 @@ func NewQueryServer(k Keeper) types.QueryServer {
 	}
 }
 
-func (q queryServer) SymbolPower(
-	goCtx context.Context, req *types.QuerySymbolPowerRequest,
-) (*types.QuerySymbolPowerResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	power := q.keeper.GetSymbolPower(ctx, req.Symbol)
-	return &types.QuerySymbolPowerResponse{Power: power}, nil
-}
-
 func (q queryServer) DelegatorSignals(
 	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
 ) (*types.QueryDelegatorSignalsResponse, error) {
@@ -237,6 +229,16 @@ func (q queryServer) Symbols(
 	}
 
 	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
+}
+
+func (q queryServer) SupportedSymbols(
+	goCtx context.Context, req *types.QuerySupportedSymbols,
+) (*types.QuerySupportedSymbolsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	return &types.QuerySupportedSymbolsResponse{
+		Symbols: q.keeper.GetSymbolsByPower(ctx),
+	}, nil
 }
 
 func (q queryServer) PriceService(

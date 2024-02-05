@@ -29,7 +29,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdSymbols(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
-		GetQueryCmdSymbolPower(),
+		GetQueryCmdSupportedSymbols(),
 	)
 
 	return queryCmd
@@ -47,32 +47,6 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 			res, err := queryClient.DelegatorSignals(
 				context.Background(),
 				&types.QueryDelegatorSignalsRequest{Delegator: args[0]},
-			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func GetQueryCmdSymbolPower() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "symbol-power [symbol]",
-		Short: "",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.SymbolPower(
-				context.Background(),
-				&types.QuerySymbolPowerRequest{Symbol: args[0]},
 			)
 			if err != nil {
 				return err
@@ -122,6 +96,29 @@ func GetQueryCmdPrice() *cobra.Command {
 			res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
 				Symbol: args[0],
 			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryCmdSupportedSymbols() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "supported-symbols",
+		Short: "",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbols{})
 			if err != nil {
 				return err
 			}
