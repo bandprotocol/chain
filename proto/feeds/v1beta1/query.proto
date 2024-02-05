@@ -52,28 +52,15 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/price-service";
   }
 
+  // RPC method that returns signals of a delegator
   rpc DelegatorSignals(QueryDelegatorSignalsRequest) returns (QueryDelegatorSignalsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/delegator-signal";
+    option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
   }
 
+  // RPC method that return list of currect supported symbols
   rpc SupportedSymbols(QuerySupportedSymbols) returns (QuerySupportedSymbolsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/supported-symbols";
   }
-}
-
-message QuerySupportedSymbols {}
-
-message QuerySupportedSymbolsResponse {
-  // List of symbols.
-  repeated Symbol symbols = 1 [(gogoproto.nullable) = false];
-}
-
-message QueryDelegatorSignalsRequest {
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-}
-
-message QueryDelegatorSignalsResponse {
-  repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
@@ -182,4 +169,23 @@ message QueryPriceServiceRequest {}
 message QueryPriceServiceResponse {
   // Information about price service.
   PriceService price_service = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method
+message QueryDelegatorSignalsRequest {
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method
+message QueryDelegatorSignalsResponse {
+  repeated Signal signals = 1 [(gogoproto.nullable) = false];
+}
+
+// QuerySupportedSymbols is the request type for the Query/SupportedSymbols RPC method
+message QuerySupportedSymbols {}
+
+// QuerySupportedSymbolsResponse is the response type for the Query/SupportedSymbols RPC method
+message QuerySupportedSymbolsResponse {
+  // List of symbols.
+  repeated Symbol symbols = 1 [(gogoproto.nullable) = false];
 }

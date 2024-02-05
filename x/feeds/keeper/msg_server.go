@@ -34,12 +34,14 @@ func (ms msgServer) SignalSymbols(
 		return nil, err
 	}
 
+	// check whether delegator has enough delegation for signals
 	sumPower := sumPower(req.Signals)
 	sumDelegation := ms.Keeper.GetDelegatorDelegationsSum(ctx, delegator)
 	if sumPower > sumDelegation {
 		return nil, types.ErrNotEnoughDelegation
 	}
 
+	// delete previous signal, decrease symbol power by the previous signals
 	symbolToIntervalDiff := make(map[string]int64)
 	prevSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
 	if prevSignals != nil {
@@ -66,6 +68,7 @@ func (ms msgServer) SignalSymbols(
 		}
 	}
 
+	// increase symbol power by the new signals
 	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
 	for _, signal := range req.Signals {
 		symbol, err := ms.Keeper.GetSymbol(ctx, signal.Symbol)
@@ -88,6 +91,7 @@ func (ms msgServer) SignalSymbols(
 		// setting SymbolByPowerIndex every time setting symbol
 		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
 
+		// if the sum interval differences is zero then the interval is not changed
 		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
 		if intervalDiff == 0 {
 			delete(symbolToIntervalDiff, symbol.Symbol)
@@ -96,6 +100,7 @@ func (ms msgServer) SignalSymbols(
 		}
 	}
 
+	// update interval timestamp for interval-changed symbols
 	for symbolName := range symbolToIntervalDiff {
 		symbol, err := ms.Keeper.GetSymbol(ctx, symbolName)
 		if err != nil {
@@ -119,6 +124,7 @@ func calculateInterval(power int64, param types.Params) int64 {
 		return 0
 	}
 
+	// dividd power by power threshold to create steps
 	interval := param.MaxInterval / (power / param.PowerThreshold)
 	if interval < param.MinInterval {
 		return param.MinInterval
