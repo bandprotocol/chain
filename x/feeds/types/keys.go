@@ -61,6 +61,10 @@ func GetSymbolsByPowerIndexKey(symbol string, power uint64) []byte {
 	powerBytesLen := len(powerBytes) // 8
 
 	symbolBytes := []byte(symbol)
+	for i, b := range symbolBytes {
+		symbolBytes[i] = ^b
+	}
+
 	symbolBytesLen := len(symbolBytes)
 
 	key := make([]byte, 1+powerBytesLen+1+symbolBytesLen)
