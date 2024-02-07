@@ -23,14 +23,25 @@ func checkSymbols(c *Context, l *Logger) {
 		return
 	}
 
-	bz = cdc.MustMarshal(&types.QuerySymbolsRequest{})
-	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
+	bz = cdc.MustMarshal(&types.QueryParamsRequest{})
+	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Params", bz)
 	if err != nil {
-		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
+		l.Error(":exploding_head: Failed to get supported symbols with error: %s", c, err.Error())
 		return
 	}
 
-	symbolsResponse := types.QuerySymbolsResponse{}
+	paramsResponse := types.QueryParamsResponse{}
+	cdc.MustUnmarshal(resBz.Response.Value, &paramsResponse)
+	params := paramsResponse.Params
+
+	bz = cdc.MustMarshal(&types.QuerySupportedSymbolsRequest{})
+	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/SupportedSymbols", bz)
+	if err != nil {
+		l.Error(":exploding_head: Failed to get supported symbols with error: %s", c, err.Error())
+		return
+	}
+
+	symbolsResponse := types.QuerySupportedSymbolsResponse{}
 	cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
 	symbols := symbolsResponse.Symbols
 
@@ -60,7 +71,8 @@ func checkSymbols(c *Context, l *Logger) {
 		// add 2 to prevent too fast cases
 		if !ok ||
 			time.Unix(timestamp+2, 0).
-				Add(time.Duration(symbol.MinInterval)*time.Second).
+				Add(time.Duration(symbol.Interval)*time.Second).
+				Add(-time.Duration(params.TransitionTime)*time.Second).
 				Before(now) {
 			symbolList = append(symbolList, symbol.Symbol)
 			c.inProgressSymbols.Store(symbol.GetSymbol(), time.Now())
