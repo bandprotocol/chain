@@ -6,17 +6,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func (k Keeper) GetDelegatorDelegationsSum(ctx sdk.Context, delegator sdk.AccAddress) (sum uint64) {
-	delegations := k.stakingKeeper.GetDelegatorDelegations(ctx, delegator, 100)
-	for _, del := range delegations {
-		val, found := k.stakingKeeper.GetValidator(ctx, del.GetValidatorAddr())
-		if found {
-			sum = sum + val.TokensFromShares(del.Shares).TruncateInt().Uint64()
-		}
-	}
-	return
-}
-
 func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) []types.Signal {
 	bz := ctx.KVStore(k.storeKey).Get(types.DelegatorSignalStoreKey(delegator))
 	if bz == nil {

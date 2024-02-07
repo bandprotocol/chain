@@ -237,7 +237,7 @@ func (q queryServer) SupportedSymbols(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	return &types.QuerySupportedSymbolsResponse{
-		Symbols: q.keeper.GetSymbolsByPower(ctx),
+		Symbols: q.keeper.GetSupportedSymbolsByPower(ctx),
 	}, nil
 }
 
