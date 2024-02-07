@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 func (k Keeper) GetDelegatorDelegationsSum(ctx sdk.Context, delegator sdk.AccAddress) (sum uint64) {

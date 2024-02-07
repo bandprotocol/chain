@@ -1,12 +1,14 @@
 package types
 
 import (
-	time "time"
+	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // OracleKeeper defines the expected oracle keeper
@@ -24,4 +26,5 @@ type StakingKeeper interface {
 	)
 	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
 	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.Delegation
+	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
 }
