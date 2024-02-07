@@ -36,7 +36,7 @@ func (ms msgServer) SignalSymbols(
 
 	// check whether delegator has enough delegation for signals
 	sumPower := sumPower(req.Signals)
-	sumDelegation := ms.Keeper.GetDelegatorDelegationsSum(ctx, delegator)
+	sumDelegation := ms.Keeper.stakingKeeper.GetDelegatorBonded(ctx, delegator).Uint64()
 	if sumPower > sumDelegation {
 		return nil, types.ErrNotEnoughDelegation
 	}

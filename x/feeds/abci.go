@@ -10,7 +10,7 @@ import (
 
 // HandleEndBlock is a handler function for the EndBlock ABCI request.
 func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
-	symbols := k.GetSymbols(ctx)
+	symbols := k.GetSupportedSymbolsByPower(ctx)
 	for _, symbol := range symbols {
 		price, err := k.CalculatePrice(ctx, symbol, true)
 		if err != nil {
