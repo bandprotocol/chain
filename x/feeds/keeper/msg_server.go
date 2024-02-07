@@ -185,7 +185,7 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.Interval {
+			if blockTime < priceVal.Timestamp+s.Interval-types.DefaultParams().TransitionTime {
 				return nil, types.ErrPriceTooFast.Wrapf(
 					"symbol: %s, old: %d, new: %d, min_interval: %d",
 					price.Symbol,
