@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -10,7 +8,6 @@ import (
 
 func (k Keeper) GetDelegatorDelegationsSum(ctx sdk.Context, delegator sdk.AccAddress) (sum uint64) {
 	delegations := k.stakingKeeper.GetDelegatorDelegations(ctx, delegator, 100)
-	fmt.Println("delegations - ", delegations)
 	for _, del := range delegations {
 		val, found := k.stakingKeeper.GetValidator(ctx, del.GetValidatorAddr())
 		if found {
