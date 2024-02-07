@@ -23,82 +23,120 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-func (ms msgServer) UpdateSymbols(
+func (ms msgServer) SignalSymbols(
 	goCtx context.Context,
-	req *types.MsgUpdateSymbols,
-) (*types.MsgUpdateSymbolsResponse, error) {
+	req *types.MsgSignalSymbols,
+) (*types.MsgSignalSymbolsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	admin := ms.GetParams(ctx).Admin
-	if admin != req.Admin {
-		return nil, types.ErrInvalidSigner.Wrapf(
-			"invalid admin; expected %s, got %s",
-			admin,
-			req.Admin,
-		)
+	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, symbol := range req.Symbols {
-		time := ctx.BlockTime().Unix()
+	// check whether delegator has enough delegation for signals
+	sumPower := sumPower(req.Signals)
+	sumDelegation := ms.Keeper.GetDelegatorDelegationsSum(ctx, delegator)
+	if sumPower > sumDelegation {
+		return nil, types.ErrNotEnoughDelegation
+	}
 
-		// if the symbols already existing, we won't update timestamp.
-		s, err := ms.Keeper.GetSymbol(ctx, symbol.Symbol)
-		if err == nil {
-			time = s.Timestamp
+	// delete previous signal, decrease symbol power by the previous signals
+	symbolToIntervalDiff := make(map[string]int64)
+	prevSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
+	if prevSignals != nil {
+		for _, prevSignal := range prevSignals {
+			symbol, err := ms.Keeper.GetSymbol(ctx, prevSignal.Symbol)
+			if err != nil {
+				return nil, err
+			}
+			// before changing in symbol, delete the SymbolByPower index
+			ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
+
+			symbol.Power = symbol.Power - prevSignal.Power
+			prevInterval := symbol.Interval
+			symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
+			ms.Keeper.SetSymbol(ctx, symbol)
+
+			// setting SymbolByPowerIndex every time setting symbol
+			ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
+
+			intervalDiff := symbol.Interval - prevInterval
+			if symbol.Interval-prevInterval != 0 {
+				symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+			}
 		}
-
-		ms.Keeper.SetSymbol(ctx, types.Symbol{
-			Symbol:      symbol.Symbol,
-			MinInterval: symbol.MinInterval,
-			MaxInterval: symbol.MaxInterval,
-			Timestamp:   time,
-		})
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdateSymbol,
-				sdk.NewAttribute(types.AttributeKeySymbol, symbol.Symbol),
-				sdk.NewAttribute(types.AttributeKeyMinInterval, fmt.Sprintf("%d", symbol.MinInterval)),
-				sdk.NewAttribute(types.AttributeKeyMaxInterval, fmt.Sprintf("%d", symbol.MaxInterval)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", time)),
-			),
-		)
 	}
 
-	return &types.MsgUpdateSymbolsResponse{}, nil
-}
+	// increase symbol power by the new signals
+	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
+	for _, signal := range req.Signals {
+		symbol, err := ms.Keeper.GetSymbol(ctx, signal.Symbol)
+		if err != nil {
+			symbol = types.Symbol{
+				Symbol:                      signal.Symbol,
+				Power:                       0,
+				Interval:                    0,
+				LastIntervalUpdateTimestamp: 0,
+			}
+		}
+		// before changing in symbol, delete the SymbolByPower index
+		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
 
-func (ms msgServer) RemoveSymbols(
-	goCtx context.Context,
-	req *types.MsgRemoveSymbols,
-) (*types.MsgRemoveSymbolsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
+		symbol.Power = symbol.Power + signal.Power
+		prevInterval := symbol.Interval
+		symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
+		ms.Keeper.SetSymbol(ctx, symbol)
 
-	admin := ms.GetParams(ctx).Admin
-	if admin != req.Admin {
-		return nil, types.ErrInvalidSigner.Wrapf(
-			"invalid admin; expected %s, got %s",
-			admin,
-			req.Admin,
-		)
+		// setting SymbolByPowerIndex every time setting symbol
+		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
+
+		// if the sum interval differences is zero then the interval is not changed
+		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
+		if intervalDiff == 0 {
+			delete(symbolToIntervalDiff, symbol.Symbol)
+		} else {
+			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+		}
 	}
 
-	for _, symbol := range req.Symbols {
-		if _, err := ms.Keeper.GetSymbol(ctx, symbol); err != nil {
+	// update interval timestamp for interval-changed symbols
+	for symbolName := range symbolToIntervalDiff {
+		symbol, err := ms.Keeper.GetSymbol(ctx, symbolName)
+		if err != nil {
 			return nil, err
 		}
+		// before changing in symbol, delete the SymbolByPower index
+		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
 
-		ms.Keeper.DeleteSymbol(ctx, symbol)
+		symbol.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
+		ms.Keeper.SetSymbol(ctx, symbol)
 
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRemoveSymbol,
-				sdk.NewAttribute(types.AttributeKeySymbol, symbol),
-			),
-		)
+		// setting SymbolByPowerIndex every time setting symbol
+		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
 	}
 
-	return &types.MsgRemoveSymbolsResponse{}, nil
+	return &types.MsgSignalSymbolsResponse{}, nil
+}
+
+func calculateInterval(power int64, param types.Params) int64 {
+	if power < param.PowerThreshold {
+		return 0
+	}
+
+	// dividd power by power threshold to create steps
+	interval := param.MaxInterval / (power / param.PowerThreshold)
+	if interval < param.MinInterval {
+		return param.MinInterval
+	}
+	return interval
+}
+
+func sumPower(signals []types.Signal) (sum uint64) {
+	for _, signal := range signals {
+		sum = sum + signal.Power
+	}
+	return
 }
 
 func (ms msgServer) SubmitPrices(
@@ -147,13 +185,13 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.MinInterval {
+			if blockTime < priceVal.Timestamp+s.Interval {
 				return nil, types.ErrPriceTooFast.Wrapf(
 					"symbol: %s, old: %d, new: %d, min_interval: %d",
 					price.Symbol,
 					priceVal.Timestamp,
 					blockTime,
-					s.MinInterval,
+					s.Interval,
 				)
 			}
 		}

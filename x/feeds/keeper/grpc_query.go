@@ -24,6 +24,22 @@ func NewQueryServer(k Keeper) types.QueryServer {
 	}
 }
 
+func (q queryServer) DelegatorSignals(
+	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
+) (*types.QueryDelegatorSignalsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	if err != nil {
+		return nil, err
+	}
+
+	signals := q.keeper.GetDelegatorSignals(ctx, delegator)
+	if signals == nil {
+		return nil, status.Error(codes.Internal, "no signal")
+	}
+	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
+}
+
 func (q queryServer) Prices(
 	goCtx context.Context, req *types.QueryPricesRequest,
 ) (*types.QueryPricesResponse, error) {
@@ -83,7 +99,7 @@ func (q queryServer) Price(
 	var filteredPriceVals []types.PriceValidator
 	blockTime := ctx.BlockTime().Unix()
 	for _, priceVal := range priceVals {
-		if priceVal.Timestamp > blockTime-s.MaxInterval {
+		if priceVal.Timestamp > blockTime-s.Interval {
 			filteredPriceVals = append(filteredPriceVals, priceVal)
 		}
 	}
@@ -213,6 +229,16 @@ func (q queryServer) Symbols(
 	}
 
 	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
+}
+
+func (q queryServer) SupportedSymbols(
+	goCtx context.Context, req *types.QuerySupportedSymbols,
+) (*types.QuerySupportedSymbolsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	return &types.QuerySupportedSymbolsResponse{
+		Symbols: q.keeper.GetSymbolsByPower(ctx),
+	}, nil
 }
 
 func (q queryServer) PriceService(

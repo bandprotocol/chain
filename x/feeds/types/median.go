@@ -9,6 +9,7 @@ type PriceFeedInfo struct {
 	Price     uint64
 	Deviation uint64
 	Timestamp int64
+	Index     int64
 }
 
 func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
@@ -21,7 +22,7 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
 	sort.Slice(pfInfos, func(i, j int) bool {
 		if pfInfos[i].Timestamp == pfInfos[j].Timestamp {
 			if pfInfos[i].Power == pfInfos[j].Power {
-				return i < j
+				return pfInfos[i].Index < pfInfos[j].Index
 			}
 
 			return pfInfos[i].Power > pfInfos[j].Power
