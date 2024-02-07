@@ -16,4 +16,5 @@ var (
 	ErrNotTopValidator         = errors.Register(ModuleName, 9, "not top validator")
 	ErrNotEnoughDelegation     = errors.Register(ModuleName, 10, "not enough delegation")
 	ErrSymbolPowerNotFound     = errors.Register(ModuleName, 11, "symbol power not found")
+	ErrUnableToUndelegate      = errors.Register(ModuleName, 12, "unable to undelegate")
 )
