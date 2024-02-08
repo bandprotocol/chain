@@ -1,8 +1,8 @@
 package keeper
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -15,7 +15,7 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) (types.Report, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReportsOfValidatorPrefixKey(rid, val))
 	if bz == nil {
-		return types.Report{}, sdkerrors.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
+		return types.Report{}, errorsmod.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
 	}
 	var report types.Report
 	k.cdc.MustUnmarshal(bz, &report)
@@ -67,12 +67,10 @@ func (k Keeper) CheckValidReport(
 		}
 	}
 	if !found {
-		return sdkerrors.Wrapf(
-			types.ErrValidatorNotRequested, "reqID: %d, val: %s", rid, val.String())
+		return types.ErrValidatorNotRequested.Wrapf("reqID: %d, val: %s", rid, val.String())
 	}
 	if k.HasReport(ctx, rid, val) {
-		return sdkerrors.Wrapf(
-			types.ErrValidatorAlreadyReported, "reqID: %d, val: %s", rid, val.String())
+		return types.ErrValidatorAlreadyReported.Wrapf("reqID: %d, val: %s", rid, val.String())
 	}
 	if len(rawReports) != len(req.RawRequests) {
 		return types.ErrInvalidReportSize
@@ -81,8 +79,7 @@ func (k Keeper) CheckValidReport(
 		// Here we can safely assume that external IDs are unique, as this has already been
 		// checked by ValidateBasic performed in baseapp's runTx function.
 		if !ContainsEID(req.RawRequests, rep.ExternalID) {
-			return sdkerrors.Wrapf(
-				types.ErrRawRequestNotFound, "reqID: %d, extID: %d", rid, rep.ExternalID)
+			return types.ErrRawRequestNotFound.Wrapf("reqID: %d, extID: %d", rid, rep.ExternalID)
 		}
 	}
 	return nil
