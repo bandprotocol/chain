@@ -5,7 +5,6 @@ import (
 	gz "compress/gzip"
 	"errors"
 	"io"
-	"io/ioutil"
 )
 
 // Magic bytes to identify gzip. See https://www.ietf.org/rfc/rfc1952.txt section 2.3.1.
@@ -24,7 +23,7 @@ func Uncompress(src []byte, maxSize int64) ([]byte, error) {
 		return nil, err
 	}
 	zr.Multistream(false)
-	uncompressed, err := ioutil.ReadAll(io.LimitReader(zr, maxSize+1))
+	uncompressed, err := io.ReadAll(io.LimitReader(zr, maxSize+1))
 	if err != nil {
 		return nil, err
 	}

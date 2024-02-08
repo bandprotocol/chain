@@ -4,7 +4,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -18,7 +17,7 @@ func (k Keeper) HasRequest(ctx sdk.Context, id types.RequestID) bool {
 func (k Keeper) GetRequest(ctx sdk.Context, id types.RequestID) (types.Request, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestStoreKey(id))
 	if bz == nil {
-		return types.Request{}, sdkerrors.Wrapf(types.ErrRequestNotFound, "id: %d", id)
+		return types.Request{}, types.ErrRequestNotFound.Wrapf("id: %d", id)
 	}
 	var request types.Request
 	k.cdc.MustUnmarshal(bz, &request)

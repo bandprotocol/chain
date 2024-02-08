@@ -1,4 +1,4 @@
-// 0.47 TODO: consider importing directly from ibc instead of forking
+// TODO: consider importing directly from ibc instead of forking
 package ibctesting
 
 import (
@@ -18,7 +18,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -78,7 +77,6 @@ type TestChain struct {
 // Time management is handled by the Coordinator in order to ensure synchrony between chains.
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
-	// TODO: change sender
 	signers := make([]tmtypes.PrivValidator, valSize)
 	validators := make([]*tmtypes.Validator, valSize)
 	genesisAccount := make([]authtypes.GenesisAccount, valSize)
@@ -413,7 +411,7 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(
 		// NextValidatorsHash
 		tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight + 1))
 		if !ok {
-			return nil, sdkerrors.Wrapf(ibctmtypes.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
+			return nil, ibctmtypes.ErrInvalidHeaderHeight.Wrapf("could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
 		}
 	}
 	// inject trusted fields into last header
