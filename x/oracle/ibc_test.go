@@ -1,4 +1,4 @@
-// 0.47 TODO: write this test file by importing testing directly from ibc
+// TODO: write this test file by importing testing directly from ibc
 package oracle_test
 
 import (

@@ -103,7 +103,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
 	case exported.Solomachine:
 		// TODO
-		//		solo := NewSolomachine(chain.t, endpoint.Chain.Codec, clientID, "", 1)
+		//		solo := NewSolomachine(endpoint.Chain.T, endpoint.Chain.Codec, clientID, "", 1)
 		//		clientState = solo.ClientState()
 		//		consensusState = solo.ConsensusState()
 
