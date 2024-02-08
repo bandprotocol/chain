@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -61,7 +61,7 @@ func (a AppModuleBasic) ValidateGenesis(
 	}
 
 	if err := data.Params.Validate(); err != nil {
-		return errors.Wrap(err, "params")
+		return errorsmod.Wrap(err, "params")
 	}
 
 	return nil

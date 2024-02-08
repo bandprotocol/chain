@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	snapshot "github.com/cosmos/cosmos-sdk/snapshots/types"
@@ -113,11 +113,11 @@ func (os *OracleSnapshotter) processAllItems(
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return errors.Wrap(err, "invalid protobuf message")
+			return errorsmod.Wrap(err, "invalid protobuf message")
 		}
 
 		if err := restore(ctx, os.keeper, payload, foundCode); err != nil {
-			return errors.Wrap(err, "processing snapshot item")
+			return errorsmod.Wrap(err, "processing snapshot item")
 		}
 	}
 
