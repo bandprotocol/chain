@@ -44,7 +44,7 @@ func (c Cache) GetFile(filename string) ([]byte, error) {
 		return nil, err
 	}
 	if GetFilename(data) != filename { // Perform integrity check for safety. NEVER EXPECT TO HIT.
-		return nil, errors.New("Inconsistent filecache content")
+		return nil, errors.New("inconsistent filecache content")
 	}
 	return data, nil
 }

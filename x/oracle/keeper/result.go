@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
@@ -31,7 +30,7 @@ func (k Keeper) SetResult(ctx sdk.Context, reqID types.RequestID, result types.R
 func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
-		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
+		return types.Result{}, types.ErrResultNotFound.Wrapf("id: %d", id)
 	}
 	var result types.Result
 	k.cdc.MustUnmarshal(bz, &result)
