@@ -1,8 +1,8 @@
 package benchmark
 
 import (
-	"io/ioutil"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -36,7 +36,7 @@ type BenchmarkCalldata struct {
 }
 
 func GetBenchmarkWasm() ([]byte, error) {
-	oCode, err := ioutil.ReadFile("./testdata/benchmark-oracle-script.wasm")
+	oCode, err := os.ReadFile("./testdata/benchmark-oracle-script.wasm")
 	return oCode, err
 }
 

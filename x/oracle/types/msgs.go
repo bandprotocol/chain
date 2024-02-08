@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -68,33 +69,32 @@ func (msg MsgRequestData) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
 	}
 	if msg.MinCount <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidMinCount, "got: %d", msg.MinCount)
+		return ErrInvalidMinCount.Wrapf("got: %d", msg.MinCount)
 	}
 	if msg.AskCount < msg.MinCount {
-		return sdkerrors.Wrapf(ErrInvalidAskCount, "got: %d, min count: %d", msg.AskCount, msg.MinCount)
+		return ErrInvalidAskCount.Wrapf("got: %d, min count: %d", msg.AskCount, msg.MinCount)
 	}
 	if len(msg.ClientID) > MaxClientIDLength {
 		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
 	}
 	if msg.PrepareGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid prepare gas: %d", msg.PrepareGas)
+		return ErrInvalidOwasmGas.Wrapf("invalid prepare gas: %d", msg.PrepareGas)
 	}
 	if msg.ExecuteGas <= 0 {
-		return sdkerrors.Wrapf(ErrInvalidOwasmGas, "invalid execute gas: %d", msg.ExecuteGas)
+		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", msg.ExecuteGas)
 	}
 	if msg.PrepareGas+msg.ExecuteGas > MaximumOwasmGas {
-		return sdkerrors.Wrapf(
-			ErrInvalidOwasmGas,
+		return ErrInvalidOwasmGas.Wrapf(
 			"sum of prepare gas and execute gas (%d) exceed %d",
 			msg.PrepareGas+msg.ExecuteGas,
 			MaximumOwasmGas,
 		)
 	}
 	if !msg.FeeLimit.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FeeLimit.String())
+		return sdkerrors.ErrInvalidCoins.Wrap(msg.FeeLimit.String())
 	}
 	return nil
 }
@@ -132,7 +132,7 @@ func (msg MsgReportData) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(valAddr); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
+		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", msg.Validator)
 	}
 	if len(msg.RawReports) == 0 {
 		return ErrEmptyReport
@@ -140,7 +140,7 @@ func (msg MsgReportData) ValidateBasic() error {
 	uniqueMap := make(map[ExternalID]bool)
 	for _, r := range msg.RawReports {
 		if _, found := uniqueMap[r.ExternalID]; found {
-			return sdkerrors.Wrapf(ErrDuplicateExternalID, "external id: %d", r.ExternalID)
+			return ErrDuplicateExternalID.Wrapf("external id: %d", r.ExternalID)
 		}
 		uniqueMap[r.ExternalID] = true
 	}
@@ -194,13 +194,13 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
+		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
 		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
@@ -209,7 +209,7 @@ func (msg MsgCreateDataSource) ValidateBasic() error {
 		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
 	}
 	if !msg.Fee.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Fee.String())
+		return sdkerrors.ErrInvalidCoins.Wrap(msg.Fee.String())
 	}
 	if len(msg.Executable) == 0 {
 		return ErrEmptyExecutable
@@ -276,13 +276,13 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "treasury: %s", msg.Treasury)
+		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", msg.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
 		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
@@ -291,7 +291,7 @@ func (msg MsgEditDataSource) ValidateBasic() error {
 		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
 	}
 	if !msg.Fee.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Fee.String())
+		return sdkerrors.ErrInvalidCoins.Wrap(msg.Fee.String())
 	}
 	if len(msg.Executable) == 0 {
 		return ErrEmptyExecutable
@@ -345,10 +345,10 @@ func (msg MsgCreateOracleScript) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
 		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
@@ -421,10 +421,10 @@ func (msg MsgEditOracleScript) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
 	}
 	if len(msg.Name) > MaxNameLength {
 		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
@@ -478,7 +478,7 @@ func (msg MsgActivate) ValidateBasic() error {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(val); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "validator: %s", msg.Validator)
+		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", msg.Validator)
 	}
 	return nil
 }
@@ -516,7 +516,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return sdkerrors.Wrap(err, "invalid authority address")
+		return errorsmod.Wrap(err, "invalid authority address")
 	}
 
 	if err := m.Params.Validate(); err != nil {

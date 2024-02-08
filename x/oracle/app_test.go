@@ -31,7 +31,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		testapp.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
