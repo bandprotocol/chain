@@ -388,21 +388,18 @@ func (k Keeper) HandleRequestSign(
 	feePayer sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (tss.SigningID, error) {
-	if !k.router.HasRoute(content.Route()) {
-		return 0, errors.Wrap(types.ErrNoRequestingSignatureHandlerExists, content.Route())
+	if !k.router.HasRoute(content.OrderRoute()) {
+		return 0, errors.Wrap(types.ErrNoSignatureOrderHandlerExists, content.OrderRoute())
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
-	route := k.router.GetRoute(content.Route())
+	handler := k.router.GetRoute(content.OrderRoute())
 
-	// Execute the handler to process the content.
-	msg, err := route.Handler(ctx, content)
+	// Execute the handler to process the request.
+	msg, err := handler(ctx, content)
 	if err != nil {
-		return 0, errors.Wrap(types.ErrInvalidRequestSignatureContent, err.Error())
+		return 0, err
 	}
-
-	// Wrap the message data with the registered prefix.
-	msg = append(route.Prefix, msg...)
 
 	return k.handleRequestSign(ctx, groupID, msg, feePayer, feeLimit)
 }

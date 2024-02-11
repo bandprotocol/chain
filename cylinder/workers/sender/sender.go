@@ -57,6 +57,7 @@ func (s *Sender) Start() {
 }
 
 // collectMsgs collects messages from the message channel up to a limit size.
+// It will block until got at least one message, then return non-empty message list.
 func (s *Sender) collectMsgs() []sdk.Msg {
 	maxSize := int(s.context.Config.MaxMessages)
 	var msgs []sdk.Msg

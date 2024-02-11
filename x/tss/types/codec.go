@@ -8,8 +8,6 @@ import (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&TextRequestingSignature{}, "tss/TextRequestingSignature", nil)
-
 	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tss/CreateGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tss/ReplaceGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "tss/UpdateGroupFee")
@@ -23,6 +21,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tss/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "tss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/UpdateParams")
+
+	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -44,17 +44,17 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"tss.v1beta1.Content",
 		(*Content)(nil),
-		&TextRequestingSignature{},
+		&TextSignatureOrder{},
 	)
 }
 
-// RegisterRequestSignatureTypeCodec registers an external request signature content type defined
+// RegisterRequestSignatureTypeCodec registers an external signature request type defined
 // in another module for the internal ModuleCdc. This allows the MsgRequestSignature
 // to be correctly Amino encoded and decoded.
 //
 // NOTE: This should only be used for applications that are still using a concrete
 // Amino codec for serialization.
-func RegisterRequestSignatureTypeCodec(o interface{}, name string) {
+func RegisterSignatureOrderTypeCodec(o interface{}, name string) {
 	amino.RegisterConcrete(o, name, nil)
 }
 

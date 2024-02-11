@@ -80,7 +80,7 @@ func (k Keeper) ResolveSuccess(
 		sid, err := k.tssKeeper.HandleRequestSign(
 			ctx,
 			gid,
-			types.NewRequestingSignature(id, encodeType),
+			types.NewOracleResultSignatureOrder(id, encodeType),
 			sdk.MustAccAddressFromBech32(requester),
 			feeLimit,
 		)

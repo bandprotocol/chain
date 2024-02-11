@@ -26,13 +26,13 @@ var (
 
 // AppModuleBasic defines the basic application module used by the tss module.
 type AppModuleBasic struct {
-	requestingSignatureHandlers []tssclient.RequestingSignatureHandler
+	signatureOrderHandlers []tssclient.SignatureOrderHandler
 }
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(requestingSignatureHandlers ...tssclient.RequestingSignatureHandler) AppModuleBasic {
+func NewAppModuleBasic(signatureOrderHandlers ...tssclient.SignatureOrderHandler) AppModuleBasic {
 	return AppModuleBasic{
-		requestingSignatureHandlers: requestingSignatureHandlers,
+		signatureOrderHandlers: signatureOrderHandlers,
 	}
 }
 
@@ -58,17 +58,17 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the tss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	requestingSignatureHandlers := getRequestSignatureCLIHandlers(a.requestingSignatureHandlers)
+	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
 
-	return cli.GetTxCmd(requestingSignatureHandlers)
+	return cli.GetTxCmd(signatureOrderHandlers)
 }
 
-func getRequestSignatureCLIHandlers(handlers []tssclient.RequestingSignatureHandler) []*cobra.Command {
-	requestingSignatureHandlers := make([]*cobra.Command, 0, len(handlers))
-	for _, requestingSignatureHandler := range handlers {
-		requestingSignatureHandlers = append(requestingSignatureHandlers, requestingSignatureHandler.CLIHandler())
+func getSignatureOrderCLIHandlers(handlers []tssclient.SignatureOrderHandler) []*cobra.Command {
+	signatureOrderHandlers := make([]*cobra.Command, 0, len(handlers))
+	for _, handler := range handlers {
+		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())
 	}
-	return requestingSignatureHandlers
+	return signatureOrderHandlers
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.

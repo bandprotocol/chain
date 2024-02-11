@@ -160,12 +160,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Send MsgSigning
-	s.context.MsgCh <- &types.MsgSubmitSignature{
-		SigningID: sid,
-		MemberID:  group.MemberID,
-		Signature: sig,
-		Address:   s.context.Config.Granter,
-	}
+	s.context.MsgCh <- types.NewMsgSubmitSignature(sid, group.MemberID, sig, s.context.Config.Granter)
 }
 
 // handlePendingSignings processes the pending signing requests.

@@ -329,7 +329,6 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 				return err
 			}
 
-			// TODO: Support do-not-modify fee
 			coinStr, err := cmd.Flags().GetString(flagFee)
 			if err != nil {
 				return err
@@ -743,7 +742,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewRequestingSignature(types.RequestID(rid), types.EncodeType(encodeType))
+			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
 
 			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
 			if err != nil {
