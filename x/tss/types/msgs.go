@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -18,10 +19,17 @@ var (
 	_                   types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
-// Route Implements Msg.
-func (m MsgCreateGroup) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgCreateGroup creates a new MsgCreateGroup instance.
+func NewMsgCreateGroup(members []string, threshold uint64, fee sdk.Coins, authority string) *MsgCreateGroup {
+	return &MsgCreateGroup{
+		Members:   members,
+		Threshold: threshold,
+		Fee:       fee,
+		Authority: authority,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgCreateGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -77,10 +85,22 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgReplaceGroup) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgReplaceGroup creates a new MsgReplaceGroup instance.
+func NewMsgReplaceGroup(
+	currentGroupID tss.GroupID,
+	newGroupID tss.GroupID,
+	execTime time.Time,
+	authority string,
+) *MsgReplaceGroup {
+	return &MsgReplaceGroup{
+		CurrentGroupID: currentGroupID,
+		NewGroupID:     newGroupID,
+		ExecTime:       execTime,
+		Authority:      authority,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -107,10 +127,16 @@ func (m MsgReplaceGroup) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDKGRound1) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
+func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, address string) *MsgSubmitDKGRound1 {
+	return &MsgSubmitDKGRound1{
+		GroupID:    groupID,
+		Round1Info: round1Info,
+		Address:    address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDKGRound1) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -156,10 +182,16 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDKGRound2) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgSubmitDKGRound2 creates a new MsgSubmitDKGRound2 instance.
+func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, address string) *MsgSubmitDKGRound2 {
+	return &MsgSubmitDKGRound2{
+		GroupID:    groupID,
+		Round2Info: round2Info,
+		Address:    address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -190,10 +222,16 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgComplain) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgComplain creates a new MsgComplain instance.
+func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, address string) *MsgComplain {
+	return &MsgComplain{
+		GroupID:    groupID,
+		Complaints: complaints,
+		Address:    address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -252,10 +290,22 @@ func (m MsgComplain) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgConfirm) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgConfirm creates a new MsgConfirm instance.
+func NewMsgConfirm(
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	ownPubKeySig tss.Signature,
+	address string,
+) *MsgConfirm {
+	return &MsgConfirm{
+		GroupID:      groupID,
+		MemberID:     memberID,
+		OwnPubKeySig: ownPubKeySig,
+		Address:      address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -284,10 +334,15 @@ func (m MsgConfirm) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgSubmitDEs) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgSubmitDEs creates a new MsgSubmitDEs instance.
+func NewMsgSubmitDEs(des []DE, address string) *MsgSubmitDEs {
+	return &MsgSubmitDEs{
+		DEs:     des,
+		Address: address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitDEs) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -343,10 +398,7 @@ func NewMsgRequestSignature(
 	return m, nil
 }
 
-// Route Implements Msg.
-func (m MsgRequestSignature) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -399,10 +451,22 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 	return unpacker.UnpackAny(m.Content, &content)
 }
 
-// Route Implements Msg.
-func (m MsgSubmitSignature) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgSubmitSignature creates a new MsgSubmitSignature instance.
+func NewMsgSubmitSignature(
+	signingID tss.SigningID,
+	memberID tss.MemberID,
+	signature tss.Signature,
+	address string,
+) *MsgSubmitSignature {
+	return &MsgSubmitSignature{
+		SigningID: signingID,
+		MemberID:  memberID,
+		Signature: signature,
+		Address:   address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -431,10 +495,14 @@ func (m MsgSubmitSignature) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgActivate) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgActivate creates a new MsgActivate instance.
+func NewMsgActivate(address string) *MsgActivate {
+	return &MsgActivate{
+		Address: address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -458,10 +526,14 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgHealthCheck) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgHealthCheck creates a new MsgHealthCheck instance.
+func NewMsgHealthCheck(address string) *MsgHealthCheck {
+	return &MsgHealthCheck{
+		Address: address,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -485,10 +557,16 @@ func (m MsgHealthCheck) ValidateBasic() error {
 	return nil
 }
 
-// Route Implements Msg.
-func (m MsgUpdateGroupFee) Route() string { return sdk.MsgTypeURL(&m) }
+// NewMsgUpdateGroupFee creates a new MsgUpdateGroupFee instance.
+func NewMsgUpdateGroupFee(groupID tss.GroupID, fee sdk.Coins, authority string) *MsgUpdateGroupFee {
+	return &MsgUpdateGroupFee{
+		GroupID:   groupID,
+		Fee:       fee,
+		Authority: authority,
+	}
+}
 
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgUpdateGroupFee) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
@@ -528,10 +606,7 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	}
 }
 
-// Route Implements Msg.
-func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
+// Type returns message type name.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.

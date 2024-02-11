@@ -118,7 +118,6 @@ import (
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	nodeservice "github.com/bandprotocol/chain/v2/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof"
-	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
@@ -140,11 +139,6 @@ const (
 	appName          = "BandApp"
 	Bech32MainPrefix = "band"
 	Bip44CoinType    = 494
-)
-
-var (
-	SignatureTSSRoutePrefix    = tsslib.Hash([]byte("TSS"))[:4]
-	SignatureOracleRoutePrefix = tsslib.Hash([]byte("Oracle"))[:4]
 )
 
 var (
@@ -186,7 +180,7 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
-		tss.NewAppModuleBasic(oracleclient.RequestingSignatureHandler),
+		tss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -552,8 +546,9 @@ func NewBandApp(
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
-	tssRouter.AddRoute(tsstypes.RouterKey, tsstypes.NewRoute(SignatureTSSRoutePrefix, tsstypes.NewRequestingSignatureHandler())).
-		AddRoute(oracletypes.RouterKey, tsstypes.NewRoute(SignatureOracleRoutePrefix, oracle.NewRequestingSignatureHandler(app.OracleKeeper)))
+	tssRouter.
+		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this

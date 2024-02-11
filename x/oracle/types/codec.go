@@ -23,7 +23,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "oracle/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "oracle/UpdateParams")
 
-	cdc.RegisterConcrete(&OracleResultRequestingSignature{}, "oracle/OracleResultRequestingSignature", nil)
+	cdc.RegisterConcrete(&OracleResultSignatureOrder{}, "oracle/OracleResultSignatureOrder", nil)
 }
 
 // RegisterInterfaces register the oracle module interfaces to protobuf Any.
@@ -41,7 +41,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 
 	registry.RegisterImplementations(
 		(*tsstypes.Content)(nil),
-		&OracleResultRequestingSignature{},
+		&OracleResultSignatureOrder{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

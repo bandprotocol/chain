@@ -132,14 +132,14 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	}
 
 	// Generate message for round 2
-	msg := &types.MsgSubmitDKGRound2{
-		GroupID: gid,
-		Round2Info: types.Round2Info{
+	msg := types.NewMsgSubmitDKGRound2(
+		gid,
+		types.Round2Info{
 			MemberID:              dkg.MemberID,
 			EncryptedSecretShares: encSecretShares,
 		},
-		Address: r.context.Config.Granter,
-	}
+		r.context.Config.Granter,
+	)
 
 	r.context.MsgCh <- msg
 }
