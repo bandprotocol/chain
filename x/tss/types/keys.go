@@ -21,18 +21,16 @@ const (
 
 	// QuerierRoute is the querier route for the tss module
 	QuerierRoute = ModuleName
+
+	// ReplaceGroupPath is the reserved path for replace group msg
+	ReplaceGroupPath = "replace"
 )
 
 var (
-	ReplaceGroupMsgPrefix = tss.Hash([]byte("Replace"))[:4]
+	ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
 )
 
-var lenTime = len(sdk.FormatTimeBytes(time.Now()))
-
 var (
-	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
-	RollingSeedSizeInBytes = 32
-
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 
@@ -255,6 +253,8 @@ func SplitReplacementQueueKey(key []byte) (replacementID uint64, endTime time.Ti
 }
 
 func splitKeyWithTime(key []byte) (replacementID uint64, endTime time.Time) {
+	// Length of bytes of time
+	lenTime := 29
 	kv.AssertKeyLength(key[1:], 8+lenTime)
 
 	endTime, err := sdk.ParseTimeBytes(key[1 : 1+lenTime])

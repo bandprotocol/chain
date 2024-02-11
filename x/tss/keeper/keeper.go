@@ -30,7 +30,7 @@ type Keeper struct {
 	stakingKeeper     types.StakingKeeper
 	distrKeeper       types.DistrKeeper
 
-	router    types.Router
+	router    *types.Router
 	authority string
 }
 
@@ -45,7 +45,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
 	distrKeeper types.DistrKeeper,
-	rtr types.Router,
+	rtr *types.Router,
 	authority string,
 ) Keeper {
 	// ensure TSS module account is set
@@ -682,11 +682,12 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	}
 
 	// Retrieve information about group.
-	fromGroup := k.MustGetGroup(ctx, replacement.FromGroupID)
-	toGroup := k.MustGetGroup(ctx, replacement.ToGroupID)
+	currentGroup := k.MustGetGroup(ctx, replacement.CurrentGroupID)
+	newGroup := k.MustGetGroup(ctx, replacement.NewGroupID)
 
 	// If the group's public key is changed, update the replacement status to failed.
-	if !bytes.Equal(fromGroup.PubKey, replacement.FromPubKey) || !bytes.Equal(toGroup.PubKey, replacement.ToPubKey) {
+	if !bytes.Equal(currentGroup.PubKey, replacement.CurrentPubKey) ||
+		!bytes.Equal(newGroup.PubKey, replacement.NewPubKey) {
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
 
@@ -700,27 +701,27 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	}
 
 	// Replace group data
-	tempGroup := fromGroup
-	tempGroup.ID = toGroup.ID
-	tempGroup.CreatedHeight = toGroup.CreatedHeight
-	tempGroup.LatestReplacementID = toGroup.LatestReplacementID
+	tempGroup := newGroup
+	tempGroup.ID = currentGroup.ID
+	tempGroup.CreatedHeight = currentGroup.CreatedHeight
+	tempGroup.LatestReplacementID = currentGroup.LatestReplacementID
 
 	// Set group with new data
 	k.SetGroup(ctx, tempGroup)
 
 	// Delete old members
-	err := k.DeleteGroupMembers(ctx, replacement.ToGroupID)
+	err := k.DeleteGroupMembers(ctx, replacement.CurrentGroupID)
 	if err != nil {
 		return
 	}
 
 	// Set members with new data
-	members, err := k.GetGroupMembers(ctx, replacement.FromGroupID)
+	members, err := k.GetGroupMembers(ctx, replacement.NewGroupID)
 	if err != nil {
 		return
 	}
 	for idx := range members {
-		members[idx].GroupID = replacement.ToGroupID
+		members[idx].GroupID = replacement.CurrentGroupID
 	}
 
 	k.SetMembers(ctx, members)
@@ -734,8 +735,8 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 			types.EventTypeReplacementSuccess,
 			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
-			sdk.NewAttribute(types.AttributeKeyFromGroupID, fmt.Sprintf("%d", replacement.FromGroupID)),
-			sdk.NewAttribute(types.AttributeKeyToGroupID, fmt.Sprintf("%d", replacement.ToGroupID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyNewGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
 		),
 	)
 }

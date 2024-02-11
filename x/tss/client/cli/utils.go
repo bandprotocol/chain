@@ -74,12 +74,12 @@ func parseComplaints(complaintsFile string) ([]types.Complaint, error) {
 		return complaints.Complaints, nil
 	}
 
-	contents, err := os.ReadFile(complaintsFile)
+	bz, err := os.ReadFile(complaintsFile)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(contents, &complaints)
+	err = json.Unmarshal(bz, &complaints)
 	if err != nil {
 		return nil, err
 	}

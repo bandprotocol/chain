@@ -139,10 +139,7 @@ func (de *DE) updateDE() {
 	}
 
 	// Send MsgDE
-	de.context.MsgCh <- &types.MsgSubmitDEs{
-		DEs:     pubDEs,
-		Address: de.context.Config.Granter,
-	}
+	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
 }
 
 // Start starts the DE worker.

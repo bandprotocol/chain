@@ -40,18 +40,18 @@ message Replacement {
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
-  // from_group_id is the ID of the group that want to replace.
-  uint64 from_group_id = 3 [
-    (gogoproto.customname) = "FromGroupID",
+  // current_group_id is the ID of the group that will be replaced.
+  uint64 current_group_id = 3 [
+    (gogoproto.customname) = "CurrentGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // from_pub_key is the public key of the group that want to replace.
-  bytes from_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // to_group_id is the ID of the group that will take the place of another group.
-  uint64 to_group_id = 5
-      [(gogoproto.customname) = "ToGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // to_pub_key is the public key of the group that will take the place of another group.
-  bytes to_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  // current_pub_key is the public key pair that used for sign & verify replace group msg.
+  bytes current_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  // new_group_id is the ID of the new group that be a new key candidate.
+  uint64 new_group_id = 5
+      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  // new_pub_key is the public key of the group that will be the next key of this group
+  bytes new_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status is an enumeration of the possible statuses of a group replacement process.
   ReplacementStatus status = 7;
   // exec_time is the time that will be substituted in place of the group.
@@ -327,8 +327,8 @@ message PartialSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
 }
 
-// TextRequestingSignature defines a standard request signature.
-message TextRequestingSignature {
+// TextSignatureOrder defines a general text signature order.
+message TextSignatureOrder {
   option (cosmos_proto.implements_interface) = "Content";
 
   // message is the data that needs to be signed.
