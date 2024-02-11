@@ -56,9 +56,7 @@ func (a *HealthCheck) updateHealthCheck() {
 	a.logger.Info(":delivery_truck: Updating last active")
 
 	// Send MsgActive
-	a.context.MsgCh <- &types.MsgHealthCheck{
-		Address: a.context.Config.Granter,
-	}
+	a.context.MsgCh <- types.NewMsgHealthCheck(a.context.Config.Granter)
 }
 
 // Start starts the healthcheck worker that will check latest healthcheck of validator on BandChain

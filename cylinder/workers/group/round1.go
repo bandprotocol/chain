@@ -129,17 +129,17 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	}
 
 	// Generate message
-	msg := &types.MsgSubmitDKGRound1{
-		GroupID: gid,
-		Round1Info: types.Round1Info{
+	msg := types.NewMsgSubmitDKGRound1(
+		gid,
+		types.Round1Info{
 			MemberID:           mid,
 			CoefficientCommits: data.CoefficientCommits,
 			OneTimePubKey:      data.OneTimePubKey,
 			A0Signature:        data.A0Signature,
 			OneTimeSignature:   data.OneTimeSignature,
 		},
-		Address: r.context.Config.Granter,
-	}
+		r.context.Config.Granter,
+	)
 
 	// Send the message to the message channel
 	r.context.MsgCh <- msg

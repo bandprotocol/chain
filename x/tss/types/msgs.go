@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"time"
 
 	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -17,6 +18,16 @@ var (
 	_, _, _, _, _, _, _ sdk.Msg                       = &MsgRequestSignature{}, &MsgSubmitSignature{}, &MsgActivate{}, &MsgHealthCheck{}, &MsgReplaceGroup{}, &MsgUpdateParams{}, &MsgUpdateGroupFee{}
 	_                   types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
+
+// NewMsgCreateGroup creates a new MsgCreateGroup instance.
+func NewMsgCreateGroup(members []string, threshold uint64, fee sdk.Coins, authority string) *MsgCreateGroup {
+	return &MsgCreateGroup{
+		Members:   members,
+		Threshold: threshold,
+		Fee:       fee,
+		Authority: authority,
+	}
+}
 
 // Type returns message type name.
 func (m MsgCreateGroup) Type() string { return sdk.MsgTypeURL(&m) }
@@ -74,6 +85,21 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgReplaceGroup creates a new MsgReplaceGroup instance.
+func NewMsgReplaceGroup(
+	currentGroupID tss.GroupID,
+	newGroupID tss.GroupID,
+	execTime time.Time,
+	authority string,
+) *MsgReplaceGroup {
+	return &MsgReplaceGroup{
+		CurrentGroupID: currentGroupID,
+		NewGroupID:     newGroupID,
+		ExecTime:       execTime,
+		Authority:      authority,
+	}
+}
+
 // Type returns message type name.
 func (m MsgReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -99,6 +125,15 @@ func (m MsgReplaceGroup) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
+func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, address string) *MsgSubmitDKGRound1 {
+	return &MsgSubmitDKGRound1{
+		GroupID:    groupID,
+		Round1Info: round1Info,
+		Address:    address,
+	}
 }
 
 // Type returns message type name.
@@ -147,6 +182,15 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgSubmitDKGRound2 creates a new MsgSubmitDKGRound2 instance.
+func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, address string) *MsgSubmitDKGRound2 {
+	return &MsgSubmitDKGRound2{
+		GroupID:    groupID,
+		Round2Info: round2Info,
+		Address:    address,
+	}
+}
+
 // Type returns message type name.
 func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -176,6 +220,15 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// NewMsgComplain creates a new MsgComplain instance.
+func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, address string) *MsgComplain {
+	return &MsgComplain{
+		GroupID:    groupID,
+		Complaints: complaints,
+		Address:    address,
+	}
 }
 
 // Type returns message type name.
@@ -237,6 +290,21 @@ func (m MsgComplain) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgConfirm creates a new MsgConfirm instance.
+func NewMsgConfirm(
+	groupID tss.GroupID,
+	memberID tss.MemberID,
+	ownPubKeySig tss.Signature,
+	address string,
+) *MsgConfirm {
+	return &MsgConfirm{
+		GroupID:      groupID,
+		MemberID:     memberID,
+		OwnPubKeySig: ownPubKeySig,
+		Address:      address,
+	}
+}
+
 // Type returns message type name.
 func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -264,6 +332,14 @@ func (m MsgConfirm) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// NewMsgSubmitDEs creates a new MsgSubmitDEs instance.
+func NewMsgSubmitDEs(des []DE, address string) *MsgSubmitDEs {
+	return &MsgSubmitDEs{
+		DEs:     des,
+		Address: address,
+	}
 }
 
 // Type returns message type name.
@@ -375,6 +451,21 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 	return unpacker.UnpackAny(m.Content, &content)
 }
 
+// NewMsgSubmitSignature creates a new MsgSubmitSignature instance.
+func NewMsgSubmitSignature(
+	signingID tss.SigningID,
+	memberID tss.MemberID,
+	signature tss.Signature,
+	address string,
+) *MsgSubmitSignature {
+	return &MsgSubmitSignature{
+		SigningID: signingID,
+		MemberID:  memberID,
+		Signature: signature,
+		Address:   address,
+	}
+}
+
 // Type returns message type name.
 func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -404,6 +495,13 @@ func (m MsgSubmitSignature) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgActivate creates a new MsgActivate instance.
+func NewMsgActivate(address string) *MsgActivate {
+	return &MsgActivate{
+		Address: address,
+	}
+}
+
 // Type returns message type name.
 func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -428,6 +526,13 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgHealthCheck creates a new MsgHealthCheck instance.
+func NewMsgHealthCheck(address string) *MsgHealthCheck {
+	return &MsgHealthCheck{
+		Address: address,
+	}
+}
+
 // Type returns message type name.
 func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
 
@@ -450,6 +555,15 @@ func (m MsgHealthCheck) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+// NewMsgUpdateGroupFee creates a new MsgUpdateGroupFee instance.
+func NewMsgUpdateGroupFee(groupID tss.GroupID, fee sdk.Coins, authority string) *MsgUpdateGroupFee {
+	return &MsgUpdateGroupFee{
+		GroupID:   groupID,
+		Fee:       fee,
+		Authority: authority,
+	}
 }
 
 // Type returns message type name.

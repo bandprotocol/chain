@@ -124,11 +124,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		// If there is any complaint, send MsgComplain
 		if len(complaints) > 0 {
 			// Send message complaints
-			r.context.MsgCh <- &types.MsgComplain{
-				GroupID:    gid,
-				Complaints: complaints,
-				Address:    r.context.Config.Granter,
-			}
+			r.context.MsgCh <- types.NewMsgComplain(gid, complaints, r.context.Config.Granter)
 			return
 		}
 
@@ -165,12 +161,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 
 	// Send MsgConfirm
-	r.context.MsgCh <- &types.MsgConfirm{
-		GroupID:      gid,
-		MemberID:     group.MemberID,
-		OwnPubKeySig: ownPubKeySig,
-		Address:      r.context.Config.Granter,
-	}
+	r.context.MsgCh <- types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter)
 }
 
 // Start starts the Round3 worker.
