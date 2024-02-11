@@ -92,14 +92,14 @@ func (h *Hook) emitNewTSSAssignedMember(sid tss.SigningID, gid tss.GroupID, am t
 
 func (h *Hook) emitNewTSSReplacement(replacement types.Replacement) {
 	h.Write("NEW_TSS_REPLACEMENT", common.JsDict{
-		"id":             replacement.ID,
-		"tss_signing_id": replacement.SigningID,
-		"from_group_id":  replacement.FromGroupID,
-		"from_pub_key":   parseBytes(replacement.FromPubKey),
-		"to_group_id":    replacement.ToGroupID,
-		"to_pub_key":     parseBytes(replacement.ToPubKey),
-		"exec_time":      replacement.ExecTime.UnixNano(),
-		"status":         int(replacement.Status),
+		"id":               replacement.ID,
+		"tss_signing_id":   replacement.SigningID,
+		"new_group_id":     replacement.NewGroupID,
+		"new_pub_key":      parseBytes(replacement.NewPubKey),
+		"current_group_id": replacement.CurrentGroupID,
+		"current_pub_key":  parseBytes(replacement.CurrentPubKey),
+		"exec_time":        replacement.ExecTime.UnixNano(),
+		"status":           int(replacement.Status),
 	})
 }
 
@@ -229,7 +229,7 @@ func (h *Hook) handleUpdateTSSReplacementStatus(ctx sdk.Context, rid uint64) {
 		panic(err)
 	}
 	if r.Status == types.REPLACEMENT_STATUS_SUCCESS {
-		h.handleSetTSSGroup(ctx, r.ToGroupID)
+		h.handleSetTSSGroup(ctx, r.CurrentGroupID)
 	}
 
 	h.emitUpdateTSSReplacementStatus(ctx, rid, r.Status)
