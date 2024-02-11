@@ -22,20 +22,20 @@ func createDefaultServer() *httptest.Server {
 	}))
 }
 
-func createResponseNotOkSenarioServer() *httptest.Server {
+func createResponseNotOkScenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(500)
 	}))
 }
 
-func createCannotDecodeJSONSenarioServer() *httptest.Server {
+func createCannotDecodeJSONScenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		_, _ = res.Write([]byte("invalid bytes"))
 	}))
 }
 
-func createExecuteFailSenarioServer() *httptest.Server {
+func createExecuteFailScenarioServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		res.WriteHeader(200)
 		ret := externalExecutionResponse{
@@ -68,7 +68,7 @@ func TestExecuteBadUrlFail(t *testing.T) {
 }
 
 func TestExecuteDecodeStructFail(t *testing.T) {
-	testServer := createCannotDecodeJSONSenarioServer()
+	testServer := createCannotDecodeJSONScenarioServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
@@ -77,7 +77,7 @@ func TestExecuteDecodeStructFail(t *testing.T) {
 }
 
 func TestExecuteResponseNotOk(t *testing.T) {
-	testServer := createResponseNotOkSenarioServer()
+	testServer := createResponseNotOkScenarioServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)
@@ -86,7 +86,7 @@ func TestExecuteResponseNotOk(t *testing.T) {
 }
 
 func TestExecuteFail(t *testing.T) {
-	testServer := createExecuteFailSenarioServer()
+	testServer := createExecuteFailScenarioServer()
 	defer func() { testServer.Close() }()
 
 	executor := NewRestExec(testServer.URL, 1*time.Second)

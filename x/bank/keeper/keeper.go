@@ -70,7 +70,11 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	}
 
 	// Instead of burning coins, we send them to the community pool.
-	_ = k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
+	err := k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
+	if err != nil {
+		return err
+	}
+
 	feePool := k.distrKeeper.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
 	k.distrKeeper.SetFeePool(ctx, feePool)
