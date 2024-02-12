@@ -456,7 +456,7 @@ func DecodeMsgConnectionOpenInit(msg *connectiontypes.MsgConnectionOpenInit, det
 func DecodeMsgConnectionOpenTry(msg *connectiontypes.MsgConnectionOpenTry, detail common.JsDict) {
 	clientState, _ := clienttypes.UnpackClientState(msg.ClientState)
 	detail["client_id"] = msg.ClientId
-	detail["previous_connection_id"] = msg.PreviousConnectionId
+	detail["previous_connection_id"] = ""
 	detail["client_state"] = clientState
 	detail["counterparty"] = msg.Counterparty
 	detail["delay_period"] = msg.DelayPeriod
@@ -498,7 +498,7 @@ func DecodeMsgChannelOpenInit(msg *channeltypes.MsgChannelOpenInit, detail commo
 
 func DecodeMsgChannelOpenTry(msg *channeltypes.MsgChannelOpenTry, detail common.JsDict) {
 	detail["port_id"] = msg.PortId
-	detail["previous_channel_id"] = msg.PreviousChannelId
+	detail["previous_channel_id"] = ""
 	detail["channel"] = msg.Channel
 	detail["counterparty_version"] = msg.CounterpartyVersion
 	detail["proof_init"] = msg.ProofInit

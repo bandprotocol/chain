@@ -21,14 +21,14 @@ func runCmd(c *Context) *cobra.Command {
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cfg.ChainID == "" {
-				return errors.New("Chain ID must not be empty")
+				return errors.New("chain ID must not be empty")
 			}
 			keys, err := keybase.List()
 			if err != nil {
 				return err
 			}
 			if len(keys) == 0 {
-				return errors.New("No key available")
+				return errors.New("no key available")
 			}
 			c.keys = make(chan keyring.Record, len(keys))
 			for _, key := range keys {
@@ -85,10 +85,10 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for report transaction")
 	cmd.Flags().String(flagPort, "5005", "port of faucet service")
 	cmd.Flags().Int64(flagAmount, 10000000, "amount in uband for each request")
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-	viper.BindPFlag(flagPort, cmd.Flags().Lookup(flagPort))
-	viper.BindPFlag(flagAmount, cmd.Flags().Lookup(flagAmount))
+	_ = viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
+	_ = viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
+	_ = viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
+	_ = viper.BindPFlag(flagPort, cmd.Flags().Lookup(flagPort))
+	_ = viper.BindPFlag(flagAmount, cmd.Flags().Lookup(flagAmount))
 	return cmd
 }

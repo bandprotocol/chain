@@ -36,6 +36,7 @@ func (st *StubTx) ValidateBasic() error {
 func (st *StubTx) GetGas() uint64 {
 	return 1000000
 }
+
 func (st *StubTx) GetFee() sdk.Coins {
 	fees := make(sdk.Coins, len(st.GasPrices))
 
