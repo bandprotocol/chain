@@ -31,7 +31,7 @@ func runImpl(c *Context, l *Logger) error {
 	if err != nil {
 		return err
 	}
-	defer c.client.Stop()
+	defer c.client.Stop() //nolint:errcheck
 
 	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cxl()
@@ -106,14 +106,14 @@ func runCmd(c *Context) *cobra.Command {
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cfg.ChainID == "" {
-				return errors.New("Chain ID must not be empty")
+				return errors.New("chain ID must not be empty")
 			}
 			keys, err := kb.List()
 			if err != nil {
 				return err
 			}
 			if len(keys) == 0 {
-				return errors.New("No key available")
+				return errors.New("no key available")
 			}
 			c.keys = keys
 			c.validator, err = sdk.ValAddressFromBech32(cfg.Validator)
@@ -170,15 +170,16 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a report transaction")
 	cmd.Flags().Uint64(flagMaxReport, 10, "The maximum number of reports in one transaction")
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
-	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
-	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
-	viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
+	_ = viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
+	_ = viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
+	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
+	_ = viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
+	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	_ = viper.BindPFlag(flagExecutor, cmd.Flags().Lookup(flagExecutor))
+	_ = viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
+	_ = viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
+	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	_ = viper.BindPFlag(flagMaxReport, cmd.Flags().Lookup(flagMaxReport))
+
 	return cmd
 }

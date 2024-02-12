@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
@@ -16,15 +15,16 @@ import (
 const gasConversionFactor = 20_000_000
 
 func ConvertToOwasmGas(cosmos uint64) uint64 {
-	return uint64(cosmos * gasConversionFactor)
+	return cosmos * gasConversionFactor
 }
 
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
 func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
-	if k.GetParams(ctx).MaxReportDataSize > k.GetParams(ctx).MaxCalldataSize {
-		return k.GetParams(ctx).MaxReportDataSize
+	params := k.GetParams(ctx)
+	if params.MaxReportDataSize > params.MaxCalldataSize {
+		return params.MaxReportDataSize
 	}
-	return k.GetParams(ctx).MaxCalldataSize
+	return params.MaxCalldataSize
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
@@ -41,12 +41,11 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 			return false
 		})
 	if len(valOperators) < size {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInsufficientValidators, "%d < %d", len(valOperators), size)
+		return nil, types.ErrInsufficientValidators.Wrapf("%d < %d", len(valOperators), size)
 	}
 	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
 	if err != nil {
-		return nil, sdkerrors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
 	}
 	tryCount := int(k.GetParams(ctx).SamplingTryCount)
 	chosenValIndexes := bandrng.ChooseSomeMaxWeight(rng, valPowers, size, tryCount)
@@ -71,12 +70,13 @@ func (k Keeper) PrepareRequest(
 	}
 
 	askCount := r.GetAskCount()
-	if askCount > k.GetParams(ctx).MaxAskCount {
-		return 0, types.WrapMaxError(types.ErrInvalidAskCount, int(askCount), int(k.GetParams(ctx).MaxAskCount))
+	params := k.GetParams(ctx)
+	if askCount > params.MaxAskCount {
+		return 0, types.WrapMaxError(types.ErrInvalidAskCount, int(askCount), int(params.MaxAskCount))
 	}
 
 	// Consume gas for data requests.
-	ctx.GasMeter().ConsumeGas(askCount*k.GetParams(ctx).PerValidatorRequestGas, "PER_VALIDATOR_REQUEST_FEE")
+	ctx.GasMeter().ConsumeGas(askCount*params.PerValidatorRequestGas, "PER_VALIDATOR_REQUEST_FEE")
 
 	// Get a random validator set to perform this request.
 	validators, err := k.GetRandomValidators(ctx, int(askCount), k.GetRequestCount(ctx)+1)
@@ -86,15 +86,23 @@ func (k Keeper) PrepareRequest(
 
 	// Create a request object. Note that RawRequestIDs will be populated after preparation is done.
 	req := types.NewRequest(
-		r.GetOracleScriptID(), r.GetCalldata(), validators, r.GetMinCount(),
-		ctx.BlockHeight(), ctx.BlockTime(), r.GetClientID(), nil, ibcChannel, r.GetExecuteGas(),
+		r.GetOracleScriptID(),
+		r.GetCalldata(),
+		validators,
+		r.GetMinCount(),
+		ctx.BlockHeight(),
+		ctx.BlockTime(),
+		r.GetClientID(),
+		nil,
+		ibcChannel,
+		r.GetExecuteGas(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
 	env := types.NewPrepareEnv(
 		req,
-		int64(k.GetParams(ctx).MaxCalldataSize),
-		int64(k.GetParams(ctx).MaxRawRequestCount),
+		int64(params.MaxCalldataSize),
+		int64(params.MaxRawRequestCount),
 		int64(k.GetSpanSize(ctx)),
 	)
 	script, err := k.GetOracleScript(ctx, req.OracleScriptID)
@@ -103,12 +111,12 @@ func (k Keeper) PrepareRequest(
 	}
 
 	// Consume fee and execute owasm code
-	ctx.GasMeter().ConsumeGas(k.GetParams(ctx).BaseOwasmGas, "BASE_OWASM_FEE")
+	ctx.GasMeter().ConsumeGas(params.BaseOwasmGas, "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetPrepareGas(), "OWASM_PREPARE_FEE")
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), env)
 	if err != nil {
-		return 0, sdkerrors.Wrapf(types.ErrBadWasmExecution, err.Error())
+		return 0, types.ErrBadWasmExecution.Wrapf(err.Error())
 	}
 
 	// Preparation complete! It's time to collect raw request ids.
@@ -142,7 +150,7 @@ func (k Keeper) PrepareRequest(
 	ctx.EventManager().EmitEvent(event)
 
 	// Subtract execute fee
-	ctx.GasMeter().ConsumeGas(k.GetParams(ctx).BaseOwasmGas, "BASE_OWASM_FEE")
+	ctx.GasMeter().ConsumeGas(params.BaseOwasmGas, "BASE_OWASM_FEE")
 	ctx.GasMeter().ConsumeGas(r.GetExecuteGas(), "OWASM_EXECUTE_FEE")
 
 	// Emit an event for each of the raw data requests.

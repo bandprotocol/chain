@@ -65,9 +65,7 @@ func NewDefaultGenesisState() GenesisState {
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
 	stakingGenesis.Params.HistoricalEntries = 1000
-	distrGenesis.Params.BaseProposerReward = sdk.NewDecWithPrec(3, 2)   // 3%
-	distrGenesis.Params.BonusProposerReward = sdk.NewDecWithPrec(12, 2) // 12%
-	mintGenesis.Params.BlocksPerYear = 10519200                         // target 3-second block time
+	mintGenesis.Params.BlocksPerYear = 10519200 // target 3-second block time
 	mintGenesis.Params.MintDenom = denom
 	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),

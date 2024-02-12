@@ -9,7 +9,6 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-// nolint
 // Parameter store keys
 var (
 	// Each value below is the key to store the respective oracle module parameter. See comments

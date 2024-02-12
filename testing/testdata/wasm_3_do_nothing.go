@@ -1,6 +1,6 @@
 package testdata
 
-// A silly oracle script, primarily to test that you must make at least one raw request:
+// Wasm3 is a silly oracle script, primarily to test that you must make at least one raw request:
 //
 //	PREPARE:
 //	  DO NOTHING

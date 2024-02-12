@@ -7,7 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// nolint
 const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.

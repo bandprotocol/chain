@@ -1,6 +1,6 @@
 package testdata
 
-// A bad Owasm script with the following specification:
+// Wasm2 is a bad Owasm script with the following specification:
 //
 //	PREPARE:
 //	  CALL set_return_data with RETDATA "beeb" -- Not allowed during prepare

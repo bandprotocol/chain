@@ -24,14 +24,14 @@ type RequestSpec interface {
 }
 
 func NewRawRequest(
-	ExternalID ExternalID,
-	DataSourceID DataSourceID,
-	Calldata []byte,
+	externalID ExternalID,
+	dataSourceID DataSourceID,
+	calldata []byte,
 ) RawRequest {
 	return RawRequest{
-		ExternalID:   ExternalID,
-		DataSourceID: DataSourceID,
-		Calldata:     Calldata,
+		ExternalID:   externalID,
+		DataSourceID: dataSourceID,
+		Calldata:     calldata,
 	}
 }
 

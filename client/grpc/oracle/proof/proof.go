@@ -149,7 +149,7 @@ func getProofsByKey(
 				}
 			}
 		default:
-			return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("Unknown proof ops found")
+			return nil, &ics23.ExistenceProof{}, &ics23.ExistenceProof{}, fmt.Errorf("unknown proof ops found")
 		}
 	}
 
