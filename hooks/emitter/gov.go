@@ -81,17 +81,17 @@ func (h *Hook) emitV1beta1SetVoteWeighted(setVoteWeighted common.JsDict, options
 }
 
 // handleMsgSubmitProposal implements emitter handler for MsgSubmitProposal.
-func (app *Hook) handleMsgSubmitProposal(
+func (h *Hook) handleMsgSubmitProposal(
 	ctx sdk.Context, txHash []byte, msg *v1.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
-	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
+	proposal, _ := h.govKeeper.GetProposal(ctx, proposalId)
 
 	subMsg := proposal.Messages[0].GetCachedValue()
 	switch subMsg := subMsg.(type) {
 	case *v1.MsgExecLegacyContent:
 		content := subMsg.Content.GetCachedValue().(v1beta1.Content)
-		app.Write("NEW_PROPOSAL", common.JsDict{
+		h.Write("NEW_PROPOSAL", common.JsDict{
 			"id":               proposalId,
 			"proposer":         msg.Proposer,
 			"type":             content.ProposalType(),
@@ -107,7 +107,7 @@ func (app *Hook) handleMsgSubmitProposal(
 			"content":          content,
 		})
 	case sdk.Msg:
-		app.Write("NEW_PROPOSAL", common.JsDict{
+		h.Write("NEW_PROPOSAL", common.JsDict{
 			"id":               proposalId,
 			"proposer":         msg.Proposer,
 			"type":             sdk.MsgTypeURL(subMsg),
@@ -127,19 +127,19 @@ func (app *Hook) handleMsgSubmitProposal(
 	}
 
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
-	app.emitSetDeposit(ctx, txHash, proposalId, proposer)
+	h.emitSetDeposit(ctx, txHash, proposalId, proposer)
 	detail["proposal_id"] = proposalId
 }
 
 // handleV1beta1MsgSubmitProposal implements emitter handler for MsgSubmitProposal v1beta1.
-func (app *Hook) handleV1beta1MsgSubmitProposal(
+func (h *Hook) handleV1beta1MsgSubmitProposal(
 	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
-	proposal, _ := app.govKeeper.GetProposal(ctx, proposalId)
+	proposal, _ := h.govKeeper.GetProposal(ctx, proposalId)
 	content := msg.GetContent()
 
-	app.Write("NEW_PROPOSAL", common.JsDict{
+	h.Write("NEW_PROPOSAL", common.JsDict{
 		"id":               proposalId,
 		"proposer":         msg.Proposer,
 		"type":             content.ProposalType(),
@@ -155,7 +155,7 @@ func (app *Hook) handleV1beta1MsgSubmitProposal(
 		"content":          content,
 	})
 	proposer, _ := sdk.AccAddressFromBech32(msg.Proposer)
-	app.emitSetDeposit(ctx, txHash, proposalId, proposer)
+	h.emitSetDeposit(ctx, txHash, proposalId, proposer)
 	detail["proposal_id"] = proposalId
 }
 

@@ -118,7 +118,8 @@ func (coord *Coordinator) CreateConnections(path *Path) {
 	require.NoError(coord.t, err)
 
 	// ensure counterparty is up to date
-	path.EndpointA.UpdateClient()
+	err = path.EndpointA.UpdateClient()
+	require.NoError(coord.t, err)
 }
 
 // CreateMockChannels constructs and executes channel handshake messages to create OPEN
@@ -159,7 +160,8 @@ func (coord *Coordinator) CreateChannels(path *Path) {
 	require.NoError(coord.t, err)
 
 	// ensure counterparty is up to date
-	path.EndpointA.UpdateClient()
+	err = path.EndpointA.UpdateClient()
+	require.NoError(coord.t, err)
 }
 
 // GetChain returns the TestChain using the given chainID and returns an error if it does

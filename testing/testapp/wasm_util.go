@@ -12,6 +12,7 @@ func compile(code []byte) []byte {
 	if err != nil {
 		panic(err)
 	}
+
 	return compiled
 }
 
@@ -21,20 +22,25 @@ func wat2wasm(wat []byte) []byte {
 		panic(err)
 	}
 	defer os.Remove(inputFile.Name())
+
 	outputFile, err := os.CreateTemp("", "output")
 	if err != nil {
 		panic(err)
 	}
 	defer os.Remove(outputFile.Name())
+
 	if _, err := inputFile.Write(wat); err != nil {
 		panic(err)
 	}
-	if err := exec.Command("wat2wasm", inputFile.Name(), "-o", outputFile.Name()).Run(); err != nil {
+
+	if err := exec.Command("wat2wasm", inputFile.Name(), "-o", outputFile.Name()).Run(); err != nil { //nolint:gosec
 		panic(err)
 	}
+
 	output, err := os.ReadFile(outputFile.Name())
 	if err != nil {
 		panic(err)
 	}
+
 	return output
 }

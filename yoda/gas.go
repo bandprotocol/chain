@@ -107,7 +107,7 @@ func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uin
 }
 
 func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
-	gas := uint64(baseAuthAnteGas)
+	gas := baseAuthAnteGas
 
 	txByteLength := getTxByteLength(msgs)
 	gas += txCostPerByte * txByteLength
@@ -120,7 +120,6 @@ func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 }
 
 func estimateGas(c *Context, l *Logger, msgs []sdk.Msg, feeEstimations []FeeEstimationData) uint64 {
-	// TODO: Add authz validation / remove check reporter base gas
 	gas := estimateAuthAnteHandlerGas(c, msgs)
 
 	for i, msg := range msgs {

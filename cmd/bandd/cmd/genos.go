@@ -3,7 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/bandprotocol/go-owasm/api"
@@ -34,7 +34,7 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			config.SetRoot(clientCtx.HomeDir)
 
 			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
-			data, err := ioutil.ReadFile(args[5])
+			data, err := os.ReadFile(args[5])
 			if err != nil {
 				return err
 			}

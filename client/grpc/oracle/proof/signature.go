@@ -32,7 +32,7 @@ func (signature *TMSignature) encodeToEthFormat() TMSignatureEthereum {
 
 func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 	for i := uint8(0); i < 2; i++ {
-		pubuc, err := crypto.SigToPub(tmhash.Sum(msg), append(sig, byte(i)))
+		pubuc, err := crypto.SigToPub(tmhash.Sum(msg), append(sig, i))
 		if err != nil {
 			return nil, 0, err
 		}
