@@ -3,6 +3,7 @@ package yoda
 import (
 	"net/http"
 	"sync/atomic"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -60,5 +61,13 @@ func metricsListen(listenAddr string, c *Context) {
 	collector := NewYodaCollector(c)
 	prometheus.MustRegister(collector)
 	http.Handle("/metrics", promhttp.Handler())
-	panic(http.ListenAndServe(listenAddr, nil))
+
+	server := &http.Server{
+		Addr:              listenAddr,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
+		panic(err)
+	}
 }
