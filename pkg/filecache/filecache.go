@@ -32,7 +32,7 @@ func GetFilename(data []byte) string {
 func (c Cache) AddFile(data []byte) string {
 	filename := GetFilename(data)
 	if !c.fileCache.Has(filename) {
-		c.fileCache.Write(filename, data)
+		_ = c.fileCache.Write(filename, data)
 	}
 	return filename
 }

@@ -41,8 +41,8 @@ func defaultVotes() []abci.VoteInfo {
 func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper) authtypes.ModuleAccountI {
 	// Set collected fee to 1000000uband and 70% oracle reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband)
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	_ = app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband)
+	_ = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
@@ -52,7 +52,7 @@ func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper
 
 	params := k.GetParams(ctx)
 	params.OracleRewardPercentage = 70
-	k.SetParams(ctx, params)
+	_ = k.SetParams(ctx, params)
 
 	return feeCollector
 }
@@ -76,7 +76,8 @@ func TestAllocateTokensOneActive(t *testing.T) {
 
 	require.Equal(t, Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// From 70% of fee, 2% should go to community pool, the rest goes to the only active validator.
-	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	err := k.Activate(ctx, testapp.Validators[1].ValAddress)
+	require.NoError(t, err)
 	k.AllocateTokens(ctx, defaultVotes())
 
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)

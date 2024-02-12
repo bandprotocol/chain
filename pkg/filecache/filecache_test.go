@@ -125,7 +125,7 @@ func TestMustGetFileGoodContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0666)
+	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	content := f.MustGetFile(filename)
@@ -147,7 +147,7 @@ func TestGetFileGoodContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0666)
+	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	content, err := f.GetFile(filename)
@@ -170,7 +170,7 @@ func TestMustGetFileBadContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0666)
+	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	require.Panics(t, func() {
@@ -193,7 +193,7 @@ func TesGetFileBadContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0666)
+	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	_, err = f.GetFile(filename)
@@ -215,7 +215,7 @@ func TestMustGetFileInconsistentContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0666) // Not consistent with name
+	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
 	require.NoError(t, err)
 	require.Panics(t, func() {
 		_ = f.MustGetFile(filename)
@@ -237,7 +237,7 @@ func TestGetFileInconsistentContent(t *testing.T) {
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0666) // Not consistent with name
+	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
 	require.NoError(t, err)
 	_, err = f.GetFile(filename)
 	require.Error(t, err)

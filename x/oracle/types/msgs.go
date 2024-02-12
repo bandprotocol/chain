@@ -57,57 +57,57 @@ func NewMsgRequestData(
 }
 
 // Route returns the route of MsgRequestData - "oracle" (sdk.Msg interface).
-func (msg MsgRequestData) Route() string { return RouterKey }
+func (m MsgRequestData) Route() string { return RouterKey }
 
 // Type returns the message type of MsgRequestData (sdk.Msg interface).
-func (msg MsgRequestData) Type() string { return TypeMsgRequestData }
+func (m MsgRequestData) Type() string { return TypeMsgRequestData }
 
 // ValidateBasic checks whether the given MsgRequestData instance (sdk.Msg interface).
-func (msg MsgRequestData) ValidateBasic() error {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgRequestData) ValidateBasic() error {
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", m.Sender)
 	}
-	if msg.MinCount <= 0 {
-		return ErrInvalidMinCount.Wrapf("got: %d", msg.MinCount)
+	if m.MinCount <= 0 {
+		return ErrInvalidMinCount.Wrapf("got: %d", m.MinCount)
 	}
-	if msg.AskCount < msg.MinCount {
-		return ErrInvalidAskCount.Wrapf("got: %d, min count: %d", msg.AskCount, msg.MinCount)
+	if m.AskCount < m.MinCount {
+		return ErrInvalidAskCount.Wrapf("got: %d, min count: %d", m.AskCount, m.MinCount)
 	}
-	if len(msg.ClientID) > MaxClientIDLength {
-		return WrapMaxError(ErrTooLongClientID, len(msg.ClientID), MaxClientIDLength)
+	if len(m.ClientID) > MaxClientIDLength {
+		return WrapMaxError(ErrTooLongClientID, len(m.ClientID), MaxClientIDLength)
 	}
-	if msg.PrepareGas <= 0 {
-		return ErrInvalidOwasmGas.Wrapf("invalid prepare gas: %d", msg.PrepareGas)
+	if m.PrepareGas <= 0 {
+		return ErrInvalidOwasmGas.Wrapf("invalid prepare gas: %d", m.PrepareGas)
 	}
-	if msg.ExecuteGas <= 0 {
-		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", msg.ExecuteGas)
+	if m.ExecuteGas <= 0 {
+		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", m.ExecuteGas)
 	}
-	if msg.PrepareGas+msg.ExecuteGas > MaximumOwasmGas {
+	if m.PrepareGas+m.ExecuteGas > MaximumOwasmGas {
 		return ErrInvalidOwasmGas.Wrapf(
 			"sum of prepare gas and execute gas (%d) exceed %d",
-			msg.PrepareGas+msg.ExecuteGas,
+			m.PrepareGas+m.ExecuteGas,
 			MaximumOwasmGas,
 		)
 	}
-	if !msg.FeeLimit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrap(msg.FeeLimit.String())
+	if !m.FeeLimit.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.FeeLimit.String())
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgRequestData (sdk.Msg interface).
-func (msg MsgRequestData) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgRequestData) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgRequestData) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgRequestData) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgReportData creates a new MsgReportData instance
@@ -120,25 +120,25 @@ func NewMsgReportData(requestID RequestID, rawReports []RawReport, validator sdk
 }
 
 // Route returns the route of MsgReportData - "oracle" (sdk.Msg interface).
-func (msg MsgReportData) Route() string { return RouterKey }
+func (m MsgReportData) Route() string { return RouterKey }
 
 // Type returns the message type of MsgReportData (sdk.Msg interface).
-func (msg MsgReportData) Type() string { return TypeMsgReportData }
+func (m MsgReportData) Type() string { return TypeMsgReportData }
 
 // ValidateBasic checks whether the given MsgReportData instance (sdk.Msg interface).
-func (msg MsgReportData) ValidateBasic() error {
-	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
+func (m MsgReportData) ValidateBasic() error {
+	valAddr, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(valAddr); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", msg.Validator)
+		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
-	if len(msg.RawReports) == 0 {
+	if len(m.RawReports) == 0 {
 		return ErrEmptyReport
 	}
 	uniqueMap := make(map[ExternalID]bool)
-	for _, r := range msg.RawReports {
+	for _, r := range m.RawReports {
 		if _, found := uniqueMap[r.ExternalID]; found {
 			return ErrDuplicateExternalID.Wrapf("external id: %d", r.ExternalID)
 		}
@@ -148,14 +148,14 @@ func (msg MsgReportData) ValidateBasic() error {
 }
 
 // GetSigners returns the required signers for the given MsgReportData (sdk.Msg interface).
-func (msg MsgReportData) GetSigners() []sdk.AccAddress {
-	validator, _ := sdk.ValAddressFromBech32(msg.Validator)
+func (m MsgReportData) GetSigners() []sdk.AccAddress {
+	validator, _ := sdk.ValAddressFromBech32(m.Validator)
 	return []sdk.AccAddress{sdk.AccAddress(validator)}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgReportData) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgReportData) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgCreateDataSource creates a new MsgCreateDataSource instance
@@ -174,64 +174,64 @@ func NewMsgCreateDataSource(
 }
 
 // Route returns the route of MsgCreateDataSource - "oracle" (sdk.Msg interface).
-func (msg MsgCreateDataSource) Route() string { return RouterKey }
+func (m MsgCreateDataSource) Route() string { return RouterKey }
 
 // Type returns the message type of MsgCreateDataSource (sdk.Msg interface).
-func (msg MsgCreateDataSource) Type() string { return TypeMsgCreateDataSource }
+func (m MsgCreateDataSource) Type() string { return TypeMsgCreateDataSource }
 
 // ValidateBasic checks whether the given MsgCreateDataSource instance (sdk.Msg interface).
-func (msg MsgCreateDataSource) ValidateBasic() error {
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+func (m MsgCreateDataSource) ValidateBasic() error {
+	treasury, err := sdk.AccAddressFromBech32(m.Treasury)
 	if err != nil {
 		return err
 	}
-	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
 	if err != nil {
 		return err
 	}
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", msg.Treasury)
+		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", m.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", m.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", m.Sender)
 	}
-	if len(msg.Name) > MaxNameLength {
-		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
+	if len(m.Name) > MaxNameLength {
+		return WrapMaxError(ErrTooLongName, len(m.Name), MaxNameLength)
 	}
-	if len(msg.Description) > MaxDescriptionLength {
-		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	if len(m.Description) > MaxDescriptionLength {
+		return WrapMaxError(ErrTooLongDescription, len(m.Description), MaxDescriptionLength)
 	}
-	if !msg.Fee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrap(msg.Fee.String())
+	if !m.Fee.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Fee.String())
 	}
-	if len(msg.Executable) == 0 {
+	if len(m.Executable) == 0 {
 		return ErrEmptyExecutable
 	}
-	if len(msg.Executable) > MaxExecutableSize {
-		return WrapMaxError(ErrTooLargeExecutable, len(msg.Executable), MaxExecutableSize)
+	if len(m.Executable) > MaxExecutableSize {
+		return WrapMaxError(ErrTooLargeExecutable, len(m.Executable), MaxExecutableSize)
 	}
-	if bytes.Equal(msg.Executable, DoNotModifyBytes) {
+	if bytes.Equal(m.Executable, DoNotModifyBytes) {
 		return ErrCreateWithDoNotModify
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgCreateDataSource (sdk.Msg interface).
-func (msg MsgCreateDataSource) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgCreateDataSource) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgCreateDataSource) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgCreateDataSource) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
@@ -256,61 +256,61 @@ func NewMsgEditDataSource(
 }
 
 // Route returns the route of MsgEditDataSource - "oracle" (sdk.Msg interface).
-func (msg MsgEditDataSource) Route() string { return RouterKey }
+func (m MsgEditDataSource) Route() string { return RouterKey }
 
 // Type returns the message type of MsgEditDataSource (sdk.Msg interface).
-func (msg MsgEditDataSource) Type() string { return TypeMsgEditDataSource }
+func (m MsgEditDataSource) Type() string { return TypeMsgEditDataSource }
 
 // ValidateBasic checks whether the given MsgEditDataSource instance (sdk.Msg interface).
-func (msg MsgEditDataSource) ValidateBasic() error {
-	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
+func (m MsgEditDataSource) ValidateBasic() error {
+	treasury, err := sdk.AccAddressFromBech32(m.Treasury)
 	if err != nil {
 		return err
 	}
-	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
 	if err != nil {
 		return err
 	}
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(treasury); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", msg.Treasury)
+		return sdkerrors.ErrInvalidAddress.Wrapf("treasury: %s", m.Treasury)
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", m.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", m.Sender)
 	}
-	if len(msg.Name) > MaxNameLength {
-		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
+	if len(m.Name) > MaxNameLength {
+		return WrapMaxError(ErrTooLongName, len(m.Name), MaxNameLength)
 	}
-	if len(msg.Description) > MaxDescriptionLength {
-		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	if len(m.Description) > MaxDescriptionLength {
+		return WrapMaxError(ErrTooLongDescription, len(m.Description), MaxDescriptionLength)
 	}
-	if !msg.Fee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrap(msg.Fee.String())
+	if !m.Fee.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Fee.String())
 	}
-	if len(msg.Executable) == 0 {
+	if len(m.Executable) == 0 {
 		return ErrEmptyExecutable
 	}
-	if len(msg.Executable) > MaxExecutableSize {
-		return WrapMaxError(ErrTooLargeExecutable, len(msg.Executable), MaxExecutableSize)
+	if len(m.Executable) > MaxExecutableSize {
+		return WrapMaxError(ErrTooLargeExecutable, len(m.Executable), MaxExecutableSize)
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgEditDataSource (sdk.Msg interface).
-func (msg MsgEditDataSource) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgEditDataSource) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgEditDataSource) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgEditDataSource) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgCreateOracleScript creates a new MsgCreateOracleScript instance
@@ -329,60 +329,60 @@ func NewMsgCreateOracleScript(
 }
 
 // Route returns the route of MsgCreateOracleScript - "oracle" (sdk.Msg interface).
-func (msg MsgCreateOracleScript) Route() string { return RouterKey }
+func (m MsgCreateOracleScript) Route() string { return RouterKey }
 
 // Type returns the message type of MsgCreateOracleScript (sdk.Msg interface).
-func (msg MsgCreateOracleScript) Type() string { return TypeMsgCreateOracleScript }
+func (m MsgCreateOracleScript) Type() string { return TypeMsgCreateOracleScript }
 
 // ValidateBasic checks whether the given MsgCreateOracleScript instance (sdk.Msg interface).
-func (msg MsgCreateOracleScript) ValidateBasic() error {
-	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+func (m MsgCreateOracleScript) ValidateBasic() error {
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
 	if err != nil {
 		return err
 	}
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", m.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", m.Sender)
 	}
-	if len(msg.Name) > MaxNameLength {
-		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
+	if len(m.Name) > MaxNameLength {
+		return WrapMaxError(ErrTooLongName, len(m.Name), MaxNameLength)
 	}
-	if len(msg.Description) > MaxDescriptionLength {
-		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	if len(m.Description) > MaxDescriptionLength {
+		return WrapMaxError(ErrTooLongDescription, len(m.Description), MaxDescriptionLength)
 	}
-	if len(msg.Schema) > MaxSchemaLength {
-		return WrapMaxError(ErrTooLongSchema, len(msg.Schema), MaxSchemaLength)
+	if len(m.Schema) > MaxSchemaLength {
+		return WrapMaxError(ErrTooLongSchema, len(m.Schema), MaxSchemaLength)
 	}
-	if len(msg.SourceCodeURL) > MaxURLLength {
-		return WrapMaxError(ErrTooLongURL, len(msg.SourceCodeURL), MaxURLLength)
+	if len(m.SourceCodeURL) > MaxURLLength {
+		return WrapMaxError(ErrTooLongURL, len(m.SourceCodeURL), MaxURLLength)
 	}
-	if len(msg.Code) == 0 {
+	if len(m.Code) == 0 {
 		return ErrEmptyWasmCode
 	}
-	if len(msg.Code) > MaxWasmCodeSize {
-		return WrapMaxError(ErrTooLargeWasmCode, len(msg.Code), MaxWasmCodeSize)
+	if len(m.Code) > MaxWasmCodeSize {
+		return WrapMaxError(ErrTooLargeWasmCode, len(m.Code), MaxWasmCodeSize)
 	}
-	if bytes.Equal(msg.Code, DoNotModifyBytes) {
+	if bytes.Equal(m.Code, DoNotModifyBytes) {
 		return ErrCreateWithDoNotModify
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgCreateOracleScript (sdk.Msg interface).
-func (msg MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgCreateOracleScript) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgCreateOracleScript) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgEditOracleScript creates a new MsgEditOracleScript instance
@@ -405,57 +405,57 @@ func NewMsgEditOracleScript(
 }
 
 // Route returns the route of MsgEditOracleScript - "oracle" (sdk.Msg interface).
-func (msg MsgEditOracleScript) Route() string { return RouterKey }
+func (m MsgEditOracleScript) Route() string { return RouterKey }
 
 // Type returns the message type of MsgEditOracleScript (sdk.Msg interface).
-func (msg MsgEditOracleScript) Type() string { return TypeMsgEditOracleScript }
+func (m MsgEditOracleScript) Type() string { return TypeMsgEditOracleScript }
 
 // ValidateBasic checks whether the given MsgEditOracleScript instance (sdk.Msg interface).
-func (msg MsgEditOracleScript) ValidateBasic() error {
-	owner, err := sdk.AccAddressFromBech32(msg.Owner)
+func (m MsgEditOracleScript) ValidateBasic() error {
+	owner, err := sdk.AccAddressFromBech32(m.Owner)
 	if err != nil {
 		return err
 	}
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(owner); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", msg.Owner)
+		return sdkerrors.ErrInvalidAddress.Wrapf("owner: %s", m.Owner)
 	}
 	if err := sdk.VerifyAddressFormat(sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", msg.Sender)
+		return sdkerrors.ErrInvalidAddress.Wrapf("sender: %s", m.Sender)
 	}
-	if len(msg.Name) > MaxNameLength {
-		return WrapMaxError(ErrTooLongName, len(msg.Name), MaxNameLength)
+	if len(m.Name) > MaxNameLength {
+		return WrapMaxError(ErrTooLongName, len(m.Name), MaxNameLength)
 	}
-	if len(msg.Description) > MaxDescriptionLength {
-		return WrapMaxError(ErrTooLongDescription, len(msg.Description), MaxDescriptionLength)
+	if len(m.Description) > MaxDescriptionLength {
+		return WrapMaxError(ErrTooLongDescription, len(m.Description), MaxDescriptionLength)
 	}
-	if len(msg.Schema) > MaxSchemaLength {
-		return WrapMaxError(ErrTooLongSchema, len(msg.Schema), MaxSchemaLength)
+	if len(m.Schema) > MaxSchemaLength {
+		return WrapMaxError(ErrTooLongSchema, len(m.Schema), MaxSchemaLength)
 	}
-	if len(msg.SourceCodeURL) > MaxURLLength {
-		return WrapMaxError(ErrTooLongURL, len(msg.SourceCodeURL), MaxURLLength)
+	if len(m.SourceCodeURL) > MaxURLLength {
+		return WrapMaxError(ErrTooLongURL, len(m.SourceCodeURL), MaxURLLength)
 	}
-	if len(msg.Code) == 0 {
+	if len(m.Code) == 0 {
 		return ErrEmptyWasmCode
 	}
-	if len(msg.Code) > MaxWasmCodeSize {
-		return WrapMaxError(ErrTooLargeWasmCode, len(msg.Code), MaxWasmCodeSize)
+	if len(m.Code) > MaxWasmCodeSize {
+		return WrapMaxError(ErrTooLargeWasmCode, len(m.Code), MaxWasmCodeSize)
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgEditOracleScript (sdk.Msg interface).
-func (msg MsgEditOracleScript) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+func (m MsgEditOracleScript) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(m.Sender)
 	return []sdk.AccAddress{sender}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgEditOracleScript) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgEditOracleScript) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgActivate creates a new MsgActivate instance
@@ -466,32 +466,32 @@ func NewMsgActivate(validator sdk.ValAddress) *MsgActivate {
 }
 
 // Route returns the route of MsgActivate - "oracle" (sdk.Msg interface).
-func (msg MsgActivate) Route() string { return RouterKey }
+func (m MsgActivate) Route() string { return RouterKey }
 
 // Type returns the message type of MsgActivate (sdk.Msg interface).
-func (msg MsgActivate) Type() string { return TypeMsgActivate }
+func (m MsgActivate) Type() string { return TypeMsgActivate }
 
 // ValidateBasic checks whether the given MsgActivate instance (sdk.Msg interface).
-func (msg MsgActivate) ValidateBasic() error {
-	val, err := sdk.ValAddressFromBech32(msg.Validator)
+func (m MsgActivate) ValidateBasic() error {
+	val, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
 		return err
 	}
 	if err := sdk.VerifyAddressFormat(val); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", msg.Validator)
+		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
 	return nil
 }
 
 // GetSigners returns the required signers for the given MsgActivate (sdk.Msg interface).
-func (msg MsgActivate) GetSigners() []sdk.AccAddress {
-	val, _ := sdk.ValAddressFromBech32(msg.Validator)
+func (m MsgActivate) GetSigners() []sdk.AccAddress {
+	val, _ := sdk.ValAddressFromBech32(m.Validator)
 	return []sdk.AccAddress{sdk.AccAddress(val)}
 }
 
 // GetSignBytes returns raw JSON bytes to be signed by the signers (sdk.Msg interface).
-func (msg MsgActivate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+func (m MsgActivate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // NewMsgActivate creates a new MsgActivate instance
@@ -527,7 +527,7 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 }
 
 // Route returns the route of MsgUpdateParams - "oracle" (sdk.Msg interface).
-func (msg MsgUpdateParams) Route() string { return RouterKey }
+func (m MsgUpdateParams) Route() string { return RouterKey }
 
 // Type returns the message type of MsgUpdateParams (sdk.Msg interface).
-func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+func (m MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
