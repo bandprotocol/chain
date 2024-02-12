@@ -5,17 +5,14 @@ import (
 	"errors"
 	"strings"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"gorm.io/gorm"
-
-	// DB driver
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-
-	abci "github.com/cometbft/cometbft/abci/types"
+	"gorm.io/gorm"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -136,7 +133,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
 	calldata, err := hex.DecodeString(req.Calldata)
 	if err != nil {
-		return nil, true, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unable to parse calldata: %s", err)
+		return nil, true, sdkerrors.ErrInvalidRequest.Wrapf("unable to parse calldata: %s", err)
 	}
 
 	// Query oracle requests from database
@@ -146,13 +143,12 @@ func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.Query
 		req.AskCount,
 		req.MinCount,
 	)
-
 	// check query results
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, true, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "request not found")
+			return nil, true, sdkerrors.ErrKeyNotFound.Wrap("request not found")
 		}
-		return nil, true, sdkerrors.Wrap(sdkerrors.ErrLogic, "unable to query latest request from database")
+		return nil, true, sdkerrors.ErrLogic.Wrap("unable to query latest request from database")
 	}
 
 	queryResponse := oracleReq.QueryRequestResponse()

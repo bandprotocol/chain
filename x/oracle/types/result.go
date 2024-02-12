@@ -2,23 +2,23 @@ package types
 
 // NewResult creates a new Result instance.
 func NewResult(
-	clientId string,
+	clientID string,
 	oid OracleScriptID,
 	calldata []byte,
 	askCount, minCount uint64,
-	requestId RequestID,
+	requestID RequestID,
 	ansCount uint64,
 	requestTime, resolveTime int64,
 	resolveStatus ResolveStatus,
 	result []byte,
 ) Result {
 	return Result{
-		ClientID:       clientId,
+		ClientID:       clientID,
 		OracleScriptID: oid,
 		Calldata:       calldata,
 		AskCount:       askCount,
 		MinCount:       minCount,
-		RequestID:      requestId,
+		RequestID:      requestID,
 		AnsCount:       ansCount,
 		RequestTime:    requestTime,
 		ResolveTime:    resolveTime,

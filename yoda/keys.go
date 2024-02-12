@@ -186,7 +186,7 @@ func keysListCmd(c *Context) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
-	viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
+	_ = viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
 
 	flags.AddQueryFlagsToCmd(cmd)
 

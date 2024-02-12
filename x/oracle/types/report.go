@@ -5,25 +5,25 @@ import (
 )
 
 func NewReport(
-	Validator sdk.ValAddress,
-	InBeforeResolve bool,
-	RawReports []RawReport,
+	validator sdk.ValAddress,
+	inBeforeResolve bool,
+	rawReports []RawReport,
 ) Report {
 	return Report{
-		Validator:       Validator.String(),
-		InBeforeResolve: InBeforeResolve,
-		RawReports:      RawReports,
+		Validator:       validator.String(),
+		InBeforeResolve: inBeforeResolve,
+		RawReports:      rawReports,
 	}
 }
 
 func NewRawReport(
-	ExternalID ExternalID,
-	ExitCode uint32,
-	Data []byte,
+	externalID ExternalID,
+	exitCode uint32,
+	data []byte,
 ) RawReport {
 	return RawReport{
-		ExternalID: ExternalID,
-		ExitCode:   ExitCode,
-		Data:       Data,
+		ExternalID: externalID,
+		ExitCode:   exitCode,
+		Data:       data,
 	}
 }
