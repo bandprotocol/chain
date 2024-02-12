@@ -9,7 +9,7 @@ import (
 type EmptySchema struct{}
 
 type NoOBITagStruct struct {
-	NoOBITag string `"noOBItag"` //missing obi
+	NoOBITag string `"noOBItag"` //nolint:govet // missing obi
 }
 
 type NotSupportedStruct struct {
@@ -28,14 +28,16 @@ type AllData struct {
 	NumInt64  int64  `obi:"numInt64"`
 }
 
-type Uint8ID uint8
-type Uint16ID uint16
-type Uint32ID uint32
-type Uint64ID uint64
-type Int8ID int8
-type Int16ID int16
-type Int32ID int32
-type Int64ID int64
+type (
+	Uint8ID  uint8
+	Uint16ID uint16
+	Uint32ID uint32
+	Uint64ID uint64
+	Int8ID   int8
+	Int16ID  int16
+	Int32ID  int32
+	Int64ID  int64
+)
 
 type AllDataAlias struct {
 	NumUint8  Uint8ID  `obi:"numUint8"`

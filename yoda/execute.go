@@ -21,10 +21,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-var (
-	// Proto codec for encoding/decoding proto message
-	cdc = band.MakeEncodingConfig().Marshaler
-)
+// Proto codec for encoding/decoding proto message
+var cdc = band.MakeEncodingConfig().Marshaler
 
 func signAndBroadcast(
 	c *Context, key *keyring.Record, msgs []sdk.Msg, gasLimit uint64, memo string,

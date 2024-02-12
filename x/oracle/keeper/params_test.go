@@ -25,7 +25,8 @@ func TestGetSetParams(t *testing.T) {
 		InactivePenaltyDuration: 1000,
 		IBCRequestEnabled:       true,
 	}
-	k.SetParams(ctx, expectedParams)
+	err := k.SetParams(ctx, expectedParams)
+	require.NoError(t, err)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
@@ -41,7 +42,8 @@ func TestGetSetParams(t *testing.T) {
 		InactivePenaltyDuration: 10000,
 		IBCRequestEnabled:       false,
 	}
-	k.SetParams(ctx, expectedParams)
+	err = k.SetParams(ctx, expectedParams)
+	require.NoError(t, err)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
@@ -57,7 +59,8 @@ func TestGetSetParams(t *testing.T) {
 		InactivePenaltyDuration: 0,
 		IBCRequestEnabled:       false,
 	}
-	k.SetParams(ctx, expectedParams)
+	err = k.SetParams(ctx, expectedParams)
+	require.NoError(t, err)
 	require.Equal(t, expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
@@ -73,6 +76,6 @@ func TestGetSetParams(t *testing.T) {
 		InactivePenaltyDuration: 10000,
 		IBCRequestEnabled:       false,
 	}
-	err := k.SetParams(ctx, expectedParams)
+	err = k.SetParams(ctx, expectedParams)
 	require.EqualError(t, fmt.Errorf("max raw request count must be positive: 0"), err.Error())
 }

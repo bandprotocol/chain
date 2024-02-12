@@ -152,11 +152,13 @@ var CacheCases = map[string]uint32{
 	"cache":    1,
 }
 
-var PrepareGasLimit uint64 = 7_500_000
-var ExecuteGasLimit uint64 = 7_500_000
-var BlockMaxGas int64 = 50_000_000
-var GasRanges []int = []int{1, 1_000, 10_000, 100_000, 1_000_000, 7_900_000}
-var NumRequestRanges []int = []int{0, 1, 5, 10, 20}
+var (
+	PrepareGasLimit  uint64 = 7_500_000
+	ExecuteGasLimit  uint64 = 7_500_000
+	BlockMaxGas      int64  = 50_000_000
+	GasRanges               = []int{1, 1_000, 10_000, 100_000, 1_000_000, 7_900_000}
+	NumRequestRanges        = []int{0, 1, 5, 10, 20}
+)
 
 // benchmark test for prepare function of owasm vm
 func BenchmarkOwasmVMPrepare(b *testing.B) {
@@ -334,7 +336,7 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 									ba.Oid,
 									ba.Did,
 									tc.scenario,
-									uint64(pm),
+									pm,
 									strlen,
 									10000,
 									ExecuteGasLimit,
@@ -438,7 +440,7 @@ func benchmarkBlockNormalMsg(b *testing.B) {
 					ba.CallBeginBlock()
 					b.StopTimer()
 
-					var totalGas uint64 = 0
+					totalGas := uint64(0)
 					for {
 						tx := GenSequenceOfTxs(
 							ba.TxConfig,
@@ -503,7 +505,7 @@ func benchmarkBlockReportMsg(b *testing.B) {
 							b.StopTimer()
 
 							res := ba.GetAllPendingRequests(ba.Validator)
-							var totalGas uint64 = 0
+							totalGas := uint64(0)
 
 							reqChunks := ChunkSlice(res.RequestIDs, reportSize)
 							for _, reqChunk := range reqChunks {

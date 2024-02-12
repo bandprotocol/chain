@@ -30,7 +30,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 		return ExecResult{}, err
 	}
 	defer os.RemoveAll(dir)
-	err = os.WriteFile(filepath.Join(dir, "exec"), code, 0777)
+	err = os.WriteFile(filepath.Join(dir, "exec"), code, 0o600)
 	if err != nil {
 		return ExecResult{}, err
 	}
@@ -54,7 +54,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 	cmd.Stderr = &buf
 	err = cmd.Run()
 	if ctx.Err() == context.DeadlineExceeded {
-		exec.Command("docker", "kill", name).Start()
+		_ = exec.Command("docker", "kill", name).Start()
 		return ExecResult{}, ErrExecutionimeout
 	}
 	exitCode := uint32(0)
