@@ -400,7 +400,7 @@ func (k Querier) RequestVerification(
 	}
 
 	// Provided external ID should be required by the request determined by oracle script
-	var dataSourceID types.DataSourceID
+	dataSourceID := types.DataSourceID(0)
 	for _, rawRequest := range request.RawRequests {
 		if rawRequest.ExternalID == types.ExternalID(req.ExternalId) {
 			dataSourceID = rawRequest.DataSourceID
