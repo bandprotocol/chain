@@ -40,6 +40,7 @@ func (st *StubTx) ValidateBasic() error {
 func (st *StubTx) GetGas() uint64 {
 	return 1000000
 }
+
 func (st *StubTx) GetFee() sdk.Coins {
 	fees := make(sdk.Coins, len(st.GasPrices))
 
@@ -57,7 +58,7 @@ type FeeCheckerTestSuite struct {
 	suite.Suite
 	FeeChecker feechecker.FeeChecker
 	ctx        sdk.Context
-	requestId  oracletypes.RequestID
+	requestID  oracletypes.RequestID
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
@@ -66,7 +67,8 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		WithIsCheckTx(true).
 		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(1, 4)}})
 
-	oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	err := oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
 	app.AuthzKeeper.SaveGrant(
@@ -95,7 +97,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		testapp.FeePayer.Address.String(),
 		testapp.Coins100000000uband,
 	)
-	suite.requestId = oracleKeeper.AddRequest(suite.ctx, req)
+	suite.requestID = oracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
 		&app.AuthzKeeper,
@@ -121,7 +123,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 				return &StubTx{
 					Msgs: []sdk.Msg{
 						oracletypes.NewMsgReportData(
-							suite.requestId,
+							suite.requestID,
 							[]oracletypes.RawReport{},
 							testapp.Validators[0].ValAddress,
 						),
@@ -242,7 +244,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(testapp.Alice.Address, []sdk.Msg{
 					oracletypes.NewMsgReportData(
-						suite.requestId,
+						suite.requestID,
 						[]oracletypes.RawReport{},
 						testapp.Validators[0].ValAddress,
 					),
@@ -278,7 +280,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(testapp.Alice.Address, []sdk.Msg{
 					oracletypes.NewMsgReportData(
-						suite.requestId+1,
+						suite.requestID+1,
 						[]oracletypes.RawReport{},
 						testapp.Validators[0].ValAddress,
 					),
@@ -300,7 +302,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(testapp.Bob.Address, []sdk.Msg{
 					oracletypes.NewMsgReportData(
-						suite.requestId,
+						suite.requestID,
 						[]oracletypes.RawReport{},
 						testapp.Validators[0].ValAddress,
 					),
@@ -363,7 +365,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			name: "valid MsgRequestData and valid MsgReport in valid MsgExec with enough fee",
 			stubTx: func() *StubTx {
 				msgReportData := oracletypes.NewMsgReportData(
-					suite.requestId,
+					suite.requestID,
 					[]oracletypes.RawReport{},
 					testapp.Validators[0].ValAddress,
 				)
@@ -399,7 +401,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			name: "valid MsgRequestData and valid MsgReport with enough fee",
 			stubTx: func() *StubTx {
 				msgReportData := oracletypes.NewMsgReportData(
-					suite.requestId,
+					suite.requestID,
 					[]oracletypes.RawReport{},
 					testapp.Validators[0].ValAddress,
 				)

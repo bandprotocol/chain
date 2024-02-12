@@ -76,7 +76,7 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		for _, val := range req.RequestedValidators {
 			v, _ := sdk.ValAddressFromBech32(val)
 			if !k.HasReport(ctx, currentReqID, v) {
-				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
+				k.MissReport(ctx, v, time.Unix(req.RequestTime, 0))
 			}
 		}
 

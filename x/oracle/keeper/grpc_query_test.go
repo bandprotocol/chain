@@ -67,8 +67,10 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
 	k.SetRequestCount(ctx, 1)
 	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	suite.assert.NoError(err)
+
 	expiration := ctx.BlockTime().Add(10 * time.Minute)
-	app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
+	err = app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
 		authz.NewGenericAuthorization("some url"), &expiration,
 	)
 	suite.assert.NoError(err)
@@ -551,7 +553,8 @@ func (suite *RequestVerificationTestSuite) TestIsNotReporter() {
 }
 
 func (suite *RequestVerificationTestSuite) TestRevokeReporters() {
-	suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	err := suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	suite.assert.NoError(err)
 	req := &types.QueryReportersRequest{
 		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
 	}

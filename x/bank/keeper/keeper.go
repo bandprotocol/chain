@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/cometbft/cometbft/libs/log"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -71,7 +70,11 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	}
 
 	// Instead of burning coins, we send them to the community pool.
-	k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
+	err := k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
+	if err != nil {
+		return err
+	}
+
 	feePool := k.distrKeeper.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
 	k.distrKeeper.SetFeePool(ctx, feePool)

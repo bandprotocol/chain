@@ -57,7 +57,6 @@ type Account struct {
 	ValAddress sdk.ValAddress
 }
 
-// nolint
 var (
 	Owner         Account
 	Treasury      Account
@@ -71,7 +70,6 @@ var (
 	OwasmVM       *owasm.Vm
 )
 
-// nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
 	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
@@ -398,9 +396,9 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		// active oracle status
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 		// active tss status
 		app.TSSKeeper.HandleSetDEs(ctx, Validators[0].Address, []tsstypes.DE{
 			{

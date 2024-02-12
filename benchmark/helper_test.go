@@ -33,7 +33,7 @@ type Account struct {
 }
 
 type BenchmarkCalldata struct {
-	DataSourceId uint64
+	DataSourceID uint64
 	Scenario     uint64
 	Value        uint64
 	Text         string
@@ -46,8 +46,8 @@ func GetBenchmarkWasm() ([]byte, error) {
 
 func GenMsgRequestData(
 	sender *Account,
-	oracleScriptId uint64,
-	dataSourceId uint64,
+	oracleScriptID uint64,
+	dataSourceID uint64,
 	scenario uint64,
 	value uint64,
 	stringLength int,
@@ -55,9 +55,9 @@ func GenMsgRequestData(
 	executeGas uint64,
 ) []sdk.Msg {
 	msg := oracletypes.MsgRequestData{
-		OracleScriptID: oracletypes.OracleScriptID(oracleScriptId),
+		OracleScriptID: oracletypes.OracleScriptID(oracleScriptID),
 		Calldata: obi.MustEncode(BenchmarkCalldata{
-			DataSourceId: dataSourceId,
+			DataSourceID: dataSourceID,
 			Scenario:     scenario,
 			Value:        value,
 			Text:         strings.Repeat("#", stringLength),
@@ -225,7 +225,7 @@ func GenSequenceOfTxs(
 			[]uint64{account.Seq},
 			account.PrivKey,
 		)
-		account.Seq += 1
+		account.Seq++
 	}
 
 	return txs
@@ -241,7 +241,7 @@ func DecodeEvents(events []types.Event) []Event {
 	for _, event := range events {
 		attrs := make(map[string]string, 0)
 		for _, attributes := range event.Attributes {
-			attrs[string(attributes.Key)] = string(attributes.Value)
+			attrs[attributes.Key] = attributes.Value
 		}
 		evs = append(evs, Event{
 			Type:       event.Type,
@@ -252,27 +252,16 @@ func DecodeEvents(events []types.Event) []Event {
 	return evs
 }
 
-func LogEvents(b testing.TB, events []types.Event) {
-	evs := DecodeEvents(events)
-	for i, ev := range evs {
-		b.Logf("Event %d: %+v\n", i, ev)
-	}
-
-	if len(evs) == 0 {
-		b.Logf("No Event")
-	}
-}
-
 func GetFirstAttributeOfLastEventValue(events []types.Event) (int, error) {
 	evt := events[len(events)-1]
 	attr := evt.Attributes[0]
-	value, err := strconv.Atoi(string(attr.Value))
+	value, err := strconv.Atoi(attr.Value)
 
 	return value, err
 }
 
 func InitOwasmTestEnv(
-	b testing.TB,
+	tb testing.TB,
 	cacheSize uint32,
 	scenario uint64,
 	parameter uint64,
@@ -280,18 +269,18 @@ func InitOwasmTestEnv(
 ) (*owasm.Vm, []byte, oracletypes.Request) {
 	// prepare owasm vm
 	owasmVM, err := owasm.NewVm(cacheSize)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 
 	// prepare owasm code
 	oCode, err := GetBenchmarkWasm()
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	compiledCode, err := owasmVM.Compile(oCode, oracletypes.MaxCompiledWasmCodeSize)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 
 	// prepare request
 	req := oracletypes.NewRequest(
 		1, obi.MustEncode(BenchmarkCalldata{
-			DataSourceId: 1,
+			DataSourceID: 1,
 			Scenario:     scenario,
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
