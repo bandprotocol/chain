@@ -31,7 +31,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		testapp.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
@@ -102,7 +101,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
+		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime, 1581589795,
 		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
@@ -173,7 +172,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
+		expectRequest.ClientID, types.RequestID(1), 0, expectRequest.RequestTime, ctx.BlockTime().Unix(),
 		types.RESOLVE_STATUS_EXPIRED, []byte{},
 	)
 	expectEvents := []abci.Event{{

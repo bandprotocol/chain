@@ -23,9 +23,7 @@ type Response struct {
 	TxHash string `json:"txHash"`
 }
 
-var (
-	cdc, _ = band.MakeCodecs()
-)
+var cdc, _ = band.MakeCodecs()
 
 func handleRequest(gc *gin.Context, c *Context) {
 	key := <-c.keys
@@ -110,7 +108,8 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s",
 				res.Code, res.RawLog, res.TxHash,
-			)})
+			),
+		})
 		return
 	}
 	gc.JSON(200, Response{

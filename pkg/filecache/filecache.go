@@ -32,7 +32,7 @@ func GetFilename(data []byte) string {
 func (c Cache) AddFile(data []byte) string {
 	filename := GetFilename(data)
 	if !c.fileCache.Has(filename) {
-		c.fileCache.Write(filename, data)
+		_ = c.fileCache.Write(filename, data)
 	}
 	return filename
 }
@@ -44,7 +44,7 @@ func (c Cache) GetFile(filename string) ([]byte, error) {
 		return nil, err
 	}
 	if GetFilename(data) != filename { // Perform integrity check for safety. NEVER EXPECT TO HIT.
-		return nil, errors.New("Inconsistent filecache content")
+		return nil, errors.New("inconsistent filecache content")
 	}
 	return data, nil
 }

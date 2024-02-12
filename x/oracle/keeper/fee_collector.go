@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -36,8 +35,7 @@ func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk
 	for _, c := range coll.collected {
 		limitAmt := coll.limit.AmountOf(c.Denom)
 		if c.Amount.GT(limitAmt) {
-			return sdkerrors.Wrapf(
-				types.ErrNotEnoughFee,
+			return types.ErrNotEnoughFee.Wrapf(
 				"require: %s, max: %s%s",
 				c.String(),
 				limitAmt.String(),

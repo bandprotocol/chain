@@ -2,7 +2,7 @@ package band
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 )
@@ -15,7 +15,7 @@ const (
 
 // GenesisDocFromFile reads JSON data from a file and unmarshalls it into a GenesisDoc.
 func GenesisDocFromFile(genDocFile string) (*tmtypes.GenesisDoc, error) {
-	jsonBlob, err := ioutil.ReadFile(genDocFile)
+	jsonBlob, err := os.ReadFile(genDocFile)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't read GenesisDoc file: %w", err)
 	}

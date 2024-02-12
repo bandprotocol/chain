@@ -5,12 +5,11 @@ import (
 	"fmt"
 
 	"github.com/cometbft/cometbft/crypto/secp256k1"
+	"github.com/cosmos/cosmos-sdk/client"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // RegisterNodeService registers the node gRPC service on the provided gRPC router.
@@ -21,7 +20,7 @@ func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server) {
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
 // on the given mux object.
 func RegisterGRPCGatewayRoutes(clientConn gogogrpc.ClientConn, mux *runtime.ServeMux) {
-	RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
+	_ = RegisterServiceHandlerClient(context.Background(), mux, NewServiceClient(clientConn))
 }
 
 // to check queryServer implements ServiceServer
@@ -59,8 +58,8 @@ func (s queryServer) EVMValidators(
 	}
 
 	// Get top 100 validators for now
-	var page int = 1
-	var perPage int = 100
+	page := 1
+	perPage := 100
 	validators, err := node.Validators(context.Background(), nil, &page, &perPage)
 	if err != nil {
 		return nil, err

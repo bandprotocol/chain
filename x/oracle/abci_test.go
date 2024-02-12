@@ -69,23 +69,29 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 	)
+	require.NoError(t, err)
+
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
 	mintParams.InflationMax = sdk.ZeroDec()
-	app.MintKeeper.SetParams(ctx, mintParams)
+	err = app.MintKeeper.SetParams(ctx, mintParams)
+	require.NoError(t, err)
+
 	params := k.GetParams(ctx)
 	params.OracleRewardPercentage = 70
-	k.SetParams(ctx, params)
+	err = k.SetParams(ctx, params)
+	require.NoError(t, err)
 	require.Equal(
 		t,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -102,7 +108,8 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	// 1 validator active, begin block should take 70% of the fee. 2% of that goes to comm pool.
-	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	err = k.Activate(ctx, testapp.Validators[1].ValAddress)
+	require.NoError(t, err)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.CommitInfo{Votes: votes},
@@ -132,7 +139,9 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
 	)
 	// 2 validators active now. 70% of the remaining fee pool will be split 3 ways (comm pool + val1 + val2).
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
+	err = k.Activate(ctx, testapp.Validators[0].ValAddress)
+	require.NoError(t, err)
+
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.CommitInfo{Votes: votes},
@@ -216,21 +225,25 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
 	)
+	require.NoError(t, err)
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
 	mintParams.InflationMax = sdk.ZeroDec()
-	app.MintKeeper.SetParams(ctx, mintParams)
+	err = app.MintKeeper.SetParams(ctx, mintParams)
+	require.NoError(t, err)
 	params := k.GetParams(ctx)
 	params.OracleRewardPercentage = 70
-	k.SetParams(ctx, params)
+	err = k.SetParams(ctx, params)
+	require.NoError(t, err)
 	// Set block proposer to Validators[1], who will receive 5% bonus.
 	app.DistrKeeper.SetPreviousProposerConsAddr(ctx, testapp.Validators[1].Address.Bytes())
 	require.Equal(
@@ -252,7 +265,8 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	//   Community pool: 0.7 + 0.3 = 1
 	//   Validators[0]: 34.3 + 8.715 = 43.015
 	//   Validators[1]: 2.25 + 3.735 = 5.985
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
+	err = k.Activate(ctx, testapp.Validators[0].ValAddress)
+	require.NoError(t, err)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
 		LastCommitInfo: abci.CommitInfo{Votes: votes},
