@@ -199,7 +199,7 @@ func SimulateMsgRequestData(
 		// Generate request message from above information
 		msg := types.MsgRequestData{
 			Sender:         simAccount.Address.String(),
-			OracleScriptID: types.OracleScriptID(oid),
+			OracleScriptID: oid,
 			Calldata:       []byte(simtypes.RandStringOfLength(r, 100)),
 			AskCount:       uint64(askCount),
 			MinCount:       uint64(simtypes.RandIntBetween(r, 1, askCount+1)),
@@ -268,7 +268,7 @@ func SimulateMsgReportData(
 
 		// Generate report message
 		msg := types.MsgReportData{
-			RequestID:  types.RequestID(rid),
+			RequestID:  rid,
 			RawReports: rawReports,
 			Validator:  sdk.ValAddress(simAccount.Address).String(),
 		}
@@ -344,7 +344,7 @@ func SimulateMsgEditDataSource(
 		// Generate edit data source message
 		msg := types.MsgEditDataSource{
 			Sender:       simAccount.Address.String(),
-			DataSourceID: types.DataSourceID(did),
+			DataSourceID: did,
 			Name:         simtypes.RandStringOfLength(r, 10),
 			Description:  simtypes.RandStringOfLength(r, 100),
 			Executable:   []byte(simtypes.RandStringOfLength(r, 100)),
@@ -421,7 +421,7 @@ func SimulateMsgEditOracleScript(
 		// Generate edit oracle script message
 		msg := types.MsgEditOracleScript{
 			Sender:         simAccount.Address.String(),
-			OracleScriptID: types.OracleScriptID(oid),
+			OracleScriptID: oid,
 			Name:           simtypes.RandStringOfLength(r, 10),
 			Description:    simtypes.RandStringOfLength(r, 100),
 			Schema:         simtypes.RandStringOfLength(r, 100),
