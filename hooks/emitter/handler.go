@@ -187,7 +187,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 }
 
 func splitKeyWithTime(key []byte) (proposalID uint64, endTime time.Time) {
-	var lenTime = len(sdk.FormatTimeBytes(time.Now()))
+	lenTime := len(sdk.FormatTimeBytes(time.Now()))
 	kv.AssertKeyLength(key[2:], 8+lenTime)
 
 	endTime, err := sdk.ParseTimeBytes(key[2 : 2+lenTime])

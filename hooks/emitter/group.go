@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	proto "github.com/cosmos/gogoproto/proto"
+
+	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 func extractStringFromEventMap(evMap common.EvMap, event string, topic string) string {
@@ -265,7 +266,7 @@ func (h *Hook) handleGroupEventProposalPruned(
 	)
 	proposalStatus := extractStringFromEventMap(evMap, proto.MessageName(&group.EventProposalPruned{}), "status")
 	tallyResult := group.DefaultTallyResult()
-	json.Unmarshal([]byte(evMap[proto.MessageName(&group.EventProposalPruned{})+".tally_result"][0]), &tallyResult)
+	_ = json.Unmarshal([]byte(evMap[proto.MessageName(&group.EventProposalPruned{})+".tally_result"][0]), &tallyResult)
 	h.Write("UPDATE_GROUP_PROPOSAL_BY_ID", common.JsDict{
 		"id":                proposalId,
 		"status":            proposalStatus,
