@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 type Router struct {

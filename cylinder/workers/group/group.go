@@ -49,8 +49,12 @@ func (g *Group) Start() {
 }
 
 // Stop stops the each round's worker.
-func (g *Group) Stop() {
+func (g *Group) Stop() error {
 	for _, w := range g.workers {
-		w.Stop()
+		if err := w.Stop(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

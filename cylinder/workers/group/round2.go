@@ -163,7 +163,7 @@ func (r *Round2) Start() {
 }
 
 // Stop stops the Round2 worker.
-func (r *Round2) Stop() {
+func (r *Round2) Stop() error {
 	r.logger.Info("stop")
-	r.client.Stop()
+	return r.client.Stop()
 }

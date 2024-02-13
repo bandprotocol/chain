@@ -4,8 +4,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
 )
 
 func TestComputeCoefficient(t *testing.T) {

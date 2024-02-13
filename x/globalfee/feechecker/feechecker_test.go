@@ -71,7 +71,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
-	app.AuthzKeeper.SaveGrant(
+	err = app.AuthzKeeper.SaveGrant(
 		ctx,
 		testapp.Alice.Address,
 		testapp.Validators[0].Address,
@@ -80,6 +80,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		),
 		&expiration,
 	)
+	suite.Require().NoError(err)
 
 	req := oracletypes.NewRequest(
 		1,
@@ -127,7 +128,8 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 							[]oracletypes.RawReport{},
 							testapp.Validators[0].ValAddress,
 						),
-					}}
+					},
+				}
 			},
 			expIsBypassMinFeeTx: true,
 			expErr:              nil,

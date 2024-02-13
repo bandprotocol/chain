@@ -37,28 +37,36 @@ func defaultVotes() []abci.VoteInfo {
 	}}
 }
 
-func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper) authtypes.ModuleAccountI {
+func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper) (authtypes.ModuleAccountI, error) {
 	// Set collected fee to 1000000uband and 50% tss reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband)
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband); err != nil {
+		return nil, err
+	}
+
+	if err := app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
 		Coins1000000uband,
-	)
+	); err != nil {
+		return nil, err
+	}
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 
 	params := k.GetParams(ctx)
 	params.RewardPercentage = 50
-	k.SetParams(ctx, params)
+	if err := k.SetParams(ctx, params); err != nil {
+		return nil, err
+	}
 
-	return feeCollector
+	return feeCollector, nil
 }
 
 func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	app, ctx, k := testapp.CreateTestInput(false)
-	feeCollector := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	feeCollector, err := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// No active tss validators so nothing should happen.
@@ -72,17 +80,22 @@ func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	app, ctx, _ := testapp.CreateTestInput(false)
 	k := app.TSSKeeper
-	feeCollector := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	feeCollector, err := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// From 50% of fee, 1% should go to community pool, the rest goes to the only active validator.
-	k.HandleSetDEs(ctx, testapp.Validators[1].Address, []types.DE{
+	err = k.HandleSetDEs(ctx, testapp.Validators[1].Address, []types.DE{
 		{
 			PubD: testutil.HexDecode("dddd"),
 			PubE: testutil.HexDecode("eeee"),
 		},
 	})
-	k.SetActiveStatus(ctx, testapp.Validators[1].Address)
+	s.Require().NoError(err)
+
+	err = k.SetActiveStatus(ctx, testapp.Validators[1].Address)
+	s.Require().NoError(err)
+
 	k.AllocateTokens(ctx, defaultVotes())
 
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)
@@ -108,7 +121,8 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 
 func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 	ctx, app, k := s.ctx, s.app, s.app.TSSKeeper
-	feeCollector := SetupFeeCollector(app, ctx, k)
+	feeCollector, err := SetupFeeCollector(app, ctx, k)
+	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// From 50% of fee, 1% should go to community pool, the rest get split to validators.

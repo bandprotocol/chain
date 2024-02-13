@@ -71,7 +71,7 @@ func (suite *TSSTestSuite) TestComputeSecretShareCommit() {
 			suite.Require().NoError(err)
 
 			expSecretCommit := memberI.SecretShares[testutil.GetSlot(memberI.ID, memberJ.ID)].Point()
-			suite.Require().Equal(tss.Point(expSecretCommit), secretCommit)
+			suite.Require().Equal(expSecretCommit, secretCommit)
 		},
 	)
 }

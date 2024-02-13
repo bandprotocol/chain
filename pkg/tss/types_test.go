@@ -3,9 +3,10 @@ package tss_test
 import (
 	"fmt"
 
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
 func (suite *TSSTestSuite) TestParseScalar() {

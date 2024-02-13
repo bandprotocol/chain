@@ -183,7 +183,7 @@ func (r *Round3) Start() {
 }
 
 // Stop stops the Round3 worker.
-func (r *Round3) Stop() {
+func (r *Round3) Stop() error {
 	r.logger.Info("stop")
-	r.client.Stop()
+	return r.client.Stop()
 }

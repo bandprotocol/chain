@@ -3,12 +3,13 @@ package cylinder
 import (
 	"path/filepath"
 
-	"github.com/bandprotocol/chain/v2/cylinder/store"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/cylinder/store"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 )
 
 // Context holds the context information for the Cylinder process.

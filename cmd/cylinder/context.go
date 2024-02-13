@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
+	"github.com/bandprotocol/chain/v2/cylinder"
 )
 
 // Context represents the application context.

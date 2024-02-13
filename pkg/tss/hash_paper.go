@@ -81,7 +81,7 @@ func strxor(str1, str2 []byte) ([]byte, error) {
 // provided H meets the requirements above.
 //
 // https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-expand_message_xmd
-func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len_in_bytes int) ([]byte, error) {
+func ExpandMessageXMD(h func(data ...[]byte) []byte, msg []byte, dst []byte, len_in_bytes int) ([]byte, error) {
 	// b_in_bytes, b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32
 	b_in_bytes := 32
 	// s_in_bytes, the input block size of H, measured in bytes. For example, for SHA-256, s_in_bytes = 64
@@ -91,16 +91,16 @@ func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len
 	ell := (len_in_bytes + b_in_bytes - 1) / b_in_bytes
 
 	// 2. ABORT if ell > 255 or len_in_bytes > 65535 or len(DST) > 255
-	if ell > 255 || len_in_bytes > 65535 || len(DST) > 255 {
+	if ell > 255 || len_in_bytes > 65535 || len(dst) > 255 {
 		return nil, errors.New("ExpandMessageXMD: input is not within the permissible limits")
 	}
 
 	// 3. DST_prime = DST || I2OSP(len(DST), 1)
-	dstPrime, err := I2OSP(len(DST), 1)
+	dstPrime, err := I2OSP(len(dst), 1)
 	if err != nil {
 		return nil, err
 	}
-	dstPrime = append(DST, dstPrime...)
+	dstPrime = append(dst, dstPrime...)
 
 	// 4. Z_pad = I2OSP(0, s_in_bytes)
 	zPad, err := I2OSP(0, s_in_bytes)
@@ -119,10 +119,10 @@ func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len
 	msgPrime := append(append(append(zPad, msg...), liBStr...), append([]byte{0}, dstPrime...)...)
 
 	// 7. b_0 = H(msg_prime)
-	b0 := H(msgPrime)
+	b0 := h(msgPrime)
 	// 8. b_1 = H(b_0 || I2OSP(1, 1) || DST_prime)
 	// I2OSP(1, 1) -> []byte{1}
-	b := H(append(b0, append([]byte{1}, dstPrime...)...))
+	b := h(append(b0, append([]byte{1}, dstPrime...)...))
 
 	if len(b) < b_in_bytes {
 		return nil, errors.New("ExpandMessageXMD: the initial len of b must be >= b_in_bytes")
@@ -136,7 +136,7 @@ func ExpandMessageXMD(H func(data ...[]byte) []byte, msg []byte, DST []byte, len
 			return nil, err
 		}
 		// I2OSP(i, 1) -> []byte{i} ; i ∈ {1,2,3,...,255}
-		bi := H(append(b0_xor_bi_1, append([]byte{uint8(i)}, dstPrime...)...))
+		bi := h(append(b0_xor_bi_1, append([]byte{uint8(i)}, dstPrime...)...))
 
 		// 11. uniform_bytes = b_1 || ... || b_ell
 		b = append(b, bi...)
@@ -173,11 +173,11 @@ func HashToField(
 	count int,
 	p *big.Int,
 	m int,
-	L int,
+	l int,
 	expand func([]byte, int) ([]byte, error),
 ) ([][]*big.Int, error) {
-	// 1. len_in_bytes = count * m * L
-	lenInBytes := count * m * L
+	// 1. len_in_bytes = count * m * l
+	lenInBytes := count * m * l
 	// 2. uniform_bytes = expand_message(msg, DST, len_in_bytes)
 	uniformBytes, err := expand(msg, lenInBytes)
 	if err != nil {
@@ -189,10 +189,10 @@ func HashToField(
 		eVals := make([]*big.Int, m)
 		// 4. for j in (0, ..., m - 1):
 		for j := 0; j < m; j++ {
-			// 5. elm_offset = L * (j + i * m)
-			elmOffset := L * (j + i*m)
-			// 6. tv = substr(uniform_bytes, elm_offset, L)
-			tv := uniformBytes[elmOffset : elmOffset+L]
+			// 5. elm_offset = l * (j + i * m)
+			elmOffset := l * (j + i*m)
+			// 6. tv = substr(uniform_bytes, elm_offset, l)
+			tv := uniformBytes[elmOffset : elmOffset+l]
 			tvInt := OS2IP(tv)
 			// 7. e_j = OS2IP(tv) mod p
 			eVals[j] = tvInt.Mod(tvInt, p)
@@ -223,7 +223,7 @@ func HashToField(
 // - A slice of field elements, each represented as a *big.Int.
 // - An error if the HashToField function returns an error.
 func H_M1_L48(
-	H func(data ...[]byte) []byte,
+	h func(data ...[]byte) []byte,
 	count int,
 	p *big.Int,
 	msg []byte,
@@ -231,7 +231,7 @@ func H_M1_L48(
 ) ([][]*big.Int, error) {
 	expand := func(message []byte, lenInBytes int) ([]byte, error) {
 		DST := []byte(contextString)
-		return ExpandMessageXMD(H, message, DST, lenInBytes)
+		return ExpandMessageXMD(h, message, DST, lenInBytes)
 	}
 	// m = 1, L = 48
 	fieldElements, err := HashToField(msg, count, p, 1, 48, expand)

@@ -147,15 +147,13 @@ func HashChallenge(rawGroupPubNonce, rawGroupPubKey Point, data []byte) (Scalar,
 		return nil, NewError(err, "parse group pubic key")
 	}
 
-	parity := uint8(rawGroupPubKey[0])
-
 	scalar, err := NewScalar(Hash(
 		[]byte(ContextString),
 		[]byte{0},
 		[]byte("challenge"),
 		[]byte{0},
 		rAddress,
-		[]byte{parity + 25},
+		[]byte{rawGroupPubKey[0] + 25},
 		groupPubKey.X().Bytes(),
 		Hash(data),
 	))

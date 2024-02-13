@@ -3,9 +3,10 @@ package tss_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/stretchr/testify/suite"
 )
 
 type TSSTestSuite struct {

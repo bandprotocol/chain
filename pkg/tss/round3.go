@@ -183,7 +183,7 @@ func SignComplaint(
 			return nil, nil, NewError(err, "compute nonce sym")
 		}
 
-		challenge, err = HashRound3Complain(pubNonce, Point(nonceSym), oneTimePubI, oneTimePubJ, keySym)
+		challenge, err = HashRound3Complain(pubNonce, nonceSym, oneTimePubI, oneTimePubJ, keySym)
 		if err == nil {
 			break
 		}
@@ -253,5 +253,5 @@ func VerifyComplaintSignature(
 		return NewError(err, "verify")
 	}
 
-	return Verify(complaintSignature.A2(), complaintSignature.Z(), challenge, keySym, Point(oneTimePubJ), nil)
+	return Verify(complaintSignature.A2(), complaintSignature.Z(), challenge, keySym, oneTimePubJ, nil)
 }

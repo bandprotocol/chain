@@ -8,7 +8,8 @@ func (s *KeeperTestSuite) TestGetSetParams() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	params := types.DefaultParams()
 
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	s.Require().NoError(err)
 
 	s.Require().Equal(params, k.GetParams(ctx))
 }

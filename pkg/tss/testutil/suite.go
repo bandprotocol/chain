@@ -3,8 +3,9 @@ package testutil
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 type Suite struct {

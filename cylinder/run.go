@@ -13,7 +13,9 @@ func Run(c *Context, workers Workers) error {
 
 	// Stop all workers if there was an error
 	for _, worker := range workers {
-		worker.Stop()
+		if err := worker.Stop(); err != nil {
+			return err
+		}
 	}
 
 	return err
