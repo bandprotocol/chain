@@ -82,21 +82,21 @@ func (h *Hook) emitRawRequestAndValRequest(
 	}
 }
 
-func (app *Hook) emitReportAndRawReport(
+func (h *Hook) emitReportAndRawReport(
 	txHash []byte,
 	rid types.RequestID,
 	validator sdk.ValAddress,
 	reporter sdk.AccAddress,
 	rawReports []types.RawReport,
 ) {
-	app.Write("NEW_REPORT", common.JsDict{
+	h.Write("NEW_REPORT", common.JsDict{
 		"tx_hash":    txHash,
 		"request_id": rid,
 		"validator":  validator.String(),
 		"reporter":   reporter.String(),
 	})
 	for _, data := range rawReports {
-		app.Write("NEW_RAW_REPORT", common.JsDict{
+		h.Write("NEW_RAW_REPORT", common.JsDict{
 			"request_id":  rid,
 			"validator":   validator.String(),
 			"external_id": data.ExternalID,

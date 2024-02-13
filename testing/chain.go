@@ -1,4 +1,4 @@
-// 0.47 TODO: consider importing directly from ibc instead of forking
+// TODO: consider importing directly from ibc instead of forking
 package ibctesting
 
 import (
@@ -18,7 +18,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -28,7 +27,6 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 	ibchost "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
@@ -39,9 +37,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-var (
-	valSize uint64 = 2
-)
+var valSize uint64 = 2
 
 // TestChain is a testing struct that wraps a TestingApp with the last TM Header, the current ABCI
 // header and the validators of the TestChain. It also contains a field called ChainID. This
@@ -79,7 +75,6 @@ type TestChain struct {
 // Time management is handled by the Coordinator in order to ensure synchrony between chains.
 // Each update of any chain increments the block header time for all chains by 5 seconds.
 func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
-	// TODO: change sender
 	signers := make([]tmtypes.PrivValidator, valSize)
 	validators := make([]*tmtypes.Validator, valSize)
 	genesisAccount := make([]authtypes.GenesisAccount, valSize)
@@ -115,7 +110,8 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, chainID, balances...)
 	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
 	for _, v := range vals {
-		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+		err := app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+		require.NoError(t, err)
 	}
 
 	// create current header and call begin block
@@ -276,7 +272,8 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	err = chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	require.NoError(chain.t, err)
 
 	chain.Coordinator.IncrementTime()
 
@@ -315,7 +312,8 @@ func (chain *TestChain) SendReport(
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	err = senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	require.NoError(chain.t, err)
 
 	chain.Coordinator.IncrementTime()
 
@@ -324,7 +322,7 @@ func (chain *TestChain) SendReport(
 
 // GetClientState retrieves the client state for the provided clientID. The client is
 // expected to exist otherwise testing will fail.
-func (chain *TestChain) GetClientState(clientID string) exported.ClientState {
+func (chain *TestChain) GetClientState(clientID string) ibcexported.ClientState {
 	clientState, found := chain.App.GetIBCKeeper().ClientKeeper.GetClientState(chain.GetContext(), clientID)
 	require.True(chain.t, found)
 
@@ -333,7 +331,10 @@ func (chain *TestChain) GetClientState(clientID string) exported.ClientState {
 
 // GetConsensusState retrieves the consensus state for the provided clientID and height.
 // It will return a success boolean depending on if consensus state exists or not.
-func (chain *TestChain) GetConsensusState(clientID string, height exported.Height) (exported.ConsensusState, bool) {
+func (chain *TestChain) GetConsensusState(
+	clientID string,
+	height ibcexported.Height,
+) (ibcexported.ConsensusState, bool) {
 	return chain.App.GetIBCKeeper().ClientKeeper.GetClientConsensusState(chain.GetContext(), clientID, height)
 }
 
@@ -356,7 +357,7 @@ func (chain *TestChain) GetValsAtHeight(height int64) (*tmtypes.ValidatorSet, bo
 
 // GetAcknowledgement retrieves an acknowledgement for the provided packet. If the
 // acknowledgement does not exist then testing will fail.
-func (chain *TestChain) GetAcknowledgement(packet exported.PacketI) []byte {
+func (chain *TestChain) GetAcknowledgement(packet ibcexported.PacketI) []byte {
 	ack, found := chain.App.GetIBCKeeper().ChannelKeeper.GetPacketAcknowledgement(
 		chain.GetContext(),
 		packet.GetDestPort(),
@@ -410,7 +411,7 @@ func (chain *TestChain) ConstructUpdateTMClientHeaderWithTrustedHeight(
 		// NextValidatorsHash
 		tmTrustedVals, ok = counterparty.GetValsAtHeight(int64(trustedHeight.RevisionHeight + 1))
 		if !ok {
-			return nil, sdkerrors.Wrapf(ibctmtypes.ErrInvalidHeaderHeight, "could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
+			return nil, ibctmtypes.ErrInvalidHeaderHeight.Wrapf("could not retrieve trusted validators at trustedHeight: %d", trustedHeight)
 		}
 	}
 	// inject trusted fields into last header
@@ -492,7 +493,7 @@ func (chain *TestChain) CreateTMClientHeader(
 		Commit: commit.ToProto(),
 	}
 
-	if tmValSet != nil {
+	if tmValSet != nil { //nolint:staticcheck
 		valSet, err = tmValSet.ToProto()
 		if err != nil {
 			panic(err)
@@ -531,8 +532,12 @@ func MakeBlockID(hash []byte, partSetSize uint32, partSetHash []byte) tmtypes.Bl
 // (including voting power). It returns a signer array of PrivValidators that matches the
 // sorting of ValidatorSet.
 // The sorting is first by .VotingPower (descending), with secondary index of .Address (ascending).
-func CreateSortedSignerArray(altPrivVal, suitePrivVal tmtypes.PrivValidator,
-	altVal, suiteVal *tmtypes.Validator) []tmtypes.PrivValidator {
+func CreateSortedSignerArray(
+	altPrivVal,
+	suitePrivVal tmtypes.PrivValidator,
+	altVal,
+	suiteVal *tmtypes.Validator,
+) []tmtypes.PrivValidator {
 	switch {
 	case altVal.VotingPower > suiteVal.VotingPower:
 		return []tmtypes.PrivValidator{altPrivVal, suitePrivVal}

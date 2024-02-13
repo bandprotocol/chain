@@ -28,7 +28,7 @@ type BenchmarkApp struct {
 	Querier   keeper.Querier
 }
 
-func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
+func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	ba := &BenchmarkApp{
 		TestingApp: testapp.NewTestApp("", log.NewNopLogger()),
 		Sender: &Account{
@@ -41,7 +41,7 @@ func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 			Num:     5,
 			Seq:     0,
 		},
-		TB: b,
+		TB: tb,
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
 	ba.Querier = keeper.Querier{
@@ -57,23 +57,24 @@ func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	ba.Oid = uint64(oid)
 
 	// create data source
 	dCode := []byte("hello")
 	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	did, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	ba.Did = uint64(did)
 
 	// activate oracle
-	_, _, _ = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	require.NoError(tb, err)
 
 	ba.CallEndBlock()
 	ba.Commit()
@@ -109,7 +110,7 @@ func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
 	for block := 0; block < 10; block++ {
 		ba.CallBeginBlock()
 
-		var totalGas uint64 = 0
+		totalGas := uint64(0)
 		for {
 			tx := GenSequenceOfTxs(
 				ba.TxConfig,

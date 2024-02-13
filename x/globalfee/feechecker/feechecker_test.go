@@ -36,6 +36,7 @@ func (st *StubTx) ValidateBasic() error {
 func (st *StubTx) GetGas() uint64 {
 	return 1000000
 }
+
 func (st *StubTx) GetFee() sdk.Coins {
 	fees := make(sdk.Coins, len(st.GasPrices))
 
@@ -53,7 +54,7 @@ type FeeCheckerTestSuite struct {
 	suite.Suite
 	FeeChecker feechecker.FeeChecker
 	ctx        sdk.Context
-	requestId  types.RequestID
+	requestID  types.RequestID
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
@@ -62,7 +63,8 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		WithIsCheckTx(true).
 		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(1, 4)}})
 
-	oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	err := oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	suite.Require().NoError(err)
 
 	req := types.NewRequest(
 		1,
@@ -76,7 +78,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		nil,
 		0,
 	)
-	suite.requestId = oracleKeeper.AddRequest(suite.ctx, req)
+	suite.requestID = oracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
 		&oracleKeeper,
@@ -86,7 +88,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 }
 
 func (suite *FeeCheckerTestSuite) TestValidRawReport() {
-	msgs := []sdk.Msg{types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)}
+	msgs := []sdk.Msg{types.NewMsgReportData(suite.requestID, []types.RawReport{}, testapp.Validators[0].ValAddress)}
 	stubTx := &StubTx{Msgs: msgs}
 
 	// test - check report tx
@@ -115,7 +117,7 @@ func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
 
 func (suite *FeeCheckerTestSuite) TestValidReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestID, []types.RawReport{}, testapp.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
@@ -133,7 +135,7 @@ func (suite *FeeCheckerTestSuite) TestValidReport() {
 
 func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestID, []types.RawReport{}, testapp.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(testapp.Bob.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
@@ -149,7 +151,7 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 
 func (suite *FeeCheckerTestSuite) TestNotValidReport() {
 	reportMsgs := []sdk.Msg{
-		types.NewMsgReportData(suite.requestId+1, []types.RawReport{}, testapp.Validators[0].ValAddress),
+		types.NewMsgReportData(suite.requestID+1, []types.RawReport{}, testapp.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(testapp.Alice.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
@@ -200,7 +202,7 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
-	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	reportMsg := types.NewMsgReportData(suite.requestID, []types.RawReport{}, testapp.Validators[0].ValAddress)
 	requestMsg := types.NewMsgRequestData(
 		1,
 		BasicCalldata,
@@ -228,7 +230,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
-	reportMsg := types.NewMsgReportData(suite.requestId, []types.RawReport{}, testapp.Validators[0].ValAddress)
+	reportMsg := types.NewMsgReportData(suite.requestID, []types.RawReport{}, testapp.Validators[0].ValAddress)
 	requestMsg := types.NewMsgRequestData(
 		1,
 		BasicCalldata,

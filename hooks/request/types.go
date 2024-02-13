@@ -147,7 +147,7 @@ func NewRequest(
 		AskCount:            askCount,
 		AnsCount:            ansCount,
 		RequestHeight:       requestHeight,
-		RequestTime:         time.Unix(int64(requestTimeUnix), 0),
+		RequestTime:         time.Unix(requestTimeUnix, 0),
 		ClientID:            clientID,
 		RawRequests:         rawRequests,
 		Reports:             reports,

@@ -206,7 +206,15 @@ func (suite *DecoderTestSuite) TestDecodeReportData() {
 	detail := make(common.JsDict)
 	msg := oracletypes.NewMsgReportData(
 		1,
-		[]oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
+		[]oracletypes.RawReport{{
+			ExternalID: 1,
+			ExitCode:   1,
+			Data:       []byte("data1"),
+		}, {
+			ExternalID: 2,
+			ExitCode:   2,
+			Data:       []byte("data2"),
+		}},
 		ValAddress,
 	)
 	emitter.DecodeMsgReportData(msg, detail)
@@ -453,6 +461,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgBeginRedelegate() {
 		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_dst_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"validator_src_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
+
 func (suite *DecoderTestSuite) TestDecodeMsgUpdateClient() {
 	detail := make(common.JsDict)
 	msg, _ := clienttypes.NewMsgUpdateClient(

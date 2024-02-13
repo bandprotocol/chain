@@ -16,7 +16,7 @@ func (h *Hook) handleMsgTransfer(
 	evMap common.EvMap,
 	detail common.JsDict,
 ) {
-	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyData]; ok {
+	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDataHex]; ok {
 		packet := newPacket(
 			ctx,
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],

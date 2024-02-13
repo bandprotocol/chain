@@ -41,12 +41,11 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	case "rest":
 		exec = NewRestExec(base, timeout)
 	case "docker":
-		return nil, fmt.Errorf("Docker executor is currently not supported")
+		return nil, fmt.Errorf("docker executor is currently not supported")
 	default:
-		return nil, fmt.Errorf("Invalid executor name: %s, base: %s", name, base)
+		return nil, fmt.Errorf("invalid executor name: %s, base: %s", name, base)
 	}
 
-	// TODO: Remove hardcode in test execution
 	res, err := exec.Exec(testProgram, "TEST_ARG", map[string]interface{}{
 		"BAND_CHAIN_ID":    "test-chain-id",
 		"BAND_VALIDATOR":   "test-validator",
@@ -55,7 +54,6 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		"BAND_REPORTER":    "test-reporter",
 		"BAND_SIGNATURE":   "test-signature",
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}
@@ -65,6 +63,7 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	if string(res.Output) != "TEST_ARG test-chain-id\n" {
 		return nil, fmt.Errorf("test program returned wrong output: %s", res.Output)
 	}
+
 	return exec, nil
 }
 
@@ -72,17 +71,17 @@ func NewExecutor(executor string) (exec Executor, err error) {
 func parseExecutor(executorStr string) (name string, base string, timeout time.Duration, err error) {
 	executor := strings.SplitN(executorStr, ":", 2)
 	if len(executor) != 2 {
-		return "", "", 0, fmt.Errorf("Invalid executor, cannot parse executor: %s", executorStr)
+		return "", "", 0, fmt.Errorf("invalid executor, cannot parse executor: %s", executorStr)
 	}
 	u, err := url.Parse(executor[1])
 	if err != nil {
-		return "", "", 0, fmt.Errorf("Invalid url, cannot parse %s to url with error: %s", executor[1], err.Error())
+		return "", "", 0, fmt.Errorf("invalid url, cannot parse %s to url with error: %s", executor[1], err.Error())
 	}
 
 	query := u.Query()
 	timeoutStr := query.Get(flagQueryTimeout)
 	if timeoutStr == "" {
-		return "", "", 0, fmt.Errorf("Invalid timeout, executor requires query timeout")
+		return "", "", 0, fmt.Errorf("invalid timeout, executor requires query timeout")
 	}
 	// Remove timeout from query because we need to return `base`
 	query.Del(flagQueryTimeout)
@@ -90,7 +89,7 @@ func parseExecutor(executorStr string) (name string, base string, timeout time.D
 
 	timeout, err = time.ParseDuration(timeoutStr)
 	if err != nil {
-		return "", "", 0, fmt.Errorf("Invalid timeout, cannot parse duration with error: %s", err.Error())
+		return "", "", 0, fmt.Errorf("invalid timeout, cannot parse duration with error: %s", err.Error())
 	}
 	return executor[0], u.String(), timeout, nil
 }

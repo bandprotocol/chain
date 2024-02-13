@@ -8,7 +8,6 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	ibcxfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -157,7 +156,7 @@ func (h *Hook) extractFungibleTokenPacket(
 			} else {
 				packet["acknowledgement"] = common.JsDict{
 					"status": "failure",
-					"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAck][0],
+					"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex][0],
 				}
 			}
 		} else {
@@ -250,7 +249,7 @@ func (h *Hook) extractOracleRequestPacket(
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
 			}
-			reasons, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck]
+			reasons, ok := evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex]
 			if !ok {
 				detail["skip"] = true
 				return false
@@ -364,7 +363,7 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		txHash,
 	)
-	if _, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyData]; ok {
+	if _, ok := evMap[types.EventTypeWriteAck+"."+types.AttributeKeyDataHex]; ok {
 		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
@@ -385,7 +384,7 @@ func (h *Hook) extractOracleResponsePacket(
 ) bool {
 	var data oracletypes.OracleResponsePacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(
-		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]),
+		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0]),
 		&data,
 	)
 	if err == nil {
