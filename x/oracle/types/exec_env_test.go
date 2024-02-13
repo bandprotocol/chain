@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bandprotocol/go-owasm/api"
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/go-owasm/api"
 )
 
 var (
@@ -90,9 +89,9 @@ func mockFreshPrepareEnv() *PrepareEnv {
 
 func mockAlreadyPreparedEnv() *PrepareEnv {
 	env := mockFreshPrepareEnv()
-	env.AskExternalData(1, 1, []byte("CALLDATA1"))
-	env.AskExternalData(2, 2, []byte("CALLDATA2"))
-	env.AskExternalData(3, 3, []byte("CALLDATA3"))
+	_ = env.AskExternalData(1, 1, []byte("CALLDATA1"))
+	_ = env.AskExternalData(2, 2, []byte("CALLDATA2"))
+	_ = env.AskExternalData(3, 3, []byte("CALLDATA3"))
 	return env
 }
 
@@ -114,9 +113,11 @@ func TestSetReturnData(t *testing.T) {
 	require.Equal(t, api.ErrWrongPeriodAction, err)
 
 	eenv := mockExecEnv()
-	eenv.SetReturnData(result)
+	err = eenv.SetReturnData(result)
+	require.NoError(t, err)
 	require.Equal(t, result, eenv.Retdata)
 }
+
 func TestGetAskCount(t *testing.T) {
 	// Can call on both environment
 	penv := mockFreshPrepareEnv()
@@ -212,9 +213,12 @@ func TestFailedGetExternalData(t *testing.T) {
 
 func TestAskExternalData(t *testing.T) {
 	env := mockFreshPrepareEnv()
-	env.AskExternalData(1, 1, []byte("CALLDATA1"))
-	env.AskExternalData(42, 2, []byte("CALLDATA2"))
-	env.AskExternalData(3, 4, []byte("CALLDATA3"))
+	err := env.AskExternalData(1, 1, []byte("CALLDATA1"))
+	require.NoError(t, err)
+	err = env.AskExternalData(42, 2, []byte("CALLDATA2"))
+	require.NoError(t, err)
+	err = env.AskExternalData(3, 4, []byte("CALLDATA3"))
+	require.NoError(t, err)
 
 	rawReq := env.GetRawRequests()
 	expectRawReq := []RawRequest{
@@ -232,6 +236,7 @@ func TestAskExternalDataOnTooSmallSpan(t *testing.T) {
 	require.Equal(t, api.ErrSpanTooSmall, err)
 	require.Equal(t, []RawRequest(nil), penv.GetRawRequests())
 }
+
 func TestAskTooManyExternalData(t *testing.T) {
 	penv := mockFreshPrepareEnv()
 

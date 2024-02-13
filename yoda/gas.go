@@ -107,7 +107,7 @@ func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uin
 }
 
 func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
-	gas := uint64(baseAuthAnteGas)
+	gas := baseAuthAnteGas
 
 	txByteLength := getTxByteLength(msgs)
 	gas += txCostPerByte * txByteLength

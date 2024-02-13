@@ -15,7 +15,7 @@ import (
 const gasConversionFactor = 20_000_000
 
 func ConvertToOwasmGas(cosmos uint64) uint64 {
-	return uint64(cosmos * gasConversionFactor)
+	return cosmos * gasConversionFactor
 }
 
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
