@@ -112,7 +112,7 @@ func handleRequest(c *Context, l *Logger, id types.RequestID) {
 	reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
+		msg:         types.NewMsgReportData(id, reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{
@@ -139,7 +139,7 @@ func handleRawRequests(
 			l.With("did", req.dataSourceID, "eid", req.externalID),
 			req,
 			key,
-			types.RequestID(id),
+			id,
 			resultsChan,
 		)
 	}

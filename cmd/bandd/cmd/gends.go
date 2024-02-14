@@ -62,7 +62,6 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 				owner, args[0], args[1], filename, fee, treasury,
 			))
 			oracleGenStateBz, err := cdc.MarshalJSON(oracleGenState)
-
 			if err != nil {
 				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
 			}

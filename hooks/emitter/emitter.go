@@ -20,8 +20,7 @@ import (
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -34,7 +33,6 @@ import (
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 )
@@ -62,7 +60,7 @@ type Hook struct {
 	tssKeeper     tsskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
-	//ibc keeper
+	// ibc keeper
 	clientkeeper     clientkeeper.Keeper
 	connectionkeeper connectionkeeper.Keeper
 	channelkeeper    channelkeeper.Keeper
@@ -222,8 +220,8 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	for _, proposal := range govState.Proposals {
 		msgs, _ := proposal.GetMsgs()
 		switch subMsg := msgs[0].(type) {
-		case *v1.MsgExecLegacyContent:
-			content := subMsg.Content.GetCachedValue().(v1beta1.Content)
+		case *govv1.MsgExecLegacyContent:
+			content := subMsg.Content.GetCachedValue().(govv1beta1.Content)
 			h.Write("NEW_PROPOSAL", common.JsDict{
 				"id":               proposal.Id,
 				"proposer":         nil,
@@ -284,7 +282,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.cdc.MustUnmarshalJSON(genesisState[oracletypes.ModuleName], &oracleState)
 	for idx, ds := range oracleState.DataSources {
 		h.Write("NEW_DATA_SOURCE", common.JsDict{
-			"id":          types.DataSourceID(idx + 1),
+			"id":          oracletypes.DataSourceID(idx + 1),
 			"name":        ds.Name,
 			"description": ds.Description,
 			"owner":       ds.Owner,
@@ -295,7 +293,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 		})
 	}
 	for idx, os := range oracleState.OracleScripts {
-		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
+		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
 
 	var authzState authz.GenesisState
@@ -399,7 +397,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
 	for idx, msg := range tx.GetMsgs() {
-		var detail = make(common.JsDict)
+		detail := make(common.JsDict)
 		DecodeMsg(msg, detail)
 		if res.IsOK() {
 			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
@@ -443,18 +441,23 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			Value: common.JsDict{
 				"address": acc,
 				"balance": h.bankKeeper.GetAllBalances(ctx, acc).String(),
-			}})
+			},
+		})
 	}
 
 	h.msgs = append(modifiedMsgs, h.msgs[1:]...)
 	h.Write("COMMIT", common.JsDict{"height": req.Height})
 }
 
-func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
+func (h *Hook) RequestSearch(
+	req *oracletypes.QueryRequestSearchRequest,
+) (*oracletypes.QueryRequestSearchResponse, bool, error) {
 	return nil, false, nil
 }
 
-func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+func (h *Hook) RequestPrice(
+	req *oracletypes.QueryRequestPriceRequest,
+) (*oracletypes.QueryRequestPriceResponse, bool, error) {
 	return nil, false, nil
 }
 

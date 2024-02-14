@@ -6,5 +6,5 @@ type Workers []Worker
 // Worker defines the interface for a worker that can be started and stopped.
 type Worker interface {
 	Start()
-	Stop()
+	Stop() error
 }

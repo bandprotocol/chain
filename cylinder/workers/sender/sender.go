@@ -102,7 +102,7 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 }
 
 // Stop stops the Sender worker.
-func (s *Sender) Stop() {
+func (s *Sender) Stop() error {
 	s.logger.Info("stop")
-	s.client.Stop()
+	return s.client.Stop()
 }

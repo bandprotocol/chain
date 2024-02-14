@@ -39,7 +39,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 		func(tc testutil.TestCase, memberI testutil.Member, memberJ testutil.Member) {
 			// Prepare
 			generator := []byte(memberJ.OneTimePubKey())
-			fakeGenerator := []byte(testutil.FalsePubKey)
+			fakeGenerator := testutil.FalsePubKey
 
 			// Sign
 			signature, err := tss.Sign(memberI.OneTimePrivKey, suite.challenge, suite.nonce, nil)
@@ -52,19 +52,19 @@ func (suite *TSSTestSuite) TestSignAndVerifyWithCustomGenerator() {
 			suite.Require().NoError(err)
 
 			// Success case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), suite.challenge, keySym, generator, nil)
+			err = tss.Verify(nonceSym, signature.S(), suite.challenge, keySym, generator, nil)
 			suite.Require().NoError(err)
 
 			// Wrong msg case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), testutil.FalseChallenge, keySym, generator, nil)
+			err = tss.Verify(nonceSym, signature.S(), testutil.FalseChallenge, keySym, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong key sym case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), suite.challenge, testutil.FalsePubKey, generator, nil)
+			err = tss.Verify(nonceSym, signature.S(), suite.challenge, testutil.FalsePubKey, generator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong generator case
-			err = tss.Verify(tss.Point(nonceSym), signature.S(), suite.challenge, keySym, fakeGenerator, nil)
+			err = tss.Verify(nonceSym, signature.S(), suite.challenge, keySym, fakeGenerator, nil)
 			suite.Require().ErrorIs(err, tss.ErrInvalidSignature)
 
 			// Wrong nonce sym case
@@ -162,7 +162,7 @@ func (suite *TSSTestSuite) TestSignAndVerifyRandomly() {
 		randByte := rng.Intn(len(badMsg))
 		randBit := rng.Intn(7)
 		badMsg[randByte] ^= 1 << randBit
-		if err := tss.Verify(signature.R(), signature.S(), badMsg[:], pubKey, nil, nil); err == nil {
+		if err := tss.Verify(signature.R(), signature.S(), badMsg, pubKey, nil, nil); err == nil {
 			suite.T().
 				Fatalf("verified signature for bad hash\nsignature: %x\nhash: %x\n"+"pubkey: %x", signature, badMsg, pubKey)
 		}

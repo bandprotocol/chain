@@ -200,7 +200,7 @@ func (s *Signing) Start() {
 }
 
 // Stop stops the Signing worker.
-func (s *Signing) Stop() {
+func (s *Signing) Stop() error {
 	s.logger.Info("stop")
-	s.client.Stop()
+	return s.client.Stop()
 }

@@ -33,10 +33,12 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 	}
 
 	for _, m := range members {
-		msgSrvr.Activate(ctx, &types.MsgActivate{
+		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
 			Address: m,
 		})
-		msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+		s.Require().NoError(err)
+
+		_, err = msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
 			DEs: []types.DE{
 				{
 					PubD: testutil.HexDecode("dddd"),
@@ -45,6 +47,7 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 			},
 			Address: m,
 		})
+		s.Require().NoError(err)
 	}
 
 	s.Run("create group", func() {

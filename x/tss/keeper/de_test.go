@@ -168,7 +168,8 @@ func (s *KeeperTestSuite) TestHandleSetDEs() {
 	}
 
 	// Handle setting DEs
-	k.HandleSetDEs(ctx, address, des)
+	err := k.HandleSetDEs(ctx, address, des)
+	s.Require().NoError(err)
 
 	// Get DEQueue
 	deQueue := k.GetDEQueue(ctx, address)
@@ -194,7 +195,8 @@ func (s *KeeperTestSuite) TestPollDE() {
 	index := uint64(1)
 
 	// Set DE and DEQueue
-	k.HandleSetDEs(ctx, address, des)
+	err := k.HandleSetDEs(ctx, address, des)
+	s.Require().NoError(err)
 
 	// Poll DE
 	polledDE, err := k.PollDE(ctx, address)
@@ -240,7 +242,8 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 
 	for _, m := range members {
 		accM := sdk.MustAccAddressFromBech32(m.Address)
-		k.HandleSetDEs(ctx, accM, des)
+		err := k.HandleSetDEs(ctx, accM, des)
+		s.Require().NoError(err)
 	}
 
 	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, members)

@@ -380,7 +380,6 @@ func (q queryServer) Replacements(
 		}, func() *types.Replacement {
 			return &types.Replacement{}
 		})
-
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

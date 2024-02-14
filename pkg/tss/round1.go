@@ -44,8 +44,8 @@ func GenerateRound1Info(
 	var coefficientCommits Points
 	var coefficients Scalars
 	for i := 1; i < len(kps); i++ {
-		coefficientCommits = append(coefficientCommits, Point(kps[i].PubKey))
-		coefficients = append(coefficients, Scalar(kps[i].PrivKey))
+		coefficientCommits = append(coefficientCommits, kps[i].PubKey)
+		coefficients = append(coefficients, kps[i].PrivKey)
 	}
 
 	return &Round1Info{

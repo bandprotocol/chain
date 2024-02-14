@@ -54,7 +54,6 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		"BAND_REPORTER":    "test-reporter",
 		"BAND_SIGNATURE":   "test-signature",
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}
@@ -64,6 +63,7 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	if string(res.Output) != "TEST_ARG test-chain-id\n" {
 		return nil, fmt.Errorf("test program returned wrong output: %s", res.Output)
 	}
+
 	return exec, nil
 }
 

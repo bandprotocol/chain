@@ -170,7 +170,7 @@ func (de *DE) Start() {
 }
 
 // Stop stops the DE worker.
-func (de *DE) Stop() {
+func (de *DE) Stop() error {
 	de.logger.Info("stop")
-	de.client.Stop()
+	return de.client.Stop()
 }

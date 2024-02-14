@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryCounts() {
@@ -36,13 +37,16 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
-		k.HandleSetDEs(ctx, address, []types.DE{
+		err := k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
+		s.Require().NoError(err)
+
+		err = k.HandleSetDEs(ctx, address, []types.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
+		s.Require().NoError(err)
 	}
 
 	round1Info1 := types.Round1Info{
@@ -118,11 +122,12 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+	_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),
 	})
+	s.Require().NoError(err)
 
 	// Add round 1 infos
 	k.AddRound1Info(ctx, groupID, round1Info1)
@@ -359,7 +364,8 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 
 	// Save grant msgs to grantee
 	for _, m := range types.GetTSSGrantMsgTypes() {
-		authzKeeper.SaveGrant(s.ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		err := authzKeeper.SaveGrant(s.ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		s.Require().NoError(err)
 	}
 
 	var req types.QueryIsGranteeRequest

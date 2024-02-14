@@ -108,7 +108,7 @@ func exportGroupsCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().Bool(flagAll, false, "To get all groups")
 	cmd.Flags().String(flagOutput, "", "Specific output filename")
 
-	cmd.MarkFlagRequired(flagOutput)
+	_ = cmd.MarkFlagRequired(flagOutput)
 
 	return cmd
 }
@@ -187,7 +187,7 @@ func exportDKGsCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().Bool(flagAll, false, "To get all DKGs")
 	cmd.Flags().String(flagOutput, "", "Specific output filename")
 
-	cmd.MarkFlagRequired(flagOutput)
+	_ = cmd.MarkFlagRequired(flagOutput)
 
 	return cmd
 }
@@ -242,7 +242,7 @@ func exportDEsCmd(ctx *Context) *cobra.Command {
 
 	cmd.Flags().String(flagOutput, "", "Specific output filename")
 
-	cmd.MarkFlagRequired(flagOutput)
+	_ = cmd.MarkFlagRequired(flagOutput)
 
 	return cmd
 }

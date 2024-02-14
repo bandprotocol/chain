@@ -37,9 +37,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-var (
-	valSize uint64 = 2
-)
+var valSize uint64 = 2
 
 // TestChain is a testing struct that wraps a TestingApp with the last TM Header, the current ABCI
 // header and the validators of the TestChain. It also contains a field called ChainID. This
@@ -112,7 +110,8 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, chainID, balances...)
 	vals := app.StakingKeeper.GetAllValidators(app.DeliverContext)
 	for _, v := range vals {
-		app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+		err := app.OracleKeeper.Activate(app.DeliverContext, v.GetOperator())
+		require.NoError(t, err)
 	}
 
 	// create current header and call begin block
@@ -273,7 +272,8 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	err = chain.SenderAccount.SetSequence(chain.SenderAccount.GetSequence() + 1)
+	require.NoError(chain.t, err)
 
 	chain.Coordinator.IncrementTime()
 
@@ -312,7 +312,8 @@ func (chain *TestChain) SendReport(
 	chain.NextBlock()
 
 	// increment sequence for successful transaction execution
-	senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	err = senderAccount.SetSequence(senderAccount.GetSequence() + 1)
+	require.NoError(chain.t, err)
 
 	chain.Coordinator.IncrementTime()
 
@@ -492,7 +493,7 @@ func (chain *TestChain) CreateTMClientHeader(
 		Commit: commit.ToProto(),
 	}
 
-	if tmValSet != nil {
+	if tmValSet != nil { //nolint:staticcheck
 		valSet, err = tmValSet.ToProto()
 		if err != nil {
 			panic(err)
@@ -531,8 +532,12 @@ func MakeBlockID(hash []byte, partSetSize uint32, partSetHash []byte) tmtypes.Bl
 // (including voting power). It returns a signer array of PrivValidators that matches the
 // sorting of ValidatorSet.
 // The sorting is first by .VotingPower (descending), with secondary index of .Address (ascending).
-func CreateSortedSignerArray(altPrivVal, suitePrivVal tmtypes.PrivValidator,
-	altVal, suiteVal *tmtypes.Validator) []tmtypes.PrivValidator {
+func CreateSortedSignerArray(
+	altPrivVal,
+	suitePrivVal tmtypes.PrivValidator,
+	altVal,
+	suiteVal *tmtypes.Validator,
+) []tmtypes.PrivValidator {
 	switch {
 	case altVal.VotingPower > suiteVal.VotingPower:
 		return []tmtypes.PrivValidator{altPrivVal, suitePrivVal}

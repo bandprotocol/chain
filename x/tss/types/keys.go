@@ -27,10 +27,9 @@ const (
 )
 
 var (
+	// ReplaceGroupMsgPrefix is the prefix for replace group msg.
 	ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
-)
 
-var (
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 
@@ -245,7 +244,7 @@ func ReplacementQueueByTimeKey(endTime time.Time) []byte {
 }
 
 func ReplacementQueueKey(replacementID uint64, endTime time.Time) []byte {
-	return append(ReplacementQueueByTimeKey(endTime), sdk.Uint64ToBigEndian(uint64(replacementID))...)
+	return append(ReplacementQueueByTimeKey(endTime), sdk.Uint64ToBigEndian(replacementID)...)
 }
 
 func SplitReplacementQueueKey(key []byte) (replacementID uint64, endTime time.Time) {
