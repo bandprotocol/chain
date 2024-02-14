@@ -69,7 +69,7 @@ func (ms msgServer) SignalSymbols(
 	}
 
 	// increase symbol power by the new signals
-	ms.Keeper.SetDelegatorSignals(ctx, delegator, req.Signals)
+	ms.Keeper.SetDelegatorSignals(ctx, delegator, types.Signals{Signals: req.Signals})
 	for _, signal := range req.Signals {
 		symbol, err := ms.Keeper.GetSymbol(ctx, signal.Symbol)
 		if err != nil {
