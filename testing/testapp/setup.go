@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -54,7 +55,6 @@ type Account struct {
 	ValAddress sdk.ValAddress
 }
 
-// nolint
 var (
 	Owner         Account
 	Treasury      Account
@@ -68,7 +68,6 @@ var (
 	OwasmVM       *owasm.Vm
 )
 
-// nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
 	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
@@ -270,7 +269,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []sdkmath.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
@@ -388,9 +387,9 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
 	return app, ctx, app.OracleKeeper
 }

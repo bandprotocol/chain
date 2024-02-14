@@ -4,7 +4,6 @@ import (
 	"bytes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -18,7 +17,7 @@ func (k Keeper) HasOracleScript(ctx sdk.Context, id types.OracleScriptID) bool {
 func (k Keeper) GetOracleScript(ctx sdk.Context, id types.OracleScriptID) (types.OracleScript, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.OracleScriptStoreKey(id))
 	if bz == nil {
-		return types.OracleScript{}, sdkerrors.Wrapf(types.ErrOracleScriptNotFound, "id: %d", id)
+		return types.OracleScript{}, types.ErrOracleScriptNotFound.Wrapf("id: %d", id)
 	}
 	var oracleScript types.OracleScript
 	k.cdc.MustUnmarshal(bz, &oracleScript)
@@ -80,7 +79,7 @@ func (k Keeper) AddOracleScriptFile(file []byte) (string, error) {
 	}
 	compiledFile, err := k.owasmVM.Compile(file, types.MaxCompiledWasmCodeSize)
 	if err != nil {
-		return "", sdkerrors.Wrapf(types.ErrOwasmCompilation, "caused by %s", err.Error())
+		return "", types.ErrOwasmCompilation.Wrapf("caused by %s", err.Error())
 	}
 	return k.fileCache.AddFile(compiledFile), nil
 }

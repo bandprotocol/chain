@@ -1,21 +1,23 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 func NewOracleScript(
-	Owner sdk.AccAddress,
-	Name string,
-	Description string,
-	Filename string,
-	Schema string,
-	SourceCodeURL string,
+	owner sdk.AccAddress,
+	name string,
+	description string,
+	filename string,
+	schema string,
+	sourceCodeURL string,
 ) OracleScript {
 	return OracleScript{
-		Owner:         Owner.String(),
-		Name:          Name,
-		Description:   Description,
-		Filename:      Filename,
-		Schema:        Schema,
-		SourceCodeURL: SourceCodeURL,
+		Owner:         owner.String(),
+		Name:          name,
+		Description:   description,
+		Filename:      filename,
+		Schema:        schema,
+		SourceCodeURL: sourceCodeURL,
 	}
 }
