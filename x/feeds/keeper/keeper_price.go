@@ -58,6 +58,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
 func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate bool) (types.Price, error) {
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
+	transitionTime := k.GetParams(ctx).TransitionTime
 
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
@@ -71,7 +72,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
 				if err == nil {
 					// if timestamp of price is in acception period, append it
-					if priceVal.Timestamp >= blockTime.Unix()-symbol.MaxInterval {
+					if priceVal.Timestamp >= blockTime.Unix()-symbol.Interval {
 						pfInfos = append(pfInfos, types.PriceFeedInfo{
 							Price:     priceVal.Price,
 							Power:     power,
@@ -85,10 +86,13 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 					if priceVal.Timestamp > lastTime {
 						lastTime = priceVal.Timestamp
 					}
+					if symbol.LastIntervalUpdateTimestamp+transitionTime > lastTime {
+						lastTime = symbol.LastIntervalUpdateTimestamp + transitionTime
+					}
 				}
 
 				// deactivate if last time of action is too old
-				if lastTime < blockTime.Unix()-symbol.MaxInterval {
+				if lastTime < blockTime.Unix()-symbol.Interval {
 					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}

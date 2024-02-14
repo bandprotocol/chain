@@ -14,10 +14,24 @@ message Params {
   // The address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // prepare_time is the time (in seconds) given for validators to prepare data for the new symbol.
-  int64 prepare_time = 2;
-
   // allow_diff_time is the allowed difference (in seconds) between timestamp and block_time when validator submits the
   // prices.
-  int64 allow_diff_time = 3;
+  int64 allow_diff_time = 2;
+
+  // transition_time is the time (in seconds) given for validators to adapt to changing in symbol's interval.
+  int64 transition_time = 3;
+
+  // min_interval is the minimum limit of every symbols' interval (in seconds).
+  // If the calculated interval is lower than this, it will be capped at this value.
+  int64 min_interval = 4;
+
+  // max_interval is the maximum limit of every symbols' interval (in seconds).
+  // If the calculated interval of a symbol is higher than this, it will not be recognized as a supported symbol.
+  int64 max_interval = 5;
+
+  // power_threshold is the amount of minimum power required to put symbol in the supported list.
+  int64 power_threshold = 6;
+
+  // max_support_symbol is the maximum number of symbols supported at a time.
+  int64 max_supported_symbol = 7;
 }

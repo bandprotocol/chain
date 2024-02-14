@@ -12,12 +12,6 @@ import "amino/amino.proto";
 
 // Define a gRPC service named Msg
 service Msg {
-  // RPC method to update symbols
-  rpc UpdateSymbols(MsgUpdateSymbols) returns (MsgUpdateSymbolsResponse);
-
-  // RPC method to remove symbols
-  rpc RemoveSymbols(MsgRemoveSymbols) returns (MsgRemoveSymbolsResponse);
-
   // RPC method to submit prices
   rpc SubmitPrices(MsgSubmitPrices) returns (MsgSubmitPricesResponse);
 
@@ -26,37 +20,20 @@ service Msg {
 
   // RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // RPC method to signal symbols and their powers
+  rpc SignalSymbols(MsgSignalSymbols) returns (MsgSignalSymbolsResponse);
 }
 
-// MsgUpdateSymbols is the transaction message to add and update symbols.
-message MsgUpdateSymbols {
-  option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "feeds/MsgUpdateSymbols";
+message MsgSignalSymbols {
+  option (cosmos.msg.v1.signer) = "delegator";
+  option (amino.name)           = "feeds/MsgSignalSymbols";
 
-  // The address of the admin that is performing the operation.
-  string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // A list of symbols to update or add.
-  repeated UpdateSymbol symbols = 2 [(gogoproto.nullable) = false];
+  string          delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated Signal signals   = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgUpdateSymbolsResponse is the response type for the Msg/UpdateSymbols RPC method.
-message MsgUpdateSymbolsResponse {}
-
-// MsgRemoveSymbols is the transaction message to remove symbols.
-message MsgRemoveSymbols {
-  option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "feeds/MsgAddSymbols";
-
-  // The address of the admin that is performing the operation.
-  string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // A list of symbols to remove.
-  repeated string symbols = 2;
-}
-
-// MsgRemoveSymbolsResponse is the response type for the Msg/RemoveSymbols RPC method.
-message MsgRemoveSymbolsResponse {}
+message MsgSignalSymbolsResponse {}
 
 // MsgSubmitPrices is the transaction message to submit multiple prices.
 message MsgSubmitPrices {
