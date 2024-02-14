@@ -4,8 +4,9 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 func (suite *TSSTestSuite) TestI2OSP() {

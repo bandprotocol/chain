@@ -144,7 +144,9 @@ func importDEsCmd(ctx *Context) *cobra.Command {
 
 			// unmarshal json to data
 			var des []store.DE
-			json.Unmarshal(bytes, &des)
+			if err := json.Unmarshal(bytes, &des); err != nil {
+				panic(err)
+			}
 
 			// create context
 			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)

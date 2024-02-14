@@ -339,10 +339,14 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
-		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
-			Coins: Coins100000000uband},
-		{Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
-			Coins: Coins100000000token},
+		{
+			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins:   Coins100000000uband,
+		},
+		{
+			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Coins:   Coins100000000token,
+		},
 	}
 	totalSupply := sdk.NewCoins()
 	for idx := 0; idx < len(balances)-len(validators); idx++ {
@@ -400,27 +404,27 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 		_ = app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
 		_ = app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 		// active tss status
-		app.TSSKeeper.HandleSetDEs(ctx, Validators[0].Address, []tsstypes.DE{
+		_ = app.TSSKeeper.HandleSetDEs(ctx, Validators[0].Address, []tsstypes.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
-		app.TSSKeeper.HandleSetDEs(ctx, Validators[1].Address, []tsstypes.DE{
+		_ = app.TSSKeeper.HandleSetDEs(ctx, Validators[1].Address, []tsstypes.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
-		app.TSSKeeper.HandleSetDEs(ctx, Validators[2].Address, []tsstypes.DE{
+		_ = app.TSSKeeper.HandleSetDEs(ctx, Validators[2].Address, []tsstypes.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
-		app.TSSKeeper.SetActiveStatus(ctx, Validators[0].Address)
-		app.TSSKeeper.SetActiveStatus(ctx, Validators[1].Address)
-		app.TSSKeeper.SetActiveStatus(ctx, Validators[2].Address)
+		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[0].Address)
+		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[1].Address)
+		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }

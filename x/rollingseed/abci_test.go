@@ -4,9 +4,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/bandprotocol/chain/v2/testing/testapp"
 )
 
 func fromHex(hexStr string) []byte {

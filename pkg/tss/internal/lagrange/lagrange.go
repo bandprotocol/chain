@@ -62,9 +62,9 @@ func ComputeCoefficient(i int64, s []int64) *big.Int {
 		}
 
 		// 𝚷(j)
-		numerator.Mul(big.NewInt(int64(j)), numerator)
+		numerator.Mul(big.NewInt(j), numerator)
 		// 𝚷(j-i)
-		denominator.Mul(big.NewInt(int64(j-i)), denominator)
+		denominator.Mul(big.NewInt(j-i), denominator)
 	}
 
 	// Multiply the numerator by the modular inverse of the denominator.

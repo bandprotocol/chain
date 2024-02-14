@@ -219,7 +219,8 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 
 	// Save grant msgs to grantee
 	for _, m := range types.GetTSSGrantMsgTypes() {
-		s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		err := s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		s.Require().NoError(err)
 	}
 
 	isGrantee := k.CheckIsGrantee(ctx, granter, grantee)

@@ -9,7 +9,9 @@ import (
 
 // InitGenesis performs genesis initialization for the tss module.
 func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
-	k.SetParams(ctx, data.Params)
+	if err := k.SetParams(ctx, data.Params); err != nil {
+		panic(err)
+	}
 
 	k.SetGroupCount(ctx, data.GroupCount)
 	for _, group := range data.Groups {

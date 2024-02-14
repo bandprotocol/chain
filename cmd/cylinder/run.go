@@ -86,20 +86,17 @@ func runCmd(ctx *Context) *cobra.Command {
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
 	cmd.Flags().String(flagActivePeriod, "12h", "The time period that cylinder will send active status to chain")
 
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flagGranter, cmd.Flags().Lookup(flagGranter))
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagMaxMessages, cmd.Flags().Lookup(flagMaxMessages))
-	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
-	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
-	viper.BindPFlag(flagMinDE, cmd.Flags().Lookup(flagMinDE))
-	viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
-	viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
-	viper.BindPFlag(flagRandomSecret, cmd.Flags().Lookup(flagRandomSecret))
-	viper.BindPFlag(flagActivePeriod, cmd.Flags().Lookup(flagActivePeriod))
+	flagNames := []string{
+		flags.FlagChainID, flags.FlagNode, flagGranter, flags.FlagGasPrices, flagLogLevel,
+		flagMaxMessages, flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry, flagMinDE,
+		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagActivePeriod,
+	}
+
+	for _, flagName := range flagNames {
+		if err := viper.BindPFlag(flagName, cmd.Flags().Lookup(flagName)); err != nil {
+			panic(err)
+		}
+	}
 
 	return cmd
 }

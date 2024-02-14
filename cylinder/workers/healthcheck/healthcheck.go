@@ -73,7 +73,7 @@ func (a *HealthCheck) Start() {
 }
 
 // Stop stops the HealthCheck worker.
-func (a *HealthCheck) Stop() {
+func (a *HealthCheck) Stop() error {
 	a.logger.Info("stop")
-	a.client.Stop()
+	return a.client.Stop()
 }

@@ -3,10 +3,11 @@ package tss
 import (
 	"errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
+	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
 )
 
 // checkLagrangeInput checks if a given MemberID (mid) is present in the provided memberList
@@ -194,7 +195,7 @@ func SignSigning(
 		return nil, err
 	}
 
-	return Sign(ownPrivKey, challenge, Scalar(ownPrivNonce), rawLagrange)
+	return Sign(ownPrivKey, challenge, ownPrivNonce, rawLagrange)
 }
 
 // VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,

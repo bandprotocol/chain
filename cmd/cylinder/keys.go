@@ -195,6 +195,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 						context.Background(),
 						&types.QueryIsGranteeRequest{Granter: ctx.config.Granter, Grantee: address.String()},
 					)
+
 					s := ":question:"
 					if err == nil {
 						if r.IsGrantee {
@@ -202,8 +203,8 @@ func keysListCmd(ctx *Context) *cobra.Command {
 						} else {
 							s = ":x:"
 						}
-						emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 					}
+					emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 				}
 			}
 

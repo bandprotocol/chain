@@ -1,7 +1,7 @@
 package tss_test
 
 import (
-	"math/rand"
+	"crypto/rand"
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -40,12 +40,12 @@ func BenchmarkSumScalars(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(test.name, func(b *testing.B) {
-			rand.Seed(0)
-
 			var scalars tss.Scalars
 			for i := 0; i < test.numOfScalars; i++ {
 				scalar := make([]byte, 32)
-				rand.Read(scalar)
+				if _, err := rand.Read(scalar); err != nil {
+					b.Fatal(err)
+				}
 				scalars = append(scalars, scalar)
 			}
 
@@ -91,8 +91,6 @@ func BenchmarkSumPoints(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(test.name, func(b *testing.B) {
-			rand.Seed(0)
-
 			var points tss.Points
 			for i := 0; i < test.numOfPoints; i++ {
 				_, point, _ := tss.GenerateDKGNonce()
@@ -102,7 +100,7 @@ func BenchmarkSumPoints(b *testing.B) {
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				tss.SumPoints(points...)
+				_, _ = tss.SumPoints(points...)
 			}
 		})
 	}
@@ -141,14 +139,17 @@ func BenchmarkSolveScalarPolynomial(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(test.name, func(b *testing.B) {
-			rand.Seed(0)
 			x := make([]byte, 32)
-			rand.Read(x)
+			if _, err := rand.Read(x); err != nil {
+				b.Fatal(err)
+			}
 
 			var coeffs tss.Scalars
 			for i := 0; i < test.numOfCoefficients; i++ {
 				coeff := make([]byte, 32)
-				rand.Read(coeff)
+				if _, err := rand.Read(coeff); err != nil {
+					b.Fatal(err)
+				}
 				coeffs = append(coeffs, coeff)
 			}
 
@@ -194,9 +195,10 @@ func BenchmarkSolvePointPolynomial(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(test.name, func(b *testing.B) {
-			rand.Seed(0)
 			x := make([]byte, 32)
-			rand.Read(x)
+			if _, err := rand.Read(x); err != nil {
+				b.Fatal(err)
+			}
 
 			var coeffs tss.Points
 			for i := 0; i < test.numOfCoefficients; i++ {
@@ -207,7 +209,9 @@ func BenchmarkSolvePointPolynomial(b *testing.B) {
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				tss.SolvePointPolynomial(coeffs, x)
+				if _, err := tss.SolvePointPolynomial(coeffs, x); err != nil {
+					b.Fatal(err)
+				}
 			}
 		})
 	}

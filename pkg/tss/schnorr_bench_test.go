@@ -14,7 +14,9 @@ func BenchmarkSign(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil)
+		if _, err := tss.Sign(suite.privKey, suite.challenge, suite.nonce, nil); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -29,7 +31,9 @@ func BenchmarkVerify(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, nil)
+		if err := tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, nil); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -47,7 +51,9 @@ func BenchmarkVerifyWithCustomGenerator(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(tss.Point(nonceSym), signatureS, suite.challenge, keySym, tss.Point(generator), nil)
+		if err := tss.Verify(nonceSym, signatureS, suite.challenge, keySym, generator, nil); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -63,6 +69,8 @@ func BenchmarkVerifyWithCustomLagrange(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, lagrange)
+		if err := tss.Verify(signatureR, signatureS, suite.challenge, suite.pubKey, nil, lagrange); err != nil {
+			b.Fatal(err)
+		}
 	}
 }

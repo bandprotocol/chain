@@ -1,7 +1,7 @@
 package tss_test
 
 import (
-	"math/rand"
+	"crypto/rand"
 	"testing"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -15,7 +15,9 @@ func BenchmarkEncrypt(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Encrypt(value, key, rng)
+		if _, err := tss.Encrypt(value, key, rng); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -28,7 +30,9 @@ func BenchmarkDecrypt(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		tss.Decrypt(enc, key)
+		if _, err := tss.Decrypt(enc, key); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -58,9 +62,10 @@ func BenchmarkHash(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(test.name, func(b *testing.B) {
-			rand.Seed(0)
 			bytes := make([]byte, test.numOfBytes)
-			rand.Read(bytes)
+			if _, err := rand.Read(bytes); err != nil {
+				b.Fatal(err)
+			}
 
 			b.ResetTimer()
 

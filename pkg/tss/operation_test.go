@@ -227,7 +227,8 @@ func (suite *TSSTestSuite) TestSolvePointPolynomial() {
 			testutil.HexDecode("000000000000000000000000000000000000000000000000000000000000000a"),
 			testutil.HexDecode("0202f33c93bad4c720b2ac925e90273bd0bcc3cba7855839265cd6b2722512a5ab"),
 			nil,
-		}}
+		},
+	}
 	for _, t := range tests {
 		suite.Run(t.name, func() {
 			result, err := tss.SolvePointPolynomial(t.coefficients, t.x)

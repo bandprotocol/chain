@@ -629,8 +629,8 @@ func (k Keeper) InsertReplacementQueue(ctx sdk.Context, replacementID uint64, en
 }
 
 // RemoveFromReplacementQueue removes a replacementID from the replacement queue.
-func (keeper Keeper) RemoveFromReplacementQueue(ctx sdk.Context, replacementID uint64, endTime time.Time) {
-	ctx.KVStore(keeper.storeKey).Delete(types.ReplacementQueueKey(replacementID, endTime))
+func (k Keeper) RemoveFromReplacementQueue(ctx sdk.Context, replacementID uint64, endTime time.Time) {
+	ctx.KVStore(k.storeKey).Delete(types.ReplacementQueueKey(replacementID, endTime))
 }
 
 // IterateReplacementQueue iterates over the replacements in the active proposal replacement group queue.
