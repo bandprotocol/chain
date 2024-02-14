@@ -23,23 +23,118 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// Signal contains symbol and power of that symbol
+type Signal struct {
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Power  uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+}
+
+func (m *Signal) Reset()         { *m = Signal{} }
+func (m *Signal) String() string { return proto.CompactTextString(m) }
+func (*Signal) ProtoMessage()    {}
+func (*Signal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{0}
+}
+func (m *Signal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Signal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Signal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Signal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Signal.Merge(m, src)
+}
+func (m *Signal) XXX_Size() int {
+	return m.Size()
+}
+func (m *Signal) XXX_DiscardUnknown() {
+	xxx_messageInfo_Signal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Signal proto.InternalMessageInfo
+
+func (m *Signal) GetSymbol() string {
+	if m != nil {
+		return m.Symbol
+	}
+	return ""
+}
+
+func (m *Signal) GetPower() uint64 {
+	if m != nil {
+		return m.Power
+	}
+	return 0
+}
+
+// Signal contains array of signal
+type Signals struct {
+	Signals []Signal `protobuf:"bytes,1,rep,name=signals,proto3" json:"signals"`
+}
+
+func (m *Signals) Reset()         { *m = Signals{} }
+func (m *Signals) String() string { return proto.CompactTextString(m) }
+func (*Signals) ProtoMessage()    {}
+func (*Signals) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{1}
+}
+func (m *Signals) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Signals) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Signals.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Signals) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Signals.Merge(m, src)
+}
+func (m *Signals) XXX_Size() int {
+	return m.Size()
+}
+func (m *Signals) XXX_DiscardUnknown() {
+	xxx_messageInfo_Signals.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Signals proto.InternalMessageInfo
+
+func (m *Signals) GetSignals() []Signal {
+	if m != nil {
+		return m.Signals
+	}
+	return nil
+}
+
 // Symbol defines a standard unit of exchange for a commodity.
 type Symbol struct {
 	// The unique symbol string that identifies the unit of exchange.
-	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	// The minimum interval at which the price of the symbol is expected to be submitted.
-	MinInterval int64 `protobuf:"varint,2,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// The maximum interval at which the price of the symbol is expected to be submitted.
-	MaxInterval int64 `protobuf:"varint,3,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-	// The timestamp that this symbol is added.
-	Timestamp int64 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Symbol                      string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Power                       uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+	Interval                    int64  `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	LastIntervalUpdateTimestamp int64  `protobuf:"varint,4,opt,name=last_interval_update_timestamp,json=lastIntervalUpdateTimestamp,proto3" json:"last_interval_update_timestamp,omitempty"`
 }
 
 func (m *Symbol) Reset()         { *m = Symbol{} }
 func (m *Symbol) String() string { return proto.CompactTextString(m) }
 func (*Symbol) ProtoMessage()    {}
 func (*Symbol) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{0}
+	return fileDescriptor_4b338829e148e6ea, []int{2}
 }
 func (m *Symbol) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -75,87 +170,23 @@ func (m *Symbol) GetSymbol() string {
 	return ""
 }
 
-func (m *Symbol) GetMinInterval() int64 {
+func (m *Symbol) GetPower() uint64 {
 	if m != nil {
-		return m.MinInterval
+		return m.Power
 	}
 	return 0
 }
 
-func (m *Symbol) GetMaxInterval() int64 {
+func (m *Symbol) GetInterval() int64 {
 	if m != nil {
-		return m.MaxInterval
+		return m.Interval
 	}
 	return 0
 }
 
-func (m *Symbol) GetTimestamp() int64 {
+func (m *Symbol) GetLastIntervalUpdateTimestamp() int64 {
 	if m != nil {
-		return m.Timestamp
-	}
-	return 0
-}
-
-// UpdateSymbol defines a standard unit of exchange for a commodity.
-type UpdateSymbol struct {
-	// The unique symbol string that identifies the unit of exchange.
-	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	// The minimum interval at which the price of the symbol is expected to be submitted.
-	MinInterval int64 `protobuf:"varint,2,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// The maximum interval at which the price of the symbol is expected to be submitted.
-	MaxInterval int64 `protobuf:"varint,3,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-}
-
-func (m *UpdateSymbol) Reset()         { *m = UpdateSymbol{} }
-func (m *UpdateSymbol) String() string { return proto.CompactTextString(m) }
-func (*UpdateSymbol) ProtoMessage()    {}
-func (*UpdateSymbol) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{1}
-}
-func (m *UpdateSymbol) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *UpdateSymbol) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_UpdateSymbol.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *UpdateSymbol) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UpdateSymbol.Merge(m, src)
-}
-func (m *UpdateSymbol) XXX_Size() int {
-	return m.Size()
-}
-func (m *UpdateSymbol) XXX_DiscardUnknown() {
-	xxx_messageInfo_UpdateSymbol.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_UpdateSymbol proto.InternalMessageInfo
-
-func (m *UpdateSymbol) GetSymbol() string {
-	if m != nil {
-		return m.Symbol
-	}
-	return ""
-}
-
-func (m *UpdateSymbol) GetMinInterval() int64 {
-	if m != nil {
-		return m.MinInterval
-	}
-	return 0
-}
-
-func (m *UpdateSymbol) GetMaxInterval() int64 {
-	if m != nil {
-		return m.MaxInterval
+		return m.LastIntervalUpdateTimestamp
 	}
 	return 0
 }
@@ -174,7 +205,7 @@ func (m *Price) Reset()         { *m = Price{} }
 func (m *Price) String() string { return proto.CompactTextString(m) }
 func (*Price) ProtoMessage()    {}
 func (*Price) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{2}
+	return fileDescriptor_4b338829e148e6ea, []int{3}
 }
 func (m *Price) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -236,7 +267,7 @@ func (m *SubmitPrice) Reset()         { *m = SubmitPrice{} }
 func (m *SubmitPrice) String() string { return proto.CompactTextString(m) }
 func (*SubmitPrice) ProtoMessage()    {}
 func (*SubmitPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{3}
+	return fileDescriptor_4b338829e148e6ea, []int{4}
 }
 func (m *SubmitPrice) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -295,7 +326,7 @@ func (m *PriceValidator) Reset()         { *m = PriceValidator{} }
 func (m *PriceValidator) String() string { return proto.CompactTextString(m) }
 func (*PriceValidator) ProtoMessage()    {}
 func (*PriceValidator) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{4}
+	return fileDescriptor_4b338829e148e6ea, []int{5}
 }
 func (m *PriceValidator) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -366,7 +397,7 @@ func (m *PriceService) Reset()         { *m = PriceService{} }
 func (m *PriceService) String() string { return proto.CompactTextString(m) }
 func (*PriceService) ProtoMessage()    {}
 func (*PriceService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{5}
+	return fileDescriptor_4b338829e148e6ea, []int{6}
 }
 func (m *PriceService) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -417,8 +448,9 @@ func (m *PriceService) GetUrl() string {
 }
 
 func init() {
+	proto.RegisterType((*Signal)(nil), "feeds.v1beta1.Signal")
+	proto.RegisterType((*Signals)(nil), "feeds.v1beta1.Signals")
 	proto.RegisterType((*Symbol)(nil), "feeds.v1beta1.Symbol")
-	proto.RegisterType((*UpdateSymbol)(nil), "feeds.v1beta1.UpdateSymbol")
 	proto.RegisterType((*Price)(nil), "feeds.v1beta1.Price")
 	proto.RegisterType((*SubmitPrice)(nil), "feeds.v1beta1.SubmitPrice")
 	proto.RegisterType((*PriceValidator)(nil), "feeds.v1beta1.PriceValidator")
@@ -428,33 +460,64 @@ func init() {
 func init() { proto.RegisterFile("feeds/v1beta1/feeds.proto", fileDescriptor_4b338829e148e6ea) }
 
 var fileDescriptor_4b338829e148e6ea = []byte{
-	// 371 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x92, 0xb1, 0x4e, 0xf3, 0x30,
-	0x14, 0x85, 0xeb, 0x26, 0xed, 0xaf, 0xde, 0xf6, 0x47, 0x28, 0xaa, 0x50, 0x40, 0x28, 0x94, 0x4e,
-	0x9d, 0x6a, 0x15, 0x36, 0x36, 0x98, 0x60, 0x43, 0x29, 0x20, 0xc1, 0x82, 0x9c, 0xc4, 0x34, 0x96,
-	0x92, 0x38, 0x72, 0xdc, 0xa8, 0xdd, 0x98, 0x99, 0x78, 0x04, 0x1e, 0x87, 0xb1, 0x23, 0x23, 0x6a,
-	0x17, 0x1e, 0x03, 0xc5, 0x71, 0x29, 0x48, 0xed, 0xc2, 0xc0, 0x76, 0xce, 0xbd, 0xc7, 0xf7, 0xf3,
-	0x4d, 0x0c, 0xbb, 0x0f, 0x94, 0x06, 0x19, 0xce, 0x07, 0x1e, 0x95, 0x64, 0x80, 0x95, 0xeb, 0xa7,
-	0x82, 0x4b, 0x6e, 0xfd, 0x2f, 0x8d, 0x6e, 0xed, 0xb5, 0x47, 0x7c, 0xc4, 0x55, 0x07, 0x17, 0xaa,
-	0x0c, 0x75, 0x9f, 0x10, 0xd4, 0x87, 0xd3, 0xd8, 0xe3, 0x91, 0xb5, 0x03, 0xf5, 0x4c, 0x29, 0x1b,
-	0x75, 0x50, 0xaf, 0xe1, 0x6a, 0x67, 0x1d, 0x42, 0x2b, 0x66, 0xc9, 0x3d, 0x4b, 0x24, 0x15, 0x39,
-	0x89, 0xec, 0x6a, 0x07, 0xf5, 0x0c, 0xb7, 0x19, 0xb3, 0xe4, 0x42, 0x97, 0x54, 0x84, 0x4c, 0x56,
-	0x11, 0x43, 0x47, 0xc8, 0xe4, 0x2b, 0xb2, 0x0f, 0x0d, 0xc9, 0x62, 0x9a, 0x49, 0x12, 0xa7, 0xb6,
-	0xa9, 0xfa, 0xab, 0xc2, 0x89, 0xf9, 0xf1, 0x72, 0x80, 0xba, 0x02, 0x5a, 0xd7, 0x69, 0x40, 0x24,
-	0xfd, 0x8b, 0x1b, 0x69, 0xe6, 0x2d, 0xd4, 0x2e, 0x05, 0xf3, 0xe9, 0x46, 0x58, 0x1b, 0x6a, 0x69,
-	0x11, 0x50, 0x14, 0xd3, 0x2d, 0xcd, 0xcf, 0x75, 0x8c, 0xf5, 0xeb, 0x9c, 0x42, 0x73, 0x38, 0xf6,
-	0x62, 0x26, 0x7f, 0x01, 0xd0, 0x23, 0x1e, 0x11, 0x6c, 0xa9, 0xd3, 0x37, 0x24, 0x62, 0x01, 0x91,
-	0x5c, 0x14, 0xe4, 0x7c, 0x69, 0xf4, 0xa4, 0x55, 0xe1, 0x1b, 0xa4, 0xba, 0x1e, 0x62, 0x6c, 0xdc,
-	0x62, 0xc3, 0x4f, 0xb9, 0x82, 0x96, 0xba, 0xc1, 0x90, 0x8a, 0xbc, 0x38, 0x63, 0x81, 0x19, 0x92,
-	0x2c, 0xd4, 0x68, 0xa5, 0x2d, 0x1b, 0xfe, 0xe5, 0x54, 0x64, 0x8c, 0x27, 0x1a, 0xbb, 0xb4, 0xd6,
-	0x36, 0x18, 0x63, 0x51, 0x7e, 0xfe, 0x86, 0x5b, 0xc8, 0x72, 0xea, 0xd9, 0xf9, 0xeb, 0xdc, 0x41,
-	0xb3, 0xb9, 0x83, 0xde, 0xe7, 0x0e, 0x7a, 0x5e, 0x38, 0x95, 0xd9, 0xc2, 0xa9, 0xbc, 0x2d, 0x9c,
-	0xca, 0x5d, 0x7f, 0xc4, 0x64, 0x38, 0xf6, 0xfa, 0x3e, 0x8f, 0xb1, 0x47, 0x92, 0x40, 0xbd, 0x53,
-	0x9f, 0x47, 0xd8, 0x0f, 0x09, 0x4b, 0x70, 0x7e, 0x84, 0x27, 0xe5, 0x33, 0xc7, 0x72, 0x9a, 0xd2,
-	0xcc, 0xab, 0xab, 0xc0, 0xf1, 0x67, 0x00, 0x00, 0x00, 0xff, 0xff, 0x4f, 0xdc, 0xcd, 0xec, 0x0a,
-	0x03, 0x00, 0x00,
+	// 433 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x6e, 0xd3, 0x40,
+	0x10, 0xc6, 0xb3, 0xb5, 0x9b, 0x90, 0x29, 0x20, 0xb4, 0x2a, 0xc8, 0xfc, 0x91, 0x6b, 0xe5, 0x94,
+	0x93, 0x57, 0x2d, 0xe2, 0x82, 0x38, 0x40, 0xb9, 0xc0, 0x0d, 0x39, 0x05, 0x09, 0x2e, 0xd1, 0x3a,
+	0x5e, 0xec, 0x95, 0x6c, 0xaf, 0xb5, 0xbb, 0x36, 0xf4, 0xc6, 0x23, 0xf0, 0x08, 0x48, 0xbc, 0x4c,
+	0x8f, 0x3d, 0x72, 0x42, 0x28, 0xb9, 0xf0, 0x18, 0xc8, 0xbb, 0xeb, 0x06, 0xa4, 0x82, 0x44, 0x6f,
+	0xf3, 0xcd, 0xfe, 0x66, 0xbe, 0x6f, 0x94, 0x18, 0xee, 0xbe, 0x67, 0x2c, 0x53, 0xa4, 0x3b, 0x4c,
+	0x99, 0xa6, 0x87, 0xc4, 0xa8, 0xb8, 0x91, 0x42, 0x0b, 0x7c, 0xc3, 0x0a, 0xf7, 0x74, 0x6f, 0x3f,
+	0x17, 0xb9, 0x30, 0x2f, 0xa4, 0xaf, 0x2c, 0x34, 0x7b, 0x02, 0xe3, 0x05, 0xcf, 0x6b, 0x5a, 0xe2,
+	0x3b, 0x30, 0x56, 0xa7, 0x55, 0x2a, 0xca, 0x00, 0x45, 0x68, 0x3e, 0x4d, 0x9c, 0xc2, 0xfb, 0xb0,
+	0xdb, 0x88, 0x0f, 0x4c, 0x06, 0x3b, 0x11, 0x9a, 0xfb, 0x89, 0x15, 0x8f, 0xfd, 0x9f, 0x5f, 0x0e,
+	0xd0, 0xec, 0x29, 0x4c, 0xec, 0xb4, 0xc2, 0x8f, 0x60, 0xa2, 0x6c, 0x19, 0xa0, 0xc8, 0x9b, 0xef,
+	0x1d, 0xdd, 0x8e, 0xff, 0xf0, 0x8f, 0x2d, 0x78, 0xec, 0x9f, 0x7d, 0x3f, 0x18, 0x25, 0x03, 0x3b,
+	0xfb, 0x8a, 0x60, 0xbc, 0xb0, 0x46, 0xff, 0x15, 0x00, 0x47, 0x70, 0x8d, 0xd7, 0x9a, 0xc9, 0x8e,
+	0x96, 0x81, 0x17, 0xa1, 0xb9, 0x67, 0x36, 0xa3, 0xe4, 0xa2, 0x8b, 0x9f, 0x43, 0x58, 0x52, 0xa5,
+	0x97, 0x43, 0x63, 0xd9, 0x36, 0x19, 0xd5, 0x6c, 0xa9, 0x79, 0xc5, 0x94, 0xa6, 0x55, 0x13, 0xf8,
+	0xfd, 0x5c, 0x72, 0xbf, 0xa7, 0x5e, 0x3a, 0xe8, 0xb5, 0x61, 0x4e, 0x06, 0xc4, 0xdd, 0xf9, 0x16,
+	0x76, 0x5f, 0x49, 0xbe, 0x62, 0xff, 0xcc, 0xd8, 0x03, 0x17, 0x19, 0x0d, 0xfd, 0x00, 0xa6, 0x5b,
+	0x33, 0x13, 0x32, 0xd9, 0x36, 0xdc, 0xea, 0x67, 0xb0, 0xb7, 0x68, 0xd3, 0x8a, 0xeb, 0x2b, 0x18,
+	0xb8, 0x15, 0x9f, 0x10, 0xdc, 0x34, 0xd3, 0x6f, 0x68, 0xc9, 0x33, 0xaa, 0x85, 0xec, 0x9d, 0xbb,
+	0x41, 0xb8, 0x4d, 0xdb, 0xc6, 0x6f, 0x26, 0x3b, 0x97, 0x9b, 0x78, 0x7f, 0xbd, 0xc2, 0xbf, 0xfc,
+	0x8a, 0x13, 0xb8, 0x6e, 0x12, 0x2c, 0x98, 0xec, 0xfa, 0x19, 0x0c, 0x7e, 0x41, 0x55, 0xe1, 0xac,
+	0x4d, 0x8d, 0x03, 0x98, 0x74, 0x4c, 0x2a, 0x2e, 0x6a, 0x67, 0x3b, 0x48, 0x7c, 0x0b, 0xbc, 0x56,
+	0xda, 0x9f, 0x71, 0x9a, 0xf4, 0xa5, 0xdd, 0x7a, 0xfc, 0xe2, 0x6c, 0x1d, 0xa2, 0xf3, 0x75, 0x88,
+	0x7e, 0xac, 0x43, 0xf4, 0x79, 0x13, 0x8e, 0xce, 0x37, 0xe1, 0xe8, 0xdb, 0x26, 0x1c, 0xbd, 0x8b,
+	0x73, 0xae, 0x8b, 0x36, 0x8d, 0x57, 0xa2, 0x22, 0x29, 0xad, 0x33, 0xf3, 0x67, 0x5e, 0x89, 0x92,
+	0xac, 0x0a, 0xca, 0x6b, 0xd2, 0x1d, 0x91, 0x8f, 0xf6, 0x5b, 0x20, 0xfa, 0xb4, 0x61, 0x2a, 0x1d,
+	0x1b, 0xe0, 0xe1, 0xaf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xa2, 0x25, 0x0f, 0x62, 0x2f, 0x03, 0x00,
+	0x00,
 }
 
+func (this *Signal) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Signal)
+	if !ok {
+		that2, ok := that.(Signal)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Symbol != that1.Symbol {
+		return false
+	}
+	if this.Power != that1.Power {
+		return false
+	}
+	return true
+}
 func (this *Symbol) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -477,43 +540,13 @@ func (this *Symbol) Equal(that interface{}) bool {
 	if this.Symbol != that1.Symbol {
 		return false
 	}
-	if this.MinInterval != that1.MinInterval {
+	if this.Power != that1.Power {
 		return false
 	}
-	if this.MaxInterval != that1.MaxInterval {
+	if this.Interval != that1.Interval {
 		return false
 	}
-	if this.Timestamp != that1.Timestamp {
-		return false
-	}
-	return true
-}
-func (this *UpdateSymbol) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*UpdateSymbol)
-	if !ok {
-		that2, ok := that.(UpdateSymbol)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.Symbol != that1.Symbol {
-		return false
-	}
-	if this.MinInterval != that1.MinInterval {
-		return false
-	}
-	if this.MaxInterval != that1.MaxInterval {
+	if this.LastIntervalUpdateTimestamp != that1.LastIntervalUpdateTimestamp {
 		return false
 	}
 	return true
@@ -638,6 +671,78 @@ func (this *PriceService) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (m *Signal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Signal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Signal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Power != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Power))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Symbol) > 0 {
+		i -= len(m.Symbol)
+		copy(dAtA[i:], m.Symbol)
+		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Symbol)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Signals) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Signals) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Signals) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signals) > 0 {
+		for iNdEx := len(m.Signals) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Signals[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFeeds(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Symbol) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -658,58 +763,18 @@ func (m *Symbol) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Timestamp != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.Timestamp))
+	if m.LastIntervalUpdateTimestamp != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.LastIntervalUpdateTimestamp))
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.MaxInterval != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.MaxInterval))
+	if m.Interval != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Interval))
 		i--
 		dAtA[i] = 0x18
 	}
-	if m.MinInterval != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.MinInterval))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.Symbol) > 0 {
-		i -= len(m.Symbol)
-		copy(dAtA[i:], m.Symbol)
-		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Symbol)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *UpdateSymbol) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *UpdateSymbol) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *UpdateSymbol) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.MaxInterval != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.MaxInterval))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.MinInterval != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.MinInterval))
+	if m.Power != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Power))
 		i--
 		dAtA[i] = 0x10
 	}
@@ -900,6 +965,37 @@ func encodeVarintFeeds(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *Signal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Symbol)
+	if l > 0 {
+		n += 1 + l + sovFeeds(uint64(l))
+	}
+	if m.Power != 0 {
+		n += 1 + sovFeeds(uint64(m.Power))
+	}
+	return n
+}
+
+func (m *Signals) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Signals) > 0 {
+		for _, e := range m.Signals {
+			l = e.Size()
+			n += 1 + l + sovFeeds(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *Symbol) Size() (n int) {
 	if m == nil {
 		return 0
@@ -910,33 +1006,14 @@ func (m *Symbol) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovFeeds(uint64(l))
 	}
-	if m.MinInterval != 0 {
-		n += 1 + sovFeeds(uint64(m.MinInterval))
+	if m.Power != 0 {
+		n += 1 + sovFeeds(uint64(m.Power))
 	}
-	if m.MaxInterval != 0 {
-		n += 1 + sovFeeds(uint64(m.MaxInterval))
+	if m.Interval != 0 {
+		n += 1 + sovFeeds(uint64(m.Interval))
 	}
-	if m.Timestamp != 0 {
-		n += 1 + sovFeeds(uint64(m.Timestamp))
-	}
-	return n
-}
-
-func (m *UpdateSymbol) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Symbol)
-	if l > 0 {
-		n += 1 + l + sovFeeds(uint64(l))
-	}
-	if m.MinInterval != 0 {
-		n += 1 + sovFeeds(uint64(m.MinInterval))
-	}
-	if m.MaxInterval != 0 {
-		n += 1 + sovFeeds(uint64(m.MaxInterval))
+	if m.LastIntervalUpdateTimestamp != 0 {
+		n += 1 + sovFeeds(uint64(m.LastIntervalUpdateTimestamp))
 	}
 	return n
 }
@@ -1026,6 +1103,191 @@ func sovFeeds(x uint64) (n int) {
 func sozFeeds(x uint64) (n int) {
 	return sovFeeds(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+func (m *Signal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Signal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Signal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Symbol = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
+			}
+			m.Power = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Power |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Signals) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Signals: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Signals: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signals", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signals = append(m.Signals, Signal{})
+			if err := m.Signals[len(m.Signals)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Symbol) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1089,9 +1351,9 @@ func (m *Symbol) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinInterval", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
 			}
-			m.MinInterval = 0
+			m.Power = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFeeds
@@ -1101,16 +1363,16 @@ func (m *Symbol) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MinInterval |= int64(b&0x7F) << shift
+				m.Power |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxInterval", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Interval", wireType)
 			}
-			m.MaxInterval = 0
+			m.Interval = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFeeds
@@ -1120,16 +1382,16 @@ func (m *Symbol) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxInterval |= int64(b&0x7F) << shift
+				m.Interval |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field LastIntervalUpdateTimestamp", wireType)
 			}
-			m.Timestamp = 0
+			m.LastIntervalUpdateTimestamp = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFeeds
@@ -1139,127 +1401,7 @@ func (m *Symbol) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Timestamp |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipFeeds(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *UpdateSymbol) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowFeeds
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: UpdateSymbol: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: UpdateSymbol: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFeeds
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Symbol = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinInterval", wireType)
-			}
-			m.MinInterval = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFeeds
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MinInterval |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxInterval", wireType)
-			}
-			m.MaxInterval = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFeeds
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MaxInterval |= int64(b&0x7F) << shift
+				m.LastIntervalUpdateTimestamp |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

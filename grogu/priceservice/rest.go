@@ -27,7 +27,8 @@ func (e *RestService) Query(params map[string]string) ([]types.SubmitPrice, erro
 	resp, err := grequests.Get(
 		e.url,
 		&grequests.RequestOptions{
-			Params: params,
+			Params:         params,
+			RequestTimeout: e.timeout,
 		},
 	)
 

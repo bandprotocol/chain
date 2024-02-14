@@ -25,85 +25,10 @@ var (
 	cdc = band.MakeEncodingConfig().Marshaler
 )
 
-func signAndBroadcast(
-	c *Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
-) (string, error) {
-	clientCtx := client.Context{
-		Client:            c.client,
-		Codec:             cdc,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		BroadcastMode:     flags.BroadcastSync,
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+func StartSubmitPrices(c *Context, l *Logger) {
+	for {
+		SubmitPrices(c, l)
 	}
-	acc, err := queryAccount(clientCtx, key)
-	if err != nil {
-		return "", fmt.Errorf("unable to get account: %w", err)
-	}
-
-	txf := tx.Factory{}.
-		WithAccountNumber(acc.GetAccountNumber()).
-		WithSequence(acc.GetSequence()).
-		WithTxConfig(band.MakeEncodingConfig().TxConfig).
-		WithSimulateAndExecute(true).
-		WithGasAdjustment(gasAdjustment).
-		WithChainID(cfg.ChainID).
-		WithGasPrices(c.gasPrices).
-		WithKeybase(kb).
-		WithAccountRetriever(clientCtx.AccountRetriever)
-
-	address, err := key.GetAddress()
-	if err != nil {
-		return "", err
-	}
-
-	execMsg := authz.NewMsgExec(address, msgs)
-
-	_, adjusted, err := tx.CalculateGas(clientCtx, txf, &execMsg)
-	if err != nil {
-		return "", err
-	}
-
-	// Set the gas amount on the transaction factory
-	txf = txf.WithGas(adjusted)
-
-	txb, err := txf.BuildUnsignedTx(&execMsg)
-	if err != nil {
-		return "", err
-	}
-
-	err = tx.Sign(txf, key.Name, txb, true)
-	if err != nil {
-		return "", err
-	}
-
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
-	if err != nil {
-		return "", err
-	}
-
-	// broadcast to a Tendermint node
-	res, err := clientCtx.BroadcastTx(txBytes)
-	if err != nil {
-		return "", err
-	}
-
-	return res.TxHash, nil
-}
-
-func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account, error) {
-	accountRetriever := authtypes.AccountRetriever{}
-
-	address, err := key.GetAddress()
-	if err != nil {
-		return nil, err
-	}
-
-	acc, err := accountRetriever.GetAccount(clientCtx, address)
-	if err != nil {
-		return nil, err
-	}
-
-	return acc, nil
 }
 
 func SubmitPrices(c *Context, l *Logger) {
@@ -153,15 +78,24 @@ GetAllPrices:
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, gasAdjustment)
+			res, err := signAndBroadcast(c, key, msgs, gasAdjustment)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())
 				time.Sleep(c.rpcPollInterval)
 				continue
 			}
+			if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
+				gasAdjustment = gasAdjustment + 0.1
+				l.Info(
+					":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)",
+					txHash,
+					gasAdjustment,
+				)
+				continue
+			}
 			// Transaction passed CheckTx process and wait to include in block.
-			txHash = hash
+			txHash = res.TxHash
 			break
 		}
 		if txHash == "" {
@@ -184,8 +118,8 @@ GetAllPrices:
 			}
 			if txRes.Codespace == sdkerrors.RootCodespace &&
 				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
-				// Increase gas limit and try to broadcast again
-				gasAdjustment = gasAdjustment * 110 / 100
+				// Increase gas adjustment and try to broadcast again
+				gasAdjustment = gasAdjustment + 0.1
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
 				txFound = true
 				break FindTx
@@ -204,6 +138,87 @@ GetAllPrices:
 		}
 	}
 	l.Error(":anxious_face_with_sweat: Cannot send price with adjusted gas: %d", c, gasAdjustment)
+}
+
+func signAndBroadcast(
+	c *Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
+) (*sdk.TxResponse, error) {
+	clientCtx := client.Context{
+		Client:            c.client,
+		Codec:             cdc,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		BroadcastMode:     flags.BroadcastSync,
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+	acc, err := queryAccount(clientCtx, key)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get account: %w", err)
+	}
+
+	txf := tx.Factory{}.
+		WithAccountNumber(acc.GetAccountNumber()).
+		WithSequence(acc.GetSequence()).
+		WithTxConfig(band.MakeEncodingConfig().TxConfig).
+		WithSimulateAndExecute(true).
+		WithGasAdjustment(gasAdjustment).
+		WithChainID(cfg.ChainID).
+		WithGasPrices(c.gasPrices).
+		WithKeybase(kb).
+		WithAccountRetriever(clientCtx.AccountRetriever)
+
+	address, err := key.GetAddress()
+	if err != nil {
+		return nil, err
+	}
+
+	execMsg := authz.NewMsgExec(address, msgs)
+
+	_, adjusted, err := tx.CalculateGas(clientCtx, txf, &execMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the gas amount on the transaction factory
+	txf = txf.WithGas(adjusted)
+
+	txb, err := txf.BuildUnsignedTx(&execMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Sign(txf, key.Name, txb, true)
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
+	if err != nil {
+		return nil, err
+	}
+
+	// broadcast to a Tendermint node
+	res, err := clientCtx.BroadcastTx(txBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account, error) {
+	accountRetriever := authtypes.AccountRetriever{}
+
+	address, err := key.GetAddress()
+	if err != nil {
+		return nil, err
+	}
+
+	acc, err := accountRetriever.GetAccount(clientCtx, address)
+	if err != nil {
+		return nil, err
+	}
+
+	return acc, nil
 }
 
 // abciQuery will try to query data from BandChain node maxTry time before give up and return error
