@@ -21,6 +21,7 @@ service Msg {
   // RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
+  // RPC method to signal symbols and their powers
   rpc SignalSymbols(MsgSignalSymbols) returns (MsgSignalSymbolsResponse);
 }
 

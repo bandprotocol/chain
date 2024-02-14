@@ -40,8 +40,17 @@ func GetTxCmd() *cobra.Command {
 
 func GetTxCmdSignalSymbols() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "signal [symbol1] [power1] [symbol2] [power2] ...",
-		Args: cobra.MinimumNArgs(2),
+		Use:   "signal [symbol1]:[power1] [symbol2]:[power2] ...",
+		Short: "Signal symbols and their powers",
+		Args:  cobra.MinimumNArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Signal symbols and their power.
+Example:
+$ %s tx feeds signal BTC:1000000 --from mykey
+`,
+				version.AppName,
+			),
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -49,14 +58,18 @@ func GetTxCmdSignalSymbols() *cobra.Command {
 			}
 
 			delegator := clientCtx.GetFromAddress()
-			if len(args)%2 != 0 {
-				return fmt.Errorf("incorrect number of arguments")
-			}
 			signals := []types.Signal{}
-			for i := 1; i < len(args); i += 2 {
-				power, _ := strconv.ParseUint(args[i], 0, 64)
+			for i, arg := range args {
+				symbolAndPower := strings.SplitN(arg, ":", 2)
+				if len(symbolAndPower) != 2 {
+					return fmt.Errorf("argument %d is not valid", i)
+				}
+				power, err := strconv.ParseUint(symbolAndPower[1], 0, 64)
+				if err != nil {
+					return err
+				}
 				signals = append(signals, types.Signal{
-					Symbol: args[i-1],
+					Symbol: symbolAndPower[0],
 					Power:  power,
 				})
 			}

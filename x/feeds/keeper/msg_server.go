@@ -119,26 +119,6 @@ func (ms msgServer) SignalSymbols(
 	return &types.MsgSignalSymbolsResponse{}, nil
 }
 
-func calculateInterval(power int64, param types.Params) int64 {
-	if power < param.PowerThreshold {
-		return 0
-	}
-
-	// dividd power by power threshold to create steps
-	interval := param.MaxInterval / (power / param.PowerThreshold)
-	if interval < param.MinInterval {
-		return param.MinInterval
-	}
-	return interval
-}
-
-func sumPower(signals []types.Signal) (sum uint64) {
-	for _, signal := range signals {
-		sum = sum + signal.Power
-	}
-	return
-}
-
 func (ms msgServer) SubmitPrices(
 	goCtx context.Context,
 	req *types.MsgSubmitPrices,
@@ -176,6 +156,7 @@ func (ms msgServer) SubmitPrices(
 			req.Timestamp,
 		)
 	}
+	transitionTime := ms.Keeper.GetParams(ctx).TransitionTime
 
 	for _, price := range req.Prices {
 		s, err := ms.Keeper.GetSymbol(ctx, price.Symbol)
@@ -185,9 +166,9 @@ func (ms msgServer) SubmitPrices(
 
 		priceVal, err := ms.Keeper.GetPriceValidator(ctx, price.Symbol, val)
 		if err == nil {
-			if blockTime < priceVal.Timestamp+s.Interval-types.DefaultParams().TransitionTime {
+			if blockTime < priceVal.Timestamp+s.Interval-transitionTime {
 				return nil, types.ErrPriceTooFast.Wrapf(
-					"symbol: %s, old: %d, new: %d, min_interval: %d",
+					"symbol: %s, old: %d, new: %d, interval: %d",
 					price.Symbol,
 					priceVal.Timestamp,
 					blockTime,
