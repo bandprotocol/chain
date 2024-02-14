@@ -24,13 +24,13 @@ func (gs GenesisState) Validate() error {
 	}
 
 	for _, symbol := range gs.Symbols {
-		if err := validateInt64("minInterval", true)(symbol.MinInterval); err != nil {
+		if err := validateInt64("power", true)(symbol.Power); err != nil {
 			return err
 		}
-		if err := validateInt64("maxInterval", true)(symbol.MaxInterval); err != nil {
+		if err := validateInt64("interval", true)(symbol.Interval); err != nil {
 			return err
 		}
-		if err := validateInt64("tiemstamp", true)(symbol.Timestamp); err != nil {
+		if err := validateInt64("timestamp", true)(symbol.LastIntervalUpdateTimestamp); err != nil {
 			return err
 		}
 	}

@@ -28,9 +28,37 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPriceValidator(),
 		GetQueryCmdSymbols(),
 		GetQueryCmdParams(),
+		GetQueryCmdDelegatorSignal(),
+		GetQueryCmdSupportedSymbols(),
 	)
 
 	return queryCmd
+}
+
+func GetQueryCmdDelegatorSignal() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delegator-signal [delegator-addr]",
+		Short: "shows delegator's currently active signal",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.DelegatorSignals(
+				context.Background(),
+				&types.QueryDelegatorSignalsRequest{Delegator: args[0]},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
 }
 
 func GetQueryCmdPrices() *cobra.Command {
@@ -68,6 +96,29 @@ func GetQueryCmdPrice() *cobra.Command {
 			res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
 				Symbol: args[0],
 			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetQueryCmdSupportedSymbols() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "supported-symbols",
+		Short: "shows all currently supported symbols",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbolsRequest{})
 			if err != nil {
 				return err
 			}

@@ -48,7 +48,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
-	Feedskeeper           feedskeeper.Keeper
+	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 

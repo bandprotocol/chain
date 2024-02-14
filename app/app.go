@@ -435,10 +435,6 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
-	)
-
 	// create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
@@ -597,12 +593,16 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName), app.hooks)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.Feedskeeper = feedskeeper.NewKeeper(
+	app.FeedsKeeper = feedskeeper.NewKeeper(
 		appCodec,
 		keys[feedstypes.StoreKey],
 		app.OracleKeeper,
 		app.StakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	app.StakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks(), app.FeedsKeeper.Hooks()),
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -694,7 +694,7 @@ func NewBandApp(
 		transferModule,
 		icaModule,
 		oracleModule,
-		feeds.NewAppModule(appCodec, app.Feedskeeper),
+		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 
@@ -830,7 +830,7 @@ func NewBandApp(
 			},
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			Feedskeeper:     &app.Feedskeeper,
+			Feedskeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,

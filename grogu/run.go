@@ -1,9 +1,7 @@
 package grogu
 
 import (
-	"context"
 	"errors"
-	"strings"
 	"sync"
 	"time"
 
@@ -31,76 +29,15 @@ func runImpl(c *Context, l *Logger) error {
 	}
 
 	l.Info(":rocket: Starting Prices submitter")
-	go startSubmitPrices(c, l)
-	go startQuerySymbols(c, l)
+	go StartSubmitPrices(c, l)
+
+	l.Info(":rocket: Starting Prices querier")
+	go StartQuerySymbols(c, l)
 
 	l.Info(":rocket: Starting Symbol checker")
-	for {
-		checkSymbols(c, l)
-		time.Sleep(time.Second)
-	}
-}
+	StartCheckSymbols(c, l)
 
-func startSubmitPrices(c *Context, l *Logger) {
-	for {
-		SubmitPrices(c, l)
-	}
-}
-
-func startQuerySymbols(c *Context, l *Logger) {
-	for {
-		querySymbols(c, l)
-	}
-}
-
-func checkSymbols(c *Context, l *Logger) {
-	bz := cdc.MustMarshal(&types.QuerySymbolsRequest{})
-	resBz, err := c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/Symbols", bz)
-	if err != nil {
-		l.Error(":exploding_head: Failed to get symbols with error: %s", c, err.Error())
-		return
-	}
-
-	symbolsResponse := types.QuerySymbolsResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
-	symbols := symbolsResponse.Symbols
-
-	var symbolList []string
-
-	bz = cdc.MustMarshal(&types.QueryValidatorPricesRequest{
-		Validator: c.validator.String(),
-	})
-	resBz, err = c.client.ABCIQuery(context.Background(), "/feeds.v1beta1.Query/ValidatorPrices", bz)
-	if err != nil {
-		l.Error(":exploding_head: Failed to get validator prices with error: %s", c, err.Error())
-		return
-	}
-	validatorPricesResponse := types.QueryValidatorPricesResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
-	validatorPrices := validatorPricesResponse.ValidatorPrices
-	symbolTimestampMap := ConvertToSymbolTimestampMap(validatorPrices)
-
-	now := time.Now()
-
-	for _, symbol := range symbols {
-		if _, inProgress := c.inProgressSymbols.Load(symbol.GetSymbol()); inProgress {
-			continue
-		}
-
-		timestamp, ok := symbolTimestampMap[symbol.GetSymbol()]
-		// add 2 to prevent too fast cases
-		if !ok ||
-			time.Unix(timestamp+2, 0).
-				Add(time.Duration(symbol.MinInterval)*time.Second).
-				Before(now) {
-			symbolList = append(symbolList, symbol.Symbol)
-			c.inProgressSymbols.Store(symbol.GetSymbol(), time.Now())
-		}
-	}
-	if len(symbolList) != 0 {
-		l.Info("found symbols to send: %v", symbolList)
-		c.pendingSymbols <- symbolList
-	}
+	return nil
 }
 
 // ConvertToSymbolTimestampMap converts an array of PriceValidator to a map of symbol to timestamp.
@@ -123,47 +60,6 @@ func ConvertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
 	}
 
 	return symbolPriceMap
-}
-
-func querySymbols(c *Context, l *Logger) {
-	symbols := <-c.pendingSymbols
-
-GetAllSymbols:
-	for {
-		select {
-		case nextSymbols := <-c.pendingSymbols:
-			symbols = append(symbols, nextSymbols...)
-		default:
-			break GetAllSymbols
-		}
-	}
-
-	symbolStr := strings.Join(symbols, ",")
-
-	params := map[string]string{
-		"symbols": symbolStr,
-	}
-
-	l.Info("Try to get prices for symbols: %s", symbolStr)
-	prices, err := c.priceService.Query(params)
-	if err != nil {
-		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
-	}
-
-	// delete symbol from in progress map if its price is not found
-	symbolPriceMap := ConvertToSymbolPriceMap(prices)
-	for _, symbol := range symbols {
-		if _, found := symbolPriceMap[symbol]; !found {
-			c.inProgressSymbols.Delete(symbol)
-		}
-	}
-
-	l.Info("got prices for symbols: %s", symbolStr)
-	if len(prices) == 0 {
-		l.Error(":exploding_head: query symbol got no prices with symbols: %s", c, symbolStr)
-		return
-	}
-	c.pendingPrices <- prices
 }
 
 func runCmd(c *Context) *cobra.Command {
