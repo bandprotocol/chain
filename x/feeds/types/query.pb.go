@@ -893,7 +893,7 @@ func (m *QueryDelegatorSignalsResponse) GetSignals() []Signal {
 	return nil
 }
 
-// QuerySupportedSymbols is the request type for the Query/SupportedSymbols RPC method
+// QuerySupportedSymbolsRequest is the request type for the Query/SupportedSymbols RPC method
 type QuerySupportedSymbolsRequest struct {
 }
 

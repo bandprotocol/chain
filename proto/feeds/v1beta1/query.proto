@@ -181,7 +181,7 @@ message QueryDelegatorSignalsResponse {
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
-// QuerySupportedSymbols is the request type for the Query/SupportedSymbols RPC method
+// QuerySupportedSymbolsRequest is the request type for the Query/SupportedSymbols RPC method
 message QuerySupportedSymbolsRequest {}
 
 // QuerySupportedSymbolsResponse is the response type for the Query/SupportedSymbols RPC method
