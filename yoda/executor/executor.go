@@ -46,7 +46,6 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		return nil, fmt.Errorf("invalid executor name: %s, base: %s", name, base)
 	}
 
-	// TODO: Remove hardcode in test execution
 	res, err := exec.Exec(testProgram, "TEST_ARG", map[string]interface{}{
 		"BAND_CHAIN_ID":    "test-chain-id",
 		"BAND_VALIDATOR":   "test-validator",
@@ -55,7 +54,6 @@ func NewExecutor(executor string) (exec Executor, err error) {
 		"BAND_REPORTER":    "test-reporter",
 		"BAND_SIGNATURE":   "test-signature",
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}
@@ -65,6 +63,7 @@ func NewExecutor(executor string) (exec Executor, err error) {
 	if string(res.Output) != "TEST_ARG test-chain-id\n" {
 		return nil, fmt.Errorf("test program returned wrong output: %s", res.Output)
 	}
+
 	return exec, nil
 }
 
