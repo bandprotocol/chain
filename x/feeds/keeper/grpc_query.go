@@ -232,7 +232,7 @@ func (q queryServer) Symbols(
 }
 
 func (q queryServer) SupportedSymbols(
-	goCtx context.Context, req *types.QuerySupportedSymbols,
+	goCtx context.Context, req *types.QuerySupportedSymbolsRequest,
 ) (*types.QuerySupportedSymbolsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 

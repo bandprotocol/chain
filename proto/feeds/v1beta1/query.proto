@@ -58,7 +58,7 @@ service Query {
   }
 
   // RPC method that return list of currect supported symbols
-  rpc SupportedSymbols(QuerySupportedSymbols) returns (QuerySupportedSymbolsResponse) {
+  rpc SupportedSymbols(QuerySupportedSymbolsRequest) returns (QuerySupportedSymbolsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/supported-symbols";
   }
 }
@@ -181,8 +181,8 @@ message QueryDelegatorSignalsResponse {
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
-// QuerySupportedSymbols is the request type for the Query/SupportedSymbols RPC method
-message QuerySupportedSymbols {}
+// QuerySupportedSymbolsRequest is the request type for the Query/SupportedSymbols RPC method
+message QuerySupportedSymbolsRequest {}
 
 // QuerySupportedSymbolsResponse is the response type for the Query/SupportedSymbols RPC method
 message QuerySupportedSymbolsResponse {

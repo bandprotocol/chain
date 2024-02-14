@@ -118,7 +118,7 @@ func GetQueryCmdSupportedSymbols() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbols{})
+			res, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbolsRequest{})
 			if err != nil {
 				return err
 			}
