@@ -58,6 +58,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
 func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate bool) (types.Price, error) {
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
+	transitionTime := k.GetParams(ctx).TransitionTime
 
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
@@ -85,8 +86,8 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 					if priceVal.Timestamp > lastTime {
 						lastTime = priceVal.Timestamp
 					}
-					if symbol.LastIntervalUpdateTimestamp+k.GetParams(ctx).TransitionTime > lastTime {
-						lastTime = symbol.LastIntervalUpdateTimestamp + k.GetParams(ctx).TransitionTime
+					if symbol.LastIntervalUpdateTimestamp+transitionTime > lastTime {
+						lastTime = symbol.LastIntervalUpdateTimestamp + transitionTime
 					}
 				}
 

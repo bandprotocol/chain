@@ -478,6 +478,7 @@ type MsgClient interface {
 	UpdatePriceService(ctx context.Context, in *MsgUpdatePriceService, opts ...grpc.CallOption) (*MsgUpdatePriceServiceResponse, error)
 	// RPC method to update parameters
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
+	// RPC method to signal symbols and their powers
 	SignalSymbols(ctx context.Context, in *MsgSignalSymbols, opts ...grpc.CallOption) (*MsgSignalSymbolsResponse, error)
 }
 
@@ -533,6 +534,7 @@ type MsgServer interface {
 	UpdatePriceService(context.Context, *MsgUpdatePriceService) (*MsgUpdatePriceServiceResponse, error)
 	// RPC method to update parameters
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
+	// RPC method to signal symbols and their powers
 	SignalSymbols(context.Context, *MsgSignalSymbols) (*MsgSignalSymbolsResponse, error)
 }
 

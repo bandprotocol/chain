@@ -27,8 +27,6 @@ func NewParams(
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	// TODO: adjust the default parameters.
-	// - prepare time: 1 day.
 	return NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 5)
 }
 

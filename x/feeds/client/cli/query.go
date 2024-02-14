@@ -38,7 +38,7 @@ func GetQueryCmd() *cobra.Command {
 func GetQueryCmdDelegatorSignal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delegator-signal [delegator-addr]",
-		Short: "",
+		Short: "shows delegator's currently active signal",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -112,7 +112,7 @@ func GetQueryCmdPrice() *cobra.Command {
 func GetQueryCmdSupportedSymbols() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "supported-symbols",
-		Short: "",
+		Short: "shows all currently supported symbols",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
