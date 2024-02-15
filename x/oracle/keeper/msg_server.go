@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/gzip"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -44,7 +44,7 @@ func (k msgServer) RequestData(
 func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (*types.MsgReportDataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	maxReportDataSize := int(k.MaxReportDataSize(ctx))
+	maxReportDataSize := int(k.GetParams(ctx).MaxReportDataSize)
 	for _, r := range msg.RawReports {
 		if len(r.Data) > maxReportDataSize {
 			return nil, types.WrapMaxError(types.ErrTooLargeRawReportData, len(r.Data), maxReportDataSize)
@@ -62,7 +62,7 @@ func (k msgServer) ReportData(goCtx context.Context, msg *types.MsgReportData) (
 	}
 
 	reportInTime := !k.HasResult(ctx, msg.RequestID)
-	err = k.AddReport(ctx, msg.RequestID, types.NewReport(validator, reportInTime, msg.RawReports))
+	err = k.AddReport(ctx, msg.RequestID, validator, reportInTime, msg.RawReports)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (k msgServer) CreateDataSource(
 		var err error
 		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -157,7 +157,7 @@ func (k msgServer) EditDataSource(
 	if gzip.IsGzipped(msg.Executable) {
 		msg.Executable, err = gzip.Uncompress(msg.Executable, types.MaxExecutableSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -190,7 +190,7 @@ func (k msgServer) CreateOracleScript(
 		var err error
 		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -246,7 +246,7 @@ func (k msgServer) EditOracleScript(
 	if gzip.IsGzipped(msg.Code) {
 		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
 		if err != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUncompressionFailed, err.Error())
+			return nil, types.ErrUncompressionFailed.Wrapf(err.Error())
 		}
 	}
 
@@ -288,4 +288,29 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		sdk.NewAttribute(types.AttributeKeyValidator, msg.Validator),
 	))
 	return &types.MsgActivateResponse{}, nil
+}
+
+func (k msgServer) UpdateParams(
+	goCtx context.Context,
+	msg *types.MsgUpdateParams,
+) (*types.MsgUpdateParamsResponse, error) {
+	if k.authority != msg.Authority {
+		return nil, govtypes.ErrInvalidSigner.Wrapf(
+			"invalid authority; expected %s, got %s",
+			k.authority,
+			msg.Authority,
+		)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	if err := k.SetParams(ctx, msg.Params); err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeUpdateParams,
+		sdk.NewAttribute(types.AttributeKeyParams, msg.Params.String()),
+	))
+
+	return &types.MsgUpdateParamsResponse{}, nil
 }

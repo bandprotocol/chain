@@ -14,7 +14,8 @@ func TestUncompress(t *testing.T) {
 	file1 := []byte("file")
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(file1)
+	_, err := zw.Write(file1)
+	require.NoError(t, err)
 	zw.Close()
 	gzipFile := buf.Bytes()
 
@@ -22,7 +23,7 @@ func TestUncompress(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, file1, accFile)
 
-	accFile, err = gzip.Uncompress(gzipFile, 2)
+	_, err = gzip.Uncompress(gzipFile, 2)
 	require.Error(t, err)
 
 	_, err = gzip.Uncompress(file1, 999)
@@ -73,7 +74,8 @@ func TestIsGzip(t *testing.T) {
 	file1 := []byte("file")
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(file1)
+	_, err := zw.Write(file1)
+	require.NoError(t, err)
 	zw.Close()
 	gzipFile := buf.Bytes()
 	require.True(t, gzip.IsGzipped(gzipFile))

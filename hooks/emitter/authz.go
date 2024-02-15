@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
-	authorization := msg.Grant.GetAuthorization()
+	authorization, _ := msg.Grant.GetAuthorization()
 	switch authorization.MsgTypeURL() {
 	case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
 		acc, _ := sdk.AccAddressFromBech32(msg.Granter)

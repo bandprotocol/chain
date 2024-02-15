@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 )
 
-// An oracle script for testing complex interactions.
+// Wasm4 is an oracle script for testing complex interactions.
 //
 //	PREPARE:
 //	  Call into the given data source ids with the given calldata.

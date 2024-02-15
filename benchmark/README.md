@@ -2,7 +2,7 @@
 
 ## Benchmark Oracle Script Spec
 
-This oracle script will act as a proxy. We have to send scenario number and value with it to execute the specified type of code.
+This oracle script will act as a proxy. We have to send the scenario number and value with it to execute the specified type of code.
 
 ```
 Input {
@@ -35,42 +35,42 @@ Output {
   - Value = Size of memory
 ### Execute scenarios
 
-- Scenario 0: nothing
+- Scenario 0: Nothing
   - Value = -
 - Scenario 101: infinite_loop
   - Value = -
 - Scenario 102: arithmetic_ops
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 103: allocate_mem
   - Value = Size of memory
 - Scenario 104: find_median
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 105: finite_loop
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 106: set_local_var
   - Value = Size of memory
 - Scenario 201: get_ask_count
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 202: get_min_count
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 203: get_prepare_time
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 204: get_execute_time
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 205: get_ans_count
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 206: get_calldata
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 207: save_return_data
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 208: get_external_data
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 209: ecvrf_verify
-  - Value = Number of loop
+  - Value = Number of loops
 - Scenario 210: base_import
   - Value = -
 
-## How to run benchmark
+## How to run the benchmark
 
 ```
 cd benchmark

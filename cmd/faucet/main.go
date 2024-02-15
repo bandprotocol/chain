@@ -70,7 +70,8 @@ func main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		keybase, err = keyring.New("band", "test", home, nil)
+
+		keybase, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
 		if err != nil {
 			return err
 		}

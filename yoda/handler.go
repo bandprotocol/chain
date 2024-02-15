@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 	"strconv"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -112,7 +112,7 @@ func handleRequest(c *Context, l *Logger, id types.RequestID) {
 	reports, execVersions := handleRawRequests(c, l, id, rawRequests, key)
 
 	c.pendingMsgs <- ReportMsgWithKey{
-		msg:         types.NewMsgReportData(types.RequestID(id), reports, c.validator),
+		msg:         types.NewMsgReportData(id, reports, c.validator),
 		execVersion: execVersions,
 		keyIndex:    keyIndex,
 		feeEstimationData: FeeEstimationData{
@@ -130,7 +130,7 @@ func handleRawRequests(
 	l *Logger,
 	id types.RequestID,
 	reqs []rawRequest,
-	key keyring.Info,
+	key *keyring.Record,
 ) (reports []types.RawReport, execVersions []string) {
 	resultsChan := make(chan processingResult, len(reqs))
 	for _, req := range reqs {
@@ -139,7 +139,7 @@ func handleRawRequests(
 			l.With("did", req.dataSourceID, "eid", req.externalID),
 			req,
 			key,
-			types.RequestID(id),
+			id,
 			resultsChan,
 		)
 	}
@@ -165,7 +165,7 @@ func handleRawRequest(
 	c *Context,
 	l *Logger,
 	req rawRequest,
-	key keyring.Info,
+	key *keyring.Record,
 	id types.RequestID,
 	processingResultCh chan processingResult,
 ) {
@@ -185,7 +185,7 @@ func handleRawRequest(
 	}
 
 	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
-	sig, pubkey, err := kb.Sign(key.GetName(), vmsg.GetSignBytes())
+	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes())
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
 		processingResultCh <- processingResult{

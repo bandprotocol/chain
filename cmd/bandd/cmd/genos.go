@@ -3,20 +3,19 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
+	"github.com/bandprotocol/go-owasm/api"
+	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/go-owasm/api"
-
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -35,7 +34,7 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			config.SetRoot(clientCtx.HomeDir)
 
 			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
-			data, err := ioutil.ReadFile(args[5])
+			data, err := os.ReadFile(args[5])
 			if err != nil {
 				return err
 			}

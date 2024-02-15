@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
-
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -96,8 +95,10 @@ func TestGetRandomValidatorsWithActivate(t *testing.T) {
 	_, err := k.GetRandomValidators(ctx, 1, 1)
 	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 	// If we activate 2 validators, we should be able to get at most 2 from the function.
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
-	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	err = k.Activate(ctx, testapp.Validators[0].ValAddress)
+	require.NoError(t, err)
+	err = k.Activate(ctx, testapp.Validators[1].ValAddress)
+	require.NoError(t, err)
 	vals, err := k.GetRandomValidators(ctx, 1, 1)
 	require.NoError(t, err)
 	require.Equal(t, []sdk.ValAddress{testapp.Validators[0].ValAddress}, vals)
@@ -126,6 +127,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 
 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
@@ -242,7 +244,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(testapp.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
 
 	paid := sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000))
-	feePayerBalances = feePayerBalances.Sub(paid)
+	feePayerBalances = feePayerBalances.Sub(paid...)
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.FeePayer.Address, feePayerBalances)
 	testapp.CheckBalances(t, ctx, app.BankKeeper, testapp.Treasury.Address, paid)
 }
@@ -335,7 +337,7 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 		testapp.Alice.Address,
 	)
 	_, err := k.PrepareRequest(ctx, m, testapp.Alice.Address, nil)
-	require.EqualError(t, err, "0uband is smaller than 1000000uband: insufficient funds")
+	require.EqualError(t, err, "spendable balance  is smaller than 1000000uband: insufficient funds")
 }
 
 func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
@@ -387,7 +389,8 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	params := k.GetParams(ctx)
 	params.MaxAskCount = 5
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	require.NoError(t, err)
 
 	wrappedGasMeter := testapp.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
@@ -403,7 +406,7 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		testapp.TestDefaultExecuteGas,
 		testapp.Alice.Address,
 	)
-	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrInvalidAskCount)
 
 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
@@ -452,7 +455,8 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 	params := k.GetParams(ctx)
 	params.BaseOwasmGas = 100000
 	params.PerValidatorRequestGas = 0
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	require.NoError(t, err)
 	m := types.NewMsgRequestData(
 		1,
 		BasicCalldata,
@@ -468,7 +472,7 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 	require.PanicsWithValue(
 		t,
 		sdk.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"},
-		func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
+		func() { _, _ = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
 	)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
 	id, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
@@ -481,7 +485,8 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	params := k.GetParams(ctx)
 	params.BaseOwasmGas = 100000
 	params.PerValidatorRequestGas = 50000
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	require.NoError(t, err)
 	m := types.NewMsgRequestData(
 		1,
 		BasicCalldata,
@@ -497,7 +502,7 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 	require.PanicsWithValue(
 		t,
 		sdk.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"},
-		func() { k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
+		func() { _, _ = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil) },
 	)
 	m = types.NewMsgRequestData(
 		1,
@@ -598,12 +603,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	params := k.GetParams(ctx)
 	params.MaxRawRequestCount = 3
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	require.NoError(t, err)
 	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address)
-	_, err := k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
+	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
@@ -975,6 +981,7 @@ func TestCollectFeeBasicSuccess(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(3000000))
 
@@ -1007,6 +1014,7 @@ func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
 		sdk.WrapSDKContext(ctx),
 		authtypes.NewQueryAllBalancesRequest(testapp.FeePayer.Address, &query.PageRequest{}),
 	)
+	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(12000000))
 
@@ -1059,7 +1067,7 @@ func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
 	require.Nil(t, coins)
 	// MAX is 100m but have only 1m in account
 	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
-	require.EqualError(t, err, "0uband is smaller than 2000000uband: insufficient funds")
+	require.EqualError(t, err, "spendable balance  is smaller than 2000000uband: insufficient funds")
 }
 
 func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
@@ -1073,15 +1081,17 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 		testapp.EmptyCoins,
 	})
 
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+	require.NoError(t, err)
 
 	// Carol have not enough uband but have enough uabc
-	app.BankKeeper.SendCoinsFromModuleToAccount(
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		minttypes.ModuleName,
 		testapp.FeePayer.Address,
 		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))),
 	)
+	require.NoError(t, err)
 
 	coins, err := k.CollectFee(
 		ctx,
@@ -1134,35 +1144,42 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 		testapp.EmptyCoins,
 	})
 
-	app.BankKeeper.MintCoins(
+	err := app.BankKeeper.MintCoins(
 		ctx,
 		minttypes.ModuleName,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000)), sdk.NewCoin("uabc", sdk.NewInt(2000000))),
 	)
+	require.NoError(t, err)
+
 	// Alice have no enough uband and don't have uabc so don't top up
 	// Bob have enough uband and have some but not enough uabc so add some
-	app.BankKeeper.SendCoinsFromModuleToAccount(
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		minttypes.ModuleName,
 		testapp.Bob.Address,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 	)
-	app.BankKeeper.SendCoinsFromModuleToAccount(
+	require.NoError(t, err)
+
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		minttypes.ModuleName,
 		testapp.Bob.Address,
 		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1))),
 	)
+	require.NoError(t, err)
+
 	// Carol have not enough uband but have enough uabc
-	app.BankKeeper.SendCoinsFromModuleToAccount(
+	err = app.BankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		minttypes.ModuleName,
 		testapp.Carol.Address,
 		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1000000))),
 	)
+	require.NoError(t, err)
 
 	// Alice
-	_, err := k.CollectFee(
+	_, err = k.CollectFee(
 		ctx,
 		testapp.Alice.Address,
 		testapp.MustGetBalances(ctx, app.BankKeeper, testapp.Alice.Address),

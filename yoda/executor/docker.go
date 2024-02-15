@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,12 +25,12 @@ func NewDockerExec(image string, timeout time.Duration) *DockerExec {
 
 func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult, error) {
 	// TODO: Handle env if we are to revive Docker
-	dir, err := ioutil.TempDir("/tmp", "executor")
+	dir, err := os.MkdirTemp("/tmp", "executor")
 	if err != nil {
 		return ExecResult{}, err
 	}
 	defer os.RemoveAll(dir)
-	err = ioutil.WriteFile(filepath.Join(dir, "exec"), code, 0777)
+	err = os.WriteFile(filepath.Join(dir, "exec"), code, 0o600)
 	if err != nil {
 		return ExecResult{}, err
 	}
@@ -55,7 +54,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 	cmd.Stderr = &buf
 	err = cmd.Run()
 	if ctx.Err() == context.DeadlineExceeded {
-		exec.Command("docker", "kill", name).Start()
+		_ = exec.Command("docker", "kill", name).Start()
 		return ExecResult{}, ErrExecutionimeout
 	}
 	exitCode := uint32(0)
@@ -66,7 +65,7 @@ func (e *DockerExec) Exec(code []byte, arg string, env interface{}) (ExecResult,
 			return ExecResult{}, err
 		}
 	}
-	output, err := ioutil.ReadAll(io.LimitReader(&buf, int64(types.DefaultMaxReportDataSize)))
+	output, err := io.ReadAll(io.LimitReader(&buf, int64(types.DefaultMaxReportDataSize)))
 	if err != nil {
 		return ExecResult{}, err
 	}

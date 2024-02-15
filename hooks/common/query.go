@@ -1,12 +1,12 @@
 package common
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	abci "github.com/tendermint/tendermint/abci/types"
+	errorsmod "cosmossdk.io/errors"
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 func QueryResultError(err error) abci.ResponseQuery {
-	space, code, log := sdkerrors.ABCIInfo(err, true)
+	space, code, log := errorsmod.ABCIInfo(err, true)
 	return abci.ResponseQuery{
 		Code:      code,
 		Codespace: space,
@@ -15,7 +15,7 @@ func QueryResultError(err error) abci.ResponseQuery {
 }
 
 func QueryResultSuccess(value []byte, height int64) abci.ResponseQuery {
-	space, code, log := sdkerrors.ABCIInfo(nil, true)
+	space, code, log := errorsmod.ABCIInfo(nil, true)
 	return abci.ResponseQuery{
 		Code:      code,
 		Codespace: space,

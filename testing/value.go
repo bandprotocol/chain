@@ -8,10 +8,9 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	connectiontypes "github.com/cosmos/ibc-go/v4/modules/core/03-connection/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v4/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v4/modules/light-clients/07-tendermint/types"
-	"github.com/cosmos/ibc-go/v4/testing/mock"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	"github.com/cosmos/ibc-go/v7/testing/mock"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -55,5 +54,5 @@ var (
 	// MockFailPacketData       = []byte("mock failed packet data")
 	// MockCanaryCapabilityName = []byte("mock async packet data")
 
-	prefix = commitmenttypes.NewMerklePrefix([]byte("ibc"))
+	// prefix = commitmenttypes.NewMerklePrefix([]byte("ibc"))
 )

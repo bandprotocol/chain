@@ -40,6 +40,7 @@ func TestEncodeBytes(t *testing.T) {
 		Arr: []int16{10, 11},
 	}), []byte{0x0, 0x0, 0x0, 0x3, 0x42, 0x54, 0x43, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x23, 0x28, 0x1, 0x2, 0x0, 0x0, 0x0, 0x2, 0x0, 0xa, 0x0, 0xb})
 }
+
 func TestEncodeBytesMulti(t *testing.T) {
 	require.Equal(t, MustEncode(SimpleData{X: 1, Y: 2}, ExampleData{
 		Symbol: "BTC",
@@ -190,7 +191,7 @@ func TestEncodeString(t *testing.T) {
 		0x6f,
 		0x62,
 	}
-	require.Equal(t, []byte(expectedEncodeBytes), MustEncode(testString))
+	require.Equal(t, expectedEncodeBytes, MustEncode(testString))
 }
 
 func TestEncodeSlice(t *testing.T) {

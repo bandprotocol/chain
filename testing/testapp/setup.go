@@ -10,13 +10,24 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+	owasm "github.com/bandprotocol/go-owasm/api"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/snapshots"
+	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -27,18 +38,11 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibckeeper "github.com/cosmos/ibc-go/v4/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
-
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -51,7 +55,6 @@ type Account struct {
 	ValAddress sdk.ValAddress
 }
 
-// nolint
 var (
 	Owner         Account
 	Treasury      Account
@@ -65,7 +68,6 @@ var (
 	OwasmVM       *owasm.Vm
 )
 
-// nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
 	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
@@ -87,8 +89,8 @@ const (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-var DefaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
+var DefaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   -1,
 	},
@@ -113,7 +115,7 @@ func (app *TestingApp) GetBaseApp() *baseapp.BaseApp {
 }
 
 // GetStakingKeeper implements the TestingApp interface.
-func (app *TestingApp) GetStakingKeeper() stakingkeeper.Keeper {
+func (app *TestingApp) GetStakingKeeper() *stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
 
@@ -217,10 +219,13 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	}
 	// db := dbm.NewMemDB()
 	db, _ := dbm.NewGoLevelDB("db", dir)
-	encCdc := bandapp.MakeEncodingConfig()
+
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = dir
+	appOptions[server.FlagInvCheckPeriod] = 0
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	if err != nil {
 		panic(err)
 	}
@@ -229,6 +234,11 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		panic(err)
 	}
 
+	snapshotOptions := snapshottypes.NewSnapshotOptions(
+		1000,
+		2,
+	)
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -236,15 +246,11 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			nil,
 			true,
 			map[int64]bool{},
-			dir,
-			0,
-			encCdc,
-			EmptyAppOptions{},
-			false,
+			appOptions,
 			100,
 			"", "", "",
-			baseapp.SetSnapshotStore(snapshotStore),
-			baseapp.SetSnapshotKeepRecent(2),
+			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+			baseapp.SetChainID(chainID),
 		),
 	}
 	genesis := bandapp.NewDefaultGenesisState()
@@ -264,7 +270,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []sdkmath.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
 	// bondAmt := sdk.NewInt(1000000)
 	for idx, val := range Validators {
 		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
@@ -353,6 +359,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		balances,
 		totalSupply,
 		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
 	)
 	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
@@ -365,6 +372,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 	if err != nil {
 		panic(err)
 	}
+
 	// Initialize the sim blockchain. We are ready for testing!
 	app.InitChain(abci.RequestInitChain{
 		ChainId:         chainID,
@@ -380,23 +388,26 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		_ = app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
 	}
 	return app, ctx, app.OracleKeeper
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisState, string) {
+func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, bandapp.GenesisState, string) {
 	dir, err := os.MkdirTemp("", "bandibc")
 	if err != nil {
 		panic(err)
 	}
 	db := dbm.NewMemDB()
-	encCdc := bandapp.MakeEncodingConfig()
+
+	appOptions := make(simtestutil.AppOptionsMap, 0)
+	appOptions[flags.FlagHome] = dir
+	appOptions[server.FlagInvCheckPeriod] = 0
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	if err != nil {
 		panic(err)
 	}
@@ -405,6 +416,11 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 		panic(err)
 	}
 
+	snapshotOptions := snapshottypes.NewSnapshotOptions(
+		1000,
+		2,
+	)
+
 	app := &TestingApp{
 		BandApp: bandapp.NewBandApp(
 			log.NewNopLogger(),
@@ -412,15 +428,11 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 			nil,
 			true,
 			map[int64]bool{},
-			dir,
-			0,
-			encCdc,
-			EmptyAppOptions{},
-			false,
+			appOptions,
 			0,
 			"", "", "",
-			baseapp.SetSnapshotStore(snapshotStore),
-			baseapp.SetSnapshotKeepRecent(2),
+			baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+			baseapp.SetChainID(chainID),
 		),
 	}
 	if withGenesis {
@@ -431,7 +443,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*TestingApp, bandapp.GenesisS
 
 // SetupWithEmptyStore setup a TestingApp instance with empty DB
 func SetupWithEmptyStore() *TestingApp {
-	app, _, _ := setup(false, 0)
+	app, _, _ := setup(false, 0, "BANDCHAIN")
 	return app
 }
 
@@ -443,9 +455,10 @@ func SetupWithGenesisValSet(
 	t *testing.T,
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
+	chainID string,
 	balances ...banktypes.Balance,
 ) *TestingApp {
-	app, genesisState, dir := setup(true, 5)
+	app, genesisState, dir := setup(true, 5, chainID)
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
@@ -504,6 +517,7 @@ func SetupWithGenesisValSet(
 		balances,
 		totalSupply,
 		[]banktypes.Metadata{},
+		[]banktypes.SendEnabled{},
 	)
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
@@ -519,6 +533,7 @@ func SetupWithGenesisValSet(
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -528,6 +543,7 @@ func SetupWithGenesisValSet(
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            chainID,
 		Height:             app.LastBlockHeight() + 1,
 		AppHash:            app.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
@@ -630,7 +646,7 @@ func SignAndDeliver(
 
 	// Simulate a sending a transaction and committing a block
 	app.BeginBlock(abci.RequestBeginBlock{Header: header, Hash: header.AppHash})
-	gInfo, res, err := app.Deliver(txCfg.TxEncoder(), tx)
+	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	app.EndBlock(abci.RequestEndBlock{})
 	app.Commit()

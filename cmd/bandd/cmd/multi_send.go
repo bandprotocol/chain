@@ -21,7 +21,7 @@ func MultiSendTxCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			sender := sdk.AccAddress(clientCtx.GetFromAddress())
+			sender := clientCtx.GetFromAddress()
 
 			// Parse the coins we are trying to send
 			coins, err := sdk.ParseCoinsNormalized(args[0])

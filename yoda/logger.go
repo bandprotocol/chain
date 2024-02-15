@@ -3,8 +3,8 @@ package yoda
 import (
 	"os"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/kyokomi/emoji"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 type Logger struct {

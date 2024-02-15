@@ -2,8 +2,8 @@ package emitter
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 )
@@ -16,7 +16,7 @@ func (h *Hook) handleMsgTransfer(
 	evMap common.EvMap,
 	detail common.JsDict,
 ) {
-	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyData]; ok {
+	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDataHex]; ok {
 		packet := newPacket(
 			ctx,
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],

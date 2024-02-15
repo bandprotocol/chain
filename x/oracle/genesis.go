@@ -3,6 +3,7 @@ package oracle
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -11,7 +12,10 @@ import (
 
 // InitGenesis performs genesis initialization for the oracle module.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
-	k.SetParams(ctx, data.Params)
+	if err := k.SetParams(ctx, data.Params); err != nil {
+		panic(errorsmod.Wrapf(err, "set params"))
+	}
+
 	k.SetDataSourceCount(ctx, 0)
 	k.SetOracleScriptCount(ctx, 0)
 	k.SetRequestCount(ctx, 0)

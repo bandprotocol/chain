@@ -1,6 +1,6 @@
 package testapp
 
-// A simple Owasm script with the following specification:
+// Wasm1 is a simple Owasm script with the following specification:
 //
 //	PREPARE:
 //	  CALL ask_external_data with EID 1 DID 1 CALLDATA "beeb"
@@ -8,7 +8,7 @@ package testapp
 //	  CALL ask_external_data with EID 3 DID 3 CALLDATA "beeb"
 //	EXECUTE:
 //	  CALL set_return_date with RETDATE "beeb"
-var Wasm1 []byte = wat2wasm([]byte(`
+var Wasm1 = wat2wasm([]byte(`
 (module
 	(type $t0 (func))
 	(type $t1 (func (param i64 i64 i64 i64)))

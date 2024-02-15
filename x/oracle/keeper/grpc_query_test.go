@@ -63,8 +63,11 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 	k.SetRequest(ctx, types.RequestID(1), suite.request)
 	k.SetRequestCount(ctx, 1)
 	err := k.GrantReporter(ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
-	app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
-		authz.NewGenericAuthorization("some url"), ctx.BlockTime().Add(10*time.Minute),
+	suite.assert.NoError(err)
+
+	expiration := ctx.BlockTime().Add(10 * time.Minute)
+	err = app.AuthzKeeper.SaveGrant(ctx, suite.granteeAddr, sdk.AccAddress(testapp.Validators[0].ValAddress),
+		authz.NewGenericAuthorization("some url"), &expiration,
 	)
 	suite.assert.NoError(err)
 }
@@ -427,11 +430,11 @@ func (suite *RequestVerificationTestSuite) TestFailedValidatorAlreadyReported() 
 	err := suite.querier.Keeper.AddReport(
 		suite.ctx,
 		types.RequestID(1),
-		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+		testapp.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
-		}),
+		},
 	)
 	suite.assert.NoError(err)
 
@@ -546,7 +549,8 @@ func (suite *RequestVerificationTestSuite) TestIsNotReporter() {
 }
 
 func (suite *RequestVerificationTestSuite) TestRevokeReporters() {
-	suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	err := suite.querier.Keeper.RevokeReporter(suite.ctx, testapp.Validators[0].ValAddress, suite.reporterAddr)
+	suite.assert.NoError(err)
 	req := &types.QueryReportersRequest{
 		ValidatorAddress: testapp.Validators[0].ValAddress.String(),
 	}

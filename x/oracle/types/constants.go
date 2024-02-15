@@ -1,6 +1,5 @@
 package types
 
-// nolint
 const (
 	DoNotModify = "[do-not-modify]"
 
@@ -17,7 +16,4 @@ const (
 	MaximumOwasmGas = 8000000
 )
 
-// nolint
-var (
-	DoNotModifyBytes = []byte(DoNotModify)
-)
+var DoNotModifyBytes = []byte(DoNotModify)

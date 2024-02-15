@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v4/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v4/modules/core/23-commitment/types"
-	host "github.com/cosmos/ibc-go/v4/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v4/modules/core/exported"
-	ibctmtypes "github.com/cosmos/ibc-go/v4/modules/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,13 +99,11 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			height,
 			commitmenttypes.GetSDKSpecs(),
 			UpgradePath,
-			tmConfig.AllowUpdateAfterExpiry,
-			tmConfig.AllowUpdateAfterMisbehaviour,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
 	case exported.Solomachine:
 		// TODO
-		//		solo := NewSolomachine(chain.t, endpoint.Chain.Codec, clientID, "", 1)
+		//		solo := NewSolomachine(endpoint.Chain.T, endpoint.Chain.Codec, clientID, "", 1)
 		//		clientState = solo.ClientState()
 		//		consensusState = solo.ConsensusState()
 
@@ -138,9 +136,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	// ensure counterparty has committed state
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
-	var (
-		header exported.Header
-	)
+	var header *ibctmtypes.Header
 
 	switch endpoint.ClientConfig.GetClientType() {
 	case exported.Tendermint:
@@ -184,7 +180,8 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 
 // ConnOpenTry will construct and execute a MsgConnectionOpenTry on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenTry() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	counterpartyClient, proofClient, proofConsensus, consensusHeight, proofInit, proofHeight := endpoint.QueryConnectionHandshakeProof()
 
@@ -218,7 +215,8 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 
 // ConnOpenAck will construct and execute a MsgConnectionOpenAck on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenAck() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	counterpartyClient, proofClient, proofConsensus, consensusHeight, proofTry, proofHeight := endpoint.QueryConnectionHandshakeProof()
 
@@ -239,7 +237,8 @@ func (endpoint *Endpoint) ConnOpenAck() error {
 
 // ConnOpenConfirm will construct and execute a MsgConnectionOpenConfirm on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenConfirm() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	connectionKey := host.ConnectionKey(endpoint.Counterparty.ConnectionID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(connectionKey)
@@ -302,7 +301,8 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 
 // ChanOpenTry will construct and execute a MsgChannelOpenTry on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenTry() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -334,7 +334,8 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 
 // ChanOpenAck will construct and execute a MsgChannelOpenAck on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenAck() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -353,7 +354,8 @@ func (endpoint *Endpoint) ChanOpenAck() error {
 
 // ChanOpenConfirm will construct and execute a MsgChannelOpenConfirm on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenConfirm() error {
-	endpoint.UpdateClient()
+	err := endpoint.UpdateClient()
+	require.NoError(endpoint.Chain.t, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -379,19 +381,38 @@ func (endpoint *Endpoint) ChanCloseInit() error {
 
 // SendPacket sends a packet through the channel keeper using the associated endpoint
 // The counterparty client is updated so proofs can be sent to the counterparty chain.
-func (endpoint *Endpoint) SendPacket(packet exported.PacketI) error {
-	channelCap := endpoint.Chain.GetChannelCapability(packet.GetSourcePort(), packet.GetSourceChannel())
+// The packet sequence generated for the packet to be sent is returned. An error
+// is returned if one occurs.
+func (endpoint *Endpoint) SendPacket(
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	data []byte,
+) (uint64, error) {
+	channelCap := endpoint.Chain.GetChannelCapability(endpoint.ChannelConfig.PortID, endpoint.ChannelID)
 
 	// no need to send message, acting as a module
-	err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.SendPacket(endpoint.Chain.GetContext(), channelCap, packet)
+	sequence, err := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.SendPacket(
+		endpoint.Chain.GetContext(),
+		channelCap,
+		endpoint.ChannelConfig.PortID,
+		endpoint.ChannelID,
+		timeoutHeight,
+		timeoutTimestamp,
+		data,
+	)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// commit changes since no message was sent
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Chain)
 
-	return endpoint.Counterparty.UpdateClient()
+	err = endpoint.Counterparty.UpdateClient()
+	if err != nil {
+		return 0, err
+	}
+
+	return sequence, nil
 }
 
 // RecvPacket receives a packet on the associated endpoint.

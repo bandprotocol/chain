@@ -28,7 +28,7 @@ func decodeImpl(data []byte, v interface{}) ([]byte, error) {
 		return rem, err
 	case reflect.Uint64:
 		val, rem, err := DecodeUnsigned64(data)
-		ev.SetUint(uint64(val))
+		ev.SetUint(val)
 		return rem, err
 	case reflect.Int8:
 		val, rem, err := DecodeSigned8(data)
@@ -44,7 +44,7 @@ func decodeImpl(data []byte, v interface{}) ([]byte, error) {
 		return rem, err
 	case reflect.Int64:
 		val, rem, err := DecodeSigned64(data)
-		ev.SetInt(int64(val))
+		ev.SetInt(val)
 		return rem, err
 	case reflect.String:
 		val, rem, err := DecodeString(data)

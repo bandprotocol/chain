@@ -1,48 +1,15 @@
-### Yoda
+# Yoda
 
-## Prepare environment
+## Introduction
 
-1. Install PostgresSQL `brew install postgresql`
-2. Install Golang
-3. Install Rust
-4. Install Docker
-5. run `cd owasm/chaintests/bitcoin_block_count/`
-6. run `wasm-pack build .`
-7. `make install` in chain directory
-8. Open 3 tabs on cmd
-9. run `docker pull bandprotocol/runtime:1.0.2`
+Yoda is a program that is used by BandChain's validator nodes to automatically fulfill data for oracle requests.
 
-## How to install and run Yoda
+Since a subset of validators who are selected for a data request must return the data they received from running the specified data source(s), each of them have to send a `MsgReportData` transaction to BandChain in order to fulfill their duty.
 
-1. Open first cmd tab for running the BandChain
-2. Open second cmd tab for running the Yoda
-3. Open third cmd tab for running the BandChain CLI
+Although the transaction can be sent manually by user, it is not convenient, and would be rather time-consuming. Furthermore, most data providers already have APIs that can be used to query data automatically by another software. Therefore, we have developed Yoda to help validators to automatically query data from data providers by executing data source script, then submit the result to fulfill the request.
 
-### How to run BandChain on development mode
+For more detail about Yoda, please follows this [link](https://docs.bandchain.org/node-validators/yoda)
 
-1. Go to chain directory
-2. Setup your PostgresSQL user, port and database name on `start_bandd.sh`
-3. run `chmod +x scripts/start_bandd.sh` to change the access permission of start_bandd.script
-4. run `./scripts/start_bandd.sh` to start BandChain
-5. If fail, try owasm pack build then run script again.
+## Installation
 
-```
-cd ../owasm/chaintests/bitcoin_block_count/
-wasm-pack build .
-cd ../../../chain
-```
-
-### How to run Yoda
-
-1. Go to chain directory
-2. run `chmod +x scripts/start_yoda.sh` to change the access permission of start_yoda.script
-3. run `./scripts/start_yoda.sh validator [number of reporter]` to start Yoda
-
-### Try to request data BandChain
-
-After we have `BandChain` and `Yoda` running, now we can request data on BandChain.
-Example of requesting data on BandChain
-
-```
-bandd tx oracle request 1 -c 0000000342544300000000000003e8 1 1  --chain-id bandchain --gas 3000000 --keyring-backend test  --fee-limit 10uband  --from requester
-```
+Please refer to [this documentation](https://docs.bandchain.org/node-validators/run-node/joining-mainnet/installation#step-5-setup-yoda) for the most up-to-date installation guide.

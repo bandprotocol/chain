@@ -10,8 +10,7 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	ibcexported "github.com/cosmos/ibc-go/v4/modules/core/exported"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -47,9 +46,15 @@ type DistrKeeper interface {
 
 // ChannelKeeper defines the expected IBC channel keeper
 type ChannelKeeper interface {
-	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
-	GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool)
-	SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet ibcexported.PacketI) error
+	SendPacket(
+		ctx sdk.Context,
+		chanCap *capabilitytypes.Capability,
+		sourcePort string,
+		sourceChannel string,
+		timeoutHeight ibcclienttypes.Height,
+		timeoutTimestamp uint64,
+		data []byte,
+	) (sequence uint64, err error)
 }
 
 // PortKeeper defines the expected IBC port keeper
@@ -59,18 +64,19 @@ type PortKeeper interface {
 
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
 type AuthzKeeper interface {
-	GetCleanAuthorization(
+	DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []sdk.Msg) ([][]byte, error)
+	GetAuthorization(
 		ctx sdk.Context,
 		grantee sdk.AccAddress,
 		granter sdk.AccAddress,
 		msgType string,
-	) (cap authz.Authorization, expiration time.Time)
-
+	) (authz.Authorization, *time.Time)
+	GetAuthorizations(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress) ([]authz.Authorization, error)
 	SaveGrant(
 		ctx sdk.Context,
 		grantee, granter sdk.AccAddress,
 		authorization authz.Authorization,
-		expiration time.Time,
+		expiration *time.Time,
 	) error
 	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
 	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)

@@ -44,7 +44,7 @@ func (env *BaseEnv) GetMinCount() int64 {
 
 // GetPrepareTime implements Owasm ExecEnv interface.
 func (env *BaseEnv) GetPrepareTime() int64 {
-	return int64(env.request.RequestTime)
+	return env.request.RequestTime
 }
 
 // GetExecuteTime implements Owasm ExecEnv interface.

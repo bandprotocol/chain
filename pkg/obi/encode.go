@@ -17,7 +17,7 @@ func encodeImpl(v interface{}) ([]byte, error) {
 	case reflect.Uint32:
 		return EncodeUnsigned32(uint32(rv.Uint())), nil
 	case reflect.Uint64:
-		return EncodeUnsigned64(uint64(rv.Uint())), nil
+		return EncodeUnsigned64(rv.Uint()), nil
 	case reflect.Int8:
 		return EncodeSigned8(int8(rv.Int())), nil
 	case reflect.Int16:
@@ -25,7 +25,7 @@ func encodeImpl(v interface{}) ([]byte, error) {
 	case reflect.Int32:
 		return EncodeSigned32(int32(rv.Int())), nil
 	case reflect.Int64:
-		return EncodeSigned64(int64(rv.Int())), nil
+		return EncodeSigned64(rv.Int()), nil
 	case reflect.String:
 		return EncodeString(rv.String()), nil
 	case reflect.Slice:
