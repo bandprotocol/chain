@@ -14,7 +14,7 @@ func combineGrantMsgs(
 	msgGrants []string,
 	expiration *time.Time,
 ) ([]sdk.Msg, error) {
-	msgs := []sdk.Msg{}
+	var msgs []sdk.Msg
 
 	for _, msgGrant := range msgGrants {
 		msg, err := authz.NewMsgGrant(
@@ -39,7 +39,7 @@ func combineGrantMsgs(
 
 // combineRevokeMsgs combines multiple revoke messages into a single slice of messages.
 func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevokes []string) ([]sdk.Msg, error) {
-	msgs := []sdk.Msg{}
+	var msgs []sdk.Msg
 
 	for _, msgRevoke := range msgRevokes {
 		msg := authz.NewMsgRevoke(

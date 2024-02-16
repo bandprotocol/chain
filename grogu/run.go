@@ -22,7 +22,7 @@ func runImpl(c *Context, l *Logger) error {
 	if err != nil {
 		return err
 	}
-	defer c.client.Stop()
+	defer c.client.Stop() //nolint:errcheck
 
 	for i := int64(0); i < int64(len(c.keys)); i++ {
 		c.freeKeys <- i
@@ -130,14 +130,14 @@ func runCmd(c *Context) *cobra.Command {
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Grogu will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
-	viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
-	viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
-	viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
-	viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
-	viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
-	viper.BindPFlag(flagPriceService, cmd.Flags().Lookup(flagPriceService))
-	viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
-	viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
-	viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	_ = viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
+	_ = viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
+	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
+	_ = viper.BindPFlag(flags.FlagGasPrices, cmd.Flags().Lookup(flags.FlagGasPrices))
+	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	_ = viper.BindPFlag(flagPriceService, cmd.Flags().Lookup(flagPriceService))
+	_ = viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
+	_ = viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
+	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 	return cmd
 }

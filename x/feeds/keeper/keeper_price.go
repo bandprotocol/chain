@@ -17,7 +17,9 @@ func (k Keeper) GetPricesIterator(ctx sdk.Context) sdk.Iterator {
 
 func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	iterator := k.GetPricesIterator(ctx)
-	defer iterator.Close()
+	defer func(iterator sdk.Iterator) {
+		_ = iterator.Close()
+	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
 		var price types.Price
@@ -55,7 +57,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
 	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(symbol))
 }
 
-func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate bool) (types.Price, error) {
+func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, _ bool) (types.Price, error) {
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 	transitionTime := k.GetParams(ctx).TransitionTime
@@ -73,13 +75,15 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, deactivate 
 				if err == nil {
 					// if timestamp of price is in acception period, append it
 					if priceVal.Timestamp >= blockTime.Unix()-symbol.Interval {
-						pfInfos = append(pfInfos, types.PriceFeedInfo{
-							Price:     priceVal.Price,
-							Power:     power,
-							Deviation: 0,
-							Timestamp: priceVal.Timestamp,
-							Index:     idx,
-						})
+						pfInfos = append(
+							pfInfos, types.PriceFeedInfo{
+								Price:     priceVal.Price,
+								Power:     power,
+								Deviation: 0,
+								Timestamp: priceVal.Timestamp,
+								Index:     idx,
+							},
+						)
 					}
 
 					// update last time of action
@@ -125,7 +129,9 @@ func (k Keeper) GetPriceValidatorsIterator(ctx sdk.Context, symbol string) sdk.I
 
 func (k Keeper) GetPriceValidators(ctx sdk.Context, symbol string) (priceVals []types.PriceValidator) {
 	iterator := k.GetPriceValidatorsIterator(ctx, symbol)
-	defer iterator.Close()
+	defer func(iterator sdk.Iterator) {
+		_ = iterator.Close()
+	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
 		var priceVal types.PriceValidator
@@ -154,7 +160,7 @@ func (k Keeper) GetPriceValidator(ctx sdk.Context, symbol string, val sdk.ValAdd
 
 func (k Keeper) SetPriceValidators(ctx sdk.Context, priceVals []types.PriceValidator) {
 	for _, priceVal := range priceVals {
-		k.SetPriceValidator(ctx, priceVal)
+		_ = k.SetPriceValidator(ctx, priceVal)
 	}
 }
 
@@ -172,7 +178,10 @@ func (k Keeper) SetPriceValidator(ctx sdk.Context, priceVal types.PriceValidator
 
 func (k Keeper) DeletePriceValidators(ctx sdk.Context, symbol string) {
 	iterator := k.GetPriceValidatorsIterator(ctx, symbol)
-	defer iterator.Close()
+
+	defer func(iterator sdk.Iterator) {
+		_ = iterator.Close()
+	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
 		ctx.KVStore(k.storeKey).Delete(iterator.Key())

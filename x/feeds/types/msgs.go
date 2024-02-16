@@ -6,9 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var (
-	_, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
-)
+var _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
 
 // Route Implements Msg.
 func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
@@ -26,7 +24,7 @@ func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
 }
 
-// ValidateBasic does a sanity check on the provided data.
+// ValidateBasic does a check on the provided data.
 func (m *MsgSignalSymbols) ValidateBasic() error {
 	return nil
 }
@@ -52,7 +50,7 @@ func (m *MsgSubmitPrices) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.AccAddress(validator)}
 }
 
-// ValidateBasic does a sanity check on the provided data.
+// ValidateBasic does a check on the provided data.
 func (m *MsgSubmitPrices) ValidateBasic() error {
 	valAddr, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
@@ -86,7 +84,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
-// ValidateBasic does a sanity check on the provided data.
+// ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
@@ -119,7 +117,7 @@ func (m *MsgUpdatePriceService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
 }
 
-// ValidateBasic does a sanity check on the provided data.
+// ValidateBasic does a check on the provided data.
 func (m *MsgUpdatePriceService) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
 		return errors.Wrap(err, "invalid admin address")

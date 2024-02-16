@@ -44,7 +44,8 @@ func GetTxCmdSignalSymbols() *cobra.Command {
 		Short: "Signal symbols and their powers",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Signal symbols and their power.
+			fmt.Sprintf(
+				`Signal symbols and their power.
 Example:
 $ %s tx feeds signal BTC:1000000 --from mykey
 `,
@@ -58,7 +59,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 			}
 
 			delegator := clientCtx.GetFromAddress()
-			signals := []types.Signal{}
+			var signals []types.Signal
 			for i, arg := range args {
 				symbolAndPower := strings.SplitN(arg, ":", 2)
 				if len(symbolAndPower) != 2 {
@@ -68,10 +69,12 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 				if err != nil {
 					return err
 				}
-				signals = append(signals, types.Signal{
-					Symbol: symbolAndPower[0],
-					Power:  power,
-				})
+				signals = append(
+					signals, types.Signal{
+						Symbol: symbolAndPower[0],
+						Power:  power,
+					},
+				)
 			}
 
 			msg := types.MsgSignalSymbols{
@@ -94,7 +97,8 @@ func GetTxCmdAddGrantees() *cobra.Command {
 		Short: "Add agents authorized to submit feeds transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Add agents authorized to submit feeds transactions.
+			fmt.Sprintf(
+				`Add agents authorized to submit feeds transactions.
 Example:
 $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
@@ -114,7 +118,7 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 			expTime := time.Unix(exp, 0)
 
 			granter := clientCtx.GetFromAddress()
-			msgs := []sdk.Msg{}
+			var msgs []sdk.Msg
 
 			for _, arg := range args {
 				grantee, err := sdk.AccAddressFromBech32(arg)
@@ -135,7 +139,11 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 	}
 
 	cmd.Flags().
-		Int64(flagExpiration, time.Now().AddDate(2500, 0, 0).Unix(), "The Unix timestamp. Default is 2500 years(forever).")
+		Int64(
+			flagExpiration,
+			time.Now().AddDate(2500, 0, 0).Unix(),
+			"The Unix timestamp. Default is 2500 years(forever).",
+		)
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -148,7 +156,8 @@ func GetTxCmdRemoveGrantees() *cobra.Command {
 		Short: "Remove agents from the list of authorized grantees.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Remove agents from the list of authorized grantees.
+			fmt.Sprintf(
+				`Remove agents from the list of authorized grantees.
 Example:
 $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
@@ -162,7 +171,7 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 			}
 
 			granter := clientCtx.GetFromAddress()
-			msgs := []sdk.Msg{}
+			var msgs []sdk.Msg
 
 			for _, arg := range args {
 				grantee, err := sdk.AccAddressFromBech32(arg)
