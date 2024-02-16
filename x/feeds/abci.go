@@ -3,9 +3,10 @@ package feeds
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // HandleEndBlock is a handler function for the EndBlock ABCI request.

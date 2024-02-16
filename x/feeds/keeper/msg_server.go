@@ -44,27 +44,25 @@ func (ms msgServer) SignalSymbols(
 	// delete previous signal, decrease symbol power by the previous signals
 	symbolToIntervalDiff := make(map[string]int64)
 	prevSignals := ms.Keeper.GetDelegatorSignals(ctx, delegator)
-	if prevSignals != nil {
-		for _, prevSignal := range prevSignals {
-			symbol, err := ms.Keeper.GetSymbol(ctx, prevSignal.Symbol)
-			if err != nil {
-				return nil, err
-			}
-			// before changing in symbol, delete the SymbolByPower index
-			ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
+	for _, prevSignal := range prevSignals {
+		symbol, err := ms.Keeper.GetSymbol(ctx, prevSignal.Symbol)
+		if err != nil {
+			return nil, err
+		}
+		// before changing in symbol, delete the SymbolByPower index
+		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
 
-			symbol.Power = symbol.Power - prevSignal.Power
-			prevInterval := symbol.Interval
-			symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
-			ms.Keeper.SetSymbol(ctx, symbol)
+		symbol.Power -= prevSignal.Power
+		prevInterval := symbol.Interval
+		symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
+		ms.Keeper.SetSymbol(ctx, symbol)
 
-			// setting SymbolByPowerIndex every time setting symbol
-			ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
+		// setting SymbolByPowerIndex every time setting symbol
+		ms.Keeper.SetSymbolByPowerIndex(ctx, symbol)
 
-			intervalDiff := symbol.Interval - prevInterval
-			if symbol.Interval-prevInterval != 0 {
-				symbolToIntervalDiff[symbol.Symbol] = intervalDiff
-			}
+		intervalDiff := symbol.Interval - prevInterval
+		if symbol.Interval-prevInterval != 0 {
+			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
 		}
 	}
 
@@ -83,7 +81,7 @@ func (ms msgServer) SignalSymbols(
 		// before changing in symbol, delete the SymbolByPower index
 		ms.Keeper.DeleteSymbolByPowerIndex(ctx, symbol)
 
-		symbol.Power = symbol.Power + signal.Power
+		symbol.Power += signal.Power
 		prevInterval := symbol.Interval
 		symbol.Interval = calculateInterval(int64(symbol.Power), ms.Keeper.GetParams(ctx))
 		ms.Keeper.SetSymbol(ctx, symbol)
@@ -184,7 +182,7 @@ func (ms msgServer) SubmitPrices(
 			Timestamp: blockTime,
 		}
 
-		ms.Keeper.SetPriceValidator(ctx, priceVal)
+		_ = ms.Keeper.SetPriceValidator(ctx, priceVal)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
