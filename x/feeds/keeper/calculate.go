@@ -7,7 +7,7 @@ func calculateInterval(power int64, param types.Params) int64 {
 		return 0
 	}
 
-	// dividd power by power threshold to create steps
+	// divide power by power threshold to create steps
 	interval := param.MaxInterval / (power / param.PowerThreshold)
 	if interval < param.MinInterval {
 		return param.MinInterval
@@ -17,7 +17,7 @@ func calculateInterval(power int64, param types.Params) int64 {
 
 func sumPower(signals []types.Signal) (sum uint64) {
 	for _, signal := range signals {
-		sum = sum + signal.Power
+		sum += signal.Power
 	}
 	return
 }

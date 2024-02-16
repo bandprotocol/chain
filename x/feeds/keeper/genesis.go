@@ -13,7 +13,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 
 	k.SetSymbols(ctx, genState.Symbols)
-	k.SetPriceService(ctx, genState.PriceService)
+	err := k.SetPriceService(ctx, genState.PriceService)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // ExportGenesis returns the module's exported genesis

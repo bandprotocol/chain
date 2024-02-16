@@ -12,7 +12,9 @@ func (k Keeper) GetSymbolsIterator(ctx sdk.Context) sdk.Iterator {
 
 func (k Keeper) GetSymbols(ctx sdk.Context) (symbols []types.Symbol) {
 	iterator := k.GetSymbolsIterator(ctx)
-	defer iterator.Close()
+	defer func(iterator sdk.Iterator) {
+		_ = iterator.Close()
+	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
 		var symbol types.Symbol
@@ -60,13 +62,15 @@ func (k Keeper) DeleteSymbolByPowerIndex(ctx sdk.Context, symbol types.Symbol) {
 	store.Delete(types.GetSymbolsByPowerIndexKey(symbol.Symbol, symbol.Power))
 }
 
-// get the current group of bonded validators sorted by power-rank
+// GetSupportedSymbolsByPower gets the current group of bonded validators sorted by power-rank
 func (k Keeper) GetSupportedSymbolsByPower(ctx sdk.Context) []types.Symbol {
 	maxSymbols := k.GetParams(ctx).MaxSupportedSymbol
 	symbols := make([]types.Symbol, maxSymbols)
 
 	iterator := k.SymbolsPowerStoreIterator(ctx)
-	defer iterator.Close()
+	defer func(iterator sdk.Iterator) {
+		_ = iterator.Close()
+	}(iterator)
 
 	i := 0
 	for ; iterator.Valid() && i < int(maxSymbols); iterator.Next() {
