@@ -20,10 +20,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-var (
-	// Proto codec for encoding/decoding proto message
-	cdc = band.MakeEncodingConfig().Marshaler
-)
+// Proto codec for encoding/decoding proto message
+var cdc = band.MakeEncodingConfig().Marshaler
 
 func StartSubmitPrices(c *Context, l *Logger) {
 	for {
@@ -86,7 +84,7 @@ GetAllPrices:
 				continue
 			}
 			if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
-				gasAdjustment = gasAdjustment + 0.1
+				gasAdjustment += 0.1
 				l.Info(
 					":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)",
 					txHash,
@@ -119,7 +117,7 @@ GetAllPrices:
 			if txRes.Codespace == sdkerrors.RootCodespace &&
 				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas adjustment and try to broadcast again
-				gasAdjustment = gasAdjustment + 0.1
+				gasAdjustment += 0.1
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
 				txFound = true
 				break FindTx

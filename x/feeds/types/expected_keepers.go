@@ -5,7 +5,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"

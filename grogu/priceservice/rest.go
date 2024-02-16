@@ -6,8 +6,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/levigross/grequests"
+
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 type RestService struct {
@@ -31,7 +32,6 @@ func (e *RestService) Query(params map[string]string) ([]types.SubmitPrice, erro
 			RequestTimeout: e.timeout,
 		},
 	)
-
 	if err != nil {
 		return []types.SubmitPrice{}, err
 	}

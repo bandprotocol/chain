@@ -46,7 +46,7 @@ func (q queryServer) Prices(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// convert filter symbols to map
-	reqSymbols := make(map[string]bool, 0)
+	reqSymbols := make(map[string]bool)
 	for _, s := range req.Symbols {
 		reqSymbols[s] = true
 	}
@@ -75,7 +75,8 @@ func (q queryServer) Prices(
 			return nil, nil
 		}, func() *types.Price {
 			return &types.Price{}
-		})
+		},
+	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -180,8 +181,8 @@ func (q queryServer) ValidValidator(
 		return nil, err
 	}
 
-	status := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
-	if !status.IsActive {
+	validatorStatus := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
+	if !validatorStatus.IsActive {
 		flag = false
 	}
 
@@ -194,7 +195,7 @@ func (q queryServer) Symbols(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// convert filter symbols to map
-	reqSymbols := make(map[string]bool, 0)
+	reqSymbols := make(map[string]bool)
 	for _, s := range req.Symbols {
 		reqSymbols[s] = true
 	}
@@ -223,7 +224,8 @@ func (q queryServer) Symbols(
 			return nil, nil
 		}, func() *types.Symbol {
 			return &types.Symbol{}
-		})
+		},
+	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -232,7 +234,7 @@ func (q queryServer) Symbols(
 }
 
 func (q queryServer) SupportedSymbols(
-	goCtx context.Context, req *types.QuerySupportedSymbolsRequest,
+	goCtx context.Context, _ *types.QuerySupportedSymbolsRequest,
 ) (*types.QuerySupportedSymbolsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -242,7 +244,7 @@ func (q queryServer) SupportedSymbols(
 }
 
 func (q queryServer) PriceService(
-	goCtx context.Context, req *types.QueryPriceServiceRequest,
+	goCtx context.Context, _ *types.QueryPriceServiceRequest,
 ) (*types.QueryPriceServiceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -251,7 +253,7 @@ func (q queryServer) PriceService(
 	}, nil
 }
 
-func (q queryServer) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
 	return &types.QueryParamsResponse{
