@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
@@ -22,23 +23,42 @@ func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// CreateGroup initializes a new group. It validates the group size, creates a new group,
-// sets group members, hashes groupID and LastCommitHash to form the DKGContext, and emits
-// an event for group creation.
+// CreateGroup initializes a new group. It passes the input to tss module.
 func (k msgServer) CreateGroup(
 	goCtx context.Context,
 	req *types.MsgCreateGroup,
 ) (*types.MsgCreateGroupResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	input := tsstypes.CreateGroupInput{
+		Members:   req.Members,
+		Threshold: req.Threshold,
+		Fee:       req.Fee,
+		Authority: req.Authority,
+	}
+	if _, err := k.tssKeeper.CreateGroup(ctx, input); err != nil {
+		return nil, err
+	}
+
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// ReplaceGroup handles the replacement of a group with another group. It verifies the authority,
-// retrieves necessary context, creates a new replace group data, requests a signature,
-// and adds the pending replace group for execution.
+// ReplaceGroup handles the replacement of a group with another group. It passes the input to tss module.
 func (k msgServer) ReplaceGroup(
 	goCtx context.Context,
 	req *types.MsgReplaceGroup,
 ) (*types.MsgReplaceGroupResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	input := tsstypes.ReplaceGroupInput{
+		CurrentGroupID: req.CurrentGroupID,
+		NewGroupID:     req.NewGroupID,
+		ExecTime:       req.ExecTime,
+		Authority:      req.Authority,
+	}
+	if _, err := k.tssKeeper.ReplaceGroup(ctx, input); err != nil {
+		return nil, err
+	}
 	return &types.MsgReplaceGroupResponse{}, nil
 }
 

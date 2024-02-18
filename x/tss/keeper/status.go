@@ -65,6 +65,9 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 	status.LastActive = status.Since
 	k.SetMemberStatus(ctx, status)
 
+	// Handle the hooks after status updated
+	k.Hooks().AfterStatusUpdated(ctx, status)
+
 	return nil
 }
 
@@ -78,6 +81,9 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 
 	status.LastActive = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
+
+	// Handle the hooks after status updated
+	k.Hooks().AfterStatusUpdated(ctx, status)
 
 	return nil
 }
@@ -96,6 +102,9 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
+
+	// Handle the hooks after status updated
+	k.Hooks().AfterStatusUpdated(ctx, status)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeInactiveStatus,
@@ -116,6 +125,9 @@ func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
 
+	// Handle the hooks after status updated
+	k.Hooks().AfterStatusUpdated(ctx, status)
+
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypePausedStatus,
 		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
@@ -133,6 +145,9 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Status = types.MEMBER_STATUS_JAIL
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
+
+	// Handle the hooks after status updated
+	k.Hooks().AfterStatusUpdated(ctx, status)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeJailStatus,

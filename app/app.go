@@ -540,9 +540,15 @@ func NewBandApp(
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AccountKeeper,
+		app.TSSKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	tssMemberModule := tssmember.NewAppModule(&app.TSSMemberKeeper)
+
+	// register TSS Hooks
+	app.TSSKeeper.SetHooks(
+		tsstypes.NewMultiStakingHooks(app.TSSMemberKeeper.Hooks()),
+	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,

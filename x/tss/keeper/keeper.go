@@ -30,6 +30,7 @@ type Keeper struct {
 	stakingKeeper     types.StakingKeeper
 	distrKeeper       types.DistrKeeper
 
+	hooks     types.TSSHooks
 	router    *types.Router
 	authority string
 }
@@ -406,6 +407,9 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)
 
+			// Handle the hooks when group is expired.
+			k.Hooks().AfterGroupFailedToActivate(ctx, group)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeExpiredGroup,
@@ -523,6 +527,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 	case types.GROUP_STATUS_FALLEN:
 		group.Status = types.GROUP_STATUS_FALLEN
 		k.SetGroup(ctx, group)
+
+		// Handle the hooks when group creation is fallen
+		k.Hooks().AfterGroupFailedToActivate(ctx, group)
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound3Failed,
@@ -536,6 +544,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		if !types.Members(members).HaveMalicious() {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
+
+			// Handle the hooks when group is ready.
+			k.Hooks().AfterGroupActivated(ctx, group)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
@@ -546,6 +558,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		} else {
 			group.Status = types.GROUP_STATUS_FALLEN
 			k.SetGroup(ctx, group)
+
+			// Handle the hooks when group creation is fallen
+			k.Hooks().AfterGroupFailedToActivate(ctx, group)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Failed,
@@ -672,6 +688,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
 
+		// Handle the hooks when group is replaced.
+		k.Hooks().AfterGroupFailedToReplace(ctx, replacement)
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeReplacementFailed,
@@ -690,6 +709,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		!bytes.Equal(newGroup.PubKey, replacement.NewPubKey) {
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
+
+		// Handle the hooks when group is replaced.
+		k.Hooks().AfterGroupFailedToReplace(ctx, replacement)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -730,6 +752,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
 	k.SetReplacement(ctx, replacement)
 
+	// Handle the hooks when group is replaced.
+	k.Hooks().AfterGroupReplaced(ctx, replacement)
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplacementSuccess,
@@ -743,4 +768,23 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// Hooks gets the hooks for staking *Keeper {
+func (k *Keeper) Hooks() types.TSSHooks {
+	if k.hooks == nil {
+		return types.MultiTSSHooks{}
+	}
+
+	return k.hooks
+}
+
+// SetHooks Set the validator hooks.  In contrast to other receivers, this method must take a pointer due to nature
+// of the hooks interface and SDK start up sequence.
+func (k *Keeper) SetHooks(sh types.TSSHooks) {
+	if k.hooks != nil {
+		panic("cannot set validator hooks twice")
+	}
+
+	k.hooks = sh
 }

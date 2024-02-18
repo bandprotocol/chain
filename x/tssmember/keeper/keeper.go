@@ -18,8 +18,10 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	paramSpace paramtypes.Subspace
 
+	tssKeeper  types.TSSKeeper
 	authKeeper types.AccountKeeper
-	authority  string
+
+	authority string
 }
 
 func NewKeeper(
@@ -27,6 +29,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
 	authKeeper types.AccountKeeper,
+	tssKeeper types.TSSKeeper,
 	authority string,
 ) Keeper {
 	// ensure TSS module account is set
@@ -39,6 +42,7 @@ func NewKeeper(
 		storeKey:   storeKey,
 		paramSpace: paramSpace,
 		authKeeper: authKeeper,
+		tssKeeper:  tssKeeper,
 		authority:  authority,
 	}
 }

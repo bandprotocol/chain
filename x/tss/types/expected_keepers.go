@@ -76,3 +76,22 @@ type DistrKeeper interface {
 	SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
 	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
 }
+
+// TSSHooks event hooks for staking validator object (noalias)
+type TSSHooks interface {
+	// Must be called when a group is ready; no error is returned due to the endblock process.
+	AfterGroupActivated(ctx sdk.Context, group Group)
+
+	// Must be called when a group cannot be created successfully or is expired; no error is returned
+	// due to the endblock process.
+	AfterGroupFailedToActivate(ctx sdk.Context, group Group)
+
+	// Must be called when a group is replaced; no error is returned due to the endblock process.
+	AfterGroupReplaced(ctx sdk.Context, replacement Replacement)
+
+	// Must be called when a group cannot be replaced; no error is returned due to the endblock process.
+	AfterGroupFailedToReplace(ctx sdk.Context, replacement Replacement)
+
+	// Must be called when a member status is updated; no error is returned due to the endblock process.
+	AfterStatusUpdated(ctx sdk.Context, status Status)
+}
