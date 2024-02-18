@@ -283,7 +283,8 @@ func (c *Client) Broadcast(key *keyring.Record, msgs []sdk.Msg, gasAdjust float6
 
 	txf := c.txFactory.WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
-		WithGasAdjustment(gasAdjust)
+		WithGasAdjustment(gasAdjust).
+		WithFromName(key.Name)
 
 	execMsg := authz.NewMsgExec(address, msgs)
 
