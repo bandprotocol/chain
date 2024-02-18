@@ -133,6 +133,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/tssmember"
+	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 const (
@@ -181,6 +184,7 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		tss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
+		tssmember.AppModuleBasic{},
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -194,6 +198,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		tsstypes.ModuleName:            nil,
+		tssmembertypes.ModuleName:      nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -296,6 +301,7 @@ func NewBandApp(
 		rollingseedtypes.StoreKey,
 		oracletypes.StoreKey,
 		tsstypes.StoreKey,
+		tssmembertypes.StoreKey,
 		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -529,6 +535,15 @@ func NewBandApp(
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
+	app.TSSMemberKeeper = tssmemberkeeper.NewKeeper(
+		appCodec,
+		keys[tsstypes.StoreKey],
+		app.GetSubspace(tsstypes.ModuleName),
+		app.AccountKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+	tssMemberModule := tssmember.NewAppModule(&app.TSSMemberKeeper)
+
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		keys[oracletypes.StoreKey],
@@ -651,6 +666,7 @@ func NewBandApp(
 		rollingseedModule,
 		oracleModule,
 		tssModule,
+		tssMemberModule,
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 
@@ -665,6 +681,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		tssmembertypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -693,6 +710,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		tssmembertypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -745,6 +763,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		tssmembertypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 

@@ -48,8 +48,10 @@ message Replacement {
   // current_pub_key is the public key pair that used for sign & verify replace group msg.
   bytes current_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // new_group_id is the ID of the new group that be a new key candidate.
-  uint64 new_group_id = 5
-      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  uint64 new_group_id = 5 [
+    (gogoproto.customname) = "NewGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // new_pub_key is the public key of the group that will be the next key of this group
   bytes new_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status is an enumeration of the possible statuses of a group replacement process.

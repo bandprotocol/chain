@@ -1,0 +1,17 @@
+syntax = "proto3";
+package tssmember.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tssmember/types";
+
+// GenesisState defines the tssmember module's genesis state.
+message GenesisState {
+  // params defines all the paramiters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// Params defines the set of module parameters.
+message Params {}

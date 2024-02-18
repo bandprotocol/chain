@@ -1,0 +1,11 @@
+syntax = "proto3";
+package tssmember.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tssmember/types";
+
+// Query defines the gRPC querier service.
+service Query {}

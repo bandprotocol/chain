@@ -87,8 +87,10 @@ message MsgReplaceGroup {
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
   // new_group_id is the ID of the group that want to replace, and subsequently remove this group.
-  uint64 new_group_id = 2
-      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  uint64 new_group_id = 2 [
+    (gogoproto.customname) = "NewGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // exec_time is the time that will be substituted in place of the group.
   google.protobuf.Timestamp exec_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
   // authority is the address that controls the module (defaults to x/gov unless overwritten).
