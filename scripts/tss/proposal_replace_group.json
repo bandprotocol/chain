@@ -1,7 +1,7 @@
 {
     "messages": [
         {
-            "@type": "/tss.v1beta1.MsgReplaceGroup",
+            "@type": "/tssmember.v1beta1.MsgReplaceGroup",
             "current_group_id": "1",
             "new_group_id": "2",
             "exec_time": "2024-02-11T17:21:00+00:00",

@@ -1,7 +1,7 @@
 {
     "messages": [
         {
-            "@type": "/tss.v1beta1.MsgCreateGroup",
+            "@type": "/tssmember.v1beta1.MsgCreateGroup",
             "members": [
                 "band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q",
                 "band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5",
