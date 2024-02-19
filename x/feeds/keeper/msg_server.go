@@ -96,6 +96,16 @@ func (ms msgServer) SignalSymbols(
 		} else {
 			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
 		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeSignalSymbols,
+				sdk.NewAttribute(types.AttributeKeyDelegator, req.Delegator),
+				sdk.NewAttribute(types.AttributeKeySymbol, signal.Symbol),
+				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
+				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
+			),
+		)
 	}
 
 	// update interval timestamp for interval-changed symbols
