@@ -44,15 +44,10 @@ message Params {
   uint64 creating_period = 3;
   // signing_period is the number of blocks allowed to sign.
   uint64 signing_period = 4;
-  // active_duration is the duration where a member can be active without interaction.
-  google.protobuf.Duration active_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
-  google.protobuf.Duration inactive_penalty_duration = 6 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  google.protobuf.Duration inactive_penalty_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // jail_penalty_duration is the duration where a member cannot activate back after jail.
-  google.protobuf.Duration jail_penalty_duration = 7 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
-  // oracle rewards.
-  uint64 reward_percentage = 8 [(gogoproto.customname) = "RewardPercentage"];
+  google.protobuf.Duration jail_penalty_duration = 6 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
 }
 
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.

@@ -94,4 +94,13 @@ type TSSHooks interface {
 
 	// Must be called when a member status is updated; no error is returned due to the endblock process.
 	AfterStatusUpdated(ctx sdk.Context, status Status)
+
+	// Must be called when a signing request is unsuccessfully signed.
+	AfterSigningFailed(ctx sdk.Context, signing Signing)
+
+	// Must be called when a signing request is successfully signed by selected members.
+	AfterSigningCompleted(ctx sdk.Context, signing Signing)
+
+	// Must be called when a signing request is initiated.
+	AfterSigningInitiated(ctx sdk.Context, signing Signing) error
 }

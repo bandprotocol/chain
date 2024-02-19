@@ -475,8 +475,6 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 		// Set the signing status to expired
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			k.RefundFee(ctx, signing)
-
 			mids := signing.AssignedMembers.MemberIDs()
 			pzs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
 			// Iterate through each member ID in the assigned members list.
@@ -494,6 +492,9 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
+
+			// Handle hooks after signing failed
+			k.Hooks().AfterSigningFailed(ctx, signing)
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -534,14 +535,8 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing.Status = types.SIGNING_STATUS_SUCCESS
 	k.SetSigning(ctx, signing)
 
-	for _, am := range signing.AssignedMembers {
-		address := sdk.MustAccAddressFromBech32(am.Address)
-		// Error is not possible
-		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee)
-		if err != nil {
-			panic(err)
-		}
-	}
+	// Handle hooks after signing completed.
+	k.Hooks().AfterSigningCompleted(ctx, signing)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -558,7 +553,8 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	signing.Status = types.SIGNING_STATUS_FALLEN
 	k.SetSigning(ctx, signing)
 
-	k.RefundFee(ctx, signing)
+	// Handle hooks after signing failed
+	k.Hooks().AfterSigningFailed(ctx, signing)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -568,18 +564,6 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 			sdk.NewAttribute(types.AttributeKeyReason, reason),
 		),
 	)
-}
-
-func (k Keeper) RefundFee(ctx sdk.Context, signing types.Signing) {
-	if !signing.Fee.IsZero() {
-		address := sdk.MustAccAddressFromBech32(signing.Requester)
-		feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-		// Error is not possible
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
-		if err != nil {
-			panic(err)
-		}
-	}
 }
 
 // handleRequestSign initiates the signing process by requesting signatures from assigned members.
@@ -636,27 +620,23 @@ func (k Keeper) handleRequestSign(
 		for _, fc := range feeCoins {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return 0, errors.Wrapf(
-					types.ErrNotEnoughFee,
+				return 0, types.ErrNotEnoughFee.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),
 					fc.Denom,
 				)
 			}
-
-			// Send coin to module account
-			if !group.Fee.IsZero() {
-				err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, feeCoins)
-				if err != nil {
-					return 0, err
-				}
-			}
 		}
 	}
 
 	// Add signing
 	signingID := k.AddSigning(ctx, signing)
+
+	// Handle hooks after signing initiated.
+	if err := k.Hooks().AfterSigningInitiated(ctx, signing); err != nil {
+		return 0, err
+	}
 
 	event := sdk.NewEvent(
 		types.EventTypeRequestSignature,

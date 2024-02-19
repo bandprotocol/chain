@@ -527,9 +527,6 @@ func NewBandApp(
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
 		app.AccountKeeper,
-		app.BankKeeper,
-		app.StakingKeeper,
-		app.DistrKeeper,
 		tssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -540,8 +537,12 @@ func NewBandApp(
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
 		app.TSSKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.FeeCollectorName,
 	)
 	tssMemberModule := tssmember.NewAppModule(&app.TSSMemberKeeper)
 

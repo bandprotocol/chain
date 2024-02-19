@@ -80,8 +80,8 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 
 	return &types.CreateGroupResult{}, nil
 }
-func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
 
+func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
 	if k.authority != input.Authority {
 		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, input.Authority)
 	}

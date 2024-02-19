@@ -809,7 +809,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+					s.app.TSSMemberKeeper.GetTSSMemberAccount(ctx).GetAddress(),
 				)
 
 				msg, err := types.NewMsgRequestSignature(
@@ -827,7 +827,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+					s.app.TSSMemberKeeper.GetTSSMemberAccount(ctx).GetAddress(),
 				)
 
 				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))
@@ -917,6 +917,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			)
 			s.Require().NoError(err)
 			_, err = msgSrvr.RequestSignature(ctx, msg)
+			s.T().Log(err)
 			s.Require().NoError(err)
 
 			// Get the signing information
@@ -1048,10 +1049,8 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 					MaxDESize:               types.DefaultMaxDESize,
 					CreatingPeriod:          types.DefaultCreatingPeriod,
 					SigningPeriod:           types.DefaultSigningPeriod,
-					ActiveDuration:          types.DefaultActiveDuration,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
-					RewardPercentage:        types.DefaultRewardPercentage,
 				},
 			},
 			expectErr: false,

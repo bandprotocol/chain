@@ -26,9 +26,6 @@ type Keeper struct {
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
 	authKeeper        types.AccountKeeper
-	bankKeeper        types.BankKeeper
-	stakingKeeper     types.StakingKeeper
-	distrKeeper       types.DistrKeeper
 
 	hooks     types.TSSHooks
 	router    *types.Router
@@ -43,9 +40,6 @@ func NewKeeper(
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
 	authKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	stakingKeeper types.StakingKeeper,
-	distrKeeper types.DistrKeeper,
 	rtr *types.Router,
 	authority string,
 ) Keeper {
@@ -62,9 +56,6 @@ func NewKeeper(
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
 		authKeeper:        authKeeper,
-		bankKeeper:        bankKeeper,
-		stakingKeeper:     stakingKeeper,
-		distrKeeper:       distrKeeper,
 		router:            rtr,
 		authority:         authority,
 	}

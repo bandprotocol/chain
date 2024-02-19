@@ -42,3 +42,25 @@ func (h MultiTSSHooks) AfterStatusUpdated(ctx sdk.Context, status Status) {
 		h[i].AfterStatusUpdated(ctx, status)
 	}
 }
+
+func (h MultiTSSHooks) AfterSigningFailed(ctx sdk.Context, signing Signing) {
+	for i := range h {
+		h[i].AfterSigningFailed(ctx, signing)
+	}
+}
+
+func (h MultiTSSHooks) AfterSigningCompleted(ctx sdk.Context, signing Signing) {
+	for i := range h {
+		h[i].AfterSigningCompleted(ctx, signing)
+	}
+}
+
+func (h MultiTSSHooks) AfterSigningInitiated(ctx sdk.Context, signing Signing) error {
+	for i := range h {
+		if err := h[i].AfterSigningInitiated(ctx, signing); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

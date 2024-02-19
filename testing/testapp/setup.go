@@ -47,6 +47,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -346,6 +347,14 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
 			Coins:   Coins100000000token,
 		},
+		{
+			Address: authtypes.NewModuleAddress(tssmembertypes.ModuleName).String(),
+			Coins:   Coins100000000uband,
+		},
+		{
+			Address: authtypes.NewModuleAddress(tssmembertypes.ModuleName).String(),
+			Coins:   Coins100000000token,
+		},
 	}
 	totalSupply := sdk.NewCoins()
 	for idx := 0; idx < len(balances)-len(validators); idx++ {
@@ -562,6 +571,10 @@ func SetupWithGenesisValSet(
 	// Add tss genesis
 	tssGenesis := tsstypes.DefaultGenesisState()
 	genesisState[tsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(tssGenesis)
+
+	// Add tssmember genesis
+	tssMemberGenesis := tssmembertypes.DefaultGenesisState()
+	genesisState[tssmembertypes.ModuleName] = app.AppCodec().MustMarshalJSON(tssMemberGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)

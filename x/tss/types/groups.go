@@ -3,8 +3,9 @@ package types
 import (
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 type CreateGroupInput struct {
