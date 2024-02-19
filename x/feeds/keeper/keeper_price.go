@@ -90,9 +90,10 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, _ bool) (ty
 					if priceVal.Timestamp > lastTime {
 						lastTime = priceVal.Timestamp
 					}
-					if symbol.LastIntervalUpdateTimestamp+transitionTime > lastTime {
-						lastTime = symbol.LastIntervalUpdateTimestamp + transitionTime
-					}
+				}
+
+				if symbol.LastIntervalUpdateTimestamp+transitionTime > lastTime {
+					lastTime = symbol.LastIntervalUpdateTimestamp + transitionTime
 				}
 
 				// deactivate if last time of action is too old
