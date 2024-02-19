@@ -6,32 +6,24 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}
-
-// Route Implements Msg.
-func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgSignalSymbols) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgSignalSymbols) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
-}
-
-// ValidateBasic does a check on the provided data.
-func (m *MsgSignalSymbols) ValidateBasic() error {
-	return nil
-}
+var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSignalSymbols{}
 
 // ====================================
 // MsgSubmitPrices
 // ====================================
+
+// NewMsgSubmitPrices creates a new MsgSubmitPrices instance.
+func NewMsgSubmitPrices(
+	validator string,
+	timestamp int64,
+	prices []SubmitPrice,
+) *MsgSubmitPrices {
+	return &MsgSubmitPrices{
+		Validator: validator,
+		Timestamp: timestamp,
+		Prices:    prices,
+	}
+}
 
 // Route Implements Msg.
 func (m MsgSubmitPrices) Route() string { return sdk.MsgTypeURL(&m) }
@@ -68,6 +60,17 @@ func (m *MsgSubmitPrices) ValidateBasic() error {
 // MsgUpdateParams
 // ====================================
 
+// NewMsgUpdateParams creates a new MsgUpdateParams instance.
+func NewMsgUpdateParams(
+	authority string,
+	params Params,
+) *MsgUpdateParams {
+	return &MsgUpdateParams{
+		Authority: authority,
+		Params:    params,
+	}
+}
+
 // Route Implements Msg.
 func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
 
@@ -101,6 +104,17 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // MsgUpdatePriceService
 // ====================================
 
+// NewMsgUpdatePriceService creates a new MsgUpdatePriceService instance.
+func NewMsgUpdatePriceService(
+	admin string,
+	priceService PriceService,
+) *MsgUpdatePriceService {
+	return &MsgUpdatePriceService{
+		Admin:        admin,
+		PriceService: priceService,
+	}
+}
+
 // Route Implements Msg.
 func (m MsgUpdatePriceService) Route() string { return sdk.MsgTypeURL(&m) }
 
@@ -127,5 +141,41 @@ func (m *MsgUpdatePriceService) ValidateBasic() error {
 		return err
 	}
 
+	return nil
+}
+
+// ====================================
+// MsgSignalSymbols
+// ====================================
+
+// NewMsgSignalSymbols creates a new MsgSignalSymbols instance.
+func NewMsgSignalSymbols(
+	delegator string,
+	signals []Signal,
+) *MsgSignalSymbols {
+	return &MsgSignalSymbols{
+		Delegator: delegator,
+		Signals:   signals,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type Implements Msg.
+func (m MsgSignalSymbols) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgSignalSymbols) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
+}
+
+// ValidateBasic does a check on the provided data.
+func (m *MsgSignalSymbols) ValidateBasic() error {
 	return nil
 }
