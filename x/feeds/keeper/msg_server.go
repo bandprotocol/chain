@@ -134,7 +134,7 @@ func (ms msgServer) SubmitPrices(
 		}
 	}
 	if !isInTop {
-		return nil, types.ErrInvalidTimestamp
+		return nil, types.ErrNotTopValidator
 	}
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)

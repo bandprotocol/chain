@@ -57,7 +57,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
 	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(symbol))
 }
 
-func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, _ bool) (types.Price, error) {
+func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Price, error) {
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 	transitionTime := k.GetParams(ctx).TransitionTime
@@ -120,7 +120,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol, _ bool) (ty
 	}, nil
 }
 
-// ==================================go
+// ==================================
 // Price validator
 // ==================================
 
