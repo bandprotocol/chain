@@ -28,7 +28,7 @@ service Msg {
 // MsgCreateGroup is the Msg/CreateGroup request type.
 message MsgCreateGroup {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "tss/MsgCreateGroup";
+  option (amino.name)           = "tssmember/MsgCreateGroup";
 
   // members is a list of members in this group.
   repeated string members = 1;
@@ -47,7 +47,7 @@ message MsgCreateGroupResponse {}
 // MsgReplaceGroup is the Msg/ReplaceGroup request type.
 message MsgReplaceGroup {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "tss/MsgReplaceGroup";
+  option (amino.name)           = "tssmember/MsgReplaceGroup";
 
   // current_group_id is the ID of the group that will be replaced.
   uint64 current_group_id = 1 [
@@ -71,7 +71,7 @@ message MsgReplaceGroupResponse {}
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "tss/MsgUpdateParams";
+  option (amino.name)           = "tssmember/MsgUpdateParams";
 
   // params defines the x/tss parameters to update.
   Params params = 1 [(gogoproto.nullable) = false];
