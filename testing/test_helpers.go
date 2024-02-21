@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -193,9 +194,12 @@ func CreateTestApp(t *testing.T, autoActivate bool) (*TestingApp, sdk.Context) {
 	app := setupWithGenesis(t, Validators, acc, ChainID, balances...)
 	ctx := app.NewContext(isCheckTx, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
-		app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
-		app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		err := app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
+		require.NoError(t, err)
+		err = app.OracleKeeper.Activate(ctx, Validators[1].ValAddress)
+		require.NoError(t, err)
+		err = app.OracleKeeper.Activate(ctx, Validators[2].ValAddress)
+		require.NoError(t, err)
 	}
 
 	return &TestingApp{app}, ctx
@@ -425,7 +429,7 @@ func generateGenesisState(
 	validators := make([]stakingtypes.Validator, 0, len(valSet))
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(valSet))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet))
-	bamt := []sdk.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []sdkmath.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
 	for idx, val := range valSet {
 		tmpk, err := cryptocodec.ToTmPubKeyInterface(val.PubKey)
 		if err != nil {
