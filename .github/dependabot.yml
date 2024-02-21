@@ -1,0 +1,25 @@
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+    - package-ecosystem: github-actions
+      directory: "/"
+      schedule:
+          interval: daily
+          time: "03:00"
+
+    - package-ecosystem: gomod
+      directory: "/"
+      schedule:
+          interval: daily
+          time: "03:05"
+      groups:
+          cosmos-sdk:
+              patterns:
+                  - "github.com/cosmos/*"
+              update-types:
+                  - "patch"
+      labels:
+          - "A:automerge"
+          - dependencies
