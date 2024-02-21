@@ -511,26 +511,11 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 		// Set the signing status to expired
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			mids := signing.AssignedMembers.MemberIDs()
-			pzs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
-			// Iterate through each member ID in the assigned members list.
-			for _, mid := range mids {
-				// Check if the member's partial signature is found in the list of partial signatures.
-				found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
-
-				// If the partial signature is not found, deactivate the member
-				if !found {
-					member := k.MustGetMember(ctx, signing.GroupID, mid)
-					accAddress := sdk.MustAccAddressFromBech32(member.Address)
-					k.SetInactiveStatus(ctx, accAddress)
-				}
-			}
+			// Handle hooks before setting signing to be expired
+			k.Hooks().AfterSigningFailed(ctx, signing)
 
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
-
-			// Handle hooks after signing failed
-			k.Hooks().AfterSigningFailed(ctx, signing)
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -549,6 +534,29 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)
 	}
+}
+
+func (k Keeper) GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing types.Signing) ([]sdk.AccAddress, error) {
+	pzs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
+	var penalizedMembers []sdk.AccAddress
+
+	mids := signing.AssignedMembers.MemberIDs()
+	for _, mid := range mids {
+		// Check if the member sends partial signature. If found, skip this member.
+		found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
+		if found {
+			continue
+		}
+
+		member := k.MustGetMember(ctx, signing.GroupID, mid)
+		accAddress, err := sdk.AccAddressFromBech32(member.Address)
+		if err != nil {
+			return nil, err
+		}
+		penalizedMembers = append(penalizedMembers, accAddress)
+	}
+
+	return penalizedMembers, nil
 }
 
 func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {

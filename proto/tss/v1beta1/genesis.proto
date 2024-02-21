@@ -31,7 +31,7 @@ message GenesisState {
   // des_genesis is an array containing the des of all the addressres.
   repeated DEGenesis des_genesis = 10 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
   // statuses is an array containing status of all addresses
-  repeated Status statuses = 11 [(gogoproto.nullable) = false];
+  repeated StatusGenesis statuses_genesis = 11;
 }
 
 // Params defines the set of module parameters.
@@ -42,10 +42,6 @@ message Params {
   uint64 creating_period = 2;
   // signing_period is the number of blocks allowed to sign.
   uint64 signing_period = 3;
-  // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
-  google.protobuf.Duration inactive_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // jail_penalty_duration is the duration where a member cannot activate back after jail.
-  google.protobuf.Duration jail_penalty_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
 }
 
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.
@@ -57,3 +53,13 @@ message DEGenesis {
   // de defines the difference de this balance holds.
   DE de = 3 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
 }
+
+
+// StatusGenesis defines an account address and status .
+message StatusGenesis {
+  // address is the address of the de holder.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // status defines the status of the address.
+  bool status = 2;
+}
+

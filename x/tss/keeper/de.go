@@ -130,16 +130,8 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 
 	k.SetDEQueue(ctx, deQueue)
 
-	status := k.GetStatus(ctx, address)
-	if status.Status == types.MEMBER_STATUS_PAUSED {
-		left := k.GetDECount(ctx, address)
-		if left > 0 {
-			err := k.SetActiveStatus(ctx, address)
-			if err != nil {
-				return err
-			}
-		}
-	}
+	// Handle hooks after setting DEs.
+	k.Hooks().AfterHandleSetDEs(ctx, address)
 
 	return nil
 }
@@ -182,11 +174,9 @@ func (k Keeper) HandleAssignedMembersPollDE(
 			return nil, err
 		}
 
-		left := k.GetDECount(ctx, accMember)
-		if left == 0 {
-			// If the member run out of DE, mark paused status for this member.
-			accAddress := sdk.MustAccAddressFromBech32(member.Address)
-			k.SetPausedStatus(ctx, accAddress)
+		// Handle hooks after polling DE.
+		if err := k.Hooks().AfterPollDE(ctx, accMember); err != nil {
+			return nil, err
 		}
 
 		assignedMembers = append(assignedMembers, types.AssignedMember{

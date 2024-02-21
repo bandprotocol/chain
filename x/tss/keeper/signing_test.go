@@ -516,11 +516,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	})
 
 	// Set status
-	k.SetMemberStatus(ctx, types.Status{
-		Address: testapp.Alice.Address.String(),
-		Status:  types.MEMBER_STATUS_ACTIVE,
-		Since:   ctx.BlockTime(),
-	})
+	k.SetMemberStatus(ctx, testapp.Alice.Address, false)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{
@@ -546,7 +542,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
 	gotStatus := k.GetStatus(ctx, testapp.Alice.Address)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
+	s.Require().Equal(false, gotStatus)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 	gotPZs := k.GetPartialSignatures(ctx, signingID)

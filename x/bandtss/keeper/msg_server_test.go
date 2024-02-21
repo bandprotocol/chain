@@ -11,9 +11,9 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 type TestCase struct {
@@ -427,9 +427,11 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					MaxGroupSize:     types.DefaultMaxGroupSize,
-					ActiveDuration:   types.DefaultActiveDuration,
-					RewardPercentage: types.DefaultRewardPercentage,
+					MaxGroupSize:            types.DefaultMaxGroupSize,
+					ActiveDuration:          types.DefaultActiveDuration,
+					RewardPercentage:        types.DefaultRewardPercentage,
+					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
 				},
 			},
 			expectErr: false,

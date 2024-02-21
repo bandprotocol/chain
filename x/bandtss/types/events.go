@@ -7,6 +7,9 @@ const (
 	EventTypeReplacement      = "replacement"
 	EventTypeRequestSignature = "request_signature"
 	EventTypeUpdateGroupFee   = "update_group_fee"
+	EventTypeInactiveStatus   = "inactive_status"
+	EventTypePausedStatus     = "paused_status"
+	EventTypeJailStatus       = "jail_status"
 
 	AttributeKeyAddress       = "address"
 	AttributeKeyBindingFactor = "binding_factor"

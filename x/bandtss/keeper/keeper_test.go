@@ -63,11 +63,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			s.app.TSSKeeper.SetMemberStatus(ctx, tsstypes.Status{
-				Address: address.String(),
-				Status:  tsstypes.MEMBER_STATUS_ACTIVE,
-				Since:   ctx.BlockTime(),
-			})
+			s.app.TSSKeeper.SetMemberStatus(ctx, address, true)
 		}
 
 		// Create group
@@ -201,9 +197,11 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				MaxGroupSize:     0,
-				ActiveDuration:   time.Duration(0),
-				RewardPercentage: 0,
+				MaxGroupSize:            0,
+				ActiveDuration:          time.Duration(0),
+				InactivePenaltyDuration: time.Duration(0),
+				JailPenaltyDuration:     time.Duration(0),
+				RewardPercentage:        0,
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -211,9 +209,11 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				MaxGroupSize:     types.DefaultMaxGroupSize,
-				ActiveDuration:   types.DefaultActiveDuration,
-				RewardPercentage: types.DefaultRewardPercentage,
+				MaxGroupSize:            types.DefaultMaxGroupSize,
+				ActiveDuration:          types.DefaultActiveDuration,
+				RewardPercentage:        types.DefaultRewardPercentage,
+				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
 			},
 			expectErr: false,
 		},

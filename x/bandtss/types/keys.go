@@ -1,5 +1,7 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 const (
 	// module name
 	ModuleName = "bandtss"
@@ -21,4 +23,11 @@ var (
 
 	// ParamsKeyPrefix is a prefix for keys that store TSSMember's parameters
 	ParamsKeyPrefix = []byte{0x01}
+
+	// StatusStoreKeyPrefix is the prefix for status store.
+	StatusStoreKeyPrefix = []byte{0x02}
 )
+
+func StatusStoreKey(address sdk.AccAddress) []byte {
+	return append(StatusStoreKeyPrefix, address...)
+}

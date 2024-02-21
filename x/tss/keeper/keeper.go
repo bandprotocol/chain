@@ -315,8 +315,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
 		address := sdk.MustAccAddressFromBech32(member.Address)
-		status := k.GetStatus(ctx, address)
-		if status.Status == types.MEMBER_STATUS_ACTIVE {
+		if isActive := k.GetStatus(ctx, address); isActive {
 			members = append(members, member)
 		}
 	}
@@ -367,39 +366,12 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
-			members, err := k.GetGroupMembers(ctx, group.ID)
-			if err != nil {
-				// should not happen
-				panic(err)
-			}
-			for _, member := range members {
-				address := sdk.MustAccAddressFromBech32(member.Address)
-				switch group.Status {
-				case types.GROUP_STATUS_ROUND_1:
-					_, err := k.GetRound1Info(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				case types.GROUP_STATUS_ROUND_2:
-					_, err := k.GetRound2Info(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				case types.GROUP_STATUS_ROUND_3:
-					err := k.checkConfirmOrComplain(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				default:
-				}
-			}
+			// Handle the hooks before setting group to be expired.
+			k.Hooks().BeforeSetGroupExpired(ctx, group)
 
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)
-
-			// Handle the hooks when group is expired.
-			k.Hooks().AfterGroupFailedToActivate(ctx, group)
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -418,43 +390,23 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 }
 
 // SetMemberStatus sets a status of a member of the group in the store.
-func (k Keeper) SetMemberStatus(ctx sdk.Context, status types.Status) {
-	address := sdk.MustAccAddressFromBech32(status.Address)
-	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), k.cdc.MustMarshal(&status))
-}
+func (k Keeper) SetMemberStatus(ctx sdk.Context, address sdk.AccAddress, status bool) {
+	value := uint64(0)
+	if status {
+		value = 1
+	}
 
-// GetStatusesIterator gets an iterator all statuses of address.
-func (k Keeper) GetStatusesIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StatusStoreKeyPrefix)
+	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), sdk.Uint64ToBigEndian(value))
 }
 
 // GetStatus retrieves a status of the address.
-func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) types.Status {
+func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) bool {
 	bz := ctx.KVStore(k.storeKey).Get(types.StatusStoreKey(address))
 	if bz == nil {
-		return types.Status{
-			Address: address.String(),
-			Status:  types.MEMBER_STATUS_UNSPECIFIED,
-			Since:   time.Time{},
-		}
+		return false
 	}
 
-	status := types.Status{}
-	k.cdc.MustUnmarshal(bz, &status)
-	return status
-}
-
-// GetStatuses retrieves all statuses of the store.
-func (k Keeper) GetStatuses(ctx sdk.Context) []types.Status {
-	var statuses []types.Status
-	iterator := k.GetStatusesIterator(ctx)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var status types.Status
-		k.cdc.MustUnmarshal(iterator.Value(), &status)
-		statuses = append(statuses, status)
-	}
-	return statuses
+	return sdk.BigEndianToUint64(bz) != 0
 }
 
 // DeleteStatus removes the status of the address of the group

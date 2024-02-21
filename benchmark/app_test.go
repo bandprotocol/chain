@@ -224,7 +224,8 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 }
 
 func (ba *BenchmarkApp) SetupTSSGroup() {
-	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
+	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
+	k, bandTssKeeper := ba.TestingApp.TSSKeeper, ba.TestingApp.BandTSSKeeper
 
 	// force address to owner
 	owner := ba.Sender.Address.String()
@@ -241,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := k.SetActiveStatus(ctx, ba.Sender.Address)
+			err := bandTssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 

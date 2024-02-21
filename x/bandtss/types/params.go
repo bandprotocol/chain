@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	DefaultMaxGroupSize                 = uint64(20)
-	DefaultActiveDuration time.Duration = time.Hour * 24 // 1 days
+	DefaultMaxGroupSize                          = uint64(20)
+	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
+	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
+	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
 	// compute the TSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
 	// the TSS reward will be determined from the remaining 60%.
 	DefaultRewardPercentage = uint64(50)
@@ -18,20 +20,26 @@ func NewParams(
 	maxGroupSize uint64,
 	activeDuration time.Duration,
 	rewardPercentage uint64,
+	inactivePenaltyDuration time.Duration,
+	jailPenaltyDuration time.Duration,
 ) Params {
 	return Params{
-		MaxGroupSize:     maxGroupSize,
-		ActiveDuration:   activeDuration,
-		RewardPercentage: rewardPercentage,
+		MaxGroupSize:            maxGroupSize,
+		ActiveDuration:          activeDuration,
+		RewardPercentage:        rewardPercentage,
+		InactivePenaltyDuration: inactivePenaltyDuration,
+		JailPenaltyDuration:     jailPenaltyDuration,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
-		MaxGroupSize:     DefaultMaxGroupSize,
-		ActiveDuration:   DefaultActiveDuration,
-		RewardPercentage: DefaultRewardPercentage,
+		MaxGroupSize:            DefaultMaxGroupSize,
+		ActiveDuration:          DefaultActiveDuration,
+		RewardPercentage:        DefaultRewardPercentage,
+		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
+		JailPenaltyDuration:     DefaultJailPenaltyDuration,
 	}
 }
 
@@ -42,6 +50,14 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateTimeDuration("active duration")(p.ActiveDuration); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("inactive penalty duration")(p.InactivePenaltyDuration); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("jail penalty duration")(p.JailPenaltyDuration); err != nil {
 		return err
 	}
 

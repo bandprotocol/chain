@@ -11,11 +11,13 @@ var (
 	ErrUnexpectedThreshold   = errors.Register(ModuleName, 4, "threshold value is unexpected")
 	ErrBadDrbgInitialization = errors.Register(ModuleName, 5, "bad drbg initialization")
 
-	ErrStatusIsNotActive = errors.Register(ModuleName, 6, "status is not active")
+	ErrInvalidStatus     = errors.Register(ModuleName, 6, "invalid status")
+	ErrStatusIsNotActive = errors.Register(ModuleName, 7, "status is not active")
+	ErrTooSoonToActivate = errors.Register(ModuleName, 8, "too soon to activate")
 
-	ErrRequestReplacementFailed = errors.Register(ModuleName, 7, "failed to request replacement")
+	ErrRequestReplacementFailed = errors.Register(ModuleName, 9, "failed to request replacement")
 
-	ErrNotEnoughFee                  = errors.Register(ModuleName, 8, "not enough fee")
-	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 9, "failed to handle signature order")
-	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 10, "no handler exists for signature order type")
+	ErrNotEnoughFee                  = errors.Register(ModuleName, 10, "not enough fee")
+	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 11, "failed to handle signature order")
+	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 12, "no handler exists for signature order type")
 )

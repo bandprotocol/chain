@@ -53,8 +53,8 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, tssmemberKeeper := s.ctx, s.app.BandTSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&tssmemberKeeper)
+	ctx, bandTSSKeeper, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&bandTSSKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -64,11 +64,12 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			s.app.TSSKeeper.SetMemberStatus(ctx, types.Status{
+			bandTSSKeeper.SetMemberStatus(ctx, bandtsstypes.Status{
 				Address: address.String(),
-				Status:  types.MEMBER_STATUS_ACTIVE,
+				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
 			})
+			tssKeeper.SetMemberStatus(ctx, address, true)
 		}
 
 		// Create group
@@ -699,11 +700,9 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				MaxDESize:               0,
-				CreatingPeriod:          1,
-				SigningPeriod:           1,
-				InactivePenaltyDuration: time.Duration(0),
-				JailPenaltyDuration:     time.Duration(0),
+				MaxDESize:      0,
+				CreatingPeriod: 1,
+				SigningPeriod:  1,
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -711,11 +710,9 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				MaxDESize:               types.DefaultMaxDESize,
-				CreatingPeriod:          types.DefaultCreatingPeriod,
-				SigningPeriod:           types.DefaultSigningPeriod,
-				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+				MaxDESize:      types.DefaultMaxDESize,
+				CreatingPeriod: types.DefaultCreatingPeriod,
+				SigningPeriod:  types.DefaultSigningPeriod,
 			},
 			expectErr: false,
 		},

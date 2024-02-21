@@ -40,10 +40,6 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		address := sdk.MustAccAddressFromBech32(de.Address)
 		k.SetDE(ctx, address, de.Index, de.DE)
 	}
-
-	for _, status := range data.Statuses {
-		k.SetMemberStatus(ctx, status)
-	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -59,6 +55,5 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Replacements:     k.GetReplacements(ctx),
 		DEQueues:         k.GetDEQueues(ctx),
 		DEsGenesis:       k.GetDEsGenesis(ctx),
-		Statuses:         k.GetStatuses(ctx),
 	}
 }

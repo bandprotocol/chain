@@ -83,8 +83,8 @@ func (k msgServer) CreateGroup(
 			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 		}
 
-		status := k.tssKeeper.GetStatus(ctx, address)
-		if status.Status != tsstypes.MEMBER_STATUS_ACTIVE {
+		status := k.GetStatus(ctx, address)
+		if status.Status != types.MEMBER_STATUS_ACTIVE {
 			return nil, types.ErrStatusIsNotActive
 		}
 	}
@@ -242,7 +242,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 	}
 
-	if err = k.tssKeeper.SetActiveStatus(ctx, address); err != nil {
+	if err = k.SetActiveStatus(ctx, address); err != nil {
 		return nil, err
 	}
 
@@ -265,7 +265,7 @@ func (k msgServer) HealthCheck(
 		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 	}
 
-	if err = k.tssKeeper.SetLastActive(ctx, address); err != nil {
+	if err = k.SetLastActive(ctx, address); err != nil {
 		return nil, err
 	}
 

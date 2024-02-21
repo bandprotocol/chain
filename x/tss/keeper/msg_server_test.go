@@ -664,11 +664,9 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					MaxDESize:               types.DefaultMaxDESize,
-					CreatingPeriod:          types.DefaultCreatingPeriod,
-					SigningPeriod:           types.DefaultSigningPeriod,
-					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+					MaxDESize:      types.DefaultMaxDESize,
+					CreatingPeriod: types.DefaultCreatingPeriod,
+					SigningPeriod:  types.DefaultSigningPeriod,
 				},
 			},
 			expectErr: false,

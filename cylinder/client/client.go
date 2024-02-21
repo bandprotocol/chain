@@ -23,6 +23,7 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -166,10 +167,10 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 
 // QueryStatus queries the status information of the given address.
 // It returns the de response or an error.
-func (c *Client) QueryStatus(address string) (*types.Status, error) {
-	queryClient := types.NewQueryClient(c.context)
+func (c *Client) QueryStatus(address string) (*bandtsstypes.Status, error) {
+	queryClient := bandtsstypes.NewQueryClient(c.context)
 
-	res, err := queryClient.Status(context.Background(), &types.QueryStatusRequest{
+	res, err := queryClient.Status(context.Background(), &bandtsstypes.QueryStatusRequest{
 		Address: address,
 	})
 	if err != nil {

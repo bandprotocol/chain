@@ -12,6 +12,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -95,7 +96,7 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	})
 	s.Require().NoError(err)
 
-	err = tssKeeper.SetActiveStatus(ctx, testapp.Validators[1].Address)
+	err = k.SetActiveStatus(ctx, testapp.Validators[1].Address)
 	s.Require().NoError(err)
 
 	k.AllocateTokens(ctx, defaultVotes())
@@ -159,21 +160,21 @@ func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 }
 
 func (s *KeeperTestSuite) TestHandleInactiveValidators() {
-	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.BandTSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := testapp.Validators[0].Address
 
-	status := tsstypes.Status{
-		Status:     tsstypes.MEMBER_STATUS_ACTIVE,
+	status := types.Status{
+		Status:     types.MEMBER_STATUS_ACTIVE,
 		Address:    address.String(),
 		Since:      time.Time{},
 		LastActive: time.Time{},
 	}
-	tssKeeper.SetMemberStatus(ctx, status)
+	k.SetMemberStatus(ctx, status)
 	ctx = ctx.WithBlockTime(time.Now())
 
 	k.HandleInactiveValidators(ctx)
 
-	status = tssKeeper.GetStatus(ctx, address)
-	s.Require().Equal(tsstypes.MEMBER_STATUS_INACTIVE, status.Status)
+	status = k.GetStatus(ctx, address)
+	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
 }

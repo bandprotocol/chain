@@ -26,8 +26,8 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
+	ctx, q, k, bandTSSKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandTSSKeeper
+	bandTSSMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -40,7 +40,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		err := k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
+		err := bandTSSKeeper.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
 		s.Require().NoError(err)
 
 		err = k.HandleSetDEs(ctx, address, []types.DE{
@@ -125,7 +125,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	_, err := tssmemberMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
+	_, err := bandTSSMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),
@@ -222,33 +222,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							IsMalicious: false,
 						},
 					},
-					Statuses: []types.Status{
-						{
-							Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-					},
+					IsActives: []bool{true, true, true, true, true},
 					Round1Infos: []types.Round1Info{
 						round1Info1,
 						round1Info2,
@@ -752,46 +726,6 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			tc.malleate()
 
 			res, err := q.Signing(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
-	ctx, q := s.ctx, s.queryClient
-
-	var req types.QueryStatusesRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryStatusesResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryStatusesRequest{}
-			},
-			true,
-			func(res *types.QueryStatusesResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Len(res.Statuses, 3)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Statuses(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {

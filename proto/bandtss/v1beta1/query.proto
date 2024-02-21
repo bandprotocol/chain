@@ -4,8 +4,47 @@ package bandtss.v1beta1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
+import "bandtss/v1beta1/bandtss.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 
 // Query defines the gRPC querier service.
-service Query {}
+service Query {
+  // Statuses queries all statuses.
+  rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/statuses";
+  }
+
+  // Status queries the status of the address.
+  rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/statuses/{address}";
+  }
+}
+
+// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
+message QueryStatusesRequest {
+  // status define filter on statuses
+  MemberStatus status = 1;
+  // pagination defines pagination settings for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
+message QueryStatusesResponse {
+  // statuses is the statuses request.
+  repeated Status statuses = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryStatusRequest is the request type for the Query/Status RPC method.
+message QueryStatusRequest {
+  // address is the member address.
+  string address = 1;
+}
+
+// QueryStatusResponse is the response type for the Query/Status RPC method.
+message QueryStatusResponse {
+  // status is the status request.
+  Status status = 1 [(gogoproto.nullable) = false];
+}

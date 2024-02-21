@@ -103,3 +103,36 @@ func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Grou
 
 	return group, nil
 }
+
+func (k Keeper) GetPenalizedMembersExpiredGroup(ctx sdk.Context, group types.Group) ([]sdk.AccAddress, error) {
+	members, err := k.GetGroupMembers(ctx, group.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var penalizedMembers []sdk.AccAddress
+	for _, m := range members {
+		address := sdk.MustAccAddressFromBech32(m.Address)
+
+		// query if the member send a message, if not then penalize.
+		switch group.Status {
+		case types.GROUP_STATUS_ROUND_1:
+			_, err := k.GetRound1Info(ctx, group.ID, m.ID)
+			if err != nil {
+				penalizedMembers = append(penalizedMembers, address)
+			}
+		case types.GROUP_STATUS_ROUND_2:
+			_, err := k.GetRound2Info(ctx, group.ID, m.ID)
+			if err != nil {
+				penalizedMembers = append(penalizedMembers, address)
+			}
+		case types.GROUP_STATUS_ROUND_3:
+			err := k.checkConfirmOrComplain(ctx, group.ID, m.ID)
+			if err != nil {
+				penalizedMembers = append(penalizedMembers, address)
+			}
+		default:
+		}
+	}
+	return penalizedMembers, nil
+}

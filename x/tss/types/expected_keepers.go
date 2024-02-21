@@ -92,9 +92,6 @@ type TSSHooks interface {
 	// Must be called when a group cannot be replaced; no error is returned due to the endblock process.
 	AfterGroupFailedToReplace(ctx sdk.Context, replacement Replacement)
 
-	// Must be called when a member status is updated; no error is returned due to the endblock process.
-	AfterStatusUpdated(ctx sdk.Context, status Status)
-
 	// Must be called when a signing request is unsuccessfully signed.
 	AfterSigningFailed(ctx sdk.Context, signing Signing)
 
@@ -103,4 +100,16 @@ type TSSHooks interface {
 
 	// Must be called when a signing request is initiated.
 	AfterSigningInitiated(ctx sdk.Context, signing Signing) error
+
+	// Must be called after a signer submit DEs.
+	AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error
+
+	// Must be called before setting group status to expired.
+	BeforeSetGroupExpired(ctx sdk.Context, group Group) error
+
+	// Must be called before setting signing status to expired.
+	BeforeSetSigningExpired(ctx sdk.Context, signing Signing) error
+
+	// Must be called after polling member's DE from store.
+	AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error
 }

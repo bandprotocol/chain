@@ -12,7 +12,6 @@ func NewGenesisState(
 	replacements []Replacement,
 	deQueues []DEQueue,
 	desGenesis []DEGenesis,
-	statuses []Status,
 ) *GenesisState {
 	return &GenesisState{
 		Params:           params,
@@ -25,7 +24,6 @@ func NewGenesisState(
 		Replacements:     replacements,
 		DEQueues:         deQueues,
 		DEsGenesis:       desGenesis,
-		Statuses:         statuses,
 	}
 }
 
@@ -42,6 +40,5 @@ func DefaultGenesisState() *GenesisState {
 		[]Replacement{},
 		[]DEQueue{},
 		[]DEGenesis{},
-		[]Status{},
 	)
 }
