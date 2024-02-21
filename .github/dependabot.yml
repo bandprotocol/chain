@@ -19,11 +19,11 @@ updates:
           time: "03:05"
       ignore:
           - dependency-name: "cosmossdk.io/*"
-            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+            update-types: ["version-update:semver-major"]
           - dependency-name: "github.com/cosmos/cosmos-sdk"
-            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+            update-types: ["version-update:semver-major"]
           - dependency-name: "github.com/cometbft/*"
-            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+            update-types: ["version-update:semver-major"]
       assignees:
           - "RogerKSI"
           - "taobun"
