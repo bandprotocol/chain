@@ -8,19 +8,22 @@ updates:
       schedule:
           interval: daily
           time: "03:00"
+      assignees:
+          - "RogerKSI"
+          - "taobun"
 
     - package-ecosystem: gomod
       directory: "/"
       schedule:
           interval: daily
           time: "03:05"
-      groups:
-          cosmos-sdk-dependencies:
-              patterns:
-                  - "github.com/cosmos/*"
-                  - "github.com/cometbft/cometbft"
-              update-types:
-                  - "patch"
-      labels:
-          - "A:automerge"
-          - dependencies
+      ignore:
+          - dependency-name: "cosmossdk.io/*"
+            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+          - dependency-name: "github.com/cosmos/cosmos-sdk"
+            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+          - dependency-name: "github.com/cometbft/*"
+            update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      assignees:
+          - "RogerKSI"
+          - "taobun"
