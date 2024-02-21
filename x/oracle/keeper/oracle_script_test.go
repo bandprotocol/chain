@@ -132,7 +132,7 @@ func TestAddOracleScriptMustReturnCorrectID(t *testing.T) {
 	))
 	require.Equal(t, types.OracleScriptID(genesisCount+2), id2)
 	// Finally we expect the oracle script to increase as well.
-	require.Equal(t, uint64(genesisCount+2), k.GetOracleScriptCount(ctx))
+	require.Equal(t, genesisCount+2, k.GetOracleScriptCount(ctx))
 }
 
 func TestEditNonExistentOracleScript(t *testing.T) {

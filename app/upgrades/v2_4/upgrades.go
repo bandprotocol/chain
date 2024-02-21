@@ -86,7 +86,9 @@ func CreateUpgradeHandler(
 		}
 
 		// Oracle DefaultParams only upgrade BaseRequestGas to 50000
-		keepers.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams())
+		if err := keepers.OracleKeeper.SetParams(ctx, oracletypes.DefaultParams()); err != nil {
+			return nil, err
+		}
 
 		consensusParam := am.GetConsensusParams(ctx)
 		consensusParam.Block.MaxGas = 50_000_000

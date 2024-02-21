@@ -146,7 +146,8 @@ func TestProcessExpiredRequests(t *testing.T) {
 
 	params := k.GetParams(ctx)
 	params.ExpirationBlockCount = 3
-	k.SetParams(ctx, params)
+	err := k.SetParams(ctx, params)
+	require.NoError(t, err)
 
 	// Set some initial requests. All requests are asked to validators 1 & 2.
 	req1 := defaultRequest()
@@ -168,13 +169,20 @@ func TestProcessExpiredRequests(t *testing.T) {
 
 	// Validator 1 reports all requests. Validator 2 misses request#3.
 	rawReports := []types.RawReport{types.NewRawReport(42, 0, BasicReport), types.NewRawReport(43, 0, BasicReport)}
-	k.AddReport(ctx, 1, bandtesting.Validators[0].ValAddress, false, rawReports)
-	k.AddReport(ctx, 2, bandtesting.Validators[0].ValAddress, true, rawReports)
-	k.AddReport(ctx, 3, bandtesting.Validators[0].ValAddress, false, rawReports)
-	k.AddReport(ctx, 4, bandtesting.Validators[0].ValAddress, true, rawReports)
-	k.AddReport(ctx, 1, bandtesting.Validators[1].ValAddress, true, rawReports)
-	k.AddReport(ctx, 2, bandtesting.Validators[1].ValAddress, true, rawReports)
-	k.AddReport(ctx, 4, bandtesting.Validators[1].ValAddress, true, rawReports)
+	err = k.AddReport(ctx, 1, bandtesting.Validators[0].ValAddress, false, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 2, bandtesting.Validators[0].ValAddress, true, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 3, bandtesting.Validators[0].ValAddress, false, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 4, bandtesting.Validators[0].ValAddress, true, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 1, bandtesting.Validators[1].ValAddress, true, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 2, bandtesting.Validators[1].ValAddress, true, rawReports)
+	require.NoError(t, err)
+	err = k.AddReport(ctx, 4, bandtesting.Validators[1].ValAddress, true, rawReports)
+	require.NoError(t, err)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
 	k.ResolveSuccess(ctx, 1, BasicResult, 1234)
@@ -223,7 +231,7 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.False(t, k.GetValidatorStatus(ctx, bandtesting.Validators[1].ValAddress).IsActive)
 	require.Equal(t, types.NewResult(
 		BasicClientID, req3.OracleScriptID, req3.Calldata, uint64(len(req3.RequestedValidators)), req3.MinCount,
-		3, 1, int64(req3.RequestTime), bandtesting.ParseTime(9000).Unix(),
+		3, 1, req3.RequestTime, bandtesting.ParseTime(9000).Unix(),
 		types.RESOLVE_STATUS_EXPIRED, nil,
 	), k.MustGetResult(ctx, 3))
 	testRequest(t, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)

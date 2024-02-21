@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
@@ -39,8 +40,6 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
-	owasm "github.com/bandprotocol/go-owasm/api"
-
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/testing/testdata"
@@ -55,7 +54,6 @@ type Account struct {
 	ValAddress sdk.ValAddress
 }
 
-// nolint
 var (
 	Owner         Account
 	Treasury      Account
@@ -69,7 +67,6 @@ var (
 	OwasmVM       *owasm.Vm
 )
 
-// nolint
 var (
 	EmptyCoins          = sdk.Coins(nil)
 	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))

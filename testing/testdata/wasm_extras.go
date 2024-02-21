@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 )
 
-// An extra Owasm code to test creating or editing oracle scripts.
+// WasmExtra1 is an extra Owasm code to test creating or editing oracle scripts.
 var WasmExtra1 []byte = wat2wasm([]byte(`
 (module
 	(type $t0 (func))
@@ -17,7 +17,7 @@ var WasmExtra1 []byte = wat2wasm([]byte(`
 
 `))
 
-// Another extra Owasm code to test creating or editing oracle scripts.
+// WasmExtra2 is another extra Owasm code to test creating or editing oracle scripts.
 var WasmExtra2 []byte = wat2wasm([]byte(`
 (module
 	(type $t0 (func))
@@ -30,8 +30,10 @@ var WasmExtra2 []byte = wat2wasm([]byte(`
 	(memory $memory (export "memory") 17))
 `))
 
-var WasmExtra1FileName string
-var WasmExtra2FileName string
+var (
+	WasmExtra1FileName string
+	WasmExtra2FileName string
+)
 
 func init() {
 	wasm1CompiledHash := sha256.Sum256(Compile(WasmExtra1))

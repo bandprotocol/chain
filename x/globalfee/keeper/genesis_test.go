@@ -68,14 +68,14 @@ func (s *GenesisTestSuite) TestImportExportGenesis() {
 	}
 	for name, spec := range specs {
 		s.Run(name, func() {
-			genesisState := &spec.exp
-			s.keeper.InitGenesis(s.sdkCtx, genesisState)
+			genesisState := spec.exp
+			s.keeper.InitGenesis(s.sdkCtx, &genesisState)
 
 			params := s.keeper.GetParams(s.sdkCtx)
 			s.Require().Equal(genesisState.Params, params)
 
 			genesisState2 := s.keeper.ExportGenesis(s.sdkCtx)
-			s.Require().Equal(genesisState, genesisState2)
+			s.Require().Equal(&genesisState, genesisState2)
 		})
 	}
 }
