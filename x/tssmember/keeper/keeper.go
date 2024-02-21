@@ -18,14 +18,16 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	paramSpace paramtypes.Subspace
 
-	tssKeeper     types.TSSKeeper
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
 	distrKeeper   types.DistrKeeper
+	stakingKeeper types.StakingKeeper
+	tssKeeper     types.TSSKeeper
 
 	authority        string
 	feeCollectorName string
+
+	router *types.Router
 }
 
 func NewKeeper(
@@ -34,11 +36,12 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
-	stakingKeeper types.StakingKeeper,
 	distrKeeper types.DistrKeeper,
+	stakingKeeper types.StakingKeeper,
 	tssKeeper types.TSSKeeper,
 	authority string,
 	feeCollectorName string,
+	router *types.Router,
 ) Keeper {
 	// ensure TSS module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -51,11 +54,12 @@ func NewKeeper(
 		paramSpace:       paramSpace,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
-		stakingKeeper:    stakingKeeper,
 		distrKeeper:      distrKeeper,
+		stakingKeeper:    stakingKeeper,
 		tssKeeper:        tssKeeper,
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
+		router:           router,
 	}
 }
 

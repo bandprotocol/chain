@@ -12,7 +12,6 @@ func GetTSSGrantMsgTypes() []string {
 		sdk.MsgTypeURL(&MsgConfirm{}),
 		sdk.MsgTypeURL(&MsgSubmitDEs{}),
 		sdk.MsgTypeURL(&MsgSubmitSignature{}),
-		sdk.MsgTypeURL(&MsgHealthCheck{}),
 	}
 }
 

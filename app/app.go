@@ -183,8 +183,8 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
-		tss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
-		tssmember.AppModuleBasic{},
+		tss.AppModuleBasic{},
+		tssmember.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -532,17 +532,19 @@ func NewBandApp(
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
+	tssMemberRouter := tssmembertypes.NewRouter()
 	app.TSSMemberKeeper = tssmemberkeeper.NewKeeper(
 		appCodec,
-		keys[tsstypes.StoreKey],
+		keys[tssmembertypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.StakingKeeper,
 		app.DistrKeeper,
+		app.StakingKeeper,
 		app.TSSKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
+		tssMemberRouter,
 	)
 	tssMemberModule := tssmember.NewAppModule(&app.TSSMemberKeeper)
 
@@ -574,6 +576,11 @@ func NewBandApp(
 
 	// Add TSS route
 	tssRouter.
+		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
+
+	// Add TSSMember route
+	tssMemberRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 
@@ -816,6 +823,7 @@ func NewBandApp(
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
 			TSSKeeper:       &app.TSSKeeper,
+			TSSMemberKeeper: &app.TSSMemberKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,

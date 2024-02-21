@@ -6,6 +6,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -37,6 +38,19 @@ type BankKeeper interface {
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 }
 
+// DistrKeeper defines the expected distribution keeper.
+type DistrKeeper interface {
+	GetCommunityTax(ctx sdk.Context) (percent sdk.Dec)
+	GetFeePool(ctx sdk.Context) (feePool distrtypes.FeePool)
+	SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
+	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
+}
+
+// RollingseedKeeper defines the expected rollingseed keeper
+type RollingseedKeeper interface {
+	GetRollingSeed(ctx sdk.Context) []byte
+}
+
 // StakingKeeper defines the expected staking keeper.
 type StakingKeeper interface {
 	MaxValidators(ctx sdk.Context) (res uint32)
@@ -47,18 +61,20 @@ type StakingKeeper interface {
 	)
 }
 
-// DistrKeeper defines the expected distribution keeper.
-type DistrKeeper interface {
-	GetCommunityTax(ctx sdk.Context) (percent sdk.Dec)
-	GetFeePool(ctx sdk.Context) (feePool distrtypes.FeePool)
-	SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
-	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
-}
-
 // TSSKeeper defines the expected tss keeper (noalias)
 type TSSKeeper interface {
 	CreateGroup(ctx sdk.Context, input tsstypes.CreateGroupInput) (*tsstypes.CreateGroupResult, error)
+	CreateSigning(ctx sdk.Context, input tsstypes.CreateSigningInput) (*tsstypes.CreateSigningResult, error)
+	UpdateGroupFee(ctx sdk.Context, input tsstypes.UpdateGroupFeeInput) (*tsstypes.UpdateGroupFeeResult, error)
 	ReplaceGroup(ctx sdk.Context, input tsstypes.ReplaceGroupInput) (*tsstypes.ReplaceGroupResult, error)
+
+	GetSigningCount(ctx sdk.Context) uint64
 	GetStatus(ctx sdk.Context, address sdk.AccAddress) tsstypes.Status
+	GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
+	GetReplacement(ctx sdk.Context, replacementID uint64) (tsstypes.Replacement, error)
+	GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]tsstypes.Member, error)
+
+	SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error
 	SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress)
+	SetLastActive(ctx sdk.Context, address sdk.AccAddress) error
 }

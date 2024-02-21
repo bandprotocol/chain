@@ -1,33 +1,17 @@
 package keeper
 
 import (
-	"encoding/hex"
-	"fmt"
-
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*types.CreateGroupResult, error) {
-	if k.authority != input.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, input.Authority)
-	}
-
-	// Validate group size
-	groupSize := uint64(len(input.Members))
-	maxGroupSize := k.GetParams(ctx).MaxGroupSize
-	if groupSize > maxGroupSize {
-		return nil, errors.Wrap(types.ErrGroupSizeTooLarge, fmt.Sprintf("group size exceeds %d", maxGroupSize))
-	}
-
 	// Create new group
 	fee := input.Fee.Sort()
 	groupID := k.CreateNewGroup(ctx, types.Group{
-		Size_:     groupSize,
+		Size_:     uint64(len(input.Members)),
 		Threshold: input.Threshold,
 		PubKey:    nil,
 		Fee:       fee,
@@ -36,22 +20,8 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 
 	// Set members
 	for i, m := range input.Members {
-		address, err := sdk.AccAddressFromBech32(m)
-		if err != nil {
-			return nil, errors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
-		}
-
-		status := k.GetStatus(ctx, address)
-		if status.Status != types.MEMBER_STATUS_ACTIVE {
-			return nil, types.ErrStatusIsNotActive
-		}
-
-		// ID start from 1
 		k.SetMember(ctx, types.Member{
-			ID:          tss.MemberID(i + 1),
+			ID:          tss.MemberID(i + 1), // ID starts from 1
 			GroupID:     groupID,
 			Address:     m,
 			PubKey:      nil,
@@ -63,110 +33,73 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(uint64(groupID)), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
-	event := sdk.NewEvent(
-		types.EventTypeCreateGroup,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
-		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", input.Threshold)),
-		sdk.NewAttribute(types.AttributeKeyFee, fee.String()),
-		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
-		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
-		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
-	)
-	for _, m := range input.Members {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m))
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
 	}
-	ctx.EventManager().EmitEvent(event)
 
-	return &types.CreateGroupResult{}, nil
+	return &types.CreateGroupResult{
+		Group:      group,
+		DKGContext: dkgContext,
+	}, nil
 }
 
 func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
-	if k.authority != input.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, input.Authority)
-	}
-
-	address, err := sdk.AccAddressFromBech32(input.Authority)
-	if err != nil {
-		return nil, errors.Wrapf(
-			types.ErrInvalidAccAddressFormat,
-			"invalid account address: %s", err,
-		)
-	}
-
-	// Get new group
-	newGroup, err := k.GetGroup(ctx, input.NewGroupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify group status
-	if newGroup.Status != types.GROUP_STATUS_ACTIVE {
-		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
-	// Get current group
-	currentGroup, err := k.GetGroup(ctx, input.CurrentGroupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify group status
-	if currentGroup.Status != types.GROUP_STATUS_ACTIVE {
-		return nil, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
-	// Verify whether the group is not in the pending replacement process.
-	lastReplacementID := currentGroup.LatestReplacementID
-	if lastReplacementID != uint64(0) {
-		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
-		if err != nil {
-			panic(err)
-		}
-
-		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
-			return nil, errors.Wrap(
-				types.ErrRequestReplacementFailed,
-				"the group is in the pending replacement process",
-			)
-		}
-	}
-
-	// Request signature
 	sid, err := k.HandleReplaceGroupRequestSignature(
 		ctx,
-		newGroup.PubKey,
-		input.CurrentGroupID,
-		address,
+		input.NewGroup.PubKey,
+		input.CurrentGroup.ID,
+		input.FeePayer,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	nextID := k.GetNextReplacementCount(ctx)
-	k.SetReplacement(ctx, types.Replacement{
+	replacement := types.Replacement{
 		ID:             nextID,
 		SigningID:      sid,
-		CurrentGroupID: input.CurrentGroupID,
-		CurrentPubKey:  currentGroup.PubKey,
-		NewGroupID:     input.NewGroupID,
-		NewPubKey:      newGroup.PubKey,
+		CurrentGroupID: input.CurrentGroup.ID,
+		CurrentPubKey:  input.CurrentGroup.PubKey,
+		NewGroupID:     input.NewGroup.ID,
+		NewPubKey:      input.NewGroup.PubKey,
 		ExecTime:       input.ExecTime,
 		Status:         types.REPLACEMENT_STATUS_WAITING,
-	})
+	}
+	k.SetReplacement(ctx, replacement)
 
 	k.InsertReplacementQueue(ctx, nextID, input.ExecTime)
 
 	// Update latest replacement ID to the group
-	currentGroup.LatestReplacementID = nextID
-	k.SetGroup(ctx, currentGroup)
+	input.CurrentGroup.LatestReplacementID = nextID
+	k.SetGroup(ctx, input.CurrentGroup)
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeReplacement,
-			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", nextID)),
-		),
-	)
+	return &types.ReplaceGroupResult{Replacement: replacement}, nil
+}
 
-	return &types.ReplaceGroupResult{}, nil
+func (k Keeper) UpdateGroupFee(ctx sdk.Context, input types.UpdateGroupFeeInput) (*types.UpdateGroupFeeResult, error) {
+	// Get group
+	group, err := k.GetGroup(ctx, input.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set new group fee
+	group.Fee = input.Fee.Sort()
+	k.SetGroup(ctx, group)
+
+	return &types.UpdateGroupFeeResult{Group: group}, nil
+}
+
+func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return types.Group{}, err
+	}
+
+	if group.Status != types.GROUP_STATUS_ACTIVE {
+		return types.Group{}, types.ErrGroupIsNotActive.Wrap("group status is not active")
+	}
+
+	return group, nil
 }

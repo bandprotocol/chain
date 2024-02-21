@@ -1,7 +1,6 @@
 package types
 
 const (
-	EventTypeCreateGroup        = "create_group"
 	EventTypeUpdateGroupFee     = "update_group_fee"
 	EventTypeReplacement        = "replacement"
 	EventTypeExpiredGroup       = "expired_group"

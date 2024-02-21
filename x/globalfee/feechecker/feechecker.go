@@ -14,6 +14,8 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type FeeChecker struct {
@@ -22,8 +24,10 @@ type FeeChecker struct {
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
+	TSSMemberKeeper *tssmemberkeeper.Keeper
 
-	TSSMsgServer tsstypes.MsgServer
+	TSSMsgServer       tsstypes.MsgServer
+	TSSMemberMsgServer tssmembertypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -32,16 +36,20 @@ func NewFeeChecker(
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	tssKeeper *tsskeeper.Keeper,
+	tssMemberKeeper *tssmemberkeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
+	tssMemberMsgServer := tssmemberkeeper.NewMsgServerImpl(tssMemberKeeper)
 
 	return FeeChecker{
-		AuthzKeeper:     authzKeeper,
-		OracleKeeper:    oracleKeeper,
-		GlobalfeeKeeper: globalfeeKeeper,
-		StakingKeeper:   stakingKeeper,
-		TSSKeeper:       tssKeeper,
-		TSSMsgServer:    tssMsgServer,
+		AuthzKeeper:        authzKeeper,
+		OracleKeeper:       oracleKeeper,
+		GlobalfeeKeeper:    globalfeeKeeper,
+		StakingKeeper:      stakingKeeper,
+		TSSKeeper:          tssKeeper,
+		TSSMemberKeeper:    tssMemberKeeper,
+		TSSMsgServer:       tssMsgServer,
+		TSSMemberMsgServer: tssMemberMsgServer,
 	}
 }
 
@@ -144,8 +152,8 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
 			return false
 		}
-	case *tsstypes.MsgHealthCheck:
-		if _, err := fc.TSSMsgServer.HealthCheck(ctx, msg); err != nil {
+	case *tssmembertypes.MsgHealthCheck:
+		if _, err := fc.TSSMemberMsgServer.HealthCheck(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

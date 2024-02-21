@@ -5,19 +5,36 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tssmember/CreateGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tssmember/ReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "tssmember/UpdateGroupFee")
+	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "tssmember/RequestSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tssmember/Activate")
+	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "tssmember/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tssmember/UpdateParams")
+
+	cdc.RegisterConcrete(&tsstypes.TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateGroup{},
 		&MsgReplaceGroup{},
+		&MsgUpdateGroupFee{},
+		&MsgRequestSignature{},
+		&MsgActivate{},
+		&MsgHealthCheck{},
 		&MsgUpdateParams{},
+	)
+	registry.RegisterInterface(
+		"tss.v1beta1.Content",
+		(*tsstypes.Content)(nil),
+		&tsstypes.TextSignatureOrder{},
 	)
 }
 

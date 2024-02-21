@@ -10,6 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 func TestParseEvent(t *testing.T) {
@@ -24,7 +25,7 @@ func TestParseEvent(t *testing.T) {
 			"success - create group event",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeCreateGroup,
+					tssmembertypes.EventTypeCreateGroup,
 					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
 					sdk.NewAttribute(types.AttributeKeySize, "3"),
 					sdk.NewAttribute(types.AttributeKeyThreshold, "2"),
@@ -35,7 +36,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyAddress, "member 3"),
 				)),
 			}),
-			types.EventTypeCreateGroup,
+			tssmembertypes.EventTypeCreateGroup,
 			&group.Event{
 				GroupID: 1,
 			},
@@ -74,7 +75,7 @@ func TestParseEvent(t *testing.T) {
 		{
 			"no event",
 			sdk.StringifyEvents([]abci.Event{}),
-			types.EventTypeCreateGroup,
+			tssmembertypes.EventTypeCreateGroup,
 			nil,
 			"cannot find event with type",
 		},
@@ -82,10 +83,10 @@ func TestParseEvent(t *testing.T) {
 			"no groupID",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeCreateGroup,
+					tssmembertypes.EventTypeCreateGroup,
 				)),
 			}),
-			types.EventTypeCreateGroup,
+			tssmembertypes.EventTypeCreateGroup,
 			nil,
 			"cannot find event with type",
 		},

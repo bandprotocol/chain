@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	DefaultMaxGroupSize                 = uint64(20)
 	DefaultActiveDuration time.Duration = time.Hour * 24 // 1 days
 	// compute the TSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
 	// the TSS reward will be determined from the remaining 60%.
@@ -14,10 +15,12 @@ const (
 
 // NewParams creates a new Params instance
 func NewParams(
+	maxGroupSize uint64,
 	activeDuration time.Duration,
 	rewardPercentage uint64,
 ) Params {
 	return Params{
+		MaxGroupSize:     maxGroupSize,
 		ActiveDuration:   activeDuration,
 		RewardPercentage: rewardPercentage,
 	}
@@ -26,6 +29,7 @@ func NewParams(
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
+		MaxGroupSize:     DefaultMaxGroupSize,
 		ActiveDuration:   DefaultActiveDuration,
 		RewardPercentage: DefaultRewardPercentage,
 	}
@@ -33,6 +37,10 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
+	if err := validateUint64("max group size", true)(p.MaxGroupSize); err != nil {
+		return err
+	}
+
 	if err := validateTimeDuration("active duration")(p.ActiveDuration); err != nil {
 		return err
 	}

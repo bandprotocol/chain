@@ -41,8 +41,7 @@ func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
 func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(signingID))
 	if bz == nil {
-		return types.Signing{}, errors.Wrapf(
-			types.ErrSigningNotFound,
+		return types.Signing{}, types.ErrSigningNotFound.Wrapf(
 			"failed to get Signing with ID: %d",
 			signingID,
 		)
@@ -280,7 +279,7 @@ func (k Keeper) GetRandomAssignedMembers(
 ) ([]types.Member, error) {
 	members_size := uint64(len(members))
 	if t > members_size {
-		return nil, errors.Wrapf(types.ErrUnexpectedThreshold, "t must less than or equal to size")
+		return nil, types.ErrUnexpectedThreshold.Wrapf("t must less than or equal to size")
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
@@ -290,7 +289,7 @@ func (k Keeper) GetRandomAssignedMembers(
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, errors.Wrapf(types.ErrBadDrbgInitialization, err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
 	}
 
 	var selected []types.Member
@@ -310,6 +309,43 @@ func (k Keeper) GetRandomAssignedMembers(
 	sort.Slice(selected, func(i, j int) bool { return selected[i].ID < selected[j].ID })
 
 	return selected, nil
+}
+
+// CreateSigning creates a new signing process and returns the result.
+func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (*types.CreateSigningResult, error) {
+	// Handle assigned members within the context of the group.
+	assignedMembers, err := k.HandleAssignedMembers(ctx, input.Group, input.Message)
+	if err != nil {
+		return nil, err
+	}
+
+	// Compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add signing
+	signingID := k.AddSigning(ctx, types.NewSigning(
+		input.Group.ID,
+		input.Group.PubKey,
+		assignedMembers,
+		input.Message,
+		groupPubNonce,
+		nil,
+		input.Fee,
+		types.SIGNING_STATUS_WAITING,
+		input.FeePayer.String(),
+	))
+
+	signing, err := k.GetSigning(ctx, signingID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.CreateSigningResult{
+		Signing: signing,
+	}, nil
 }
 
 // HandleAssignedMembers handles the assignment of members for a group signature process.

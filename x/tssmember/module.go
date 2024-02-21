@@ -12,6 +12,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 	"github.com/bandprotocol/chain/v2/x/tssmember/client/cli"
 	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
 	"github.com/bandprotocol/chain/v2/x/tssmember/types"
@@ -23,11 +24,15 @@ var (
 )
 
 // AppModuleBasic defines the basic application module used by the tss module.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	signatureOrderHandlers []tssclient.SignatureOrderHandler
+}
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic() AppModuleBasic {
-	return AppModuleBasic{}
+func NewAppModuleBasic(signatureOrderHandlers ...tssclient.SignatureOrderHandler) AppModuleBasic {
+	return AppModuleBasic{
+		signatureOrderHandlers: signatureOrderHandlers,
+	}
 }
 
 // Name returns the tss module's name.
@@ -52,7 +57,17 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the tss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	return cli.GetTxCmd()
+	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
+
+	return cli.GetTxCmd(signatureOrderHandlers)
+}
+
+func getSignatureOrderCLIHandlers(handlers []tssclient.SignatureOrderHandler) []*cobra.Command {
+	signatureOrderHandlers := make([]*cobra.Command, 0, len(handlers))
+	for _, handler := range handlers {
+		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())
+	}
+	return signatureOrderHandlers
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.

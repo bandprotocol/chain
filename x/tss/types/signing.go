@@ -30,3 +30,14 @@ func NewSigning(
 		Requester:       requester,
 	}
 }
+
+type CreateSigningInput struct {
+	Group    Group
+	Message  []byte
+	Fee      sdk.Coins
+	FeePayer sdk.AccAddress
+}
+
+type CreateSigningResult struct {
+	Signing Signing
+}

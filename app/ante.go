@@ -13,6 +13,7 @@ import (
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
@@ -25,6 +26,7 @@ type HandlerOptions struct {
 	GlobalfeeKeeper *globalfeekeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
+	TSSMemberKeeper *tssmemberkeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -45,6 +47,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 	if options.TSSKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("tss keeper is required for AnteHandler")
+	}
+	if options.TSSMemberKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("tssmember keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
@@ -68,6 +73,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
 			options.TSSKeeper,
+			options.TSSMemberKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}

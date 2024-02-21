@@ -17,7 +17,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 const (
@@ -744,7 +744,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			from := clientCtx.GetFromAddress()
 			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
 
-			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
+			msg, err := tssmembertypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
 			if err != nil {
 				return err
 			}

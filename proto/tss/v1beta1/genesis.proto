@@ -36,18 +36,16 @@ message GenesisState {
 
 // Params defines the set of module parameters.
 message Params {
-  // max_group_size is the maximum of the member capacity of the group.
-  uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
-  uint64 max_d_e_size = 2;
+  uint64 max_d_e_size = 1;
   // creating_period is the number of blocks allowed to creating group signature.
-  uint64 creating_period = 3;
+  uint64 creating_period = 2;
   // signing_period is the number of blocks allowed to sign.
-  uint64 signing_period = 4;
+  uint64 signing_period = 3;
   // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
-  google.protobuf.Duration inactive_penalty_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  google.protobuf.Duration inactive_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // jail_penalty_duration is the duration where a member cannot activate back after jail.
-  google.protobuf.Duration jail_penalty_duration = 6 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  google.protobuf.Duration jail_penalty_duration = 5 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
 }
 
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.

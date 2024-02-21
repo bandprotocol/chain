@@ -174,10 +174,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, errors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
+			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 		}
 
 		de, err := k.PollDE(ctx, accMember)

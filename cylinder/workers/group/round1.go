@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // Round1 is a worker responsible for round1 in the DKG process of TSS module
@@ -47,7 +48,7 @@ func NewRound1(ctx *cylinder.Context) (*Round1, error) {
 func (r *Round1) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"tm.event = 'NewBlock' AND %s.%s = '%s'",
-		types.EventTypeCreateGroup,
+		tssmembertypes.EventTypeCreateGroup,
 		types.AttributeKeyAddress,
 		r.context.Config.Granter,
 	)
@@ -59,8 +60,8 @@ func (r *Round1) subscribe() (err error) {
 func (r *Round1) handleABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
-		if ev.Type == types.EventTypeCreateGroup {
-			event, err := ParseEvent(sdk.StringEvents{ev}, types.EventTypeCreateGroup)
+		if ev.Type == tssmembertypes.EventTypeCreateGroup {
+			event, err := ParseEvent(sdk.StringEvents{ev}, tssmembertypes.EventTypeCreateGroup)
 			if err != nil {
 				r.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 				return

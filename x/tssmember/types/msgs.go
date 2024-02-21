@@ -5,16 +5,25 @@ import (
 	"time"
 
 	"cosmossdk.io/errors"
+	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	proto "github.com/cosmos/gogoproto/proto"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var (
 	_ sdk.Msg = &MsgCreateGroup{}
 	_ sdk.Msg = &MsgReplaceGroup{}
+	_ sdk.Msg = &MsgRequestSignature{}
+	_ sdk.Msg = &MsgUpdateGroupFee{}
+	_ sdk.Msg = &MsgActivate{}
+	_ sdk.Msg = &MsgHealthCheck{}
 	_ sdk.Msg = &MsgUpdateParams{}
+
+	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
 // NewMsgCreateGroup creates a new MsgCreateGroup instance.
@@ -120,6 +129,181 @@ func (m MsgReplaceGroup) ValidateBasic() error {
 			err,
 			fmt.Sprintf("sender: %s", m.Authority),
 		)
+	}
+
+	return nil
+}
+
+// NewMsgRequestSignature creates a new MsgRequestSignature.
+func NewMsgRequestSignature(
+	gid tss.GroupID,
+	content tsstypes.Content,
+	feeLimit sdk.Coins,
+	sender sdk.AccAddress,
+) (*MsgRequestSignature, error) {
+	m := &MsgRequestSignature{
+		GroupID:  gid,
+		FeeLimit: feeLimit,
+		Sender:   sender.String(),
+	}
+	err := m.SetContent(content)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// Type returns message type name.
+func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgRequestSignature) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetContent returns the content of MsgRequestSignature.
+func (m *MsgRequestSignature) GetContent() tsstypes.Content {
+	content, ok := m.Content.GetCachedValue().(tsstypes.Content)
+	if !ok {
+		return nil
+	}
+	return content
+}
+
+// GetSigners returns the expected signers for a MsgRequestSignature.
+func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgRequestSignature) ValidateBasic() error {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		return errors.Wrap(err, "sender")
+	}
+
+	return nil
+}
+
+// SetContent sets the content for MsgRequestSignature.
+func (m *MsgRequestSignature) SetContent(content tsstypes.Content) error {
+	msg, ok := content.(proto.Message)
+	if !ok {
+		return fmt.Errorf("can't proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return err
+	}
+	m.Content = any
+	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var content tsstypes.Content
+	return unpacker.UnpackAny(m.Content, &content)
+}
+
+// NewMsgActivate creates a new MsgActivate instance.
+func NewMsgActivate(address string) *MsgActivate {
+	return &MsgActivate{
+		Address: address,
+	}
+}
+
+// Type returns message type name.
+func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgActivate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgActivate.
+func (m MsgActivate) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgActivate) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Address)
+	if err != nil {
+		return errors.Wrap(err, "member")
+	}
+
+	return nil
+}
+
+// NewMsgHealthCheck creates a new MsgHealthCheck instance.
+func NewMsgHealthCheck(address string) *MsgHealthCheck {
+	return &MsgHealthCheck{
+		Address: address,
+	}
+}
+
+// Type returns message type name.
+func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgHealthCheck) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgHealthCheck.
+func (m MsgHealthCheck) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgHealthCheck) ValidateBasic() error {
+	// Validate member address
+	_, err := sdk.AccAddressFromBech32(m.Address)
+	if err != nil {
+		return errors.Wrap(err, "member")
+	}
+
+	return nil
+}
+
+// NewMsgUpdateGroupFee creates a new MsgUpdateGroupFee instance.
+func NewMsgUpdateGroupFee(groupID tss.GroupID, fee sdk.Coins, authority string) *MsgUpdateGroupFee {
+	return &MsgUpdateGroupFee{
+		GroupID:   groupID,
+		Fee:       fee,
+		Authority: authority,
+	}
+}
+
+// Type returns message type name.
+func (m MsgUpdateGroupFee) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes Implements Msg.
+func (m MsgUpdateGroupFee) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for a MsgUpdateGroupFee.
+func (m MsgUpdateGroupFee) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgUpdateGroupFee) ValidateBasic() error {
+	// Validate sender address
+	_, err := sdk.AccAddressFromBech32(m.Authority)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("sender: %s", m.Authority),
+		)
+	}
+
+	// Validate fee
+	if !m.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Fee.String())
 	}
 
 	return nil

@@ -1,5 +1,7 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 // DuplicateInArray checks if there are any duplicates in the given string array.
 func DuplicateInArray(arr []string) bool {
 	visited := make(map[string]bool, 0)
@@ -11,4 +13,10 @@ func DuplicateInArray(arr []string) bool {
 		}
 	}
 	return false
+}
+
+func GetTSSMemberGrantMsgTypes() []string {
+	return []string{
+		sdk.MsgTypeURL(&MsgHealthCheck{}),
+	}
 }

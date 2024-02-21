@@ -45,6 +45,8 @@ import (
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/tssmember"
+	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -112,6 +114,7 @@ func NewDefaultGenesisState() GenesisState {
 		rollingseedtypes.ModuleName:  rollingseed.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
+		tssmembertypes.ModuleName:    tssmember.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

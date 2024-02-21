@@ -119,7 +119,7 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
-		return types.Group{}, errors.Wrapf(types.ErrGroupNotFound, "failed to get group with groupID: %d", groupID)
+		return types.Group{}, types.ErrGroupNotFound.Wrapf("failed to get group with groupID: %d", groupID)
 	}
 
 	group := types.Group{}
@@ -328,7 +328,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 	}
 
 	if len(filteredMembers) == 0 {
-		return nil, errors.Wrapf(types.ErrNoActiveMember, "no active member in groupID: %d", groupID)
+		return nil, types.ErrNoActiveMember.Wrapf("no active member in groupID: %d", groupID)
 	}
 	return filteredMembers, nil
 }
@@ -585,8 +585,7 @@ func (k Keeper) GetNextReplacementCount(ctx sdk.Context) uint64 {
 func (k Keeper) GetReplacement(ctx sdk.Context, replacementID uint64) (types.Replacement, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementKey(replacementID))
 	if bz == nil {
-		return types.Replacement{}, errors.Wrapf(
-			types.ErrReplacementNotFound,
+		return types.Replacement{}, types.ErrReplacementNotFound.Wrapf(
 			"failed to get replacement group with replacement ID: %d",
 			replacementID,
 		)
