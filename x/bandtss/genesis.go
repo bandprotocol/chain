@@ -1,10 +1,10 @@
-package tssmember
+package bandtss
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 // InitGenesis performs genesis initialization for the tss module.

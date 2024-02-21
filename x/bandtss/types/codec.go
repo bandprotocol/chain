@@ -10,13 +10,13 @@ import (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tssmember/CreateGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tssmember/ReplaceGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "tssmember/UpdateGroupFee")
-	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "tssmember/RequestSignature")
-	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tssmember/Activate")
-	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "tssmember/HealthCheck")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tssmember/UpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/CreateGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/ReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "bandtss/UpdateGroupFee")
+	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/RequestSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/Activate")
+	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
 
 	cdc.RegisterConcrete(&tsstypes.TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }

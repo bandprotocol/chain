@@ -9,9 +9,9 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type TestCase struct {
@@ -554,7 +554,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-	tssMemberMsgSrvr := tssmemberkeeper.NewMsgServerImpl(&s.app.TSSMemberKeeper)
+	tssMemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -562,7 +562,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Request signature for the first member in the group
-			msg, err := tssmembertypes.NewMsgRequestSignature(
+			msg, err := bandtsstypes.NewMsgRequestSignature(
 				tc.Group.ID,
 				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),

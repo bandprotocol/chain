@@ -1,4 +1,4 @@
-package tssmember
+package bandtss
 
 import (
 	"encoding/json"
@@ -12,10 +12,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/x/bandtss/client/cli"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
-	"github.com/bandprotocol/chain/v2/x/tssmember/client/cli"
-	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 var (

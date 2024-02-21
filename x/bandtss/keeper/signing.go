@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // handleRequestSign initiates the signing process by requesting signatures from assigned members.

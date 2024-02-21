@@ -10,7 +10,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 type Keeper struct {

@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // GetMsgDetail represents the detail string of a message for logging.
@@ -24,7 +24,7 @@ func GetMsgDetail(msg sdk.Msg) (detail string) {
 		detail = fmt.Sprintf("Type: %s", t.Type())
 	case *types.MsgSubmitSignature:
 		detail = fmt.Sprintf("Type: %s, SigningID: %d", t.Type(), t.SigningID)
-	case *tssmembertypes.MsgHealthCheck:
+	case *bandtsstypes.MsgHealthCheck:
 		detail = fmt.Sprintf("Type: %s", t.Type())
 	default:
 		detail = "Type: Unknown"

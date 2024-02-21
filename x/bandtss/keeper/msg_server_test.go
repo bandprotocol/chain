@@ -13,7 +13,7 @@ import (
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 type TestCase struct {
@@ -342,7 +342,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.TSSMemberKeeper.GetTSSMemberAccount(ctx).GetAddress(),
+					s.app.BandTSSKeeper.GetTSSMemberAccount(ctx).GetAddress(),
 				)
 
 				msg, err := types.NewMsgRequestSignature(
@@ -360,7 +360,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.TSSMemberKeeper.GetTSSMemberAccount(ctx).GetAddress(),
+					s.app.BandTSSKeeper.GetTSSMemberAccount(ctx).GetAddress(),
 				)
 
 				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))

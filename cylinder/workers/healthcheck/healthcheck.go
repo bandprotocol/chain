@@ -7,8 +7,8 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/cylinder/client"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 // HealthCheck is a worker responsible for updating active status to the chain
@@ -57,7 +57,7 @@ func (a *HealthCheck) updateHealthCheck() {
 	a.logger.Info(":delivery_truck: Updating last active")
 
 	// Send MsgActive
-	a.context.MsgCh <- tssmembertypes.NewMsgHealthCheck(a.context.Config.Granter)
+	a.context.MsgCh <- bandtsstypes.NewMsgHealthCheck(a.context.Config.Granter)
 }
 
 // Start starts the healthcheck worker that will check latest healthcheck of validator on BandChain

@@ -8,7 +8,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestAfterSigningFailed() {
-	ctx, k := s.ctx, s.app.TSSMemberKeeper
+	ctx, k := s.ctx, s.app.BandTSSKeeper
 	hook := k.Hooks()
 
 	testCases := []struct {

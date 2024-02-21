@@ -12,8 +12,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 	flagFeeLimit = "fee-limit"
 )
 
-// GetTxCmd returns a root CLI command handler for all x/tssmember transaction commands.
+// GetTxCmd returns a root CLI command handler for all x/bandtss transaction commands.
 func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,

@@ -15,10 +15,10 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type KeeperTestSuite struct {
@@ -53,8 +53,8 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, tssmemberKeeper := s.ctx, s.app.TSSMemberKeeper
-	tssmemberMsgSrvr := tssmemberkeeper.NewMsgServerImpl(&tssmemberKeeper)
+	ctx, tssmemberKeeper := s.ctx, s.app.BandTSSKeeper
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&tssmemberKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -72,7 +72,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		}
 
 		// Create group
-		_, err := tssmemberMsgSrvr.CreateGroup(ctx, &tssmembertypes.MsgCreateGroup{
+		_, err := tssmemberMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
@@ -542,7 +542,7 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 
 func (s *KeeperTestSuite) TestReplacementQueues() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	tssmemberMsgSrvr := tssmemberkeeper.NewMsgServerImpl(&s.app.TSSMemberKeeper)
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
 
 	replacementID := uint64(1)
 
@@ -550,7 +550,7 @@ func (s *KeeperTestSuite) TestReplacementQueues() {
 
 	now := time.Now()
 
-	_, err := tssmemberMsgSrvr.ReplaceGroup(ctx, &tssmembertypes.MsgReplaceGroup{
+	_, err := tssmemberMsgSrvr.ReplaceGroup(ctx, &bandtsstypes.MsgReplaceGroup{
 		CurrentGroupID: 1,
 		NewGroupID:     2,
 		ExecTime:       now,

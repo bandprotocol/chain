@@ -2,7 +2,7 @@ package types
 
 const (
 	// module name
-	ModuleName = "membertss"
+	ModuleName = "bandtss"
 
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName

@@ -10,9 +10,9 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryCounts() {
@@ -27,7 +27,7 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-	tssmemberMsgSrvr := tssmemberkeeper.NewMsgServerImpl(&s.app.TSSMemberKeeper)
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -125,7 +125,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	_, err := tssmemberMsgSrvr.CreateGroup(ctx, &tssmembertypes.MsgCreateGroup{
+	_, err := tssmemberMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),

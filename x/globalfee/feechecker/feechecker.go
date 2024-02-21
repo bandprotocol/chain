@@ -9,13 +9,13 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type FeeChecker struct {
@@ -24,10 +24,10 @@ type FeeChecker struct {
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
-	TSSMemberKeeper *tssmemberkeeper.Keeper
+	BandTSSKeeper   *bandtsskeeper.Keeper
 
 	TSSMsgServer       tsstypes.MsgServer
-	TSSMemberMsgServer tssmembertypes.MsgServer
+	TSSMemberMsgServer bandtsstypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -36,10 +36,10 @@ func NewFeeChecker(
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	tssKeeper *tsskeeper.Keeper,
-	tssMemberKeeper *tssmemberkeeper.Keeper,
+	BandTSSKeeper *bandtsskeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	tssMemberMsgServer := tssmemberkeeper.NewMsgServerImpl(tssMemberKeeper)
+	tssMemberMsgServer := bandtsskeeper.NewMsgServerImpl(BandTSSKeeper)
 
 	return FeeChecker{
 		AuthzKeeper:        authzKeeper,
@@ -47,7 +47,7 @@ func NewFeeChecker(
 		GlobalfeeKeeper:    globalfeeKeeper,
 		StakingKeeper:      stakingKeeper,
 		TSSKeeper:          tssKeeper,
-		TSSMemberKeeper:    tssMemberKeeper,
+		BandTSSKeeper:      BandTSSKeeper,
 		TSSMsgServer:       tssMsgServer,
 		TSSMemberMsgServer: tssMemberMsgServer,
 	}
@@ -152,7 +152,7 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
 			return false
 		}
-	case *tssmembertypes.MsgHealthCheck:
+	case *bandtsstypes.MsgHealthCheck:
 		if _, err := fc.TSSMemberMsgServer.HealthCheck(ctx, msg); err != nil {
 			return false
 		}

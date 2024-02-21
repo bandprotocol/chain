@@ -1,10 +1,10 @@
-package tssmember
+package bandtss
 
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 )
 
 // handleBeginBlock handles the logic at the beginning of a block.

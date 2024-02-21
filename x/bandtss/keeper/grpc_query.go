@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 var _ types.QueryServer = queryServer{}

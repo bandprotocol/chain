@@ -20,12 +20,12 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	rollingseedKeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
 )
 
 type AppKeepers struct {
@@ -52,7 +52,7 @@ type AppKeepers struct {
 	RollingseedKeeper     rollingseedKeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             tsskeeper.Keeper
-	TSSMemberKeeper       tssmemberkeeper.Keeper
+	BandTSSKeeper         bandtsskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 

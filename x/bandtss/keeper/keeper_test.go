@@ -13,10 +13,10 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	"github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type KeeperTestSuite struct {
@@ -43,11 +43,11 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.TSSMemberKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.BandTSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSMemberKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(&app.BandTSSKeeper)
 	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(&app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
@@ -190,7 +190,7 @@ func (s *KeeperTestSuite) SetupGroup(groupStatus tsstypes.GroupStatus) {
 }
 
 func (s *KeeperTestSuite) TestParams() {
-	k := s.app.TSSMemberKeeper
+	k := s.app.BandTSSKeeper
 
 	testCases := []struct {
 		name         string

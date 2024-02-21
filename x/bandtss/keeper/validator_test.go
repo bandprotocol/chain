@@ -11,8 +11,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	"github.com/bandprotocol/chain/v2/x/tssmember/keeper"
 )
 
 var Coins1000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
@@ -67,7 +67,7 @@ func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper
 
 func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	app, ctx, k := testapp.CreateTestInput(false)
-	feeCollector, err := SetupFeeCollector(app, ctx, app.TSSMemberKeeper)
+	feeCollector, err := SetupFeeCollector(app, ctx, app.BandTSSKeeper)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -81,7 +81,7 @@ func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 
 func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	app, ctx, _ := testapp.CreateTestInput(false)
-	tssKeeper, k := app.TSSKeeper, app.TSSMemberKeeper
+	tssKeeper, k := app.TSSKeeper, app.BandTSSKeeper
 	feeCollector, err := SetupFeeCollector(app, ctx, k)
 	s.Require().NoError(err)
 
@@ -122,7 +122,7 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 }
 
 func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
-	ctx, app, k := s.ctx, s.app, s.app.TSSMemberKeeper
+	ctx, app, k := s.ctx, s.app, s.app.BandTSSKeeper
 
 	feeCollector, err := SetupFeeCollector(app, ctx, k)
 	s.Require().NoError(err)
@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 }
 
 func (s *KeeperTestSuite) TestHandleInactiveValidators() {
-	ctx, k, tssKeeper := s.ctx, s.app.TSSMemberKeeper, s.app.TSSKeeper
+	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := testapp.Validators[0].Address
 

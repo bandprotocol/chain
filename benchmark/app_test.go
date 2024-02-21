@@ -16,29 +16,29 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	testapp "github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	tssmemberkeeper "github.com/bandprotocol/chain/v2/x/tssmember/keeper"
-	tssmembertypes "github.com/bandprotocol/chain/v2/x/tssmember/types"
 )
 
 type BenchmarkApp struct {
 	*testapp.TestingApp
-	Sender           *Account
-	Validator        *Account
-	Oid              uint64
-	Did              uint64
-	Gid              tss.GroupID
-	TxConfig         client.TxConfig
-	TxEncoder        sdk.TxEncoder
-	TB               testing.TB
-	Ctx              sdk.Context
-	Querier          keeper.Querier
-	TSSMsgSrvr       tsstypes.MsgServer
-	TSSMemberMsgSrvr tssmembertypes.MsgServer
-	authority        sdk.AccAddress
+	Sender         *Account
+	Validator      *Account
+	Oid            uint64
+	Did            uint64
+	Gid            tss.GroupID
+	TxConfig       client.TxConfig
+	TxEncoder      sdk.TxEncoder
+	TB             testing.TB
+	Ctx            sdk.Context
+	Querier        keeper.Querier
+	TSSMsgSrvr     tsstypes.MsgServer
+	BandTSSMsgSrvr bandtsstypes.MsgServer
+	authority      sdk.AccAddress
 }
 
 var (
@@ -75,7 +75,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
 	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(&ba.TestingApp.TSSKeeper)
-	ba.TSSMemberMsgSrvr = tssmemberkeeper.NewMsgServerImpl(&ba.TestingApp.TSSMemberKeeper)
+	ba.BandTSSMsgSrvr = bandtsskeeper.NewMsgServerImpl(&ba.TestingApp.BandTSSKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
@@ -333,9 +333,9 @@ func (ba *BenchmarkApp) RequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) {
-	ctx, msgSrvr := ba.Ctx, ba.TSSMemberMsgSrvr
+	ctx, msgSrvr := ba.Ctx, ba.BandTSSMsgSrvr
 
-	msg, err := tssmembertypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
 	require.NoError(ba.TB, err)
 
 	_, err = msgSrvr.RequestSignature(ctx, msg)
