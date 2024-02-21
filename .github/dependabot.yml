@@ -15,9 +15,10 @@ updates:
           interval: daily
           time: "03:05"
       groups:
-          cosmos-sdk:
+          cosmos-sdk-dependencies:
               patterns:
                   - "github.com/cosmos/*"
+                  - "github.com/cometbft/cometbft"
               update-types:
                   - "patch"
       labels:
