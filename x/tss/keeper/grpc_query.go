@@ -272,6 +272,27 @@ func (q queryServer) Signing(
 	}, nil
 }
 
+// Status function handles the request to get the status of a given account address.
+func (q queryServer) IsActive(
+	goCtx context.Context,
+	req *types.QueryIsActiveRequest,
+) (*types.QueryIsActiveResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Convert the address from Bech32 format to AccAddress format
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, errors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
+	}
+
+	// Get all statuses of the address
+	isActive := q.k.GetStatus(ctx, address)
+
+	return &types.QueryIsActiveResponse{
+		IsActive: isActive,
+	}, nil
+}
+
 // Replacement function handles the request to get replacement of a given ID.
 func (q queryServer) Replacement(
 	goCtx context.Context,

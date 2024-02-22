@@ -54,7 +54,6 @@ message DEGenesis {
   DE de = 3 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
 }
 
-
 // StatusGenesis defines an account address and status .
 message StatusGenesis {
   // address is the address of the de holder.
@@ -62,4 +61,3 @@ message StatusGenesis {
   // status defines the status of the address.
   bool status = 2;
 }
-

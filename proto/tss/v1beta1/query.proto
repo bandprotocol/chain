@@ -50,6 +50,11 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
 
+  // IsActive queries if the member is active.
+  rpc IsActive(QueryIsActiveRequest) returns (QueryIsActiveResponse) {
+    option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
+  }
+
   // Replacements queries all replacements.
   rpc Replacements(QueryReplacementsRequest) returns (QueryReplacementsResponse) {
     option (google.api.http).get = "/tss/v1beta1/replacements";
@@ -183,6 +188,18 @@ message QuerySigningResponse {
   EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
   // received_partial_signatures is a list of received partial signatures.
   repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
+}
+
+// QueryIsActiveRequest is the request type for the Query/IsActive RPC method.
+message QueryIsActiveRequest {
+  // address is the member address.
+  string address = 1;
+}
+
+// QueryIsActiveResponse is the response type for the Query/IsActive RPC method.
+message QueryIsActiveResponse {
+  // is_active is the status of the member.
+  bool is_active = 1;
 }
 
 // QueryReplacementsRequest is the request type for the Query/Replacements RPC method.
