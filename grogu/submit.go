@@ -162,6 +162,7 @@ func signAndBroadcast(
 		WithChainID(cfg.ChainID).
 		WithGasPrices(c.gasPrices).
 		WithKeybase(kb).
+		WithFromName(key.Name).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
 	address, err := key.GetAddress()
