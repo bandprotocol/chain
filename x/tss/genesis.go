@@ -40,6 +40,10 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		address := sdk.MustAccAddressFromBech32(de.Address)
 		k.SetDE(ctx, address, de.Index, de.DE)
 	}
+
+	for _, status := range data.IsactivesGenesis {
+		k.SetMemberIsActive(ctx, sdk.AccAddress(status.Address), status.IsActive)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

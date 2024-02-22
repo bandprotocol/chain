@@ -76,5 +76,5 @@ type TSSKeeper interface {
 	GetReplacement(ctx sdk.Context, replacementID uint64) (tsstypes.Replacement, error)
 	GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]tsstypes.Member, error)
 
-	SetMemberStatus(ctx sdk.Context, address sdk.AccAddress, status bool)
+	SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool)
 }

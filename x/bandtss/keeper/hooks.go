@@ -112,7 +112,7 @@ func (h Hooks) AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error {
 	left := h.k.tssKeeper.GetDECount(ctx, member)
 	if left == 0 {
 		h.k.SetPausedStatus(ctx, member)
-		h.k.tssKeeper.SetMemberStatus(ctx, member, false)
+		h.k.tssKeeper.SetMemberIsActive(ctx, member, false)
 	}
 
 	return nil

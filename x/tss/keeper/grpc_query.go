@@ -53,7 +53,7 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 	var isActives []bool
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m.Address)
-		status := q.k.GetStatus(ctx, address)
+		status := q.k.GetMemberIsActive(ctx, address)
 		isActives = append(isActives, status)
 	}
 
@@ -286,7 +286,7 @@ func (q queryServer) IsActive(
 	}
 
 	// Get all statuses of the address
-	isActive := q.k.GetStatus(ctx, address)
+	isActive := q.k.GetMemberIsActive(ctx, address)
 
 	return &types.QueryIsActiveResponse{
 		IsActive: isActive,

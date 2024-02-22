@@ -69,7 +69,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
 			})
-			tssKeeper.SetMemberStatus(ctx, address, true)
+			tssKeeper.SetMemberIsActive(ctx, address, true)
 		}
 
 		// Create group

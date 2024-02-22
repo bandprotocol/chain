@@ -63,7 +63,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			s.app.TSSKeeper.SetMemberStatus(ctx, address, true)
+			s.app.TSSKeeper.SetMemberIsActive(ctx, address, true)
 		}
 
 		// Create group

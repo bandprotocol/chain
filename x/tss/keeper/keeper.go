@@ -315,7 +315,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
 		address := sdk.MustAccAddressFromBech32(member.Address)
-		if isActive := k.GetStatus(ctx, address); isActive {
+		if isActive := k.GetMemberIsActive(ctx, address); isActive {
 			members = append(members, member)
 		}
 	}
@@ -389,8 +389,8 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 	}
 }
 
-// SetMemberStatus sets a status of a member of the group in the store.
-func (k Keeper) SetMemberStatus(ctx sdk.Context, address sdk.AccAddress, status bool) {
+// SetMemberIsActive sets a boolean flag represent activeness of the user.
+func (k Keeper) SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool) {
 	value := uint64(0)
 	if status {
 		value = 1
@@ -399,8 +399,8 @@ func (k Keeper) SetMemberStatus(ctx sdk.Context, address sdk.AccAddress, status 
 	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), sdk.Uint64ToBigEndian(value))
 }
 
-// GetStatus retrieves a status of the address.
-func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) bool {
+// GetMemberIsActive retrieves a boolean flag whether the address is active or not.
+func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool {
 	bz := ctx.KVStore(k.storeKey).Get(types.StatusStoreKey(address))
 	if bz == nil {
 		return false
@@ -409,8 +409,8 @@ func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) bool {
 	return sdk.BigEndianToUint64(bz) != 0
 }
 
-// DeleteStatus removes the status of the address of the group
-func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
+// DeleteMemberIsActive removes the flag of the given address from the store.
+func (k Keeper) DeleteMemberIsActive(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
 }
 

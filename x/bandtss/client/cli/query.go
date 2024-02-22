@@ -1,17 +1,18 @@
 package cli
 
 import (
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
+
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
-// GetQueryCmd returns the cli query commands for the tss module.
+// GetQueryCmd returns the cli query commands for the bandtss module.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Querying commands for the tss module",
+		Short:                      "Querying commands for the bandtss module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,

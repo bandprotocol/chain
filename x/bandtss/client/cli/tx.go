@@ -25,7 +25,7 @@ const (
 func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "TSS transactions subcommands",
+		Short:                      "BandTSS transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -80,7 +80,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Short: "request signature of the message from the group",
 		Example: fmt.Sprintf(
-			`%s tx tss request-signature text [message] --group-id 1 --fee-limit 10uband`,
+			`%s tx bandtss request-signature text [message] --group-id 1 --fee-limit 10uband`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -133,7 +133,7 @@ func GetTxCmdActivate() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Short: "activate the status of the address",
 		Example: fmt.Sprintf(
-			`%s tx tss activate`,
+			`%s tx bandtss activate`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -162,7 +162,7 @@ func GetTxCmdHealthCheck() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Short: "update the active status of the address to ensure that the TSS process is still running",
 		Example: fmt.Sprintf(
-			`%s tx tss health-check`,
+			`%s tx bandtss health-check`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {

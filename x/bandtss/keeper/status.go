@@ -38,7 +38,7 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberStatus(ctx, address, true)
+	k.tssKeeper.SetMemberIsActive(ctx, address, true)
 
 	return nil
 }
@@ -53,7 +53,7 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 
 	status.LastActive = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberStatus(ctx, address, true)
+	k.tssKeeper.SetMemberIsActive(ctx, address, true)
 
 	return nil
 }
@@ -72,7 +72,7 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberStatus(ctx, address, false)
+	k.tssKeeper.SetMemberIsActive(ctx, address, false)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeInactiveStatus,
@@ -92,7 +92,7 @@ func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberStatus(ctx, address, false)
+	k.tssKeeper.SetMemberIsActive(ctx, address, false)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypePausedStatus,
@@ -112,7 +112,7 @@ func (k Keeper) SetJailStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberStatus(ctx, address, false)
+	k.tssKeeper.SetMemberIsActive(ctx, address, false)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeJailStatus,
