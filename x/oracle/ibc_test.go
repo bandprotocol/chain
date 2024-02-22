@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	ibctesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -515,7 +516,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
 		4,
-		obi.MustEncode(testapp.Wasm4Input{
+		obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2, 3, 4},
 			Calldata: "beeb",
 		}),
@@ -641,7 +642,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	oracleRequestPacket := types.NewOracleRequestPacketData(
 		path.EndpointA.ClientID,
 		4,
-		obi.MustEncode(testapp.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
+		obi.MustEncode(testdata.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
 		2,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
@@ -678,7 +679,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 		1577923380,
 		1577923405,
 		types.RESOLVE_STATUS_SUCCESS,
-		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
+		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	responsePacket := channeltypes.NewPacket(
 		oracleResponsePacket.GetBytes(),

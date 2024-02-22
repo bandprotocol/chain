@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // Wasm2 is a bad Owasm script with the following specification:
 //
