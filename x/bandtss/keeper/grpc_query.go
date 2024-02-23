@@ -57,9 +57,7 @@ func (q queryServer) Statuses(
 			if types.ValidMemberStatus(req.Status) && s.Status != req.Status {
 				return nil, nil
 			}
-
 			return s, nil
-
 		},
 		func() *types.Status {
 			return &types.Status{}

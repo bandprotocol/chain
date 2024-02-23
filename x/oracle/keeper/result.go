@@ -105,7 +105,6 @@ func (k Keeper) ResolveSuccess(
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
 	)
 	ctx.EventManager().EmitEvent(event)
-
 }
 
 func (k Keeper) handleFailedSigning(

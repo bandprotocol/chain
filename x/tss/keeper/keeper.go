@@ -364,7 +364,9 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
 			// Handle the hooks before setting group to be expired.
-			k.Hooks().BeforeSetGroupExpired(ctx, group)
+			if err := k.Hooks().BeforeSetGroupExpired(ctx, group); err != nil {
+				panic(err)
+			}
 
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
@@ -496,7 +498,9 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		k.SetGroup(ctx, group)
 
 		// Handle the hooks when group creation is fallen
-		k.Hooks().AfterGroupFailedToActivate(ctx, group)
+		if err := k.Hooks().AfterGroupFailedToActivate(ctx, group); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -513,7 +517,9 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			k.SetGroup(ctx, group)
 
 			// Handle the hooks when group is ready.
-			k.Hooks().AfterGroupActivated(ctx, group)
+			if err := k.Hooks().AfterGroupActivated(ctx, group); err != nil {
+				panic(err)
+			}
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -527,7 +533,9 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			k.SetGroup(ctx, group)
 
 			// Handle the hooks when group creation is fallen
-			k.Hooks().AfterGroupFailedToActivate(ctx, group)
+			if err := k.Hooks().AfterGroupFailedToActivate(ctx, group); err != nil {
+				panic(err)
+			}
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -655,7 +663,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		k.SetReplacement(ctx, replacement)
 
 		// Handle the hooks when group is replaced.
-		k.Hooks().AfterGroupFailedToReplace(ctx, replacement)
+		if err := k.Hooks().AfterGroupFailedToReplace(ctx, replacement); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -677,7 +687,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		k.SetReplacement(ctx, replacement)
 
 		// Handle the hooks when group is replaced.
-		k.Hooks().AfterGroupFailedToReplace(ctx, replacement)
+		if err := k.Hooks().AfterGroupFailedToReplace(ctx, replacement); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -719,7 +731,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	k.SetReplacement(ctx, replacement)
 
 	// Handle the hooks when group is replaced.
-	k.Hooks().AfterGroupReplaced(ctx, replacement)
+	if err := k.Hooks().AfterGroupReplaced(ctx, replacement); err != nil {
+		return
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

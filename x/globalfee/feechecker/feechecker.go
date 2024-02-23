@@ -36,10 +36,10 @@ func NewFeeChecker(
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	tssKeeper *tsskeeper.Keeper,
-	BandTSSKeeper *bandtsskeeper.Keeper,
+	bandTSSKeeper *bandtsskeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	tssMemberMsgServer := bandtsskeeper.NewMsgServerImpl(BandTSSKeeper)
+	tssMemberMsgServer := bandtsskeeper.NewMsgServerImpl(bandTSSKeeper)
 
 	return FeeChecker{
 		AuthzKeeper:        authzKeeper,
@@ -47,7 +47,7 @@ func NewFeeChecker(
 		GlobalfeeKeeper:    globalfeeKeeper,
 		StakingKeeper:      stakingKeeper,
 		TSSKeeper:          tssKeeper,
-		BandTSSKeeper:      BandTSSKeeper,
+		BandTSSKeeper:      bandTSSKeeper,
 		TSSMsgServer:       tssMsgServer,
 		TSSMemberMsgServer: tssMemberMsgServer,
 	}

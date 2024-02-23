@@ -424,7 +424,6 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 		}
 	}
 	s.Require().Equal(0, cntFound)
-
 }
 
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {

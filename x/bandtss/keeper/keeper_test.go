@@ -62,7 +62,8 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		for _, m := range tc.Group.Members {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
-			bandTssKeeper.SetActiveStatus(ctx, address)
+			err := bandTssKeeper.SetActiveStatus(ctx, address)
+			s.Require().NoError(err)
 		}
 
 		// Create group
