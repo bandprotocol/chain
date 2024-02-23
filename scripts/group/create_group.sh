@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 export WALLET_NAME=group1
