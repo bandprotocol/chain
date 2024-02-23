@@ -77,15 +77,14 @@ var (
 	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
 	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
-	ChainID             = "BANDCHAIN"
-	Port1               = "port-1"
-	Port2               = "port-2"
-	Channel1            = "channel-1"
-	Channel2            = "channel-2"
 )
 
 const (
 	ChainID               string = "BANDCHAIN"
+	Port1                        = "port-1"
+	Port2                        = "port-2"
+	Channel1                     = "channel-1"
+	Channel2                     = "channel-2"
 	TestDefaultPrepareGas uint64 = 40000
 	TestDefaultExecuteGas uint64 = 300000
 	DefaultGenTxGas              = 1000000
