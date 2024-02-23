@@ -85,6 +85,7 @@ var (
 )
 
 const (
+	ChainID               string = "BANDCHAIN"
 	TestDefaultPrepareGas uint64 = 40000
 	TestDefaultExecuteGas uint64 = 300000
 	DefaultGenTxGas              = 1000000
