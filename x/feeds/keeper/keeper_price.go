@@ -146,7 +146,7 @@ func (k Keeper) GetPriceValidators(ctx sdk.Context, symbol string) (priceVals []
 func (k Keeper) GetPriceValidator(ctx sdk.Context, symbol string, val sdk.ValAddress) (types.PriceValidator, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PriceValidatorStoreKey(symbol, val))
 	if bz == nil {
-		return types.PriceValidator{}, types.ErrPriceNotFound.Wrapf(
+		return types.PriceValidator{}, types.ErrPriceValidatorNotFound.Wrapf(
 			"failed to get price validator for symbol: %s, validator: %s",
 			symbol,
 			val.String(),

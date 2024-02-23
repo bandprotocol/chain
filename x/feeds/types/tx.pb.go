@@ -31,9 +31,12 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// MsgSignalSymbols is the transaction message to signal symbols
 type MsgSignalSymbols struct {
-	Delegator string   `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
-	Signals   []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
+	// The address of the delegator that want to signal symbols
+	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
+	// The signal details
+	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
 }
 
 func (m *MsgSignalSymbols) Reset()         { *m = MsgSignalSymbols{} }
@@ -83,6 +86,7 @@ func (m *MsgSignalSymbols) GetSignals() []Signal {
 	return nil
 }
 
+// MsgSubmitPricesResponse is the response type for the Msg/SignalSymbols RPC method.
 type MsgSignalSymbolsResponse struct {
 }
 

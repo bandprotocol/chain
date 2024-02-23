@@ -28,7 +28,7 @@ func (k Keeper) GetSymbols(ctx sdk.Context) (symbols []types.Symbol) {
 func (k Keeper) GetSymbol(ctx sdk.Context, symbol string) (types.Symbol, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SymbolStoreKey(symbol))
 	if bz == nil {
-		return types.Symbol{}, types.ErrPriceNotFound.Wrapf("failed to get symbol detail for symbol: %s", symbol)
+		return types.Symbol{}, types.ErrSymbolNotFound.Wrapf("failed to get symbol detail for symbol: %s", symbol)
 	}
 
 	var s types.Symbol
