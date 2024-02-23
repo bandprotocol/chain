@@ -42,7 +42,7 @@ func GetTxCmdSignalSymbols() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signal [symbol1]:[power1] [symbol2]:[power2] ...",
 		Short: "Signal symbols and their powers",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
 				`Signal symbols and their power.

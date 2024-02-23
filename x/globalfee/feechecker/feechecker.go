@@ -23,7 +23,7 @@ type FeeChecker struct {
 	StakingKeeper   *stakingkeeper.Keeper
 	Feedskeeper     *feedskeeper.Keeper
 
-	FeedMsgServer feedstypes.MsgServer
+	FeedsMsgServer feedstypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -33,7 +33,7 @@ func NewFeeChecker(
 	stakingKeeper *stakingkeeper.Keeper,
 	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
-	feedMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
+	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{
 		AuthzKeeper:     authzKeeper,
@@ -41,7 +41,7 @@ func NewFeeChecker(
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
 		Feedskeeper:     feedsKeeper,
-		FeedMsgServer:   feedMsgServer,
+		FeedsMsgServer:  feedsMsgServer,
 	}
 }
 
@@ -121,7 +121,7 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 			return false
 		}
 	case *feedstypes.MsgSubmitPrices:
-		if _, err := fc.FeedMsgServer.SubmitPrices(ctx, msg); err != nil {
+		if _, err := fc.FeedsMsgServer.SubmitPrices(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

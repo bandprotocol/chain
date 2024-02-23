@@ -70,7 +70,12 @@ func GetQueryCmdPrices() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Prices(context.Background(), &types.QueryPricesRequest{})
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			res, err := queryClient.Prices(context.Background(), &types.QueryPricesRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -79,6 +84,7 @@ func GetQueryCmdPrices() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "prices")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -192,7 +198,12 @@ func GetQueryCmdSymbols() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Symbols(context.Background(), &types.QuerySymbolsRequest{})
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			res, err := queryClient.Symbols(context.Background(), &types.QuerySymbolsRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -201,6 +212,7 @@ func GetQueryCmdSymbols() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "symbols")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
