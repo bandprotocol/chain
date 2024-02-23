@@ -581,7 +581,7 @@ class Handler(object):
             insert(delegator_signals).values(**msg).on_conflict_do_update(constraint="delegator_signals_pkey", set_=msg)
         )
         
-    def handle_remove_delegator_signal(self, msg):
+    def handle_remove_delegator_signals(self, msg):
         self.conn.execute(
             delegator_signals.delete().where(delegator_signals.c.account_id == self.get_account_id(msg["delegator"]))
         )
