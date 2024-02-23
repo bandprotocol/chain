@@ -30,8 +30,9 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 			totalPower += vote.Validator.Power
 		}
 	}
+
+	// No active validators performing tss tasks, nothing needs to be done here.
 	if totalPower == 0 {
-		// No active validators performing tss tasks, nothing needs to be done here.
 		return
 	}
 

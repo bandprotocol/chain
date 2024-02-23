@@ -7,6 +7,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
+// CreateGroup creates a new group with the given members and threshold.
 func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*types.CreateGroupResult, error) {
 	// Create new group
 	fee := input.Fee.Sort()
@@ -44,13 +45,17 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 	}, nil
 }
 
+// ReplaceGroup creates a new replacement info and put it into queue.
 func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
-	sid, err := k.HandleReplaceGroupRequestSignature(
-		ctx,
-		input.NewGroup.PubKey,
-		input.CurrentGroup.ID,
-		input.FeePayer,
-	)
+	signingInput := types.CreateSigningInput{
+		GroupID:      input.CurrentGroup.ID,
+		Message:      append(types.ReplaceGroupMsgPrefix, input.NewGroup.PubKey...),
+		IsFeeCharged: input.IsFeeCharged,
+		FeeLimit:     sdk.NewCoins(),
+		FeePayer:     input.FeePayer,
+	}
+
+	signingResult, err := k.CreateSigning(ctx, signingInput)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +63,7 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*t
 	nextID := k.GetNextReplacementCount(ctx)
 	replacement := types.Replacement{
 		ID:             nextID,
-		SigningID:      sid,
+		SigningID:      signingResult.Signing.ID,
 		CurrentGroupID: input.CurrentGroup.ID,
 		CurrentPubKey:  input.CurrentGroup.PubKey,
 		NewGroupID:     input.NewGroup.ID,
@@ -77,6 +82,7 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*t
 	return &types.ReplaceGroupResult{Replacement: replacement}, nil
 }
 
+// UpdateGroupFee updates the fee of the group.
 func (k Keeper) UpdateGroupFee(ctx sdk.Context, input types.UpdateGroupFeeInput) (*types.UpdateGroupFeeResult, error) {
 	// Get group
 	group, err := k.GetGroup(ctx, input.GroupID)
@@ -91,6 +97,8 @@ func (k Keeper) UpdateGroupFee(ctx sdk.Context, input types.UpdateGroupFeeInput)
 	return &types.UpdateGroupFeeResult{Group: group}, nil
 }
 
+// GetActiveGroup returns the active group with the given groupID. If the group is not active,
+// return error.
 func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
@@ -104,6 +112,8 @@ func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Grou
 	return group, nil
 }
 
+// GetPenalizedMembersExpiredGroup gets the list of members who should be penalized due to not
+// participating in group creation.
 func (k Keeper) GetPenalizedMembersExpiredGroup(ctx sdk.Context, group types.Group) ([]sdk.AccAddress, error) {
 	members, err := k.GetGroupMembers(ctx, group.ID)
 	if err != nil {

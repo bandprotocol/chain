@@ -23,6 +23,7 @@ type ReplaceGroupInput struct {
 	NewGroup     Group
 	ExecTime     time.Time
 	FeePayer     sdk.AccAddress
+	IsFeeCharged bool
 }
 
 type ReplaceGroupResult struct {

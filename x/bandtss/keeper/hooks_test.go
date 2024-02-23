@@ -24,12 +24,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
+					{MemberID: 1},
+					{MemberID: 2},
 				},
 			},
 			sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
@@ -42,12 +38,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
+					{MemberID: 1},
+					{MemberID: 2},
 				},
 			},
 			sdk.NewCoins(sdk.NewInt64Coin("uband", 20), sdk.NewInt64Coin("token", 30)),
@@ -60,12 +52,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 				Requester: testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
+					{MemberID: 1},
+					{MemberID: 2},
 				},
 			},
 			sdk.NewCoins(),

@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, bandTssMsgSrvr, bandTssKeeper, tssKeeper := s.ctx, s.msgSrvr, s.app.BandTSSKeeper, s.app.TSSKeeper
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -62,12 +62,11 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		for _, m := range tc.Group.Members {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
-
-			s.app.TSSKeeper.SetMemberIsActive(ctx, address, true)
+			bandTssKeeper.SetActiveStatus(ctx, address)
 		}
 
 		// Create group
-		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		_, err := bandTssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
@@ -76,7 +75,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		s.Require().NoError(err)
 
 		// Set DKG context
-		s.app.TSSKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
+		tssKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
 	}
 }
 

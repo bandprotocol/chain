@@ -18,10 +18,9 @@ import (
 )
 
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	paramSpace       paramtypes.Subspace
-	feeCollectorName string
+	cdc        codec.BinaryCodec
+	storeKey   storetypes.StoreKey
+	paramSpace paramtypes.Subspace
 
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
@@ -36,7 +35,6 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
-	feeCollectorName string,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
 	authKeeper types.AccountKeeper,
@@ -52,7 +50,6 @@ func NewKeeper(
 		cdc:               cdc,
 		storeKey:          storeKey,
 		paramSpace:        paramSpace,
-		feeCollectorName:  feeCollectorName,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
 		authKeeper:        authKeeper,
@@ -396,12 +393,12 @@ func (k Keeper) SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, statu
 		value = 1
 	}
 
-	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), sdk.Uint64ToBigEndian(value))
+	ctx.KVStore(k.storeKey).Set(types.IsActiveStoreKey(address), sdk.Uint64ToBigEndian(value))
 }
 
 // GetMemberIsActive retrieves a boolean flag whether the address is active or not.
 func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool {
-	bz := ctx.KVStore(k.storeKey).Get(types.StatusStoreKey(address))
+	bz := ctx.KVStore(k.storeKey).Get(types.IsActiveStoreKey(address))
 	if bz == nil {
 		return false
 	}
@@ -409,9 +406,36 @@ func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool 
 	return sdk.BigEndianToUint64(bz) != 0
 }
 
+func (k Keeper) GetMemberIsActives(ctx sdk.Context) ([]sdk.AccAddress, []bool) {
+	var addresses []sdk.AccAddress
+	var isActives []bool
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.IsActiveStoreKeyPrefix)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		address := sdk.AccAddress(iterator.Key()[1:])
+		isActive := sdk.BigEndianToUint64(iterator.Value()) != 0
+
+		addresses = append(addresses, address)
+		isActives = append(isActives, isActive)
+	}
+
+	return addresses, isActives
+}
+
+func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []*types.IsActiveGenesis {
+	addresses, isActives := k.GetMemberIsActives(ctx)
+
+	var data []*types.IsActiveGenesis
+	for i := range addresses {
+		data = append(data, &types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
+	}
+
+	return data
+}
+
 // DeleteMemberIsActive removes the flag of the given address from the store.
 func (k Keeper) DeleteMemberIsActive(ctx sdk.Context, address sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
+	ctx.KVStore(k.storeKey).Delete(types.IsActiveStoreKey(address))
 }
 
 // AddPendingProcessGroup adds a new pending process group to the store.

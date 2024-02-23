@@ -437,31 +437,21 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)
+	msg, err := k.HandleSigningContent(ctx, content)
+	s.Require().NoError(err)
+
+	input := types.CreateSigningInput{
+		GroupID:      groupID,
+		Message:      msg,
+		IsFeeCharged: feePayer.String() == s.authority.String(),
+		FeeLimit:     feeLimit,
+		FeePayer:     feePayer,
+	}
+	result, err := k.CreateSigning(ctx, input)
 	s.Require().NoError(err)
 
 	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
-	s.Require().NoError(err)
-	s.Require().Equal(groupID, signing.GroupID)
-	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
-}
-
-func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Define the fee payer's address.
-	feePayer := sdk.MustAccAddressFromBech32(k.GetAuthority())
-
-	// execute HandleReplaceGroupRequestSignature
-	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
-	s.Require().NoError(err)
-
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
+	signing, err := k.GetSigning(ctx, result.Signing.ID)
 	s.Require().NoError(err)
 	s.Require().Equal(groupID, signing.GroupID)
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)

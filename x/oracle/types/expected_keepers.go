@@ -12,8 +12,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -90,14 +89,10 @@ type RollingseedKeeper interface {
 	GetRollingSeed(ctx sdk.Context) []byte
 }
 
-// TSSKeeper defines the expected tss keeper.
-type TSSKeeper interface {
-	HandleRequestSign(
+// BandTSSKeeper defines the expected tss keeper.
+type BandTSSKeeper interface {
+	HandleCreateSigning(
 		ctx sdk.Context,
-		groupID tss.GroupID,
-		content tsstypes.Content,
-		feePayer sdk.AccAddress,
-		feeLimit sdk.Coins,
-	) (tss.SigningID, error)
-	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
+		input bandtsstypes.HandleCreateSigningInput,
+	) (*bandtsstypes.HandleCreateSigningResult, error)
 }

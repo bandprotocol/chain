@@ -9,18 +9,21 @@ import (
 )
 
 func (s *KeeperTestSuite) TestSetInActive() {
-	ctx, k := s.ctx, s.app.BandTSSKeeper
+	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	k.SetInactiveStatus(ctx, address)
 
 	status := k.GetStatus(ctx, address)
+	isActive := tssKeeper.GetMemberIsActive(ctx, address)
+
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
+	s.Require().Equal(false, isActive)
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
-	ctx, k := s.ctx, s.app.BandTSSKeeper
+	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
@@ -29,13 +32,15 @@ func (s *KeeperTestSuite) TestSetActive() {
 	s.Require().NoError(err)
 
 	status := k.GetStatus(ctx, address)
+	isActive := tssKeeper.GetMemberIsActive(ctx, address)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
+	s.Require().Equal(true, isActive)
 
 	// Failed case - penalty
 	k.SetInactiveStatus(ctx, address)
 
 	err = k.SetActiveStatus(ctx, address)
-	s.Require().ErrorIs(err, tsstypes.ErrTooSoonToActivate)
+	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
 
 	// Failed case - no member
 	err = k.SetActiveStatus(ctx, address)

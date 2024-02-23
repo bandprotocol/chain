@@ -124,14 +124,16 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
 
 		if deQueue.Tail == deQueue.Head {
-			return errors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
+			return types.ErrDEQueueFull.Wrap(fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
 		}
 	}
 
 	k.SetDEQueue(ctx, deQueue)
 
 	// Handle hooks after setting DEs.
-	k.Hooks().AfterHandleSetDEs(ctx, address)
+	if err := k.Hooks().AfterHandleSetDEs(ctx, address); err != nil {
+		return err
+	}
 
 	return nil
 }

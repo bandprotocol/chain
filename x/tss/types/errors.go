@@ -4,24 +4,23 @@ import "cosmossdk.io/errors"
 
 // x/tss module sentinel errors
 var (
-	ErrInvalidAccAddressFormat = errors.Register(ModuleName, 2, "account address format is invalid")
-	ErrGroupSizeTooLarge       = errors.Register(ModuleName, 3, "group size is too large")
-	ErrGroupNotFound           = errors.Register(ModuleName, 4, "group not found")
-	ErrMemberNotFound          = errors.Register(ModuleName, 5, "member not found")
-	ErrNoActiveMember          = errors.Register(ModuleName, 6, "no active member in this group")
-	ErrMemberAlreadySubmit     = errors.Register(ModuleName, 7, "member is already submit message")
-	ErrRound1InfoNotFound      = errors.Register(ModuleName, 8, "round 1 info not found")
-	ErrDKGContextNotFound      = errors.Register(ModuleName, 9, "dkg context not found")
+	ErrInvalidAccAddressFormat = errors.Register(ModuleName, 1, "account address format is invalid")
+	ErrGroupNotFound           = errors.Register(ModuleName, 2, "group not found")
+	ErrMemberNotFound          = errors.Register(ModuleName, 3, "member not found")
+	ErrNoActiveMember          = errors.Register(ModuleName, 4, "no active member in this group")
+	ErrMemberAlreadySubmit     = errors.Register(ModuleName, 5, "member is already submit message")
+	ErrRound1InfoNotFound      = errors.Register(ModuleName, 6, "round 1 info not found")
+	ErrDKGContextNotFound      = errors.Register(ModuleName, 7, "dkg context not found")
 	ErrMemberNotAuthorized     = errors.Register(
 		ModuleName,
-		10,
+		8,
 		"member is not authorized for this group",
 	)
-	ErrInvalidStatus                = errors.Register(ModuleName, 11, "invalid status")
-	ErrGroupExpired                 = errors.Register(ModuleName, 12, "group expired")
-	ErrVerifyOneTimeSignatureFailed = errors.Register(ModuleName, 13, "failed to verify one time sign")
-	ErrVerifyA0SignatureFailed      = errors.Register(ModuleName, 14, "failed to verify a0 sign")
-	ErrAddCoefCommit                = errors.Register(ModuleName, 15, "failed to add coefficient commit")
+	ErrInvalidStatus                = errors.Register(ModuleName, 9, "invalid status")
+	ErrGroupExpired                 = errors.Register(ModuleName, 10, "group expired")
+	ErrVerifyOneTimeSignatureFailed = errors.Register(ModuleName, 11, "failed to verify one time sign")
+	ErrVerifyA0SignatureFailed      = errors.Register(ModuleName, 12, "failed to verify a0 sign")
+	ErrAddCoefCommit                = errors.Register(ModuleName, 13, "failed to add coefficient commit")
 	ErrInvalidLengthCoefCommits     = errors.Register(
 		ModuleName,
 		16,
@@ -60,12 +59,9 @@ var (
 	)
 	ErrDEQueueFull                   = errors.Register(ModuleName, 40, "de queue is full")
 	ErrSigningExpired                = errors.Register(ModuleName, 41, "signing expired")
-	ErrTooSoonToActivate             = errors.Register(ModuleName, 42, "too soon to activate")
 	ErrStatusNotFound                = errors.Register(ModuleName, 43, "status not found")
-	ErrStatusIsNotActive             = errors.Register(ModuleName, 44, "status is not active")
 	ErrNotEnoughFee                  = errors.Register(ModuleName, 45, "not enough fee")
 	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 46, "failed to handle signature order")
 	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 47, "no handler exists for signature order type")
 	ErrReplacementNotFound           = errors.Register(ModuleName, 48, "replacement group not found")
-	ErrRequestReplacementFailed      = errors.Register(ModuleName, 49, "failed to request replacement")
 )

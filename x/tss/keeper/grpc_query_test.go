@@ -176,6 +176,39 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			func(res *types.QueryGroupResponse) {
 				dkgContextB, _ := hex.DecodeString("6c31fc15422ebad28aaf9089c306702f67540b53c7eea8b7d2941044b027100f")
 
+				expectedMemberStatuses := []bandtsstypes.Status{
+					{
+						Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
+						Since:   ctx.BlockTime(),
+					},
+					{
+						Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
+						Since:   ctx.BlockTime(),
+					},
+					{
+						Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
+						Since:   ctx.BlockTime(),
+					},
+					{
+						Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
+						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
+						Since:   ctx.BlockTime(),
+					},
+					{
+						Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
+						Since:   ctx.BlockTime(),
+					},
+				}
+
+				for _, expectedStatus := range expectedMemberStatuses {
+					status := bandTSSKeeper.GetStatus(ctx, sdk.MustAccAddressFromBech32(expectedStatus.Address))
+					s.Require().Equal(status, expectedStatus)
+				}
+
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
 						ID:        1,

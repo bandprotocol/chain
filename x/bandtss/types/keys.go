@@ -9,10 +9,10 @@ const (
 	// StoreKey to be used when creating the KVStore.
 	StoreKey = ModuleName
 
-	// RouterKey is the message route for the tss module
+	// RouterKey is the message route for the bandtss module
 	RouterKey = ModuleName
 
-	// QuerierRoute is the querier route for the tss module
+	// QuerierRoute is the querier route for the bandtss module
 	QuerierRoute = ModuleName
 )
 

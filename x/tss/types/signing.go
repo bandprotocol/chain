@@ -32,10 +32,11 @@ func NewSigning(
 }
 
 type CreateSigningInput struct {
-	Group    Group
-	Message  []byte
-	Fee      sdk.Coins
-	FeePayer sdk.AccAddress
+	GroupID      tss.GroupID
+	Message      []byte
+	IsFeeCharged bool
+	FeeLimit     sdk.Coins
+	FeePayer     sdk.AccAddress
 }
 
 type CreateSigningResult struct {

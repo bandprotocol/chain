@@ -12,7 +12,6 @@ const (
 	EventTypeJailStatus       = "jail_status"
 
 	AttributeKeyAddress       = "address"
-	AttributeKeyBindingFactor = "binding_factor"
 	AttributeKeyDKGContext    = "dkg_context"
 	AttributeKeyFee           = "fee"
 	AttributeKeyGroupID       = "group_id"

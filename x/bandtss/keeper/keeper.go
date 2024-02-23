@@ -27,8 +27,6 @@ type Keeper struct {
 
 	authority        string
 	feeCollectorName string
-
-	router *types.Router
 }
 
 func NewKeeper(
@@ -42,9 +40,8 @@ func NewKeeper(
 	tssKeeper types.TSSKeeper,
 	authority string,
 	feeCollectorName string,
-	router *types.Router,
 ) Keeper {
-	// ensure TSS module account is set
+	// ensure BandTSS module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -60,11 +57,10 @@ func NewKeeper(
 		tssKeeper:        tssKeeper,
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
-		router:           router,
 	}
 }
 
-// GetTSSAccount returns the TSS ModuleAccount
+// GetTSSAccount returns the BandTSS ModuleAccount
 func (k Keeper) GetTSSMemberAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }

@@ -64,9 +64,10 @@ type StakingKeeper interface {
 // TSSKeeper defines the expected tss keeper (noalias)
 type TSSKeeper interface {
 	CreateGroup(ctx sdk.Context, input tsstypes.CreateGroupInput) (*tsstypes.CreateGroupResult, error)
-	CreateSigning(ctx sdk.Context, input tsstypes.CreateSigningInput) (*tsstypes.CreateSigningResult, error)
 	UpdateGroupFee(ctx sdk.Context, input tsstypes.UpdateGroupFeeInput) (*tsstypes.UpdateGroupFeeResult, error)
 	ReplaceGroup(ctx sdk.Context, input tsstypes.ReplaceGroupInput) (*tsstypes.ReplaceGroupResult, error)
+	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
+	CreateSigning(ctx sdk.Context, input tsstypes.CreateSigningInput) (*tsstypes.CreateSigningResult, error)
 
 	GetSigningCount(ctx sdk.Context) uint64
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64

@@ -11,6 +11,7 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -66,7 +67,7 @@ func (k Keeper) ResolveSuccess(
 ) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 
-	events := sdk.NewEvent(
+	event := sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, fmt.Sprintf("%d", types.RESOLVE_STATUS_SUCCESS)),
@@ -74,48 +75,67 @@ func (k Keeper) ResolveSuccess(
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
 	)
 
-	if gid != tss.GroupID(0) {
-		// Request sign by tss module
-		var signingResult *types.SigningResult
-		sid, err := k.tssKeeper.HandleRequestSign(
-			ctx,
-			gid,
-			types.NewOracleResultSignatureOrder(id, encodeType),
-			sdk.MustAccAddressFromBech32(requester),
-			feeLimit,
-		)
-		if err != nil {
-			codespace, code, _ := errors.ABCIInfo(err, false)
-			signingResult = &types.SigningResult{
-				ErrorCodespace: codespace,
-				ErrorCode:      uint64(code),
-			}
-
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeHandleRequestSignFail,
-				sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-				sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", gid)),
-				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-			))
-
-			events = events.AppendAttributes(
-				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
-				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
-			)
-		} else {
-			signingResult = &types.SigningResult{
-				SigningID: sid,
-			}
-
-			events = events.AppendAttributes(
-				sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
-			)
-		}
-
-		k.SetSigningResult(ctx, id, *signingResult)
+	// Doesn't require signature from tss module; emit an event and end process here
+	if gid == tss.GroupID(0) {
+		ctx.EventManager().EmitEvent(event)
+		return
 	}
 
-	ctx.EventManager().EmitEvent(events)
+	// handle signing content
+	signingInput := bandtsstypes.HandleCreateSigningInput{
+		GroupID:  gid,
+		Content:  types.NewOracleResultSignatureOrder(id, encodeType),
+		Sender:   sdk.MustAccAddressFromBech32(requester),
+		FeeLimit: feeLimit,
+	}
+
+	bandTSSResult, err := k.BandTSSKeeper.HandleCreateSigning(ctx, signingInput)
+	if err != nil {
+		k.handleFailedSigning(ctx, id, gid, event, err)
+		return
+	}
+
+	// save signing result and emit an event.
+	signingResult := &types.SigningResult{
+		SigningID: bandTSSResult.Signing.ID,
+	}
+	k.SetSigningResult(ctx, id, *signingResult)
+
+	event = event.AppendAttributes(
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
+	)
+	ctx.EventManager().EmitEvent(event)
+
+}
+
+func (k Keeper) handleFailedSigning(
+	ctx sdk.Context,
+	id types.RequestID,
+	gid tss.GroupID,
+	existingEvents sdk.Event,
+	err error,
+) {
+	codespace, code, _ := errors.ABCIInfo(err, false)
+	signingResult := &types.SigningResult{
+		ErrorCodespace: codespace,
+		ErrorCode:      uint64(code),
+	}
+
+	k.SetSigningResult(ctx, id, *signingResult)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeHandleRequestSignFail,
+		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
+		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", gid)),
+		sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+	))
+
+	existingEvents = existingEvents.AppendAttributes(
+		sdk.NewAttribute(types.AttributeKeySigningErrCodespace, signingResult.ErrorCodespace),
+		sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", signingResult.ErrorCode)),
+	)
+
+	ctx.EventManager().EmitEvent(existingEvents)
 }
 
 // ResolveFailure resolves the given request as failure with the given reason.

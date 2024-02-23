@@ -378,6 +378,55 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	k.SetMemberIsActive(ctx, address, true)
+
+	// check when being set to active
+	got := k.GetMemberIsActive(ctx, address)
+	s.Require().Equal(true, got)
+
+	gotAddrs, gotIsActives := k.GetMemberIsActives(ctx)
+	cntFound := 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			s.Require().Equal(true, gotIsActives[i])
+			cntFound++
+		}
+	}
+	s.Require().Equal(1, cntFound)
+
+	// check when being set to false
+	k.SetMemberIsActive(ctx, address, false)
+
+	got = k.GetMemberIsActive(ctx, address)
+	s.Require().Equal(false, got)
+
+	gotAddrs, gotIsActives = k.GetMemberIsActives(ctx)
+	cntFound = 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			s.Require().Equal(false, gotIsActives[i])
+			cntFound++
+		}
+	}
+	s.Require().Equal(1, cntFound)
+
+	// check when being deleted
+	k.DeleteMemberIsActive(ctx, address)
+	gotAddrs, _ = k.GetMemberIsActives(ctx)
+	cntFound = 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			cntFound++
+		}
+	}
+	s.Require().Equal(0, cntFound)
+
+}
+
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)

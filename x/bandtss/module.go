@@ -1,6 +1,7 @@
 package bandtss
 
 import (
+	"context"
 	"encoding/json"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -23,7 +24,7 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the tss module.
+// AppModuleBasic defines the basic application module used by the bandtss module.
 type AppModuleBasic struct {
 	signatureOrderHandlers []tssclient.SignatureOrderHandler
 }
@@ -35,7 +36,7 @@ func NewAppModuleBasic(signatureOrderHandlers ...tssclient.SignatureOrderHandler
 	}
 }
 
-// Name returns the tss module's name.
+// Name returns the bandtss module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
@@ -50,12 +51,12 @@ func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, config client.TxEncodin
 	return nil
 }
 
-// GetQueryCmd returns the cli query commands for the tss module.
+// GetQueryCmd returns the cli query commands for the bandtss module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
-// GetTxCmd returns the transaction commands for the tss module.
+// GetTxCmd returns the transaction commands for the bandtss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
 
@@ -70,20 +71,19 @@ func getSignatureOrderCLIHandlers(handlers []tssclient.SignatureOrderHandler) []
 	return signatureOrderHandlers
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.
-// Right now, No query handler is registered for tss module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bandtss module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	// if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
-	// 	panic(err)
-	// }
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
-// RegisterInterfaces registers the tss module's interface types
+// RegisterInterfaces registers the bandtss module's interface types
 func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
 	types.RegisterInterfaces(reg)
 }
 
-// RegisterLegacyAminoCodec registers the tss module's types for the given codec.
+// RegisterLegacyAminoCodec registers the bandtss module's types for the given codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
@@ -103,20 +103,19 @@ func NewAppModule(k *keeper.Keeper) AppModule {
 	}
 }
 
-// Name returns the tss module's name.
+// Name returns the bandtss module's name.
 func (am AppModule) Name() string {
 	return am.AppModuleBasic.Name()
 }
 
-// RegisterServices registers a GRPC query service to respond to the
-// module-specific GRPC queries.
+// RegisterServices registers a GRPC query service to respond to the module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	msgServer := keeper.NewMsgServerImpl(am.keeper)
 	types.RegisterMsgServer(cfg.MsgServer(), msgServer)
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 
-// RegisterInvariants registers the tss module's invariants.
+// RegisterInvariants registers the bandtss module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs a no-op.
@@ -133,12 +132,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock processes ABCI begin block message for this tss module (SDK AppModule interface).
+// BeginBlock processes ABCI begin block message for this bandtss module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
 	handleBeginBlock(ctx, req, am.keeper)
 }
 
-// EndBlock processes ABCI end block message for this tss module (SDK AppModule interface).
+// EndBlock processes ABCI end block message for this bandtss module (SDK AppModule interface).
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	handleEndBlock(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}

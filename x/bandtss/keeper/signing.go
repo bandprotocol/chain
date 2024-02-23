@@ -3,56 +3,36 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// handleRequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns assigned members randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) HandleRequestSign(
+// HandleCreateSigning creates a new signing process and returns the result.
+func (k Keeper) HandleCreateSigning(
 	ctx sdk.Context,
-	groupID tss.GroupID,
-	msg []byte,
-	feePayer sdk.AccAddress,
-	feeLimit sdk.Coins,
-) (*tsstypes.Signing, error) {
-	// Verify if the group status is active.
-	group, err := k.tssKeeper.GetActiveGroup(ctx, groupID)
+	input types.HandleCreateSigningInput,
+) (*types.HandleCreateSigningResult, error) {
+	// Execute the handler to process the request.
+	msg, err := k.tssKeeper.HandleSigningContent(ctx, input.Content)
 	if err != nil {
 		return nil, err
 	}
 
-	fee := sdk.NewCoins()
-	// Charge fee if requester is not authority address
-	if feePayer.String() != k.authority {
-		fee = group.Fee
-
-		// If found any coins that exceed limit then return error
-		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
-		for _, fc := range feeCoins {
-			limitAmt := feeLimit.AmountOf(fc.Denom)
-			if fc.Amount.GT(limitAmt) {
-				return nil, types.ErrNotEnoughFee.Wrapf(
-					"require: %s, limit: %s%s",
-					fc.String(),
-					limitAmt.String(),
-					fc.Denom,
-				)
-			}
-		}
+	tssInput := tsstypes.CreateSigningInput{
+		GroupID:      input.GroupID,
+		Message:      msg,
+		IsFeeCharged: input.Sender.String() != k.authority,
+		FeePayer:     input.Sender,
+		FeeLimit:     input.FeeLimit,
 	}
 
-	input := tsstypes.CreateSigningInput{
-		Group:    group,
-		Message:  msg,
-		Fee:      fee,
-		FeePayer: feePayer,
-	}
-	result, err := k.tssKeeper.CreateSigning(ctx, input)
+	result, err := k.tssKeeper.CreateSigning(ctx, tssInput)
 	if err != nil {
 		return nil, err
 	}
 
-	return &result.Signing, nil
+	return &types.HandleCreateSigningResult{
+		Message: msg,
+		Signing: result.Signing,
+	}, nil
 }

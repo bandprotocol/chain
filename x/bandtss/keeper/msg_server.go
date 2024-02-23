@@ -17,45 +17,11 @@ type msgServer struct {
 	*Keeper
 }
 
-// NewMsgServerImpl returns an implementation of the MsgServer interface
-// for the provided Keeper.
-func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
-	return &msgServer{Keeper: keeper}
-}
-
 var _ types.MsgServer = msgServer{}
 
-// UpdateGroupFee updates the fee for a specific group based on the provided request.
-// It performs authorization checks, retrieves the group, updates the fee, and stores
-// the updated group information.
-func (k msgServer) UpdateGroupFee(
-	goCtx context.Context,
-	req *types.MsgUpdateGroupFee,
-) (*types.MsgUpdateGroupFeeResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	input := tsstypes.UpdateGroupFeeInput{
-		GroupID: req.GroupID,
-		Fee:     req.Fee,
-	}
-	result, err := k.tssKeeper.UpdateGroupFee(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUpdateGroupFee,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", result.Group.ID)),
-			sdk.NewAttribute(types.AttributeKeyFee, result.Group.Fee.String()),
-		),
-	)
-
-	return &types.MsgUpdateGroupFeeResponse{}, nil
+// NewMsgServerImpl returns an implementation of the MsgServer interface for the provided Keeper.
+func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
+	return &msgServer{Keeper: keeper}
 }
 
 // CreateGroup initializes a new group. It passes the input to tss module.
@@ -117,61 +83,6 @@ func (k msgServer) CreateGroup(
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// RequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns members randomly, computes necessary values, and emits appropriate events.
-func (k msgServer) RequestSignature(
-	goCtx context.Context,
-	req *types.MsgRequestSignature,
-) (*types.MsgRequestSignatureResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
-	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
-	}
-
-	content := req.GetContent()
-	if !k.router.HasRoute(content.OrderRoute()) {
-		return nil, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
-	}
-
-	// Retrieve the appropriate handler for the request signature route.
-	handler := k.router.GetRoute(content.OrderRoute())
-
-	// Execute the handler to process the request.
-	msg, err := handler(ctx, content)
-	if err != nil {
-		return nil, err
-	}
-
-	// Handle request sign
-	signing, err := k.HandleRequestSign(ctx, req.GroupID, msg, feePayer, req.FeeLimit)
-	if err != nil {
-		return nil, err
-	}
-
-	event := sdk.NewEvent(
-		types.EventTypeRequestSignature,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
-		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(signing.GroupPubNonce)),
-	)
-	for _, am := range signing.AssignedMembers {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
-			sdk.NewAttribute(types.AttributeKeyAddress, am.Address),
-			sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString(am.BindingFactor)),
-			sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString(am.PubNonce)),
-			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(am.PubD)),
-			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(am.PubE)),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
-
-	return &types.MsgRequestSignatureResponse{}, nil
-}
-
 // ReplaceGroup handles the replacement of a group with another group. It passes the input to tss module.
 func (k msgServer) ReplaceGroup(
 	goCtx context.Context,
@@ -218,6 +129,7 @@ func (k msgServer) ReplaceGroup(
 		NewGroup:     newGroup,
 		ExecTime:     req.ExecTime,
 		FeePayer:     authority,
+		IsFeeCharged: false,
 	}
 	result, err := k.tssKeeper.ReplaceGroup(ctx, input)
 	if err != nil {
@@ -234,6 +146,66 @@ func (k msgServer) ReplaceGroup(
 	return &types.MsgReplaceGroupResponse{}, nil
 }
 
+// UpdateGroupFee updates the fee for a specific group based on the provided request.
+func (k msgServer) UpdateGroupFee(
+	goCtx context.Context,
+	req *types.MsgUpdateGroupFee,
+) (*types.MsgUpdateGroupFeeResponse, error) {
+	if k.authority != req.Authority {
+		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	input := tsstypes.UpdateGroupFeeInput{
+		GroupID: req.GroupID,
+		Fee:     req.Fee,
+	}
+	result, err := k.tssKeeper.UpdateGroupFee(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdateGroupFee,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", result.Group.ID)),
+			sdk.NewAttribute(types.AttributeKeyFee, result.Group.Fee.String()),
+		),
+	)
+
+	return &types.MsgUpdateGroupFeeResponse{}, nil
+}
+
+// RequestSignature initiates the signing process by requesting signatures from assigned members.
+// It assigns members randomly, computes necessary values, and emits appropriate events.
+func (k msgServer) RequestSignature(
+	goCtx context.Context,
+	req *types.MsgRequestSignature,
+) (*types.MsgRequestSignatureResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
+	if err != nil {
+		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+	}
+
+	// Execute the handler to process the request.
+	input := types.HandleCreateSigningInput{
+		GroupID:  req.GroupID,
+		Content:  req.GetContent(),
+		Sender:   feePayer,
+		FeeLimit: req.FeeLimit,
+	}
+	_, err = k.HandleCreateSigning(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgRequestSignatureResponse{}, nil
+}
+
+// Activate update the user status back to be active
 func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -254,6 +226,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	return &types.MsgActivateResponse{}, nil
 }
 
+// HealthCheck keeps notice that user is alive.
 func (k msgServer) HealthCheck(
 	goCtx context.Context,
 	msg *types.MsgHealthCheck,

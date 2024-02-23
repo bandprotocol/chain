@@ -3,13 +3,13 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 var _ types.QueryServer = queryServer{}
@@ -30,10 +30,10 @@ func (q queryServer) Status(
 	// Convert the address from Bech32 format to AccAddress format
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, errors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
+		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 	}
 
-	// Get all statuses of the address
+	// Get status of the address
 	status := q.k.GetStatus(ctx, address)
 
 	return &types.QueryStatusResponse{

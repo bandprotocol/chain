@@ -311,43 +311,6 @@ func (k Keeper) GetRandomAssignedMembers(
 	return selected, nil
 }
 
-// CreateSigning creates a new signing process and returns the result.
-func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (*types.CreateSigningResult, error) {
-	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, input.Group, input.Message)
-	if err != nil {
-		return nil, err
-	}
-
-	// Compute group public nonce for this signing
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add signing
-	signingID := k.AddSigning(ctx, types.NewSigning(
-		input.Group.ID,
-		input.Group.PubKey,
-		assignedMembers,
-		input.Message,
-		groupPubNonce,
-		nil,
-		input.Fee,
-		types.SIGNING_STATUS_WAITING,
-		input.FeePayer.String(),
-	))
-
-	signing, err := k.GetSigning(ctx, signingID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.CreateSigningResult{
-		Signing: signing,
-	}, nil
-}
-
 // HandleAssignedMembers handles the assignment of members for a group signature process.
 func (k Keeper) HandleAssignedMembers(
 	ctx sdk.Context,
@@ -416,16 +379,12 @@ func (k Keeper) HandleAssignedMembers(
 	return assignedMembers, nil
 }
 
-// HandleRequestSign process the content to get final message and request sign from member of the groups.
-func (k Keeper) HandleRequestSign(
+func (k Keeper) HandleSigningContent(
 	ctx sdk.Context,
-	groupID tss.GroupID,
 	content types.Content,
-	feePayer sdk.AccAddress,
-	feeLimit sdk.Coins,
-) (tss.SigningID, error) {
+) ([]byte, error) {
 	if !k.router.HasRoute(content.OrderRoute()) {
-		return 0, errors.Wrap(types.ErrNoSignatureOrderHandlerExists, content.OrderRoute())
+		return nil, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
 	}
 
 	// Retrieve the appropriate handler for the request signature route.
@@ -434,23 +393,10 @@ func (k Keeper) HandleRequestSign(
 	// Execute the handler to process the request.
 	msg, err := handler(ctx, content)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return k.handleRequestSign(ctx, groupID, msg, feePayer, feeLimit)
-}
-
-// HandleReplaceGroupRequestSignature handles the signing request for a group replacement.
-func (k Keeper) HandleReplaceGroupRequestSignature(
-	ctx sdk.Context,
-	pubKey tss.Point,
-	groupID tss.GroupID,
-	feePayer sdk.AccAddress,
-) (tss.SigningID, error) {
-	// Wrap the message data as replace group msg.
-	msg := append(types.ReplaceGroupMsgPrefix, pubKey...)
-
-	return k.handleRequestSign(ctx, groupID, msg, feePayer, sdk.NewCoins())
+	return msg, nil
 }
 
 // SetLastExpiredSigningID sets the last expired signing ID in the store.
@@ -610,61 +556,24 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	)
 }
 
-// handleRequestSign initiates the signing process by requesting signatures from assigned members.
-// It assigns assigned members randomly, computes necessary values, and emits appropriate events.
-func (k Keeper) handleRequestSign(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	msg []byte,
-	feePayer sdk.AccAddress,
-	feeLimit sdk.Coins,
-) (tss.SigningID, error) {
-	// Get group
-	group, err := k.GetGroup(ctx, groupID)
+// CreateSigning creates a new signing process and returns the result.
+func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (*types.CreateSigningResult, error) {
+	group, err := k.GetActiveGroup(ctx, input.GroupID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	// Verify if the group status is active.
-	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, errors.Wrap(types.ErrGroupIsNotActive, "group status is not active")
-	}
-
-	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
-	if err != nil {
-		return 0, err
-	}
-
-	// Compute group public nonce for this signing
-	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
-	if err != nil {
-		return 0, err
-	}
-
-	// Create signing struct
-	signing := types.NewSigning(
-		groupID,
-		group.PubKey,
-		assignedMembers,
-		msg,
-		groupPubNonce,
-		nil,
-		sdk.NewCoins(),
-		types.SIGNING_STATUS_WAITING,
-		feePayer.String(),
-	)
-
-	// Charge fee if requester is not authority address
-	if feePayer.String() != k.authority {
-		signing.Fee = group.Fee
+	// charged fee if necessary
+	fee := sdk.NewCoins()
+	if input.IsFeeCharged {
+		fee = group.Fee
 
 		// If found any coins that exceed limit then return error
-		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(len(assignedMembers))))
+		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
 		for _, fc := range feeCoins {
-			limitAmt := feeLimit.AmountOf(fc.Denom)
+			limitAmt := input.FeeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return 0, types.ErrNotEnoughFee.Wrapf(
+				return nil, types.ErrNotEnoughFee.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),
@@ -674,22 +583,57 @@ func (k Keeper) handleRequestSign(
 		}
 	}
 
-	// Add signing
-	signingID := k.AddSigning(ctx, signing)
-
-	// Handle hooks after signing initiated.
-	if err := k.Hooks().AfterSigningInitiated(ctx, signing); err != nil {
-		return 0, err
+	// Handle assigned members within the context of the group.
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, input.Message)
+	if err != nil {
+		return nil, err
 	}
 
+	// Compute group public nonce for this signing
+	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add signing
+	signingID := k.AddSigning(ctx, types.NewSigning(
+		group.ID,
+		group.PubKey,
+		assignedMembers,
+		input.Message,
+		groupPubNonce,
+		nil,
+		fee,
+		types.SIGNING_STATUS_WAITING,
+		input.FeePayer.String(),
+	))
+
+	signing, err := k.GetSigning(ctx, signingID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Handle hooks after signing initiated.
+	if err := k.Hooks().AfterSigningCreated(ctx, signing); err != nil {
+		return nil, err
+	}
+
+	k.emitCreateSigningEvent(ctx, input.Message, signing)
+
+	return &types.CreateSigningResult{
+		Signing: signing,
+	}, nil
+}
+
+func (k Keeper) emitCreateSigningEvent(ctx sdk.Context, msg []byte, signing types.Signing) {
 	event := sdk.NewEvent(
 		types.EventTypeRequestSignature,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
-		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(groupPubNonce)),
+		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(signing.GroupPubNonce)),
 	)
-	for _, am := range assignedMembers {
+	for _, am := range signing.AssignedMembers {
 		event = event.AppendAttributes(
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", am.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyAddress, am.Address),
@@ -700,6 +644,4 @@ func (k Keeper) handleRequestSign(
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
-
-	return signingID, nil
 }

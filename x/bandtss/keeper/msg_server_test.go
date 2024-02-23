@@ -64,24 +64,17 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 }
 
 func (s *KeeperTestSuite) TestFailedReplaceGroup() {
-	// Set up the test context and message server.
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	// Create an authority address.
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
-	// Define currentGroupID and newGroupID.
 	currentGroupID := tss.GroupID(1)
 	newGroupID := tss.GroupID(2)
 
-	// Create a replace group message.
 	var req types.MsgReplaceGroup
 
-	// Set up the test by creating an active group.
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	group := k.MustGetGroup(ctx, newGroupID)
 
-	// Define test cases.
 	tcs := []TestCase{
 		{
 			"failure due to incorrect authority",
@@ -117,17 +110,13 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 		},
 	}
 
-	// Loop through each test case.
 	for _, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			// Modify the request based on the test case.
 			tc.Malleate()
 
-			// Execute the ReplaceGroup method and check for expected errors.
 			_, err := msgSrvr.ReplaceGroup(ctx, &req)
 			s.Require().ErrorIs(tc.ExpectedErr, err)
 
-			// Perform post-test actions.
 			tc.PostTest()
 		})
 	}
@@ -166,16 +155,10 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 }
 
 func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
-	// Set up the test context and message server.
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
-	// Define GroupID
 	groupID := tss.GroupID(1)
-
-	// Create a update group fee message.
 	var req types.MsgUpdateGroupFee
-
-	// Define test cases.
 	tcs := []TestCase{
 		{
 			"failure due to incorrect authority",
@@ -192,17 +175,13 @@ func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
 		},
 	}
 
-	// Loop through each test case.
 	for _, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			// Modify the request based on the test case.
 			tc.Malleate()
 
-			// Execute the UpdateGroupFee method and check for expected errors.
 			_, err := msgSrvr.UpdateGroupFee(ctx, &req)
 			s.Require().ErrorIs(tc.ExpectedErr, err)
 
-			// Perform post-test actions.
 			tc.PostTest()
 		})
 	}
@@ -211,30 +190,21 @@ func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
 func (s *KeeperTestSuite) TestSuccessUpdateGroupFee() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
-	// Define GroupID
 	groupID := tss.GroupID(1)
-
-	// Create an authority address.
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-
-	// Define the group fee.
 	fee := sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
-	// Set up the test by creating an active group.
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
-	// Create the update group fee message.
 	msg := types.MsgUpdateGroupFee{
 		GroupID:   groupID,
 		Fee:       fee,
 		Authority: authority.String(),
 	}
 
-	// Execute the ReplaceGroup method.
 	_, err := msgSrvr.UpdateGroupFee(ctx, &msg)
 	s.Require().NoError(err)
 
-	// Check if the pending replace group matches the expected result.
 	got := k.MustGetGroup(ctx, groupID)
 	s.Require().Equal(fee, got.Fee)
 }
@@ -247,7 +217,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 	var req *types.MsgRequestSignature
 	var err error
 
-	// Add failed case
 	tcs := []TestCase{
 		{
 			"failure with invalid groupID",
@@ -297,7 +266,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				)
 			},
 			func() {},
-			types.ErrNotEnoughFee,
+			tsstypes.ErrNotEnoughFee,
 		},
 	}
 
@@ -334,7 +303,6 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
-	// Iterate through test cases from testutil
 	for _, tc := range testutil.TestCases {
 		// Request signature for each member in the group
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
@@ -375,7 +343,6 @@ func (s *KeeperTestSuite) TestActivateReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
-	// Iterate through test cases from testutil
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
@@ -392,7 +359,6 @@ func (s *KeeperTestSuite) TestHealthCheckReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
-	// Iterate through test cases from testutil
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {

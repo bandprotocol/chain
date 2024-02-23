@@ -5,8 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
@@ -17,8 +15,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
-
-	cdc.RegisterConcrete(&tsstypes.TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -30,11 +26,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgActivate{},
 		&MsgHealthCheck{},
 		&MsgUpdateParams{},
-	)
-	registry.RegisterInterface(
-		"tss.v1beta1.Content",
-		(*tsstypes.Content)(nil),
-		&tsstypes.TextSignatureOrder{},
 	)
 }
 

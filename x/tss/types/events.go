@@ -1,7 +1,6 @@
 package types
 
 const (
-	EventTypeUpdateGroupFee     = "update_group_fee"
 	EventTypeReplacement        = "replacement"
 	EventTypeExpiredGroup       = "expired_group"
 	EventTypeSubmitDKGRound1    = "submit_dkg_round1"
@@ -20,11 +19,6 @@ const (
 	EventTypeReplacementSuccess = "replacement_success"
 	EventTypeReplacementFailed  = "replacement_failed"
 	EventTypeSubmitSignature    = "submit_signature"
-	EventTypeActivate           = "activate"
-	EventTypeHealthCheck        = "health_check"
-	EventTypeInactiveStatus     = "inactive_status"
-	EventTypePausedStatus       = "paused_status"
-	EventTypeJailStatus         = "jail_status"
 
 	AttributeKeyGroupID        = "group_id"
 	AttributeKeyReplacementID  = "replacement_id"

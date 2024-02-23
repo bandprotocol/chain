@@ -19,42 +19,51 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-func (h Hooks) AfterGroupActivated(ctx sdk.Context, group tsstypes.Group) {}
-
-func (h Hooks) AfterGroupFailedToActivate(ctx sdk.Context, group tsstypes.Group) {}
-
-func (h Hooks) AfterGroupReplaced(ctx sdk.Context, replacement tsstypes.Replacement) {}
-
-func (h Hooks) AfterGroupFailedToReplace(ctx sdk.Context, replacement tsstypes.Replacement) {}
-
-func (h Hooks) AfterStatusUpdated(ctx sdk.Context, status types.Status) {}
-
-func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
-	if signing.Fee.IsZero() {
-		return
-	}
-
-	address := sdk.MustAccAddressFromBech32(signing.Requester)
-	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-
-	// Refund fee to requester
-	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
-	if err != nil {
-		panic(err) // Error is not possible
-	}
+func (h Hooks) AfterGroupActivated(ctx sdk.Context, group tsstypes.Group) error {
+	return nil
 }
 
-func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
+func (h Hooks) AfterGroupFailedToActivate(ctx sdk.Context, group tsstypes.Group) error {
+	return nil
+}
+
+func (h Hooks) AfterGroupReplaced(ctx sdk.Context, replacement tsstypes.Replacement) error {
+	return nil
+}
+
+func (h Hooks) AfterGroupFailedToReplace(ctx sdk.Context, replacement tsstypes.Replacement) error {
+	return nil
+}
+
+func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) error {
+	if signing.Fee.IsZero() {
+		return nil
+	}
+
+	// Refund fee to requester
+	address := sdk.MustAccAddressFromBech32(signing.Requester)
+	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
+	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) error {
 	// Send fee to assigned members.
 	for _, am := range signing.AssignedMembers {
 		address := sdk.MustAccAddressFromBech32(am.Address)
 		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee); err != nil {
-			panic(err) // Error is not possible
+			return err
 		}
 	}
+
+	return nil
 }
 
-func (h Hooks) AfterSigningInitiated(ctx sdk.Context, signing tsstypes.Signing) error {
+func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
 	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	if feeCoins.IsZero() {
 		return nil
@@ -87,8 +96,7 @@ func (h Hooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error 
 	}
 
 	// Set status to active and update the status in tssKeeper
-	err := h.k.SetActiveStatus(ctx, address)
-	if err != nil {
+	if err := h.k.SetActiveStatus(ctx, address); err != nil {
 		return err
 	}
 
@@ -112,7 +120,6 @@ func (h Hooks) AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error {
 	left := h.k.tssKeeper.GetDECount(ctx, member)
 	if left == 0 {
 		h.k.SetPausedStatus(ctx, member)
-		h.k.tssKeeper.SetMemberIsActive(ctx, member, false)
 	}
 
 	return nil

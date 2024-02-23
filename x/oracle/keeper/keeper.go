@@ -34,7 +34,7 @@ type Keeper struct {
 	channelKeeper     types.ChannelKeeper
 	portKeeper        types.PortKeeper
 	rollingseedKepper types.RollingseedKeeper
-	tssKeeper         types.TSSKeeper
+	BandTSSKeeper     types.BandTSSKeeper
 	scopedKeeper      capabilitykeeper.ScopedKeeper
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
@@ -56,7 +56,7 @@ func NewKeeper(
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	rollingseedKepper types.RollingseedKeeper,
-	tssKeeper types.TSSKeeper,
+	bandTSSKeeper types.BandTSSKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
 	authority string,
@@ -75,7 +75,7 @@ func NewKeeper(
 		channelKeeper:     channelKeeper,
 		portKeeper:        portKeeper,
 		rollingseedKepper: rollingseedKepper,
-		tssKeeper:         tssKeeper,
+		BandTSSKeeper:     bandTSSKeeper,
 		scopedKeeper:      scopeKeeper,
 		authority:         authority,
 	}

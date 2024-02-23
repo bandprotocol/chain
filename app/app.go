@@ -523,7 +523,6 @@ func NewBandApp(
 		appCodec,
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
-		authtypes.FeeCollectorName,
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
 		app.AccountKeeper,
@@ -532,7 +531,6 @@ func NewBandApp(
 	)
 	tssModule := tss.NewAppModule(&app.TSSKeeper)
 
-	bandTSSRouter := bandtsstypes.NewRouter()
 	app.BandTSSKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
@@ -544,7 +542,6 @@ func NewBandApp(
 		app.TSSKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
-		bandTSSRouter,
 	)
 	bandTSSModule := bandtss.NewAppModule(&app.BandTSSKeeper)
 
@@ -566,7 +563,7 @@ func NewBandApp(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.RollingseedKeeper,
-		app.TSSKeeper,
+		app.BandTSSKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -576,11 +573,6 @@ func NewBandApp(
 
 	// Add TSS route
 	tssRouter.
-		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
-
-	// Add BandTSS route
-	bandTSSRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 

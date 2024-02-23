@@ -7,7 +7,7 @@ func NewGenesisState(params Params) *GenesisState {
 	}
 }
 
-// DefaultGenesisState returns the default tss genesis state.
+// DefaultGenesisState returns the default bandtss genesis state.
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(DefaultParams())
 }

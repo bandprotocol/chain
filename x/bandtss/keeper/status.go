@@ -38,7 +38,7 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberIsActive(ctx, address, true)
+	k.tssKeeper.SetMemberIsActive(ctx, address, status.Status == types.MEMBER_STATUS_ACTIVE)
 
 	return nil
 }
@@ -53,7 +53,6 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 
 	status.LastActive = ctx.BlockTime()
 	k.SetMemberStatus(ctx, status)
-	k.tssKeeper.SetMemberIsActive(ctx, address, true)
 
 	return nil
 }
@@ -62,9 +61,8 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status == types.MEMBER_STATUS_INACTIVE {
-		return
-	} else if status.Status == types.MEMBER_STATUS_JAIL {
+	// cannot overwrite jail status; NOTE: this does not cause an error.
+	if status.Status == types.MEMBER_STATUS_INACTIVE || status.Status == types.MEMBER_STATUS_JAIL {
 		return
 	}
 
@@ -84,7 +82,7 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status != types.MEMBER_STATUS_PAUSED {
+	if status.Status == types.MEMBER_STATUS_PAUSED {
 		return
 	}
 
