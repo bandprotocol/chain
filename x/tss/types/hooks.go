@@ -9,7 +9,7 @@ var _ TSSHooks = &MultiTSSHooks{}
 
 type MultiTSSHooks []TSSHooks
 
-func NewMultiStakingHooks(hooks ...TSSHooks) MultiTSSHooks {
+func NewMultiTSSHooks(hooks ...TSSHooks) MultiTSSHooks {
 	return hooks
 }
 

@@ -74,8 +74,8 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		TB: tb,
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
-	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(&ba.TestingApp.TSSKeeper)
-	ba.BandTSSMsgSrvr = bandtsskeeper.NewMsgServerImpl(&ba.TestingApp.BandTSSKeeper)
+	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TestingApp.TSSKeeper)
+	ba.BandTSSMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandTSSKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}

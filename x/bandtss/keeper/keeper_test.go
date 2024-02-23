@@ -43,12 +43,12 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.BandTSSKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.BandTSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(&app.BandTSSKeeper)
-	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(&app.TSSKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(app.BandTSSKeeper)
+	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 

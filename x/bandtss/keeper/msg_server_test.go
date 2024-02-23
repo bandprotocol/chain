@@ -25,7 +25,7 @@ type TestCase struct {
 
 func (s *KeeperTestSuite) TestCreateGroupReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
-	tssMsgSrvr := tsskeeper.NewMsgServerImpl(&s.app.TSSKeeper)
+	tssMsgSrvr := tsskeeper.NewMsgServerImpl(s.app.TSSKeeper)
 
 	members := []string{
 		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",

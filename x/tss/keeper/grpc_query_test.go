@@ -27,7 +27,7 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	ctx, q, k, bandTSSKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandTSSKeeper
-	bandTSSMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
+	bandTSSMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandTSSKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{

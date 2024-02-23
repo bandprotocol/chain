@@ -529,7 +529,7 @@ func NewBandApp(
 		tssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	tssModule := tss.NewAppModule(&app.TSSKeeper)
+	tssModule := tss.NewAppModule(app.TSSKeeper)
 
 	app.BandTSSKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
@@ -543,11 +543,11 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
 	)
-	bandTSSModule := bandtss.NewAppModule(&app.BandTSSKeeper)
+	bandTSSModule := bandtss.NewAppModule(app.BandTSSKeeper)
 
 	// register TSS Hooks
 	app.TSSKeeper.SetHooks(
-		tsstypes.NewMultiStakingHooks(app.BandTSSKeeper.Hooks()),
+		tsstypes.NewMultiTSSHooks(app.BandTSSKeeper.Hooks()),
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -814,8 +814,8 @@ func NewBandApp(
 			},
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			TSSKeeper:       &app.TSSKeeper,
-			BandTSSKeeper:   &app.BandTSSKeeper,
+			TSSKeeper:       app.TSSKeeper,
+			BandTSSKeeper:   app.BandTSSKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,

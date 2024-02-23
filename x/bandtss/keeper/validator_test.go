@@ -68,7 +68,7 @@ func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper
 
 func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	app, ctx, k := testapp.CreateTestInput(false)
-	feeCollector, err := SetupFeeCollector(app, ctx, app.BandTSSKeeper)
+	feeCollector, err := SetupFeeCollector(app, ctx, *app.BandTSSKeeper)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -83,7 +83,7 @@ func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	app, ctx, _ := testapp.CreateTestInput(false)
 	tssKeeper, k := app.TSSKeeper, app.BandTSSKeeper
-	feeCollector, err := SetupFeeCollector(app, ctx, k)
+	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -125,7 +125,7 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 	ctx, app, k := s.ctx, s.app, s.app.BandTSSKeeper
 
-	feeCollector, err := SetupFeeCollector(app, ctx, k)
+	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))

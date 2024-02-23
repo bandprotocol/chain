@@ -44,17 +44,17 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.TSSKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.TSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
 	ctx, bandTSSKeeper, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&bandTSSKeeper)
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandTSSKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -591,7 +591,7 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 
 func (s *KeeperTestSuite) TestReplacementQueues() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(&s.app.BandTSSKeeper)
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandTSSKeeper)
 
 	replacementID := uint64(1)
 
