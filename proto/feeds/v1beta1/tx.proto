@@ -25,14 +25,18 @@ service Msg {
   rpc SignalSymbols(MsgSignalSymbols) returns (MsgSignalSymbolsResponse);
 }
 
+// MsgSignalSymbols is the transaction message to signal symbols
 message MsgSignalSymbols {
   option (cosmos.msg.v1.signer) = "delegator";
   option (amino.name)           = "feeds/MsgSignalSymbols";
 
-  string          delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  repeated Signal signals   = 2 [(gogoproto.nullable) = false];
+  // The address of the delegator that want to signal symbols
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // The signal details
+  repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
+// MsgSubmitPricesResponse is the response type for the Msg/SignalSymbols RPC method.
 message MsgSignalSymbolsResponse {}
 
 // MsgSubmitPrices is the transaction message to submit multiple prices.
