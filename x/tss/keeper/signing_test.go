@@ -416,7 +416,7 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 	}
 }
 
-func (s *KeeperTestSuite) TestHandleRequestSign() {
+func (s *KeeperTestSuite) TestCreateSigning() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
@@ -430,9 +430,6 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	// Define the fee payer's address.
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
-	// Set the fee limit to zero.
-	feeLimit := sdk.NewCoins()
-
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
 
@@ -441,11 +438,10 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	s.Require().NoError(err)
 
 	input := types.CreateSigningInput{
-		GroupID:      groupID,
-		Message:      msg,
-		IsFeeCharged: feePayer.String() == s.authority.String(),
-		FeeLimit:     feeLimit,
-		FeePayer:     feePayer,
+		Group:    group,
+		Message:  msg,
+		Fee:      sdk.NewCoins(),
+		FeePayer: feePayer,
 	}
 	result, err := k.CreateSigning(ctx, input)
 	s.Require().NoError(err)

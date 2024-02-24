@@ -18,12 +18,36 @@ func (k Keeper) HandleCreateSigning(
 		return nil, err
 	}
 
+	group, err := k.tssKeeper.GetActiveGroup(ctx, input.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// charged fee if necessary
+	fee := sdk.NewCoins()
+	if input.Sender.String() != k.authority {
+		fee = group.Fee
+
+		// If found any coins that exceed limit then return error
+		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
+		for _, fc := range feeCoins {
+			limitAmt := input.FeeLimit.AmountOf(fc.Denom)
+			if fc.Amount.GT(limitAmt) {
+				return nil, types.ErrNotEnoughFee.Wrapf(
+					"require: %s, limit: %s%s",
+					fc.String(),
+					limitAmt.String(),
+					fc.Denom,
+				)
+			}
+		}
+	}
+
 	tssInput := tsstypes.CreateSigningInput{
-		GroupID:      input.GroupID,
-		Message:      msg,
-		IsFeeCharged: input.Sender.String() != k.authority,
-		FeePayer:     input.Sender,
-		FeeLimit:     input.FeeLimit,
+		Group:    group,
+		Message:  msg,
+		Fee:      fee,
+		FeePayer: input.Sender,
 	}
 
 	result, err := k.tssKeeper.CreateSigning(ctx, tssInput)

@@ -319,8 +319,7 @@ func (k Keeper) HandleAssignedMembers(
 ) (types.AssignedMembers, error) {
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return types.AssignedMembers{}, errors.Wrap(
-			types.ErrGroupIsNotActive,
+		return types.AssignedMembers{}, types.ErrGroupIsNotActive.Wrap(
 			"group status is not active",
 		)
 	}
@@ -566,33 +565,33 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 
 // CreateSigning creates a new signing process and returns the result.
 func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (*types.CreateSigningResult, error) {
-	group, err := k.GetActiveGroup(ctx, input.GroupID)
-	if err != nil {
-		return nil, err
-	}
+	// group, err := k.GetActiveGroup(ctx, input.GroupID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	// charged fee if necessary
-	fee := sdk.NewCoins()
-	if input.IsFeeCharged {
-		fee = group.Fee
+	// // charged fee if necessary
+	// fee := sdk.NewCoins()
+	// if input.IsFeeCharged {
+	// 	fee = group.Fee
 
-		// If found any coins that exceed limit then return error
-		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
-		for _, fc := range feeCoins {
-			limitAmt := input.FeeLimit.AmountOf(fc.Denom)
-			if fc.Amount.GT(limitAmt) {
-				return nil, types.ErrNotEnoughFee.Wrapf(
-					"require: %s, limit: %s%s",
-					fc.String(),
-					limitAmt.String(),
-					fc.Denom,
-				)
-			}
-		}
-	}
+	// 	// If found any coins that exceed limit then return error
+	// 	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
+	// 	for _, fc := range feeCoins {
+	// 		limitAmt := input.FeeLimit.AmountOf(fc.Denom)
+	// 		if fc.Amount.GT(limitAmt) {
+	// 			return nil, types.ErrNotEnoughFee.Wrapf(
+	// 				"require: %s, limit: %s%s",
+	// 				fc.String(),
+	// 				limitAmt.String(),
+	// 				fc.Denom,
+	// 			)
+	// 		}
+	// 	}
+	// }
 
 	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, input.Message)
+	assignedMembers, err := k.HandleAssignedMembers(ctx, input.Group, input.Message)
 	if err != nil {
 		return nil, err
 	}
@@ -605,13 +604,13 @@ func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (
 
 	// Add signing
 	signingID := k.AddSigning(ctx, types.NewSigning(
-		group.ID,
-		group.PubKey,
+		input.Group.ID,
+		input.Group.PubKey,
 		assignedMembers,
 		input.Message,
 		groupPubNonce,
 		nil,
-		fee,
+		input.Fee,
 		types.SIGNING_STATUS_WAITING,
 		input.FeePayer.String(),
 	))

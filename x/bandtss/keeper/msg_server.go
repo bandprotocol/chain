@@ -129,7 +129,7 @@ func (k msgServer) ReplaceGroup(
 		NewGroup:     newGroup,
 		ExecTime:     req.ExecTime,
 		FeePayer:     authority,
-		IsFeeCharged: false,
+		Fee:          sdk.NewCoins(),
 	}
 	result, err := k.tssKeeper.ReplaceGroup(ctx, input)
 	if err != nil {

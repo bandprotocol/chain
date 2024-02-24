@@ -13,9 +13,9 @@ func NewMultiTSSHooks(hooks ...TSSHooks) MultiTSSHooks {
 	return hooks
 }
 
-func (h MultiTSSHooks) AfterGroupActivated(ctx sdk.Context, group Group) error {
+func (h MultiTSSHooks) AfterCreatingGroupCompleted(ctx sdk.Context, group Group) error {
 	for i := range h {
-		if err := h[i].AfterGroupActivated(ctx, group); err != nil {
+		if err := h[i].AfterCreatingGroupCompleted(ctx, group); err != nil {
 			return err
 		}
 	}
@@ -23,9 +23,9 @@ func (h MultiTSSHooks) AfterGroupActivated(ctx sdk.Context, group Group) error {
 	return nil
 }
 
-func (h MultiTSSHooks) AfterGroupFailedToActivate(ctx sdk.Context, group Group) error {
+func (h MultiTSSHooks) AfterCreatingGroupFailed(ctx sdk.Context, group Group) error {
 	for i := range h {
-		if err := h[i].AfterGroupFailedToActivate(ctx, group); err != nil {
+		if err := h[i].AfterCreatingGroupFailed(ctx, group); err != nil {
 			return err
 		}
 	}
@@ -33,9 +33,9 @@ func (h MultiTSSHooks) AfterGroupFailedToActivate(ctx sdk.Context, group Group) 
 	return nil
 }
 
-func (h MultiTSSHooks) AfterGroupReplaced(ctx sdk.Context, replacement Replacement) error {
+func (h MultiTSSHooks) BeforeSetGroupExpired(ctx sdk.Context, group Group) error {
 	for i := range h {
-		if err := h[i].AfterGroupReplaced(ctx, replacement); err != nil {
+		if err := h[i].BeforeSetGroupExpired(ctx, group); err != nil {
 			return err
 		}
 	}
@@ -43,9 +43,29 @@ func (h MultiTSSHooks) AfterGroupReplaced(ctx sdk.Context, replacement Replaceme
 	return nil
 }
 
-func (h MultiTSSHooks) AfterGroupFailedToReplace(ctx sdk.Context, replacement Replacement) error {
+func (h MultiTSSHooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement) error {
 	for i := range h {
-		if err := h[i].AfterGroupFailedToReplace(ctx, replacement); err != nil {
+		if err := h[i].AfterReplacingGroupCompleted(ctx, replacement); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h MultiTSSHooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement) error {
+	for i := range h {
+		if err := h[i].AfterReplacingGroupFailed(ctx, replacement); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h MultiTSSHooks) AfterSigningCreated(ctx sdk.Context, signing Signing) error {
+	for i := range h {
+		if err := h[i].AfterSigningCreated(ctx, signing); err != nil {
 			return err
 		}
 	}
@@ -73,29 +93,9 @@ func (h MultiTSSHooks) AfterSigningCompleted(ctx sdk.Context, signing Signing) e
 	return nil
 }
 
-func (h MultiTSSHooks) AfterSigningCreated(ctx sdk.Context, signing Signing) error {
-	for i := range h {
-		if err := h[i].AfterSigningCreated(ctx, signing); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (h MultiTSSHooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error {
 	for i := range h {
 		if err := h[i].AfterHandleSetDEs(ctx, address); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h MultiTSSHooks) BeforeSetGroupExpired(ctx sdk.Context, group Group) error {
-	for i := range h {
-		if err := h[i].BeforeSetGroupExpired(ctx, group); err != nil {
 			return err
 		}
 	}

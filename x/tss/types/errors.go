@@ -23,45 +23,44 @@ var (
 	ErrAddCoefCommit                = errors.Register(ModuleName, 13, "failed to add coefficient commit")
 	ErrInvalidLengthCoefCommits     = errors.Register(
 		ModuleName,
-		16,
+		14,
 		"coefficients commit length is invalid",
 	)
-	ErrRound2InfoNotFound                 = errors.Register(ModuleName, 17, "round 2 info not found")
+	ErrRound2InfoNotFound                 = errors.Register(ModuleName, 15, "round 2 info not found")
 	ErrInvalidLengthEncryptedSecretShares = errors.Register(
 		ModuleName,
-		18,
+		16,
 		"encrypted secret shares length is invalid ",
 	)
-	ErrComputeOwnPubKeyFailed           = errors.Register(ModuleName, 19, "failed to compute own public key")
-	ErrMemberIsAlreadyComplainOrConfirm = errors.Register(ModuleName, 20, "member is already complain or confirm")
-	ErrEncryptedSecretShareNotFound     = errors.Register(ModuleName, 21, "encrypted secret share not found")
-	ErrComplainFailed                   = errors.Register(ModuleName, 22, "failed to complain")
-	ErrConfirmFailed                    = errors.Register(ModuleName, 23, "failed to confirm")
-	ErrConfirmNotFound                  = errors.Register(ModuleName, 24, "confirm not found")
-	ErrComplaintsWithStatusNotFound     = errors.Register(ModuleName, 25, "complaints with status not found")
-	ErrDENotFound                       = errors.Register(ModuleName, 26, "de not found")
-	ErrGroupIsNotActive                 = errors.Register(ModuleName, 27, "group is not active")
-	ErrUnexpectedThreshold              = errors.Register(ModuleName, 28, "threshold value is unexpected")
-	ErrBadDrbgInitialization            = errors.Register(ModuleName, 29, "bad drbg initialization")
-	ErrPartialSignatureNotFound         = errors.Register(ModuleName, 30, "partial signature not found")
-	ErrInvalidArgument                  = errors.Register(ModuleName, 31, "invalid argument")
-	ErrSigningNotFound                  = errors.Register(ModuleName, 32, "signing not found")
-	ErrAlreadySigned                    = errors.Register(ModuleName, 33, "already signed")
-	ErrSigningAlreadySuccess            = errors.Register(ModuleName, 34, "signing already success")
-	ErrPubNonceNotEqualToSigR           = errors.Register(ModuleName, 35, "public nonce not equal to signature r")
-	ErrMemberNotAssigned                = errors.Register(ModuleName, 36, "member is not assigned")
-	ErrVerifySigningSigFailed           = errors.Register(ModuleName, 37, "failed to verify signing signature")
-	ErrCombineSigsFailed                = errors.Register(ModuleName, 38, "failed to combine signatures")
+	ErrComputeOwnPubKeyFailed           = errors.Register(ModuleName, 17, "failed to compute own public key")
+	ErrMemberIsAlreadyComplainOrConfirm = errors.Register(ModuleName, 18, "member is already complain or confirm")
+	ErrEncryptedSecretShareNotFound     = errors.Register(ModuleName, 19, "encrypted secret share not found")
+	ErrComplainFailed                   = errors.Register(ModuleName, 20, "failed to complain")
+	ErrConfirmFailed                    = errors.Register(ModuleName, 21, "failed to confirm")
+	ErrConfirmNotFound                  = errors.Register(ModuleName, 22, "confirm not found")
+	ErrComplaintsWithStatusNotFound     = errors.Register(ModuleName, 23, "complaints with status not found")
+	ErrDENotFound                       = errors.Register(ModuleName, 24, "de not found")
+	ErrGroupIsNotActive                 = errors.Register(ModuleName, 25, "group is not active")
+	ErrUnexpectedThreshold              = errors.Register(ModuleName, 26, "threshold value is unexpected")
+	ErrBadDrbgInitialization            = errors.Register(ModuleName, 27, "bad drbg initialization")
+	ErrPartialSignatureNotFound         = errors.Register(ModuleName, 28, "partial signature not found")
+	ErrInvalidArgument                  = errors.Register(ModuleName, 29, "invalid argument")
+	ErrSigningNotFound                  = errors.Register(ModuleName, 30, "signing not found")
+	ErrAlreadySigned                    = errors.Register(ModuleName, 31, "already signed")
+	ErrSigningAlreadySuccess            = errors.Register(ModuleName, 32, "signing already success")
+	ErrPubNonceNotEqualToSigR           = errors.Register(ModuleName, 33, "public nonce not equal to signature r")
+	ErrMemberNotAssigned                = errors.Register(ModuleName, 34, "member is not assigned")
+	ErrVerifySigningSigFailed           = errors.Register(ModuleName, 35, "failed to verify signing signature")
+	ErrCombineSigsFailed                = errors.Register(ModuleName, 36, "failed to combine signatures")
 	ErrVerifyGroupSigningSigFailed      = errors.Register(
 		ModuleName,
-		39,
+		37,
 		"failed to verify group signing signature",
 	)
-	ErrDEQueueFull                   = errors.Register(ModuleName, 40, "de queue is full")
-	ErrSigningExpired                = errors.Register(ModuleName, 41, "signing expired")
-	ErrStatusNotFound                = errors.Register(ModuleName, 43, "status not found")
-	ErrNotEnoughFee                  = errors.Register(ModuleName, 45, "not enough fee")
-	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 46, "failed to handle signature order")
-	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 47, "no handler exists for signature order type")
-	ErrReplacementNotFound           = errors.Register(ModuleName, 48, "replacement group not found")
+	ErrDEQueueFull                   = errors.Register(ModuleName, 38, "de queue is full")
+	ErrSigningExpired                = errors.Register(ModuleName, 39, "signing expired")
+	ErrStatusNotFound                = errors.Register(ModuleName, 40, "status not found")
+	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 41, "failed to handle signature order")
+	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 42, "no handler exists for signature order type")
+	ErrReplacementNotFound           = errors.Register(ModuleName, 43, "replacement group not found")
 )

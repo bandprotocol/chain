@@ -10,7 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func TestParseEvent(t *testing.T) {
@@ -26,14 +26,14 @@ func TestParseEvent(t *testing.T) {
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
 					bandtsstypes.EventTypeCreateGroup,
-					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
-					sdk.NewAttribute(types.AttributeKeySize, "3"),
-					sdk.NewAttribute(types.AttributeKeyThreshold, "2"),
-					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
-					sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString([]byte("dkgContext"))),
-					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
-					sdk.NewAttribute(types.AttributeKeyAddress, "member 2"),
-					sdk.NewAttribute(types.AttributeKeyAddress, "member 3"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeySize, "3"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyThreshold, "2"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyStatus, tsstypes.GROUP_STATUS_ROUND_1.String()),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyDKGContext, hex.EncodeToString([]byte("dkgContext"))),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyAddress, "member 2"),
+					sdk.NewAttribute(bandtsstypes.AttributeKeyAddress, "member 3"),
 				)),
 			}),
 			bandtsstypes.EventTypeCreateGroup,
@@ -46,12 +46,12 @@ func TestParseEvent(t *testing.T) {
 			"success - round1 success event",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeRound1Success,
-					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
-					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_2.String()),
+					tsstypes.EventTypeRound1Success,
+					sdk.NewAttribute(tsstypes.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(tsstypes.AttributeKeyStatus, tsstypes.GROUP_STATUS_ROUND_2.String()),
 				)),
 			}),
-			types.EventTypeRound1Success,
+			tsstypes.EventTypeRound1Success,
 			&group.Event{
 				GroupID: 1,
 			},
@@ -61,12 +61,12 @@ func TestParseEvent(t *testing.T) {
 			"success - round2 success event",
 			sdk.StringifyEvents([]abci.Event{
 				abci.Event(sdk.NewEvent(
-					types.EventTypeRound2Success,
-					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
-					sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_3.String()),
+					tsstypes.EventTypeRound2Success,
+					sdk.NewAttribute(tsstypes.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(tsstypes.AttributeKeyStatus, tsstypes.GROUP_STATUS_ROUND_3.String()),
 				)),
 			}),
-			types.EventTypeRound2Success,
+			tsstypes.EventTypeRound2Success,
 			&group.Event{
 				GroupID: 1,
 			},

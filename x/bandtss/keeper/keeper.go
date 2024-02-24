@@ -61,7 +61,7 @@ func NewKeeper(
 }
 
 // GetTSSAccount returns the BandTSS ModuleAccount
-func (k Keeper) GetTSSMemberAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+func (k Keeper) GetBandTSSMemberAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -70,7 +70,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // SetMemberStatus sets a status of a member of the group in the store.
-func (k Keeper) SetMemberStatus(ctx sdk.Context, status types.Status) {
+func (k Keeper) SetStatus(ctx sdk.Context, status types.Status) {
 	address := sdk.MustAccAddressFromBech32(status.Address)
 	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), k.cdc.MustMarshal(&status))
 }

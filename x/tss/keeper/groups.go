@@ -48,11 +48,10 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 // ReplaceGroup creates a new replacement info and put it into queue.
 func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
 	signingInput := types.CreateSigningInput{
-		GroupID:      input.CurrentGroup.ID,
-		Message:      append(types.ReplaceGroupMsgPrefix, input.NewGroup.PubKey...),
-		IsFeeCharged: input.IsFeeCharged,
-		FeeLimit:     sdk.NewCoins(),
-		FeePayer:     input.FeePayer,
+		Group:    input.CurrentGroup,
+		Message:  append(types.ReplaceGroupMsgPrefix, input.NewGroup.PubKey...),
+		Fee:      input.Fee,
+		FeePayer: input.FeePayer,
 	}
 
 	signingResult, err := k.CreateSigning(ctx, signingInput)

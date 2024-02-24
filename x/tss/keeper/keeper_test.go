@@ -64,7 +64,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			bandTSSKeeper.SetMemberStatus(ctx, bandtsstypes.Status{
+			bandTSSKeeper.SetStatus(ctx, bandtsstypes.Status{
 				Address: address.String(),
 				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),

@@ -14,7 +14,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	}
 
 	for _, status := range data.Statuses {
-		k.SetMemberStatus(ctx, status)
+		k.SetStatus(ctx, status)
 	}
 }
 

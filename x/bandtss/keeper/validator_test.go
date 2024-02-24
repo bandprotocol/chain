@@ -170,7 +170,7 @@ func (s *KeeperTestSuite) TestHandleInactiveValidators() {
 		Since:      time.Time{},
 		LastActive: time.Time{},
 	}
-	k.SetMemberStatus(ctx, status)
+	k.SetStatus(ctx, status)
 	ctx = ctx.WithBlockTime(time.Now())
 
 	k.HandleInactiveValidators(ctx)
