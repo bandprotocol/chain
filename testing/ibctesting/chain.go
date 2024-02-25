@@ -33,7 +33,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -48,7 +48,7 @@ type TestChain struct {
 	t *testing.T
 
 	Coordinator   *Coordinator
-	App           *testapp.TestingApp
+	App           *bandtesting.TestingApp
 	ChainID       string
 	LastHeader    *ibctmtypes.Header // header for last block height committed
 	CurrentHeader tmproto.Header     // header for current block height
@@ -83,8 +83,8 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 	for i := uint64(0); i < valSize; i++ {
 		// generate validator private/public key
-		privVal := mock.PV{PrivKey: testapp.Validators[i].PrivKey}
-		tmPub, err := cryptocodec.ToTmPubKeyInterface(testapp.Validators[i].PubKey)
+		privVal := mock.PV{PrivKey: bandtesting.Validators[i].PrivKey}
+		tmPub, err := cryptocodec.ToTmPubKeyInterface(bandtesting.Validators[i].PubKey)
 		require.NoError(t, err)
 
 		// create validator set with two validators
@@ -92,13 +92,13 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 		signers[i] = privVal
 
-		senders[testapp.Validators[i].Address.String()] = authtypes.NewBaseAccount(
-			testapp.Validators[i].PubKey.Address().Bytes(),
-			testapp.Validators[i].PubKey,
+		senders[bandtesting.Validators[i].Address.String()] = authtypes.NewBaseAccount(
+			bandtesting.Validators[i].PubKey.Address().Bytes(),
+			bandtesting.Validators[i].PubKey,
 			i,
 			0,
 		)
-		genesisAccount[i] = senders[testapp.Validators[i].Address.String()]
+		genesisAccount[i] = senders[bandtesting.Validators[i].Address.String()]
 		balances[i] = banktypes.Balance{
 			Address: genesisAccount[i].GetAddress().String(),
 			Coins:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000))),
@@ -107,7 +107,7 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 
 	valSet := tmtypes.NewValidatorSet(validators)
 
-	app := testapp.SetupWithGenesisValSet(t, valSet, genesisAccount, chainID, balances...)
+	app := bandtesting.SetupWithGenesisValSet(t, valSet, genesisAccount, chainID, balances...)
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	vals := app.StakingKeeper.GetAllValidators(ctx)
 	for _, v := range vals {
@@ -136,9 +136,9 @@ func NewTestChain(t *testing.T, coord *Coordinator, chainID string) *TestChain {
 		Codec:         app.AppCodec(),
 		Vals:          valSet,
 		Signers:       signers,
-		SenderPrivKey: testapp.Validators[0].PrivKey,
+		SenderPrivKey: bandtesting.Validators[0].PrivKey,
 		SenderAccount: genesisAccount[0],
-		Treasury:      testapp.Treasury.Address,
+		Treasury:      bandtesting.Treasury.Address,
 		senders:       senders,
 	}
 
@@ -254,7 +254,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
-	_, r, err := testapp.SignAndDeliver(
+	_, r, err := bandtesting.SignAndDeliver(
 		chain.t,
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
@@ -287,14 +287,14 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 func (chain *TestChain) SendReport(
 	rid types.RequestID,
 	rawReps []types.RawReport,
-	sender testapp.Account,
+	sender bandtesting.Account,
 ) (*sdk.Result, error) {
 	senderAccount := chain.senders[sender.Address.String()]
 
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
-	_, r, err := testapp.SignAndDeliver(
+	_, r, err := bandtesting.SignAndDeliver(
 		chain.t,
 		chain.TxConfig,
 		chain.App.GetBaseApp(),
