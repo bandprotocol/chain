@@ -151,7 +151,7 @@ do
     # add reporter to bandchain
     echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
-    # wait for addding reporter transaction success
+    # wait for adding reporter transaction success
     sleep 4
 
     docker create --network chain_bandchain --name bandchain_yoda${v} band-validator:latest yoda r
@@ -181,7 +181,7 @@ do
 
     for i in $(eval echo {1..1})
     do
-        # add reporter key
+        # add feeder key
         grogu keys add feeder$i
     done
 
@@ -191,10 +191,10 @@ do
     # wait for sending band tokens transaction success
     sleep 4
 
-    # add reporter to bandchain
+    # add feeder to bandchain
     echo "y" | bandd tx feeds add-grantees $(grogu keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
-    # wait for addding reporter transaction success
+    # wait for adding feeder transaction success
     sleep 4
 
     docker create --network chain_bandchain --name bandchain_grogu${v} band-validator:latest grogu r
@@ -216,7 +216,7 @@ do
     # send band tokens to worker
     echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
-    # wait for addding reporter transaction success
+    # wait for adding token transaction success
     sleep 4
 done
 
