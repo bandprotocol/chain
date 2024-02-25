@@ -1,7 +1,7 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -90,7 +90,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
+		return errorsmod.Wrap(err, "invalid authority address")
 	}
 
 	if err := m.Params.Validate(); err != nil {
@@ -134,7 +134,7 @@ func (m *MsgUpdatePriceService) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdatePriceService) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
-		return errors.Wrap(err, "invalid admin address")
+		return errorsmod.Wrap(err, "invalid admin address")
 	}
 
 	if err := m.PriceService.Validate(); err != nil {
