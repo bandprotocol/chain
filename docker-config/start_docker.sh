@@ -122,56 +122,13 @@ docker-compose up -d --build
 
 sleep 10
 
-# for v in {1..4}
-# do
-#     rm -rf ~/.yoda
-#     yoda config chain-id bandchain
-#     yoda config node tcp://multi-validator$v-node:26657
-#     yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
-#     yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
-
-#     # activate validator
-#     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
-
-#     # wait for activation transaction success
-#     sleep 4
-
-#     for i in $(eval echo {1..1})
-#     do
-#         # add reporter key
-#         yoda keys add reporter$i
-#     done
-
-#     # send band tokens to reporters
-#     echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
-
-#     # wait for sending band tokens transaction success
-#     sleep 4
-
-#     # add reporter to bandchain
-#     echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
-
-#     # wait for addding reporter transaction success
-#     sleep 4
-
-#     docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
-#     docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
-#     docker start bandchain_oracle${v}
-# done
-
-
 for v in {1..4}
 do
-    # run off-chain-prices image
-    docker run --network chain_bandchain -d --name off-chain-prices$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
-
-    rm -rf ~/.grogu
-    grogu config chain-id bandchain
-    grogu config node tcp://multi-validator$v-node:26657
-    grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
-
-    # change url to off-chain-prices image
-    grogu config price-service "rest:http://off-chain-prices$v:8080/crypto?timeout=10s"
+    rm -rf ~/.yoda
+    yoda config chain-id bandchain
+    yoda config node tcp://multi-validator$v-node:26657
+    yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+    yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
@@ -182,10 +139,53 @@ do
     for i in $(eval echo {1..1})
     do
         # add reporter key
-        grogu keys add reporter$i
+        yoda keys add reporter$i
     done
 
     # send band tokens to reporters
+    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for sending band tokens transaction success
+    sleep 4
+
+    # add reporter to bandchain
+    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for addding reporter transaction success
+    sleep 4
+
+    docker create --network chain_bandchain --name bandchain_yoda${v} band-validator:latest yoda r
+    docker cp ~/.yoda bandchain_yoda${v}:/root/.yoda
+    docker start bandchain_yoda${v}
+done
+
+
+for v in {1..4}
+do
+    # run price-service image
+    docker run --network chain_bandchain -d --name price-service$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
+
+    rm -rf ~/.grogu
+    grogu config chain-id bandchain
+    grogu config node tcp://multi-validator$v-node:26657
+    grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+
+    # change url to price-service image
+    grogu config price-service "rest:http://price-service$v:8080/crypto?timeout=10s"
+
+    # activate validator
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for activation transaction success
+    sleep 4
+
+    for i in $(eval echo {1..1})
+    do
+        # add reporter key
+        grogu keys add feeder$i
+    done
+
+    # send band tokens to feeders
     echo "y" | bandd tx bank send validator$v  $(grogu keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
@@ -197,9 +197,9 @@ do
     # wait for addding reporter transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest grogu r
-    docker cp ~/.grogu bandchain_oracle${v}:/root/.grogu
-    docker start bandchain_oracle${v}
+    docker create --network chain_bandchain --name bandchain_grogu${v} band-validator:latest grogu r
+    docker cp ~/.grogu bandchain_grogu${v}:/root/.grogu
+    docker start bandchain_grogu${v}
 done
 
 
