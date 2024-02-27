@@ -13,6 +13,8 @@ var (
 	ErrStatusIsNotActive = errors.Register(ModuleName, 5, "status is not active")
 	ErrTooSoonToActivate = errors.Register(ModuleName, 6, "too soon to activate")
 
-	ErrRequestReplacementFailed = errors.Register(ModuleName, 7, "failed to request replacement")
-	ErrNotEnoughFee             = errors.Register(ModuleName, 8, "not enough fee")
+	ErrRequestReplacementFailed      = errors.Register(ModuleName, 7, "failed to request replacement")
+	ErrNotEnoughFee                  = errors.Register(ModuleName, 8, "not enough fee")
+	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 9, "failed to handle signature order")
+	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 10, "no handler exists for signature order type")
 )

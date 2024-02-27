@@ -564,7 +564,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Request signature for the first member in the group
 			msg, err := bandtsstypes.NewMsgRequestSignature(
 				tc.Group.ID,
-				types.NewTextSignatureOrder([]byte("msg")),
+				bandtsstypes.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				testapp.FeePayer.Address,
 			)

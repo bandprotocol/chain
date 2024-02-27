@@ -300,14 +300,6 @@ message PartialSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
 }
 
-// TextSignatureOrder defines a general text signature order.
-message TextSignatureOrder {
-  option (cosmos_proto.implements_interface) = "Content";
-
-  // message is the data that needs to be signed.
-  bytes message = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-}
-
 // EVMSignature defines a signature in the EVM format.
 message EVMSignature {
   // r_address is the address of the nonce for using in the contract.

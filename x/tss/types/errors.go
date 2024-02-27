@@ -57,10 +57,8 @@ var (
 		37,
 		"failed to verify group signing signature",
 	)
-	ErrDEQueueFull                   = errors.Register(ModuleName, 38, "de queue is full")
-	ErrSigningExpired                = errors.Register(ModuleName, 39, "signing expired")
-	ErrStatusNotFound                = errors.Register(ModuleName, 40, "status not found")
-	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 41, "failed to handle signature order")
-	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 42, "no handler exists for signature order type")
-	ErrReplacementNotFound           = errors.Register(ModuleName, 43, "replacement group not found")
+	ErrDEQueueFull         = errors.Register(ModuleName, 38, "de queue is full")
+	ErrSigningExpired      = errors.Register(ModuleName, 39, "signing expired")
+	ErrStatusNotFound      = errors.Register(ModuleName, 40, "status not found")
+	ErrReplacementNotFound = errors.Register(ModuleName, 41, "replacement group not found")
 )

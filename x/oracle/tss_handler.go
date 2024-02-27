@@ -6,9 +6,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var (
@@ -18,8 +18,8 @@ var (
 )
 
 // NewSignatureOrderHandler creates a TSS Handler to handle oracle result signature order
-func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
-	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
+func NewSignatureOrderHandler(k keeper.Keeper) bandtsstypes.Handler {
+	return func(ctx sdk.Context, content bandtsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.OracleResultSignatureOrder:
 			result, err := k.GetResult(ctx, c.RequestID)

@@ -6,6 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -417,7 +418,7 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 }
 
 func (s *KeeperTestSuite) TestCreateSigning() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+	ctx, k, bandTSSKeeper := s.ctx, s.app.TSSKeeper, s.app.BandTSSKeeper
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -431,10 +432,10 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
 	// Create a new request for the request signature
-	content := types.NewTextSignatureOrder([]byte("example"))
+	content := bandtsstypes.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	msg, err := k.HandleSigningContent(ctx, content)
+	msg, err := bandTSSKeeper.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
 	input := types.CreateSigningInput{

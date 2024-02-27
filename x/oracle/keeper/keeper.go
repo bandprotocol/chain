@@ -34,7 +34,7 @@ type Keeper struct {
 	channelKeeper     types.ChannelKeeper
 	portKeeper        types.PortKeeper
 	rollingseedKepper types.RollingseedKeeper
-	BandTSSKeeper     types.BandTSSKeeper
+	bandTSSKeeper     types.BandTSSKeeper
 	scopedKeeper      capabilitykeeper.ScopedKeeper
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
@@ -75,7 +75,7 @@ func NewKeeper(
 		channelKeeper:     channelKeeper,
 		portKeeper:        portKeeper,
 		rollingseedKepper: rollingseedKepper,
-		BandTSSKeeper:     bandTSSKeeper,
+		bandTSSKeeper:     bandTSSKeeper,
 		scopedKeeper:      scopeKeeper,
 		authority:         authority,
 	}

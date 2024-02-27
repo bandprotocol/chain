@@ -378,26 +378,6 @@ func (k Keeper) HandleAssignedMembers(
 	return assignedMembers, nil
 }
 
-func (k Keeper) HandleSigningContent(
-	ctx sdk.Context,
-	content types.Content,
-) ([]byte, error) {
-	if !k.router.HasRoute(content.OrderRoute()) {
-		return nil, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
-	}
-
-	// Retrieve the appropriate handler for the request signature route.
-	handler := k.router.GetRoute(content.OrderRoute())
-
-	// Execute the handler to process the request.
-	msg, err := handler(ctx, content)
-	if err != nil {
-		return nil, err
-	}
-
-	return msg, nil
-}
-
 // SetLastExpiredSigningID sets the last expired signing ID in the store.
 func (k Keeper) SetLastExpiredSigningID(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Set(types.LastExpiredSigningIDStoreKey, sdk.Uint64ToBigEndian(uint64(signingID)))

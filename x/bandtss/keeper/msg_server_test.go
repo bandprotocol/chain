@@ -223,7 +223,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(999), // non-existent groupID
-					tsstypes.NewTextSignatureOrder([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -246,7 +246,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				k.SetGroup(ctx, inactiveGroup)
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(2), // inactive groupID
-					tsstypes.NewTextSignatureOrder([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -260,7 +260,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tss.GroupID(1),
-					tsstypes.NewTextSignatureOrder([]byte("msg")),
+					types.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					testapp.FeePayer.Address,
 				)
@@ -277,7 +277,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 				ctx,
-				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+				s.app.BandTSSKeeper.GetBandTSSAccount(ctx).GetAddress(),
 			)
 
 			_, err := msgSrvr.RequestSignature(ctx, req)
@@ -286,7 +286,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 				ctx,
-				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
+				s.app.BandTSSKeeper.GetBandTSSAccount(ctx).GetAddress(),
 			)
 
 			// Check if the balances of payer and module account doesn't change
@@ -310,12 +310,12 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.BandTSSKeeper.GetBandTSSMemberAccount(ctx).GetAddress(),
+					s.app.BandTSSKeeper.GetBandTSSAccount(ctx).GetAddress(),
 				)
 
 				msg, err := types.NewMsgRequestSignature(
 					tc.Group.ID,
-					tsstypes.NewTextSignatureOrder(signing.Data),
+					types.NewTextSignatureOrder(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
 				)
@@ -328,7 +328,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
-					s.app.BandTSSKeeper.GetBandTSSMemberAccount(ctx).GetAddress(),
+					s.app.BandTSSKeeper.GetBandTSSAccount(ctx).GetAddress(),
 				)
 
 				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))

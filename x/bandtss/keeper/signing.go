@@ -13,7 +13,7 @@ func (k Keeper) HandleCreateSigning(
 	input types.HandleCreateSigningInput,
 ) (*types.HandleCreateSigningResult, error) {
 	// Execute the handler to process the request.
-	msg, err := k.tssKeeper.HandleSigningContent(ctx, input.Content)
+	msg, err := k.HandleSigningContent(ctx, input.Content)
 	if err != nil {
 		return nil, err
 	}
@@ -59,4 +59,24 @@ func (k Keeper) HandleCreateSigning(
 		Message: msg,
 		Signing: result.Signing,
 	}, nil
+}
+
+func (k Keeper) HandleSigningContent(
+	ctx sdk.Context,
+	content types.Content,
+) ([]byte, error) {
+	if !k.router.HasRoute(content.OrderRoute()) {
+		return nil, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
+	}
+
+	// Retrieve the appropriate handler for the request signature route.
+	handler := k.router.GetRoute(content.OrderRoute())
+
+	// Execute the handler to process the request.
+	msg, err := handler(ctx, content)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
 }

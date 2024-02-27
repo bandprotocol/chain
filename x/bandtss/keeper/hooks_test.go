@@ -74,13 +74,13 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandTSSMemberAccount(ctx).GetAddress())
+			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandTSSAccount(ctx).GetAddress())
 
 			err := hook.AfterSigningFailed(ctx, tc.signing)
 			s.Require().NoError(err)
 
 			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandTSSMemberAccount(ctx).GetAddress())
+			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandTSSAccount(ctx).GetAddress())
 
 			gain := balancesAfter.Sub(balancesBefore...)
 			s.Require().Equal(tc.expCoins, gain)

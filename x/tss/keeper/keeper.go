@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -24,10 +23,8 @@ type Keeper struct {
 
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
-	authKeeper        types.AccountKeeper
 
 	hooks     types.TSSHooks
-	router    *types.Router
 	authority string
 }
 
@@ -37,23 +34,14 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
-	authKeeper types.AccountKeeper,
-	rtr *types.Router,
 	authority string,
 ) *Keeper {
-	// ensure TSS module account is set
-	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
-	}
-
 	return &Keeper{
 		cdc:               cdc,
 		storeKey:          storeKey,
 		paramSpace:        paramSpace,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
-		authKeeper:        authKeeper,
-		router:            rtr,
 		authority:         authority,
 	}
 }
@@ -61,11 +49,6 @@ func NewKeeper(
 // GetAuthority returns the x/tss module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
-}
-
-// GetTSSAccount returns the TSS ModuleAccount
-func (k Keeper) GetTSSAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // SetGroupCount sets the number of group count to the given value.

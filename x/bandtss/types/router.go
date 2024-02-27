@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Router struct {
@@ -37,8 +38,8 @@ func (r *Router) AddRoute(path string, h Handler) *Router {
 		panic("router sealed; cannot add route handler")
 	}
 
-	if path == ReplaceGroupPath {
-		panic(fmt.Sprintf("path (%s) is reserved for replacing group only", ReplaceGroupPath))
+	if path == tsstypes.ReplaceGroupPath {
+		panic(fmt.Sprintf("path (%s) is reserved for replacing group only", tsstypes.ReplaceGroupPath))
 	}
 
 	if !sdk.IsAlphaNumeric(path) {

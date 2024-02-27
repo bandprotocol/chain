@@ -15,6 +15,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
+
+	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
@@ -26,6 +28,12 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgActivate{},
 		&MsgHealthCheck{},
 		&MsgUpdateParams{},
+	)
+
+	registry.RegisterInterface(
+		"bandtss.v1beta1.Content",
+		(*Content)(nil),
+		&TextSignatureOrder{},
 	)
 }
 

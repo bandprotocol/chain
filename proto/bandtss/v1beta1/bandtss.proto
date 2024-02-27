@@ -38,3 +38,11 @@ message Status {
   // last_active is a latest block timestamp when a member is active
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
+
+// TextSignatureOrder defines a general text signature order.
+message TextSignatureOrder {
+  option (cosmos_proto.implements_interface) = "Content";
+
+  // message is the data that needs to be signed.
+  bytes message = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+}

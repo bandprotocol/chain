@@ -197,7 +197,6 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		tsstypes.ModuleName:            nil,
 		bandtsstypes.ModuleName:        nil,
 	}
 
@@ -518,19 +517,17 @@ func NewBandApp(
 	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
 
 	// register the request signature types
-	tssRouter := tsstypes.NewRouter()
 	app.TSSKeeper = tsskeeper.NewKeeper(
 		appCodec,
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
-		app.AccountKeeper,
-		tssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
+	bandTSSRouter := bandtsstypes.NewRouter()
 	app.BandTSSKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
@@ -540,6 +537,7 @@ func NewBandApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 		app.TSSKeeper,
+		bandTSSRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
 	)
@@ -572,14 +570,14 @@ func NewBandApp(
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
-	tssRouter.
-		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
+	bandTSSRouter.
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
-	tssRouter.Seal()
+	bandTSSRouter.Seal()
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
