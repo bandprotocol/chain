@@ -12,8 +12,8 @@ func NewGenesisState(params Params, symbols []Symbol, ps PriceService) *GenesisS
 	}
 }
 
-// DefaultGenesis returns the default genesis state
-func DefaultGenesis() *GenesisState {
+// DefaultGenesisState returns the default genesis state
+func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultPriceService())
 }
 

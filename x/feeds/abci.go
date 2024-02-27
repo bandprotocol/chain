@@ -13,7 +13,7 @@ import (
 func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	symbols := k.GetSupportedSymbolsByPower(ctx)
 	for _, symbol := range symbols {
-		price, err := k.CalculatePrice(ctx, symbol, true)
+		price, err := k.CalculatePrice(ctx, symbol)
 		if err != nil {
 			// TODO: handle error
 			continue

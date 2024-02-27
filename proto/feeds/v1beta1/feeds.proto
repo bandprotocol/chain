@@ -8,8 +8,9 @@ import "gogoproto/gogo.proto";
 // Signal contains symbol and power of that symbol
 message Signal {
   option (gogoproto.equal) = true;
-  string symbol            = 1;
-  uint64 power             = 2;
+
+  string symbol = 1;
+  uint64 power  = 2;
 }
 
 // Signal contains array of signal

@@ -2,15 +2,14 @@ package types
 
 // events
 const (
-	EventTypeUpdateSymbol = "update_symbol"
-	EventTypeRemoveSymbol = "remove_symbol"
-	EventTypeSubmitPrice  = "submit_price"
-	EventTypeUpdatePrice  = "update_price"
+	EventTypeSubmitPrice   = "submit_price"
+	EventTypeUpdatePrice   = "update_price"
+	EventTypeSignalSymbols = "signal_symbols"
 
-	AttributeKeyValidator   = "validator"
-	AttributeKeyPrice       = "price"
-	AttributeKeyTimestamp   = "timestamp"
-	AttributeKeySymbol      = "symbol"
-	AttributeKeyMinInterval = "min_interval"
-	AttributeKeyMaxInterval = "max_interval"
+	AttributeKeyValidator = "validator"
+	AttributeKeyPrice     = "price"
+	AttributeKeyTimestamp = "timestamp"
+	AttributeKeySymbol    = "symbol"
+	AttributeKeyDelegator = "delegator"
+	AttributeKeyPower     = "power"
 )
