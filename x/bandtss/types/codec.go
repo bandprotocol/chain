@@ -16,7 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
 
-	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
+	cdc.RegisterConcrete(&TextSignatureOrder{}, "bandtss/TextSignatureOrder", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
