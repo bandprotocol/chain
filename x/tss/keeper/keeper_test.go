@@ -54,7 +54,7 @@ func (s *KeeperTestSuite) SetupTest() {
 
 func (s *KeeperTestSuite) setupCreateGroup() {
 	ctx, bandtssKeeper, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -73,7 +73,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		}
 
 		// Create group
-		_, err := tssmemberMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
+		_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
@@ -591,7 +591,7 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 
 func (s *KeeperTestSuite) TestReplacementQueues() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	replacementID := uint64(1)
 
@@ -599,7 +599,7 @@ func (s *KeeperTestSuite) TestReplacementQueues() {
 
 	now := time.Now()
 
-	_, err := tssmemberMsgSrvr.ReplaceGroup(ctx, &bandtsstypes.MsgReplaceGroup{
+	_, err := bandtssMsgSrvr.ReplaceGroup(ctx, &bandtsstypes.MsgReplaceGroup{
 		CurrentGroupID: 1,
 		NewGroupID:     2,
 		ExecTime:       now,
