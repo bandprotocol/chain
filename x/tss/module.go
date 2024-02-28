@@ -99,7 +99,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // RegisterInvariants registers the tss module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// InitGenesis performs a no-op.
+// InitGenesis performs genesis initialization for the tss module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)

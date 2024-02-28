@@ -64,4 +64,5 @@ var (
 	ErrHandleSignatureOrderFailed    = errors.Register(ModuleName, 42, "failed to handle signature order")
 	ErrNoSignatureOrderHandlerExists = errors.Register(ModuleName, 43, "no handler exists for signature order type")
 	ErrReplacementNotFound           = errors.Register(ModuleName, 44, "replacement group not found")
+	ErrRequestReplacementFailed      = errors.Register(ModuleName, 45, "failed to request replacement")
 )

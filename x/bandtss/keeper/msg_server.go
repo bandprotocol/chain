@@ -8,7 +8,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type msgServer struct {
@@ -69,32 +68,7 @@ func (k msgServer) ReplaceGroup(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Check if NewGroupID and CurrentGroupID are active
-	newGroup, err := k.tssKeeper.GetActiveGroup(ctx, req.NewGroupID)
-	if err != nil {
-		return nil, err
-	}
-	currentGroup, err := k.tssKeeper.GetActiveGroup(ctx, req.CurrentGroupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify whether the group is not in the pending replacement process.
-	lastReplacementID := currentGroup.LatestReplacementID
-	if lastReplacementID != uint64(0) {
-		lastReplacement, err := k.tssKeeper.GetReplacement(ctx, lastReplacementID)
-		if err != nil {
-			return nil, err
-		}
-
-		if lastReplacement.Status == tsstypes.REPLACEMENT_STATUS_WAITING {
-			return nil, types.ErrRequestReplacementFailed.Wrap(
-				"the group is in the pending replacement process",
-			)
-		}
-	}
-
-	_, err = k.tssKeeper.ReplaceGroup(ctx, currentGroup, newGroup, req.ExecTime, authority, sdk.NewCoins())
+	_, err = k.tssKeeper.ReplaceGroup(ctx, req.CurrentGroupID, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
 	if err != nil {
 		return nil, err
 	}

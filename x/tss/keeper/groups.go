@@ -71,12 +71,38 @@ func (k Keeper) CreateGroup(
 // ReplaceGroup creates a new replacement info and put it into queue.
 func (k Keeper) ReplaceGroup(
 	ctx sdk.Context,
-	currentGroup types.Group,
-	newGroup types.Group,
+	currentGroupID tss.GroupID,
+	newGroupID tss.GroupID,
 	execTime time.Time,
 	feePayer sdk.AccAddress,
 	fee sdk.Coins,
 ) (uint64, error) {
+	// Check if NewGroupID and CurrentGroupID are active
+	newGroup, err := k.GetActiveGroup(ctx, newGroupID)
+	if err != nil {
+		return 0, err
+	}
+
+	currentGroup, err := k.GetActiveGroup(ctx, currentGroupID)
+	if err != nil {
+		return 0, err
+	}
+
+	// Verify whether the group is not in the pending replacement process.
+	lastReplacementID := currentGroup.LatestReplacementID
+	if lastReplacementID != uint64(0) {
+		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
+		if err != nil {
+			return 0, err
+		}
+
+		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
+			return 0, types.ErrRequestReplacementFailed.Wrap(
+				"the group is in the pending replacement process",
+			)
+		}
+	}
+
 	msg := append(types.ReplaceGroupMsgPrefix, newGroup.PubKey...)
 	signing, err := k.CreateSigning(ctx, currentGroup, msg, fee, feePayer)
 	if err != nil {

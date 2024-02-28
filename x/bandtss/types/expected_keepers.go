@@ -80,8 +80,8 @@ type TSSKeeper interface {
 
 	ReplaceGroup(
 		ctx sdk.Context,
-		currentGroup tsstypes.Group,
-		newGroup tsstypes.Group,
+		currentGroupID tss.GroupID,
+		newGroupID tss.GroupID,
 		execTime time.Time,
 		feePayer sdk.AccAddress,
 		fee sdk.Coins,
@@ -95,13 +95,10 @@ type TSSKeeper interface {
 		feePayer sdk.AccAddress,
 	) (*tsstypes.Signing, error)
 
-	GetSigningCount(ctx sdk.Context) uint64
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
-	GetReplacement(ctx sdk.Context, replacementID uint64) (tsstypes.Replacement, error)
-	GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]tsstypes.Member, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 
 	SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool)

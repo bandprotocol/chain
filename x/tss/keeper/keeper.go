@@ -410,12 +410,12 @@ func (k Keeper) GetMemberIsActives(ctx sdk.Context) ([]sdk.AccAddress, []bool) {
 	return addresses, isActives
 }
 
-func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []*types.IsActiveGenesis {
+func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []types.IsActiveGenesis {
 	addresses, isActives := k.GetMemberIsActives(ctx)
 
-	var data []*types.IsActiveGenesis
+	var data []types.IsActiveGenesis
 	for i := range addresses {
-		data = append(data, &types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
+		data = append(data, types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
 	}
 
 	return data
