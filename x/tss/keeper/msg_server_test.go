@@ -554,7 +554,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-	bandTssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -569,7 +569,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				testapp.FeePayer.Address,
 			)
 			s.Require().NoError(err)
-			_, err = bandTssMsgSrvr.RequestSignature(ctx, msg)
+			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)
 			s.T().Log(err)
 			s.Require().NoError(err)
 

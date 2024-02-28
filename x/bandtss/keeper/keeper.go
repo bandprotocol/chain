@@ -41,7 +41,7 @@ func NewKeeper(
 	authority string,
 	feeCollectorName string,
 ) *Keeper {
-	// ensure BandTSS module account is set
+	// ensure Bandtss module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
