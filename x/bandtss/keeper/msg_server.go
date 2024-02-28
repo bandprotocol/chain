@@ -46,9 +46,8 @@ func (k msgServer) CreateGroup(
 		}
 	}
 
-	_, err := k.tssKeeper.CreateGroup(ctx, req.Members, req.Threshold, req.Fee)
-	if err != nil {
-		return nil, types.ErrCreateGroupTSSError.Wrapf("failed to create group: %s", err)
+	if _, err := k.tssKeeper.CreateGroup(ctx, req.Members, req.Threshold, req.Fee); err != nil {
+		return nil, err
 	}
 
 	return &types.MsgCreateGroupResponse{}, nil

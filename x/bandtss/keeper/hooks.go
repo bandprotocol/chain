@@ -14,7 +14,7 @@ type Hooks struct {
 
 var _ tsstypes.TSSHooks = Hooks{}
 
-// Create new distribution hooks
+// Create new Bandtss hooks
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }

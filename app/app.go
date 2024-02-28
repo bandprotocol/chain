@@ -532,7 +532,7 @@ func NewBandApp(
 	app.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
-		app.GetSubspace(tsstypes.ModuleName),
+		app.GetSubspace(bandtsstypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.DistrKeeper,

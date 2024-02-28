@@ -340,14 +340,6 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
 		{
-			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
-			Coins:   Coins100000000uband,
-		},
-		{
-			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
-			Coins:   Coins100000000token,
-		},
-		{
 			Address: authtypes.NewModuleAddress(bandtsstypes.ModuleName).String(),
 			Coins:   Coins100000000uband,
 		},
