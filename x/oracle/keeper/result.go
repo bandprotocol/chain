@@ -89,7 +89,7 @@ func (k Keeper) ResolveSuccess(
 		FeeLimit: feeLimit,
 	}
 
-	bandTSSResult, err := k.bandTSSKeeper.HandleCreateSigning(ctx, signingInput)
+	bandtssResult, err := k.bandtssKeeper.HandleCreateSigning(ctx, signingInput)
 	if err != nil {
 		k.handleFailedSigning(ctx, id, gid, event, err)
 		return
@@ -97,7 +97,7 @@ func (k Keeper) ResolveSuccess(
 
 	// save signing result and emit an event.
 	signingResult := &types.SigningResult{
-		SigningID: bandTSSResult.Signing.ID,
+		SigningID: bandtssResult.Signing.ID,
 	}
 	k.SetSigningResult(ctx, id, *signingResult)
 

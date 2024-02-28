@@ -24,10 +24,10 @@ type FeeChecker struct {
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
-	BandTSSKeeper   *bandtsskeeper.Keeper
+	BandtssKeeper   *bandtsskeeper.Keeper
 
 	TSSMsgServer     tsstypes.MsgServer
-	BandTSSMsgServer bandtsstypes.MsgServer
+	BandtssMsgServer bandtsstypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -36,10 +36,10 @@ func NewFeeChecker(
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	tssKeeper *tsskeeper.Keeper,
-	bandTSSKeeper *bandtsskeeper.Keeper,
+	bandtssKeeper *bandtsskeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	bandTSSMsgServer := bandtsskeeper.NewMsgServerImpl(bandTSSKeeper)
+	bandtssMsgServer := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	return FeeChecker{
 		AuthzKeeper:      authzKeeper,
@@ -47,9 +47,9 @@ func NewFeeChecker(
 		GlobalfeeKeeper:  globalfeeKeeper,
 		StakingKeeper:    stakingKeeper,
 		TSSKeeper:        tssKeeper,
-		BandTSSKeeper:    bandTSSKeeper,
+		BandtssKeeper:    bandtssKeeper,
 		TSSMsgServer:     tssMsgServer,
-		BandTSSMsgServer: bandTSSMsgServer,
+		BandtssMsgServer: bandtssMsgServer,
 	}
 }
 
@@ -153,7 +153,7 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 			return false
 		}
 	case *bandtsstypes.MsgHealthCheck:
-		if _, err := fc.BandTSSMsgServer.HealthCheck(ctx, msg); err != nil {
+		if _, err := fc.BandtssMsgServer.HealthCheck(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

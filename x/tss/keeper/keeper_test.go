@@ -53,8 +53,8 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandTSSKeeper, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandTSSKeeper)
+	ctx, bandtssKeeper, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -64,7 +64,7 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			bandTSSKeeper.SetStatus(ctx, bandtsstypes.Status{
+			bandtssKeeper.SetStatus(ctx, bandtsstypes.Status{
 				Address: address.String(),
 				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
@@ -591,7 +591,7 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 
 func (s *KeeperTestSuite) TestReplacementQueues() {
 	ctx, k := s.ctx, s.app.TSSKeeper
-	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandTSSKeeper)
+	tssmemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	replacementID := uint64(1)
 

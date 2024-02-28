@@ -52,7 +52,7 @@ type AppKeepers struct {
 	RollingseedKeeper     rollingseedKeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             *tsskeeper.Keeper
-	BandTSSKeeper         *bandtsskeeper.Keeper
+	BandtssKeeper         *bandtsskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 

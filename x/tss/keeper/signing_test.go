@@ -418,7 +418,7 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 }
 
 func (s *KeeperTestSuite) TestCreateSigning() {
-	ctx, k, bandTSSKeeper := s.ctx, s.app.TSSKeeper, s.app.BandTSSKeeper
+	ctx, k, bandtssKeeper := s.ctx, s.app.TSSKeeper, s.app.BandtssKeeper
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -435,7 +435,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	content := bandtsstypes.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	msg, err := bandTSSKeeper.HandleSigningContent(ctx, content)
+	msg, err := bandtssKeeper.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
 	input := types.CreateSigningInput{

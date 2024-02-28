@@ -26,7 +26,7 @@ type HandlerOptions struct {
 	GlobalfeeKeeper *globalfeekeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
-	BandTSSKeeper   *bandtsskeeper.Keeper
+	BandtssKeeper   *bandtsskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -48,7 +48,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.TSSKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("tss keeper is required for AnteHandler")
 	}
-	if options.BandTSSKeeper == nil {
+	if options.BandtssKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("bandtss keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
@@ -73,7 +73,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
 			options.TSSKeeper,
-			options.BandTSSKeeper,
+			options.BandtssKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}

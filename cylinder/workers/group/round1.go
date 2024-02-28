@@ -14,7 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // Round1 is a worker responsible for round1 in the DKG process of TSS module
@@ -49,7 +49,7 @@ func (r *Round1) subscribe() (err error) {
 	subscriptionQuery := fmt.Sprintf(
 		"tm.event = 'NewBlock' AND %s.%s = '%s'",
 		bandtsstypes.EventTypeCreateGroup,
-		types.AttributeKeyAddress,
+		tsstypes.AttributeKeyAddress,
 		r.context.Config.Granter,
 	)
 	r.eventCh, err = r.client.Subscribe("Round1", subscriptionQuery, 1000)
@@ -96,7 +96,7 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 		return
 	}
 
-	if groupRes.Group.Status != types.GROUP_STATUS_ROUND_1 {
+	if groupRes.Group.Status != tsstypes.GROUP_STATUS_ROUND_1 {
 		return
 	}
 
@@ -130,9 +130,9 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	}
 
 	// Generate message
-	msg := types.NewMsgSubmitDKGRound1(
+	msg := tsstypes.NewMsgSubmitDKGRound1(
 		gid,
-		types.Round1Info{
+		tsstypes.Round1Info{
 			MemberID:           mid,
 			CoefficientCommits: data.CoefficientCommits,
 			OneTimePubKey:      data.OneTimePubKey,

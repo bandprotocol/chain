@@ -43,17 +43,17 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.BandTSSKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.BandtssKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(app.BandTSSKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(app.BandtssKeeper)
 	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandTssMsgSrvr, bandTssKeeper, tssKeeper := s.ctx, s.msgSrvr, s.app.BandTSSKeeper, s.app.TSSKeeper
+	ctx, bandtssMsgSrvr, bandtssKeeper, tssKeeper := s.ctx, s.msgSrvr, s.app.BandtssKeeper, s.app.TSSKeeper
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -62,12 +62,12 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		for _, m := range tc.Group.Members {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
-			err := bandTssKeeper.SetActiveStatus(ctx, address)
+			err := bandtssKeeper.SetActiveStatus(ctx, address)
 			s.Require().NoError(err)
 		}
 
 		// Create group
-		_, err := bandTssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		_, err := bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
@@ -186,7 +186,7 @@ func (s *KeeperTestSuite) SetupGroup(groupStatus tsstypes.GroupStatus) {
 }
 
 func (s *KeeperTestSuite) TestParams() {
-	k := s.app.BandTSSKeeper
+	k := s.app.BandtssKeeper
 
 	testCases := []struct {
 		name         string

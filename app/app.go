@@ -527,8 +527,8 @@ func NewBandApp(
 	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
-	bandTSSRouter := bandtsstypes.NewRouter()
-	app.BandTSSKeeper = bandtsskeeper.NewKeeper(
+	bandtssRouter := bandtsstypes.NewRouter()
+	app.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
@@ -537,15 +537,15 @@ func NewBandApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 		app.TSSKeeper,
-		bandTSSRouter,
+		bandtssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
 	)
-	bandTSSModule := bandtss.NewAppModule(app.BandTSSKeeper)
+	bandtssModule := bandtss.NewAppModule(app.BandtssKeeper)
 
 	// register TSS Hooks
 	app.TSSKeeper.SetHooks(
-		tsstypes.NewMultiTSSHooks(app.BandTSSKeeper.Hooks()),
+		tsstypes.NewMultiTSSHooks(app.BandtssKeeper.Hooks()),
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -561,7 +561,7 @@ func NewBandApp(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.RollingseedKeeper,
-		app.BandTSSKeeper,
+		app.BandtssKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -569,15 +569,15 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	// Add TSS route
-	bandTSSRouter.
+	// Add Bandtss route
+	bandtssRouter.
 		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
-	bandTSSRouter.Seal()
+	bandtssRouter.Seal()
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -670,7 +670,7 @@ func NewBandApp(
 		rollingseedModule,
 		oracleModule,
 		tssModule,
-		bandTSSModule,
+		bandtssModule,
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 
@@ -813,7 +813,7 @@ func NewBandApp(
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
 			TSSKeeper:       app.TSSKeeper,
-			BandTSSKeeper:   app.BandTSSKeeper,
+			BandtssKeeper:   app.BandtssKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,

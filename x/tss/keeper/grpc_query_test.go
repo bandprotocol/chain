@@ -26,8 +26,8 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, q, k, bandTSSKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandTSSKeeper
-	bandTSSMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandTSSKeeper)
+	ctx, q, k, bandtssKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandtssKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -40,7 +40,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		err := bandTSSKeeper.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
+		err := bandtssKeeper.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
 		s.Require().NoError(err)
 
 		err = k.HandleSetDEs(ctx, address, []types.DE{
@@ -125,7 +125,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	_, err := bandTSSMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
+	_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),
@@ -205,7 +205,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 				}
 
 				for _, expectedStatus := range expectedMemberStatuses {
-					status := bandTSSKeeper.GetStatus(ctx, sdk.MustAccAddressFromBech32(expectedStatus.Address))
+					status := bandtssKeeper.GetStatus(ctx, sdk.MustAccAddressFromBech32(expectedStatus.Address))
 					s.Require().Equal(status, expectedStatus)
 				}
 

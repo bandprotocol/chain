@@ -733,7 +733,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// Hooks gets the hooks for staking *Keeper {
+// Hooks gets the hooks for tss *Keeper {
 func (k *Keeper) Hooks() types.TSSHooks {
 	if k.hooks == nil {
 		return types.MultiTSSHooks{}
@@ -742,11 +742,10 @@ func (k *Keeper) Hooks() types.TSSHooks {
 	return k.hooks
 }
 
-// SetHooks Set the validator hooks.  In contrast to other receivers, this method must take a pointer due to nature
-// of the hooks interface and SDK start up sequence.
+// SetHooks Set the hooks for the tss keeper.
 func (k *Keeper) SetHooks(sh types.TSSHooks) {
 	if k.hooks != nil {
-		panic("cannot set validator hooks twice")
+		panic("cannot set hooks twice")
 	}
 
 	k.hooks = sh

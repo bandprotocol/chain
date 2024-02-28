@@ -37,7 +37,7 @@ type BenchmarkApp struct {
 	Ctx            sdk.Context
 	Querier        keeper.Querier
 	TSSMsgSrvr     tsstypes.MsgServer
-	BandTSSMsgSrvr bandtsstypes.MsgServer
+	BandtssMsgSrvr bandtsstypes.MsgServer
 	authority      sdk.AccAddress
 }
 
@@ -75,7 +75,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
 	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TestingApp.TSSKeeper)
-	ba.BandTSSMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandTSSKeeper)
+	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandtssKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
@@ -225,7 +225,7 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 
 func (ba *BenchmarkApp) SetupTSSGroup() {
 	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
-	k, bandTssKeeper := ba.TestingApp.TSSKeeper, ba.TestingApp.BandTSSKeeper
+	k, bandtssKeeper := ba.TestingApp.TSSKeeper, ba.TestingApp.BandtssKeeper
 
 	// force address to owner
 	owner := ba.Sender.Address.String()
@@ -242,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := bandTssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
+			err := bandtssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 
@@ -334,7 +334,7 @@ func (ba *BenchmarkApp) RequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) {
-	ctx, msgSrvr := ba.Ctx, ba.BandTSSMsgSrvr
+	ctx, msgSrvr := ba.Ctx, ba.BandtssMsgSrvr
 
 	msg, err := bandtsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
 	require.NoError(ba.TB, err)

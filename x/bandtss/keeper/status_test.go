@@ -9,7 +9,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestSetInActive() {
-	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
+	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
@@ -23,7 +23,7 @@ func (s *KeeperTestSuite) TestSetInActive() {
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
-	ctx, k, tssKeeper := s.ctx, s.app.BandTSSKeeper, s.app.TSSKeeper
+	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
@@ -48,7 +48,7 @@ func (s *KeeperTestSuite) TestSetActive() {
 }
 
 func (s *KeeperTestSuite) TestSetLastActive() {
-	ctx, k := s.ctx, s.app.BandTSSKeeper
+	ctx, k := s.ctx, s.app.BandtssKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
