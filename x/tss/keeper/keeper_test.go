@@ -748,6 +748,7 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
+				MaxGroupSize:   0,
 				MaxDESize:      0,
 				CreatingPeriod: 1,
 				SigningPeriod:  1,
@@ -758,6 +759,7 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
+				MaxGroupSize:   types.DefaultMaxGroupSize,
 				MaxDESize:      types.DefaultMaxDESize,
 				CreatingPeriod: types.DefaultCreatingPeriod,
 				SigningPeriod:  types.DefaultSigningPeriod,

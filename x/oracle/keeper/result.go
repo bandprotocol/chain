@@ -11,7 +11,6 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -82,14 +81,12 @@ func (k Keeper) ResolveSuccess(
 	}
 
 	// handle signing content
-	signingInput := bandtsstypes.HandleCreateSigningInput{
-		GroupID:  gid,
-		Content:  types.NewOracleResultSignatureOrder(id, encodeType),
-		Sender:   sdk.MustAccAddressFromBech32(requester),
-		FeeLimit: feeLimit,
-	}
-
-	bandtssResult, err := k.bandtssKeeper.HandleCreateSigning(ctx, signingInput)
+	signing, err := k.bandtssKeeper.HandleCreateSigning(
+		ctx,
+		gid,
+		types.NewOracleResultSignatureOrder(id, encodeType),
+		sdk.MustAccAddressFromBech32(requester), feeLimit,
+	)
 	if err != nil {
 		k.handleFailedSigning(ctx, id, gid, event, err)
 		return
@@ -97,12 +94,12 @@ func (k Keeper) ResolveSuccess(
 
 	// save signing result and emit an event.
 	signingResult := &types.SigningResult{
-		SigningID: bandtssResult.Signing.ID,
+		SigningID: signing.ID,
 	}
 	k.SetSigningResult(ctx, id, *signingResult)
 
 	event = event.AppendAttributes(
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingResult.SigningID)),
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
 	)
 	ctx.EventManager().EmitEvent(event)
 }

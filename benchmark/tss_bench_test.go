@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var RequestSignCases = map[string]struct {
@@ -42,7 +42,7 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					GenMsgRequestSignature(
 						ba.Sender,
 						ba.Gid,
-						bandtsstypes.NewTextSignatureOrder(msg),
+						tsstypes.NewTextSignatureOrder(msg),
 						tc.feeLimit,
 					),
 					ba.Sender,
@@ -94,7 +94,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					// generate tx
 					txs := ba.HandleGenPendingSignTxs(
 						ba.Gid,
-						bandtsstypes.NewTextSignatureOrder(msg),
+						tsstypes.NewTextSignatureOrder(msg),
 						tc.feeLimit,
 						testutil.TestCases,
 					)
@@ -137,7 +137,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					ba.CallBeginBlock()
 
 					// generate tx
-					ba.RequestSignature(ba.Sender, ba.Gid, bandtsstypes.NewTextSignatureOrder(msg), tc.feeLimit)
+					ba.RequestSignature(ba.Sender, ba.Gid, tsstypes.NewTextSignatureOrder(msg), tc.feeLimit)
 
 					// everyone submit signature
 					txs := ba.GetPendingSignTxs(ba.Gid, testutil.TestCases)

@@ -517,17 +517,18 @@ func NewBandApp(
 	rollingseedModule := rollingseed.NewAppModule(app.RollingseedKeeper)
 
 	// register the request signature types
+	tssRouter := tsstypes.NewRouter()
 	app.TSSKeeper = tsskeeper.NewKeeper(
 		appCodec,
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
+		tssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	tssModule := tss.NewAppModule(app.TSSKeeper)
 
-	bandtssRouter := bandtsstypes.NewRouter()
 	app.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
@@ -537,7 +538,6 @@ func NewBandApp(
 		app.DistrKeeper,
 		app.StakingKeeper,
 		app.TSSKeeper,
-		bandtssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
 	)
@@ -569,15 +569,15 @@ func NewBandApp(
 	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	// Add Bandtss route
-	bandtssRouter.
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+	// Add TSS route
+	tssRouter.
+		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
-	bandtssRouter.Seal()
+	tssRouter.Seal()
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

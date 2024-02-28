@@ -1,6 +1,10 @@
 package keeper
 
 import (
+	"encoding/hex"
+	"fmt"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -8,19 +12,31 @@ import (
 )
 
 // CreateGroup creates a new group with the given members and threshold.
-func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*types.CreateGroupResult, error) {
+func (k Keeper) CreateGroup(
+	ctx sdk.Context,
+	members []string,
+	threshold uint64,
+	fee sdk.Coins,
+) (tss.GroupID, error) {
+	// Validate group size
+	groupSize := uint64(len(members))
+	maxGroupSize := k.GetParams(ctx).MaxGroupSize
+	if groupSize > maxGroupSize {
+		return 0, types.ErrGroupSizeTooLarge.Wrap(fmt.Sprintf("group size exceeds %d", maxGroupSize))
+	}
+
 	// Create new group
-	fee := input.Fee.Sort()
+	sortedFee := fee.Sort()
 	groupID := k.CreateNewGroup(ctx, types.Group{
-		Size_:     uint64(len(input.Members)),
-		Threshold: input.Threshold,
+		Size_:     groupSize,
+		Threshold: threshold,
 		PubKey:    nil,
-		Fee:       fee,
+		Fee:       sortedFee,
 		Status:    types.GROUP_STATUS_ROUND_1,
 	})
 
 	// Set members
-	for i, m := range input.Members {
+	for i, m := range members {
 		k.SetMember(ctx, types.Member{
 			ID:          tss.MemberID(i + 1), // ID starts from 1
 			GroupID:     groupID,
@@ -34,66 +50,93 @@ func (k Keeper) CreateGroup(ctx sdk.Context, input types.CreateGroupInput) (*typ
 	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(uint64(groupID)), ctx.BlockHeader().LastCommitHash)
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return nil, err
+	event := sdk.NewEvent(
+		types.EventTypeCreateGroup,
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
+		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", threshold)),
+		sdk.NewAttribute(types.AttributeKeyFee, fee.String()),
+		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
+		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
+		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
+	)
+	for _, m := range members {
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m))
 	}
+	ctx.EventManager().EmitEvent(event)
 
-	return &types.CreateGroupResult{
-		Group:      group,
-		DKGContext: dkgContext,
-	}, nil
+	return groupID, nil
 }
 
 // ReplaceGroup creates a new replacement info and put it into queue.
-func (k Keeper) ReplaceGroup(ctx sdk.Context, input types.ReplaceGroupInput) (*types.ReplaceGroupResult, error) {
-	signingInput := types.CreateSigningInput{
-		Group:    input.CurrentGroup,
-		Message:  append(types.ReplaceGroupMsgPrefix, input.NewGroup.PubKey...),
-		Fee:      input.Fee,
-		FeePayer: input.FeePayer,
-	}
-
-	signingResult, err := k.CreateSigning(ctx, signingInput)
+func (k Keeper) ReplaceGroup(
+	ctx sdk.Context,
+	currentGroup types.Group,
+	newGroup types.Group,
+	execTime time.Time,
+	feePayer sdk.AccAddress,
+	fee sdk.Coins,
+) (uint64, error) {
+	msg := append(types.ReplaceGroupMsgPrefix, newGroup.PubKey...)
+	signing, err := k.CreateSigning(ctx, currentGroup, msg, fee, feePayer)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	nextID := k.GetNextReplacementCount(ctx)
 	replacement := types.Replacement{
 		ID:             nextID,
-		SigningID:      signingResult.Signing.ID,
-		CurrentGroupID: input.CurrentGroup.ID,
-		CurrentPubKey:  input.CurrentGroup.PubKey,
-		NewGroupID:     input.NewGroup.ID,
-		NewPubKey:      input.NewGroup.PubKey,
-		ExecTime:       input.ExecTime,
+		SigningID:      signing.ID,
+		CurrentGroupID: currentGroup.ID,
+		CurrentPubKey:  currentGroup.PubKey,
+		NewGroupID:     newGroup.ID,
+		NewPubKey:      newGroup.PubKey,
+		ExecTime:       execTime,
 		Status:         types.REPLACEMENT_STATUS_WAITING,
 	}
 	k.SetReplacement(ctx, replacement)
 
-	k.InsertReplacementQueue(ctx, nextID, input.ExecTime)
+	k.InsertReplacementQueue(ctx, nextID, execTime)
 
 	// Update latest replacement ID to the group
-	input.CurrentGroup.LatestReplacementID = nextID
-	k.SetGroup(ctx, input.CurrentGroup)
+	currentGroup.LatestReplacementID = nextID
+	k.SetGroup(ctx, currentGroup)
 
-	return &types.ReplaceGroupResult{Replacement: replacement}, nil
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplacement,
+			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.ID)),
+		),
+	)
+
+	return replacement.ID, nil
 }
 
 // UpdateGroupFee updates the fee of the group.
-func (k Keeper) UpdateGroupFee(ctx sdk.Context, input types.UpdateGroupFeeInput) (*types.UpdateGroupFeeResult, error) {
+func (k Keeper) UpdateGroupFee(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	fee sdk.Coins,
+) (*types.Group, error) {
 	// Get group
-	group, err := k.GetGroup(ctx, input.GroupID)
+	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Set new group fee
-	group.Fee = input.Fee.Sort()
+	group.Fee = fee.Sort()
 	k.SetGroup(ctx, group)
 
-	return &types.UpdateGroupFeeResult{Group: group}, nil
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdateGroupFee,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+			sdk.NewAttribute(types.AttributeKeyFee, group.Fee.String()),
+		),
+	)
+
+	return &group, nil
 }
 
 // GetActiveGroup returns the active group with the given groupID. If the group is not active,

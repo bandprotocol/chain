@@ -6,7 +6,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -418,7 +417,7 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 }
 
 func (s *KeeperTestSuite) TestCreateSigning() {
-	ctx, k, bandtssKeeper := s.ctx, s.app.TSSKeeper, s.app.BandtssKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -432,23 +431,15 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
 	// Create a new request for the request signature
-	content := bandtsstypes.NewTextSignatureOrder([]byte("example"))
+	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	msg, err := bandtssKeeper.HandleSigningContent(ctx, content)
+	msg, err := k.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
-	input := types.CreateSigningInput{
-		Group:    group,
-		Message:  msg,
-		Fee:      sdk.NewCoins(),
-		FeePayer: feePayer,
-	}
-	result, err := k.CreateSigning(ctx, input)
+	signing, err := k.CreateSigning(ctx, group, msg, sdk.NewCoins(), feePayer)
 	s.Require().NoError(err)
 
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, result.Signing.ID)
 	s.Require().NoError(err)
 	s.Require().Equal(groupID, signing.GroupID)
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)

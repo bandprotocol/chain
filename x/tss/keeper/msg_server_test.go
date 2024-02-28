@@ -554,7 +554,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-	tssMemberMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
+	bandTssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
@@ -564,12 +564,12 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Request signature for the first member in the group
 			msg, err := bandtsstypes.NewMsgRequestSignature(
 				tc.Group.ID,
-				bandtsstypes.NewTextSignatureOrder([]byte("msg")),
+				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				testapp.FeePayer.Address,
 			)
 			s.Require().NoError(err)
-			_, err = tssMemberMsgSrvr.RequestSignature(ctx, msg)
+			_, err = bandTssMsgSrvr.RequestSignature(ctx, msg)
 			s.T().Log(err)
 			s.Require().NoError(err)
 
@@ -664,6 +664,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
+					MaxGroupSize:   types.DefaultMaxGroupSize,
 					MaxDESize:      types.DefaultMaxDESize,
 					CreatingPeriod: types.DefaultCreatingPeriod,
 					SigningPeriod:  types.DefaultSigningPeriod,

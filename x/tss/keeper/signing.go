@@ -543,35 +543,36 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	)
 }
 
+func (k Keeper) HandleSigningContent(
+	ctx sdk.Context,
+	content types.Content,
+) ([]byte, error) {
+	if !k.router.HasRoute(content.OrderRoute()) {
+		return nil, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
+	}
+
+	// Retrieve the appropriate handler for the request signature route.
+	handler := k.router.GetRoute(content.OrderRoute())
+
+	// Execute the handler to process the request.
+	msg, err := handler(ctx, content)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
 // CreateSigning creates a new signing process and returns the result.
-func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (*types.CreateSigningResult, error) {
-	// group, err := k.GetActiveGroup(ctx, input.GroupID)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// // charged fee if necessary
-	// fee := sdk.NewCoins()
-	// if input.IsFeeCharged {
-	// 	fee = group.Fee
-
-	// 	// If found any coins that exceed limit then return error
-	// 	feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
-	// 	for _, fc := range feeCoins {
-	// 		limitAmt := input.FeeLimit.AmountOf(fc.Denom)
-	// 		if fc.Amount.GT(limitAmt) {
-	// 			return nil, types.ErrNotEnoughFee.Wrapf(
-	// 				"require: %s, limit: %s%s",
-	// 				fc.String(),
-	// 				limitAmt.String(),
-	// 				fc.Denom,
-	// 			)
-	// 		}
-	// 	}
-	// }
-
+func (k Keeper) CreateSigning(
+	ctx sdk.Context,
+	group types.Group,
+	message []byte,
+	fee sdk.Coins,
+	feePayer sdk.AccAddress,
+) (*types.Signing, error) {
 	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, input.Group, input.Message)
+	assignedMembers, err := k.HandleAssignedMembers(ctx, group, message)
 	if err != nil {
 		return nil, err
 	}
@@ -584,15 +585,15 @@ func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (
 
 	// Add signing
 	signingID := k.AddSigning(ctx, types.NewSigning(
-		input.Group.ID,
-		input.Group.PubKey,
+		group.ID,
+		group.PubKey,
 		assignedMembers,
-		input.Message,
+		message,
 		groupPubNonce,
 		nil,
-		input.Fee,
+		fee,
 		types.SIGNING_STATUS_WAITING,
-		input.FeePayer.String(),
+		feePayer.String(),
 	))
 
 	signing, err := k.GetSigning(ctx, signingID)
@@ -605,11 +606,9 @@ func (k Keeper) CreateSigning(ctx sdk.Context, input types.CreateSigningInput) (
 		return nil, err
 	}
 
-	k.emitCreateSigningEvent(ctx, input.Message, signing)
+	k.emitCreateSigningEvent(ctx, message, signing)
 
-	return &types.CreateSigningResult{
-		Signing: signing,
-	}, nil
+	return &signing, nil
 }
 
 func (k Keeper) emitCreateSigningEvent(ctx sdk.Context, msg []byte, signing types.Signing) {

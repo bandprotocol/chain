@@ -1,6 +1,8 @@
 package types
 
 const (
+	EventTypeCreateGroup        = "create_group"
+	EventTypeUpdateGroupFee     = "update_group_fee"
 	EventTypeReplacement        = "replacement"
 	EventTypeExpiredGroup       = "expired_group"
 	EventTypeSubmitDKGRound1    = "submit_dkg_round1"
@@ -24,7 +26,12 @@ const (
 	AttributeKeyReplacementID  = "replacement_id"
 	AttributeKeyMemberID       = "member_id"
 	AttributeKeyAddress        = "address"
+	AttributeKeySize           = "size"
+	AttributeKeyThreshold      = "threshold"
+	AttributeKeyPubKey         = "pub_key"
 	AttributeKeyStatus         = "status"
+	AttributeKeyFee            = "fee"
+	AttributeKeyDKGContext     = "dkg_context"
 	AttributeKeyRound1Info     = "round1_info"
 	AttributeKeyRound2Info     = "round2_info"
 	AttributeKeyComplainantID  = "complainant_id"

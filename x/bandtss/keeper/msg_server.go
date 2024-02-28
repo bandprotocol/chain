@@ -2,8 +2,6 @@ package keeper
 
 import (
 	"context"
-	"encoding/hex"
-	"fmt"
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,13 +33,6 @@ func (k msgServer) CreateGroup(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Validate group size
-	groupSize := uint64(len(req.Members))
-	maxGroupSize := k.GetParams(ctx).MaxGroupSize
-	if groupSize > maxGroupSize {
-		return nil, types.ErrGroupSizeTooLarge.Wrap(fmt.Sprintf("group size exceeds %d", maxGroupSize))
-	}
-
 	// validate members
 	for _, m := range req.Members {
 		address, err := sdk.AccAddressFromBech32(m)
@@ -55,30 +46,10 @@ func (k msgServer) CreateGroup(
 		}
 	}
 
-	input := tsstypes.CreateGroupInput{
-		Members:   req.Members,
-		Threshold: req.Threshold,
-		Fee:       req.Fee,
-	}
-	result, err := k.tssKeeper.CreateGroup(ctx, input)
+	_, err := k.tssKeeper.CreateGroup(ctx, req.Members, req.Threshold, req.Fee)
 	if err != nil {
 		return nil, types.ErrCreateGroupTSSError.Wrapf("failed to create group: %s", err)
 	}
-
-	event := sdk.NewEvent(
-		types.EventTypeCreateGroup,
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", result.Group.ID)),
-		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
-		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", input.Threshold)),
-		sdk.NewAttribute(types.AttributeKeyFee, result.Group.Fee.String()),
-		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
-		sdk.NewAttribute(types.AttributeKeyStatus, tsstypes.GROUP_STATUS_ROUND_1.String()),
-		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(result.DKGContext)),
-	)
-	for _, m := range input.Members {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m))
-	}
-	ctx.EventManager().EmitEvent(event)
 
 	return &types.MsgCreateGroupResponse{}, nil
 }
@@ -124,24 +95,10 @@ func (k msgServer) ReplaceGroup(
 		}
 	}
 
-	input := tsstypes.ReplaceGroupInput{
-		CurrentGroup: currentGroup,
-		NewGroup:     newGroup,
-		ExecTime:     req.ExecTime,
-		FeePayer:     authority,
-		Fee:          sdk.NewCoins(),
-	}
-	result, err := k.tssKeeper.ReplaceGroup(ctx, input)
+	_, err = k.tssKeeper.ReplaceGroup(ctx, currentGroup, newGroup, req.ExecTime, authority, sdk.NewCoins())
 	if err != nil {
 		return nil, err
 	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeReplacement,
-			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", result.Replacement.ID)),
-		),
-	)
 
 	return &types.MsgReplaceGroupResponse{}, nil
 }
@@ -157,22 +114,10 @@ func (k msgServer) UpdateGroupFee(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	input := tsstypes.UpdateGroupFeeInput{
-		GroupID: req.GroupID,
-		Fee:     req.Fee,
-	}
-	result, err := k.tssKeeper.UpdateGroupFee(ctx, input)
+	_, err := k.tssKeeper.UpdateGroupFee(ctx, req.GroupID, req.Fee)
 	if err != nil {
 		return nil, err
 	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUpdateGroupFee,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", result.Group.ID)),
-			sdk.NewAttribute(types.AttributeKeyFee, result.Group.Fee.String()),
-		),
-	)
 
 	return &types.MsgUpdateGroupFeeResponse{}, nil
 }
@@ -191,13 +136,7 @@ func (k msgServer) RequestSignature(
 	}
 
 	// Execute the handler to process the request.
-	input := types.HandleCreateSigningInput{
-		GroupID:  req.GroupID,
-		Content:  req.GetContent(),
-		Sender:   feePayer,
-		FeeLimit: req.FeeLimit,
-	}
-	_, err = k.HandleCreateSigning(ctx, input)
+	_, err = k.HandleCreateSigning(ctx, req.GroupID, req.GetContent(), feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}

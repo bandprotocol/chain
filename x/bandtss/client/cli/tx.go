@@ -13,6 +13,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -98,7 +99,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 				return err
 			}
 
-			content := types.NewTextSignatureOrder(data)
+			content := tsstypes.NewTextSignatureOrder(data)
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {

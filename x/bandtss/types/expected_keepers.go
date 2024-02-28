@@ -1,6 +1,8 @@
 package types
 
 import (
+	time "time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -63,10 +65,35 @@ type StakingKeeper interface {
 
 // TSSKeeper defines the expected tss keeper (noalias)
 type TSSKeeper interface {
-	CreateGroup(ctx sdk.Context, input tsstypes.CreateGroupInput) (*tsstypes.CreateGroupResult, error)
-	UpdateGroupFee(ctx sdk.Context, input tsstypes.UpdateGroupFeeInput) (*tsstypes.UpdateGroupFeeResult, error)
-	ReplaceGroup(ctx sdk.Context, input tsstypes.ReplaceGroupInput) (*tsstypes.ReplaceGroupResult, error)
-	CreateSigning(ctx sdk.Context, input tsstypes.CreateSigningInput) (*tsstypes.CreateSigningResult, error)
+	CreateGroup(
+		ctx sdk.Context,
+		members []string,
+		threshold uint64,
+		fee sdk.Coins,
+	) (tss.GroupID, error)
+
+	UpdateGroupFee(
+		ctx sdk.Context,
+		groupID tss.GroupID,
+		fee sdk.Coins,
+	) (*tsstypes.Group, error)
+
+	ReplaceGroup(
+		ctx sdk.Context,
+		currentGroup tsstypes.Group,
+		newGroup tsstypes.Group,
+		execTime time.Time,
+		feePayer sdk.AccAddress,
+		fee sdk.Coins,
+	) (uint64, error)
+
+	CreateSigning(
+		ctx sdk.Context,
+		group tsstypes.Group,
+		message []byte,
+		fee sdk.Coins,
+		feePayer sdk.AccAddress,
+	) (*tsstypes.Signing, error)
 
 	GetSigningCount(ctx sdk.Context) uint64
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
@@ -75,6 +102,7 @@ type TSSKeeper interface {
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 	GetReplacement(ctx sdk.Context, replacementID uint64) (tsstypes.Replacement, error)
 	GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]tsstypes.Member, error)
+	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 
 	SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool)
 }

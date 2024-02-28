@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	DefaultMaxGroupSize   = uint64(20)
 	DefaultMaxDESize      = uint64(100)
 	DefaultCreatingPeriod = uint64(30000)
 	DefaultSigningPeriod  = uint64(100)
@@ -12,11 +13,13 @@ const (
 
 // NewParams creates a new Params instance
 func NewParams(
+	maxGroupSize uint64,
 	maxDESize uint64,
 	creatingPeriod uint64,
 	signingPeriod uint64,
 ) Params {
 	return Params{
+		MaxGroupSize:   maxGroupSize,
 		MaxDESize:      maxDESize,
 		CreatingPeriod: creatingPeriod,
 		SigningPeriod:  signingPeriod,
@@ -26,6 +29,7 @@ func NewParams(
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return Params{
+		MaxGroupSize:   DefaultMaxGroupSize,
 		MaxDESize:      DefaultMaxDESize,
 		CreatingPeriod: DefaultCreatingPeriod,
 		SigningPeriod:  DefaultSigningPeriod,
@@ -34,6 +38,10 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
+	if err := validateUint64("max group size", true)(p.MaxGroupSize); err != nil {
+		return err
+	}
+
 	if err := validateUint64("max DE size", true)(p.MaxDESize); err != nil {
 		return err
 	}

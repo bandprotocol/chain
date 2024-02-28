@@ -24,6 +24,7 @@ type Keeper struct {
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
 
+	router    *types.Router
 	hooks     types.TSSHooks
 	authority string
 }
@@ -34,6 +35,7 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
+	rtr *types.Router,
 	authority string,
 ) *Keeper {
 	return &Keeper{
@@ -42,6 +44,7 @@ func NewKeeper(
 		paramSpace:        paramSpace,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
+		router:            rtr,
 		authority:         authority,
 	}
 }

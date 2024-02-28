@@ -197,7 +197,6 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				MaxGroupSize:            0,
 				ActiveDuration:          time.Duration(0),
 				InactivePenaltyDuration: time.Duration(0),
 				JailPenaltyDuration:     time.Duration(0),
@@ -209,7 +208,6 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				MaxGroupSize:            types.DefaultMaxGroupSize,
 				ActiveDuration:          types.DefaultActiveDuration,
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,

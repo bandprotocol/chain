@@ -25,7 +25,6 @@ type Keeper struct {
 	stakingKeeper types.StakingKeeper
 	tssKeeper     types.TSSKeeper
 
-	router           *types.Router
 	authority        string
 	feeCollectorName string
 }
@@ -39,7 +38,6 @@ func NewKeeper(
 	distrKeeper types.DistrKeeper,
 	stakingKeeper types.StakingKeeper,
 	tssKeeper types.TSSKeeper,
-	router *types.Router,
 	authority string,
 	feeCollectorName string,
 ) *Keeper {
@@ -57,7 +55,6 @@ func NewKeeper(
 		distrKeeper:      distrKeeper,
 		stakingKeeper:    stakingKeeper,
 		tssKeeper:        tssKeeper,
-		router:           router,
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
 	}
