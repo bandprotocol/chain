@@ -1,11 +1,11 @@
-package grogu
+package cmd
 
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-func configCmd() *cobra.Command {
+func ConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "config [key] [value]",
 		Aliases: []string{"c"},

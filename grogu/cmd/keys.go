@@ -1,4 +1,4 @@
-package grogu
+package cmd
 
 import (
 	"bufio"
@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 
 	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -26,7 +27,7 @@ const (
 	flagAddress  = "address"
 )
 
-func keysCmd(c *Context) *cobra.Command {
+func KeysCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
@@ -41,7 +42,7 @@ func keysCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysAddCmd(c *Context) *cobra.Command {
+func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
 		Aliases: []string{"a"},
@@ -84,7 +85,7 @@ func keysAddCmd(c *Context) *cobra.Command {
 				return err
 			}
 			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
-			info, err := kb.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
+			info, err := grogucontext.Kb.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
 			if err != nil {
 				return err
 			}
@@ -104,7 +105,7 @@ func keysAddCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysDeleteCmd(c *Context) *cobra.Command {
+func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
 		Aliases: []string{"d"},
@@ -113,7 +114,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			_, err := kb.Key(name)
+			_, err := grogucontext.Kb.Key(name)
 			if err != nil {
 				return err
 			}
@@ -129,7 +130,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 				return nil
 			}
 
-			if err := kb.Delete(name); err != nil {
+			if err := grogucontext.Kb.Delete(name); err != nil {
 				return err
 			}
 
@@ -140,7 +141,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysListCmd(c *Context) *cobra.Command {
+func keysListCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
@@ -151,7 +152,7 @@ func keysListCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			keys, err := kb.List()
+			keys, err := grogucontext.Kb.List()
 			if err != nil {
 				return err
 			}
@@ -168,7 +169,7 @@ func keysListCmd(c *Context) *cobra.Command {
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsReporter(
 						context.Background(),
-						&types.QueryIsReporterRequest{ValidatorAddress: cfg.Validator, ReporterAddress: address.String()},
+						&types.QueryIsReporterRequest{ValidatorAddress: grogucontext.Cfg.Validator, ReporterAddress: address.String()},
 					)
 					s := ":question:"
 					if err == nil {
@@ -193,7 +194,7 @@ func keysListCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysShowCmd(c *Context) *cobra.Command {
+func keysShowCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
 		Aliases: []string{"s"},
@@ -202,7 +203,7 @@ func keysShowCmd(c *Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			key, err := kb.Key(name)
+			key, err := grogucontext.Kb.Key(name)
 			if err != nil {
 				return err
 			}

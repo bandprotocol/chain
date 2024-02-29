@@ -1,4 +1,4 @@
-package grogu
+package cmd
 
 import (
 	"errors"
@@ -12,112 +12,101 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
+	"github.com/bandprotocol/chain/v2/grogu/symbol"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func runImpl(c *Context, l *Logger) error {
+const (
+	flagValidator        = "validator"
+	flagLogLevel         = "log-level"
+	flagPriceService     = "price-service"
+	flagBroadcastTimeout = "broadcast-timeout"
+	flagRPCPollInterval  = "rpc-poll-interval"
+	flagMaxTry           = "max-try"
+)
+
+func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
 	l.Info(":rocket: Starting WebSocket subscriber")
-	err := c.client.Start()
+	err := c.Client.Start()
 	if err != nil {
 		return err
 	}
-	defer c.client.Stop() //nolint:errcheck
+	defer c.Client.Stop() //nolint:errcheck
 
-	for i := int64(0); i < int64(len(c.keys)); i++ {
-		c.freeKeys <- i
+	for i := int64(0); i < int64(len(c.Keys)); i++ {
+		c.FreeKeys <- i
 	}
 
 	l.Info(":rocket: Starting Prices submitter")
-	go StartSubmitPrices(c, l)
+	go symbol.StartSubmitPrices(c, l)
 
 	l.Info(":rocket: Starting Prices querier")
-	go StartQuerySymbols(c, l)
+	go symbol.StartQuerySymbols(c, l)
 
 	l.Info(":rocket: Starting Symbol checker")
-	StartCheckSymbols(c, l)
+	symbol.StartCheckSymbols(c, l)
 
 	return nil
 }
 
-// ConvertToSymbolTimestampMap converts an array of PriceValidator to a map of symbol to timestamp.
-func ConvertToSymbolTimestampMap(data []types.PriceValidator) map[string]int64 {
-	symbolTimestampMap := make(map[string]int64)
-
-	for _, entry := range data {
-		symbolTimestampMap[entry.Symbol] = entry.Timestamp
-	}
-
-	return symbolTimestampMap
-}
-
-// ConvertToSymbolPriceMap converts an array of SubmitPrice to a map of symbol to price.
-func ConvertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
-	symbolPriceMap := make(map[string]uint64)
-
-	for _, entry := range data {
-		symbolPriceMap[entry.Symbol] = entry.Price
-	}
-
-	return symbolPriceMap
-}
-
-func runCmd(c *Context) *cobra.Command {
+func RunCmd(c *grogucontext.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
 		Short:   "Run the grogu process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if cfg.ChainID == "" {
+			if grogucontext.Cfg.ChainID == "" {
 				return errors.New("chain ID must not be empty")
 			}
-			keys, err := kb.List()
+			keys, err := grogucontext.Kb.List()
 			if err != nil {
 				return err
 			}
 			if len(keys) == 0 {
 				return errors.New("no key available")
 			}
-			c.keys = keys
-			c.validator, err = sdk.ValAddressFromBech32(cfg.Validator)
+			c.Keys = keys
+			c.Validator, err = sdk.ValAddressFromBech32(grogucontext.Cfg.Validator)
 			if err != nil {
 				return err
 			}
-			err = sdk.VerifyAddressFormat(c.validator)
+			err = sdk.VerifyAddressFormat(c.Validator)
 			if err != nil {
 				return err
 			}
 
-			c.gasPrices = cfg.GasPrices
+			c.GasPrices = grogucontext.Cfg.GasPrices
 
-			allowLevel, err := log.AllowLevel(cfg.LogLevel)
+			allowLevel, err := log.AllowLevel(grogucontext.Cfg.LogLevel)
 			if err != nil {
 				return err
 			}
-			l := NewLogger(allowLevel)
-			c.priceService, err = priceservice.NewPriceService(cfg.PriceService)
+			l := grogucontext.NewLogger(allowLevel)
+			c.PriceService, err = priceservice.PriceServiceFromUrl(grogucontext.Cfg.PriceService)
 			if err != nil {
 				return err
 			}
-			l.Info(":star: Creating HTTP client with node URI: %s", cfg.NodeURI)
-			c.client, err = httpclient.New(cfg.NodeURI, "/websocket")
+			l.Info(":star: Creating HTTP client with node URI: %s", grogucontext.Cfg.NodeURI)
+			c.Client, err = httpclient.New(grogucontext.Cfg.NodeURI, "/websocket")
 			if err != nil {
 				return err
 			}
-			c.broadcastTimeout, err = time.ParseDuration(cfg.BroadcastTimeout)
+			c.BroadcastTimeout, err = time.ParseDuration(grogucontext.Cfg.BroadcastTimeout)
 			if err != nil {
 				return err
 			}
-			c.maxTry = cfg.MaxTry
-			c.rpcPollInterval, err = time.ParseDuration(cfg.RPCPollInterval)
+			c.MaxTry = grogucontext.Cfg.MaxTry
+			c.RPCPollInterval, err = time.ParseDuration(grogucontext.Cfg.RPCPollInterval)
 			if err != nil {
 				return err
 			}
-			c.freeKeys = make(chan int64, len(keys))
-			c.inProgressSymbols = &sync.Map{}
-			c.pendingSymbols = make(chan []string, 100)
-			c.pendingPrices = make(chan []types.SubmitPrice, 30)
+			c.FreeKeys = make(chan int64, len(keys))
+			c.InProgressSymbols = &sync.Map{}
+			c.PendingSymbols = make(chan []string, 100)
+			c.PendingPrices = make(chan []types.SubmitPrice, 30)
 			return runImpl(c, l)
 		},
 	}

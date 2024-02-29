@@ -24,8 +24,8 @@ type PriceService interface {
 }
 
 // NewPriceService returns priceService by name and priceService URL
-func NewPriceService(priceService string) (exec PriceService, err error) {
-	name, base, timeout, err := parsePriceService(priceService)
+func PriceServiceFromUrl(priceService string) (exec PriceService, err error) {
+	name, base, timeout, err := parsePriceServiceURL(priceService)
 	if err != nil {
 		return nil, err
 	}
@@ -40,15 +40,15 @@ func NewPriceService(priceService string) (exec PriceService, err error) {
 	_, err = exec.Query(map[string]string{
 		"symbols": "BTC",
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}
+
 	return exec, nil
 }
 
 // parsePriceService splits the priceService string in the form of "name:base?timeout=" into parts.
-func parsePriceService(priceServiceStr string) (name string, base string, timeout time.Duration, err error) {
+func parsePriceServiceURL(priceServiceStr string) (name string, base string, timeout time.Duration, err error) {
 	priceService := strings.SplitN(priceServiceStr, ":", 2)
 	if len(priceService) != 2 {
 		return "", "", 0, fmt.Errorf("invalid priceService, cannot parse priceService: %s", priceServiceStr)
