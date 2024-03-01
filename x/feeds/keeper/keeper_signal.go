@@ -22,3 +22,8 @@ func (k Keeper) SetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress, s
 	ctx.KVStore(k.storeKey).
 		Set(types.DelegatorSignalStoreKey(delegator), k.cdc.MustMarshal(&signals))
 }
+
+func (k Keeper) DeleteDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) {
+	ctx.KVStore(k.storeKey).
+		Delete(types.DelegatorSignalStoreKey(delegator))
+}
