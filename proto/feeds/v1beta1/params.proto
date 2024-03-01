@@ -32,6 +32,6 @@ message Params {
   // power_threshold is the amount of minimum power required to put symbol in the supported list.
   int64 power_threshold = 6;
 
-  // max_support_symbol is the maximum number of symbols supported at a time.
-  int64 max_supported_symbol = 7;
+  // max_support_symbols is the maximum number of symbols supported at a time.
+  int64 max_supported_symbols = 7;
 }

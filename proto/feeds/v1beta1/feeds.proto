@@ -27,7 +27,7 @@ message Symbol {
 
   uint64 power = 2;
 
-  int64 interval = 3 [(gogoproto.nullable) = true];
+  int64 interval = 3;
 
   int64 last_interval_update_timestamp = 4;
 }

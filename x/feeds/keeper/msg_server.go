@@ -101,7 +101,10 @@ func (ms msgServer) SubmitPrices(
 			return nil, err
 		}
 
-		_ = ms.SetPriceValidator(ctx, priceVal)
+		err = ms.SetPriceValidator(ctx, priceVal)
+		if err != nil {
+			return nil, err
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(

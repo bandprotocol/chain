@@ -13,6 +13,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 
 	k.SetSymbols(ctx, genState.Symbols)
+	k.SetSymbolsByPowerIndex(ctx, genState.Symbols)
 	err := k.SetPriceService(ctx, genState.PriceService)
 	if err != nil {
 		panic(err)
