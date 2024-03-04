@@ -88,7 +88,7 @@ func (k Keeper) ResolveSuccess(
 		sdk.MustAccAddressFromBech32(requester), feeLimit,
 	)
 	if err != nil {
-		k.handleFailedSigning(ctx, id, gid, event, err)
+		k.handleCreateSigningFailed(ctx, id, gid, event, err)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (k Keeper) ResolveSuccess(
 	ctx.EventManager().EmitEvent(event)
 }
 
-func (k Keeper) handleFailedSigning(
+func (k Keeper) handleCreateSigningFailed(
 	ctx sdk.Context,
 	id types.RequestID,
 	gid tss.GroupID,
