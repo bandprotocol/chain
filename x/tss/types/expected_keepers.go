@@ -39,32 +39,39 @@ type AccountKeeper interface {
 
 // TSSHooks event hooks for staking validator object (noalias)
 type TSSHooks interface {
-	// Must be called when a group is created successfully.
-	AfterCreatingGroupCompleted(ctx sdk.Context, group Group) error
+	// Must be called when a group is created successfully; no error returned because it is
+	// processed at end block.
+	AfterCreatingGroupCompleted(ctx sdk.Context, group Group)
 
-	// Must be called when a group creation.
-	AfterCreatingGroupFailed(ctx sdk.Context, group Group) error
+	// Must be called when a group creation; no error returned because it is processed at end block.
+	AfterCreatingGroupFailed(ctx sdk.Context, group Group)
 
-	// Must be called before setting group status to expired.
-	BeforeSetGroupExpired(ctx sdk.Context, group Group) error
+	// Must be called before setting group status to expired; no error returned because it is
+	// processed at end block.
+	BeforeSetGroupExpired(ctx sdk.Context, group Group)
 
-	// Must be called when a group is replaced successfully.
-	AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement) error
+	// Must be called when a group is replaced successfully; no error returned because it is
+	// processed at end block.
+	AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement)
 
-	// Must be called when a group cannot be replaced.
-	AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement) error
+	// Must be called when a group cannot be replaced; no error returned because it is processed
+	// at end block.
+	AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement)
 
 	// Must be called when a signing request is created.
 	AfterSigningCreated(ctx sdk.Context, signing Signing) error
 
-	// Must be called when a signing request is unsuccessfully signed.
-	AfterSigningFailed(ctx sdk.Context, signing Signing) error
+	// Must be called when a signing request is unsuccessfully signed; no error returned because it
+	// is processed at end block.
+	AfterSigningFailed(ctx sdk.Context, signing Signing)
 
-	// Must be called when a signing request is successfully signed by selected members.
-	AfterSigningCompleted(ctx sdk.Context, signing Signing) error
+	// Must be called when a signing request is successfully signed by selected members; no error
+	// returned because it is processed at end block.
+	AfterSigningCompleted(ctx sdk.Context, signing Signing)
 
-	// Must be called before setting signing status to expired.
-	BeforeSetSigningExpired(ctx sdk.Context, signing Signing) error
+	// Must be called before setting signing status to expired; no error returned because it is
+	// processed at end block.
+	BeforeSetSigningExpired(ctx sdk.Context, signing Signing)
 
 	// Must be called after a signer submit DEs.
 	AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error

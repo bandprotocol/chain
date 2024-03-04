@@ -437,9 +437,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 		// Set the signing status to expired
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
 			// Handle hooks before setting signing to be expired
-			if err := k.Hooks().BeforeSetSigningExpired(ctx, signing); err != nil {
-				panic(err)
-			}
+			k.Hooks().BeforeSetSigningExpired(ctx, signing)
 
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
@@ -509,9 +507,7 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	k.SetSigning(ctx, signing)
 
 	// Handle hooks after signing completed.
-	if err := k.Hooks().AfterSigningCompleted(ctx, signing); err != nil {
-		panic(err)
-	}
+	k.Hooks().AfterSigningCompleted(ctx, signing)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -529,9 +525,7 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	k.SetSigning(ctx, signing)
 
 	// Handle hooks after signing failed
-	if err := k.Hooks().AfterSigningFailed(ctx, signing); err != nil {
-		panic(err)
-	}
+	k.Hooks().AfterSigningFailed(ctx, signing)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

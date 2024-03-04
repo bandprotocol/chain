@@ -76,8 +76,7 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandtssAccount(ctx).GetAddress())
 
-			err := hook.AfterSigningFailed(ctx, tc.signing)
-			s.Require().NoError(err)
+			hook.AfterSigningFailed(ctx, tc.signing)
 
 			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandtssAccount(ctx).GetAddress())

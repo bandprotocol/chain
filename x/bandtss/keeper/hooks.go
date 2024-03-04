@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -19,74 +21,66 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group) error {
-	return nil
-}
+func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group) {}
 
-func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) error {
-	return nil
-}
+func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
 
-func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) error {
+func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredGroup(ctx, group)
+	// error is from we cannot find groupID in the store. In this case, we don't need to do anything,
+	// but log the error just in case.
 	if err != nil {
-		return err
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting penalized members: %v", err))
+		return
 	}
 
 	for _, m := range penalizedMembers {
 		h.k.SetJailStatus(ctx, m)
 	}
-
-	return nil
 }
 
-func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) error {
-	return nil
-}
+func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) {}
 
-func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) error {
-	return nil
-}
+func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {}
 
-func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) error {
+func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 	if signing.Fee.IsZero() {
-		return nil
+		return
 	}
 
 	// Refund fee to requester
 	address := sdk.MustAccAddressFromBech32(signing.Requester)
 	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	// unlikely to get an error, but log the error just in case
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Failed to refund fee to address %s: %v", signing.Requester, err))
+	}
 }
 
-func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) error {
+func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) {
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
+	// unlikely to get an error (convert to address type), but log the error just in case
 	if err != nil {
-		return err
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting penalized members: %v", err))
 	}
 
 	for _, m := range penalizedMembers {
 		h.k.SetInactiveStatus(ctx, m)
 	}
-
-	return nil
 }
 
-func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) error {
+func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
 	// Send fee to assigned members.
 	for _, am := range signing.AssignedMembers {
 		address := sdk.MustAccAddressFromBech32(am.Address)
+
+		// unlikely to get an error, but log the error just in case
 		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee); err != nil {
-			return err
+			h.k.Logger(ctx).Error(fmt.Sprintf("Failed to send fee to address %s: %v", am.Address, err))
 		}
 	}
-
-	return nil
 }
 
 func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
