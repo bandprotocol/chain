@@ -8,12 +8,12 @@ import (
 
 const (
 	// Default values for Params
-	DefaultAllowDiffTime      = int64(30)
-	DefaultTransitionTime     = int64(30)
-	DefaultMinInterval        = int64(60)
-	DefaultMaxInterval        = int64(3600)
-	DefaultPowerThreshold     = int64(1_000_000_000)
-	DefaultMaxSupportedSymbol = int64(200)
+	DefaultAllowDiffTime       = int64(30)
+	DefaultTransitionTime      = int64(30)
+	DefaultMinInterval         = int64(60)
+	DefaultMaxInterval         = int64(3600)
+	DefaultPowerThreshold      = int64(1_000_000_000)
+	DefaultMaxSupportedSymbols = int64(100)
 )
 
 // NewParams creates a new Params instance
@@ -24,16 +24,16 @@ func NewParams(
 	minInterval int64,
 	maxInterval int64,
 	powerThreshold int64,
-	maxSupportedSymbol int64,
+	maxSupportedSymbols int64,
 ) Params {
 	return Params{
-		Admin:              admin,
-		AllowDiffTime:      allowDiffTime,
-		TransitionTime:     transitionTime,
-		MinInterval:        minInterval,
-		MaxInterval:        maxInterval,
-		PowerThreshold:     powerThreshold,
-		MaxSupportedSymbol: maxSupportedSymbol,
+		Admin:               admin,
+		AllowDiffTime:       allowDiffTime,
+		TransitionTime:      transitionTime,
+		MinInterval:         minInterval,
+		MaxInterval:         maxInterval,
+		PowerThreshold:      powerThreshold,
+		MaxSupportedSymbols: maxSupportedSymbols,
 	}
 }
 
@@ -46,13 +46,13 @@ func DefaultParams() Params {
 		DefaultMinInterval,
 		DefaultMaxInterval,
 		DefaultPowerThreshold,
-		DefaultMaxSupportedSymbol,
+		DefaultMaxSupportedSymbols,
 	)
 }
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateString()(p.Admin); err != nil {
+	if err := validateString("admin", true)(p.Admin); err != nil {
 		return err
 	}
 	if err := validateInt64("allow diff time", true)(p.AllowDiffTime); err != nil {
@@ -70,7 +70,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("power threshold", true)(p.PowerThreshold); err != nil {
 		return err
 	}
-	if err := validateInt64("max supported symbol", true)(p.MaxSupportedSymbol); err != nil {
+	if err := validateInt64("max supported symbols", true)(p.MaxSupportedSymbols); err != nil {
 		return err
 	}
 	return nil
@@ -82,11 +82,14 @@ func (p Params) String() string {
 	return string(out)
 }
 
-func validateString() func(interface{}) error {
+func validateString(name string, allowEmpty bool) func(interface{}) error {
 	return func(i interface{}) error {
-		_, ok := i.(string)
+		s, ok := i.(string)
 		if !ok {
 			return fmt.Errorf("invalid parameter type: %T", i)
+		}
+		if s == "" && !allowEmpty {
+			return fmt.Errorf("%s cannot be empty", name)
 		}
 		return nil
 	}

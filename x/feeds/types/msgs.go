@@ -177,5 +177,9 @@ func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSignalSymbols) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
+		return errorsmod.Wrap(err, "invalid delegator address")
+	}
+
 	return nil
 }

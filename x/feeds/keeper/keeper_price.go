@@ -159,10 +159,14 @@ func (k Keeper) GetPriceValidator(ctx sdk.Context, symbol string, val sdk.ValAdd
 	return priceVal, nil
 }
 
-func (k Keeper) SetPriceValidators(ctx sdk.Context, priceVals []types.PriceValidator) {
+func (k Keeper) SetPriceValidators(ctx sdk.Context, priceVals []types.PriceValidator) error {
 	for _, priceVal := range priceVals {
-		_ = k.SetPriceValidator(ctx, priceVal)
+		err := k.SetPriceValidator(ctx, priceVal)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (k Keeper) SetPriceValidator(ctx sdk.Context, priceVal types.PriceValidator) error {

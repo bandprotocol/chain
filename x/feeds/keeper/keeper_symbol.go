@@ -52,6 +52,12 @@ func (k Keeper) DeleteSymbol(ctx sdk.Context, symbol string) {
 	ctx.KVStore(k.storeKey).Delete(types.SymbolStoreKey(symbol))
 }
 
+func (k Keeper) SetSymbolsByPowerIndex(ctx sdk.Context, symbols []types.Symbol) {
+	for _, symbol := range symbols {
+		k.SetSymbolByPowerIndex(ctx, symbol)
+	}
+}
+
 func (k Keeper) SetSymbolByPowerIndex(ctx sdk.Context, symbol types.Symbol) {
 	ctx.KVStore(k.storeKey).
 		Set(types.GetSymbolsByPowerIndexKey(symbol.Symbol, symbol.Power), k.cdc.MustMarshal(&symbol))
@@ -63,7 +69,7 @@ func (k Keeper) DeleteSymbolByPowerIndex(ctx sdk.Context, symbol types.Symbol) {
 
 // GetSupportedSymbolsByPower gets the current group of bonded validators sorted by power-rank
 func (k Keeper) GetSupportedSymbolsByPower(ctx sdk.Context) []types.Symbol {
-	maxSymbols := k.GetParams(ctx).MaxSupportedSymbol
+	maxSymbols := k.GetParams(ctx).MaxSupportedSymbols
 	symbols := make([]types.Symbol, maxSymbols)
 
 	iterator := k.SymbolsPowerStoreIterator(ctx)
