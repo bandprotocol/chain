@@ -4,61 +4,63 @@ import (
 	"context"
 	"time"
 
-	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
+	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
-	bz := grogucontext.Cdc.MustMarshal(&types.QueryValidValidatorRequest{
+	clientCtx := client.Context{
+		Client:            c.Client,
+		Codec:             grogucontext.Cdc,
+		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		BroadcastMode:     flags.BroadcastSync,
+		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+	}
+
+	queryClient := types.NewQueryClient(clientCtx)
+
+	validValidator, err := queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: c.Validator.String(),
 	})
-	resBz, err := abciQuery(c, l, "/feeds.v1beta1.Query/ValidValidator", bz)
 	if err != nil {
 		return
 	}
 
-	validValidator := types.QueryValidValidatorResponse{}
-	grogucontext.Cdc.MustUnmarshal(resBz.Response.Value, &validValidator)
 	if !validValidator.Valid {
 		return
 	}
 
-	bz = grogucontext.Cdc.MustMarshal(&types.QueryParamsRequest{})
-	resBz, err = abciQuery(c, l, "/feeds.v1beta1.Query/Params", bz)
+	paramsResponse, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
 	if err != nil {
 		return
 	}
-
-	paramsResponse := types.QueryParamsResponse{}
-	grogucontext.Cdc.MustUnmarshal(resBz.Response.Value, &paramsResponse)
 	params := paramsResponse.Params
 
-	bz = grogucontext.Cdc.MustMarshal(&types.QuerySupportedSymbolsRequest{})
-	resBz, err = abciQuery(c, l, "/feeds.v1beta1.Query/SupportedSymbols", bz)
+	symbolsResponse, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbolsRequest{})
 	if err != nil {
 		return
 	}
 
-	symbolsResponse := types.QuerySupportedSymbolsResponse{}
-	grogucontext.Cdc.MustUnmarshal(resBz.Response.Value, &symbolsResponse)
 	symbols := symbolsResponse.Symbols
 
-	var symbolList []string
-
-	bz = grogucontext.Cdc.MustMarshal(&types.QueryValidatorPricesRequest{
-		Validator: c.Validator.String(),
-	})
-	resBz, err = abciQuery(c, l, "/feeds.v1beta1.Query/ValidatorPrices", bz)
+	validatorPricesResponse, err := queryClient.ValidatorPrices(
+		context.Background(),
+		&types.QueryValidatorPricesRequest{
+			Validator: c.Validator.String(),
+		},
+	)
 	if err != nil {
 		return
 	}
-	validatorPricesResponse := types.QueryValidatorPricesResponse{}
-	grogucontext.Cdc.MustUnmarshal(resBz.Response.Value, &validatorPricesResponse)
+
 	validatorPrices := validatorPricesResponse.ValidatorPrices
 	symbolTimestampMap := convertToSymbolTimestampMap(validatorPrices)
 
+	var requestedSymbols []string
 	now := time.Now()
 
 	for _, symbol := range symbols {
@@ -73,13 +75,13 @@ func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 				Add(time.Duration(symbol.Interval)*time.Second).
 				Add(-time.Duration(params.TransitionTime)*time.Second).
 				Before(now) {
-			symbolList = append(symbolList, symbol.Symbol)
+			requestedSymbols = append(requestedSymbols, symbol.Symbol)
 			c.InProgressSymbols.Store(symbol.GetSymbol(), time.Now())
 		}
 	}
-	if len(symbolList) != 0 {
-		l.Info("found symbols to send: %v", symbolList)
-		c.PendingSymbols <- symbolList
+	if len(requestedSymbols) != 0 {
+		l.Info("found symbols to send: %v", requestedSymbols)
+		c.PendingSymbols <- requestedSymbols
 	}
 }
 
@@ -92,22 +94,6 @@ func convertToSymbolTimestampMap(data []types.PriceValidator) map[string]int64 {
 	}
 
 	return symbolTimestampMap
-}
-
-// abciQuery will try to query data from BandChain node
-func abciQuery(
-	c *grogucontext.Context,
-	l *grogucontext.Logger,
-	path string,
-	data []byte,
-) (*ctypes.ResultABCIQuery, error) {
-	var lastErr error
-	res, err := c.Client.ABCIQuery(context.Background(), path, data)
-	if err != nil {
-		l.Debug(":exploding_head: Failed to query on %s request with error: %s", path, err.Error())
-		return nil, lastErr
-	}
-	return res, nil
 }
 
 func StartCheckSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
