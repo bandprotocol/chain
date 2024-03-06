@@ -55,6 +55,9 @@ message SubmitPrice {
 
   // The price of the symbol.
   uint64 price = 2;
+
+  // The error in case of not supported or not available
+  string error = 3;
 }
 
 // PriceValidator defines the price submitted by a validator for a symbol.

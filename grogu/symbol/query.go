@@ -1,8 +1,6 @@
 package symbol
 
 import (
-	"strings"
-
 	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
@@ -26,14 +24,8 @@ GetAllSymbols:
 		}
 	}
 
-	symbolStr := strings.Join(symbols, ",")
-
-	params := map[string]string{
-		"symbols": symbolStr,
-	}
-
-	l.Info("Try to get prices for symbols: %s", symbolStr)
-	prices, err := c.PriceService.Query(params)
+	l.Info("Try to get prices for symbols: %+v", symbols)
+	prices, err := c.PriceService.Query(symbols)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
 	}
@@ -46,9 +38,9 @@ GetAllSymbols:
 		}
 	}
 
-	l.Info("got prices for symbols: %s", symbolStr)
+	l.Info("got prices for symbols: %+v", symbols)
 	if len(prices) == 0 {
-		l.Error(":exploding_head: query symbol got no prices with symbols: %s", c, symbolStr)
+		l.Error(":exploding_head: query symbol got no prices with symbols: %+v", c, symbols)
 		return
 	}
 	c.PendingPrices <- prices

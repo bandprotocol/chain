@@ -20,7 +20,7 @@ var (
 )
 
 type PriceService interface {
-	Query(params map[string]string) ([]types.SubmitPrice, error)
+	Query(symbols []string) ([]types.SubmitPrice, error)
 }
 
 // NewPriceService returns priceService by name and priceService URL
@@ -32,14 +32,14 @@ func PriceServiceFromUrl(priceService string) (exec PriceService, err error) {
 	switch name {
 	case "rest":
 		exec = NewRestService(base, timeout)
+	case "grpc":
+		exec = NewGRPCService(base, timeout)
 	default:
 		return nil, fmt.Errorf("invalid priceService name: %s, base: %s", name, base)
 	}
 
 	// TODO: Remove hardcode in test execution
-	_, err = exec.Query(map[string]string{
-		"symbols": "BTC",
-	})
+	_, err = exec.Query([]string{"BTC"})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}

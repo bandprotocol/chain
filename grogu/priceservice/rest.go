@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/levigross/grequests"
@@ -24,12 +25,18 @@ type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-func (e *RestService) Query(params map[string]string) ([]types.SubmitPrice, error) {
+func (rs *RestService) Query(symbols []string) ([]types.SubmitPrice, error) {
+	symbolStr := strings.Join(symbols, ",")
+
+	params := map[string]string{
+		"symbols": symbolStr,
+	}
+
 	resp, err := grequests.Get(
-		e.url,
+		rs.url,
 		&grequests.RequestOptions{
 			Params:         params,
-			RequestTimeout: e.timeout,
+			RequestTimeout: rs.timeout,
 		},
 	)
 	if err != nil {
