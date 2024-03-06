@@ -53,6 +53,14 @@ func (m *MsgSubmitPrices) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
 
+	for _, price := range m.Prices {
+		if price.PriceOption != PriceOptionAvailable && price.Price != 0 {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"price must be initial value if price option is unsupported or unavailable",
+			)
+		}
+	}
+
 	return nil
 }
 

@@ -32,49 +32,69 @@ message Symbol {
   int64 last_interval_update_timestamp = 4;
 }
 
+// PriceOption defines the price option of a price.
+enum PriceOption {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // PRICE_OPTION_UNSPECIFIED defines an unspecified price option.
+  PRICE_OPTION_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceOptionUnspecified"];
+  // PRICE_OPTION_UNSUPPORTED defines an unsupported price option.
+  PRICE_OPTION_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceOptionUnsupported"];
+  // PRICE_OPTION_UNAVAILABLE defines an unavailable price option.
+  PRICE_OPTION_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceOptionUnavailable"];
+  // PRICE_OPTION_AVAILABLE defines an available price option.
+  PRICE_OPTION_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceOptionAvailable"];
+}
+
 // Price defines the price of a symbol.
 message Price {
   option (gogoproto.equal) = true;
 
+  // PriceOption defines the price option of a symbol.
+  PriceOption price_option = 1;
+
   // The symbol of the price.
-  string symbol = 1;
+  string symbol = 2;
 
   // The price of the symbol.
-  uint64 price = 2;
+  uint64 price = 3;
 
   // The timestamp at which the price was aggregated.
-  int64 timestamp = 3;
+  int64 timestamp = 4;
 }
 
 // SubmitPrice defines the submit price of a symbol.
 message SubmitPrice {
   option (gogoproto.equal) = true;
 
-  // The symbol of the price.
-  string symbol = 1;
-
-  // The price of the symbol.
-  uint64 price = 2;
-
-  // The error in case of not supported or not available
-  string error = 3;
-}
-
-// PriceValidator defines the price submitted by a validator for a symbol.
-message PriceValidator {
-  option (gogoproto.equal) = true;
-
-  // The validator address.
-  string validator = 1;
+  // PriceOption defines the price option of a symbol.
+  PriceOption price_option = 1;
 
   // The symbol of the price.
   string symbol = 2;
 
   // The price submitted by the validator.
   uint64 price = 3;
+}
+
+// PriceValidator defines the price submitted by a validator for a symbol.
+message PriceValidator {
+  option (gogoproto.equal) = true;
+
+  // PriceOption defines the price option of a symbol.
+  PriceOption price_option = 1;
+
+  // The validator address.
+  string validator = 2;
+
+  // The symbol of the price.
+  string symbol = 3;
+
+  // The price submitted by the validator.
+  uint64 price = 4;
 
   // The timestamp at which the price was submitted.
-  int64 timestamp = 4;
+  int64 timestamp = 5;
 }
 
 // PriceService defines the information of price service.

@@ -72,16 +72,18 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 			if status.IsActive {
 				lastTime := status.Since.Unix()
 				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
+
 				if err == nil {
 					// if timestamp of price is in acception period, append it
 					if priceVal.Timestamp >= blockTime.Unix()-symbol.Interval {
 						pfInfos = append(
 							pfInfos, types.PriceFeedInfo{
-								Price:     priceVal.Price,
-								Power:     power,
-								Deviation: 0,
-								Timestamp: priceVal.Timestamp,
-								Index:     idx,
+								PriceOption: priceVal.PriceOption,
+								Price:       priceVal.Price,
+								Power:       power,
+								Deviation:   0,
+								Timestamp:   priceVal.Timestamp,
+								Index:       idx,
 							},
 						)
 					}
@@ -111,12 +113,32 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 		return types.Price{}, types.ErrNotEnoughPriceValidator
 	}
 
-	price := types.CalculateMedianPriceFeedInfo(pfInfos)
+	// TODO: check final logic later
+	// check if the price is available
+	total, available, unavailable, unsupported := types.CalPricesPowers(pfInfos)
+	if unsupported > total/2 {
+		return types.Price{
+			PriceOption: types.PriceOptionUnsupported,
+			Symbol:      symbol.Symbol,
+			Price:       0,
+			Timestamp:   ctx.BlockTime().Unix(),
+		}, nil
+	} else if unavailable > total/2 || available < total/2 {
+		return types.Price{
+			PriceOption: types.PriceOptionUnavailable,
+			Symbol:      symbol.Symbol,
+			Price:       0,
+			Timestamp:   ctx.BlockTime().Unix(),
+		}, nil
+	}
+
+	price := types.CalculateMedianPriceFeedInfo(types.FilterPfInfos(pfInfos, types.PriceOptionAvailable))
 
 	return types.Price{
-		Symbol:    symbol.Symbol,
-		Price:     price,
-		Timestamp: ctx.BlockTime().Unix(),
+		PriceOption: types.PriceOptionAvailable,
+		Symbol:      symbol.Symbol,
+		Price:       price,
+		Timestamp:   ctx.BlockTime().Unix(),
 	}, nil
 }
 

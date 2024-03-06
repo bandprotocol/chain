@@ -5,18 +5,44 @@ import (
 )
 
 type PriceFeedInfo struct {
-	Power     uint64
-	Price     uint64
-	Deviation uint64
-	Timestamp int64
-	Index     int64
+	PriceOption PriceOption
+	Power       uint64
+	Price       uint64
+	Deviation   uint64
+	Timestamp   int64
+	Index       int64
+}
+
+func FilterPfInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
+	filtered := []PriceFeedInfo{}
+	for _, pfInfo := range pfInfos {
+		if pfInfo.PriceOption == opt {
+			filtered = append(filtered, pfInfo)
+		}
+	}
+	return filtered
+}
+
+func CalPricesPowers(
+	pfInfos []PriceFeedInfo,
+) (totalPower uint64, availablePower uint64, unavailablePower uint64, unsupportedPower uint64) {
+	for _, pfInfo := range pfInfos {
+		totalPower += pfInfo.Power
+
+		switch pfInfo.PriceOption {
+		case PriceOptionAvailable:
+			availablePower += pfInfo.Power
+		case PriceOptionUnavailable:
+			unavailablePower += pfInfo.Power
+		case PriceOptionUnsupported:
+			unsupportedPower += pfInfo.Power
+		}
+	}
+	return totalPower, availablePower, unavailablePower, unsupportedPower
 }
 
 func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
-	totalPower := uint64(0)
-	for _, pfInfo := range pfInfos {
-		totalPower += pfInfo.Power
-	}
+	totalPower, _, _, _ := CalPricesPowers(pfInfos)
 
 	// TODO: recheck
 	sort.Slice(pfInfos, func(i, j int) bool {
