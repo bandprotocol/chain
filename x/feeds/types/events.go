@@ -6,10 +6,11 @@ const (
 	EventTypeUpdatePrice   = "update_price"
 	EventTypeSignalSymbols = "signal_symbols"
 
-	AttributeKeyValidator = "validator"
-	AttributeKeyPrice     = "price"
-	AttributeKeyTimestamp = "timestamp"
-	AttributeKeySymbol    = "symbol"
-	AttributeKeyDelegator = "delegator"
-	AttributeKeyPower     = "power"
+	AttributeKeyPriceOption = "price_option"
+	AttributeKeyValidator   = "validator"
+	AttributeKeyPrice       = "price"
+	AttributeKeyTimestamp   = "timestamp"
+	AttributeKeySymbol      = "symbol"
+	AttributeKeyDelegator   = "delegator"
+	AttributeKeyPower       = "power"
 )

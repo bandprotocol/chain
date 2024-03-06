@@ -106,9 +106,20 @@ func (ms msgServer) SubmitPrices(
 			return nil, err
 		}
 
+		priceVal = types.PriceValidator{
+			PriceOption: price.PriceOption,
+			Validator:   req.Validator,
+			Symbol:      price.Symbol,
+			Price:       price.Price,
+			Timestamp:   blockTime,
+		}
+
+		_ = ms.Keeper.SetPriceValidator(ctx, priceVal)
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeSubmitPrice,
+				sdk.NewAttribute(types.AttributeKeyPriceOption, priceVal.PriceOption.String()),
 				sdk.NewAttribute(types.AttributeKeyValidator, priceVal.Validator),
 				sdk.NewAttribute(types.AttributeKeySymbol, priceVal.Symbol),
 				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", priceVal.Price)),
