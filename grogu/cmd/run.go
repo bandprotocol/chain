@@ -105,7 +105,7 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 			}
 			c.FreeKeys = make(chan int64, len(keys))
 			c.InProgressSymbols = &sync.Map{}
-			c.PendingSymbols = make(chan []string, 100)
+			c.PendingSymbols = make(chan map[string]time.Time, 100)
 			c.PendingPrices = make(chan []types.SubmitPrice, 30)
 			return runImpl(c, l)
 		},

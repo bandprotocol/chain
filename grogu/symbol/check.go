@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"golang.org/x/exp/maps"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
@@ -60,7 +61,7 @@ func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 	validatorPrices := validatorPricesResponse.ValidatorPrices
 	symbolTimestampMap := convertToSymbolTimestampMap(validatorPrices)
 
-	var requestedSymbols []string
+	requestedSymbols := make(map[string]time.Time)
 	now := time.Now()
 
 	for _, symbol := range symbols {
@@ -75,12 +76,14 @@ func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 				Add(time.Duration(symbol.Interval)*time.Second).
 				Add(-time.Duration(params.TransitionTime)*time.Second).
 				Before(now) {
-			requestedSymbols = append(requestedSymbols, symbol.Symbol)
+			requestedSymbols[symbol.Symbol] = time.Unix(timestamp, 0).
+				Add(time.Duration(symbol.Interval) * time.Second).
+				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
 			c.InProgressSymbols.Store(symbol.GetSymbol(), time.Now())
 		}
 	}
 	if len(requestedSymbols) != 0 {
-		l.Info("found symbols to send: %v", requestedSymbols)
+		l.Info("found symbols to send: %v", maps.Keys(requestedSymbols))
 		c.PendingSymbols <- requestedSymbols
 	}
 }

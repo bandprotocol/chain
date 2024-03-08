@@ -364,13 +364,6 @@ func (m *SubmitPrice) GetPrice() uint64 {
 	return 0
 }
 
-func (m *SubmitPrice) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
 // PriceValidator defines the price submitted by a validator for a symbol.
 type PriceValidator struct {
 	// PriceOption defines the price option of a symbol.
@@ -692,9 +685,6 @@ func (this *SubmitPrice) Equal(that interface{}) bool {
 	if this.Price != that1.Price {
 		return false
 	}
-	if this.Error != that1.Error {
-		return false
-	}
 	return true
 }
 func (this *PriceValidator) Equal(that interface{}) bool {
@@ -945,13 +935,6 @@ func (m *SubmitPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Error) > 0 {
-		i -= len(m.Error)
-		copy(dAtA[i:], m.Error)
-		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Error)))
-		i--
-		dAtA[i] = 0x1a
-	}
 	if m.Price != 0 {
 		i = encodeVarintFeeds(dAtA, i, uint64(m.Price))
 		i--
@@ -1169,10 +1152,6 @@ func (m *SubmitPrice) Size() (n int) {
 	}
 	if m.Price != 0 {
 		n += 1 + sovFeeds(uint64(m.Price))
-	}
-	l = len(m.Error)
-	if l > 0 {
-		n += 1 + l + sovFeeds(uint64(l))
 	}
 	return n
 }
@@ -1792,38 +1771,6 @@ func (m *SubmitPrice) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFeeds
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Error = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipFeeds(dAtA[iNdEx:])

@@ -45,7 +45,7 @@ type Context struct {
 	MaxTry           uint64
 	RPCPollInterval  time.Duration
 
-	PendingSymbols    chan []string
+	PendingSymbols    chan map[string]time.Time
 	PendingPrices     chan []types.SubmitPrice
 	InProgressSymbols *sync.Map
 	FreeKeys          chan int64

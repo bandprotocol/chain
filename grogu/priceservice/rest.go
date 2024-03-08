@@ -2,14 +2,13 @@ package priceservice
 
 import (
 	"encoding/json"
-	"fmt"
-	"math"
+	"net/url"
+	"path"
 	"strings"
 	"time"
 
+	grpcprice "github.com/bandprotocol/bothan-api/go-proxy/proto"
 	"github.com/levigross/grequests"
-
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 type RestService struct {
@@ -25,44 +24,33 @@ type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-func (rs *RestService) Query(symbols []string) ([]types.SubmitPrice, error) {
-	symbolStr := strings.Join(symbols, ",")
+type QueryStruct struct {
+	SignalIds []string `json:"signal_ids"`
+}
 
-	params := map[string]string{
-		"symbols": symbolStr,
+func (rs *RestService) Query(signalIds []string) ([]*grpcprice.PriceData, error) {
+	concatSignalIds := strings.Join(signalIds, ",")
+	u, err := url.Parse(rs.url)
+	if err != nil {
+		return nil, err
 	}
+	u.Path = path.Join(u.Path, concatSignalIds)
 
 	resp, err := grequests.Get(
-		rs.url,
+		u.String(),
 		&grequests.RequestOptions{
-			Params:         params,
 			RequestTimeout: rs.timeout,
 		},
 	)
 	if err != nil {
-		return []types.SubmitPrice{}, err
+		return nil, err
 	}
 
-	var priceData PriceData
-	err = json.Unmarshal(resp.Bytes(), &priceData)
+	var priceResp grpcprice.QueryPricesResponse
+	err = json.Unmarshal(resp.Bytes(), &priceResp)
 	if err != nil {
-		return []types.SubmitPrice{}, err
+		return nil, err
 	}
 
-	maxSafePrice := math.MaxUint64 / uint64(math.Pow10(9))
-
-	// Convert PriceData to an array of SubmitPrice
-	var submitPrices []types.SubmitPrice
-	for symbol, price := range priceData.Prices {
-		if price > float64(maxSafePrice) || price < 0 {
-			return []types.SubmitPrice{}, fmt.Errorf("received price is out of range for symbol %s", symbol)
-		}
-		submitPrice := types.SubmitPrice{
-			Symbol: symbol,
-			Price:  uint64(price * math.Pow10(9)), // Assuming you want to convert the float64 price to uint64
-		}
-		submitPrices = append(submitPrices, submitPrice)
-	}
-
-	return submitPrices, nil
+	return priceResp.Prices, nil
 }
