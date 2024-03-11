@@ -33,19 +33,22 @@ func (k msgServer) CreateGroup(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate members
+	var members []sdk.AccAddress
 	for _, m := range req.Members {
 		address, err := sdk.AccAddressFromBech32(m)
 		if err != nil {
 			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 		}
+		members = append(members, address)
 
 		status := k.GetStatus(ctx, address)
 		if status.Status != types.MEMBER_STATUS_ACTIVE {
 			return nil, types.ErrStatusIsNotActive
 		}
+
 	}
 
-	if _, err := k.tssKeeper.CreateGroup(ctx, req.Members, req.Threshold, req.Fee); err != nil {
+	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee); err != nil {
 		return nil, err
 	}
 

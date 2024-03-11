@@ -14,7 +14,7 @@ import (
 // CreateGroup creates a new group with the given members and threshold.
 func (k Keeper) CreateGroup(
 	ctx sdk.Context,
-	members []string,
+	members []sdk.AccAddress,
 	threshold uint64,
 	fee sdk.Coins,
 ) (tss.GroupID, error) {
@@ -40,7 +40,7 @@ func (k Keeper) CreateGroup(
 		k.SetMember(ctx, types.Member{
 			ID:          tss.MemberID(i + 1), // ID starts from 1
 			GroupID:     groupID,
-			Address:     m,
+			Address:     m.String(),
 			PubKey:      nil,
 			IsMalicious: false,
 		})
@@ -61,7 +61,7 @@ func (k Keeper) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
 	)
 	for _, m := range members {
-		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m))
+		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m.String()))
 	}
 	ctx.EventManager().EmitEvent(event)
 

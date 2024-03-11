@@ -67,7 +67,7 @@ type StakingKeeper interface {
 type TSSKeeper interface {
 	CreateGroup(
 		ctx sdk.Context,
-		members []string,
+		members []sdk.AccAddress,
 		threshold uint64,
 		fee sdk.Coins,
 	) (tss.GroupID, error)
