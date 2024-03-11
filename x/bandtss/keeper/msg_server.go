@@ -45,7 +45,6 @@ func (k msgServer) CreateGroup(
 		if status.Status != types.MEMBER_STATUS_ACTIVE {
 			return nil, types.ErrStatusIsNotActive
 		}
-
 	}
 
 	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee); err != nil {
