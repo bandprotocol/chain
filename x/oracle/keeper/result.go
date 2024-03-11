@@ -81,8 +81,9 @@ func (k Keeper) ResolveSuccess(
 	}
 
 	// handle signing content
+	cacheCtx, writeCache := ctx.CacheContext()
 	signing, err := k.bandtssKeeper.HandleCreateSigning(
-		ctx,
+		cacheCtx,
 		gid,
 		types.NewOracleResultSignatureOrder(id, encodeType),
 		sdk.MustAccAddressFromBech32(requester), feeLimit,
@@ -91,6 +92,7 @@ func (k Keeper) ResolveSuccess(
 		k.handleCreateSigningFailed(ctx, id, gid, event, err)
 		return
 	}
+	writeCache()
 
 	// save signing result and emit an event.
 	signingResult := &types.SigningResult{
