@@ -3,6 +3,8 @@ package cli
 import (
 	"encoding/hex"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -11,14 +13,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
+	granteeutils "github.com/bandprotocol/chain/v2/pkg/grantee"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
-	flagGroupID  = "group-id"
-	flagFeeLimit = "fee-limit"
+	flagExpiration = "expiration"
+	flagGroupID    = "group-id"
+	flagFeeLimit   = "fee-limit"
 )
 
 // GetTxCmd returns a root CLI command handler for all x/bandtss transaction commands.
@@ -177,6 +181,52 @@ func GetTxCmdHealthCheck() *cobra.Command {
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdAddGrantees creates a CLI command for add new grantees
+func GetTxCmdAddGrantees() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-grantees [grantee1] [grantee2] ...",
+		Short: "Add agents authorized to submit bandtss transactions.",
+		Args:  cobra.MinimumNArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Add agents authorized to submit bandtss transactions.
+Example:
+$ %s tx bandtss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+`,
+				version.AppName,
+			),
+		),
+		RunE: granteeutils.AddGranteeCmd(types.GetBandtssGrantMsgTypes(), flagExpiration),
+	}
+
+	cmd.Flags().
+		Int64(flagExpiration, time.Now().AddDate(2500, 0, 0).Unix(), "The Unix timestamp. Default is 2500 years(forever).")
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdRemoveGrantees creates a CLI command for remove grantees from granter
+func GetTxCmdRemoveGrantees() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "remove-grantees [grantee1] [grantee2] ...",
+		Short: "Remove agents from the list of authorized grantees.",
+		Args:  cobra.MinimumNArgs(1),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Remove agents from the list of authorized grantees.
+Example:
+$ %s tx bandtss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+`,
+				version.AppName,
+			),
+		),
+		RunE: granteeutils.RemoveGranteeCmd(types.GetBandtssGrantMsgTypes()),
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
