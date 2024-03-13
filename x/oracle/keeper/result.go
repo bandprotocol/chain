@@ -10,8 +10,10 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
+	ctxcache "github.com/bandprotocol/chain/v2/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -81,18 +83,22 @@ func (k Keeper) ResolveSuccess(
 	}
 
 	// handle signing content
-	cacheCtx, writeCache := ctx.CacheContext()
-	signing, err := k.bandtssKeeper.HandleCreateSigning(
-		cacheCtx,
-		gid,
-		types.NewOracleResultSignatureOrder(id, encodeType),
-		sdk.MustAccAddressFromBech32(requester), feeLimit,
-	)
-	if err != nil {
+	var signing *tsstypes.Signing
+
+	createSigningFunc := func(ctx sdk.Context) (err error) {
+		signing, err = k.bandtssKeeper.HandleCreateSigning(
+			ctx,
+			gid,
+			types.NewOracleResultSignatureOrder(id, encodeType),
+			sdk.MustAccAddressFromBech32(requester), feeLimit,
+		)
+		return err
+	}
+
+	if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
 		k.handleCreateSigningFailed(ctx, id, gid, event, err)
 		return
 	}
-	writeCache()
 
 	// save signing result and emit an event.
 	signingResult := &types.SigningResult{
