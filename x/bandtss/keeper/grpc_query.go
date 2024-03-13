@@ -30,7 +30,7 @@ func (q queryServer) Status(
 	// Convert the address from Bech32 format to AccAddress format
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, err
 	}
 
 	// Get status of the address

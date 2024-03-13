@@ -37,7 +37,7 @@ func (k msgServer) CreateGroup(
 	for _, m := range req.Members {
 		address, err := sdk.AccAddressFromBech32(m)
 		if err != nil {
-			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+			return nil, err
 		}
 		members = append(members, address)
 
@@ -65,7 +65,7 @@ func (k msgServer) ReplaceGroup(
 
 	authority, err := sdk.AccAddressFromBech32(req.Authority)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, err
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -107,7 +107,7 @@ func (k msgServer) RequestSignature(
 
 	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, err
 	}
 
 	// Execute the handler to process the request.
@@ -125,7 +125,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, err
 	}
 
 	if err = k.SetActiveStatus(ctx, address); err != nil {
@@ -149,7 +149,7 @@ func (k msgServer) HealthCheck(
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, err
 	}
 
 	if err = k.SetLastActive(ctx, address); err != nil {
