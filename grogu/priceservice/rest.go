@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	grpcprice "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 	"github.com/levigross/grequests"
 )
 
@@ -28,7 +28,7 @@ type QueryStruct struct {
 	SignalIds []string `json:"signal_ids"`
 }
 
-func (rs *RestService) Query(signalIds []string) ([]*grpcprice.PriceData, error) {
+func (rs *RestService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
 	concatSignalIds := strings.Join(signalIds, ",")
 	u, err := url.Parse(rs.url)
 	if err != nil {
@@ -46,7 +46,7 @@ func (rs *RestService) Query(signalIds []string) ([]*grpcprice.PriceData, error)
 		return nil, err
 	}
 
-	var priceResp grpcprice.QueryPricesResponse
+	var priceResp bothanproto.QueryPricesResponse
 	err = json.Unmarshal(resp.Bytes(), &priceResp)
 	if err != nil {
 		return nil, err

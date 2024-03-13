@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	grpcprice "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 )
 
 const (
@@ -20,7 +20,7 @@ var (
 )
 
 type PriceService interface {
-	Query(signalIds []string) ([]*grpcprice.PriceData, error)
+	Query(signalIds []string) ([]*bothanproto.PriceData, error)
 }
 
 // NewPriceService returns priceService by name and priceService URL

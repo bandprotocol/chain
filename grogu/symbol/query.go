@@ -15,11 +15,11 @@ import (
 
 func StartQuerySymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
-		querySymbols(c, l)
+		QuerySymbols(c, l)
 	}
 }
 
-func querySymbols(c *grogucontext.Context, l *grogucontext.Logger) {
+func QuerySymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 	symbolsWithTimeLimit := <-c.PendingSymbols
 
 GetAllSymbols:
@@ -52,6 +52,7 @@ GetAllSymbols:
 				Price:       0,
 			})
 			continue
+
 		case bothanproto.PriceOption_PRICE_OPTION_AVAILABLE:
 			price, err := strconv.ParseFloat(strings.TrimSpace(priceData.Price), 64)
 			if err != nil || price > float64(maxSafePrice) || price < 0 {
