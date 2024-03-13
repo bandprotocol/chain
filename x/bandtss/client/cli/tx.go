@@ -54,7 +54,8 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdActivate(),
 		GetTxCmdHealthCheck(),
-
+		GetTxCmdAddGrantees(),
+		GetTxCmdRemoveGrantees(),
 		cmdRequestSignature,
 	)
 
