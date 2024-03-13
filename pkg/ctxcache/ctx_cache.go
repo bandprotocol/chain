@@ -1,4 +1,4 @@
-package contextcache
+package ctxcache
 
 // Borrowed from Osmosis
 // https://github.com/osmosis-labs/osmosis/blob/62757d309957fa9e02e6fb0b5dc8caf1ca68e696/osmoutils/cache_ctx.go
