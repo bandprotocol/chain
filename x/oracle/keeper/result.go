@@ -13,7 +13,6 @@ import (
 	ctxcache "github.com/bandprotocol/chain/v2/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -83,16 +82,28 @@ func (k Keeper) ResolveSuccess(
 	}
 
 	// handle signing content
-	var signing *tsstypes.Signing
-
-	createSigningFunc := func(ctx sdk.Context) (err error) {
-		signing, err = k.bandtssKeeper.HandleCreateSigning(
+	createSigningFunc := func(ctx sdk.Context) error {
+		signing, err := k.bandtssKeeper.HandleCreateSigning(
 			ctx,
 			gid,
 			types.NewOracleResultSignatureOrder(id, encodeType),
 			sdk.MustAccAddressFromBech32(requester), feeLimit,
 		)
-		return err
+		if err != nil {
+			return err
+		}
+
+		// save signing result and emit an event.
+		signingResult := &types.SigningResult{
+			SigningID: signing.ID,
+		}
+		k.SetSigningResult(ctx, id, *signingResult)
+
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
+		)
+
+		return nil
 	}
 
 	if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
@@ -100,15 +111,6 @@ func (k Keeper) ResolveSuccess(
 		return
 	}
 
-	// save signing result and emit an event.
-	signingResult := &types.SigningResult{
-		SigningID: signing.ID,
-	}
-	k.SetSigningResult(ctx, id, *signingResult)
-
-	event = event.AppendAttributes(
-		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-	)
 	ctx.EventManager().EmitEvent(event)
 }
 
