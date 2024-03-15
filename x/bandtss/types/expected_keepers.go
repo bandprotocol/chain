@@ -70,6 +70,7 @@ type TSSKeeper interface {
 		members []sdk.AccAddress,
 		threshold uint64,
 		fee sdk.Coins,
+		fromModule string,
 	) (tss.GroupID, error)
 
 	UpdateGroupFee(

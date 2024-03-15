@@ -26,6 +26,10 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
+	if group.FromModule != types.ModuleName {
+		return
+	}
+
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredGroup(ctx, group)
 	// error is from we cannot find groupID in the store. In this case, we don't need to do anything,
 	// but log the error just in case.

@@ -47,7 +47,7 @@ func (k msgServer) CreateGroup(
 		}
 	}
 
-	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee); err != nil {
+	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee, types.ModuleName); err != nil {
 		return nil, err
 	}
 

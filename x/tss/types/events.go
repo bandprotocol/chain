@@ -32,6 +32,7 @@ const (
 	AttributeKeyStatus         = "status"
 	AttributeKeyFee            = "fee"
 	AttributeKeyDKGContext     = "dkg_context"
+	AttributeKeyFromModule     = "from_module"
 	AttributeKeyRound1Info     = "round1_info"
 	AttributeKeyRound2Info     = "round2_info"
 	AttributeKeyComplainantID  = "complainant_id"

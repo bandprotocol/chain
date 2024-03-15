@@ -47,7 +47,7 @@ type GenesisState struct {
 	DEQueues []DEQueue `protobuf:"bytes,9,rep,name=de_queues,json=deQueues,proto3" json:"de_queues"`
 	// des_genesis is an array containing the des of all the addressres.
 	DEsGenesis []DEGenesis `protobuf:"bytes,10,rep,name=des_genesis,json=desGenesis,proto3" json:"des_genesis"`
-	// isactives_genesis is an array containing status of all addresses
+	// is_actives_genesis is an array containing status of all addresses
 	IsActivesGenesis []IsActiveGenesis `protobuf:"bytes,11,rep,name=is_actives_genesis,json=isActivesGenesis,proto3" json:"is_actives_genesis"`
 }
 
