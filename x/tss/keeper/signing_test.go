@@ -416,7 +416,7 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 	}
 }
 
-func (s *KeeperTestSuite) TestHandleRequestSign() {
+func (s *KeeperTestSuite) TestCreateSigning() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
@@ -430,38 +430,16 @@ func (s *KeeperTestSuite) TestHandleRequestSign() {
 	// Define the fee payer's address.
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
-	// Set the fee limit to zero.
-	feeLimit := sdk.NewCoins()
-
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)
+	msg, err := k.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
-	s.Require().NoError(err)
-	s.Require().Equal(groupID, signing.GroupID)
-	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
-}
-
-func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Define the fee payer's address.
-	feePayer := sdk.MustAccAddressFromBech32(k.GetAuthority())
-
-	// execute HandleReplaceGroupRequestSignature
-	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
+	signing, err := k.CreateSigning(ctx, group, msg, sdk.NewCoins(), feePayer)
 	s.Require().NoError(err)
 
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
 	s.Require().NoError(err)
 	s.Require().Equal(groupID, signing.GroupID)
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
@@ -515,12 +493,8 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 		Address: testapp.Alice.Address.String(),
 	})
 
-	// Set status
-	k.SetMemberStatus(ctx, types.Status{
-		Address: testapp.Alice.Address.String(),
-		Status:  types.MEMBER_STATUS_ACTIVE,
-		Since:   ctx.BlockTime(),
-	})
+	// Set isActive flag
+	k.SetMemberIsActive(ctx, testapp.Alice.Address, false)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{
@@ -545,105 +519,10 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-	gotStatus := k.GetStatus(ctx, testapp.Alice.Address)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
+	gotStatus := k.GetMemberIsActive(ctx, testapp.Alice.Address)
+	s.Require().Equal(false, gotStatus)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 	gotPZs := k.GetPartialSignatures(ctx, signingID)
 	s.Require().Empty(gotPZs)
-}
-
-func (s *KeeperTestSuite) TestRefundFee() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	testCases := []struct {
-		name     string
-		signing  types.Signing
-		expCoins sdk.Coins
-	}{
-		{
-			"10uband with 2 members",
-			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
-		},
-		{
-			"10uband,15token with 2 members",
-			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(sdk.NewInt64Coin("uband", 20), sdk.NewInt64Coin("token", 30)),
-		},
-		{
-			"0uband with 2 members",
-			types.Signing{
-				ID:        2,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(),
-		},
-		{
-			"10uband with 0 member",
-			types.Signing{
-				ID:              3,
-				GroupID:         1,
-				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester:       testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{},
-			},
-			sdk.NewCoins(),
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
-
-			// Refund fee
-			k.RefundFee(ctx, tc.signing)
-
-			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
-
-			gain := balancesAfter.Sub(balancesBefore...)
-			s.Require().Equal(tc.expCoins, gain)
-
-			lose := balancesModuleBefore.Sub(balancesModuleAfter...)
-			s.Require().Equal(tc.expCoins, lose)
-		})
-	}
 }

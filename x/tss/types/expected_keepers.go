@@ -6,8 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
@@ -39,40 +37,45 @@ type AccountKeeper interface {
 	GetModuleAccount(ctx sdk.Context, name string) types.ModuleAccountI
 }
 
-// BankKeeper defines the expected interface needed to retrieve account balances.
-type BankKeeper interface {
-	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
+// TSSHooks event hooks for staking validator object (noalias)
+type TSSHooks interface {
+	// Must be called when a group is created successfully; no error returned because it is
+	// processed at end block.
+	AfterCreatingGroupCompleted(ctx sdk.Context, group Group)
 
-	SendCoinsFromModuleToAccount(
-		ctx sdk.Context,
-		senderModule string,
-		recipientAddr sdk.AccAddress,
-		amt sdk.Coins,
-	) error
-	SendCoinsFromAccountToModule(
-		ctx sdk.Context,
-		senderAddr sdk.AccAddress,
-		recipientModule string,
-		amt sdk.Coins,
-	) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
-}
+	// Must be called when a group creation; no error returned because it is processed at end block.
+	AfterCreatingGroupFailed(ctx sdk.Context, group Group)
 
-// StakingKeeper defines the expected staking keeper.
-type StakingKeeper interface {
-	MaxValidators(ctx sdk.Context) (res uint32)
-	ValidatorByConsAddr(sdk.Context, sdk.ConsAddress) stakingtypes.ValidatorI
-	IterateBondedValidatorsByPower(
-		ctx sdk.Context,
-		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
-	)
-}
+	// Must be called before setting group status to expired; no error returned because it is
+	// processed at end block.
+	BeforeSetGroupExpired(ctx sdk.Context, group Group)
 
-// DistrKeeper defines the expected distribution keeper.
-type DistrKeeper interface {
-	GetCommunityTax(ctx sdk.Context) (percent sdk.Dec)
-	GetFeePool(ctx sdk.Context) (feePool distrtypes.FeePool)
-	SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
-	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
+	// Must be called when a group is replaced successfully; no error returned because it is
+	// processed at end block.
+	AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement)
+
+	// Must be called when a group cannot be replaced; no error returned because it is processed
+	// at end block.
+	AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement)
+
+	// Must be called when a signing request is created.
+	AfterSigningCreated(ctx sdk.Context, signing Signing) error
+
+	// Must be called when a signing request is unsuccessfully signed; no error returned because it
+	// is processed at end block.
+	AfterSigningFailed(ctx sdk.Context, signing Signing)
+
+	// Must be called when a signing request is successfully signed by selected members; no error
+	// returned because it is processed at end block.
+	AfterSigningCompleted(ctx sdk.Context, signing Signing)
+
+	// Must be called before setting signing status to expired; no error returned because it is
+	// processed at end block.
+	BeforeSetSigningExpired(ctx sdk.Context, signing Signing)
+
+	// Must be called after a signer submit DEs.
+	AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error
+
+	// Must be called after polling member's DE from store.
+	AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error
 }

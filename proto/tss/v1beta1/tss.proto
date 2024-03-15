@@ -48,8 +48,10 @@ message Replacement {
   // current_pub_key is the public key pair that used for sign & verify replace group msg.
   bytes current_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // new_group_id is the ID of the new group that be a new key candidate.
-  uint64 new_group_id = 5
-      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  uint64 new_group_id = 5 [
+    (gogoproto.customname) = "NewGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // new_pub_key is the public key of the group that will be the next key of this group
   bytes new_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status is an enumeration of the possible statuses of a group replacement process.
@@ -201,35 +203,6 @@ message Member {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 5;
-}
-
-// MemberStatus is an enumeration of the possible statuses of a member.
-enum MemberStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // MEMBER_STATUS_UNSPECIFIED is unknown status.
-  MEMBER_STATUS_UNSPECIFIED = 0;
-  // MEMBER_STATUS_ACTIVE is the active status.
-  MEMBER_STATUS_ACTIVE = 1;
-  // MEMBER_STATUS_PAUSED is the paused status.
-  MEMBER_STATUS_PAUSED = 2;
-  // MEMBER_STATUS_INACTIVE is the inactive status.
-  MEMBER_STATUS_INACTIVE = 3;
-  // MEMBER_STATUS_JAIL is the status when member is jailed.
-  MEMBER_STATUS_JAIL = 4;
-}
-
-// Status maintains whether a member is an active member.
-message Status {
-  option (gogoproto.equal) = true;
-  // address is the address of the member.
-  string address = 1;
-  // status represents the current status of the member
-  MemberStatus status = 2;
-  // since is a block timestamp when a member has been activated/deactivated/jailed
-  google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
-  // last_active is a latest block timestamp when a member is active
-  google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

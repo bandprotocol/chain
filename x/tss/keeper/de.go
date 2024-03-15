@@ -124,21 +124,15 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
 
 		if deQueue.Tail == deQueue.Head {
-			return errors.Wrap(types.ErrDEQueueFull, fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
+			return types.ErrDEQueueFull.Wrap(fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
 		}
 	}
 
 	k.SetDEQueue(ctx, deQueue)
 
-	status := k.GetStatus(ctx, address)
-	if status.Status == types.MEMBER_STATUS_PAUSED {
-		left := k.GetDECount(ctx, address)
-		if left > 0 {
-			err := k.SetActiveStatus(ctx, address)
-			if err != nil {
-				return err
-			}
-		}
+	// Handle hooks after setting DEs.
+	if err := k.Hooks().AfterHandleSetDEs(ctx, address); err != nil {
+		return err
 	}
 
 	return nil
@@ -174,10 +168,7 @@ func (k Keeper) HandleAssignedMembersPollDE(
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, errors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
+			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
 		}
 
 		de, err := k.PollDE(ctx, accMember)
@@ -185,11 +176,9 @@ func (k Keeper) HandleAssignedMembersPollDE(
 			return nil, err
 		}
 
-		left := k.GetDECount(ctx, accMember)
-		if left == 0 {
-			// If the member run out of DE, mark paused status for this member.
-			accAddress := sdk.MustAccAddressFromBech32(member.Address)
-			k.SetPausedStatus(ctx, accAddress)
+		// Handle hooks after polling DE.
+		if err := k.Hooks().AfterPollDE(ctx, accMember); err != nil {
+			return nil, err
 		}
 
 		assignedMembers = append(assignedMembers, types.AssignedMember{

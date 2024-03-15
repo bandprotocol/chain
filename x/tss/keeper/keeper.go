@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -18,19 +17,15 @@ import (
 )
 
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	paramSpace       paramtypes.Subspace
-	feeCollectorName string
+	cdc        codec.BinaryCodec
+	storeKey   storetypes.StoreKey
+	paramSpace paramtypes.Subspace
 
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
-	authKeeper        types.AccountKeeper
-	bankKeeper        types.BankKeeper
-	stakingKeeper     types.StakingKeeper
-	distrKeeper       types.DistrKeeper
 
 	router    *types.Router
+	hooks     types.TSSHooks
 	authority string
 }
 
@@ -38,32 +33,17 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
-	feeCollectorName string,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
-	authKeeper types.AccountKeeper,
-	bankKeeper types.BankKeeper,
-	stakingKeeper types.StakingKeeper,
-	distrKeeper types.DistrKeeper,
 	rtr *types.Router,
 	authority string,
-) Keeper {
-	// ensure TSS module account is set
-	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
-	}
-
-	return Keeper{
+) *Keeper {
+	return &Keeper{
 		cdc:               cdc,
 		storeKey:          storeKey,
 		paramSpace:        paramSpace,
-		feeCollectorName:  feeCollectorName,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
-		authKeeper:        authKeeper,
-		bankKeeper:        bankKeeper,
-		stakingKeeper:     stakingKeeper,
-		distrKeeper:       distrKeeper,
 		router:            rtr,
 		authority:         authority,
 	}
@@ -72,11 +52,6 @@ func NewKeeper(
 // GetAuthority returns the x/tss module's authority.
 func (k Keeper) GetAuthority() string {
 	return k.authority
-}
-
-// GetTSSAccount returns the TSS ModuleAccount
-func (k Keeper) GetTSSAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // SetGroupCount sets the number of group count to the given value.
@@ -127,7 +102,7 @@ func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
 func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
-		return types.Group{}, errors.Wrapf(types.ErrGroupNotFound, "failed to get group with groupID: %d", groupID)
+		return types.Group{}, types.ErrGroupNotFound.Wrapf("failed to get group with groupID: %d", groupID)
 	}
 
 	group := types.Group{}
@@ -323,8 +298,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
 		address := sdk.MustAccAddressFromBech32(member.Address)
-		status := k.GetStatus(ctx, address)
-		if status.Status == types.MEMBER_STATUS_ACTIVE {
+		if isActive := k.GetMemberIsActive(ctx, address); isActive {
 			members = append(members, member)
 		}
 	}
@@ -336,7 +310,7 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 	}
 
 	if len(filteredMembers) == 0 {
-		return nil, errors.Wrapf(types.ErrNoActiveMember, "no active member in groupID: %d", groupID)
+		return nil, types.ErrNoActiveMember.Wrapf("no active member in groupID: %d", groupID)
 	}
 	return filteredMembers, nil
 }
@@ -375,32 +349,8 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
-			members, err := k.GetGroupMembers(ctx, group.ID)
-			if err != nil {
-				// should not happen
-				panic(err)
-			}
-			for _, member := range members {
-				address := sdk.MustAccAddressFromBech32(member.Address)
-				switch group.Status {
-				case types.GROUP_STATUS_ROUND_1:
-					_, err := k.GetRound1Info(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				case types.GROUP_STATUS_ROUND_2:
-					_, err := k.GetRound2Info(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				case types.GROUP_STATUS_ROUND_3:
-					err := k.checkConfirmOrComplain(ctx, group.ID, member.ID)
-					if err != nil {
-						k.SetJailStatus(ctx, address)
-					}
-				default:
-				}
-			}
+			// Handle the hooks before setting group to be expired.
+			k.Hooks().BeforeSetGroupExpired(ctx, group)
 
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
@@ -422,49 +372,56 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 	}
 }
 
-// SetMemberStatus sets a status of a member of the group in the store.
-func (k Keeper) SetMemberStatus(ctx sdk.Context, status types.Status) {
-	address := sdk.MustAccAddressFromBech32(status.Address)
-	ctx.KVStore(k.storeKey).Set(types.StatusStoreKey(address), k.cdc.MustMarshal(&status))
-}
-
-// GetStatusesIterator gets an iterator all statuses of address.
-func (k Keeper) GetStatusesIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StatusStoreKeyPrefix)
-}
-
-// GetStatus retrieves a status of the address.
-func (k Keeper) GetStatus(ctx sdk.Context, address sdk.AccAddress) types.Status {
-	bz := ctx.KVStore(k.storeKey).Get(types.StatusStoreKey(address))
-	if bz == nil {
-		return types.Status{
-			Address: address.String(),
-			Status:  types.MEMBER_STATUS_UNSPECIFIED,
-			Since:   time.Time{},
-		}
+// SetMemberIsActive sets a boolean flag represent activeness of the user.
+func (k Keeper) SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool) {
+	value := uint64(0)
+	if status {
+		value = 1
 	}
 
-	status := types.Status{}
-	k.cdc.MustUnmarshal(bz, &status)
-	return status
+	ctx.KVStore(k.storeKey).Set(types.IsActiveStoreKey(address), sdk.Uint64ToBigEndian(value))
 }
 
-// GetStatuses retrieves all statuses of the store.
-func (k Keeper) GetStatuses(ctx sdk.Context) []types.Status {
-	var statuses []types.Status
-	iterator := k.GetStatusesIterator(ctx)
+// GetMemberIsActive retrieves a boolean flag whether the address is active or not.
+func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool {
+	bz := ctx.KVStore(k.storeKey).Get(types.IsActiveStoreKey(address))
+	if bz == nil {
+		return false
+	}
+
+	return sdk.BigEndianToUint64(bz) != 0
+}
+
+func (k Keeper) GetMemberIsActives(ctx sdk.Context) ([]sdk.AccAddress, []bool) {
+	var addresses []sdk.AccAddress
+	var isActives []bool
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.IsActiveStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var status types.Status
-		k.cdc.MustUnmarshal(iterator.Value(), &status)
-		statuses = append(statuses, status)
+		address := sdk.AccAddress(iterator.Key()[1:])
+		isActive := sdk.BigEndianToUint64(iterator.Value()) != 0
+
+		addresses = append(addresses, address)
+		isActives = append(isActives, isActive)
 	}
-	return statuses
+
+	return addresses, isActives
 }
 
-// DeleteStatus removes the status of the address of the group
-func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
+func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []types.IsActiveGenesis {
+	addresses, isActives := k.GetMemberIsActives(ctx)
+
+	var data []types.IsActiveGenesis
+	for i := range addresses {
+		data = append(data, types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
+	}
+
+	return data
+}
+
+// DeleteMemberIsActive removes the flag of the given address from the store.
+func (k Keeper) DeleteMemberIsActive(ctx sdk.Context, address sdk.AccAddress) {
+	ctx.KVStore(k.storeKey).Delete(types.IsActiveStoreKey(address))
 }
 
 // AddPendingProcessGroup adds a new pending process group to the store.
@@ -523,6 +480,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 	case types.GROUP_STATUS_FALLEN:
 		group.Status = types.GROUP_STATUS_FALLEN
 		k.SetGroup(ctx, group)
+
+		// Handle the hooks when group creation is fallen
+		k.Hooks().AfterCreatingGroupFailed(ctx, group)
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeRound3Failed,
@@ -536,6 +497,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		if !types.Members(members).HaveMalicious() {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
+
+			// Handle the hooks when group is ready.
+			k.Hooks().AfterCreatingGroupCompleted(ctx, group)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Success,
@@ -546,6 +511,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		} else {
 			group.Status = types.GROUP_STATUS_FALLEN
 			k.SetGroup(ctx, group)
+
+			// Handle the hooks when group creation is fallen
+			k.Hooks().AfterCreatingGroupFailed(ctx, group)
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeRound3Failed,
@@ -578,8 +547,7 @@ func (k Keeper) GetNextReplacementCount(ctx sdk.Context) uint64 {
 func (k Keeper) GetReplacement(ctx sdk.Context, replacementID uint64) (types.Replacement, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementKey(replacementID))
 	if bz == nil {
-		return types.Replacement{}, errors.Wrapf(
-			types.ErrReplacementNotFound,
+		return types.Replacement{}, types.ErrReplacementNotFound.Wrapf(
 			"failed to get replacement group with replacement ID: %d",
 			replacementID,
 		)
@@ -672,6 +640,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
 
+		// Handle the hooks when group is replaced.
+		k.Hooks().AfterReplacingGroupFailed(ctx, replacement)
+
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeReplacementFailed,
@@ -690,6 +661,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		!bytes.Equal(newGroup.PubKey, replacement.NewPubKey) {
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
+
+		// Handle the hooks when group is replaced.
+		k.Hooks().AfterReplacingGroupFailed(ctx, replacement)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -730,6 +704,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
 	k.SetReplacement(ctx, replacement)
 
+	// Handle the hooks when group is replaced.
+	k.Hooks().AfterReplacingGroupCompleted(ctx, replacement)
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplacementSuccess,
@@ -743,4 +720,22 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// Hooks gets the hooks for tss *Keeper {
+func (k *Keeper) Hooks() types.TSSHooks {
+	if k.hooks == nil {
+		return types.MultiTSSHooks{}
+	}
+
+	return k.hooks
+}
+
+// SetHooks Set the hooks for the tss keeper.
+func (k *Keeper) SetHooks(sh types.TSSHooks) {
+	if k.hooks != nil {
+		panic("cannot set hooks twice")
+	}
+
+	k.hooks = sh
 }

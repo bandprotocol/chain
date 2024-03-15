@@ -22,6 +22,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -138,7 +139,7 @@ func GenMsgRequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) []sdk.Msg {
-	msg, err := tsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
 	if err != nil {
 		panic(err)
 	}

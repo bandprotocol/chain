@@ -50,11 +50,11 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 		return nil, err
 	}
 
-	var statuses []types.Status
+	var isActives []bool
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m.Address)
-		status := q.k.GetStatus(ctx, address)
-		statuses = append(statuses, status)
+		status := q.k.GetMemberIsActive(ctx, address)
+		isActives = append(isActives, status)
 	}
 
 	// Ignore error as dkgContext can be deleted
@@ -71,7 +71,7 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 		Group:                group,
 		DKGContext:           dkgContext,
 		Members:              members,
-		Statuses:             statuses,
+		IsActives:            isActives,
 		Round1Infos:          round1Infos,
 		Round2Infos:          round2Infos,
 		ComplaintsWithStatus: complaints,
@@ -273,10 +273,10 @@ func (q queryServer) Signing(
 }
 
 // Status function handles the request to get the status of a given account address.
-func (q queryServer) Status(
+func (q queryServer) IsActive(
 	goCtx context.Context,
-	req *types.QueryStatusRequest,
-) (*types.QueryStatusResponse, error) {
+	req *types.QueryIsActiveRequest,
+) (*types.QueryIsActiveResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
@@ -286,50 +286,10 @@ func (q queryServer) Status(
 	}
 
 	// Get all statuses of the address
-	status := q.k.GetStatus(ctx, address)
+	isActive := q.k.GetMemberIsActive(ctx, address)
 
-	return &types.QueryStatusResponse{
-		Status: status,
-	}, nil
-}
-
-// Statuses function handles the request to get filtered statuses based on criteria.
-func (q queryServer) Statuses(
-	goCtx context.Context,
-	req *types.QueryStatusesRequest,
-) (*types.QueryStatusesResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	statusStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.StatusStoreKeyPrefix)
-
-	filteredStatuses, pageRes, err := query.GenericFilteredPaginate(
-		q.k.cdc,
-		statusStore,
-		req.Pagination,
-		func(key []byte, s *types.Status) (*types.Status, error) {
-			matchStatus := true
-
-			// Check if status is valids
-			if types.ValidMemberStatus(req.Status) {
-				matchStatus = s.Status == req.Status
-			}
-
-			if matchStatus {
-				return s, nil
-			}
-
-			return nil, nil
-		},
-		func() *types.Status {
-			return &types.Status{}
-		},
-	)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &types.QueryStatusesResponse{
-		Statuses:   filteredStatuses,
-		Pagination: pageRes,
+	return &types.QueryIsActiveResponse{
+		IsActive: isActive,
 	}, nil
 }
 

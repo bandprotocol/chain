@@ -50,13 +50,8 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
 
-  // Statuses queries all statuses.
-  rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
-    option (google.api.http).get = "/tss/v1beta1/statuses";
-  }
-
-  // Status queries the status of the address.
-  rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
+  // IsActive queries if the member is active.
+  rpc IsActive(QueryIsActiveRequest) returns (QueryIsActiveResponse) {
     option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
   }
 
@@ -101,8 +96,8 @@ message QueryGroupResponse {
   ];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
-  // members is the list of members in the group.
-  repeated Status statuses = 4 [(gogoproto.nullable) = false];
+  // is_actives is the list of members status to inform if they are ready to sign a message.
+  repeated bool is_actives = 4;
   // round1_infos is the list of Round 1 information.
   repeated Round1Info round1_infos = 5 [(gogoproto.nullable) = false];
   // round2_infos is the list of Round 2 information.
@@ -195,32 +190,16 @@ message QuerySigningResponse {
   repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
 }
 
-// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
-message QueryStatusesRequest {
-  // status define filter on statuses
-  MemberStatus status = 1;
-  // pagination defines pagination settings for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
-message QueryStatusesResponse {
-  // statuses is the statuses request.
-  repeated Status statuses = 1;
-  // pagination defines the pagination in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryStatusRequest is the request type for the Query/Status RPC method.
-message QueryStatusRequest {
+// QueryIsActiveRequest is the request type for the Query/IsActive RPC method.
+message QueryIsActiveRequest {
   // address is the member address.
   string address = 1;
 }
 
-// QueryStatusResponse is the response type for the Query/Status RPC method.
-message QueryStatusResponse {
-  // status is the status request.
-  Status status = 1 [(gogoproto.nullable) = false];
+// QueryIsActiveResponse is the response type for the Query/IsActive RPC method.
+message QueryIsActiveResponse {
+  // is_active is the status of the member.
+  bool is_active = 1;
 }
 
 // QueryReplacementsRequest is the request type for the Query/Replacements RPC method.

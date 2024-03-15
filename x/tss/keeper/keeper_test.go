@@ -15,6 +15,8 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -42,16 +44,17 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.TSSKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.TSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, bandtssKeeper, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -61,15 +64,16 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
 
-			s.app.TSSKeeper.SetMemberStatus(ctx, types.Status{
+			bandtssKeeper.SetStatus(ctx, bandtsstypes.Status{
 				Address: address.String(),
-				Status:  types.MEMBER_STATUS_ACTIVE,
+				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
 			})
+			tssKeeper.SetMemberIsActive(ctx, address, true)
 		}
 
 		// Create group
-		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
@@ -374,6 +378,54 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	k.SetMemberIsActive(ctx, address, true)
+
+	// check when being set to active
+	got := k.GetMemberIsActive(ctx, address)
+	s.Require().Equal(true, got)
+
+	gotAddrs, gotIsActives := k.GetMemberIsActives(ctx)
+	cntFound := 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			s.Require().Equal(true, gotIsActives[i])
+			cntFound++
+		}
+	}
+	s.Require().Equal(1, cntFound)
+
+	// check when being set to false
+	k.SetMemberIsActive(ctx, address, false)
+
+	got = k.GetMemberIsActive(ctx, address)
+	s.Require().Equal(false, got)
+
+	gotAddrs, gotIsActives = k.GetMemberIsActives(ctx)
+	cntFound = 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			s.Require().Equal(false, gotIsActives[i])
+			cntFound++
+		}
+	}
+	s.Require().Equal(1, cntFound)
+
+	// check when being deleted
+	k.DeleteMemberIsActive(ctx, address)
+	gotAddrs, _ = k.GetMemberIsActives(ctx)
+	cntFound = 0
+	for i := range gotAddrs {
+		if gotAddrs[i].String() == address.String() {
+			cntFound++
+		}
+	}
+	s.Require().Equal(0, cntFound)
+}
+
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
@@ -538,7 +590,8 @@ func (s *KeeperTestSuite) TestGetSetReplacement() {
 }
 
 func (s *KeeperTestSuite) TestReplacementQueues() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+	ctx, k := s.ctx, s.app.TSSKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	replacementID := uint64(1)
 
@@ -546,7 +599,7 @@ func (s *KeeperTestSuite) TestReplacementQueues() {
 
 	now := time.Now()
 
-	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
+	_, err := bandtssMsgSrvr.ReplaceGroup(ctx, &bandtsstypes.MsgReplaceGroup{
 		CurrentGroupID: 1,
 		NewGroupID:     2,
 		ExecTime:       now,
@@ -695,14 +748,10 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				MaxGroupSize:            0,
-				MaxDESize:               0,
-				CreatingPeriod:          1,
-				SigningPeriod:           1,
-				ActiveDuration:          time.Duration(0),
-				InactivePenaltyDuration: time.Duration(0),
-				JailPenaltyDuration:     time.Duration(0),
-				RewardPercentage:        0,
+				MaxGroupSize:   0,
+				MaxDESize:      0,
+				CreatingPeriod: 1,
+				SigningPeriod:  1,
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -710,14 +759,10 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				MaxGroupSize:            types.DefaultMaxGroupSize,
-				MaxDESize:               types.DefaultMaxDESize,
-				CreatingPeriod:          types.DefaultCreatingPeriod,
-				SigningPeriod:           types.DefaultSigningPeriod,
-				ActiveDuration:          types.DefaultActiveDuration,
-				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
-				RewardPercentage:        types.DefaultRewardPercentage,
+				MaxGroupSize:   types.DefaultMaxGroupSize,
+				MaxDESize:      types.DefaultMaxDESize,
+				CreatingPeriod: types.DefaultCreatingPeriod,
+				SigningPeriod:  types.DefaultSigningPeriod,
 			},
 			expectErr: false,
 		},

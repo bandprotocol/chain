@@ -8,18 +8,12 @@ import (
 )
 
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "tss/CreateGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "tss/ReplaceGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "tss/UpdateGroupFee")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound1{}, "tss/SubmitDKGRound1")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2")
 	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/Complaint")
 	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/Confirm")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/SubmitDEs")
-	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "tss/RequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/SubmitSignature")
-	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tss/Activate")
-	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "tss/HealthCheck")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/UpdateParams")
 
 	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
@@ -27,20 +21,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgCreateGroup{},
-		&MsgReplaceGroup{},
-		&MsgUpdateGroupFee{},
 		&MsgSubmitDKGRound1{},
 		&MsgSubmitDKGRound2{},
 		&MsgComplain{},
 		&MsgConfirm{},
 		&MsgSubmitDEs{},
-		&MsgRequestSignature{},
 		&MsgSubmitSignature{},
-		&MsgActivate{},
-		&MsgHealthCheck{},
 		&MsgUpdateParams{},
 	)
+
 	registry.RegisterInterface(
 		"tss.v1beta1.Content",
 		(*Content)(nil),

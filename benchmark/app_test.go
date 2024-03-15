@@ -16,6 +16,8 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	testapp "github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
@@ -24,18 +26,19 @@ import (
 
 type BenchmarkApp struct {
 	*testapp.TestingApp
-	Sender     *Account
-	Validator  *Account
-	Oid        uint64
-	Did        uint64
-	Gid        tss.GroupID
-	TxConfig   client.TxConfig
-	TxEncoder  sdk.TxEncoder
-	TB         testing.TB
-	Ctx        sdk.Context
-	Querier    keeper.Querier
-	TSSMsgSrvr tsstypes.MsgServer
-	authority  sdk.AccAddress
+	Sender         *Account
+	Validator      *Account
+	Oid            uint64
+	Did            uint64
+	Gid            tss.GroupID
+	TxConfig       client.TxConfig
+	TxEncoder      sdk.TxEncoder
+	TB             testing.TB
+	Ctx            sdk.Context
+	Querier        keeper.Querier
+	TSSMsgSrvr     tsstypes.MsgServer
+	BandtssMsgSrvr bandtsstypes.MsgServer
+	authority      sdk.AccAddress
 }
 
 var (
@@ -71,7 +74,8 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		TB: tb,
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
-	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(&ba.TestingApp.TSSKeeper)
+	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TestingApp.TSSKeeper)
+	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandtssKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
@@ -220,7 +224,8 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 }
 
 func (ba *BenchmarkApp) SetupTSSGroup() {
-	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TestingApp.TSSKeeper
+	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
+	k, bandtssKeeper := ba.TestingApp.TSSKeeper, ba.TestingApp.BandtssKeeper
 
 	// force address to owner
 	owner := ba.Sender.Address.String()
@@ -237,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := k.SetActiveStatus(ctx, ba.Sender.Address)
+			err := bandtssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 
@@ -329,9 +334,9 @@ func (ba *BenchmarkApp) RequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) {
-	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
+	ctx, msgSrvr := ba.Ctx, ba.BandtssMsgSrvr
 
-	msg, err := tsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
 	require.NoError(ba.TB, err)
 
 	_, err = msgSrvr.RequestSignature(ctx, msg)

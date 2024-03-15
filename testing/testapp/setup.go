@@ -44,6 +44,7 @@ import (
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -339,11 +340,11 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
 		{
-			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Address: authtypes.NewModuleAddress(bandtsstypes.ModuleName).String(),
 			Coins:   Coins100000000uband,
 		},
 		{
-			Address: authtypes.NewModuleAddress(tsstypes.ModuleName).String(),
+			Address: authtypes.NewModuleAddress(bandtsstypes.ModuleName).String(),
 			Coins:   Coins100000000token,
 		},
 	}
@@ -421,9 +422,9 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
-		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[0].Address)
-		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[1].Address)
-		_ = app.TSSKeeper.SetActiveStatus(ctx, Validators[2].Address)
+		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[0].Address)
+		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[1].Address)
+		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }
@@ -562,6 +563,10 @@ func SetupWithGenesisValSet(
 	// Add tss genesis
 	tssGenesis := tsstypes.DefaultGenesisState()
 	genesisState[tsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(tssGenesis)
+
+	// Add bandtss genesis
+	bandtssGenesis := bandtsstypes.DefaultGenesisState()
+	genesisState[bandtsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(bandtssGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)

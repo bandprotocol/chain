@@ -1,0 +1,30 @@
+syntax = "proto3";
+package bandtss.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "bandtss/v1beta1/bandtss.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
+
+// GenesisState defines the bandtss module's genesis state.
+message GenesisState {
+  // params defines all the paramiters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // statuses is an array containing status of all addresses
+  repeated Status statuses = 2 [(gogoproto.nullable) = false];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  // active_duration is the duration where a member can be active without interaction.
+  google.protobuf.Duration active_duration = 1 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
+  // oracle rewards.
+  uint64 reward_percentage = 2 [(gogoproto.customname) = "RewardPercentage"];
+  // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
+  google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // jail_penalty_duration is the duration where a member cannot activate back after jail.
+  google.protobuf.Duration jail_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+}

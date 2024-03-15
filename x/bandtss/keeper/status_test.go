@@ -1,49 +1,30 @@
 package keeper_test
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func (s *KeeperTestSuite) TestSetInActive() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	k.SetInactiveStatus(ctx, address)
 
 	status := k.GetStatus(ctx, address)
+	isActive := tssKeeper.GetMemberIsActive(ctx, address)
+
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
-}
-
-func (s *KeeperTestSuite) TestHandleInactiveValidators() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-	address := testapp.Validators[0].Address
-
-	status := types.Status{
-		Status:     types.MEMBER_STATUS_ACTIVE,
-		Address:    address.String(),
-		Since:      time.Time{},
-		LastActive: time.Time{},
-	}
-	k.SetMemberStatus(ctx, status)
-	ctx = ctx.WithBlockTime(time.Now())
-
-	k.HandleInactiveValidators(ctx)
-
-	status = k.GetStatus(ctx, address)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
+	s.Require().Equal(false, isActive)
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case
@@ -51,7 +32,9 @@ func (s *KeeperTestSuite) TestSetActive() {
 	s.Require().NoError(err)
 
 	status := k.GetStatus(ctx, address)
+	isActive := tssKeeper.GetMemberIsActive(ctx, address)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
+	s.Require().Equal(true, isActive)
 
 	// Failed case - penalty
 	k.SetInactiveStatus(ctx, address)
@@ -65,8 +48,8 @@ func (s *KeeperTestSuite) TestSetActive() {
 }
 
 func (s *KeeperTestSuite) TestSetLastActive() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	ctx, k := s.ctx, s.app.BandtssKeeper
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case

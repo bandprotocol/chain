@@ -105,7 +105,8 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		&oracleKeeper,
 		&app.GlobalfeeKeeper,
 		app.StakingKeeper,
-		&app.TSSKeeper,
+		app.TSSKeeper,
+		app.BandtssKeeper,
 	)
 }
 

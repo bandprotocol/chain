@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"time"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -9,8 +11,9 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
-	"github.com/bandprotocol/chain/v2/x/tss/keeper"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var Coins1000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
@@ -65,7 +68,7 @@ func SetupFeeCollector(app *testapp.TestingApp, ctx sdk.Context, k keeper.Keeper
 
 func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	app, ctx, k := testapp.CreateTestInput(false)
-	feeCollector, err := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	feeCollector, err := SetupFeeCollector(app, ctx, *app.BandtssKeeper)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -79,13 +82,13 @@ func (s *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 
 func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	app, ctx, _ := testapp.CreateTestInput(false)
-	k := app.TSSKeeper
-	feeCollector, err := SetupFeeCollector(app, ctx, app.TSSKeeper)
+	tssKeeper, k := app.TSSKeeper, app.BandtssKeeper
+	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	// From 50% of fee, 1% should go to community pool, the rest goes to the only active validator.
-	err = k.HandleSetDEs(ctx, testapp.Validators[1].Address, []types.DE{
+	err = tssKeeper.HandleSetDEs(ctx, testapp.Validators[1].Address, []tsstypes.DE{
 		{
 			PubD: testutil.HexDecode("dddd"),
 			PubE: testutil.HexDecode("eeee"),
@@ -120,8 +123,9 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 }
 
 func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
-	ctx, app, k := s.ctx, s.app, s.app.TSSKeeper
-	feeCollector, err := SetupFeeCollector(app, ctx, k)
+	ctx, app, k := s.ctx, s.app, s.app.BandtssKeeper
+
+	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
 
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -153,4 +157,24 @@ func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(49000)}},
 		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[2].ValAddress).Rewards,
 	)
+}
+
+func (s *KeeperTestSuite) TestHandleInactiveValidators() {
+	ctx, k := s.ctx, s.app.BandtssKeeper
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
+	address := testapp.Validators[0].Address
+
+	status := types.Status{
+		Status:     types.MEMBER_STATUS_ACTIVE,
+		Address:    address.String(),
+		Since:      time.Time{},
+		LastActive: time.Time{},
+	}
+	k.SetStatus(ctx, status)
+	ctx = ctx.WithBlockTime(time.Now())
+
+	k.HandleInactiveValidators(ctx)
+
+	status = k.GetStatus(ctx, address)
+	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
 }

@@ -41,8 +41,8 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetDE(ctx, address, de.Index, de.DE)
 	}
 
-	for _, status := range data.Statuses {
-		k.SetMemberStatus(ctx, status)
+	for _, status := range data.IsActivesGenesis {
+		k.SetMemberIsActive(ctx, sdk.AccAddress(status.Address), status.IsActive)
 	}
 }
 
@@ -59,6 +59,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Replacements:     k.GetReplacements(ctx),
 		DEQueues:         k.GetDEQueues(ctx),
 		DEsGenesis:       k.GetDEsGenesis(ctx),
-		Statuses:         k.GetStatuses(ctx),
+		IsActivesGenesis: k.GetMemberIsActivesGenesis(ctx),
 	}
 }
