@@ -52,6 +52,12 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 		return
 	}
 
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	if groupModule != types.ModuleName {
+		return
+	}
+
 	// Refund fee to requester
 	address := sdk.MustAccAddressFromBech32(signing.Requester)
 	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
@@ -64,6 +70,12 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 }
 
 func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) {
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	if groupModule != types.ModuleName {
+		return
+	}
+
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
 	// unlikely to get an error (convert to address type), but log the error just in case
 	if err != nil {
@@ -76,6 +88,12 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 }
 
 func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	if groupModule != types.ModuleName {
+		return
+	}
+
 	// Send fee to assigned members.
 	for _, am := range signing.AssignedMembers {
 		address := sdk.MustAccAddressFromBech32(am.Address)
@@ -88,6 +106,12 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 }
 
 func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	if groupModule != types.ModuleName {
+		return nil
+	}
+
 	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	if feeCoins.IsZero() {
 		return nil
