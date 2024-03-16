@@ -148,6 +148,10 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 			},
 			nil,
 			300000,
+			0,
+			0,
+			suite.accs[0].PubKey.String(),
+			sdk.NewCoins(sdk.NewInt64Coin("band", 1000)),
 		),
 	)
 
