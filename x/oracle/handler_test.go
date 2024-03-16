@@ -17,6 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -184,7 +185,7 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	osCount := k.GetOracleScriptCount(ctx)
 	name := "os_1"
 	description := "beeb"
-	code := testapp.WasmExtra1
+	code := testdata.WasmExtra1
 	schema := "schema"
 	url := "url"
 	msg := types.NewMsgCreateOracleScript(
@@ -202,7 +203,7 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		types.NewOracleScript(testapp.Owner.Address, name, description, testdata.WasmExtra1FileName, schema, url),
 		os,
 	)
 
@@ -224,7 +225,7 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	url := "url"
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	_, err := zw.Write(testapp.WasmExtra1)
+	_, err := zw.Write(testdata.WasmExtra1)
 	require.NoError(t, err)
 	zw.Close()
 	msg := types.NewMsgCreateOracleScript(
@@ -242,7 +243,7 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		types.NewOracleScript(testapp.Owner.Address, name, description, testdata.WasmExtra1FileName, schema, url),
 		os,
 	)
 
@@ -277,7 +278,7 @@ func TestCreateOracleScriptFail(t *testing.T) {
 	// Bad Gzip
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	_, err = zw.Write(testapp.WasmExtra1)
+	_, err = zw.Write(testdata.WasmExtra1)
 	require.NoError(t, err)
 	zw.Close()
 	msg = types.NewMsgCreateOracleScript(
@@ -298,7 +299,7 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	newName := "os_2"
 	newDescription := "beebbeeb"
-	newCode := testapp.WasmExtra2
+	newCode := testdata.WasmExtra2
 	newSchema := "new_schema"
 	newURL := "new_url"
 	msg := types.NewMsgEditOracleScript(
@@ -321,7 +322,7 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 			testapp.Alice.Address,
 			newName,
 			newDescription,
-			testapp.WasmExtra2FileName,
+			testdata.WasmExtra2FileName,
 			newSchema,
 			newURL,
 		),
@@ -339,7 +340,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(false)
 	newName := "os_2"
 	newDescription := "beebbeeb"
-	newCode := testapp.WasmExtra2
+	newCode := testdata.WasmExtra2
 	newSchema := "new_schema"
 	newURL := "new_url"
 	// Bad ID
@@ -387,7 +388,7 @@ func TestEditOracleScriptFail(t *testing.T) {
 	// Bad Gzip
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	_, err = zw.Write(testapp.WasmExtra2)
+	_, err = zw.Write(testdata.WasmExtra2)
 	require.NoError(t, err)
 	zw.Close()
 	msg = types.NewMsgEditOracleScript(

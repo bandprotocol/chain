@@ -14,6 +14,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -632,7 +633,7 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 
 func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
-	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address, 0, 0)
@@ -646,13 +647,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	params.MaxRawRequestCount = 3
 	err := k.SetParams(ctx, params)
 	require.NoError(t, err)
-	m := types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address, 0, 0)
 	_, err = k.PrepareRequest(ctx, m, testapp.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrBadWasmExecution)
-	m = types.NewMsgRequestData(4, obi.MustEncode(testapp.Wasm4Input{
+	m = types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
 	}), 1, 1, BasicClientID, testapp.Coins100000000uband, testapp.TestDefaultPrepareGas, testapp.TestDefaultExecuteGas, testapp.Alice.Address, 0, 0)
@@ -777,7 +778,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 4th Wasm. Append all reports from all validators.
-		4, obi.MustEncode(testapp.Wasm4Input{
+		4, obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
@@ -802,13 +803,13 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
+		BasicClientID, 4, obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
 		42, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
-		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
+		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v1beebd1v2beebd2v1beebd2v2"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{
@@ -856,7 +857,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	ctx = ctx.WithBlockTime(testapp.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
 		// 4th Wasm. Append all reports from all validators.
-		4, obi.MustEncode(testapp.Wasm4Input{
+		4, obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), []sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress}, 1,
@@ -881,13 +882,13 @@ func TestResolveReadNilExternalData(t *testing.T) {
 	))
 	k.ResolveRequest(ctx, 42)
 	result := types.NewResult(
-		BasicClientID, 4, obi.MustEncode(testapp.Wasm4Input{
+		BasicClientID, 4, obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(BasicCalldata),
 		}), 2, 1,
 		42, 2, testapp.ParseTime(1581589790).Unix(),
 		testapp.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
-		obi.MustEncode(testapp.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
+		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 	)
 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 	require.Equal(t, sdk.Events{
