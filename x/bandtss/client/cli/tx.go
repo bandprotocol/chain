@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
-	granteeutils "github.com/bandprotocol/chain/v2/pkg/grantee"
+	"github.com/bandprotocol/chain/v2/pkg/grant"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -203,7 +203,7 @@ $ %s tx bandtss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 				version.AppName,
 			),
 		),
-		RunE: granteeutils.AddGranteeCmd(types.GetBandtssGrantMsgTypes(), flagExpiration),
+		RunE: grant.AddGranteeCmd(types.GetBandtssGrantMsgTypes(), flagExpiration),
 	}
 
 	cmd.Flags().
@@ -227,7 +227,7 @@ $ %s tx bandtss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 				version.AppName,
 			),
 		),
-		RunE: granteeutils.RemoveGranteeCmd(types.GetBandtssGrantMsgTypes()),
+		RunE: grant.RemoveGranteeCmd(types.GetBandtssGrantMsgTypes()),
 	}
 
 	flags.AddTxFlagsToCmd(cmd)

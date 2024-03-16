@@ -1,4 +1,4 @@
-package grantee
+package grant
 
 import (
 	"time"
