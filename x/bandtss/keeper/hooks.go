@@ -26,7 +26,7 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
-	if group.FromModule != types.ModuleName {
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 

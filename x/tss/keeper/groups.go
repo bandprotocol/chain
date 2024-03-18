@@ -17,7 +17,7 @@ func (k Keeper) CreateGroup(
 	members []sdk.AccAddress,
 	threshold uint64,
 	fee sdk.Coins,
-	fromModule string,
+	moduleOwner string,
 ) (tss.GroupID, error) {
 	// Validate group size
 	groupSize := uint64(len(members))
@@ -29,12 +29,12 @@ func (k Keeper) CreateGroup(
 	// Create new group
 	sortedFee := fee.Sort()
 	groupID := k.CreateNewGroup(ctx, types.Group{
-		Size_:      groupSize,
-		Threshold:  threshold,
-		PubKey:     nil,
-		Fee:        sortedFee,
-		Status:     types.GROUP_STATUS_ROUND_1,
-		FromModule: fromModule,
+		Size_:       groupSize,
+		Threshold:   threshold,
+		PubKey:      nil,
+		Fee:         sortedFee,
+		Status:      types.GROUP_STATUS_ROUND_1,
+		ModuleOwner: moduleOwner,
 	})
 
 	// Set members
@@ -61,7 +61,7 @@ func (k Keeper) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
 		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
-		sdk.NewAttribute(types.AttributeKeyFromModule, fromModule),
+		sdk.NewAttribute(types.AttributeKeyModuleOwner, moduleOwner),
 	)
 	for _, m := range members {
 		event = event.AppendAttributes(sdk.NewAttribute(types.AttributeKeyAddress, m.String()))
@@ -191,7 +191,7 @@ func (k Keeper) GetGroupModule(ctx sdk.Context, groupID tss.GroupID) string {
 		return ""
 	}
 
-	return group.FromModule
+	return group.ModuleOwner
 }
 
 // GetPenalizedMembersExpiredGroup gets the list of members who should be penalized due to not
