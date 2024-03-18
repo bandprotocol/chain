@@ -53,7 +53,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 	}
 
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
 	if groupModule != types.ModuleName {
 		return
 	}
@@ -71,7 +71,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 
 func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
 	if groupModule != types.ModuleName {
 		return
 	}
@@ -89,7 +89,7 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 
 func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
 	if groupModule != types.ModuleName {
 		return
 	}
@@ -107,7 +107,7 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 
 func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetGroupModule(ctx, signing.GroupID)
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
 	if groupModule != types.ModuleName {
 		return nil
 	}

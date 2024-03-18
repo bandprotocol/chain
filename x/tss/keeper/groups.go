@@ -183,9 +183,9 @@ func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Grou
 	return group, nil
 }
 
-// GetGroupModule returns the module that the group belongs to. Return empty if the group is empty
+// GetModuleOwner returns the module that the group belongs to. Return empty if the group is empty
 // or not found.
-func (k Keeper) GetGroupModule(ctx sdk.Context, groupID tss.GroupID) string {
+func (k Keeper) GetModuleOwner(ctx sdk.Context, groupID tss.GroupID) string {
 	group, err := k.GetGroup(ctx, groupID)
 	if err != nil {
 		return ""
