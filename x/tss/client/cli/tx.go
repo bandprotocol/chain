@@ -10,10 +10,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/pkg/grant"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -57,42 +57,12 @@ func GetTxCmdAddGrantees() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Add agents authorized to submit tss transactions.
 Example:
-$ %s tx oracle add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx tss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
 		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			exp, err := cmd.Flags().GetInt64(flagExpiration)
-			if err != nil {
-				return err
-			}
-			expTime := time.Unix(exp, 0)
-
-			granter := clientCtx.GetFromAddress()
-			msgs := []sdk.Msg{}
-
-			for _, arg := range args {
-				grantee, err := sdk.AccAddressFromBech32(arg)
-				if err != nil {
-					return err
-				}
-
-				gMsgs, err := combineGrantMsgs(granter, grantee, types.GetTSSGrantMsgTypes(), &expTime)
-				if err != nil {
-					return err
-				}
-
-				msgs = append(msgs, gMsgs...)
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
+		RunE: grant.AddGranteeCmd(types.GetTSSGrantMsgTypes(), flagExpiration),
 	}
 
 	cmd.Flags().
@@ -111,35 +81,12 @@ func GetTxCmdRemoveGrantees() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Remove agents from the list of authorized grantees.
 Example:
-$ %s tx oracle remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx tss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
 		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			granter := clientCtx.GetFromAddress()
-			msgs := []sdk.Msg{}
-
-			for _, arg := range args {
-				grantee, err := sdk.AccAddressFromBech32(arg)
-				if err != nil {
-					return err
-				}
-
-				rMsgs, err := combineRevokeMsgs(granter, grantee, types.GetTSSGrantMsgTypes())
-				if err != nil {
-					return err
-				}
-
-				msgs = append(msgs, rMsgs...)
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
+		RunE: grant.RemoveGranteeCmd(types.GetTSSGrantMsgTypes()),
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
