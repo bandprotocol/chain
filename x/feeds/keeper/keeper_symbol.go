@@ -82,6 +82,9 @@ func (k Keeper) GetSupportedSymbolsByPower(ctx sdk.Context) []types.Symbol {
 		var s types.Symbol
 		bz := iterator.Value()
 		k.cdc.MustUnmarshal(bz, &s)
+		if s.Interval == 0 {
+			continue
+		}
 
 		symbols[i] = s
 		i++

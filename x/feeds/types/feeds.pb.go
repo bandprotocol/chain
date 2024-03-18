@@ -61,8 +61,10 @@ func (PriceOption) EnumDescriptor() ([]byte, []int) {
 
 // Signal contains symbol and power of that symbol
 type Signal struct {
+	// The symbol of the signal.
 	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Power  uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+	// The power of the corresponding symbol.
+	Power uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
 }
 
 func (m *Signal) Reset()         { *m = Signal{} }
@@ -114,6 +116,7 @@ func (m *Signal) GetPower() uint64 {
 
 // Signal contains array of signal
 type Signals struct {
+	// Signals is a list of signals submit by the delegator.
 	Signals []Signal `protobuf:"bytes,1,rep,name=signals,proto3" json:"signals"`
 }
 
@@ -159,11 +162,14 @@ func (m *Signals) GetSignals() []Signal {
 
 // Symbol defines a standard unit of exchange for a commodity.
 type Symbol struct {
-	// The unique symbol string that identifies the unit of exchange.
-	Symbol                      string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Power                       uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
-	Interval                    int64  `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
-	LastIntervalUpdateTimestamp int64  `protobuf:"varint,4,opt,name=last_interval_update_timestamp,json=lastIntervalUpdateTimestamp,proto3" json:"last_interval_update_timestamp,omitempty"`
+	// The unique symbol string that identifies the unit of pricefeed.
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// The power of the symbol.
+	Power uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+	// The interval of the price feed of the symbol.
+	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	// The timestamp of the last time interval of the symbol is updated.
+	LastIntervalUpdateTimestamp int64 `protobuf:"varint,4,opt,name=last_interval_update_timestamp,json=lastIntervalUpdateTimestamp,proto3" json:"last_interval_update_timestamp,omitempty"`
 }
 
 func (m *Symbol) Reset()         { *m = Symbol{} }
