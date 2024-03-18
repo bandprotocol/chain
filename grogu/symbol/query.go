@@ -9,7 +9,7 @@ import (
 	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 	"golang.org/x/exp/maps"
 
-	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 

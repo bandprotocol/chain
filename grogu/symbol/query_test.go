@@ -12,7 +12,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/symbol"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )

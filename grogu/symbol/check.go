@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/maps"
 
 	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 

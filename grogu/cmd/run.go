@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
 	"github.com/bandprotocol/chain/v2/grogu/symbol"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"

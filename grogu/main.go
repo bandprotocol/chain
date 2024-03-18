@@ -15,7 +15,7 @@ import (
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/grogu/cmd"
-	"github.com/bandprotocol/chain/v2/grogu/grogucontext"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 )
 
 func initConfig(c *grogucontext.Context, cmd *cobra.Command) error {

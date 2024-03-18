@@ -1,4 +1,4 @@
-package grogucontext
+package context
 
 import (
 	"os"
