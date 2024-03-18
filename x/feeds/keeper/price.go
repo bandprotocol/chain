@@ -7,14 +7,7 @@ import (
 )
 
 func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	vals := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
-	isInTop := false
-	for _, val := range vals {
-		if req.Validator == val.GetOperator().String() {
-			isInTop = true
-			break
-		}
-	}
+	isInTop := k.IsInTopValidator(ctx, req.Validator)
 	if !isInTop {
 		return types.ErrNotTopValidator
 	}

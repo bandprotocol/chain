@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"gopkg.in/yaml.v2"
 )
@@ -73,6 +73,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("max supported symbols", true)(p.MaxSupportedSymbols); err != nil {
 		return err
 	}
+
 	return nil
 }
 
