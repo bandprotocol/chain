@@ -9,12 +9,16 @@ import "gogoproto/gogo.proto";
 message Signal {
   option (gogoproto.equal) = true;
 
+  // The symbol of the signal.
   string symbol = 1;
-  uint64 power  = 2;
+
+  // The power of the corresponding symbol.
+  uint64 power = 2;
 }
 
 // Signal contains array of signal
 message Signals {
+  // Signals is a list of signals submit by the delegator.
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
@@ -22,13 +26,16 @@ message Signals {
 message Symbol {
   option (gogoproto.equal) = true;
 
-  // The unique symbol string that identifies the unit of exchange.
+  // The unique symbol string that identifies the unit of pricefeed.
   string symbol = 1;
 
+  // The power of the symbol.
   uint64 power = 2;
 
+  // The interval of the price feed of the symbol.
   int64 interval = 3;
 
+  // The timestamp of the last time interval of the symbol is updated.
   int64 last_interval_update_timestamp = 4;
 }
 
@@ -38,10 +45,13 @@ enum PriceOption {
 
   // PRICE_OPTION_UNSPECIFIED defines an unspecified price option.
   PRICE_OPTION_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceOptionUnspecified"];
+
   // PRICE_OPTION_UNSUPPORTED defines an unsupported price option.
   PRICE_OPTION_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceOptionUnsupported"];
+
   // PRICE_OPTION_UNAVAILABLE defines an unavailable price option.
   PRICE_OPTION_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceOptionUnavailable"];
+
   // PRICE_OPTION_AVAILABLE defines an available price option.
   PRICE_OPTION_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceOptionAvailable"];
 }
