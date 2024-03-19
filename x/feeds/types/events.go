@@ -4,13 +4,13 @@ package types
 const (
 	EventTypeSubmitPrice   = "submit_price"
 	EventTypeUpdatePrice   = "update_price"
-	EventTypeSignalSymbols = "signal_symbols"
+	EventTypeSubmitSignals = "submit_signals"
 
 	AttributeKeyPriceOption = "price_option"
 	AttributeKeyValidator   = "validator"
 	AttributeKeyPrice       = "price"
 	AttributeKeyTimestamp   = "timestamp"
-	AttributeKeySymbol      = "symbol"
+	AttributeKeySignalID    = "signal_id"
 	AttributeKeyDelegator   = "delegator"
 	AttributeKeyPower       = "power"
 )

@@ -5,14 +5,14 @@ option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 
-// Signal contains symbol and power of that symbol
+// Signal contains signal id and power of that signal.
 message Signal {
   option (gogoproto.equal) = true;
 
-  // The symbol of the signal.
-  string symbol = 1;
+  // The id of the signal.
+  string id = 1 [(gogoproto.customname) = "ID"];
 
-  // The power of the corresponding symbol.
+  // The power of the corresponding signal id.
   uint64 power = 2;
 }
 
@@ -22,20 +22,20 @@ message Signals {
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
-// Symbol defines a standard unit of exchange for a commodity.
-message Symbol {
+// Feed defines a standard unit of exchange for a commodity.
+message Feed {
   option (gogoproto.equal) = true;
 
-  // The unique symbol string that identifies the unit of pricefeed.
-  string symbol = 1;
+  // The unique string that identifies the unit of feed.
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
 
-  // The power of the symbol.
+  // The power of the signal id.
   uint64 power = 2;
 
-  // The interval of the price feed of the symbol.
+  // The interval of the price feed of the signal id.
   int64 interval = 3;
 
-  // The timestamp of the last time interval of the symbol is updated.
+  // The timestamp of the last time interval is updated.
   int64 last_interval_update_timestamp = 4;
 }
 
@@ -56,49 +56,49 @@ enum PriceOption {
   PRICE_OPTION_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceOptionAvailable"];
 }
 
-// Price defines the price of a symbol.
+// Price defines the price of a signal id.
 message Price {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a symbol.
+  // PriceOption defines the price option of a signal id.
   PriceOption price_option = 1;
 
-  // The symbol of the price.
-  string symbol = 2;
+  // The signal id of the price.
+  string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
-  // The price of the symbol.
+  // The price of the signal id.
   uint64 price = 3;
 
   // The timestamp at which the price was aggregated.
   int64 timestamp = 4;
 }
 
-// SubmitPrice defines the submit price of a symbol.
+// SubmitPrice defines the submit price of a signal id.
 message SubmitPrice {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a symbol.
+  // PriceOption defines the price option of a signal id.
   PriceOption price_option = 1;
 
-  // The symbol of the price.
-  string symbol = 2;
+  // The signal id of the price.
+  string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
   // The price submitted by the validator.
   uint64 price = 3;
 }
 
-// PriceValidator defines the price submitted by a validator for a symbol.
+// PriceValidator defines the price submitted by a validator for a signal id.
 message PriceValidator {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a symbol.
+  // PriceOption defines the price option of a price submitted.
   PriceOption price_option = 1;
 
   // The validator address.
   string validator = 2;
 
-  // The symbol of the price.
-  string symbol = 3;
+  // The signal id of the price.
+  string signal_id = 3 [(gogoproto.customname) = "SignalID"];
 
   // The price submitted by the validator.
   uint64 price = 4;

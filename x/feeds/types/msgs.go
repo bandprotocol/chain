@@ -6,7 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSignalSymbols{}
+var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSubmitSignals{}
 
 // ====================================
 // MsgSubmitPrices
@@ -153,38 +153,38 @@ func (m *MsgUpdatePriceService) ValidateBasic() error {
 }
 
 // ====================================
-// MsgSignalSymbols
+// MsgSubmitSignals
 // ====================================
 
-// NewMsgSignalSymbols creates a new MsgSignalSymbols instance.
-func NewMsgSignalSymbols(
+// NewMsgSubmitSignals creates a new MsgSubmitSignals instance.
+func NewMsgSubmitSignals(
 	delegator string,
 	signals []Signal,
-) *MsgSignalSymbols {
-	return &MsgSignalSymbols{
+) *MsgSubmitSignals {
+	return &MsgSubmitSignals{
 		Delegator: delegator,
 		Signals:   signals,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignals) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgSignalSymbols) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignals) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgSignalSymbols) GetSignBytes() []byte {
+func (m MsgSubmitSignals) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
+func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgSignalSymbols) ValidateBasic() error {
+func (m *MsgSubmitSignals) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}

@@ -20,98 +20,98 @@ func (k Keeper) CheckDelegatorDelegation(
 	return nil
 }
 
-// RemoveDelegatorSignal deletes previous signals from delegator and decrease symbol power by the previous signals.
+// RemoveDelegatorSignal deletes previous signals from delegator and decrease feed power by the previous signals.
 func (k Keeper) RemoveDelegatorPreviousSignals(
 	ctx sdk.Context,
 	delegator sdk.AccAddress,
-	symbolToIntervalDiff map[string]int64,
+	signalIDToIntervalDiff map[string]int64,
 ) (map[string]int64, error) {
 	prevSignals := k.GetDelegatorSignals(ctx, delegator)
 	for _, prevSignal := range prevSignals {
-		symbol, err := k.GetSymbol(ctx, prevSignal.Symbol)
+		feed, err := k.GetFeed(ctx, prevSignal.ID)
 		if err != nil {
 			return nil, err
 		}
-		// before changing in symbol, delete the SymbolByPower index
-		k.DeleteSymbolByPowerIndex(ctx, symbol)
+		// before changing in feed, delete the FeedByPower index
+		k.DeleteFeedByPowerIndex(ctx, feed)
 
-		symbol.Power -= prevSignal.Power
-		prevInterval := symbol.Interval
-		symbol.Interval = calculateInterval(int64(symbol.Power), k.GetParams(ctx))
-		k.SetSymbol(ctx, symbol)
+		feed.Power -= prevSignal.Power
+		prevInterval := feed.Interval
+		feed.Interval = calculateInterval(int64(feed.Power), k.GetParams(ctx))
+		k.SetFeed(ctx, feed)
 
-		// setting SymbolByPowerIndex every time setting symbol
-		k.SetSymbolByPowerIndex(ctx, symbol)
+		// setting FeedByPowerIndex every time setting feed
+		k.SetFeedByPowerIndex(ctx, feed)
 
-		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
+		intervalDiff := (feed.Interval - prevInterval) + signalIDToIntervalDiff[feed.SignalID]
 		if intervalDiff == 0 {
-			delete(symbolToIntervalDiff, symbol.Symbol)
+			delete(signalIDToIntervalDiff, feed.SignalID)
 		} else {
-			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+			signalIDToIntervalDiff[feed.SignalID] = intervalDiff
 		}
 	}
-	// Add delete delegator signal in store
-	return symbolToIntervalDiff, nil
+	// return intervaldiff of signal ids
+	return signalIDToIntervalDiff, nil
 }
 
-// RegisterDelegatorSignals increases symbol power by the new signals.
+// RegisterDelegatorSignals increases feed power by the new signals.
 func (k Keeper) RegisterDelegatorSignals(
 	ctx sdk.Context,
 	delegator sdk.AccAddress,
 	signals []types.Signal,
-	symbolToIntervalDiff map[string]int64,
+	signalIDToIntervalDiff map[string]int64,
 ) (map[string]int64, error) {
 	k.SetDelegatorSignals(ctx, delegator, types.Signals{Signals: signals})
 	for _, signal := range signals {
-		symbol, err := k.GetSymbol(ctx, signal.Symbol)
+		feed, err := k.GetFeed(ctx, signal.ID)
 		if err != nil {
-			symbol = types.Symbol{
-				Symbol:                      signal.Symbol,
+			feed = types.Feed{
+				SignalID:                    signal.ID,
 				Power:                       0,
 				Interval:                    0,
 				LastIntervalUpdateTimestamp: 0,
 			}
 		}
-		// before changing in symbol, delete the SymbolByPower index
-		k.DeleteSymbolByPowerIndex(ctx, symbol)
+		// before changing in feed, delete the FeedByPower index
+		k.DeleteFeedByPowerIndex(ctx, feed)
 
-		symbol.Power += signal.Power
-		prevInterval := symbol.Interval
-		symbol.Interval = calculateInterval(int64(symbol.Power), k.GetParams(ctx))
-		k.SetSymbol(ctx, symbol)
+		feed.Power += signal.Power
+		prevInterval := feed.Interval
+		feed.Interval = calculateInterval(int64(feed.Power), k.GetParams(ctx))
+		k.SetFeed(ctx, feed)
 
-		// setting SymbolByPowerIndex every time setting symbol
-		k.SetSymbolByPowerIndex(ctx, symbol)
+		// setting FeedByPowerIndex every time setting feed
+		k.SetFeedByPowerIndex(ctx, feed)
 
 		// if the sum interval differences is zero then the interval is not changed
-		intervalDiff := (symbol.Interval - prevInterval) + symbolToIntervalDiff[symbol.Symbol]
+		intervalDiff := (feed.Interval - prevInterval) + signalIDToIntervalDiff[feed.SignalID]
 		if intervalDiff == 0 {
-			delete(symbolToIntervalDiff, symbol.Symbol)
+			delete(signalIDToIntervalDiff, feed.SignalID)
 		} else {
-			symbolToIntervalDiff[symbol.Symbol] = intervalDiff
+			signalIDToIntervalDiff[feed.SignalID] = intervalDiff
 		}
 	}
-	return symbolToIntervalDiff, nil
+	return signalIDToIntervalDiff, nil
 }
 
-// UpdateSymbolIntervalTimestamp updates the interval timestamp for symbols where the interval has changed.
-func (k Keeper) UpdateSymbolIntervalTimestamp(
+// UpdateFeedIntervalTimestamp updates the interval timestamp for feeds where the interval has changed.
+func (k Keeper) UpdateFeedIntervalTimestamp(
 	ctx sdk.Context,
-	symbolToIntervalDiff map[string]int64,
+	signalIDToIntervalDiff map[string]int64,
 ) error {
-	for symbolName := range symbolToIntervalDiff {
-		symbol, err := k.GetSymbol(ctx, symbolName)
+	for signalID := range signalIDToIntervalDiff {
+		feed, err := k.GetFeed(ctx, signalID)
 		if err != nil {
 			return err
 		}
-		// before changing in symbol, delete the SymbolByPower index
-		k.DeleteSymbolByPowerIndex(ctx, symbol)
+		// before changing in feed, delete the FeedByPower index
+		k.DeleteFeedByPowerIndex(ctx, feed)
 
-		symbol.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
-		k.SetSymbol(ctx, symbol)
+		feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
+		k.SetFeed(ctx, feed)
 
-		// setting SymbolByPowerIndex every time setting symbol
-		k.SetSymbolByPowerIndex(ctx, symbol)
+		// setting FeedByPowerIndex every time setting feed
+		k.SetFeedByPowerIndex(ctx, feed)
 	}
 	return nil
 }

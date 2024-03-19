@@ -30,10 +30,10 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	return prices
 }
 
-func (k Keeper) GetPrice(ctx sdk.Context, symbol string) (types.Price, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.PriceStoreKey(symbol))
+func (k Keeper) GetPrice(ctx sdk.Context, signalID string) (types.Price, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PriceStoreKey(signalID))
 	if bz == nil {
-		return types.Price{}, types.ErrPriceNotFound.Wrapf("failed to get price for symbol: %s", symbol)
+		return types.Price{}, types.ErrPriceNotFound.Wrapf("failed to get price for signal id: %s", signalID)
 	}
 
 	var price types.Price
@@ -49,15 +49,15 @@ func (k Keeper) SetPrices(ctx sdk.Context, prices []types.Price) {
 }
 
 func (k Keeper) SetPrice(ctx sdk.Context, price types.Price) {
-	ctx.KVStore(k.storeKey).Set(types.PriceStoreKey(price.Symbol), k.cdc.MustMarshal(&price))
+	ctx.KVStore(k.storeKey).Set(types.PriceStoreKey(price.SignalID), k.cdc.MustMarshal(&price))
 }
 
-func (k Keeper) DeletePrice(ctx sdk.Context, symbol string) {
-	k.DeletePriceValidators(ctx, symbol)
-	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(symbol))
+func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
+	k.DeletePriceValidators(ctx, signalID)
+	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(signalID))
 }
 
-func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Price, error) {
+func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, error) {
 	var pfInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 	transitionTime := k.GetParams(ctx).TransitionTime
@@ -71,11 +71,11 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 
 			if status.IsActive {
 				lastTime := status.Since.Unix()
-				priceVal, err := k.GetPriceValidator(ctx, symbol.Symbol, address)
+				priceVal, err := k.GetPriceValidator(ctx, feed.SignalID, address)
 
 				if err == nil {
 					// if timestamp of price is in acception period, append it
-					if priceVal.Timestamp >= blockTime.Unix()-symbol.Interval {
+					if priceVal.Timestamp >= blockTime.Unix()-feed.Interval {
 						pfInfos = append(
 							pfInfos, types.PriceFeedInfo{
 								PriceOption: priceVal.PriceOption,
@@ -94,12 +94,12 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 					}
 				}
 
-				if symbol.LastIntervalUpdateTimestamp+transitionTime > lastTime {
-					lastTime = symbol.LastIntervalUpdateTimestamp + transitionTime
+				if feed.LastIntervalUpdateTimestamp+transitionTime > lastTime {
+					lastTime = feed.LastIntervalUpdateTimestamp + transitionTime
 				}
 
 				// deactivate if last time of action is too old
-				if lastTime < blockTime.Unix()-symbol.Interval {
+				if lastTime < blockTime.Unix()-feed.Interval {
 					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}
@@ -119,14 +119,14 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 	if unsupported > total/2 {
 		return types.Price{
 			PriceOption: types.PriceOptionUnsupported,
-			Symbol:      symbol.Symbol,
+			SignalID:    feed.SignalID,
 			Price:       0,
 			Timestamp:   ctx.BlockTime().Unix(),
 		}, nil
 	} else if unavailable > total/2 || available < total/2 {
 		return types.Price{
 			PriceOption: types.PriceOptionUnavailable,
-			Symbol:      symbol.Symbol,
+			SignalID:    feed.SignalID,
 			Price:       0,
 			Timestamp:   ctx.BlockTime().Unix(),
 		}, nil
@@ -136,7 +136,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 
 	return types.Price{
 		PriceOption: types.PriceOptionAvailable,
-		Symbol:      symbol.Symbol,
+		SignalID:    feed.SignalID,
 		Price:       price,
 		Timestamp:   ctx.BlockTime().Unix(),
 	}, nil
@@ -146,12 +146,12 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, symbol types.Symbol) (types.Pric
 // Price validator
 // ==================================
 
-func (k Keeper) GetPriceValidatorsIterator(ctx sdk.Context, symbol string) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PriceValidatorsStoreKey(symbol))
+func (k Keeper) GetPriceValidatorsIterator(ctx sdk.Context, signalID string) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PriceValidatorsStoreKey(signalID))
 }
 
-func (k Keeper) GetPriceValidators(ctx sdk.Context, symbol string) (priceVals []types.PriceValidator) {
-	iterator := k.GetPriceValidatorsIterator(ctx, symbol)
+func (k Keeper) GetPriceValidators(ctx sdk.Context, signalID string) (priceVals []types.PriceValidator) {
+	iterator := k.GetPriceValidatorsIterator(ctx, signalID)
 	defer func(iterator sdk.Iterator) {
 		_ = iterator.Close()
 	}(iterator)
@@ -165,12 +165,12 @@ func (k Keeper) GetPriceValidators(ctx sdk.Context, symbol string) (priceVals []
 	return priceVals
 }
 
-func (k Keeper) GetPriceValidator(ctx sdk.Context, symbol string, val sdk.ValAddress) (types.PriceValidator, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.PriceValidatorStoreKey(symbol, val))
+func (k Keeper) GetPriceValidator(ctx sdk.Context, signalID string, val sdk.ValAddress) (types.PriceValidator, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PriceValidatorStoreKey(signalID, val))
 	if bz == nil {
 		return types.PriceValidator{}, types.ErrPriceValidatorNotFound.Wrapf(
-			"failed to get price validator for symbol: %s, validator: %s",
-			symbol,
+			"failed to get price validator for signal id: %s, validator: %s",
+			signalID,
 			val.String(),
 		)
 	}
@@ -197,13 +197,13 @@ func (k Keeper) SetPriceValidator(ctx sdk.Context, priceVal types.PriceValidator
 	}
 
 	ctx.KVStore(k.storeKey).
-		Set(types.PriceValidatorStoreKey(priceVal.Symbol, valAddress), k.cdc.MustMarshal(&priceVal))
+		Set(types.PriceValidatorStoreKey(priceVal.SignalID, valAddress), k.cdc.MustMarshal(&priceVal))
 
 	return nil
 }
 
-func (k Keeper) DeletePriceValidators(ctx sdk.Context, symbol string) {
-	iterator := k.GetPriceValidatorsIterator(ctx, symbol)
+func (k Keeper) DeletePriceValidators(ctx sdk.Context, signalID string) {
+	iterator := k.GetPriceValidatorsIterator(ctx, signalID)
 
 	defer func(iterator sdk.Iterator) {
 		_ = iterator.Close()
@@ -214,6 +214,6 @@ func (k Keeper) DeletePriceValidators(ctx sdk.Context, symbol string) {
 	}
 }
 
-func (k Keeper) DeletePriceValidator(ctx sdk.Context, symbol string, val sdk.ValAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.PriceValidatorStoreKey(symbol, val))
+func (k Keeper) DeletePriceValidator(ctx sdk.Context, signalID string, val sdk.ValAddress) {
+	ctx.KVStore(k.storeKey).Delete(types.PriceValidatorStoreKey(signalID, val))
 }

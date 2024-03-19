@@ -80,15 +80,15 @@ func request_Query_Price_0(ctx context.Context, marshaler runtime.Marshaler, cli
 		_   = err
 	)
 
-	val, ok = pathParams["symbol"]
+	val, ok = pathParams["signal_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "symbol")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "signal_id")
 	}
 
-	protoReq.Symbol, err = runtime.String(val)
+	protoReq.SignalId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "signal_id", err)
 	}
 
 	msg, err := client.Price(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -107,15 +107,15 @@ func local_request_Query_Price_0(ctx context.Context, marshaler runtime.Marshale
 		_   = err
 	)
 
-	val, ok = pathParams["symbol"]
+	val, ok = pathParams["signal_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "symbol")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "signal_id")
 	}
 
-	protoReq.Symbol, err = runtime.String(val)
+	protoReq.SignalId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "signal_id", err)
 	}
 
 	msg, err := server.Price(ctx, &protoReq)
@@ -188,15 +188,15 @@ func request_Query_PriceValidator_0(ctx context.Context, marshaler runtime.Marsh
 		_   = err
 	)
 
-	val, ok = pathParams["symbol"]
+	val, ok = pathParams["signal_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "symbol")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "signal_id")
 	}
 
-	protoReq.Symbol, err = runtime.String(val)
+	protoReq.SignalId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "signal_id", err)
 	}
 
 	val, ok = pathParams["validator"]
@@ -226,15 +226,15 @@ func local_request_Query_PriceValidator_0(ctx context.Context, marshaler runtime
 		_   = err
 	)
 
-	val, ok = pathParams["symbol"]
+	val, ok = pathParams["signal_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "symbol")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "signal_id")
 	}
 
-	protoReq.Symbol, err = runtime.String(val)
+	protoReq.SignalId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "signal_id", err)
 	}
 
 	val, ok = pathParams["validator"]
@@ -308,37 +308,37 @@ func local_request_Query_ValidValidator_0(ctx context.Context, marshaler runtime
 }
 
 var (
-	filter_Query_Symbols_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_Query_Feeds_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_Query_Symbols_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QuerySymbolsRequest
+func request_Query_Feeds_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QueryFeedsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_Symbols_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_Feeds_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.Symbols(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.Feeds(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Query_Symbols_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QuerySymbolsRequest
+func local_request_Query_Feeds_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QueryFeedsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_Symbols_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Query_Feeds_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.Symbols(ctx, &protoReq)
+	msg, err := server.Feeds(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -433,20 +433,20 @@ func local_request_Query_DelegatorSignals_0(ctx context.Context, marshaler runti
 
 }
 
-func request_Query_SupportedSymbols_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QuerySupportedSymbolsRequest
+func request_Query_SupportedFeeds_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QuerySupportedFeedsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := client.SupportedSymbols(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.SupportedFeeds(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Query_SupportedSymbols_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QuerySupportedSymbolsRequest
+func local_request_Query_SupportedFeeds_0(ctx context.Context, marshaler runtime.Marshaler, server QueryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq QuerySupportedFeedsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := server.SupportedSymbols(ctx, &protoReq)
+	msg, err := server.SupportedFeeds(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -572,7 +572,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 
 	})
 
-	mux.Handle("GET", pattern_Query_Symbols_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Query_Feeds_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -583,7 +583,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Query_Symbols_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Query_Feeds_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -591,7 +591,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Query_Symbols_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Query_Feeds_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -664,7 +664,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 
 	})
 
-	mux.Handle("GET", pattern_Query_SupportedSymbols_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Query_SupportedFeeds_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -675,7 +675,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Query_SupportedSymbols_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Query_SupportedFeeds_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -683,7 +683,7 @@ func RegisterQueryHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Query_SupportedSymbols_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Query_SupportedFeeds_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -828,7 +828,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 
 	})
 
-	mux.Handle("GET", pattern_Query_Symbols_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Query_Feeds_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -837,14 +837,14 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Query_Symbols_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Query_Feeds_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Query_Symbols_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Query_Feeds_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -908,7 +908,7 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 
 	})
 
-	mux.Handle("GET", pattern_Query_SupportedSymbols_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_Query_SupportedFeeds_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -917,14 +917,14 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Query_SupportedSymbols_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Query_SupportedFeeds_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Query_SupportedSymbols_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Query_SupportedFeeds_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -934,15 +934,15 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 var (
 	pattern_Query_Prices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "prices"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Price_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "prices", "symbol"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Price_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "prices", "signal_id"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_ValidatorPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator", "prices"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_PriceValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"feeds", "v1beta1", "prices", "symbol", "validators", "validator"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_PriceValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"feeds", "v1beta1", "prices", "signal_id", "validators", "validator"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_ValidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "validators", "validator"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Symbols_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "symbols"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Feeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 0}, []string{"feeds", "v1beta1"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
@@ -950,7 +950,7 @@ var (
 
 	pattern_Query_DelegatorSignals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "delegators", "delegator", "signals"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_SupportedSymbols_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "supported-symbols"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_SupportedFeeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "supported-feeds"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
@@ -964,7 +964,7 @@ var (
 
 	forward_Query_ValidValidator_0 = runtime.ForwardResponseMessage
 
-	forward_Query_Symbols_0 = runtime.ForwardResponseMessage
+	forward_Query_Feeds_0 = runtime.ForwardResponseMessage
 
 	forward_Query_Params_0 = runtime.ForwardResponseMessage
 
@@ -972,5 +972,5 @@ var (
 
 	forward_Query_DelegatorSignals_0 = runtime.ForwardResponseMessage
 
-	forward_Query_SupportedSymbols_0 = runtime.ForwardResponseMessage
+	forward_Query_SupportedFeeds_0 = runtime.ForwardResponseMessage
 )

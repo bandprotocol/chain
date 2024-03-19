@@ -12,8 +12,8 @@ message GenesisState {
   // Params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // Symbols is a list of symbols that requires validators to submit the price.
-  repeated Symbol symbols = 2 [(gogoproto.nullable) = false];
+  // Feeds is a list of feeds that requires validators to submit the price.
+  repeated Feed feeds = 2 [(gogoproto.nullable) = false];
 
   // PriceService defines information about price service.
   PriceService price_service = 3 [(gogoproto.nullable) = false];

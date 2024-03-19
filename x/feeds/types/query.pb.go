@@ -33,8 +33,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 type QueryPricesRequest struct {
-	// List of symbols to query prices for.
-	Symbols []string `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
+	// List of signal ids to query prices for.
+	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
 	// Pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -72,9 +72,9 @@ func (m *QueryPricesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPricesRequest proto.InternalMessageInfo
 
-func (m *QueryPricesRequest) GetSymbols() []string {
+func (m *QueryPricesRequest) GetSignalIds() []string {
 	if m != nil {
-		return m.Symbols
+		return m.SignalIds
 	}
 	return nil
 }
@@ -143,8 +143,8 @@ func (m *QueryPricesResponse) GetPagination() *query.PageResponse {
 
 // QueryPriceRequest is the request type for the Query/Price RPC method.
 type QueryPriceRequest struct {
-	// Symbol to query the price for.
-	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// Signal id to query the price for.
+	SignalId string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
 }
 
 func (m *QueryPriceRequest) Reset()         { *m = QueryPriceRequest{} }
@@ -180,16 +180,16 @@ func (m *QueryPriceRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPriceRequest proto.InternalMessageInfo
 
-func (m *QueryPriceRequest) GetSymbol() string {
+func (m *QueryPriceRequest) GetSignalId() string {
 	if m != nil {
-		return m.Symbol
+		return m.SignalId
 	}
 	return ""
 }
 
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 type QueryPriceResponse struct {
-	// The aggregated price of the symbol.
+	// The aggregated price of the signal id.
 	Price Price `protobuf:"bytes,1,opt,name=price,proto3" json:"price"`
 	// List of prices from each validator.
 	PriceValidators []PriceValidator `protobuf:"bytes,2,rep,name=price_validators,json=priceValidators,proto3" json:"price_validators"`
@@ -336,8 +336,8 @@ func (m *QueryValidatorPricesResponse) GetValidatorPrices() []PriceValidator {
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
 type QueryPriceValidatorRequest struct {
-	// Symbol to query the price for.
-	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// Signal id to query the price for.
+	SignalId string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
 	// Validator address to query the price for.
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
 }
@@ -375,9 +375,9 @@ func (m *QueryPriceValidatorRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPriceValidatorRequest proto.InternalMessageInfo
 
-func (m *QueryPriceValidatorRequest) GetSymbol() string {
+func (m *QueryPriceValidatorRequest) GetSignalId() string {
 	if m != nil {
-		return m.Symbol
+		return m.SignalId
 	}
 	return ""
 }
@@ -527,26 +527,26 @@ func (m *QueryValidValidatorResponse) GetValid() bool {
 	return false
 }
 
-// QuerySymbolsRequest is the request type for the Query/Symbols RPC method.
-type QuerySymbolsRequest struct {
-	// List of symbols to query.
-	Symbols []string `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
+// QueryFeedsRequest is the request type for the Query/Feeds RPC method.
+type QueryFeedsRequest struct {
+	// List of signal ids to query.
+	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
 	// Pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QuerySymbolsRequest) Reset()         { *m = QuerySymbolsRequest{} }
-func (m *QuerySymbolsRequest) String() string { return proto.CompactTextString(m) }
-func (*QuerySymbolsRequest) ProtoMessage()    {}
-func (*QuerySymbolsRequest) Descriptor() ([]byte, []int) {
+func (m *QueryFeedsRequest) Reset()         { *m = QueryFeedsRequest{} }
+func (m *QueryFeedsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryFeedsRequest) ProtoMessage()    {}
+func (*QueryFeedsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d77250ebbf26fe1, []int{10}
 }
-func (m *QuerySymbolsRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeedsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySymbolsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeedsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySymbolsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeedsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -556,52 +556,52 @@ func (m *QuerySymbolsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QuerySymbolsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySymbolsRequest.Merge(m, src)
+func (m *QueryFeedsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeedsRequest.Merge(m, src)
 }
-func (m *QuerySymbolsRequest) XXX_Size() int {
+func (m *QueryFeedsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySymbolsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySymbolsRequest.DiscardUnknown(m)
+func (m *QueryFeedsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeedsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySymbolsRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeedsRequest proto.InternalMessageInfo
 
-func (m *QuerySymbolsRequest) GetSymbols() []string {
+func (m *QueryFeedsRequest) GetSignalIds() []string {
 	if m != nil {
-		return m.Symbols
+		return m.SignalIds
 	}
 	return nil
 }
 
-func (m *QuerySymbolsRequest) GetPagination() *query.PageRequest {
+func (m *QueryFeedsRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QuerySymbolsResponse is the response type for the Query/Symbols RPC method.
-type QuerySymbolsResponse struct {
-	// List of symbols.
-	Symbols []*Symbol `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
+// QueryFeedsResponse is the response type for the Query/Feeds RPC method.
+type QueryFeedsResponse struct {
+	// List of feeds.
+	Feeds []*Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds,omitempty"`
 	// Pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QuerySymbolsResponse) Reset()         { *m = QuerySymbolsResponse{} }
-func (m *QuerySymbolsResponse) String() string { return proto.CompactTextString(m) }
-func (*QuerySymbolsResponse) ProtoMessage()    {}
-func (*QuerySymbolsResponse) Descriptor() ([]byte, []int) {
+func (m *QueryFeedsResponse) Reset()         { *m = QueryFeedsResponse{} }
+func (m *QueryFeedsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryFeedsResponse) ProtoMessage()    {}
+func (*QueryFeedsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d77250ebbf26fe1, []int{11}
 }
-func (m *QuerySymbolsResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryFeedsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySymbolsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryFeedsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySymbolsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryFeedsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -611,26 +611,26 @@ func (m *QuerySymbolsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QuerySymbolsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySymbolsResponse.Merge(m, src)
+func (m *QueryFeedsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFeedsResponse.Merge(m, src)
 }
-func (m *QuerySymbolsResponse) XXX_Size() int {
+func (m *QueryFeedsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySymbolsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySymbolsResponse.DiscardUnknown(m)
+func (m *QueryFeedsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFeedsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySymbolsResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryFeedsResponse proto.InternalMessageInfo
 
-func (m *QuerySymbolsResponse) GetSymbols() []*Symbol {
+func (m *QueryFeedsResponse) GetFeeds() []*Feed {
 	if m != nil {
-		return m.Symbols
+		return m.Feeds
 	}
 	return nil
 }
 
-func (m *QuerySymbolsResponse) GetPagination() *query.PageResponse {
+func (m *QueryFeedsResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
@@ -893,22 +893,22 @@ func (m *QueryDelegatorSignalsResponse) GetSignals() []Signal {
 	return nil
 }
 
-// QuerySupportedSymbolsRequest is the request type for the Query/SupportedSymbols RPC method
-type QuerySupportedSymbolsRequest struct {
+// QuerySupportedFeedsRequest is the request type for the Query/SupportedFeeds RPC method
+type QuerySupportedFeedsRequest struct {
 }
 
-func (m *QuerySupportedSymbolsRequest) Reset()         { *m = QuerySupportedSymbolsRequest{} }
-func (m *QuerySupportedSymbolsRequest) String() string { return proto.CompactTextString(m) }
-func (*QuerySupportedSymbolsRequest) ProtoMessage()    {}
-func (*QuerySupportedSymbolsRequest) Descriptor() ([]byte, []int) {
+func (m *QuerySupportedFeedsRequest) Reset()         { *m = QuerySupportedFeedsRequest{} }
+func (m *QuerySupportedFeedsRequest) String() string { return proto.CompactTextString(m) }
+func (*QuerySupportedFeedsRequest) ProtoMessage()    {}
+func (*QuerySupportedFeedsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d77250ebbf26fe1, []int{18}
 }
-func (m *QuerySupportedSymbolsRequest) XXX_Unmarshal(b []byte) error {
+func (m *QuerySupportedFeedsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySupportedSymbolsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QuerySupportedFeedsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySupportedSymbolsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QuerySupportedFeedsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -918,36 +918,36 @@ func (m *QuerySupportedSymbolsRequest) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *QuerySupportedSymbolsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySupportedSymbolsRequest.Merge(m, src)
+func (m *QuerySupportedFeedsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySupportedFeedsRequest.Merge(m, src)
 }
-func (m *QuerySupportedSymbolsRequest) XXX_Size() int {
+func (m *QuerySupportedFeedsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySupportedSymbolsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySupportedSymbolsRequest.DiscardUnknown(m)
+func (m *QuerySupportedFeedsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySupportedFeedsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySupportedSymbolsRequest proto.InternalMessageInfo
+var xxx_messageInfo_QuerySupportedFeedsRequest proto.InternalMessageInfo
 
-// QuerySupportedSymbolsResponse is the response type for the Query/SupportedSymbols RPC method
-type QuerySupportedSymbolsResponse struct {
-	// List of symbols.
-	Symbols []Symbol `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols"`
+// QuerySupportedFeedsResponse is the response type for the Query/SupportedFeeds RPC method
+type QuerySupportedFeedsResponse struct {
+	// List of feeds.
+	Feeds []Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
 }
 
-func (m *QuerySupportedSymbolsResponse) Reset()         { *m = QuerySupportedSymbolsResponse{} }
-func (m *QuerySupportedSymbolsResponse) String() string { return proto.CompactTextString(m) }
-func (*QuerySupportedSymbolsResponse) ProtoMessage()    {}
-func (*QuerySupportedSymbolsResponse) Descriptor() ([]byte, []int) {
+func (m *QuerySupportedFeedsResponse) Reset()         { *m = QuerySupportedFeedsResponse{} }
+func (m *QuerySupportedFeedsResponse) String() string { return proto.CompactTextString(m) }
+func (*QuerySupportedFeedsResponse) ProtoMessage()    {}
+func (*QuerySupportedFeedsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_8d77250ebbf26fe1, []int{19}
 }
-func (m *QuerySupportedSymbolsResponse) XXX_Unmarshal(b []byte) error {
+func (m *QuerySupportedFeedsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QuerySupportedSymbolsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QuerySupportedFeedsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QuerySupportedSymbolsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QuerySupportedFeedsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -957,21 +957,21 @@ func (m *QuerySupportedSymbolsResponse) XXX_Marshal(b []byte, deterministic bool
 		return b[:n], nil
 	}
 }
-func (m *QuerySupportedSymbolsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySupportedSymbolsResponse.Merge(m, src)
+func (m *QuerySupportedFeedsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QuerySupportedFeedsResponse.Merge(m, src)
 }
-func (m *QuerySupportedSymbolsResponse) XXX_Size() int {
+func (m *QuerySupportedFeedsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QuerySupportedSymbolsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySupportedSymbolsResponse.DiscardUnknown(m)
+func (m *QuerySupportedFeedsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QuerySupportedFeedsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QuerySupportedSymbolsResponse proto.InternalMessageInfo
+var xxx_messageInfo_QuerySupportedFeedsResponse proto.InternalMessageInfo
 
-func (m *QuerySupportedSymbolsResponse) GetSymbols() []Symbol {
+func (m *QuerySupportedFeedsResponse) GetFeeds() []Feed {
 	if m != nil {
-		return m.Symbols
+		return m.Feeds
 	}
 	return nil
 }
@@ -987,86 +987,87 @@ func init() {
 	proto.RegisterType((*QueryPriceValidatorResponse)(nil), "feeds.v1beta1.QueryPriceValidatorResponse")
 	proto.RegisterType((*QueryValidValidatorRequest)(nil), "feeds.v1beta1.QueryValidValidatorRequest")
 	proto.RegisterType((*QueryValidValidatorResponse)(nil), "feeds.v1beta1.QueryValidValidatorResponse")
-	proto.RegisterType((*QuerySymbolsRequest)(nil), "feeds.v1beta1.QuerySymbolsRequest")
-	proto.RegisterType((*QuerySymbolsResponse)(nil), "feeds.v1beta1.QuerySymbolsResponse")
+	proto.RegisterType((*QueryFeedsRequest)(nil), "feeds.v1beta1.QueryFeedsRequest")
+	proto.RegisterType((*QueryFeedsResponse)(nil), "feeds.v1beta1.QueryFeedsResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "feeds.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "feeds.v1beta1.QueryParamsResponse")
 	proto.RegisterType((*QueryPriceServiceRequest)(nil), "feeds.v1beta1.QueryPriceServiceRequest")
 	proto.RegisterType((*QueryPriceServiceResponse)(nil), "feeds.v1beta1.QueryPriceServiceResponse")
 	proto.RegisterType((*QueryDelegatorSignalsRequest)(nil), "feeds.v1beta1.QueryDelegatorSignalsRequest")
 	proto.RegisterType((*QueryDelegatorSignalsResponse)(nil), "feeds.v1beta1.QueryDelegatorSignalsResponse")
-	proto.RegisterType((*QuerySupportedSymbolsRequest)(nil), "feeds.v1beta1.QuerySupportedSymbolsRequest")
-	proto.RegisterType((*QuerySupportedSymbolsResponse)(nil), "feeds.v1beta1.QuerySupportedSymbolsResponse")
+	proto.RegisterType((*QuerySupportedFeedsRequest)(nil), "feeds.v1beta1.QuerySupportedFeedsRequest")
+	proto.RegisterType((*QuerySupportedFeedsResponse)(nil), "feeds.v1beta1.QuerySupportedFeedsResponse")
 }
 
 func init() { proto.RegisterFile("feeds/v1beta1/query.proto", fileDescriptor_8d77250ebbf26fe1) }
 
 var fileDescriptor_8d77250ebbf26fe1 = []byte{
-	// 1018 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0x41, 0x6f, 0xe3, 0x44,
-	0x14, 0xae, 0x0b, 0x4d, 0xe9, 0xeb, 0x6e, 0x5b, 0x86, 0xec, 0x92, 0x7a, 0x5b, 0x93, 0x1d, 0x60,
-	0x1b, 0xba, 0x8d, 0x87, 0x4d, 0x29, 0x9c, 0x38, 0x50, 0xa1, 0x05, 0x21, 0xb4, 0x5a, 0x12, 0xe8,
-	0x81, 0x4b, 0xe5, 0x24, 0x83, 0xd7, 0x22, 0xb5, 0xbd, 0x1e, 0x37, 0x50, 0x55, 0x3d, 0xc0, 0x85,
-	0x0b, 0x87, 0x95, 0x90, 0x96, 0x2b, 0x07, 0xc4, 0x2f, 0xe0, 0x47, 0xec, 0xb1, 0x82, 0x0b, 0x27,
-	0x84, 0x5a, 0x7e, 0x08, 0xca, 0xcc, 0xb3, 0xe3, 0x71, 0xed, 0xd6, 0x42, 0x88, 0x5b, 0xec, 0xf7,
-	0xcd, 0xfb, 0xbe, 0xf7, 0xe6, 0xbd, 0xcf, 0x0a, 0xac, 0x7e, 0xc1, 0xf9, 0x50, 0xb0, 0xf1, 0xbd,
-	0x3e, 0x8f, 0x9d, 0x7b, 0xec, 0xf1, 0x21, 0x8f, 0x8e, 0xec, 0x30, 0x0a, 0xe2, 0x80, 0x5c, 0x97,
-	0x21, 0x1b, 0x43, 0x66, 0xdd, 0x0d, 0xdc, 0x40, 0x46, 0xd8, 0xe4, 0x97, 0x02, 0x99, 0x6b, 0x6e,
-	0x10, 0xb8, 0x23, 0xce, 0x9c, 0xd0, 0x63, 0x8e, 0xef, 0x07, 0xb1, 0x13, 0x7b, 0x81, 0x2f, 0x30,
-	0xba, 0x3a, 0x08, 0xc4, 0x41, 0x20, 0xf6, 0xd5, 0x31, 0xf5, 0x80, 0xa1, 0x4d, 0xf5, 0xc4, 0xfa,
-	0x8e, 0xe0, 0x8a, 0x36, 0x15, 0x11, 0x3a, 0xae, 0xe7, 0xcb, 0x3c, 0x49, 0x1a, 0x5d, 0xa4, 0xd2,
-	0xa5, 0x42, 0xa6, 0x1e, 0x0a, 0x9d, 0xc8, 0x39, 0xc0, 0x18, 0x1d, 0x03, 0xf9, 0x64, 0x92, 0xf8,
-	0x61, 0xe4, 0x0d, 0xb8, 0xe8, 0xf2, 0xc7, 0x87, 0x5c, 0xc4, 0xa4, 0x01, 0xf3, 0xe2, 0xe8, 0xa0,
-	0x1f, 0x8c, 0x44, 0xc3, 0x68, 0x3e, 0xd7, 0x5a, 0xe8, 0x26, 0x8f, 0xe4, 0x3e, 0xc0, 0x94, 0xba,
-	0x31, 0xdb, 0x34, 0x5a, 0x8b, 0x9d, 0x3b, 0x36, 0xaa, 0x9e, 0xe8, 0xb4, 0x55, 0x7b, 0x90, 0xcc,
-	0x7e, 0xe8, 0xb8, 0x1c, 0xb3, 0x76, 0x33, 0x27, 0xe9, 0xf7, 0x06, 0xbc, 0xa4, 0x11, 0x8b, 0x30,
-	0xf0, 0x05, 0x27, 0x5b, 0x50, 0x0b, 0xe5, 0x1b, 0x49, 0xbc, 0xd8, 0xa9, 0xdb, 0x5a, 0x87, 0x6d,
-	0x09, 0xef, 0x22, 0x86, 0x7c, 0x50, 0xa0, 0x66, 0xe3, 0x4a, 0x35, 0x8a, 0x4a, 0x93, 0x73, 0x17,
-	0x5e, 0x9c, 0xaa, 0x49, 0xba, 0x70, 0x13, 0x6a, 0xaa, 0xec, 0x86, 0xd1, 0x34, 0x5a, 0x0b, 0x5d,
-	0x7c, 0xa2, 0x4f, 0x8d, 0x6c, 0xd3, 0x52, 0xe9, 0x6f, 0xc2, 0x9c, 0x94, 0x25, 0xd1, 0x25, 0xca,
-	0x77, 0x9f, 0x7f, 0xf6, 0xe7, 0x2b, 0x33, 0x5d, 0x05, 0x24, 0x0f, 0x60, 0x45, 0xfe, 0xd8, 0x1f,
-	0x3b, 0x23, 0x6f, 0xe8, 0xc4, 0x41, 0x24, 0x1a, 0xb3, 0xb2, 0xec, 0xf5, 0xa2, 0xc3, 0x7b, 0x09,
-	0x0a, 0xb3, 0x2c, 0x87, 0xda, 0x5b, 0x41, 0x3f, 0x83, 0x5b, 0x52, 0x57, 0xfa, 0x4a, 0xbf, 0xd5,
-	0xb7, 0x61, 0x21, 0x25, 0x52, 0x25, 0xed, 0x36, 0x7e, 0xfb, 0xb5, 0x5d, 0xc7, 0x7e, 0xbd, 0x37,
-	0x1c, 0x46, 0x5c, 0x88, 0x5e, 0x1c, 0x79, 0xbe, 0xdb, 0x9d, 0x42, 0xa9, 0x0f, 0x6b, 0xc5, 0x69,
-	0xb1, 0xf0, 0x07, 0xb0, 0x92, 0x82, 0xf7, 0xb5, 0xdb, 0xab, 0x56, 0xc6, 0x58, 0xcf, 0x4b, 0x47,
-	0x60, 0x4e, 0xdb, 0x9b, 0xa2, 0xaf, 0xb8, 0x15, 0xbd, 0xba, 0xd9, 0xea, 0xd5, 0x7d, 0x89, 0x4d,
-	0xcb, 0xb3, 0x61, 0x71, 0x1f, 0xc3, 0x72, 0xee, 0x8e, 0xf0, 0x7e, 0x2b, 0xd5, 0xb6, 0xa4, 0x5f,
-	0x11, 0xfd, 0x14, 0x4b, 0x93, 0x6f, 0x2e, 0x94, 0xf6, 0x6f, 0x2f, 0x68, 0x3b, 0x7b, 0xef, 0x17,
-	0x4b, 0xa8, 0xc3, 0x9c, 0xc4, 0xca, 0x94, 0x2f, 0x74, 0xd5, 0x03, 0xfd, 0x0a, 0x17, 0xb0, 0xa7,
-	0x36, 0xfb, 0xff, 0x5b, 0xfd, 0x27, 0x06, 0xd4, 0x75, 0x66, 0xd4, 0xc9, 0x74, 0xea, 0xc5, 0xce,
-	0x8d, 0x5c, 0x8b, 0xd5, 0x81, 0xa9, 0xa2, 0xff, 0x6c, 0xfd, 0xeb, 0xc9, 0x42, 0x4b, 0x6b, 0x44,
-	0xd1, 0xf4, 0xa3, 0xc4, 0xa2, 0xf0, 0x2d, 0xca, 0xdc, 0x86, 0x9a, 0xb2, 0x50, 0x1c, 0x84, 0xbc,
-	0x4a, 0x05, 0xc7, 0x01, 0x40, 0x28, 0x35, 0xa1, 0x31, 0x9d, 0xb2, 0x1e, 0x8f, 0xc6, 0x53, 0x9f,
-	0xa1, 0x03, 0x58, 0x2d, 0x88, 0x21, 0xdb, 0x7d, 0xb8, 0xae, 0xe6, 0x4f, 0xa8, 0x00, 0x92, 0xde,
-	0x2a, 0x9a, 0x3e, 0x3c, 0x8b, 0xd4, 0xd7, 0xc2, 0xcc, 0x3b, 0xba, 0x87, 0x4b, 0xfc, 0x3e, 0x1f,
-	0x71, 0x77, 0x32, 0x1e, 0x3d, 0xcf, 0xf5, 0x9d, 0x51, 0xd6, 0x1c, 0x86, 0x49, 0xe8, 0xea, 0xd9,
-	0x4b, 0xa1, 0x74, 0x0f, 0xd6, 0x4b, 0xf2, 0x62, 0x01, 0x3b, 0x30, 0x2f, 0xd4, 0xab, 0xb2, 0x5b,
-	0x95, 0x51, 0x14, 0x9d, 0x60, 0xa9, 0x85, 0x7a, 0x7b, 0x87, 0x61, 0x18, 0x44, 0x31, 0x1f, 0xea,
-	0x73, 0x9a, 0xf2, 0x5e, 0x8c, 0x67, 0x78, 0x2b, 0x4c, 0x53, 0xca, 0xab, 0xb0, 0x9d, 0x6f, 0x16,
-	0x61, 0x4e, 0x26, 0x26, 0x3e, 0xd4, 0x94, 0x21, 0x91, 0xdb, 0xb9, 0x93, 0x17, 0xbf, 0x98, 0x26,
-	0xbd, 0x0c, 0xa2, 0x14, 0xd1, 0xf5, 0x6f, 0x7f, 0xff, 0xfb, 0x87, 0xd9, 0x97, 0xc9, 0x0d, 0x96,
-	0xfb, 0x20, 0x2b, 0x96, 0x18, 0xe6, 0xe4, 0x01, 0xd2, 0x2c, 0xcd, 0x95, 0xb0, 0xdd, 0xbe, 0x04,
-	0x81, 0x64, 0x77, 0x24, 0x59, 0x93, 0x58, 0x85, 0x64, 0xec, 0x58, 0xd5, 0x7b, 0x42, 0x7e, 0x32,
-	0x60, 0x39, 0x67, 0xec, 0x64, 0xb3, 0x28, 0x7d, 0xf1, 0x47, 0xc5, 0xbc, 0x5b, 0x09, 0x8b, 0xa2,
-	0xde, 0x92, 0xa2, 0x6c, 0xb2, 0x95, 0x13, 0x35, 0xfd, 0xfe, 0xb1, 0xe3, 0xf4, 0xf7, 0x49, 0xd2,
-	0x98, 0x5f, 0x0c, 0x58, 0xd2, 0xdd, 0x95, 0xbc, 0x51, 0xda, 0x80, 0xbc, 0xa9, 0x9a, 0x9b, 0x55,
-	0xa0, 0xa8, 0xef, 0x5d, 0xa9, 0xef, 0x1d, 0xb2, 0x73, 0x79, 0xd3, 0x4a, 0xf4, 0x92, 0xa7, 0x06,
-	0x2c, 0xe9, 0x1e, 0x5c, 0x2c, 0xb4, 0xd0, 0xfd, 0xcd, 0xcd, 0x2a, 0x50, 0x14, 0xda, 0x96, 0x42,
-	0x37, 0xc8, 0xeb, 0x95, 0x1a, 0x49, 0x22, 0x98, 0xc7, 0xf5, 0x20, 0x85, 0x83, 0xaa, 0xef, 0x96,
-	0xf9, 0xea, 0xa5, 0x18, 0x94, 0x60, 0x49, 0x09, 0x0d, 0x72, 0x33, 0x27, 0x21, 0x31, 0xe7, 0xc9,
-	0xfa, 0x48, 0xef, 0x2b, 0x59, 0x9f, 0xac, 0xd5, 0x96, 0xac, 0x8f, 0xe6, 0xbb, 0xe5, 0xeb, 0xa3,
-	0x58, 0xbe, 0x33, 0xe0, 0x5a, 0xd6, 0x05, 0xc9, 0x46, 0xe9, 0xc5, 0xeb, 0xfe, 0x6b, 0xb6, 0xae,
-	0x06, 0xa2, 0x84, 0xd7, 0xa4, 0x04, 0x8b, 0xac, 0x15, 0xcd, 0x47, 0x1b, 0x1d, 0x9a, 0xfc, 0x6c,
-	0xc0, 0x4a, 0xde, 0x0e, 0x49, 0xe1, 0x9e, 0x94, 0x98, 0xb1, 0xb9, 0x55, 0x0d, 0x8c, 0xaa, 0x76,
-	0xa4, 0x2a, 0x46, 0xda, 0x39, 0x55, 0xa9, 0x49, 0x0b, 0x76, 0x9c, 0xfe, 0x3e, 0x61, 0xe8, 0xb0,
-	0xe4, 0x47, 0x03, 0x56, 0xf2, 0xee, 0x59, 0x2c, 0xb3, 0xc4, 0x83, 0x8b, 0x65, 0x96, 0x19, 0x32,
-	0x6d, 0x49, 0x99, 0x94, 0x34, 0xf3, 0x03, 0x93, 0x1c, 0x68, 0xe3, 0xe8, 0xec, 0x7e, 0xf8, 0xec,
-	0xcc, 0x32, 0x4e, 0xcf, 0x2c, 0xe3, 0xaf, 0x33, 0xcb, 0x78, 0x72, 0x6e, 0xcd, 0x9c, 0x9e, 0x5b,
-	0x33, 0x7f, 0x9c, 0x5b, 0x33, 0x9f, 0xdb, 0xae, 0x17, 0x3f, 0x3a, 0xec, 0xdb, 0x83, 0xe0, 0x80,
-	0xf5, 0x1d, 0x7f, 0x28, 0xff, 0xc4, 0x0c, 0x82, 0x11, 0x1b, 0x3c, 0x72, 0x3c, 0x9f, 0x8d, 0x3b,
-	0xec, 0x6b, 0xcc, 0x1e, 0x1f, 0x85, 0x5c, 0xf4, 0x6b, 0x12, 0xb0, 0xfd, 0x4f, 0x00, 0x00, 0x00,
-	0xff, 0xff, 0xfe, 0xf4, 0x7e, 0xb7, 0xc3, 0x0d, 0x00, 0x00,
+	// 1033 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0xcd, 0x6f, 0xdc, 0x44,
+	0x14, 0x8f, 0x03, 0x1b, 0xba, 0xaf, 0x6d, 0x12, 0xa6, 0x5b, 0xd8, 0x38, 0x9b, 0x65, 0x33, 0x40,
+	0xf3, 0x41, 0xd6, 0xd3, 0x26, 0x14, 0x21, 0x4e, 0x10, 0xa1, 0xf0, 0x21, 0x14, 0x15, 0x07, 0x72,
+	0xe0, 0x12, 0x79, 0xd7, 0xc6, 0x35, 0x6c, 0x6c, 0xc7, 0xe3, 0x2c, 0x94, 0x28, 0x17, 0x2e, 0x70,
+	0x40, 0x02, 0x09, 0xa9, 0x67, 0x0e, 0x5c, 0xb8, 0xf3, 0x47, 0xf4, 0x58, 0xc1, 0x85, 0x13, 0x42,
+	0x09, 0xff, 0x03, 0x57, 0xb4, 0x33, 0xcf, 0x5e, 0xdb, 0x19, 0x67, 0x2d, 0x84, 0x7a, 0xb3, 0xe7,
+	0xfd, 0xe6, 0xbd, 0xdf, 0xfb, 0xfa, 0x79, 0x17, 0x16, 0x3e, 0x75, 0x1c, 0x9b, 0xb3, 0xe1, 0x9d,
+	0x9e, 0x13, 0x5b, 0x77, 0xd8, 0xd1, 0xb1, 0x13, 0x3d, 0x30, 0xc2, 0x28, 0x88, 0x03, 0x72, 0x5d,
+	0x98, 0x0c, 0x34, 0xe9, 0x0d, 0x37, 0x70, 0x03, 0x61, 0x61, 0xa3, 0x27, 0x09, 0xd2, 0x5b, 0x6e,
+	0x10, 0xb8, 0x03, 0x87, 0x59, 0xa1, 0xc7, 0x2c, 0xdf, 0x0f, 0x62, 0x2b, 0xf6, 0x02, 0x9f, 0xa3,
+	0x75, 0xa1, 0x1f, 0xf0, 0xc3, 0x80, 0x1f, 0xc8, 0x6b, 0xf2, 0x05, 0x4d, 0xeb, 0xf2, 0x8d, 0xf5,
+	0x2c, 0xee, 0xc8, 0xb0, 0x29, 0x89, 0xd0, 0x72, 0x3d, 0x5f, 0xf8, 0x49, 0xdc, 0xe4, 0x49, 0x4a,
+	0x5e, 0xd2, 0xa4, 0xe7, 0x4d, 0xa1, 0x15, 0x59, 0x87, 0x68, 0xa3, 0x27, 0x40, 0x3e, 0x1c, 0x39,
+	0xbe, 0x17, 0x79, 0x7d, 0x87, 0x9b, 0xce, 0xd1, 0xb1, 0xc3, 0x63, 0xb2, 0x04, 0xc0, 0x3d, 0xd7,
+	0xb7, 0x06, 0x07, 0x9e, 0xcd, 0x9b, 0x5a, 0xe7, 0xa9, 0xd5, 0xba, 0x59, 0x97, 0x27, 0xef, 0xd9,
+	0x9c, 0xec, 0x00, 0x8c, 0xe3, 0x37, 0xa7, 0x3b, 0xda, 0xea, 0xd5, 0xcd, 0x5b, 0x06, 0x52, 0x1f,
+	0x91, 0x35, 0x64, 0x8d, 0x30, 0xa2, 0x71, 0xcf, 0x72, 0x1d, 0x74, 0x6d, 0x66, 0x6e, 0xd2, 0xef,
+	0x34, 0xb8, 0x91, 0x8b, 0xce, 0xc3, 0xc0, 0xe7, 0x0e, 0xd9, 0x80, 0x99, 0x50, 0x9c, 0x88, 0xd0,
+	0x57, 0x37, 0x1b, 0x46, 0xae, 0xcc, 0x86, 0x80, 0x9b, 0x88, 0x21, 0xef, 0x28, 0xd8, 0xac, 0x4c,
+	0x64, 0x23, 0x43, 0xe5, 0xe8, 0xdc, 0x86, 0x67, 0xc7, 0x6c, 0x92, 0x52, 0x2c, 0x42, 0x3d, 0x2d,
+	0x45, 0x53, 0xeb, 0x68, 0xab, 0x75, 0xf3, 0x4a, 0x52, 0x09, 0xfa, 0x50, 0xcb, 0x96, 0x2f, 0xe5,
+	0x7f, 0x1b, 0x6a, 0x82, 0x9b, 0xc0, 0x97, 0xd0, 0xdf, 0x7e, 0xfa, 0xd1, 0x9f, 0x2f, 0x4c, 0x99,
+	0x12, 0x48, 0x76, 0x61, 0x5e, 0x3c, 0x1c, 0x0c, 0xad, 0x81, 0x67, 0x5b, 0x71, 0x10, 0xf1, 0xe6,
+	0xb4, 0xc8, 0x7d, 0x49, 0x75, 0x79, 0x3f, 0x41, 0xa1, 0x97, 0xb9, 0x30, 0x77, 0xca, 0xe9, 0xc7,
+	0xb0, 0x28, 0x78, 0xa5, 0x47, 0xf9, 0xfe, 0xbe, 0x06, 0xf5, 0x34, 0x90, 0x4c, 0x6a, 0xbb, 0xf9,
+	0xdb, 0xaf, 0xdd, 0x06, 0x16, 0xed, 0x2d, 0xdb, 0x8e, 0x1c, 0xce, 0xf7, 0xe2, 0xc8, 0xf3, 0x5d,
+	0x73, 0x0c, 0xa5, 0x3e, 0xb4, 0xd4, 0x6e, 0x31, 0xf1, 0x5d, 0x98, 0x4f, 0xc1, 0x07, 0xb9, 0x16,
+	0x56, 0x4b, 0x63, 0x98, 0xf7, 0x4b, 0x8f, 0x40, 0x1f, 0x97, 0x37, 0x45, 0x57, 0x69, 0x4d, 0x3e,
+	0xc5, 0xe9, 0xea, 0x29, 0x7e, 0x8e, 0x95, 0x2b, 0x86, 0xc4, 0x0c, 0x3f, 0x80, 0xb9, 0x42, 0xa3,
+	0xb0, 0xc9, 0x95, 0x12, 0x9c, 0xcd, 0xf7, 0x89, 0x7e, 0x84, 0xf9, 0x89, 0x93, 0x0b, 0xf9, 0xfd,
+	0xd7, 0x2e, 0x6d, 0x65, 0x9b, 0x7f, 0x31, 0x85, 0x06, 0xd4, 0x04, 0x56, 0xb8, 0xbc, 0x62, 0xca,
+	0x17, 0xfa, 0x15, 0x0e, 0xff, 0xce, 0x28, 0x8b, 0x27, 0xac, 0x03, 0xdf, 0x26, 0x6b, 0x84, 0xc1,
+	0x91, 0xe8, 0x1a, 0xd4, 0x44, 0x4d, 0x71, 0x84, 0x6e, 0x14, 0x2a, 0x3c, 0x02, 0x9b, 0x12, 0xf1,
+	0xff, 0x69, 0x40, 0x23, 0x59, 0x68, 0x21, 0x92, 0x48, 0x96, 0xbe, 0x9f, 0xe8, 0x14, 0x9e, 0x22,
+	0xc1, 0x2d, 0x98, 0x91, 0x62, 0x8a, 0x33, 0x70, 0xb3, 0x38, 0x03, 0xc2, 0x88, 0xbd, 0x47, 0x28,
+	0xd5, 0xa1, 0x39, 0x1e, 0xb0, 0x3d, 0x27, 0x1a, 0x8e, 0xc5, 0x86, 0xf6, 0x61, 0x41, 0x61, 0xc3,
+	0x68, 0x3b, 0x70, 0x5d, 0x8e, 0x1e, 0x97, 0x06, 0x0c, 0xba, 0xa8, 0x1a, 0x3c, 0xbc, 0x8b, 0xa1,
+	0xaf, 0x85, 0x99, 0x33, 0xba, 0x8f, 0x4b, 0xfc, 0xb6, 0x33, 0x70, 0xdc, 0xd1, 0x64, 0xec, 0x89,
+	0x86, 0x66, 0xc5, 0xc1, 0x4e, 0x4c, 0x93, 0xc7, 0x2e, 0x85, 0xd2, 0x7d, 0x58, 0x2a, 0xf1, 0x8b,
+	0x09, 0xdc, 0x85, 0x67, 0xe4, 0xec, 0x24, 0x1d, 0x2d, 0xd6, 0x4b, 0x5e, 0x40, 0xd2, 0x09, 0x96,
+	0xb6, 0x70, 0x49, 0xf6, 0x8e, 0xc3, 0x30, 0x88, 0x62, 0xc7, 0xce, 0x8e, 0x28, 0xdd, 0xc5, 0x61,
+	0x2f, 0x5a, 0x31, 0x26, 0x9b, 0x3c, 0x43, 0x89, 0x12, 0x0b, 0xcb, 0xe6, 0x3f, 0x00, 0x35, 0xe1,
+	0x90, 0xf8, 0x30, 0x23, 0x65, 0x88, 0x2c, 0x17, 0x6e, 0x5d, 0xfc, 0x62, 0xea, 0xf4, 0x32, 0x88,
+	0xe4, 0x42, 0x97, 0xbe, 0xfe, 0xfd, 0xef, 0x1f, 0xa7, 0x9f, 0x27, 0x37, 0x59, 0xe1, 0x83, 0x2c,
+	0xa3, 0x7c, 0x01, 0x35, 0x71, 0x81, 0x74, 0x4a, 0x7d, 0x25, 0xd1, 0x96, 0x2f, 0x41, 0x60, 0xb0,
+	0x35, 0x11, 0xec, 0x45, 0xb2, 0xac, 0x0c, 0xc6, 0x4e, 0xd2, 0xbd, 0x3e, 0x25, 0x3f, 0x69, 0x30,
+	0x57, 0x50, 0x74, 0xb2, 0xae, 0x8a, 0xa0, 0xfe, 0x9a, 0xe8, 0xaf, 0x54, 0xc2, 0x22, 0xaf, 0x57,
+	0x05, 0x2f, 0x83, 0x6c, 0x14, 0x78, 0x8d, 0x3f, 0x7c, 0xec, 0x24, 0x7d, 0x3e, 0x4d, 0x6a, 0xf3,
+	0x8b, 0x06, 0xb3, 0x79, 0x45, 0x25, 0x6b, 0xa5, 0x35, 0x28, 0x0a, 0xa9, 0xbe, 0x5e, 0x05, 0x8a,
+	0xfc, 0xde, 0x14, 0xfc, 0xde, 0x20, 0xaf, 0x4f, 0xac, 0x5b, 0x09, 0x65, 0xf2, 0x50, 0x83, 0xd9,
+	0xbc, 0xf4, 0xaa, 0xb9, 0x2a, 0x45, 0x5f, 0x5f, 0xaf, 0x02, 0x45, 0xae, 0x5d, 0xc1, 0x75, 0x85,
+	0xbc, 0x5c, 0xa9, 0x96, 0xe4, 0x33, 0xa8, 0x89, 0xe5, 0x50, 0x0f, 0x58, 0x76, 0xab, 0xd4, 0x03,
+	0x96, 0xdb, 0x2c, 0xda, 0x12, 0xc1, 0x9f, 0x23, 0x0d, 0xa6, 0xf8, 0xe5, 0x29, 0x96, 0x47, 0xe8,
+	0x5d, 0xc9, 0xf2, 0x64, 0xe5, 0xb5, 0x64, 0x79, 0x72, 0x5a, 0x5b, 0xbe, 0x3c, 0x32, 0xca, 0x37,
+	0x1a, 0x5c, 0xcb, 0x2a, 0x1f, 0x59, 0x29, 0xed, 0x79, 0x5e, 0x73, 0xf5, 0xd5, 0xc9, 0x40, 0xa4,
+	0xf0, 0x92, 0xa0, 0xd0, 0x26, 0x2d, 0xd5, 0x68, 0x74, 0x51, 0x95, 0xc9, 0xcf, 0x1a, 0xcc, 0x17,
+	0x25, 0x90, 0x28, 0x57, 0xa4, 0x44, 0x80, 0xf5, 0x8d, 0x6a, 0x60, 0x64, 0x75, 0x57, 0xb0, 0x62,
+	0xa4, 0x5b, 0x60, 0x95, 0x0a, 0x33, 0x67, 0x27, 0xe9, 0xf3, 0x29, 0x43, 0x55, 0x25, 0xdf, 0x6b,
+	0x30, 0x9b, 0xd7, 0x4c, 0xf5, 0x94, 0x2a, 0x55, 0x57, 0x3d, 0xa5, 0x6a, 0x09, 0xa6, 0xb7, 0x04,
+	0xc1, 0x0e, 0x69, 0x17, 0x08, 0xf2, 0x04, 0xde, 0x15, 0xe7, 0xdb, 0xef, 0x3e, 0x3a, 0x6b, 0x6b,
+	0x8f, 0xcf, 0xda, 0xda, 0x5f, 0x67, 0x6d, 0xed, 0x87, 0xf3, 0xf6, 0xd4, 0xe3, 0xf3, 0xf6, 0xd4,
+	0x1f, 0xe7, 0xed, 0xa9, 0x4f, 0x0c, 0xd7, 0x8b, 0xef, 0x1f, 0xf7, 0x8c, 0x7e, 0x70, 0xc8, 0x7a,
+	0x96, 0x6f, 0x8b, 0xbf, 0x2e, 0xfd, 0x60, 0xc0, 0xfa, 0xf7, 0x2d, 0xcf, 0x67, 0xc3, 0x4d, 0xf6,
+	0x25, 0xfa, 0x8e, 0x1f, 0x84, 0x0e, 0xef, 0xcd, 0x08, 0xc0, 0xd6, 0xbf, 0x01, 0x00, 0x00, 0xff,
+	0xff, 0x3d, 0x38, 0x5d, 0x1f, 0xb9, 0x0d, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1083,24 +1084,24 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// RPC method that returns all prices.
 	Prices(ctx context.Context, in *QueryPricesRequest, opts ...grpc.CallOption) (*QueryPricesResponse, error)
-	// RPC method that returns price by symbol.
+	// RPC method that returns price by signal id.
 	Price(ctx context.Context, in *QueryPriceRequest, opts ...grpc.CallOption) (*QueryPriceResponse, error)
 	// RPC method that returns prices of a validator.
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
-	// RPC method that returns price of validator by symbol.
+	// RPC method that returns price of validator by signal id.
 	PriceValidator(ctx context.Context, in *QueryPriceValidatorRequest, opts ...grpc.CallOption) (*QueryPriceValidatorResponse, error)
 	// RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
-	// RPC method that returns all symbols.
-	Symbols(ctx context.Context, in *QuerySymbolsRequest, opts ...grpc.CallOption) (*QuerySymbolsResponse, error)
+	// RPC method that returns all feeds.
+	Feeds(ctx context.Context, in *QueryFeedsRequest, opts ...grpc.CallOption) (*QueryFeedsResponse, error)
 	// RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// RPC method that returns information of price service.
 	PriceService(ctx context.Context, in *QueryPriceServiceRequest, opts ...grpc.CallOption) (*QueryPriceServiceResponse, error)
 	// RPC method that returns signals of a delegator
 	DelegatorSignals(ctx context.Context, in *QueryDelegatorSignalsRequest, opts ...grpc.CallOption) (*QueryDelegatorSignalsResponse, error)
-	// RPC method that return list of currect supported symbols
-	SupportedSymbols(ctx context.Context, in *QuerySupportedSymbolsRequest, opts ...grpc.CallOption) (*QuerySupportedSymbolsResponse, error)
+	// RPC method that return list of currect supported signal ids
+	SupportedFeeds(ctx context.Context, in *QuerySupportedFeedsRequest, opts ...grpc.CallOption) (*QuerySupportedFeedsResponse, error)
 }
 
 type queryClient struct {
@@ -1156,9 +1157,9 @@ func (c *queryClient) ValidValidator(ctx context.Context, in *QueryValidValidato
 	return out, nil
 }
 
-func (c *queryClient) Symbols(ctx context.Context, in *QuerySymbolsRequest, opts ...grpc.CallOption) (*QuerySymbolsResponse, error) {
-	out := new(QuerySymbolsResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/Symbols", in, out, opts...)
+func (c *queryClient) Feeds(ctx context.Context, in *QueryFeedsRequest, opts ...grpc.CallOption) (*QueryFeedsResponse, error) {
+	out := new(QueryFeedsResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/Feeds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1192,9 +1193,9 @@ func (c *queryClient) DelegatorSignals(ctx context.Context, in *QueryDelegatorSi
 	return out, nil
 }
 
-func (c *queryClient) SupportedSymbols(ctx context.Context, in *QuerySupportedSymbolsRequest, opts ...grpc.CallOption) (*QuerySupportedSymbolsResponse, error) {
-	out := new(QuerySupportedSymbolsResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/SupportedSymbols", in, out, opts...)
+func (c *queryClient) SupportedFeeds(ctx context.Context, in *QuerySupportedFeedsRequest, opts ...grpc.CallOption) (*QuerySupportedFeedsResponse, error) {
+	out := new(QuerySupportedFeedsResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Query/SupportedFeeds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1205,24 +1206,24 @@ func (c *queryClient) SupportedSymbols(ctx context.Context, in *QuerySupportedSy
 type QueryServer interface {
 	// RPC method that returns all prices.
 	Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error)
-	// RPC method that returns price by symbol.
+	// RPC method that returns price by signal id.
 	Price(context.Context, *QueryPriceRequest) (*QueryPriceResponse, error)
 	// RPC method that returns prices of a validator.
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
-	// RPC method that returns price of validator by symbol.
+	// RPC method that returns price of validator by signal id.
 	PriceValidator(context.Context, *QueryPriceValidatorRequest) (*QueryPriceValidatorResponse, error)
 	// RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
-	// RPC method that returns all symbols.
-	Symbols(context.Context, *QuerySymbolsRequest) (*QuerySymbolsResponse, error)
+	// RPC method that returns all feeds.
+	Feeds(context.Context, *QueryFeedsRequest) (*QueryFeedsResponse, error)
 	// RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// RPC method that returns information of price service.
 	PriceService(context.Context, *QueryPriceServiceRequest) (*QueryPriceServiceResponse, error)
 	// RPC method that returns signals of a delegator
 	DelegatorSignals(context.Context, *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error)
-	// RPC method that return list of currect supported symbols
-	SupportedSymbols(context.Context, *QuerySupportedSymbolsRequest) (*QuerySupportedSymbolsResponse, error)
+	// RPC method that return list of currect supported signal ids
+	SupportedFeeds(context.Context, *QuerySupportedFeedsRequest) (*QuerySupportedFeedsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -1244,8 +1245,8 @@ func (*UnimplementedQueryServer) PriceValidator(ctx context.Context, req *QueryP
 func (*UnimplementedQueryServer) ValidValidator(ctx context.Context, req *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidValidator not implemented")
 }
-func (*UnimplementedQueryServer) Symbols(ctx context.Context, req *QuerySymbolsRequest) (*QuerySymbolsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Symbols not implemented")
+func (*UnimplementedQueryServer) Feeds(ctx context.Context, req *QueryFeedsRequest) (*QueryFeedsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Feeds not implemented")
 }
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -1256,8 +1257,8 @@ func (*UnimplementedQueryServer) PriceService(ctx context.Context, req *QueryPri
 func (*UnimplementedQueryServer) DelegatorSignals(ctx context.Context, req *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DelegatorSignals not implemented")
 }
-func (*UnimplementedQueryServer) SupportedSymbols(ctx context.Context, req *QuerySupportedSymbolsRequest) (*QuerySupportedSymbolsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SupportedSymbols not implemented")
+func (*UnimplementedQueryServer) SupportedFeeds(ctx context.Context, req *QuerySupportedFeedsRequest) (*QuerySupportedFeedsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SupportedFeeds not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -1354,20 +1355,20 @@ func _Query_ValidValidator_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Symbols_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySymbolsRequest)
+func _Query_Feeds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFeedsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Symbols(ctx, in)
+		return srv.(QueryServer).Feeds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Query/Symbols",
+		FullMethod: "/feeds.v1beta1.Query/Feeds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Symbols(ctx, req.(*QuerySymbolsRequest))
+		return srv.(QueryServer).Feeds(ctx, req.(*QueryFeedsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1426,20 +1427,20 @@ func _Query_DelegatorSignals_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_SupportedSymbols_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySupportedSymbolsRequest)
+func _Query_SupportedFeeds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuerySupportedFeedsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).SupportedSymbols(ctx, in)
+		return srv.(QueryServer).SupportedFeeds(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Query/SupportedSymbols",
+		FullMethod: "/feeds.v1beta1.Query/SupportedFeeds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).SupportedSymbols(ctx, req.(*QuerySupportedSymbolsRequest))
+		return srv.(QueryServer).SupportedFeeds(ctx, req.(*QuerySupportedFeedsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1469,8 +1470,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_ValidValidator_Handler,
 		},
 		{
-			MethodName: "Symbols",
-			Handler:    _Query_Symbols_Handler,
+			MethodName: "Feeds",
+			Handler:    _Query_Feeds_Handler,
 		},
 		{
 			MethodName: "Params",
@@ -1485,8 +1486,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_DelegatorSignals_Handler,
 		},
 		{
-			MethodName: "SupportedSymbols",
-			Handler:    _Query_SupportedSymbols_Handler,
+			MethodName: "SupportedFeeds",
+			Handler:    _Query_SupportedFeeds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1525,11 +1526,11 @@ func (m *QueryPricesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Symbols) > 0 {
-		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Symbols[iNdEx])
-			copy(dAtA[i:], m.Symbols[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.Symbols[iNdEx])))
+	if len(m.SignalIds) > 0 {
+		for iNdEx := len(m.SignalIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SignalIds[iNdEx])
+			copy(dAtA[i:], m.SignalIds[iNdEx])
+			i = encodeVarintQuery(dAtA, i, uint64(len(m.SignalIds[iNdEx])))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -1606,10 +1607,10 @@ func (m *QueryPriceRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Symbol) > 0 {
-		i -= len(m.Symbol)
-		copy(dAtA[i:], m.Symbol)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Symbol)))
+	if len(m.SignalId) > 0 {
+		i -= len(m.SignalId)
+		copy(dAtA[i:], m.SignalId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.SignalId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1757,10 +1758,10 @@ func (m *QueryPriceValidatorRequest) MarshalToSizedBuffer(dAtA []byte) (int, err
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Symbol) > 0 {
-		i -= len(m.Symbol)
-		copy(dAtA[i:], m.Symbol)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Symbol)))
+	if len(m.SignalId) > 0 {
+		i -= len(m.SignalId)
+		copy(dAtA[i:], m.SignalId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.SignalId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1863,7 +1864,7 @@ func (m *QueryValidValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-func (m *QuerySymbolsRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeedsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1873,12 +1874,12 @@ func (m *QuerySymbolsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QuerySymbolsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeedsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySymbolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeedsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1895,11 +1896,11 @@ func (m *QuerySymbolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Symbols) > 0 {
-		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Symbols[iNdEx])
-			copy(dAtA[i:], m.Symbols[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.Symbols[iNdEx])))
+	if len(m.SignalIds) > 0 {
+		for iNdEx := len(m.SignalIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SignalIds[iNdEx])
+			copy(dAtA[i:], m.SignalIds[iNdEx])
+			i = encodeVarintQuery(dAtA, i, uint64(len(m.SignalIds[iNdEx])))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -1907,7 +1908,7 @@ func (m *QuerySymbolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QuerySymbolsResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryFeedsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1917,12 +1918,12 @@ func (m *QuerySymbolsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QuerySymbolsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryFeedsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySymbolsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryFeedsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1939,10 +1940,10 @@ func (m *QuerySymbolsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Symbols) > 0 {
-		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Feeds) > 0 {
+		for iNdEx := len(m.Feeds) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Symbols[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Feeds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -2135,7 +2136,7 @@ func (m *QueryDelegatorSignalsResponse) MarshalToSizedBuffer(dAtA []byte) (int, 
 	return len(dAtA) - i, nil
 }
 
-func (m *QuerySupportedSymbolsRequest) Marshal() (dAtA []byte, err error) {
+func (m *QuerySupportedFeedsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -2145,12 +2146,12 @@ func (m *QuerySupportedSymbolsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QuerySupportedSymbolsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QuerySupportedFeedsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySupportedSymbolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QuerySupportedFeedsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -2158,7 +2159,7 @@ func (m *QuerySupportedSymbolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *QuerySupportedSymbolsResponse) Marshal() (dAtA []byte, err error) {
+func (m *QuerySupportedFeedsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -2168,20 +2169,20 @@ func (m *QuerySupportedSymbolsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QuerySupportedSymbolsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QuerySupportedFeedsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QuerySupportedSymbolsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QuerySupportedFeedsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Symbols) > 0 {
-		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Feeds) > 0 {
+		for iNdEx := len(m.Feeds) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Symbols[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Feeds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -2212,8 +2213,8 @@ func (m *QueryPricesRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.Symbols) > 0 {
-		for _, s := range m.Symbols {
+	if len(m.SignalIds) > 0 {
+		for _, s := range m.SignalIds {
 			l = len(s)
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -2250,7 +2251,7 @@ func (m *QueryPriceRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Symbol)
+	l = len(m.SignalId)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -2308,7 +2309,7 @@ func (m *QueryPriceValidatorRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Symbol)
+	l = len(m.SignalId)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -2355,14 +2356,14 @@ func (m *QueryValidValidatorResponse) Size() (n int) {
 	return n
 }
 
-func (m *QuerySymbolsRequest) Size() (n int) {
+func (m *QueryFeedsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Symbols) > 0 {
-		for _, s := range m.Symbols {
+	if len(m.SignalIds) > 0 {
+		for _, s := range m.SignalIds {
 			l = len(s)
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -2374,14 +2375,14 @@ func (m *QuerySymbolsRequest) Size() (n int) {
 	return n
 }
 
-func (m *QuerySymbolsResponse) Size() (n int) {
+func (m *QueryFeedsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Symbols) > 0 {
-		for _, e := range m.Symbols {
+	if len(m.Feeds) > 0 {
+		for _, e := range m.Feeds {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -2461,7 +2462,7 @@ func (m *QueryDelegatorSignalsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QuerySupportedSymbolsRequest) Size() (n int) {
+func (m *QuerySupportedFeedsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2470,14 +2471,14 @@ func (m *QuerySupportedSymbolsRequest) Size() (n int) {
 	return n
 }
 
-func (m *QuerySupportedSymbolsResponse) Size() (n int) {
+func (m *QuerySupportedFeedsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Symbols) > 0 {
-		for _, e := range m.Symbols {
+	if len(m.Feeds) > 0 {
+		for _, e := range m.Feeds {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -2522,7 +2523,7 @@ func (m *QueryPricesRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalIds", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2550,7 +2551,7 @@ func (m *QueryPricesRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbols = append(m.Symbols, string(dAtA[iNdEx:postIndex]))
+			m.SignalIds = append(m.SignalIds, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -2760,7 +2761,7 @@ func (m *QueryPriceRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2788,7 +2789,7 @@ func (m *QueryPriceRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbol = string(dAtA[iNdEx:postIndex])
+			m.SignalId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3125,7 +3126,7 @@ func (m *QueryPriceValidatorRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalId", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3153,7 +3154,7 @@ func (m *QueryPriceValidatorRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbol = string(dAtA[iNdEx:postIndex])
+			m.SignalId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -3443,7 +3444,7 @@ func (m *QueryValidValidatorResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QuerySymbolsRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryFeedsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3466,15 +3467,15 @@ func (m *QuerySymbolsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySymbolsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeedsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySymbolsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeedsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalIds", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3502,7 +3503,7 @@ func (m *QuerySymbolsRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbols = append(m.Symbols, string(dAtA[iNdEx:postIndex]))
+			m.SignalIds = append(m.SignalIds, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -3561,7 +3562,7 @@ func (m *QuerySymbolsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QuerySymbolsResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryFeedsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3584,15 +3585,15 @@ func (m *QuerySymbolsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySymbolsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryFeedsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySymbolsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryFeedsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Feeds", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3619,8 +3620,8 @@ func (m *QuerySymbolsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbols = append(m.Symbols, &Symbol{})
-			if err := m.Symbols[len(m.Symbols)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Feeds = append(m.Feeds, &Feed{})
+			if err := m.Feeds[len(m.Feeds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -4113,7 +4114,7 @@ func (m *QueryDelegatorSignalsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QuerySupportedSymbolsRequest) Unmarshal(dAtA []byte) error {
+func (m *QuerySupportedFeedsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4136,10 +4137,10 @@ func (m *QuerySupportedSymbolsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySupportedSymbolsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QuerySupportedFeedsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySupportedSymbolsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QuerySupportedFeedsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -4163,7 +4164,7 @@ func (m *QuerySupportedSymbolsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QuerySupportedSymbolsResponse) Unmarshal(dAtA []byte) error {
+func (m *QuerySupportedFeedsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -4186,15 +4187,15 @@ func (m *QuerySupportedSymbolsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySupportedSymbolsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QuerySupportedFeedsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySupportedSymbolsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QuerySupportedFeedsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Feeds", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -4221,8 +4222,8 @@ func (m *QuerySupportedSymbolsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Symbols = append(m.Symbols, Symbol{})
-			if err := m.Symbols[len(m.Symbols)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Feeds = append(m.Feeds, Feed{})
+			if err := m.Feeds[len(m.Feeds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

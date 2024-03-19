@@ -11,9 +11,9 @@ import (
 
 // HandleEndBlock is a handler function for the EndBlock ABCI request.
 func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
-	symbols := k.GetSupportedSymbolsByPower(ctx)
-	for _, symbol := range symbols {
-		price, err := k.CalculatePrice(ctx, symbol)
+	feeds := k.GetSupportedFeedsByPower(ctx)
+	for _, feed := range feeds {
+		price, err := k.CalculatePrice(ctx, feed)
 		if err != nil {
 			// TODO: handle error
 			continue
@@ -24,7 +24,7 @@ func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeUpdatePrice,
-				sdk.NewAttribute(types.AttributeKeySymbol, price.Symbol),
+				sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
 				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
 				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
 			),

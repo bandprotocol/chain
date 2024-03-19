@@ -32,20 +32,20 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
-		GetTxCmdSignalSymbols(),
+		GetTxCmdSubmitSignals(),
 	)
 
 	return txCmd
 }
 
-func GetTxCmdSignalSymbols() *cobra.Command {
+func GetTxCmdSubmitSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signal [symbol1]:[power1] [symbol2]:[power2] ...",
-		Short: "Signal symbols and their powers",
+		Use:   "signal [signal_id1]:[power1] [signal_id2]:[power2] ...",
+		Short: "Signal signal ids and their powers",
 		Args:  cobra.MinimumNArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Signal symbols and their power.
+				`Signal signal ids and their power.
 Example:
 $ %s tx feeds signal BTC:1000000 --from mykey
 `,
@@ -61,23 +61,23 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 			delegator := clientCtx.GetFromAddress()
 			var signals []types.Signal
 			for i, arg := range args {
-				symbolAndPower := strings.SplitN(arg, ":", 2)
-				if len(symbolAndPower) != 2 {
+				idAndPower := strings.SplitN(arg, ":", 2)
+				if len(idAndPower) != 2 {
 					return fmt.Errorf("argument %d is not valid", i)
 				}
-				power, err := strconv.ParseUint(symbolAndPower[1], 0, 64)
+				power, err := strconv.ParseUint(idAndPower[1], 0, 64)
 				if err != nil {
 					return err
 				}
 				signals = append(
 					signals, types.Signal{
-						Symbol: symbolAndPower[0],
-						Power:  power,
+						ID:    idAndPower[0],
+						Power: power,
 					},
 				)
 			}
 
-			msg := types.MsgSignalSymbols{
+			msg := types.MsgSubmitSignals{
 				Delegator: delegator.String(),
 				Signals:   signals,
 			}

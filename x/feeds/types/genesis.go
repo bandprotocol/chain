@@ -4,17 +4,17 @@ import (
 	"fmt"
 )
 
-func NewGenesisState(params Params, symbols []Symbol, ps PriceService) *GenesisState {
+func NewGenesisState(params Params, feeds []Feed, ps PriceService) *GenesisState {
 	return &GenesisState{
 		Params:       params,
-		Symbols:      symbols,
+		Feeds:        feeds,
 		PriceService: ps,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultPriceService())
+	return NewGenesisState(DefaultParams(), []Feed{}, DefaultPriceService())
 }
 
 // Validate performs basic genesis state validation
@@ -23,14 +23,14 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
-	for _, symbol := range gs.Symbols {
-		if err := validateInt64("power", true)(symbol.Power); err != nil {
+	for _, feed := range gs.Feeds {
+		if err := validateInt64("power", true)(feed.Power); err != nil {
 			return err
 		}
-		if err := validateInt64("interval", true)(symbol.Interval); err != nil {
+		if err := validateInt64("interval", true)(feed.Interval); err != nil {
 			return err
 		}
-		if err := validateInt64("timestamp", true)(symbol.LastIntervalUpdateTimestamp); err != nil {
+		if err := validateInt64("timestamp", true)(feed.LastIntervalUpdateTimestamp); err != nil {
 			return err
 		}
 	}

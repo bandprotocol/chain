@@ -12,8 +12,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 		panic(err)
 	}
 
-	k.SetSymbols(ctx, genState.Symbols)
-	k.SetSymbolsByPowerIndex(ctx, genState.Symbols)
+	k.SetFeeds(ctx, genState.Feeds)
+	k.SetFeedsByPowerIndex(ctx, genState.Feeds)
 	if err := k.SetPriceService(ctx, genState.PriceService); err != nil {
 		panic(err)
 	}
@@ -23,7 +23,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
 		Params:       k.GetParams(ctx),
-		Symbols:      k.GetSymbols(ctx),
+		Feeds:        k.GetFeeds(ctx),
 		PriceService: k.GetPriceService(ctx),
 	}
 }
