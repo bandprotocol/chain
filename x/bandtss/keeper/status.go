@@ -27,13 +27,7 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 		return types.ErrTooSoonToActivate
 	}
 
-	left := k.tssKeeper.GetDECount(ctx, address)
-	if left == 0 {
-		status.Status = types.MEMBER_STATUS_PAUSED
-	} else {
-		status.Status = types.MEMBER_STATUS_ACTIVE
-	}
-
+	status.Status = types.MEMBER_STATUS_ACTIVE
 	status.Address = address.String()
 	status.Since = ctx.BlockTime()
 	status.LastActive = status.Since
@@ -47,7 +41,7 @@ func (k Keeper) SetActiveStatus(ctx sdk.Context, address sdk.AccAddress) error {
 func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status != types.MEMBER_STATUS_ACTIVE && status.Status != types.MEMBER_STATUS_PAUSED {
+	if status.Status != types.MEMBER_STATUS_ACTIVE {
 		return types.ErrInvalidStatus
 	}
 
@@ -74,26 +68,6 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeInactiveStatus,
-		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
-	))
-}
-
-// SetPaused sets the member status to paused
-func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
-	status := k.GetStatus(ctx, address)
-
-	if status.Status != types.MEMBER_STATUS_ACTIVE {
-		return
-	}
-
-	status.Status = types.MEMBER_STATUS_PAUSED
-	status.Address = address.String()
-	status.Since = ctx.BlockTime()
-	k.SetStatus(ctx, status)
-	k.tssKeeper.SetMemberIsActive(ctx, address, false)
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypePausedStatus,
 		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
 	))
 }

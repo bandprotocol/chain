@@ -43,8 +43,8 @@ func (a *HealthCheck) updateHealthCheck() {
 		return
 	}
 
-	if status.Status != bandtsstypes.MEMBER_STATUS_ACTIVE && status.Status != bandtsstypes.MEMBER_STATUS_PAUSED {
-		a.context.ErrCh <- errors.New("the status of the address is not active / paused")
+	if status.Status != bandtsstypes.MEMBER_STATUS_ACTIVE {
+		a.context.ErrCh <- errors.New("the status of the address is not active")
 		return
 	}
 
