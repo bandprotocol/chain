@@ -17,8 +17,7 @@ func DuplicateInArray(arr []string) bool {
 func ValidMemberStatus(status MemberStatus) bool {
 	if status == MEMBER_STATUS_ACTIVE ||
 		status == MEMBER_STATUS_INACTIVE ||
-		status == MEMBER_STATUS_JAIL ||
-		status == MEMBER_STATUS_PAUSED {
+		status == MEMBER_STATUS_JAIL {
 		return true
 	}
 	return false
