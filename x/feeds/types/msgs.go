@@ -188,6 +188,13 @@ func (m *MsgSubmitSignals) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
+	for _, signal := range m.Signals {
+		if signal.ID == "" || signal.Power == 0 {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"signal id cannot be empty and its power cannot be zero",
+			)
+		}
+	}
 
 	return nil
 }
