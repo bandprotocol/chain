@@ -15,7 +15,13 @@ func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	for _, feed := range feeds {
 		price, err := k.CalculatePrice(ctx, feed)
 		if err != nil {
-			// TODO: handle error
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeCalculatePriceFailed,
+					sdk.NewAttribute(types.AttributeKeySignalID, feed.SignalID),
+					sdk.NewAttribute(types.AttributeKeyErrorMessage, err.Error()),
+				),
+			)
 			continue
 		}
 

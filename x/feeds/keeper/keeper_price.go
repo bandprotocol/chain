@@ -132,7 +132,10 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 		}, nil
 	}
 
-	price := types.CalculateMedianPriceFeedInfo(types.FilterPfInfos(pfInfos, types.PriceOptionAvailable))
+	price, err := types.CalculateMedianPriceFeedInfo(types.FilterPfInfos(pfInfos, types.PriceOptionAvailable))
+	if err != nil {
+		return types.Price{}, nil
+	}
 
 	return types.Price{
 		PriceOption: types.PriceOptionAvailable,

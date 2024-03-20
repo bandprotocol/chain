@@ -41,7 +41,7 @@ func CalPricesPowers(
 	return totalPower, availablePower, unavailablePower, unsupportedPower
 }
 
-func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
+func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 	totalPower, _, _, _ := CalPricesPowers(pfInfos)
 
 	// TODO: recheck
@@ -114,7 +114,7 @@ type WeightedPrice struct {
 	Price uint64
 }
 
-func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
+func CalculateMedianWeightedPrice(wps []WeightedPrice) (uint64, error) {
 	sort.Slice(wps, func(i, j int) bool {
 		if wps[i].Price == wps[j].Price {
 			return wps[i].Power < wps[j].Power
@@ -131,10 +131,9 @@ func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
 	for _, wp := range wps {
 		currentPower += wp.Power
 		if currentPower*2 >= totalPower {
-			return wp.Price
+			return wp.Price, nil
 		}
 	}
 
-	// TODO: check if should panic or not
-	return 0
+	return 0, ErrInvalidWeightedPriceArray
 }
