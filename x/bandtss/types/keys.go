@@ -26,8 +26,19 @@ var (
 
 	// StatusStoreKeyPrefix is the prefix for status store.
 	StatusStoreKeyPrefix = []byte{0x02}
+
+	// GroupIDStoreKeyPrefix is the prefix for groupIS store.
+	GroupIDStoreKeyPrefix = []byte{0x02}
 )
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
 	return append(StatusStoreKeyPrefix, address...)
+}
+
+func CurrentGroupIDStoreKey() []byte {
+	return append(GroupIDStoreKeyPrefix, 0x01)
+}
+
+func ReplacingGroupIDStoreKey() []byte {
+	return append(GroupIDStoreKeyPrefix, 0x02)
 }

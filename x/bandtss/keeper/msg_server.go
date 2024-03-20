@@ -70,10 +70,20 @@ func (k msgServer) ReplaceGroup(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	currentGroupID := k.GetCurrentGroupID(ctx)
+	if req.CurrentGroupID != currentGroupID {
+		return nil, types.ErrInvalidGroupID.Wrapf("invalid currentGroupID; expect %d got %d", currentGroupID, req.CurrentGroupID)
+	}
+
+	if k.GetReplacingGroupID(ctx) != 0 {
+		return nil, types.ErrReplacementInProgress
+	}
+
 	_, err = k.tssKeeper.ReplaceGroup(ctx, req.CurrentGroupID, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
 	if err != nil {
 		return nil, err
 	}
+	k.SetReplacingGroupID(ctx, req.NewGroupID)
 
 	return &types.MsgReplaceGroupResponse{}, nil
 }

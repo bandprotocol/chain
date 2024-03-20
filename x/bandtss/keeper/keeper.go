@@ -11,6 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
@@ -112,4 +113,24 @@ func (k Keeper) GetStatuses(ctx sdk.Context) []types.Status {
 // DeleteStatus removes the status of the address of the group
 func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.StatusStoreKey(address))
+}
+
+// SetCurrentGroupID sets a current groupID of the bandTSS module.
+func (k Keeper) SetCurrentGroupID(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey(), sdk.Uint64ToBigEndian(uint64(groupID)))
+}
+
+// GetCurrentGroupID retrieves a current groupID of the BandTSS module.
+func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
+	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey())))
+}
+
+// SetReplacingGroupID sets a replacing groupID of the bandTSS module.
+func (k Keeper) SetReplacingGroupID(ctx sdk.Context, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Set(types.ReplacingGroupIDStoreKey(), sdk.Uint64ToBigEndian(uint64(groupID)))
+}
+
+// GetReplacingGroupID retrieves a replacing groupID of the BandTSS module.
+func (k Keeper) GetReplacingGroupID(ctx sdk.Context) tss.GroupID {
+	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey())))
 }

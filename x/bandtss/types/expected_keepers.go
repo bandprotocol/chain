@@ -96,6 +96,7 @@ type TSSKeeper interface {
 		feePayer sdk.AccAddress,
 	) (*tsstypes.Signing, error)
 
+	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
