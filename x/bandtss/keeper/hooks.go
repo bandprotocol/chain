@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -21,7 +22,19 @@ func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
 
-func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group) {}
+func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group) {
+	if group.ModuleOwner != types.ModuleName || h.k.GetCurrentGroupID(ctx) != 0 {
+		return
+	}
+
+	members := h.k.tssKeeper.MustGetMembers(ctx, group.ID)
+	for _, m := range members {
+		addr := sdk.AccAddress(m.PubKey)
+		h.k.SetActiveStatus(ctx, addr)
+	}
+
+	h.k.SetCurrentGroupID(ctx, group.ID)
+}
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
 
@@ -43,9 +56,39 @@ func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
 	}
 }
 
-func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) {}
+func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) {
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, replacement.CurrentGroupID)
+	if groupModule != types.ModuleName {
+		return
+	}
 
-func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {}
+	oldMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.CurrentGroupID)
+	for _, m := range oldMembers {
+		addr := sdk.AccAddress(m.PubKey)
+		h.k.DeleteStatus(ctx, addr)
+	}
+
+	newMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.NewGroupID)
+	for _, m := range newMembers {
+		addr := sdk.AccAddress(m.PubKey)
+		h.k.SetActiveStatus(ctx, addr)
+	}
+
+	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
+	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
+
+}
+
+func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {
+	// check if this signing is from the bandtss module
+	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, replacement.CurrentGroupID)
+	if groupModule != types.ModuleName {
+		return
+	}
+
+	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
+}
 
 func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 	if signing.Fee.IsZero() {
@@ -131,31 +174,9 @@ func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) er
 }
 
 func (h Hooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error {
-	// only update status if the member was paused
-	status := h.k.GetStatus(ctx, address)
-	if status.Status != types.MEMBER_STATUS_PAUSED {
-		return nil
-	}
-
-	// if DE is still empty, keep its status as is.
-	left := h.k.tssKeeper.GetDECount(ctx, address)
-	if left == 0 {
-		return nil
-	}
-
-	// Set status to active and update the status in tssKeeper
-	if err := h.k.SetActiveStatus(ctx, address); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func (h Hooks) AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error {
-	left := h.k.tssKeeper.GetDECount(ctx, member)
-	if left == 0 {
-		h.k.SetPausedStatus(ctx, member)
-	}
-
 	return nil
 }

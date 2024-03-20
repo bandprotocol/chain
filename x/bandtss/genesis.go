@@ -16,12 +16,17 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	for _, status := range data.Statuses {
 		k.SetStatus(ctx, status)
 	}
+
+	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
+	k.SetReplacingGroupID(ctx, data.ReplacingGroupID)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:   k.GetParams(ctx),
-		Statuses: k.GetStatuses(ctx),
+		Params:           k.GetParams(ctx),
+		Statuses:         k.GetStatuses(ctx),
+		CurrentGroupID:   k.GetCurrentGroupID(ctx),
+		ReplacingGroupID: k.GetReplacingGroupID(ctx),
 	}
 }

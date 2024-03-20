@@ -20,6 +20,8 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetQueryCmdStatus(),
+		GetQueryCmdCurrentGroup(),
+		GetQueryCmdReplacingGroup(),
 	)
 
 	return cmd
@@ -42,6 +44,60 @@ func GetQueryCmdStatus() *cobra.Command {
 			res, err := queryClient.Status(cmd.Context(), &types.QueryStatusRequest{
 				Address: args[0],
 			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdCurrentGroup creates a CLI command for Query/Status.
+func GetQueryCmdCurrentGroup() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current-group",
+		Short: "Query the currentGroup",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.CurrentGroup(cmd.Context(), &types.QueryCurrentGroupRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdReplacingGroup creates a CLI command for Query/Status.
+func GetQueryCmdReplacingGroup() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "replacing-group",
+		Short: "Query the replacingGroup",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.ReplacingGroup(cmd.Context(), &types.QueryReplacingGroupRequest{})
 			if err != nil {
 				return err
 			}

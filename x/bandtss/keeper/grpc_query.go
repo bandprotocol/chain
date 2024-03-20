@@ -72,3 +72,31 @@ func (q queryServer) Statuses(
 		Pagination: pageRes,
 	}, nil
 }
+
+func (q queryServer) CurrentGroup(
+	goCtx context.Context,
+	req *types.QueryCurrentGroupRequest,
+) (*types.QueryCurrentGroupResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get currentGroupID
+	groupID := q.k.GetCurrentGroupID(ctx)
+
+	return &types.QueryCurrentGroupResponse{
+		GroupID: uint64(groupID),
+	}, nil
+}
+
+func (q queryServer) ReplacingGroup(
+	goCtx context.Context,
+	req *types.QueryReplacingGroupRequest,
+) (*types.QueryReplacingGroupResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get replacingGroupID
+	groupID := q.k.GetReplacingGroupID(ctx)
+
+	return &types.QueryReplacingGroupResponse{
+		GroupID: uint64(groupID),
+	}, nil
+}
