@@ -22,9 +22,12 @@ func (k Keeper) HandleCreateSigning(
 		return nil, err
 	}
 
-	group, err := k.tssKeeper.GetActiveGroup(ctx, groupID)
+	group, err := k.tssKeeper.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
+	}
+	if group.Status != tsstypes.GROUP_STATUS_ACTIVE {
+		return nil, tsstypes.ErrGroupIsNotActive.Wrap("group status is not active")
 	}
 
 	// charged fee if necessary

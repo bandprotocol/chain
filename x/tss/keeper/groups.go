@@ -183,17 +183,6 @@ func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Grou
 	return group, nil
 }
 
-// GetModuleOwner returns the module that the group belongs to. Return empty if the group is empty
-// or not found.
-func (k Keeper) GetModuleOwner(ctx sdk.Context, groupID tss.GroupID) string {
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return ""
-	}
-
-	return group.ModuleOwner
-}
-
 // GetPenalizedMembersExpiredGroup gets the list of members who should be penalized due to not
 // participating in group creation.
 func (k Keeper) GetPenalizedMembersExpiredGroup(ctx sdk.Context, group types.Group) ([]sdk.AccAddress, error) {

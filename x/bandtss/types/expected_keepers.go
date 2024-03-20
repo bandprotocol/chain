@@ -97,8 +97,7 @@ type TSSKeeper interface {
 	) (*tsstypes.Signing, error)
 
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
-	GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
-	GetModuleOwner(ctx sdk.Context, groupID tss.GroupID) string
+	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
