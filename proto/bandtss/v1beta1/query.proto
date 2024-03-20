@@ -19,6 +19,14 @@ service Query {
   rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/statuses/{address}";
   }
+
+  rpc CurrentGroup(QueryCurrentGroupRequest) returns (QueryCurrentGroupResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/current_group";
+  }
+
+  rpc ReplacingGroup(QueryReplacingGroupRequest) returns (QueryReplacingGroupResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/replacing_group";
+  }
 }
 
 // QueryStatusesRequest is the request type for the Query/Statuses RPC method.
@@ -47,4 +55,20 @@ message QueryStatusRequest {
 message QueryStatusResponse {
   // status is the status request.
   Status status = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryCurrentGroupRequest is the request type for the Query/CurrentGroup RPC method.
+message QueryCurrentGroupRequest {}
+
+// QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
+message QueryCurrentGroupResponse {
+  uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
+}
+
+// QueryCurrentGroupRequest is the request type for the Query/CurrentGroup RPC method.
+message QueryReplacingGroupRequest {}
+
+// QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
+message QueryReplacingGroupResponse {
+  uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
 }
