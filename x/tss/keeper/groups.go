@@ -16,7 +16,6 @@ func (k Keeper) CreateGroup(
 	ctx sdk.Context,
 	members []sdk.AccAddress,
 	threshold uint64,
-	fee sdk.Coins,
 	moduleOwner string,
 ) (tss.GroupID, error) {
 	// Validate group size
@@ -27,12 +26,10 @@ func (k Keeper) CreateGroup(
 	}
 
 	// Create new group
-	sortedFee := fee.Sort()
 	groupID := k.CreateNewGroup(ctx, types.Group{
 		Size_:       groupSize,
 		Threshold:   threshold,
 		PubKey:      nil,
-		Fee:         sortedFee,
 		Status:      types.GROUP_STATUS_ROUND_1,
 		ModuleOwner: moduleOwner,
 	})
@@ -58,7 +55,6 @@ func (k Keeper) CreateGroup(
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		sdk.NewAttribute(types.AttributeKeySize, fmt.Sprintf("%d", groupSize)),
 		sdk.NewAttribute(types.AttributeKeyThreshold, fmt.Sprintf("%d", threshold)),
-		sdk.NewAttribute(types.AttributeKeyFee, fee.String()),
 		sdk.NewAttribute(types.AttributeKeyPubKey, ""),
 		sdk.NewAttribute(types.AttributeKeyStatus, types.GROUP_STATUS_ROUND_1.String()),
 		sdk.NewAttribute(types.AttributeKeyDKGContext, hex.EncodeToString(dkgContext)),
@@ -140,33 +136,6 @@ func (k Keeper) ReplaceGroup(
 	)
 
 	return replacement.ID, nil
-}
-
-// UpdateGroupFee updates the fee of the group.
-func (k Keeper) UpdateGroupFee(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	fee sdk.Coins,
-) (*types.Group, error) {
-	// Get group
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Set new group fee
-	group.Fee = fee.Sort()
-	k.SetGroup(ctx, group)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUpdateGroupFee,
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-			sdk.NewAttribute(types.AttributeKeyFee, group.Fee.String()),
-		),
-	)
-
-	return &group, nil
 }
 
 // GetActiveGroup returns the active group with the given groupID. If the group is not active,

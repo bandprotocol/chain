@@ -252,7 +252,6 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 			Threshold:     tc.Group.Threshold,
 			PubKey:        tc.Group.PubKey,
 			Status:        tsstypes.GROUP_STATUS_ACTIVE,
-			Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			CreatedHeight: 1,
 		})
 		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)

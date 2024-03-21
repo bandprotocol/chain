@@ -74,7 +74,6 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		_, err = bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)

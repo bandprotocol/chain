@@ -28,13 +28,13 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	// charged fee if necessary
-	fee := sdk.NewCoins()
+	feePerMember := sdk.NewCoins()
 	if sender.String() != k.authority {
-		fee = group.Fee
+		feePerMember = k.GetParams(ctx).Fee
 
 		// If found any coins that exceed limit then return error
-		feeCoins := group.Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
-		for _, fc := range feeCoins {
+		totalFee := feePerMember.MulInt(sdk.NewInt(int64(group.Threshold)))
+		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
 				return nil, types.ErrNotEnoughFee.Wrapf(
@@ -47,7 +47,7 @@ func (k Keeper) HandleCreateSigning(
 		}
 	}
 
-	signing, err := k.tssKeeper.CreateSigning(ctx, group, msg, fee, sender)
+	signing, err := k.tssKeeper.CreateSigning(ctx, group, msg, feePerMember, sender)
 	if err != nil {
 		return nil, err
 	}
