@@ -5,7 +5,6 @@ import (
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -35,7 +34,6 @@ func TestReplaceGroups(t *testing.T) {
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 		CreatedHeight: 1,
 	}
 	initialNewGroup := types.Group{
@@ -44,7 +42,6 @@ func TestReplaceGroups(t *testing.T) {
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
 		CreatedHeight: 2,
 	}
 

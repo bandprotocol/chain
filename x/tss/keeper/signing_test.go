@@ -421,11 +421,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Set the group fee to zero
 	group := k.MustGetGroup(ctx, groupID)
-	group.Fee = sdk.NewCoins()
-	k.SetGroup(ctx, group)
 
 	// Define the fee payer's address.
 	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")

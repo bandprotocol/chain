@@ -75,7 +75,6 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
@@ -618,7 +617,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
 		CreatedHeight: 2,
 	}
 	initialCurrentGroup := types.Group{
@@ -627,7 +625,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{
@@ -665,7 +662,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	s.Require().Equal(initialNewGroup.Threshold, updatedGroup.Threshold)
 	s.Require().Equal(initialNewGroup.PubKey, updatedGroup.PubKey)
 	s.Require().Equal(initialNewGroup.Status, updatedGroup.Status)
-	s.Require().Equal(initialNewGroup.Fee, updatedGroup.Fee)
 }
 
 func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
@@ -682,7 +678,6 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
 		CreatedHeight: 2,
 	}
 	initialCurrentGroup := types.Group{
@@ -691,7 +686,6 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{

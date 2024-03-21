@@ -22,15 +22,12 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // fee is the tokens that will be paid per signing.
-  repeated cosmos.base.v1beta1.Coin fee = 6
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // latest_replacement_id is the latest replacement ID of the group.
-  uint64 latest_replacement_id = 7 [(gogoproto.customname) = "LatestReplacementID"];
+  uint64 latest_replacement_id = 6 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
-  uint64 created_height = 8;
+  uint64 created_height = 7;
   // module_owner is the module that creates this group.
-  string module_owner = 9;
+  string module_owner = 8;
 }
 
 // Replacement represents a group that will replaced with another group in the replacement process.

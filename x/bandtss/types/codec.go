@@ -10,7 +10,6 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/CreateGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/ReplaceGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateGroupFee{}, "bandtss/UpdateGroupFee")
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/RequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
@@ -21,7 +20,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateGroup{},
 		&MsgReplaceGroup{},
-		&MsgUpdateGroupFee{},
 		&MsgRequestSignature{},
 		&MsgActivate{},
 		&MsgHealthCheck{},

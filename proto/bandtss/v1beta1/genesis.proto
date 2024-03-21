@@ -4,6 +4,7 @@ package bandtss.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "bandtss/v1beta1/bandtss.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
@@ -37,4 +38,7 @@ message Params {
   google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // jail_penalty_duration is the duration where a member cannot activate back after jail.
   google.protobuf.Duration jail_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee is the tokens that will be paid per signing.
+  repeated cosmos.base.v1beta1.Coin fee = 5
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

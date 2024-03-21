@@ -69,15 +69,8 @@ type TSSKeeper interface {
 		ctx sdk.Context,
 		members []sdk.AccAddress,
 		threshold uint64,
-		fee sdk.Coins,
 		moduleOwner string,
 	) (tss.GroupID, error)
-
-	UpdateGroupFee(
-		ctx sdk.Context,
-		groupID tss.GroupID,
-		fee sdk.Coins,
-	) (*tsstypes.Group, error)
 
 	ReplaceGroup(
 		ctx sdk.Context,

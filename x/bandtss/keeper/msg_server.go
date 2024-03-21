@@ -42,7 +42,7 @@ func (k msgServer) CreateGroup(
 		members = append(members, address)
 	}
 
-	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee, types.ModuleName); err != nil {
+	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, types.ModuleName); err != nil {
 		return nil, err
 	}
 
@@ -81,25 +81,6 @@ func (k msgServer) ReplaceGroup(
 	k.SetReplacingGroupID(ctx, req.NewGroupID)
 
 	return &types.MsgReplaceGroupResponse{}, nil
-}
-
-// UpdateGroupFee updates the fee for a specific group based on the provided request.
-func (k msgServer) UpdateGroupFee(
-	goCtx context.Context,
-	req *types.MsgUpdateGroupFee,
-) (*types.MsgUpdateGroupFeeResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	_, err := k.tssKeeper.UpdateGroupFee(ctx, req.GroupID, req.Fee)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgUpdateGroupFeeResponse{}, nil
 }
 
 // RequestSignature initiates the signing process by requesting signatures from assigned members.
