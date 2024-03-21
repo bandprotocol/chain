@@ -1,9 +1,5 @@
 package types
 
-import (
-	"fmt"
-)
-
 func NewGenesisState(params Params, feeds []Feed, ps PriceService) *GenesisState {
 	return &GenesisState{
 		Params:       params,
@@ -36,17 +32,4 @@ func (gs GenesisState) Validate() error {
 	}
 
 	return nil
-}
-
-func validateInt64(name string, positiveOnly bool) func(interface{}) error {
-	return func(i interface{}) error {
-		v, ok := i.(int64)
-		if !ok {
-			return fmt.Errorf("invalid parameter type: %T", i)
-		}
-		if v <= 0 && positiveOnly {
-			return fmt.Errorf("%s must be positive: %d", name, v)
-		}
-		return nil
-	}
 }

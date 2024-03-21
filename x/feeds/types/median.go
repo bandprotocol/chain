@@ -4,6 +4,14 @@ import (
 	"sort"
 )
 
+func getMultipliers() [5]uint64 {
+	return [5]uint64{60, 40, 20, 11, 10}
+}
+
+func getSections() [5]uint64 {
+	return [5]uint64{1, 3, 7, 15, 32}
+}
+
 type PriceFeedInfo struct {
 	PriceOption PriceOption
 	Power       uint64
@@ -57,8 +65,8 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 		return pfInfos[i].Timestamp > pfInfos[j].Timestamp
 	})
 
-	multipliers := []uint64{60, 40, 20, 11, 10}
-	sections := []uint64{1, 3, 7, 15, 32}
+	multipliers := getMultipliers()
+	sections := getSections()
 
 	var wps []WeightedPrice
 	currentSection := 0

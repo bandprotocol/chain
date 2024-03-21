@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -81,17 +79,4 @@ func (p Params) Validate() error {
 func (p Params) String() string {
 	out, _ := yaml.Marshal(p)
 	return string(out)
-}
-
-func validateString(name string, allowEmpty bool) func(interface{}) error {
-	return func(i interface{}) error {
-		s, ok := i.(string)
-		if !ok {
-			return fmt.Errorf("invalid parameter type: %T", i)
-		}
-		if s == "" && !allowEmpty {
-			return fmt.Errorf("%s cannot be empty", name)
-		}
-		return nil
-	}
 }
