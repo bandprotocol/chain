@@ -29,6 +29,8 @@ message Group {
   uint64 latest_replacement_id = 7 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
   uint64 created_height = 8;
+  // module_owner is the module that creates this group.
+  string module_owner = 9;
 }
 
 // Replacement represents a group that will replaced with another group in the replacement process.

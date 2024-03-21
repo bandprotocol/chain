@@ -82,7 +82,7 @@ func (k Keeper) SetInactiveStatus(ctx sdk.Context, address sdk.AccAddress) {
 func (k Keeper) SetPausedStatus(ctx sdk.Context, address sdk.AccAddress) {
 	status := k.GetStatus(ctx, address)
 
-	if status.Status == types.MEMBER_STATUS_PAUSED {
+	if status.Status != types.MEMBER_STATUS_ACTIVE {
 		return
 	}
 

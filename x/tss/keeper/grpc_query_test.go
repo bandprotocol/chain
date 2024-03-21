@@ -211,11 +211,12 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						ID:        1,
-						Size_:     5,
-						Threshold: 3,
-						PubKey:    nil,
-						Status:    types.GROUP_STATUS_ROUND_1,
+						ID:          1,
+						Size_:       5,
+						Threshold:   3,
+						PubKey:      nil,
+						Status:      types.GROUP_STATUS_ROUND_1,
+						ModuleOwner: bandtsstypes.ModuleName,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
