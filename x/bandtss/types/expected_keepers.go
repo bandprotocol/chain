@@ -104,5 +104,5 @@ type TSSKeeper interface {
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 
-	SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool)
+	SetActiveMembers(ctx sdk.Context, groupID tss.GroupID, address []sdk.AccAddress, isActives []bool) error
 }

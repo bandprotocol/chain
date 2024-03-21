@@ -15,11 +15,15 @@ message GenesisState {
   // statuses is an array containing status of all addresses
   repeated Status statuses = 2 [(gogoproto.nullable) = false];
   // current_group_id is the current group id of the module.
-  uint64 current_group_id = 3
-      [(gogoproto.customname) = "CurrentGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  uint64 current_group_id = 3 [
+    (gogoproto.customname) = "CurrentGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
   // replacing_group_id is the current group id of the module.
-  uint64 replacing_group_id = 4
-      [(gogoproto.customname) = "ReplacingGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+  uint64 replacing_group_id = 4 [
+    (gogoproto.customname) = "ReplacingGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
 }
 
 // Params defines the set of module parameters.

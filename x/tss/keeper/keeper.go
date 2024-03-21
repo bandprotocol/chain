@@ -288,23 +288,22 @@ func (k Keeper) MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Mem
 	return members
 }
 
-// GetActiveMembers retrieves all active members of a group from the store.
-func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
-	var members []types.Member
+// GetAvailableMembers retrieves all active members of a group from the store.
+func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+	var activeMembers []types.Member
 	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
-		address := sdk.MustAccAddressFromBech32(member.Address)
-		if isActive := k.GetMemberIsActive(ctx, address); isActive {
-			members = append(members, member)
+		if member.IsActive {
+			activeMembers = append(activeMembers, member)
 		}
 	}
 
 	// Filter members that have DE left
-	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, activeMembers)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +312,27 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 		return nil, types.ErrNoActiveMember.Wrapf("no active member in groupID: %d", groupID)
 	}
 	return filteredMembers, nil
+}
+
+// SetActiveMembers sets a boolean flag represent activeness of members.
+func (k Keeper) SetActiveMembers(ctx sdk.Context, groupID tss.GroupID, addresses []sdk.AccAddress, isActives []bool) error {
+	mapping := make(map[string]bool)
+	for i, addr := range addresses {
+		mapping[addr.String()] = isActives[i]
+	}
+
+	members := k.MustGetMembers(ctx, groupID)
+	for _, m := range members {
+		isActive, ok := mapping[m.Address]
+		if !ok {
+			return types.ErrMemberNotFound.Wrapf("failed to get members with groupID: %d", groupID)
+		}
+
+		m.IsActive = isActive
+		k.SetMember(ctx, m)
+	}
+
+	return nil
 }
 
 // SetLastExpiredGroupID sets the last expired group ID in the store.
@@ -370,58 +390,6 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		// Set the last expired group ID to the current group ID
 		k.SetLastExpiredGroupID(ctx, currentGroupID)
 	}
-}
-
-// SetMemberIsActive sets a boolean flag represent activeness of the user.
-func (k Keeper) SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool) {
-	value := uint64(0)
-	if status {
-		value = 1
-	}
-
-	ctx.KVStore(k.storeKey).Set(types.IsActiveStoreKey(address), sdk.Uint64ToBigEndian(value))
-}
-
-// GetMemberIsActive retrieves a boolean flag whether the address is active or not.
-func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool {
-	bz := ctx.KVStore(k.storeKey).Get(types.IsActiveStoreKey(address))
-	if bz == nil {
-		return false
-	}
-
-	return sdk.BigEndianToUint64(bz) != 0
-}
-
-func (k Keeper) GetMemberIsActives(ctx sdk.Context) ([]sdk.AccAddress, []bool) {
-	var addresses []sdk.AccAddress
-	var isActives []bool
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.IsActiveStoreKeyPrefix)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		address := sdk.AccAddress(iterator.Key()[1:])
-		isActive := sdk.BigEndianToUint64(iterator.Value()) != 0
-
-		addresses = append(addresses, address)
-		isActives = append(isActives, isActive)
-	}
-
-	return addresses, isActives
-}
-
-func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []types.IsActiveGenesis {
-	addresses, isActives := k.GetMemberIsActives(ctx)
-
-	var data []types.IsActiveGenesis
-	for i := range addresses {
-		data = append(data, types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
-	}
-
-	return data
-}
-
-// DeleteMemberIsActive removes the flag of the given address from the store.
-func (k Keeper) DeleteMemberIsActive(ctx sdk.Context, address sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.IsActiveStoreKey(address))
 }
 
 // AddPendingProcessGroup adds a new pending process group to the store.

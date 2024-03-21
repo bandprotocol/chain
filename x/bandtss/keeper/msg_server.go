@@ -40,11 +40,6 @@ func (k msgServer) CreateGroup(
 			return nil, err
 		}
 		members = append(members, address)
-
-		status := k.GetStatus(ctx, address)
-		if status.Status != types.MEMBER_STATUS_ACTIVE {
-			return nil, types.ErrStatusIsNotActive
-		}
 	}
 
 	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee, types.ModuleName); err != nil {
@@ -138,7 +133,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 
-	if err = k.SetActiveStatus(ctx, address); err != nil {
+	if err = k.SetActiveStatuses(ctx, []sdk.AccAddress{address}); err != nil {
 		return nil, err
 	}
 

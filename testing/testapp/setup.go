@@ -424,9 +424,6 @@ func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper
 				PubE: testutil.HexDecode("eeee"),
 			},
 		})
-		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[0].Address)
-		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[1].Address)
-		_ = app.BandtssKeeper.SetActiveStatus(ctx, Validators[2].Address)
 	}
 	return app, ctx, app.OracleKeeper
 }

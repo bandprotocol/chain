@@ -45,6 +45,7 @@ func (k Keeper) CreateGroup(
 			Address:     m.String(),
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		})
 	}
 
