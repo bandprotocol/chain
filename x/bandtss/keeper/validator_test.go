@@ -96,7 +96,7 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	})
 	s.Require().NoError(err)
 
-	err = k.SetActiveStatus(ctx, testapp.Validators[1].Address)
+	err = k.SetActiveStatuses(ctx, []sdk.AccAddress{testapp.Validators[1].Address})
 	s.Require().NoError(err)
 
 	k.AllocateTokens(ctx, defaultVotes())

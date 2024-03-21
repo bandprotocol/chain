@@ -324,8 +324,8 @@ func (k Keeper) HandleAssignedMembers(
 		)
 	}
 
-	// Get active members
-	members, err := k.GetActiveMembers(ctx, group.ID)
+	// Get available members
+	members, err := k.GetAvailableMembers(ctx, group.ID)
 	if err != nil {
 		return types.AssignedMembers{}, err
 	}

@@ -242,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := bandtssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
+			err := bandtssKeeper.SetActiveStatuses(ctx, []sdk.AccAddress{ba.Sender.Address})
 			require.NoError(ba.TB, err)
 		}
 

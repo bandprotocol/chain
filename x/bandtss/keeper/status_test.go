@@ -13,13 +13,15 @@ func (s *KeeperTestSuite) TestSetInActive() {
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
-	k.SetInactiveStatus(ctx, address)
+	k.SetInactiveStatuses(ctx, []sdk.AccAddress{address})
 
 	status := k.GetStatus(ctx, address)
-	isActive := tssKeeper.GetMemberIsActive(ctx, address)
 
+	member, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
-	s.Require().False(isActive)
+
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
@@ -28,22 +30,23 @@ func (s *KeeperTestSuite) TestSetActive() {
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case
-	err := k.SetActiveStatus(ctx, address)
+	err := k.SetActiveStatuses(ctx, []sdk.AccAddress{address})
 	s.Require().NoError(err)
 
 	status := k.GetStatus(ctx, address)
-	isActive := tssKeeper.GetMemberIsActive(ctx, address)
+	member, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	s.Require().NoError(err)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
 	s.Require().True(isActive)
 
 	// Failed case - penalty
-	k.SetInactiveStatus(ctx, address)
+	k.SetInactiveStatuses(ctx, []sdk.AccAddress{address})
 
-	err = k.SetActiveStatus(ctx, address)
+	err = k.SetActiveStatuses(ctx, []sdk.AccAddress{address})
 	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
 
 	// Failed case - no member
-	err = k.SetActiveStatus(ctx, address)
+	err = k.SetActiveStatuses(ctx, []sdk.AccAddress{address})
 	s.Require().Error(err)
 }
 
@@ -60,7 +63,7 @@ func (s *KeeperTestSuite) TestSetLastActive() {
 	s.Require().Equal(ctx.BlockTime(), status.LastActive)
 
 	// Failed case
-	k.SetInactiveStatus(ctx, address)
+	k.SetInactiveStatuses(ctx, []sdk.AccAddress{address})
 
 	err = k.SetLastActive(ctx, address)
 	s.Require().Error(err)

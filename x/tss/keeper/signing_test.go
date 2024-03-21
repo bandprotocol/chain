@@ -488,13 +488,11 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 
 	// Set member
 	k.SetMember(ctx, types.Member{
-		ID:      memberID,
-		GroupID: groupID,
-		Address: testapp.Alice.Address.String(),
+		ID:       memberID,
+		GroupID:  groupID,
+		Address:  testapp.Alice.Address.String(),
+		IsActive: false,
 	})
-
-	// Set isActive flag
-	k.SetMemberIsActive(ctx, testapp.Alice.Address, false)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{
@@ -519,10 +517,9 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-
-	gotStatus := k.GetMemberIsActive(ctx, testapp.Alice.Address)
-	s.Require().False(gotStatus)
-
+	member, err := k.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, testapp.Alice.Address.String())
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 

@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandtssKeeper, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	ctx, bandtssKeeper := s.ctx, s.app.BandtssKeeper
 	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
@@ -69,7 +69,6 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
 				Since:   ctx.BlockTime(),
 			})
-			tssKeeper.SetMemberIsActive(ctx, address, true)
 		}
 
 		// Create group
@@ -381,49 +380,35 @@ func (s *KeeperTestSuite) TestGetMembers() {
 func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
+	groupID := tss.GroupID(10)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	k.SetMemberIsActive(ctx, address, true)
+	k.SetMember(ctx, types.Member{
+		ID:       tss.MemberID(1),
+		GroupID:  groupID,
+		Address:  address.String(),
+		PubKey:   nil,
+		IsActive: true,
+	})
 
 	// check when being set to active
-	got := k.GetMemberIsActive(ctx, address)
-	s.Require().True(got)
+	members, err := k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
 
-	gotAddrs, gotIsActives := k.GetMemberIsActives(ctx)
-	cntFound := 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			s.Require().True(gotIsActives[i])
-			cntFound++
-		}
+	for _, member := range members {
+		s.Require().True(member.IsActive)
 	}
-	s.Require().Equal(1, cntFound)
 
 	// check when being set to false
-	k.SetMemberIsActive(ctx, address, false)
+	k.SetActiveMembers(ctx, groupID, []sdk.AccAddress{address}, []bool{false})
 
-	got = k.GetMemberIsActive(ctx, address)
-	s.Require().False(got)
+	members, err = k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
 
-	gotAddrs, gotIsActives = k.GetMemberIsActives(ctx)
-	cntFound = 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			s.Require().False(gotIsActives[i])
-			cntFound++
-		}
+	for _, member := range members {
+		s.Require().False(member.IsActive)
 	}
-	s.Require().Equal(1, cntFound)
-
-	// check when being deleted
-	k.DeleteMemberIsActive(ctx, address)
-	gotAddrs, _ = k.GetMemberIsActives(ctx)
-	cntFound = 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			cntFound++
-		}
-	}
-	s.Require().Equal(0, cntFound)
 }
 
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {

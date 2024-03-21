@@ -50,11 +50,6 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
 
-  // IsActive queries if the member is active.
-  rpc IsActive(QueryIsActiveRequest) returns (QueryIsActiveResponse) {
-    option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
-  }
-
   // Replacements queries all replacements.
   rpc Replacements(QueryReplacementsRequest) returns (QueryReplacementsResponse) {
     option (google.api.http).get = "/tss/v1beta1/replacements";
@@ -96,16 +91,14 @@ message QueryGroupResponse {
   ];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
-  // is_actives is the list of members status to inform if they are ready to sign a message.
-  repeated bool is_actives = 4;
   // round1_infos is the list of Round 1 information.
-  repeated Round1Info round1_infos = 5 [(gogoproto.nullable) = false];
+  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
   // round2_infos is the list of Round 2 information.
-  repeated Round2Info round2_infos = 6 [(gogoproto.nullable) = false];
+  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
   // complaints_with_status is the list of complaints with status.
-  repeated ComplaintsWithStatus complaints_with_status = 7 [(gogoproto.nullable) = false];
+  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
   // confirms is the list of confirms.
-  repeated Confirm confirms = 8 [(gogoproto.nullable) = false];
+  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
@@ -188,18 +181,6 @@ message QuerySigningResponse {
   EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
   // received_partial_signatures is a list of received partial signatures.
   repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
-}
-
-// QueryIsActiveRequest is the request type for the Query/IsActive RPC method.
-message QueryIsActiveRequest {
-  // address is the member address.
-  string address = 1;
-}
-
-// QueryIsActiveResponse is the response type for the Query/IsActive RPC method.
-message QueryIsActiveResponse {
-  // is_active is the status of the member.
-  bool is_active = 1;
 }
 
 // QueryReplacementsRequest is the request type for the Query/Replacements RPC method.
