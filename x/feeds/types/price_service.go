@@ -1,10 +1,5 @@
 package types
 
-import (
-	"fmt"
-	"net/url"
-)
-
 // NewPriceService creates a new price service instance
 func NewPriceService(hash string, version string, url string) PriceService {
 	return PriceService{
@@ -37,14 +32,4 @@ func (ps *PriceService) Validate() error {
 	}
 
 	return nil
-}
-
-func validateURL(name string) func(string) error {
-	return func(u string) error {
-		_, err := url.ParseRequestURI(u)
-		if err != nil {
-			return fmt.Errorf("%s has invalid URL format", name)
-		}
-		return nil
-	}
 }

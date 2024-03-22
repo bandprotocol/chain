@@ -26,10 +26,10 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
 		GetQueryCmdPriceValidator(),
-		GetQueryCmdSymbols(),
+		GetQueryCmdFeeds(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
-		GetQueryCmdSupportedSymbols(),
+		GetQueryCmdSupportedFeeds(),
 	)
 
 	return queryCmd
@@ -64,7 +64,7 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 func GetQueryCmdPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "prices",
-		Short: "shows the latest price of all symbols",
+		Short: "shows the latest price of all signal ids",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -92,15 +92,15 @@ func GetQueryCmdPrices() *cobra.Command {
 
 func GetQueryCmdPrice() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price [symbol]",
-		Short: "shows the latest price of a symbol",
+		Use:   "price [signal_id]",
+		Short: "shows the latest price of a signal id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
-				Symbol: args[0],
+				SignalId: args[0],
 			})
 			if err != nil {
 				return err
@@ -115,16 +115,16 @@ func GetQueryCmdPrice() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdSupportedSymbols() *cobra.Command {
+func GetQueryCmdSupportedFeeds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "supported-symbols",
-		Short: "shows all currently supported symbols",
+		Use:   "supported-feeds",
+		Short: "shows all currently supported feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbolsRequest{})
+			res, err := queryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
 			if err != nil {
 				return err
 			}
@@ -165,15 +165,15 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 
 func GetQueryCmdPriceValidator() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-validator [symbol] [validator]",
-		Short: "shows the price of validator of the symbol",
+		Use:   "price-validator [signal_id] [validator]",
+		Short: "shows the price of validator of the signal id",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.PriceValidator(context.Background(), &types.QueryPriceValidatorRequest{
-				Symbol:    args[0],
+				SignalId:  args[0],
 				Validator: args[1],
 			})
 			if err != nil {
@@ -189,10 +189,10 @@ func GetQueryCmdPriceValidator() *cobra.Command {
 	return cmd
 }
 
-func GetQueryCmdSymbols() *cobra.Command {
+func GetQueryCmdFeeds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "symbols",
-		Short: "shows all information of supported symbols",
+		Use:   "feeds",
+		Short: "shows all information of all feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -203,7 +203,7 @@ func GetQueryCmdSymbols() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Symbols(context.Background(), &types.QuerySymbolsRequest{Pagination: pageReq})
+			res, err := queryClient.Feeds(context.Background(), &types.QueryFeedsRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -212,7 +212,7 @@ func GetQueryCmdSymbols() *cobra.Command {
 		},
 	}
 
-	flags.AddPaginationFlagsToCmd(cmd, "symbols")
+	flags.AddPaginationFlagsToCmd(cmd, "feeds")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd

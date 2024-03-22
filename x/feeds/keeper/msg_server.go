@@ -23,10 +23,10 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-func (ms msgServer) SignalSymbols(
+func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
-	req *types.MsgSignalSymbols,
-) (*types.MsgSignalSymbolsResponse, error) {
+	req *types.MsgSubmitSignals,
+) (*types.MsgSubmitSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
@@ -40,21 +40,21 @@ func (ms msgServer) SignalSymbols(
 		return nil, err
 	}
 
-	// delete previous signal, decrease symbol power by the previous signals
-	symbolToIntervalDiff := make(map[string]int64)
-	symbolToIntervalDiff, err = ms.RemoveDelegatorPreviousSignals(ctx, delegator, symbolToIntervalDiff)
+	// delete previous signal, decrease feed power by the previous signals
+	signalIDToIntervalDiff := make(map[string]int64)
+	signalIDToIntervalDiff, err = ms.RemoveDelegatorPreviousSignals(ctx, delegator, signalIDToIntervalDiff)
 	if err != nil {
 		return nil, err
 	}
 
-	// increase symbol power by the new signals
-	symbolToIntervalDiff, err = ms.RegisterDelegatorSignals(ctx, delegator, req.Signals, symbolToIntervalDiff)
+	// increase feed power by the new signals
+	signalIDToIntervalDiff, err = ms.RegisterDelegatorSignals(ctx, delegator, req.Signals, signalIDToIntervalDiff)
 	if err != nil {
 		return nil, err
 	}
 
-	// update interval timestamp for interval-changed symbols
-	err = ms.UpdateSymbolIntervalTimestamp(ctx, symbolToIntervalDiff)
+	// update interval timestamp for interval-changed singal ids
+	err = ms.UpdateFeedIntervalTimestamp(ctx, signalIDToIntervalDiff)
 	if err != nil {
 		return nil, err
 	}
@@ -63,16 +63,16 @@ func (ms msgServer) SignalSymbols(
 	for _, signal := range req.Signals {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeSignalSymbols,
+				types.EventTypeSubmitSignals,
 				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
-				sdk.NewAttribute(types.AttributeKeySymbol, signal.Symbol),
+				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
 				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
 				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
 			),
 		)
 	}
 
-	return &types.MsgSignalSymbolsResponse{}, nil
+	return &types.MsgSubmitSignalsResponse{}, nil
 }
 
 func (ms msgServer) SubmitPrices(
@@ -109,7 +109,7 @@ func (ms msgServer) SubmitPrices(
 		priceVal = types.PriceValidator{
 			PriceOption: price.PriceOption,
 			Validator:   req.Validator,
-			Symbol:      price.Symbol,
+			SignalID:    price.SignalID,
 			Price:       price.Price,
 			Timestamp:   blockTime,
 		}
@@ -121,7 +121,7 @@ func (ms msgServer) SubmitPrices(
 				types.EventTypeSubmitPrice,
 				sdk.NewAttribute(types.AttributeKeyPriceOption, priceVal.PriceOption.String()),
 				sdk.NewAttribute(types.AttributeKeyValidator, priceVal.Validator),
-				sdk.NewAttribute(types.AttributeKeySymbol, priceVal.Symbol),
+				sdk.NewAttribute(types.AttributeKeySignalID, priceVal.SignalID),
 				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", priceVal.Price)),
 				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", priceVal.Timestamp)),
 			),

@@ -39,16 +39,16 @@ func (k Keeper) NewPriceValidator(
 	val sdk.ValAddress,
 	transitionTime int64,
 ) (types.PriceValidator, error) {
-	s, err := k.GetSymbol(ctx, price.Symbol)
+	s, err := k.GetFeed(ctx, price.SignalID)
 	if err != nil {
 		return types.PriceValidator{}, err
 	}
 
-	priceVal, err := k.GetPriceValidator(ctx, price.Symbol, val)
+	priceVal, err := k.GetPriceValidator(ctx, price.SignalID, val)
 	if err == nil && blockTime < priceVal.Timestamp+s.Interval-transitionTime {
 		return types.PriceValidator{}, types.ErrPriceTooFast.Wrapf(
-			"symbol: %s, old: %d, new: %d, interval: %d",
-			price.Symbol,
+			"signal_id: %s, old: %d, new: %d, interval: %d",
+			price.SignalID,
 			priceVal.Timestamp,
 			blockTime,
 			s.Interval,
@@ -57,7 +57,7 @@ func (k Keeper) NewPriceValidator(
 
 	return types.PriceValidator{
 		Validator: val.String(),
-		Symbol:    price.Symbol,
+		SignalID:  price.SignalID,
 		Price:     price.Price,
 		Timestamp: blockTime,
 	}, nil

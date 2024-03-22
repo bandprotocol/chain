@@ -1,19 +1,17 @@
 package types
 
 import (
-	"fmt"
-
 	"gopkg.in/yaml.v2"
 )
 
 const (
 	// Default values for Params
-	DefaultAllowDiffTime       = int64(30)
-	DefaultTransitionTime      = int64(30)
-	DefaultMinInterval         = int64(60)
-	DefaultMaxInterval         = int64(3600)
-	DefaultPowerThreshold      = int64(1_000_000_000)
-	DefaultMaxSupportedSymbols = int64(100)
+	DefaultAllowDiffTime     = int64(30)
+	DefaultTransitionTime    = int64(30)
+	DefaultMinInterval       = int64(60)
+	DefaultMaxInterval       = int64(3600)
+	DefaultPowerThreshold    = int64(1_000_000_000)
+	DefaultMaxSupportedFeeds = int64(100)
 )
 
 // NewParams creates a new Params instance
@@ -24,16 +22,16 @@ func NewParams(
 	minInterval int64,
 	maxInterval int64,
 	powerThreshold int64,
-	maxSupportedSymbols int64,
+	maxSupportedFeeds int64,
 ) Params {
 	return Params{
-		Admin:               admin,
-		AllowDiffTime:       allowDiffTime,
-		TransitionTime:      transitionTime,
-		MinInterval:         minInterval,
-		MaxInterval:         maxInterval,
-		PowerThreshold:      powerThreshold,
-		MaxSupportedSymbols: maxSupportedSymbols,
+		Admin:             admin,
+		AllowDiffTime:     allowDiffTime,
+		TransitionTime:    transitionTime,
+		MinInterval:       minInterval,
+		MaxInterval:       maxInterval,
+		PowerThreshold:    powerThreshold,
+		MaxSupportedFeeds: maxSupportedFeeds,
 	}
 }
 
@@ -46,7 +44,7 @@ func DefaultParams() Params {
 		DefaultMinInterval,
 		DefaultMaxInterval,
 		DefaultPowerThreshold,
-		DefaultMaxSupportedSymbols,
+		DefaultMaxSupportedFeeds,
 	)
 }
 
@@ -70,7 +68,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("power threshold", true)(p.PowerThreshold); err != nil {
 		return err
 	}
-	if err := validateInt64("max supported symbols", true)(p.MaxSupportedSymbols); err != nil {
+	if err := validateInt64("max supported feeds", true)(p.MaxSupportedFeeds); err != nil {
 		return err
 	}
 
@@ -81,17 +79,4 @@ func (p Params) Validate() error {
 func (p Params) String() string {
 	out, _ := yaml.Marshal(p)
 	return string(out)
-}
-
-func validateString(name string, allowEmpty bool) func(interface{}) error {
-	return func(i interface{}) error {
-		s, ok := i.(string)
-		if !ok {
-			return fmt.Errorf("invalid parameter type: %T", i)
-		}
-		if s == "" && !allowEmpty {
-			return fmt.Errorf("%s cannot be empty", name)
-		}
-		return nil
-	}
 }

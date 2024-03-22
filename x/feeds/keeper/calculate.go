@@ -1,6 +1,8 @@
 package keeper
 
-import "github.com/bandprotocol/chain/v2/x/feeds/types"
+import (
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
+)
 
 func calculateInterval(power int64, param types.Params) int64 {
 	if power < param.PowerThreshold {
