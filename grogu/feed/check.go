@@ -1,4 +1,4 @@
-package symbol
+package feed
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
+func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 	clientCtx := client.Context{
 		Client:            c.Client,
 		Codec:             grogucontext.Cdc,
@@ -41,12 +41,12 @@ func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 	}
 	params := paramsResponse.Params
 
-	symbolsResponse, err := queryClient.SupportedSymbols(context.Background(), &types.QuerySupportedSymbolsRequest{})
+	feedsResponse, err := queryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
 	if err != nil {
 		return
 	}
 
-	symbols := symbolsResponse.Symbols
+	feeds := feedsResponse.Feeds
 
 	validatorPricesResponse, err := queryClient.ValidatorPrices(
 		context.Background(),
@@ -59,49 +59,49 @@ func checkSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
 	}
 
 	validatorPrices := validatorPricesResponse.ValidatorPrices
-	symbolTimestampMap := convertToSymbolTimestampMap(validatorPrices)
+	signalIDTimestampMap := convertToSignalIDTimestampMap(validatorPrices)
 
-	requestedSymbols := make(map[string]time.Time)
+	requestedSignalIDs := make(map[string]time.Time)
 	now := time.Now()
 
-	for _, symbol := range symbols {
-		if _, inProgress := c.InProgressSymbols.Load(symbol.GetSymbol()); inProgress {
+	for _, feed := range feeds {
+		if _, inProgress := c.InProgressSignalIDs.Load(feed.SignalID); inProgress {
 			continue
 		}
 
-		timestamp, ok := symbolTimestampMap[symbol.GetSymbol()]
+		timestamp, ok := signalIDTimestampMap[feed.SignalID]
 		// add 2 to prevent too fast cases
 		if !ok ||
 			time.Unix(timestamp+2, 0).
-				Add(time.Duration(symbol.Interval)*time.Second).
+				Add(time.Duration(feed.Interval)*time.Second).
 				Add(-time.Duration(params.TransitionTime)*time.Second).
 				Before(now) {
-			requestedSymbols[symbol.Symbol] = time.Unix(timestamp, 0).
-				Add(time.Duration(symbol.Interval) * time.Second).
+			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
+				Add(time.Duration(feed.Interval) * time.Second).
 				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
-			c.InProgressSymbols.Store(symbol.GetSymbol(), time.Now())
+			c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
 		}
 	}
-	if len(requestedSymbols) != 0 {
-		l.Info("found symbols to send: %v", maps.Keys(requestedSymbols))
-		c.PendingSymbols <- requestedSymbols
+	if len(requestedSignalIDs) != 0 {
+		l.Info("found signal ids to send: %v", maps.Keys(requestedSignalIDs))
+		c.PendingSignalIDs <- requestedSignalIDs
 	}
 }
 
-// convertToSymbolTimestampMap converts an array of PriceValidator to a map of symbol to timestamp.
-func convertToSymbolTimestampMap(data []types.PriceValidator) map[string]int64 {
-	symbolTimestampMap := make(map[string]int64)
+// convertToSignalIDTimestampMap converts an array of PriceValidator to a map of signal id to timestamp.
+func convertToSignalIDTimestampMap(data []types.PriceValidator) map[string]int64 {
+	signalIDTimestampMap := make(map[string]int64)
 
 	for _, entry := range data {
-		symbolTimestampMap[entry.Symbol] = entry.Timestamp
+		signalIDTimestampMap[entry.SignalID] = entry.Timestamp
 	}
 
-	return symbolTimestampMap
+	return signalIDTimestampMap
 }
 
-func StartCheckSymbols(c *grogucontext.Context, l *grogucontext.Logger) {
+func StartCheckFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
-		checkSymbols(c, l)
+		checkFeeds(c, l)
 		time.Sleep(time.Second)
 	}
 }

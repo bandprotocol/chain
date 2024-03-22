@@ -1,4 +1,4 @@
-package symbol
+package feed
 
 import (
 	"fmt"
@@ -46,7 +46,7 @@ GetAllPrices:
 
 	defer func() {
 		for _, price := range prices {
-			c.InProgressSymbols.Delete(price.Symbol)
+			c.InProgressSignalIDs.Delete(price.SignalID)
 		}
 	}()
 

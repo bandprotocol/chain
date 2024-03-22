@@ -1,4 +1,4 @@
-package symbol
+package feed
 
 import (
 	"math"
@@ -13,29 +13,29 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func StartQuerySymbols(c *grogucontext.Context, l *grogucontext.Logger) {
+func StartQuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
-		QuerySymbols(c, l)
+		QuerySignalIDs(c, l)
 	}
 }
 
-func QuerySymbols(c *grogucontext.Context, l *grogucontext.Logger) {
-	symbolsWithTimeLimit := <-c.PendingSymbols
+func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger) {
+	signalIDsWithTimeLimit := <-c.PendingSignalIDs
 
-GetAllSymbols:
+GetAllSignalIDs:
 	for {
 		select {
-		case nextSymbols := <-c.PendingSymbols:
-			maps.Copy(symbolsWithTimeLimit, nextSymbols)
+		case nextSignalIDs := <-c.PendingSignalIDs:
+			maps.Copy(signalIDsWithTimeLimit, nextSignalIDs)
 		default:
-			break GetAllSymbols
+			break GetAllSignalIDs
 		}
 	}
 
-	symbols := maps.Keys(symbolsWithTimeLimit)
+	signalIDs := maps.Keys(signalIDsWithTimeLimit)
 
-	l.Info("Try to get prices for symbols: %+v", symbols)
-	prices, err := c.PriceService.Query(symbols)
+	l.Info("Try to get prices for signal ids: %+v", signalIDs)
+	prices, err := c.PriceService.Query(signalIDs)
 	if err != nil {
 		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
 	}
@@ -48,7 +48,7 @@ GetAllSymbols:
 		case bothanproto.PriceOption_PRICE_OPTION_UNSUPPORTED:
 			submitPrices = append(submitPrices, types.SubmitPrice{
 				PriceOption: types.PriceOptionUnsupported,
-				Symbol:      priceData.SignalId,
+				SignalID:    priceData.SignalId,
 				Price:       0,
 			})
 			continue
@@ -56,51 +56,51 @@ GetAllSymbols:
 		case bothanproto.PriceOption_PRICE_OPTION_AVAILABLE:
 			price, err := strconv.ParseFloat(strings.TrimSpace(priceData.Price), 64)
 			if err != nil || price > float64(maxSafePrice) || price < 0 {
-				l.Error(":exploding_head: Failed to parse price from symbol:", c, priceData.SignalId, err)
+				l.Error(":exploding_head: Failed to parse price from singal id:", c, priceData.SignalId, err)
 				priceData.PriceOption = bothanproto.PriceOption_PRICE_OPTION_UNAVAILABLE
 				priceData.Price = ""
 			} else {
 				submitPrices = append(submitPrices, types.SubmitPrice{
 					PriceOption: types.PriceOptionAvailable,
-					Symbol:      priceData.SignalId,
+					SignalID:    priceData.SignalId,
 					Price:       uint64(price * math.Pow10(9)),
 				})
 				continue
 			}
 		}
 
-		if symbolsWithTimeLimit[priceData.SignalId].Before(now) {
+		if signalIDsWithTimeLimit[priceData.SignalId].Before(now) {
 			submitPrices = append(submitPrices, types.SubmitPrice{
 				PriceOption: types.PriceOptionUnavailable,
-				Symbol:      priceData.SignalId,
+				SignalID:    priceData.SignalId,
 				Price:       0,
 			})
 		}
 	}
 
-	// delete symbol from in progress map if its price is not found
-	symbolPriceMap := convertToSymbolPriceMap(submitPrices)
-	for _, symbol := range symbols {
-		if _, found := symbolPriceMap[symbol]; !found {
-			c.InProgressSymbols.Delete(symbol)
+	// delete signal id from in progress map if its price is not found
+	signalIDPriceMap := convertToSignalIDPriceMap(submitPrices)
+	for _, signalID := range signalIDs {
+		if _, found := signalIDPriceMap[signalID]; !found {
+			c.InProgressSignalIDs.Delete(signalID)
 		}
 	}
 
 	if len(submitPrices) == 0 {
-		l.Debug(":exploding_head: query symbol got no prices with symbols: %+v", symbols)
+		l.Debug(":exploding_head: query signal got no prices with signal ids: %+v", signalIDs)
 		return
 	}
-	l.Info("got prices for symbols: %+v", maps.Keys(symbolPriceMap))
+	l.Info("got prices for signal ids: %+v", maps.Keys(signalIDPriceMap))
 	c.PendingPrices <- submitPrices
 }
 
-// convertToSymbolPriceMap converts an array of SubmitPrice to a map of symbol to price.
-func convertToSymbolPriceMap(data []types.SubmitPrice) map[string]uint64 {
-	symbolPriceMap := make(map[string]uint64)
+// convertToSignalIDPriceMap converts an array of SubmitPrice to a map of signal id to price.
+func convertToSignalIDPriceMap(data []types.SubmitPrice) map[string]uint64 {
+	signalIDPriceMap := make(map[string]uint64)
 
 	for _, entry := range data {
-		symbolPriceMap[entry.Symbol] = entry.Price
+		signalIDPriceMap[entry.SignalID] = entry.Price
 	}
 
-	return symbolPriceMap
+	return signalIDPriceMap
 }

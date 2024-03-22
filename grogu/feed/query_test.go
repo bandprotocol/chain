@@ -1,4 +1,4 @@
-package symbol_test
+package feed_test
 
 import (
 	"math"
@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
-	"github.com/bandprotocol/chain/v2/grogu/symbol"
+	"github.com/bandprotocol/chain/v2/grogu/feed"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -27,9 +27,9 @@ var mockData = map[string]*bothanproto.PriceData{
 type MockPriceService struct{}
 
 // Query is a mock implementation of the Query method in the PriceService interface.
-func (mps *MockPriceService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
+func (mps *MockPriceService) Query(signalIDs []string) ([]*bothanproto.PriceData, error) {
 	var priceData []*bothanproto.PriceData
-	for _, id := range signalIds {
+	for _, id := range signalIDs {
 		data, ok := mockData[id]
 		if ok {
 			priceData = append(priceData, data)
@@ -44,34 +44,34 @@ func (mps *MockPriceService) Query(signalIds []string) ([]*bothanproto.PriceData
 	return priceData, nil
 }
 
-func TestQuerySymbols(t *testing.T) {
+func TestQuerySignalIDs(t *testing.T) {
 	// Create a mock context and logger for testing.
 	mockContext := grogucontext.Context{}
 	mockLogger := grogucontext.NewLogger(log.AllowAll())
 
-	// Mock the pending symbols channel.
-	mockContext.PendingSymbols = make(chan map[string]time.Time, 10)
+	// Mock the pending signalIDs channel.
+	mockContext.PendingSignalIDs = make(chan map[string]time.Time, 10)
 	mockContext.PendingPrices = make(chan []types.SubmitPrice, 10)
 
 	// Test cases: price available and price not supported
-	symbolsWithTimeLimit := make(map[string]time.Time)
-	mockContext.InProgressSymbols = &sync.Map{}
+	signalIDsWithTimeLimit := make(map[string]time.Time)
+	mockContext.InProgressSignalIDs = &sync.Map{}
 
-	symbolsWithTimeLimit["BTC"] = time.Now().
+	signalIDsWithTimeLimit["BTC"] = time.Now().
 		Add(time.Minute)
-	mockContext.InProgressSymbols.Load("BTC")
+	mockContext.InProgressSignalIDs.Load("BTC")
 
-	symbolsWithTimeLimit["DOGE"] = time.Now().
+	signalIDsWithTimeLimit["DOGE"] = time.Now().
 		Add(time.Minute)
-	mockContext.InProgressSymbols.Load("DOGE")
+	mockContext.InProgressSignalIDs.Load("DOGE")
 
-	mockContext.PendingSymbols <- symbolsWithTimeLimit
+	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Set up a mock price service.
 	mockContext.PriceService = &MockPriceService{}
 
 	// Call the function being tested.
-	symbol.QuerySymbols(&mockContext, mockLogger)
+	feed.QuerySignalIDs(&mockContext, mockLogger)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -94,20 +94,20 @@ func TestQuerySymbols(t *testing.T) {
 	}
 
 	// Test cases: price out of range, price unavailable with time limit not reached
-	mockContext.InProgressSymbols.Delete("BTC")
-	mockContext.InProgressSymbols.Delete("DOGE")
+	mockContext.InProgressSignalIDs.Delete("BTC")
+	mockContext.InProgressSignalIDs.Delete("DOGE")
 
-	symbolsWithTimeLimit = make(map[string]time.Time)
-	symbolsWithTimeLimit["ETH"] = time.Now().
+	signalIDsWithTimeLimit = make(map[string]time.Time)
+	signalIDsWithTimeLimit["ETH"] = time.Now().
 		Add(time.Minute)
-	mockContext.InProgressSymbols.Load("ETH")
-	symbolsWithTimeLimit["BAND"] = time.Now().
+	mockContext.InProgressSignalIDs.Load("ETH")
+	signalIDsWithTimeLimit["BAND"] = time.Now().
 		Add(time.Minute)
-	mockContext.InProgressSymbols.Load("BAND")
-	mockContext.PendingSymbols <- symbolsWithTimeLimit
+	mockContext.InProgressSignalIDs.Load("BAND")
+	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	symbol.QuerySymbols(&mockContext, mockLogger)
+	feed.QuerySignalIDs(&mockContext, mockLogger)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -117,17 +117,17 @@ func TestQuerySymbols(t *testing.T) {
 	}
 
 	// Test cases: price out of range, price unavailable with time limit reached
-	symbolsWithTimeLimit = make(map[string]time.Time)
-	symbolsWithTimeLimit["ETH"] = time.Now().
+	signalIDsWithTimeLimit = make(map[string]time.Time)
+	signalIDsWithTimeLimit["ETH"] = time.Now().
 		Add(-time.Minute)
-	mockContext.InProgressSymbols.Load("ETH")
-	symbolsWithTimeLimit["BAND"] = time.Now().
+	mockContext.InProgressSignalIDs.Load("ETH")
+	signalIDsWithTimeLimit["BAND"] = time.Now().
 		Add(-time.Minute)
-	mockContext.InProgressSymbols.Load("BAND")
-	mockContext.PendingSymbols <- symbolsWithTimeLimit
+	mockContext.InProgressSignalIDs.Load("BAND")
+	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	symbol.QuerySymbols(&mockContext, mockLogger)
+	feed.QuerySignalIDs(&mockContext, mockLogger)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -147,10 +147,10 @@ func TestQuerySymbols(t *testing.T) {
 	}
 }
 
-// getPrice retrieves the price data for a specific symbol from the submit prices array.
-func getPrice(submitPrices []types.SubmitPrice, symbol string) types.SubmitPrice {
+// getPrice retrieves the price data for a specific signalID from the submit prices array.
+func getPrice(submitPrices []types.SubmitPrice, signalID string) types.SubmitPrice {
 	for _, price := range submitPrices {
-		if price.Symbol == symbol {
+		if price.SignalID == signalID {
 			return price
 		}
 	}

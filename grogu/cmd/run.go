@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/viper"
 
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
+	"github.com/bandprotocol/chain/v2/grogu/feed"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
-	"github.com/bandprotocol/chain/v2/grogu/symbol"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -40,13 +40,13 @@ func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
 	}
 
 	l.Info(":rocket: Starting Prices submitter")
-	go symbol.StartSubmitPrices(c, l)
+	go feed.StartSubmitPrices(c, l)
 
 	l.Info(":rocket: Starting Prices querier")
-	go symbol.StartQuerySymbols(c, l)
+	go feed.StartQuerySignalIDs(c, l)
 
-	l.Info(":rocket: Starting Symbol checker")
-	symbol.StartCheckSymbols(c, l)
+	l.Info(":rocket: Starting Feed checker")
+	feed.StartCheckFeeds(c, l)
 
 	return nil
 }
@@ -104,8 +104,8 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 				return err
 			}
 			c.FreeKeys = make(chan int64, len(keys))
-			c.InProgressSymbols = &sync.Map{}
-			c.PendingSymbols = make(chan map[string]time.Time, 100)
+			c.InProgressSignalIDs = &sync.Map{}
+			c.PendingSignalIDs = make(chan map[string]time.Time, 100)
 			c.PendingPrices = make(chan []types.SubmitPrice, 30)
 			return runImpl(c, l)
 		},
