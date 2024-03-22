@@ -97,8 +97,13 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 	}
 
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
-	if groupModule != types.ModuleName {
+	// unlikely to get an error from GetGroup but log the error just in case.
+	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting groupID %v: %v", signing.GroupID, err))
+		return
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 
@@ -106,7 +111,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 	address := sdk.MustAccAddressFromBech32(signing.Requester)
 	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 
-	err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+	err = h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
 	// unlikely to get an error, but log the error just in case
 	if err != nil {
 		h.k.Logger(ctx).Error(fmt.Sprintf("Failed to refund fee to address %s: %v", signing.Requester, err))
@@ -115,8 +120,13 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 
 func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
-	if groupModule != types.ModuleName {
+	// unlikely to get an error from GetGroup but log the error just in case.
+	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting groupID %v: %v", signing.GroupID, err))
+		return
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 
@@ -131,8 +141,13 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 
 func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
-	if groupModule != types.ModuleName {
+	// unlikely to get an error from GetGroup but log the error just in case.
+	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting groupID %v: %v", signing.GroupID, err))
+		return
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 
@@ -149,8 +164,11 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 
 func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, signing.GroupID)
-	if groupModule != types.ModuleName {
+	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
+	if err != nil {
+		return err
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return nil
 	}
 
