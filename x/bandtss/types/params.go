@@ -18,9 +18,7 @@ const (
 	DefaultRewardPercentage = uint64(50)
 )
 
-var (
-	DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-)
+var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
 // NewParams creates a new Params instance
 func NewParams(

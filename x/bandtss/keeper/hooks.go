@@ -35,7 +35,7 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 	}
 
 	h.k.SetCurrentGroupID(ctx, group.ID)
-	h.k.SetActiveStatuses(ctx, addresses)
+	h.k.SetUserStatuses(ctx, addresses)
 }
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
@@ -76,10 +76,9 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 		addresses = append(addresses, addr)
 	}
 
-	h.k.SetActiveStatuses(ctx, addresses)
 	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
 	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
-
+	h.k.SetUserStatuses(ctx, addresses)
 }
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {

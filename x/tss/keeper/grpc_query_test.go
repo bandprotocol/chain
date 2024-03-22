@@ -148,7 +148,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.AddConfirm(ctx, groupID, confirm2)
 
 	bandtssKeeper.SetCurrentGroupID(ctx, groupID)
-	bandtssKeeper.SetActiveStatuses(ctx, addresses)
+	err = bandtssKeeper.SetActiveStatuses(ctx, addresses)
+	s.Require().NoError(err)
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
