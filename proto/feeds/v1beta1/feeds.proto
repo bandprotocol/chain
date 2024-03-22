@@ -3,6 +3,7 @@ package feeds.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
 // Signal contains signal id and power of that signal.
@@ -16,10 +17,13 @@ message Signal {
   uint64 power = 2;
 }
 
-// Signal contains array of signal
-message Signals {
+// DelegatorSignals contains array of signals of a delegator.
+message DelegatorSignals {
+  // The address of the delegator of this signals.
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
   // Signals is a list of signals submit by the delegator.
-  repeated Signal signals = 1 [(gogoproto.nullable) = false];
+  repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
 // Feed defines a standard unit of exchange for a commodity.

@@ -17,4 +17,6 @@ message GenesisState {
 
   // PriceService defines information about price service.
   PriceService price_service = 3 [(gogoproto.nullable) = false];
+
+  repeated DelegatorSignals delegator_signals = 4 [(gogoproto.nullable) = false];
 }

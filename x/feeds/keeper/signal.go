@@ -61,7 +61,7 @@ func (k Keeper) RegisterDelegatorSignals(
 	signals []types.Signal,
 	signalIDToIntervalDiff map[string]int64,
 ) (map[string]int64, error) {
-	k.SetDelegatorSignals(ctx, delegator, types.Signals{Signals: signals})
+	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
 	for _, signal := range signals {
 		feed, err := k.GetFeed(ctx, signal.ID)
 		if err != nil {
