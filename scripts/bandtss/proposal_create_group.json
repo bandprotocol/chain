@@ -8,12 +8,6 @@
         "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek"
       ],
       "threshold": "2",
-      "fee": [
-        {
-          "denom": "uband",
-          "amount": "50"
-        }
-      ],
       "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
     }
   ],
