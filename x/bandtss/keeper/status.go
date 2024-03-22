@@ -8,6 +8,24 @@ import (
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
+func (k Keeper) SetUserStatuses(ctx sdk.Context, addresses []sdk.AccAddress) {
+	isActives := make([]bool, 0, len(addresses))
+
+	for _, addr := range addresses {
+		status := k.GetStatus(ctx, addr)
+		if status.Status == types.MEMBER_STATUS_UNSPECIFIED || status.Status == types.MEMBER_STATUS_ACTIVE {
+			status.Status = types.MEMBER_STATUS_ACTIVE
+			status.Since = ctx.BlockTime()
+			status.LastActive = status.Since
+			k.SetStatus(ctx, status)
+		}
+
+		isActives = append(isActives, status.Status == types.MEMBER_STATUS_ACTIVE)
+	}
+
+	k.tssKeeper.UpdateExistingMembersActiveness(ctx, k.GetCurrentGroupID(ctx), addresses, isActives)
+}
+
 // SetActiveStatuses sets the member status to active
 func (k Keeper) SetActiveStatuses(ctx sdk.Context, addresses []sdk.AccAddress) error {
 	statuses := make([]types.Status, 0, len(addresses))
@@ -44,7 +62,7 @@ func (k Keeper) SetActiveStatuses(ctx sdk.Context, addresses []sdk.AccAddress) e
 		k.SetStatus(ctx, status)
 	}
 
-	k.tssKeeper.SetActiveMembers(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
+	k.tssKeeper.UpdateExistingMembersActiveness(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
 
 	return nil
 }
@@ -88,7 +106,7 @@ func (k Keeper) SetInactiveStatuses(ctx sdk.Context, addresses []sdk.AccAddress)
 		k.SetStatus(ctx, status)
 	}
 
-	k.tssKeeper.SetActiveMembers(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
+	k.tssKeeper.UpdateExistingMembersActiveness(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
 
 	for _, addr := range updatedAddress {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -123,7 +141,7 @@ func (k Keeper) SetJailStatuses(ctx sdk.Context, addresses []sdk.AccAddress) {
 		k.SetStatus(ctx, status)
 	}
 
-	k.tssKeeper.SetActiveMembers(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
+	k.tssKeeper.UpdateExistingMembersActiveness(ctx, k.GetCurrentGroupID(ctx), updatedAddress, isActives)
 
 	for _, addr := range updatedAddress {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(

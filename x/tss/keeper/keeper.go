@@ -314,8 +314,13 @@ func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]typ
 	return filteredMembers, nil
 }
 
-// SetActiveMembers sets a boolean flag represent activeness of members.
-func (k Keeper) SetActiveMembers(ctx sdk.Context, groupID tss.GroupID, addresses []sdk.AccAddress, isActives []bool) error {
+// UpdateExistingMembersActiveness updates an activeness of members. If member does not exists, skip him.
+func (k Keeper) UpdateExistingMembersActiveness(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	addresses []sdk.AccAddress,
+	isActives []bool,
+) {
 	mapping := make(map[string]bool)
 	for i, addr := range addresses {
 		mapping[addr.String()] = isActives[i]
@@ -323,16 +328,11 @@ func (k Keeper) SetActiveMembers(ctx sdk.Context, groupID tss.GroupID, addresses
 
 	members := k.MustGetMembers(ctx, groupID)
 	for _, m := range members {
-		isActive, ok := mapping[m.Address]
-		if !ok {
-			return types.ErrMemberNotFound.Wrapf("failed to get members with groupID: %d", groupID)
+		if isActive, ok := mapping[m.Address]; ok {
+			m.IsActive = isActive
+			k.SetMember(ctx, m)
 		}
-
-		m.IsActive = isActive
-		k.SetMember(ctx, m)
 	}
-
-	return nil
 }
 
 // SetLastExpiredGroupID sets the last expired group ID in the store.

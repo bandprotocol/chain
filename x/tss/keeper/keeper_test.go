@@ -398,8 +398,7 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 		s.Require().True(member.IsActive)
 	}
 
-	// check when being set to false
-	k.SetActiveMembers(ctx, groupID, []sdk.AccAddress{address}, []bool{false})
+	k.UpdateExistingMembersActiveness(ctx, groupID, []sdk.AccAddress{address}, []bool{false})
 
 	members, err = k.GetGroupMembers(ctx, groupID)
 	s.Require().NoError(err)
