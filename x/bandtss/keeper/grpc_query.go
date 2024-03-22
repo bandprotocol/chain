@@ -79,9 +79,7 @@ func (q queryServer) CurrentGroup(
 ) (*types.QueryCurrentGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Get currentGroupID
 	groupID := q.k.GetCurrentGroupID(ctx)
-
 	return &types.QueryCurrentGroupResponse{
 		GroupID: uint64(groupID),
 	}, nil
@@ -93,10 +91,17 @@ func (q queryServer) ReplacingGroup(
 ) (*types.QueryReplacingGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Get replacingGroupID
 	groupID := q.k.GetReplacingGroupID(ctx)
-
 	return &types.QueryReplacingGroupResponse{
 		GroupID: uint64(groupID),
+	}, nil
+}
+
+// Params return parameters of globalfee module
+func (q queryServer) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(stdCtx)
+
+	return &types.QueryParamsResponse{
+		Params: q.k.GetParams(ctx),
 	}, nil
 }
