@@ -5,11 +5,17 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "bandtss/v1beta1/bandtss.proto";
+import "bandtss/v1beta1/genesis.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 
 // Query defines the gRPC querier service.
 service Query {
+  // Params queries parameters of Bandtss module
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/params";
+  }
+
   // Statuses queries all statuses.
   rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/statuses";
@@ -27,6 +33,15 @@ service Query {
   rpc ReplacingGroup(QueryReplacingGroupRequest) returns (QueryReplacingGroupResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/replacing_group";
   }
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // pagination defines an optional pagination for the request.
+  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryStatusesRequest is the request type for the Query/Statuses RPC method.
@@ -65,10 +80,10 @@ message QueryCurrentGroupResponse {
   uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
 }
 
-// QueryCurrentGroupRequest is the request type for the Query/CurrentGroup RPC method.
+// QueryReplacingGroupRequest is the request type for the Query/ReplacingGroup RPC method.
 message QueryReplacingGroupRequest {}
 
-// QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
+// QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
 message QueryReplacingGroupResponse {
   uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
 }

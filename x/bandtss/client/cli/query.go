@@ -22,6 +22,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdStatus(),
 		GetQueryCmdCurrentGroup(),
 		GetQueryCmdReplacingGroup(),
+		GetQueryCmdParams(),
 	)
 
 	return cmd
@@ -57,7 +58,7 @@ func GetQueryCmdStatus() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdCurrentGroup creates a CLI command for Query/Status.
+// GetQueryCmdCurrentGroup creates a CLI command for querying current group.
 func GetQueryCmdCurrentGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "current-group",
@@ -84,7 +85,7 @@ func GetQueryCmdCurrentGroup() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdReplacingGroup creates a CLI command for Query/Status.
+// GetQueryCmdReplacingGroup creates a CLI command for querying replacing group.
 func GetQueryCmdReplacingGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replacing-group",
@@ -108,5 +109,29 @@ func GetQueryCmdReplacingGroup() *cobra.Command {
 
 	flags.AddQueryFlagsToCmd(cmd)
 
+	return cmd
+}
+
+func GetQueryCmdParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Short: "Show params",
+		Long:  "Show parameter of globalfee module",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
