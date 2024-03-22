@@ -10,24 +10,21 @@ import (
 )
 
 type GRPCService struct {
-	url     string
-	timeout time.Duration
+	connection *grpc.ClientConn
+	timeout    time.Duration
 }
 
-func NewGRPCService(url string, timeout time.Duration) *GRPCService {
-	return &GRPCService{url: url, timeout: timeout}
-}
-
-func (gs *GRPCService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(gs.url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewGRPCService(url string, timeout time.Duration) (*GRPCService, error) {
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	return &GRPCService{connection: conn, timeout: timeout}, nil
+}
 
+func (gs *GRPCService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
 	// Create a client instance using the connection.
-	client := bothanproto.NewQueryClient(conn)
+	client := bothanproto.NewQueryClient(gs.connection)
 	ctx, cancel := context.WithTimeout(context.Background(), gs.timeout)
 	defer cancel()
 

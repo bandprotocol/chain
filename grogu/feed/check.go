@@ -4,27 +4,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"golang.org/x/exp/maps"
 
-	band "github.com/bandprotocol/chain/v2/app"
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
-	clientCtx := client.Context{
-		Client:            c.Client,
-		Codec:             grogucontext.Cdc,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		BroadcastMode:     flags.BroadcastSync,
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
-	}
-
-	queryClient := types.NewQueryClient(clientCtx)
-
-	validValidator, err := queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
+	validValidator, err := c.QueryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: c.Validator.String(),
 	})
 	if err != nil {
@@ -35,20 +22,20 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		return
 	}
 
-	paramsResponse, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+	paramsResponse, err := c.QueryClient.Params(context.Background(), &types.QueryParamsRequest{})
 	if err != nil {
 		return
 	}
 	params := paramsResponse.Params
 
-	feedsResponse, err := queryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
+	feedsResponse, err := c.QueryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
 	if err != nil {
 		return
 	}
 
 	feeds := feedsResponse.Feeds
 
-	validatorPricesResponse, err := queryClient.ValidatorPrices(
+	validatorPricesResponse, err := c.QueryClient.ValidatorPrices(
 		context.Background(),
 		&types.QueryValidatorPricesRequest{
 			Validator: c.Validator.String(),

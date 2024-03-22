@@ -33,7 +33,10 @@ func PriceServiceFromUrl(priceService string) (exec PriceService, err error) {
 	case "rest":
 		exec = NewRestService(base.String(), timeout)
 	case "grpc":
-		exec = NewGRPCService(base.Host, timeout)
+		exec, err = NewGRPCService(base.Host, timeout)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("invalid priceService name: %s, base: %s", name, base)
 	}

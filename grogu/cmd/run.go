@@ -7,11 +7,13 @@ import (
 
 	"github.com/cometbft/cometbft/libs/log"
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	band "github.com/bandprotocol/chain/v2/app"
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/feed"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
@@ -94,6 +96,14 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			clientCtx := client.Context{
+				Client:            c.Client,
+				Codec:             grogucontext.Cdc,
+				TxConfig:          band.MakeEncodingConfig().TxConfig,
+				BroadcastMode:     flags.BroadcastSync,
+				InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+			}
+			c.QueryClient = types.NewQueryClient(clientCtx)
 			c.BroadcastTimeout, err = time.ParseDuration(grogucontext.Cfg.BroadcastTimeout)
 			if err != nil {
 				return err

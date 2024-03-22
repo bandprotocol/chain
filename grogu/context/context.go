@@ -37,6 +37,7 @@ var (
 
 type Context struct {
 	Client           rpcclient.Client
+	QueryClient      types.QueryClient
 	Validator        sdk.ValAddress
 	GasPrices        string
 	Keys             []*keyring.Record
