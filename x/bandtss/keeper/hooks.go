@@ -58,8 +58,13 @@ func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
 
 func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, replacement.CurrentGroupID)
-	if groupModule != types.ModuleName {
+	// unlikely to get an error from GetGroup but log the error just in case.
+	group, err := h.k.tssKeeper.GetGroup(ctx, replacement.CurrentGroupID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting groupID %v: %v", replacement.CurrentGroupID, err))
+		return
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 
@@ -83,8 +88,13 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {
 	// check if this signing is from the bandtss module
-	groupModule := h.k.tssKeeper.GetModuleOwner(ctx, replacement.CurrentGroupID)
-	if groupModule != types.ModuleName {
+	// unlikely to get an error from GetGroup but log the error just in case.
+	group, err := h.k.tssKeeper.GetGroup(ctx, replacement.CurrentGroupID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting groupID %v: %v", replacement.CurrentGroupID, err))
+		return
+	}
+	if group.ModuleOwner != types.ModuleName {
 		return
 	}
 
