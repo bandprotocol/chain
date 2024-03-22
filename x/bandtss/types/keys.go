@@ -20,15 +20,17 @@ var (
 
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
-
 	// ParamsKeyPrefix is a prefix for keys that store bandtss's parameters
 	ParamsKeyPrefix = []byte{0x01}
-
 	// StatusStoreKeyPrefix is the prefix for status store.
 	StatusStoreKeyPrefix = []byte{0x02}
+	// GroupIDStoreKeyPrefix is the prefix for groupID store.
+	GroupIDStoreKeyPrefix = []byte{0x03}
 
-	// GroupIDStoreKeyPrefix is the prefix for groupIS store.
-	GroupIDStoreKeyPrefix = []byte{0x02}
+	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
+	CurrentGroupIDKey = []byte{0x01}
+	// ReplacingGroupIDKey  is the key for storing the replacing group ID under GroupIDStoreKeyPrefix.
+	ReplacingGroupIDKey = []byte{0x02}
 )
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
@@ -36,9 +38,9 @@ func StatusStoreKey(address sdk.AccAddress) []byte {
 }
 
 func CurrentGroupIDStoreKey() []byte {
-	return append(GroupIDStoreKeyPrefix, 0x01)
+	return append(GroupIDStoreKeyPrefix, CurrentGroupIDKey...)
 }
 
 func ReplacingGroupIDStoreKey() []byte {
-	return append(GroupIDStoreKeyPrefix, 0x02)
+	return append(GroupIDStoreKeyPrefix, ReplacingGroupIDKey...)
 }
