@@ -97,7 +97,7 @@ func (q queryServer) ReplacingGroup(
 	}, nil
 }
 
-// Params return parameters of globalfee module
+// Params return parameters of bandtss module
 func (q queryServer) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 

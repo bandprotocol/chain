@@ -116,7 +116,7 @@ func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
 		Short: "Show params",
-		Long:  "Show parameter of globalfee module",
+		Long:  "Show parameter of bandtss module",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
