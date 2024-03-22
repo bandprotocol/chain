@@ -2,6 +2,7 @@ package healthcheck
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/bandprotocol/chain/v2/cylinder"
@@ -43,7 +44,11 @@ func (a *HealthCheck) updateHealthCheck() {
 		return
 	}
 
-	if status.Status != bandtsstypes.MEMBER_STATUS_ACTIVE {
+	if status.Status == bandtsstypes.MEMBER_STATUS_UNSPECIFIED {
+		a.logger.Info(":cold_sweat: User's status not specified; maybe because of no active group")
+		return
+	} else if status.Status != bandtsstypes.MEMBER_STATUS_ACTIVE {
+		a.logger.Error(fmt.Sprintf(":cold_sweat: User's status is not active: %s", status.Status))
 		a.context.ErrCh <- errors.New("the status of the address is not active")
 		return
 	}
