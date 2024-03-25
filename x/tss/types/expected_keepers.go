@@ -58,9 +58,6 @@ type TSSHooks interface {
 	// at end block.
 	AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement)
 
-	// Must be called when a signing request is created.
-	AfterSigningCreated(ctx sdk.Context, signing Signing) error
-
 	// Must be called when a signing request is unsuccessfully signed; no error returned because it
 	// is processed at end block.
 	AfterSigningFailed(ctx sdk.Context, signing Signing)

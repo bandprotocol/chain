@@ -104,7 +104,7 @@ func (k Keeper) ReplaceGroup(
 	}
 
 	msg := append(types.ReplaceGroupMsgPrefix, newGroup.PubKey...)
-	signing, err := k.CreateSigning(ctx, currentGroup, msg, fee, feePayer)
+	signing, err := k.CreateSigning(ctx, currentGroup, msg)
 	if err != nil {
 		return 0, err
 	}

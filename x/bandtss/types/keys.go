@@ -1,6 +1,10 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/tss"
+)
 
 const (
 	// module name
@@ -26,6 +30,8 @@ var (
 	StatusStoreKeyPrefix = []byte{0x02}
 	// GroupIDStoreKeyPrefix is the prefix for groupID store.
 	GroupIDStoreKeyPrefix = []byte{0x03}
+	// SigningFeeStoreKeyPrefix is the prefix for signing fee store.
+	SigningFeeStoreKeyPrefix = []byte{0x04}
 
 	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
 	CurrentGroupIDStoreKey = append(GroupIDStoreKeyPrefix, []byte{0x00}...)
@@ -35,4 +41,8 @@ var (
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
 	return append(StatusStoreKeyPrefix, address...)
+}
+
+func SigningFeeStoreKey(signingID tss.SigningID) []byte {
+	return append(SigningFeeStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }

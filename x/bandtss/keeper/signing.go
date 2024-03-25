@@ -30,13 +30,10 @@ func (k Keeper) HandleCreateSigning(
 		return nil, tsstypes.ErrGroupIsNotActive.Wrap("group status is not active")
 	}
 
-	// charged fee if necessary
-	feePerMember := sdk.NewCoins()
+	// charged fee if necessary; If found any coins that exceed limit then return error
+	totalFee := sdk.NewCoins()
 	if sender.String() != k.authority {
-		feePerMember = k.GetParams(ctx).Fee
-
-		// If found any coins that exceed limit then return error
-		totalFee := feePerMember.MulInt(sdk.NewInt(int64(group.Threshold)))
+		totalFee = k.GetParams(ctx).Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
@@ -50,10 +47,41 @@ func (k Keeper) HandleCreateSigning(
 		}
 	}
 
-	signing, err := k.tssKeeper.CreateSigning(ctx, group, msg, feePerMember, sender)
+	signing, err := k.tssKeeper.CreateSigning(ctx, group, msg)
 	if err != nil {
 		return nil, err
 	}
 
+	// transfer fee to module account.
+	if !totalFee.IsZero() {
+		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// save signingFee
+	k.SetSigningFee(ctx, types.SigningFee{
+		SigningID: signing.ID,
+		Fee:       totalFee,
+		Requester: sender.String(),
+	})
+
 	return signing, nil
+}
+
+func (k Keeper) RefundFee(ctx sdk.Context, signing tsstypes.Signing) error {
+	signingFee, err := k.GetSigningFee(ctx, signing.ID)
+	if err != nil {
+		return err
+	}
+
+	if signingFee.Fee.IsZero() {
+		return nil
+	}
+
+	// Refund fee to requester
+	address := sdk.MustAccAddressFromBech32(signingFee.Requester)
+	feeCoins := signingFee.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
 }

@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
@@ -423,9 +421,6 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 	group := k.MustGetGroup(ctx, groupID)
 
-	// Define the fee payer's address.
-	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
 
@@ -433,7 +428,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	msg, err := k.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
-	signing, err := k.CreateSigning(ctx, group, msg, sdk.NewCoins(), feePayer)
+	signing, err := k.CreateSigning(ctx, group, msg)
 	s.Require().NoError(err)
 
 	s.Require().NoError(err)

@@ -36,3 +36,18 @@ message Status {
   // last_active is a latest block timestamp when a member is active
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
+
+message SigningFee {
+  option (gogoproto.equal) = true;
+
+  // signing_ids is a list of signing IDs.
+  uint64 signingID = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // fee is the total tokens that will be paid for this signing
+  repeated cosmos.base.v1beta1.Coin fee = 2
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // requester is the address of requester who paid for the Bandtss fee.
+  string requester = 3;
+}
