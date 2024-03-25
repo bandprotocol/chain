@@ -117,20 +117,20 @@ func (k Keeper) DeleteStatus(ctx sdk.Context, address sdk.AccAddress) {
 
 // SetCurrentGroupID sets a current groupID of the Bandtss module.
 func (k Keeper) SetCurrentGroupID(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey(), sdk.Uint64ToBigEndian(uint64(groupID)))
+	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
 }
 
 // GetCurrentGroupID retrieves a current groupID of the Bandtss module.
 func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
-	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey())))
+	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey)))
 }
 
 // SetReplacingGroupID sets a replacing groupID of the Bandtss module.
 func (k Keeper) SetReplacingGroupID(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Set(types.ReplacingGroupIDStoreKey(), sdk.Uint64ToBigEndian(uint64(groupID)))
+	ctx.KVStore(k.storeKey).Set(types.ReplacingGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
 }
 
 // GetReplacingGroupID retrieves a replacing groupID of the Bandtss module.
 func (k Keeper) GetReplacingGroupID(ctx sdk.Context) tss.GroupID {
-	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey())))
+	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey)))
 }

@@ -28,19 +28,11 @@ var (
 	GroupIDStoreKeyPrefix = []byte{0x03}
 
 	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
-	CurrentGroupIDKey = []byte{0x01}
+	CurrentGroupIDStoreKey = append(GroupIDStoreKeyPrefix, []byte{0x00}...)
 	// ReplacingGroupIDKey  is the key for storing the replacing group ID under GroupIDStoreKeyPrefix.
-	ReplacingGroupIDKey = []byte{0x02}
+	ReplacingGroupIDStoreKey = append(GroupIDStoreKeyPrefix, []byte{0x01}...)
 )
 
 func StatusStoreKey(address sdk.AccAddress) []byte {
 	return append(StatusStoreKeyPrefix, address...)
-}
-
-func CurrentGroupIDStoreKey() []byte {
-	return append(GroupIDStoreKeyPrefix, CurrentGroupIDKey...)
-}
-
-func ReplacingGroupIDStoreKey() []byte {
-	return append(GroupIDStoreKeyPrefix, ReplacingGroupIDKey...)
 }
