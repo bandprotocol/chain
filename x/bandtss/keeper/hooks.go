@@ -35,7 +35,7 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 	}
 
 	h.k.SetCurrentGroupID(ctx, group.ID)
-	h.k.SetUserStatuses(ctx, addresses)
+	h.k.SetActiveStatuses(ctx, addresses)
 }
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
@@ -83,7 +83,7 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 
 	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
 	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
-	h.k.SetUserStatuses(ctx, addresses)
+	h.k.SetActiveStatuses(ctx, addresses)
 }
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {
@@ -158,6 +158,11 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		return
 	}
 	if group.ModuleOwner != types.ModuleName {
+		return
+	}
+
+	// no fee is transferred, end process.
+	if signing.Fee.IsZero() {
 		return
 	}
 
