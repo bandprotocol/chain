@@ -562,8 +562,6 @@ func (k Keeper) CreateSigning(
 	ctx sdk.Context,
 	group types.Group,
 	message []byte,
-	fee sdk.Coins,
-	feePayer sdk.AccAddress,
 ) (*types.Signing, error) {
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, message)
@@ -585,18 +583,11 @@ func (k Keeper) CreateSigning(
 		message,
 		groupPubNonce,
 		nil,
-		fee,
 		types.SIGNING_STATUS_WAITING,
-		feePayer.String(),
 	))
 
 	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
-		return nil, err
-	}
-
-	// Handle hooks after signing initiated.
-	if err := k.Hooks().AfterSigningCreated(ctx, signing); err != nil {
 		return nil, err
 	}
 

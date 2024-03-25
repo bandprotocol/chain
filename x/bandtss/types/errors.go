@@ -10,4 +10,5 @@ var (
 	ErrNotEnoughFee          = errors.Register(ModuleName, 5, "not enough fee")
 	ErrInvalidGroupID        = errors.Register(ModuleName, 6, "invalid groupID")
 	ErrReplacementInProgress = errors.Register(ModuleName, 7, "group replacement is in progress")
+	ErrSigningFeeNotFound    = errors.Register(ModuleName, 8, "signing fee not found")
 )

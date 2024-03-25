@@ -35,7 +35,12 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 	}
 
 	h.k.SetCurrentGroupID(ctx, group.ID)
-	h.k.SetActiveStatuses(ctx, addresses)
+
+	// unlikely to get an error from SetActiveStatuses, but log the error just in case.
+	// status will be set only if the group is created for the first time.
+	if err := h.k.SetActiveStatuses(ctx, addresses); err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error setting active statuses: %v", err))
+	}
 }
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
@@ -83,7 +88,12 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 
 	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
 	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
-	h.k.SetActiveStatuses(ctx, addresses)
+
+	// unlikely to get an error from SetActiveStatuses, but log the error just in case.
+	// addresses should be new members or their status are already removed.
+	if err := h.k.SetActiveStatuses(ctx, addresses); err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error setting active statuses: %v", err))
+	}
 }
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {
@@ -102,10 +112,6 @@ func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.R
 }
 
 func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
-	if signing.Fee.IsZero() {
-		return
-	}
-
 	// check if this signing is from the bandtss module
 	// unlikely to get an error from GetGroup but log the error just in case.
 	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
@@ -117,15 +123,13 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) {
 		return
 	}
 
-	// Refund fee to requester
-	address := sdk.MustAccAddressFromBech32(signing.Requester)
-	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-
-	err = h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
-	// unlikely to get an error, but log the error just in case
-	if err != nil {
-		h.k.Logger(ctx).Error(fmt.Sprintf("Failed to refund fee to address %s: %v", signing.Requester, err))
+	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
+	if err := h.k.RefundFee(ctx, signing); err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error refunding fee signingID %v : %v", signing.ID, err))
+		return
 	}
+
+	h.k.DeleteSigningFee(ctx, signing.ID)
 }
 
 func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) {
@@ -147,6 +151,14 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 	}
 
 	h.k.SetInactiveStatuses(ctx, penalizedMembers)
+
+	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
+	if err := h.k.RefundFee(ctx, signing); err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error refunding fee signingID %v : %v", signing.ID, err))
+		return
+	}
+
+	h.k.DeleteSigningFee(ctx, signing.ID)
 }
 
 func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) {
@@ -161,8 +173,15 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		return
 	}
 
+	// get signing fee. Unlikely to get an error; but log the error just in case.
+	signingFee, err := h.k.GetSigningFee(ctx, signing.ID)
+	if err != nil {
+		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting signing fee: %v", err))
+		return
+	}
+
 	// no fee is transferred, end process.
-	if signing.Fee.IsZero() {
+	if signingFee.Fee.IsZero() {
 		return
 	}
 
@@ -171,38 +190,10 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		address := sdk.MustAccAddressFromBech32(am.Address)
 
 		// unlikely to get an error, but log the error just in case
-		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signing.Fee); err != nil {
+		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, signingFee.Fee); err != nil {
 			h.k.Logger(ctx).Error(fmt.Sprintf("Failed to send fee to address %s: %v", am.Address, err))
 		}
 	}
-}
-
-func (h Hooks) AfterSigningCreated(ctx sdk.Context, signing tsstypes.Signing) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return err
-	}
-	if group.ModuleOwner != types.ModuleName {
-		return nil
-	}
-
-	feeCoins := signing.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
-	if feeCoins.IsZero() {
-		return nil
-	}
-
-	address, err := sdk.AccAddressFromBech32(signing.Requester)
-	if err != nil {
-		return err
-	}
-
-	err = h.k.bankKeeper.SendCoinsFromAccountToModule(ctx, address, types.ModuleName, feeCoins)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (h Hooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error {

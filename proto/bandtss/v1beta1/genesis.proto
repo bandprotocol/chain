@@ -25,6 +25,8 @@ message GenesisState {
     (gogoproto.customname) = "ReplacingGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // signing_fee is the fee that will be paid for each signing request.
+  repeated SigningFee signing_fees = 5 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.

@@ -134,3 +134,43 @@ func (k Keeper) SetReplacingGroupID(ctx sdk.Context, groupID tss.GroupID) {
 func (k Keeper) GetReplacingGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey)))
 }
+
+// SetSigningFee sets a signing fee of the Bandtss module.
+func (k Keeper) SetSigningFee(ctx sdk.Context, signingFee types.SigningFee) {
+	ctx.KVStore(k.storeKey).Set(types.SigningFeeStoreKey(signingFee.SigningID), k.cdc.MustMarshal(&signingFee))
+}
+
+// GetSigningFee retrieves a signing fee of the Bandtss module.
+func (k Keeper) GetSigningFee(ctx sdk.Context, signingID tss.SigningID) (types.SigningFee, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.SigningFeeStoreKey(signingID))
+	if bz == nil {
+		return types.SigningFee{}, types.ErrSigningFeeNotFound.Wrapf("signingID: %d", signingID)
+	}
+
+	signingFee := types.SigningFee{}
+	k.cdc.MustUnmarshal(bz, &signingFee)
+	return signingFee, nil
+}
+
+// GetSigningFeeIterator gets an iterator all signingFee.
+func (k Keeper) GetSigningFeeIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningFeeStoreKeyPrefix)
+}
+
+// GetSigningFees retrieves all signingFee of the store.
+func (k Keeper) GetSigningFees(ctx sdk.Context) []types.SigningFee {
+	var signingFees []types.SigningFee
+	iterator := k.GetSigningFeeIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var signingFee types.SigningFee
+		k.cdc.MustUnmarshal(iterator.Value(), &signingFee)
+		signingFees = append(signingFees, signingFee)
+	}
+	return signingFees
+}
+
+// DeleteSigningFee removes the signing fee of the signingID
+func (k Keeper) DeleteSigningFee(ctx sdk.Context, signingID tss.SigningID) {
+	ctx.KVStore(k.storeKey).Delete(types.SigningFeeStoreKey(signingID))
+}

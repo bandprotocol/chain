@@ -85,8 +85,6 @@ type TSSKeeper interface {
 		ctx sdk.Context,
 		group tsstypes.Group,
 		message []byte,
-		fee sdk.Coins,
-		feePayer sdk.AccAddress,
 	) (*tsstypes.Signing, error)
 
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member

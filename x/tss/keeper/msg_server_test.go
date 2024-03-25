@@ -625,13 +625,16 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
+			signingFee, err := s.app.BandtssKeeper.GetSigningFee(ctx, signing.ID)
+			s.Require().NoError(err)
+
 			// Each assigned member should receive fee for the signature
 			for i, am := range signing.AssignedMembers {
 				balancesAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
 					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
 				)
-				s.Require().Equal(signing.Fee, balancesAfter.Sub(balancesBefores[i]...))
+				s.Require().Equal(signingFee.Fee, balancesAfter.Sub(balancesBefores[i]...))
 			}
 
 			// Retrieve the signing information after signing

@@ -17,6 +17,10 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetStatus(ctx, status)
 	}
 
+	for _, signingFee := range data.SigningFees {
+		k.SetSigningFee(ctx, signingFee)
+	}
+
 	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
 	k.SetReplacingGroupID(ctx, data.ReplacingGroupID)
 }
@@ -28,5 +32,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Statuses:         k.GetStatuses(ctx),
 		CurrentGroupID:   k.GetCurrentGroupID(ctx),
 		ReplacingGroupID: k.GetReplacingGroupID(ctx),
+		SigningFees:      k.GetSigningFees(ctx),
 	}
 }

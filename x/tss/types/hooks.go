@@ -43,16 +43,6 @@ func (h MultiTSSHooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement Re
 	}
 }
 
-func (h MultiTSSHooks) AfterSigningCreated(ctx sdk.Context, signing Signing) error {
-	for i := range h {
-		if err := h[i].AfterSigningCreated(ctx, signing); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (h MultiTSSHooks) AfterSigningFailed(ctx sdk.Context, signing Signing) {
 	for i := range h {
 		h[i].AfterSigningFailed(ctx, signing)
