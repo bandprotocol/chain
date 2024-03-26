@@ -170,7 +170,7 @@ func (m *DelegatorSignals) GetSignals() []Signal {
 	return nil
 }
 
-// Feed defines a standard unit of exchange for a commodity.
+// Feed is a structure that holds a signal id, its total power, and its calculated interval.
 type Feed struct {
 	// The unique string that identifies the unit of feed.
 	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`

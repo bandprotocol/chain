@@ -12,7 +12,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 		panic(err)
 	}
 	k.SetFeeds(ctx, genState.Feeds)
-	k.SetFeedsByPowerIndex(ctx, genState.Feeds)
 	if err := k.SetPriceService(ctx, genState.PriceService); err != nil {
 		panic(err)
 	}

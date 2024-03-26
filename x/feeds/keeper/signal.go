@@ -40,9 +40,6 @@ func (k Keeper) RemoveDelegatorPreviousSignals(
 		feed.Interval = calculateInterval(int64(feed.Power), k.GetParams(ctx))
 		k.SetFeed(ctx, feed)
 
-		// setting FeedByPowerIndex every time setting feed
-		k.SetFeedByPowerIndex(ctx, feed)
-
 		intervalDiff := (feed.Interval - prevInterval) + signalIDToIntervalDiff[feed.SignalID]
 		if intervalDiff == 0 {
 			delete(signalIDToIntervalDiff, feed.SignalID)
@@ -80,9 +77,6 @@ func (k Keeper) RegisterDelegatorSignals(
 		feed.Interval = calculateInterval(int64(feed.Power), k.GetParams(ctx))
 		k.SetFeed(ctx, feed)
 
-		// setting FeedByPowerIndex every time setting feed
-		k.SetFeedByPowerIndex(ctx, feed)
-
 		// if the sum interval differences is zero then the interval is not changed
 		intervalDiff := (feed.Interval - prevInterval) + signalIDToIntervalDiff[feed.SignalID]
 		if intervalDiff == 0 {
@@ -109,9 +103,6 @@ func (k Keeper) UpdateFeedIntervalTimestamp(
 
 		feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
 		k.SetFeed(ctx, feed)
-
-		// setting FeedByPowerIndex every time setting feed
-		k.SetFeedByPowerIndex(ctx, feed)
 	}
 	return nil
 }
