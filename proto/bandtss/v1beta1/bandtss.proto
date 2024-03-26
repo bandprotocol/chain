@@ -41,7 +41,7 @@ message SigningFee {
   option (gogoproto.equal) = true;
 
   // signing_ids is a list of signing IDs.
-  uint64 signingID = 1 [
+  uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
