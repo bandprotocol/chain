@@ -70,6 +70,7 @@ func (k Keeper) HandleCreateSigning(
 	return signing, nil
 }
 
+// RefundFee refunds the fee to the requester.
 func (k Keeper) RefundFee(ctx sdk.Context, signing tsstypes.Signing) error {
 	signingFee, err := k.GetSigningFee(ctx, signing.ID)
 	if err != nil {
