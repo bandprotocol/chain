@@ -86,7 +86,7 @@ func NewHook(
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
-	groupStorekey storetypes.StoreKey,
+	groupstorekey storetypes.StoreKey,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -114,7 +114,7 @@ func NewHook(
 		clientkeeper:     clientKeeper,
 		connectionkeeper: connectionKeeper,
 		channelkeeper:    channelKeeper,
-		groupStoreKey:    groupStorekey,
+		groupStoreKey:    groupstorekey,
 		emitStartState:   emitStartState,
 	}
 }
