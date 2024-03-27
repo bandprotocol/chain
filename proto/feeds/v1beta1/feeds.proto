@@ -26,7 +26,7 @@ message DelegatorSignals {
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
-// Feed defines a standard unit of exchange for a commodity.
+// Feed is a structure that holds a signal id, its total power, and its calculated interval.
 message Feed {
   option (gogoproto.equal) = true;
 

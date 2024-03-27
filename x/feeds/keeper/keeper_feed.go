@@ -45,6 +45,7 @@ func (k Keeper) SetFeeds(ctx sdk.Context, feeds []types.Feed) {
 
 func (k Keeper) SetFeed(ctx sdk.Context, feed types.Feed) {
 	ctx.KVStore(k.storeKey).Set(types.FeedStoreKey(feed.SignalID), k.cdc.MustMarshal(&feed))
+	k.setFeedByPowerIndex(ctx, feed)
 }
 
 func (k Keeper) DeleteFeed(ctx sdk.Context, signalID string) {
@@ -52,13 +53,7 @@ func (k Keeper) DeleteFeed(ctx sdk.Context, signalID string) {
 	ctx.KVStore(k.storeKey).Delete(types.FeedStoreKey(signalID))
 }
 
-func (k Keeper) SetFeedsByPowerIndex(ctx sdk.Context, feeds []types.Feed) {
-	for _, feed := range feeds {
-		k.SetFeedByPowerIndex(ctx, feed)
-	}
-}
-
-func (k Keeper) SetFeedByPowerIndex(ctx sdk.Context, feed types.Feed) {
+func (k Keeper) setFeedByPowerIndex(ctx sdk.Context, feed types.Feed) {
 	ctx.KVStore(k.storeKey).
 		Set(types.FeedsByPowerIndexKey(feed.SignalID, feed.Power), []byte(feed.SignalID))
 }
