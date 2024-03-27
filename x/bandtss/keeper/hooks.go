@@ -28,37 +28,17 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 	}
 
 	members := h.k.tssKeeper.MustGetMembers(ctx, group.ID)
-	addresses := make([]sdk.AccAddress, 0, len(members))
 	for _, m := range members {
-		addr := sdk.AccAddress(m.PubKey)
-		addresses = append(addresses, addr)
+		h.k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m.Address))
 	}
 
 	h.k.SetCurrentGroupID(ctx, group.ID)
-
-	// unlikely to get an error from SetActiveStatuses, but log the error just in case.
-	// status will be set only if the group is created for the first time.
-	if err := h.k.SetActiveStatuses(ctx, addresses); err != nil {
-		h.k.Logger(ctx).Error(fmt.Sprintf("Error setting active statuses: %v", err))
-	}
 }
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) {
-	if group.ModuleOwner != types.ModuleName {
-		return
-	}
-
-	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredGroup(ctx, group)
-	// error is from we cannot find groupID in the store. In this case, we don't need to do anything,
-	// but log the error just in case.
-	if err != nil {
-		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting penalized members: %v", err))
-		return
-	}
-
-	h.k.SetJailStatuses(ctx, penalizedMembers)
+	// TODO: Penalize members will be slashed in the future.
 }
 
 func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) {
@@ -80,20 +60,12 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 	}
 
 	newMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.NewGroupID)
-	addresses := make([]sdk.AccAddress, 0, len(newMembers))
 	for _, m := range newMembers {
-		addr := sdk.AccAddress(m.PubKey)
-		addresses = append(addresses, addr)
+		h.k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m.Address))
 	}
 
 	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
 	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
-
-	// unlikely to get an error from SetActiveStatuses, but log the error just in case.
-	// addresses should be new members or their status are already removed.
-	if err := h.k.SetActiveStatuses(ctx, addresses); err != nil {
-		h.k.Logger(ctx).Error(fmt.Sprintf("Error setting active statuses: %v", err))
-	}
 }
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {
@@ -150,7 +122,9 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		h.k.Logger(ctx).Error(fmt.Sprintf("Error getting penalized members: %v", err))
 	}
 
-	h.k.SetInactiveStatuses(ctx, penalizedMembers)
+	for _, addr := range penalizedMembers {
+		h.k.SetInactiveStatus(ctx, addr)
+	}
 
 	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
 	if err := h.k.RefundFee(ctx, signing); err != nil {

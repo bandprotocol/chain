@@ -381,6 +381,7 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 
 	groupID := tss.GroupID(10)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupID)
 	k.SetMember(ctx, types.Member{
 		ID:       tss.MemberID(1),
 		GroupID:  groupID,
@@ -398,7 +399,8 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 		s.Require().Equal(true, member.IsActive)
 	}
 
-	k.UpdateExistingMembersActiveness(ctx, groupID, []sdk.AccAddress{address}, []bool{false})
+	err = k.SetMemberIsActive(ctx, groupID, address, false)
+	s.Require().NoError(err)
 
 	members, err = k.GetGroupMembers(ctx, groupID)
 	s.Require().NoError(err)
@@ -578,6 +580,7 @@ func (s *KeeperTestSuite) TestReplacementQueues() {
 
 	replacementID := uint64(1)
 
+	s.app.BandtssKeeper.SetCurrentGroupID(ctx, tss.GroupID(1))
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	now := time.Now()

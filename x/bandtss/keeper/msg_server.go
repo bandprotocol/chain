@@ -114,7 +114,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 
-	if err = k.SetActiveStatuses(ctx, []sdk.AccAddress{address}); err != nil {
+	if err = k.ActivateMember(ctx, address); err != nil {
 		return nil, err
 	}
 

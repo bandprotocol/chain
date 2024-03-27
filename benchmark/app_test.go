@@ -242,8 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := bandtssKeeper.SetActiveStatuses(ctx, []sdk.AccAddress{ba.Sender.Address})
-			require.NoError(ba.TB, err)
+			bandtssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
 		}
 
 		k.CreateNewGroup(ctx, tsstypes.Group{

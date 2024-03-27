@@ -59,19 +59,14 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 	for _, tc := range testutil.TestCases {
 		// Initialize members
 		var members []string
-		var addresses []sdk.AccAddress
-
 		for _, m := range tc.Group.Members {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
-			addresses = append(addresses, address)
+			bandtssKeeper.SetActiveStatus(ctx, address)
 		}
 
-		err := bandtssKeeper.SetActiveStatuses(ctx, addresses)
-		s.Require().NoError(err)
-
 		// Create group
-		_, err = bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		_, err := bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
 			Authority: s.authority.String(),

@@ -25,8 +25,9 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	for _, vote := range previousVotes {
 		val := k.stakingKeeper.ValidatorByConsAddr(ctx, vote.Validator.Address)
 		acc := sdk.AccAddress(val.GetOperator())
+		deCount := k.tssKeeper.GetDECount(ctx, acc)
 
-		if k.GetStatus(ctx, acc).Status == types.MEMBER_STATUS_ACTIVE {
+		if k.GetStatus(ctx, acc).Status == types.MEMBER_STATUS_ACTIVE && deCount > 0 {
 			toReward = append(toReward, valWithPower{val: val, power: vote.Validator.Power})
 			totalPower += vote.Validator.Power
 		}
@@ -83,21 +84,18 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 	}
 
 	// Set inactive for validator that last active exceeds active duration.
-	var addresses []sdk.AccAddress
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
 		func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			address := sdk.AccAddress(validator.GetOperator())
 			status := k.GetStatus(ctx, address)
 
-			if (status.Status == types.MEMBER_STATUS_ACTIVE) &&
+			if status.Status == types.MEMBER_STATUS_ACTIVE &&
 				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
-				addresses = append(addresses, address)
+				k.SetInactiveStatus(ctx, address)
 			}
 
 			return false
 		},
 	)
-
-	k.SetInactiveStatuses(ctx, addresses)
 }
