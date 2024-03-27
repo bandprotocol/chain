@@ -88,10 +88,11 @@ type TSSKeeper interface {
 	) (*tsstypes.Signing, error)
 
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
+	GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (tsstypes.Member, error)
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
-	UpdateExistingMembersActiveness(ctx sdk.Context, groupID tss.GroupID, address []sdk.AccAddress, isActives []bool)
+	MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, isActives bool)
 }

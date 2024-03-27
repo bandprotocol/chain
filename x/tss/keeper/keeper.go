@@ -314,30 +314,35 @@ func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]typ
 	return filteredMembers, nil
 }
 
-// UpdateExistingMembersActiveness updates an activeness of members. If member does not exists, skip him.
-func (k Keeper) UpdateExistingMembersActiveness(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-	addresses []sdk.AccAddress,
-	isActives []bool,
-) {
-	mapping := make(map[string]bool)
-	for i, addr := range addresses {
-		mapping[addr.String()] = isActives[i]
-	}
-
-	members := k.MustGetMembers(ctx, groupID)
-	for _, m := range members {
-		if isActive, ok := mapping[m.Address]; ok {
-			m.IsActive = isActive
-			k.SetMember(ctx, m)
-		}
-	}
-}
-
 // SetLastExpiredGroupID sets the last expired group ID in the store.
 func (k Keeper) SetLastExpiredGroupID(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Set(types.LastExpiredGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
+}
+
+// SetMemberIsActive sets a boolean flag represent activeness of the user.
+func (k Keeper) SetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, status bool) error {
+	members := k.MustGetMembers(ctx, groupID)
+	for _, m := range members {
+		if m.Address == address.String() {
+			m.IsActive = status
+			k.SetMember(ctx, m)
+			return nil
+		}
+	}
+
+	return types.ErrMemberNotFound.Wrapf(
+		"failed to set member active status with groupID: %d and address: %s",
+		groupID,
+		address,
+	)
+}
+
+// MustSetMemberIsActive sets a boolean flag represent activeness of the user. This function requires
+// the member to be in the group. Panics error if not exists.
+func (k Keeper) MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, status bool) {
+	if err := k.SetMemberIsActive(ctx, groupID, address, status); err != nil {
+		panic(err)
+	}
 }
 
 // GetLastExpiredGroupID retrieves the last expired group ID from the store.

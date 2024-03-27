@@ -38,10 +38,8 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 	}
 
-	var addresses []sdk.AccAddress
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		addresses = append(addresses, address)
 		err := k.HandleSetDEs(ctx, address, []types.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
@@ -148,8 +146,10 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.AddConfirm(ctx, groupID, confirm2)
 
 	bandtssKeeper.SetCurrentGroupID(ctx, groupID)
-	err = bandtssKeeper.SetActiveStatuses(ctx, addresses)
-	s.Require().NoError(err)
+	for _, m := range members {
+		address := sdk.MustAccAddressFromBech32(m)
+		bandtssKeeper.SetActiveStatus(ctx, address)
+	}
 
 	var req types.QueryGroupRequest
 	testCases := []struct {

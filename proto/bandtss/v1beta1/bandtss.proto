@@ -19,8 +19,6 @@ enum MemberStatus {
   MEMBER_STATUS_ACTIVE = 1;
   // MEMBER_STATUS_INACTIVE is the inactive status.
   MEMBER_STATUS_INACTIVE = 2;
-  // MEMBER_STATUS_JAIL is the status when member is jailed.
-  MEMBER_STATUS_JAIL = 3;
 }
 
 // Status maintains whether a member is an active member.
