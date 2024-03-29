@@ -37,7 +37,7 @@ func (s *KeeperTestSuite) TestActivateMember() {
 	member, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
 	s.Require().NoError(err)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
-	s.Require().True(isActive)
+	s.Require().True(member.IsActive)
 
 	// Failed case - penalty
 	k.SetInactiveStatus(ctx, address)
