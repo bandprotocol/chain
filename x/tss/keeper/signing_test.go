@@ -519,10 +519,13 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
+
 	gotStatus := k.GetMemberIsActive(ctx, testapp.Alice.Address)
-	s.Require().Equal(false, gotStatus)
+	s.Require().False(gotStatus)
+
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
+
 	gotPZs := k.GetPartialSignatures(ctx, signingID)
 	s.Require().Empty(gotPZs)
 }

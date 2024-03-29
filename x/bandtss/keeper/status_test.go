@@ -19,7 +19,7 @@ func (s *KeeperTestSuite) TestSetInActive() {
 	isActive := tssKeeper.GetMemberIsActive(ctx, address)
 
 	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
-	s.Require().Equal(false, isActive)
+	s.Require().False(isActive)
 }
 
 func (s *KeeperTestSuite) TestSetActive() {
@@ -34,7 +34,7 @@ func (s *KeeperTestSuite) TestSetActive() {
 	status := k.GetStatus(ctx, address)
 	isActive := tssKeeper.GetMemberIsActive(ctx, address)
 	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
-	s.Require().Equal(true, isActive)
+	s.Require().True(isActive)
 
 	// Failed case - penalty
 	k.SetInactiveStatus(ctx, address)

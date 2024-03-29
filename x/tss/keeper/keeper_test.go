@@ -386,13 +386,13 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 
 	// check when being set to active
 	got := k.GetMemberIsActive(ctx, address)
-	s.Require().Equal(true, got)
+	s.Require().True(got)
 
 	gotAddrs, gotIsActives := k.GetMemberIsActives(ctx)
 	cntFound := 0
 	for i := range gotAddrs {
 		if gotAddrs[i].String() == address.String() {
-			s.Require().Equal(true, gotIsActives[i])
+			s.Require().True(gotIsActives[i])
 			cntFound++
 		}
 	}
@@ -402,13 +402,13 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 	k.SetMemberIsActive(ctx, address, false)
 
 	got = k.GetMemberIsActive(ctx, address)
-	s.Require().Equal(false, got)
+	s.Require().False(got)
 
 	gotAddrs, gotIsActives = k.GetMemberIsActives(ctx)
 	cntFound = 0
 	for i := range gotAddrs {
 		if gotAddrs[i].String() == address.String() {
-			s.Require().Equal(false, gotIsActives[i])
+			s.Require().False(gotIsActives[i])
 			cntFound++
 		}
 	}
