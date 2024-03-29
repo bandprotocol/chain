@@ -242,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := bandtssKeeper.ActivateMember(ctx, ba.Sender.Address)
+			err := bandtssKeeper.AddNewMember(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 
