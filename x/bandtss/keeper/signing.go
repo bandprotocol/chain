@@ -149,9 +149,10 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	// charged fee if necessary; If found any coins that exceed limit then return error
-	totalFee := sdk.NewCoins()
+	feePerSigner := sdk.NewCoins()
 	if sender.String() != k.authority {
-		totalFee = k.GetParams(ctx).Fee.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
+		feePerSigner = k.GetParams(ctx).Fee
+		totalFee := feePerSigner.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
@@ -161,6 +162,14 @@ func (k Keeper) HandleCreateSigning(
 					limitAmt.String(),
 					fc.Denom,
 				)
+			}
+		}
+
+		// transfer fee to module account.
+		if !totalFee.IsZero() {
+			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -185,17 +194,9 @@ func (k Keeper) HandleCreateSigning(
 		replacingGroupSigningID = replacingGroupSigning.ID
 	}
 
-	// transfer fee to module account.
-	if !totalFee.IsZero() {
-		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	// save signingInfo
-	reqID := k.AddSigning(ctx, types.Signing{
-		Fee:                     totalFee,
+	bandtssSigningID := k.AddSigning(ctx, types.Signing{
+		Fee:                     feePerSigner,
 		Requester:               sender.String(),
 		CurrentGroupID:          k.GetCurrentGroupID(ctx),
 		CurrentGroupSigningID:   currentGroupSigning.ID,
@@ -203,11 +204,7 @@ func (k Keeper) HandleCreateSigning(
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
-	bandtssSigning, err := k.GetSigning(ctx, reqID)
-	if err != nil {
-		return nil, err
-	}
-
+	bandtssSigning := k.MustGetSigning(ctx, bandtssSigningID)
 	return &bandtssSigning, nil
 }
 
