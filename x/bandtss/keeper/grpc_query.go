@@ -20,11 +20,11 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 	return queryServer{k: k}
 }
 
-// Status function handles the request to get the status of a given account address.
-func (q queryServer) Status(
+// Member function handles the request to get the member of a given account address.
+func (q queryServer) Member(
 	goCtx context.Context,
-	req *types.QueryStatusRequest,
-) (*types.QueryStatusResponse, error) {
+	req *types.QueryMemberRequest,
+) (*types.QueryMemberResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
@@ -33,42 +33,45 @@ func (q queryServer) Status(
 		return nil, err
 	}
 
-	// Get status of the address
-	status := q.k.GetStatus(ctx, address)
+	// Get member of the address
+	member, err := q.k.GetMember(ctx, address)
+	if err != nil {
+		return nil, err
+	}
 
-	return &types.QueryStatusResponse{
-		Status: status,
+	return &types.QueryMemberResponse{
+		Member: member,
 	}, nil
 }
 
-// Statuses function handles the request to get filtered statuses based on criteria.
-func (q queryServer) Statuses(
+// Members function handles the request to get filtered members based on criteria.
+func (q queryServer) Members(
 	goCtx context.Context,
-	req *types.QueryStatusesRequest,
-) (*types.QueryStatusesResponse, error) {
+	req *types.QueryMembersRequest,
+) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	statusStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.StatusStoreKeyPrefix)
-	filteredStatuses, pageRes, err := query.GenericFilteredPaginate(
+	memberStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.MemberStoreKeyPrefix)
+	filteredMembers, pageRes, err := query.GenericFilteredPaginate(
 		q.k.cdc,
-		statusStore,
+		memberStore,
 		req.Pagination,
-		func(key []byte, s *types.Status) (*types.Status, error) {
-			// filter item out if the request status is valid and it is not equal to the request status.
-			if types.ValidMemberStatus(req.Status) && s.Status != req.Status {
+		func(key []byte, m *types.Member) (*types.Member, error) {
+			// filter item out if the member's isActive is not equal to the request status.
+			if m.IsActive != req.IsActive {
 				return nil, nil
 			}
-			return s, nil
+			return m, nil
 		},
-		func() *types.Status {
-			return &types.Status{}
+		func() *types.Member {
+			return &types.Member{}
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryStatusesResponse{
-		Statuses:   filteredStatuses,
+	return &types.QueryMembersResponse{
+		Members:    filteredMembers,
 		Pagination: pageRes,
 	}, nil
 }

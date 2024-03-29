@@ -6,26 +6,26 @@ import (
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
-func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
+func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	ctx, q := s.ctx, s.queryClient
 
-	var req types.QueryStatusesRequest
+	var req types.QueryMembersRequest
 	testCases := []struct {
 		msg      string
 		malleate func()
 		expPass  bool
-		postTest func(res *types.QueryStatusesResponse, err error)
+		postTest func(res *types.QueryMembersResponse, err error)
 	}{
 		{
 			"success",
 			func() {
-				req = types.QueryStatusesRequest{}
+				req = types.QueryMembersRequest{}
 			},
 			true,
-			func(res *types.QueryStatusesResponse, err error) {
+			func(res *types.QueryMembersResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().NotNil(res)
-				s.Require().Len(res.Statuses, 3)
+				s.Require().Len(res.Members, 3)
 			},
 		},
 	}
@@ -34,7 +34,7 @@ func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
 		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
 
-			res, err := q.Statuses(ctx, &req)
+			res, err := q.Members(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
