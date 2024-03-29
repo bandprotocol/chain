@@ -27,12 +27,12 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 		return
 	}
 
+	h.k.SetCurrentGroupID(ctx, group.ID)
+
 	members := h.k.tssKeeper.MustGetMembers(ctx, group.ID)
 	for _, m := range members {
 		h.k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m.Address))
 	}
-
-	h.k.SetCurrentGroupID(ctx, group.ID)
 }
 
 func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) {}
@@ -59,13 +59,13 @@ func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstype
 		h.k.DeleteStatus(ctx, addr)
 	}
 
+	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
+	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
+
 	newMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.NewGroupID)
 	for _, m := range newMembers {
 		h.k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m.Address))
 	}
-
-	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
-	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
 }
 
 func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) {

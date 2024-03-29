@@ -393,7 +393,6 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, tss.GroupID(1))
 	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
 
 	// Iterate through test cases from testutil
@@ -494,7 +493,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, tss.GroupID(1))
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	var req types.MsgSubmitSignature
@@ -558,7 +556,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, tss.GroupID(1))
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	// Iterate through test cases from testutil
