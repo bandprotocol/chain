@@ -486,6 +486,7 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 		Address:  testapp.Alice.Address.String(),
 		IsActive: false,
 	})
+	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupID)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{

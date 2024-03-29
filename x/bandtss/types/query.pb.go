@@ -354,6 +354,7 @@ var xxx_messageInfo_QueryCurrentGroupRequest proto.InternalMessageInfo
 
 // QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
 type QueryCurrentGroupResponse struct {
+	// TODO: add more field later when add election flow.
 	GroupID uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 }
 
@@ -436,6 +437,7 @@ var xxx_messageInfo_QueryReplacingGroupRequest proto.InternalMessageInfo
 
 // QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
 type QueryReplacingGroupResponse struct {
+	// TODO: add more field later when add election flow.
 	GroupID uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 }
 

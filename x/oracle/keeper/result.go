@@ -85,9 +85,9 @@ func (k Keeper) ResolveSuccess(
 	createSigningFunc := func(ctx sdk.Context) error {
 		signing, err := k.bandtssKeeper.HandleCreateSigning(
 			ctx,
-			gid,
 			types.NewOracleResultSignatureOrder(id, encodeType),
-			sdk.MustAccAddressFromBech32(requester), feeLimit,
+			sdk.MustAccAddressFromBech32(requester),
+			feeLimit,
 		)
 		if err != nil {
 			return err
