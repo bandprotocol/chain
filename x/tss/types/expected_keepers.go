@@ -69,10 +69,4 @@ type TSSHooks interface {
 	// Must be called before setting signing status to expired; no error returned because it is
 	// processed at end block.
 	BeforeSetSigningExpired(ctx sdk.Context, signing Signing)
-
-	// Must be called after a signer submit DEs.
-	AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error
-
-	// Must be called after polling member's DE from store.
-	AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error
 }
