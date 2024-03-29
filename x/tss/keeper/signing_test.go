@@ -395,7 +395,6 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, tss.GroupID(1))
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	group := k.MustGetGroup(ctx, 1)
@@ -418,7 +417,6 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 func (s *KeeperTestSuite) TestCreateSigning() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupID)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 	group := k.MustGetGroup(ctx, groupID)

@@ -55,26 +55,6 @@ func (h MultiTSSHooks) AfterSigningCompleted(ctx sdk.Context, signing Signing) {
 	}
 }
 
-func (h MultiTSSHooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error {
-	for i := range h {
-		if err := h[i].AfterHandleSetDEs(ctx, address); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h MultiTSSHooks) AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error {
-	for i := range h {
-		if err := h[i].AfterPollDE(ctx, member); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (h MultiTSSHooks) BeforeSetSigningExpired(ctx sdk.Context, signing Signing) {
 	for i := range h {
 		h[i].BeforeSetSigningExpired(ctx, signing)
