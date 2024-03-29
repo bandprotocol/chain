@@ -169,11 +169,3 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		}
 	}
 }
-
-func (h Hooks) AfterHandleSetDEs(ctx sdk.Context, address sdk.AccAddress) error {
-	return nil
-}
-
-func (h Hooks) AfterPollDE(ctx sdk.Context, member sdk.AccAddress) error {
-	return nil
-}
