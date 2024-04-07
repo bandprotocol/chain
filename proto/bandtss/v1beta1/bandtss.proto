@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
+import "tss/v1beta1/tss.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 option (gogoproto.equal_all) = true;
@@ -35,6 +36,7 @@ message Status {
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
+// Signing is a bandtss signing information.
 message Signing {
   option (gogoproto.equal) = true;
 
@@ -65,4 +67,14 @@ message Signing {
     (gogoproto.customname) = "ReplacingGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
+}
+
+// SigningResult is a bandtss signing result from querying bandtss signing information.
+message SigningResult {
+  // signing is the tss signing result.
+  .tss.v1beta1.Signing signing = 1 [(gogoproto.nullable) = false];
+  // evm_signature is the signature in the format that can use directly in EVM.
+  .tss.v1beta1.EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
+  // received_partial_signatures is a list of received partial signatures.
+  repeated .tss.v1beta1.PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
 }

@@ -28,10 +28,8 @@ message GenesisState {
   // signings is the bandtss signing info.
   repeated Signing signings = 5 [(gogoproto.nullable) = false];
   // signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
-  repeated SigningIDMappingGenesis signing_id_mappings = 6 [
-    (gogoproto.nullable) = false,
-    (gogoproto.customname) = "SigningIDMappings"
-  ];
+  repeated SigningIDMappingGenesis signing_id_mappings = 6
+      [(gogoproto.nullable) = false, (gogoproto.customname) = "SigningIDMappings"];
 }
 
 // Params defines the set of module parameters.
@@ -52,12 +50,11 @@ message Params {
 
 // SigningIDMappingGenesis defines the genesis state for the signingIDMapping.
 message SigningIDMappingGenesis {
+  // signing_id is the tss signing id.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
-  uint64 bandtss_signing_id = 2 [
-    (gogoproto.customname) = "BandtssSigningID",
-    (gogoproto.casttype) = "SigningID"
-  ];  
+  // bandtss_signing_id is the signing id being referred in bandtss module.
+  uint64 bandtss_signing_id = 2 [(gogoproto.customname) = "BandtssSigningID", (gogoproto.casttype) = "SigningID"];
 }

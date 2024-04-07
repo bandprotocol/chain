@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -225,4 +226,33 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 	address := sdk.MustAccAddressFromBech32(bandtssSigning.Requester)
 	feeCoins := bandtssSigning.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+}
+
+// GetSigningResult returns the signing result of the given tss signingID.
+func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*types.SigningResult, error) {
+	tssSigning, err := k.tssKeeper.GetSigning(ctx, signingID)
+	if err != nil {
+		return nil, err
+	}
+
+	pzs := k.tssKeeper.GetPartialSignaturesWithKey(ctx, signingID)
+
+	var evmSignature *tsstypes.EVMSignature
+	if tssSigning.Signature != nil {
+		rAddress, err := tssSigning.Signature.R().Address()
+		if err != nil {
+			return nil, err
+		}
+
+		evmSignature = &tsstypes.EVMSignature{
+			RAddress:  rAddress,
+			Signature: tmbytes.HexBytes(tssSigning.Signature.S()),
+		}
+	}
+
+	return &types.SigningResult{
+		Signing:                   tssSigning,
+		EVMSignature:              evmSignature,
+		ReceivedPartialSignatures: pzs,
+	}, nil
 }

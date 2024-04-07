@@ -87,12 +87,17 @@ type TSSKeeper interface {
 		message []byte,
 	) (*tsstypes.Signing, error)
 
+	MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, isActives bool)
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
 	GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (tsstypes.Member, error)
+
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
+
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
+
+	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
-	MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, isActives bool)
+	GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.SigningID) []tsstypes.PartialSignature
 }

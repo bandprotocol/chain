@@ -73,6 +73,8 @@ func (q queryServer) Statuses(
 	}, nil
 }
 
+// CurrentGroup function handles the request to get the current group information.
+// TODO: update current group response later when add election flow.
 func (q queryServer) CurrentGroup(
 	goCtx context.Context,
 	req *types.QueryCurrentGroupRequest,
@@ -85,6 +87,8 @@ func (q queryServer) CurrentGroup(
 	}, nil
 }
 
+// ReplacingGroup function handles the request to get the replacing group information.
+// TODO: update current group response later when add election flow.
 func (q queryServer) ReplacingGroup(
 	goCtx context.Context,
 	req *types.QueryReplacingGroupRequest,
@@ -94,6 +98,38 @@ func (q queryServer) ReplacingGroup(
 	groupID := q.k.GetReplacingGroupID(ctx)
 	return &types.QueryReplacingGroupResponse{
 		GroupID: uint64(groupID),
+	}, nil
+}
+
+// Signing function handles the request to get the bandtss signing information.
+func (q queryServer) Signing(
+	goCtx context.Context,
+	req *types.QuerySigningRequest,
+) (*types.QuerySigningResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get signing and partial sigs using signingID
+	signing, err := q.k.GetSigning(ctx, req.SigningID)
+	if err != nil {
+		return nil, err
+	}
+
+	currentGroupSigningResult, err := q.k.GetSigningResult(ctx, signing.CurrentGroupSigningID)
+	if err != nil {
+		return nil, err
+	}
+
+	replacingGroupSigningResult := &types.SigningResult{}
+	if signing.ReplacingGroupSigningID != 0 {
+		replacingGroupSigningResult, err = q.k.GetSigningResult(ctx, signing.ReplacingGroupSigningID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &types.QuerySigningResponse{
+		CurrentGroupSigningResult:   *currentGroupSigningResult,
+		ReplacingGroupSigningResult: replacingGroupSigningResult,
 	}, nil
 }
 
