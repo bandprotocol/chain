@@ -21,7 +21,7 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		GetQueryCmdStatus(),
+		GetQueryCmdMember(),
 		GetQueryCmdCurrentGroup(),
 		GetQueryCmdReplacingGroup(),
 		GetQueryCmdParams(),
@@ -31,11 +31,11 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdStatus creates a CLI command for Query/Status.
-func GetQueryCmdStatus() *cobra.Command {
+// GetQueryCmdMember creates a CLI command for Query/Member.
+func GetQueryCmdMember() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "status [address]",
-		Short: "Query the status by address",
+		Use:   "member [address]",
+		Short: "Query the member by address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -45,7 +45,7 @@ func GetQueryCmdStatus() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Status(cmd.Context(), &types.QueryStatusRequest{
+			res, err := queryClient.Member(cmd.Context(), &types.QueryMemberRequest{
 				Address: args[0],
 			})
 			if err != nil {

@@ -27,7 +27,7 @@ var (
 	// ParamsKeyPrefix is a prefix for keys that store bandtss's parameters
 	ParamsKeyPrefix = []byte{0x01}
 	// StatusStoreKeyPrefix is the prefix for status store.
-	StatusStoreKeyPrefix = []byte{0x02}
+	MemberStoreKeyPrefix = []byte{0x02}
 	// GroupIDStoreKeyPrefix is the prefix for groupID store.
 	GroupIDStoreKeyPrefix = []byte{0x03}
 	// SigningStoreKeyPrefix is the prefix for bandtss Signing store.
@@ -47,8 +47,8 @@ var (
 	SigningIDMappingStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x01}...)
 )
 
-func StatusStoreKey(address sdk.AccAddress) []byte {
-	return append(StatusStoreKeyPrefix, address...)
+func MemberStoreKey(address sdk.AccAddress) []byte {
+	return append(MemberStoreKeyPrefix, address...)
 }
 
 func SigningStoreKey(id SigningID) []byte {

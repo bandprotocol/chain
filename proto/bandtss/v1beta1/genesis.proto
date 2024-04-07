@@ -13,8 +13,8 @@ option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 message GenesisState {
   // params defines all the paramiters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
-  // statuses is an array containing status of all addresses
-  repeated Status statuses = 2 [(gogoproto.nullable) = false];
+  // members is an array containing member information.
+  repeated Member members = 2 [(gogoproto.nullable) = false];
   // current_group_id is the current group id of the module.
   uint64 current_group_id = 3 [
     (gogoproto.customname) = "CurrentGroupID",

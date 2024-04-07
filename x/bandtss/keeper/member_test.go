@@ -13,14 +13,16 @@ func (s *KeeperTestSuite) TestSetInActive() {
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
-	k.SetInactiveStatus(ctx, address)
-
-	status := k.GetStatus(ctx, address)
-
-	member, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	err := k.DeactivateMember(ctx, address)
 	s.Require().NoError(err)
-	s.Require().Equal(false, member.IsActive)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
+
+	member, err := k.GetMember(ctx, address)
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
+
+	tssMember, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	s.Require().NoError(err)
+	s.Require().False(tssMember.IsActive)
 }
 
 func (s *KeeperTestSuite) TestActivateMember() {
@@ -32,14 +34,17 @@ func (s *KeeperTestSuite) TestActivateMember() {
 	err := k.ActivateMember(ctx, address)
 	s.Require().NoError(err)
 
-	status := k.GetStatus(ctx, address)
-	member, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	member, err := k.GetMember(ctx, address)
 	s.Require().NoError(err)
-	s.Require().Equal(true, member.IsActive)
-	s.Require().Equal(types.MEMBER_STATUS_ACTIVE, status.Status)
+	s.Require().True(member.IsActive)
+
+	tssMember, err := tssKeeper.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, address.String())
+	s.Require().NoError(err)
+	s.Require().True(tssMember.IsActive)
 
 	// Failed case - penalty
-	k.SetInactiveStatus(ctx, address)
+	err = k.DeactivateMember(ctx, address)
+	s.Require().NoError(err)
 
 	err = k.ActivateMember(ctx, address)
 	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
@@ -58,11 +63,13 @@ func (s *KeeperTestSuite) TestSetLastActive() {
 	err := k.SetLastActive(ctx, address)
 	s.Require().NoError(err)
 
-	status := k.GetStatus(ctx, address)
-	s.Require().Equal(ctx.BlockTime(), status.LastActive)
+	member, err := k.GetMember(ctx, address)
+	s.Require().NoError(err)
+	s.Require().Equal(ctx.BlockTime(), member.LastActive)
 
 	// Failed case
-	k.SetInactiveStatus(ctx, address)
+	err = k.DeactivateMember(ctx, address)
+	s.Require().NoError(err)
 
 	err = k.SetLastActive(ctx, address)
 	s.Require().Error(err)

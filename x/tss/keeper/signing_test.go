@@ -1,9 +1,12 @@
 package keeper_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -476,15 +479,16 @@ func (s *KeeperTestSuite) TestGetSetPendingProcessSignings() {
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	alice := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey()).String()
 
 	// Set member
 	k.SetMember(ctx, types.Member{
 		ID:       memberID,
 		GroupID:  groupID,
-		Address:  testapp.Alice.Address.String(),
+		Address:  alice,
 		IsActive: false,
 	})
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupID)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{
@@ -495,6 +499,11 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 			},
 		},
 		Status: types.SIGNING_STATUS_WAITING,
+	})
+	s.app.BandtssKeeper.AddSigning(ctx, bandtsstypes.Signing{
+		CurrentGroupID:        tss.GroupID(1),
+		CurrentGroupSigningID: tss.SigningID(1),
+		Fee:                   sdk.NewCoins(),
 	})
 
 	// Set the current block height
@@ -509,11 +518,12 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-	member, err := k.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, testapp.Alice.Address.String())
+	member, err := k.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, alice)
 	s.Require().NoError(err)
-	s.Require().Equal(false, member.IsActive)
+	s.Require().False(member.IsActive)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
+
 	gotPZs := k.GetPartialSignatures(ctx, signingID)
 	s.Require().Empty(gotPZs)
 }

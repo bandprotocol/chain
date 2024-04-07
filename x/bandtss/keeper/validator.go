@@ -7,7 +7,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 // valWithPower is an internal type to track validator with voting power inside of AllocateTokens.
@@ -26,8 +25,14 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		val := k.stakingKeeper.ValidatorByConsAddr(ctx, vote.Validator.Address)
 		acc := sdk.AccAddress(val.GetOperator())
 		deCount := k.tssKeeper.GetDECount(ctx, acc)
+		// shouldn't get an error from GetMember, except not found; if error (not found) skip
+		// and goes to the next one.
+		member, err := k.GetMember(ctx, acc)
+		if err != nil {
+			continue
+		}
 
-		if k.GetStatus(ctx, acc).Status == types.MEMBER_STATUS_ACTIVE && deCount > 0 {
+		if member.IsActive && deCount > 0 {
 			toReward = append(toReward, valWithPower{val: val, power: vote.Validator.Power})
 			totalPower += vote.Validator.Power
 		}
@@ -88,11 +93,20 @@ func (k Keeper) HandleInactiveValidators(ctx sdk.Context) {
 		ctx,
 		func(_ int64, validator stakingtypes.ValidatorI) (stop bool) {
 			address := sdk.AccAddress(validator.GetOperator())
-			status := k.GetStatus(ctx, address)
 
-			if status.Status == types.MEMBER_STATUS_ACTIVE &&
-				ctx.BlockTime().After(status.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
-				k.SetInactiveStatus(ctx, address)
+			// shouldn't get an error from GetMember, except not found; if error (not found) skip
+			// and goes to the next one.
+			member, err := k.GetMember(ctx, address)
+			if err != nil {
+				return false
+			}
+
+			if member.IsActive &&
+				ctx.BlockTime().After(member.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
+				// this shouldn't return any error.
+				if err := k.DeactivateMember(ctx, address); err != nil {
+					panic(err)
+				}
 			}
 
 			return false

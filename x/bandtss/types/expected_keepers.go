@@ -87,9 +87,10 @@ type TSSKeeper interface {
 		message []byte,
 	) (*tsstypes.Signing, error)
 
-	MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, isActives bool)
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
 	GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (tsstypes.Member, error)
+	ActivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
+	DeactivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
 
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
