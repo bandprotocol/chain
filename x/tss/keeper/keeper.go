@@ -347,14 +347,6 @@ func (k Keeper) DeactivateMember(ctx sdk.Context, groupID tss.GroupID, address s
 	return k.SetMemberIsActive(ctx, groupID, address, false)
 }
 
-// MustSetMemberIsActive sets a boolean flag represent activeness of the user. This function requires
-// the member to be in the group. Panics error if not exists.
-func (k Keeper) MustSetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, status bool) {
-	if err := k.SetMemberIsActive(ctx, groupID, address, status); err != nil {
-		panic(err)
-	}
-}
-
 // GetLastExpiredGroupID retrieves the last expired group ID from the store.
 func (k Keeper) GetLastExpiredGroupID(ctx sdk.Context) tss.GroupID {
 	bz := ctx.KVStore(k.storeKey).Get(types.LastExpiredGroupIDStoreKey)
