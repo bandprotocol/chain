@@ -132,7 +132,7 @@ func (q queryServer) Signing(
 
 	return &types.QuerySigningResponse{
 		CurrentGroupSigningResult:   *currentGroupSigningResult,
-		ReplacingGroupSigningResult: replacingGroupSigningResult,
+		ReplacingGroupSigningResult: *replacingGroupSigningResult,
 	}, nil
 }
 

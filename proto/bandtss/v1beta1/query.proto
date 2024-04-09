@@ -108,5 +108,5 @@ message QuerySigningResponse {
   // current_group_signing_result is the signing result from the current group.
   SigningResult current_group_signing_result = 1 [(gogoproto.nullable) = false];
   // replacing_group_signing_result is the signing result from the replacing group.
-  SigningResult replacing_group_signing_result = 2;
+  SigningResult replacing_group_signing_result = 2 [(gogoproto.nullable) = false];
 }

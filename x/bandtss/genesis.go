@@ -3,7 +3,6 @@ package bandtss
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
@@ -22,10 +21,6 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetSigning(ctx, signingInfo)
 	}
 
-	data.SigningIDMappings = append(data.SigningIDMappings, types.SigningIDMappingGenesis{
-		SigningID:        tss.SigningID(10),
-		BandtssSigningID: types.SigningID(20),
-	})
 	for _, mapping := range data.SigningIDMappings {
 		k.SetSigningIDMapping(ctx, mapping.SigningID, mapping.BandtssSigningID)
 	}

@@ -26,7 +26,7 @@ var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 	// ParamsKeyPrefix is a prefix for keys that store bandtss's parameters
 	ParamsKeyPrefix = []byte{0x01}
-	// StatusStoreKeyPrefix is the prefix for status store.
+	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x02}
 	// GroupIDStoreKeyPrefix is the prefix for groupID store.
 	GroupIDStoreKeyPrefix = []byte{0x03}

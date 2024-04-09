@@ -212,6 +212,9 @@ func (k Keeper) HandleCreateSigning(
 // CheckRefundFee refunds the fee to the requester.
 func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error {
 	bandtssSigningID := k.GetSigningIDMapping(ctx, signing.ID)
+	if bandtssSigningID == 0 {
+		return types.ErrSigningNotFound
+	}
 
 	bandtssSigning, err := k.GetSigning(ctx, bandtssSigningID)
 	if err != nil {
